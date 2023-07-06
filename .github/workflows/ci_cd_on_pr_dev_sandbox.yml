@@ -76,12 +76,6 @@ jobs:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-          - name: backend-java
-            file: backend-java/openshift.deploy.yml
-            overwrite: true
-            parameters:
-              -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            triggers: ('backend-java/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
