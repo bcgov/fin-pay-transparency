@@ -1,0 +1,99 @@
+---
+version: "3.9"
+
+services:
+  database:
+    build:
+      context: database
+    container_name: database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    hostname: database
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    user: postgres
+    volumes:
+      - "./data:/var/lib/postgresql"
+    networks:
+      - default
+  database-migrations:
+    image: flyway/flyway:9.19-alpine
+    container_name: backend-migrations
+    command:
+      - info
+      - migrate
+      - info
+    volumes:
+      - "./backend/db/migrations:/flyway/sql"
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://database:5432/postgres
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=postgres
+      - FLYWAY_BASELINE_ON_MIGRATE=true
+      - FLYWAY_DEFAULT_SCHEMA=pay_transparency
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - default
+  backend:
+    image: backend:latest
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      POSTGRESQL_HOST: database
+      POSTGRESQL_USER: postgres
+      POSTGRESQL_PASSWORD: postgres
+      POSTGRESQL_DATABASE: postgres
+      POSTGRESQL_PORT: 5432
+    hostname: backend
+    links:
+      - database
+    ports:
+      - "3001:3000"
+    user: root
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+    depends_on:
+      database:
+        condition: service_healthy
+      database-migrations:
+        condition: service_started
+    networks:
+      - default
+  frontend:
+    container_name: frontend
+    entrypoint:
+      - "sh"
+      - "-c"
+      - "chown -R root . && npm ci && npm run dev"
+    environment:
+      NODE_ENV: development
+      BACKEND_URL: backend
+    hostname: frontend
+    image: registry.access.redhat.com/ubi8/nodejs-18-minimal
+    links:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app.ts:z
+      - /app.ts/node_modules
+    user: root
+    working_dir: "/app.ts"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge

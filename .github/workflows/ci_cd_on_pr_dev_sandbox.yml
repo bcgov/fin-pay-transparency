@@ -1,0 +1,98 @@
+name: Build And Deploy to Sandbox in Dev namespace
+
+on:
+  pull_request:
+
+concurrency:
+  # PR open and close use the same group, allowing only one at a time
+  group: pr-${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  builds:
+    name: Build Containers for OpenShift Deployment
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [backend, database, database-migrations, frontend]
+        include:
+          - package: backend
+            triggers: ('backend/')
+            build_file: ./backend/Dockerfile
+            build_context: ./backend
+          - package: database
+            triggers: ('database/')
+            build_file: ./database/Dockerfile
+            build_context: ./database
+          - package: frontend
+            triggers: ('frontend/')
+            build_file: ./frontend/Dockerfile
+            build_context: ./frontend
+          - package: database-migrations
+            triggers: ('backend/db')
+            build_file: ./backend/db/Dockerfile
+            build_context: ./backend/db
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/workflows/_build_containers.yml
+        with:
+          package: ${{ matrix.package }}
+          tag: ${{ github.event.number }}
+          tag_fallback: test
+          token: ${{ secrets.GITHUB_TOKEN }}
+          triggers: ${{ matrix.triggers }}
+          build_file: ${{ matrix.build_file }}
+          build_context: ${{ matrix.build_context }}
+
+
+  deploys:
+    name: Deploy Containers to OpenShift
+    needs:
+      - builds
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        name: [backend, database, init, frontend]
+        include:
+          - name: backend
+            file: backend/openshift.deploy.yml
+            overwrite: true
+            parameters:
+              -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:${{ github.event.number }}
+            triggers: ('database/', 'backend/', 'frontend/')
+            verification_path: /api
+          - name: database
+            file: database/openshift.deploy.yml
+            overwrite: false
+          - name: frontend
+            file: frontend/openshift.deploy.yml
+            overwrite: true
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+            triggers: ('database/', 'backend/', 'frontend/')
+          - name: init
+            file: common/openshift.init.yml
+            overwrite: false
+          - name: backend-java
+            file: backend-java/openshift.deploy.yml
+            overwrite: true
+            parameters:
+              -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+            triggers: ('backend-java/')
+    steps:
+      - uses: ./.github/workflows/_deploy_containers.yml
+        with:
+          file: ${{ matrix.file }}
+          oc_namespace: ${{ vars.OC_NAMESPACE }}
+          oc_server: ${{ vars.OC_SERVER }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          overwrite: ${{ matrix.overwrite }}
+          parameters:
+            -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
+            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
+            ${{ matrix.parameters }}
+          triggers: ${{ matrix.triggers }}
+          verification_path: ${{ matrix.verification_path }}

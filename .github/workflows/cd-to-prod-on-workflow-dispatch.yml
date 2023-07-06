@@ -1,0 +1,60 @@
+name: Deploy to PROD On Workflow Dispatch.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  image-promotions-to-prod:
+    name: Image Promotions to PROD
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [backend, database, database-migrations, frontend]
+    steps:
+      - uses: shrink/actions-docker-registry-tag@v3
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: test
+          tags: prod
+  deploys-prod:
+    name: Prod Deployments
+    needs: image-promotions-to-prod
+    environment: prod
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        name: [backend, database, frontend, init]
+        include:
+          - name: backend
+            file: backend/openshift.deploy.yml
+            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:prod
+            overwrite: true
+          - name: database
+            file: database/openshift.deploy.yml
+            overwrite: false
+          - name: frontend
+            file: frontend/openshift.deploy.yml
+            overwrite: true
+          - name: init
+            file: common/openshift.init.yml
+            overwrite: false
+    steps:
+      - uses: ./.github/workflows/_deploy_containers.yml
+        with:
+          file: ${{ matrix.file }}
+          oc_namespace: ${{ vars.OC_NAMESPACE }}
+          oc_server: ${{ vars.OC_SERVER }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          overwrite: ${{ matrix.overwrite }}
+          parameters:
+            -p ZONE=prod -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:prod
+            -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
+          penetration_test: true
+
