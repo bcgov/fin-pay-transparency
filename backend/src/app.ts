@@ -38,9 +38,9 @@ app.use(morgan("dev", {
     return req.baseUrl === "" || req.baseUrl === "/" || req.baseUrl === "/health";
   }
 }));
-app.get("/", (req, res, next) => {
+app.use(/(\/api)?/, apiRouter);
+apiRouter.get("/", (req, res, next) => {
   res.sendStatus(200);// generally for route verification.
 });
-app.use(/(\/api)?/, apiRouter);
 apiRouter.use("/v1/file-upload", fileUploadRouter);
 export {app};
