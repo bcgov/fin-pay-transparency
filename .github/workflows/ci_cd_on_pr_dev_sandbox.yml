@@ -80,6 +80,7 @@ jobs:
         include:
           - name: database
             file: database/openshift.deploy.yml
+            parameters: -p DB_PVC_SIZE=50Mi -p PVC_SIZE=10Mi
             overwrite: false
           - name: frontend
             file: frontend/openshift.deploy.yml
