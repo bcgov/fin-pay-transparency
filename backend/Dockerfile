@@ -7,15 +7,16 @@ COPY ./src ./src
 RUN npm ci --ignore-scripts && \
     npm run build
 
+RUN mkdir -p /app/sessions
 
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
 ENV NODE_ENV production
-RUN mkdir -p /mnt/sessions
 # Copy over app.ts
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/sessions ./sessions
 
 # Port and health check
 EXPOSE 3000

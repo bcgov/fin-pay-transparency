@@ -164,7 +164,7 @@ objects:
                       name: ${NAME}-${ZONE}-database
                       key: database-user
                 - name: SESSION_PATH
-                  value: '/mnt/sessions'
+                  value: '/app/sessions'
               ports:
                 - containerPort: 3000
                   protocol: TCP
@@ -194,7 +194,7 @@ objects:
                 periodSeconds: 30
                 timeoutSeconds: 5
               volumeMounts:
-                - mountPath: /mnt/sessions
+                - mountPath: /app/sessions
                   name: ${NAME}-${ZONE}-${COMPONENT}
           initContainers:
             - name: ${NAME}-${COMPONENT_DB_MIGRATION}
