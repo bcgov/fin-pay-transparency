@@ -49,6 +49,10 @@ parameters:
     value: database-migrations
   - name: KEYCLOAK_CLIENT_ID
     required: true
+  - name: KEYCLOAK_CLIENT_SECRET
+    required: true
+  - name: KEYCLOAK_URL
+    required: true
 objects:
   - apiVersion: v1
     kind: ImageStream
