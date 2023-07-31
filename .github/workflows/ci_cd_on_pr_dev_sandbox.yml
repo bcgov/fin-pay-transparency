@@ -50,6 +50,7 @@ jobs:
 
   deploys:
     name: Deploy Containers to OpenShift
+    environment: dev
     needs:
       - builds
     runs-on: ubuntu-22.04
