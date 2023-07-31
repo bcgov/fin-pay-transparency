@@ -25,7 +25,7 @@ jobs:
         include:
           - name: backend
             file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:dev
+            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:dev -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }} -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
             overwrite: true
           - name: database
             file: database/openshift.deploy.yml
@@ -47,5 +47,6 @@ jobs:
           parameters:
             -p ZONE=dev -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:dev
             -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
+
           penetration_test: true
 

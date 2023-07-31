@@ -1,10 +1,11 @@
 const http = require('http');
+import {config} from './config/index';
+
 const {logger} = require('./logger');
-const dotenv = require('dotenv');
-dotenv.config();
+
 const {app} = require('./app');
 const {AppDataSource} = require('./db/database');
-const port = normalizePort(process.env.PORT || 3000);
+const port = config.get('server:port');
 const server = http.createServer(app);
 AppDataSource.initialize().then(() => {
   app.set('port', port);

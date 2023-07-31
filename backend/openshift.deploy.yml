@@ -47,6 +47,8 @@ parameters:
   - name: COMPONENT_DB_MIGRATION
     description: Component name for database migrations
     value: database-migrations
+  - name: KEYCLOAK_CLIENT_ID
+    required: true
 objects:
   - apiVersion: v1
     kind: ImageStream
@@ -80,6 +82,19 @@ objects:
             name: ${REGISTRY}/${PROMOTE_MIGRATION}
           referencePolicy:
             type: Local
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: ${NAME}-${ZONE}-${COMPONENT}
+      labels:
+        app: ${NAME}-${ZONE}
+    spec:
+      accessModes:
+        - ReadWriteMany
+      resources:
+        requests:
+          storage: "100Mi"
+      storageClassName: netapp-file-standard
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
@@ -116,11 +131,21 @@ objects:
             app: ${NAME}-${ZONE}
             deploymentconfig: ${NAME}-${ZONE}-${COMPONENT}
         spec:
+          volumes:
+            - name: ${NAME}-${ZONE}-${COMPONENT}
+              persistentVolumeClaim:
+                claimName: ${NAME}-${ZONE}-${COMPONENT}
           containers:
             - image: ${NAME}-${ZONE}-${COMPONENT}:${IMAGE_TAG}
               imagePullPolicy: Always
               name: ${NAME}
               env:
+                - name: KEYCLOAK_CLIENT_ID
+                  value: ${KEYCLOAK_CLIENT_ID}
+                - name: KEYCLOAK_CLIENT_SECRET
+                  value: ${KEYCLOAK_CLIENT_SECRET}
+                - name: KEYCLOAK_URL
+                  value: ${KEYCLOAK_URL}
                 - name: POSTGRESQL_HOST
                   value: ${NAME}-${ZONE}-database
                 - name: POSTGRESQL_DATABASE
@@ -138,6 +163,8 @@ objects:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-user
+                - name: SESSION_PATH
+                  value: '/mnt/sessions'
               ports:
                 - containerPort: 3000
                   protocol: TCP
@@ -166,6 +193,9 @@ objects:
                 initialDelaySeconds: 60
                 periodSeconds: 30
                 timeoutSeconds: 5
+              volumeMounts:
+                - mountPath: /mnt/sessions
+                  name: ${NAME}-${ZONE}-${COMPONENT}
           initContainers:
             - name: ${NAME}-${COMPONENT_DB_MIGRATION}
               image: ${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}:${IMAGE_TAG}

@@ -60,9 +60,7 @@ jobs:
           - name: backend
             file: backend/openshift.deploy.yml
             overwrite: true
-            parameters:
-              -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:${{ github.event.number }}
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2 -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:${{ github.event.number }} -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }} -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
             triggers: ('database/', 'backend/', 'frontend/')
             verification_path: /api
           - name: database

@@ -11,7 +11,7 @@ RUN npm ci --ignore-scripts && \
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
 ENV NODE_ENV production
-
+RUN mkdiir -p /mnt/sessions
 # Copy over app.ts
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
