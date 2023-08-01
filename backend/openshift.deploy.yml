@@ -23,9 +23,9 @@ parameters:
   - name: MEMORY_REQUEST
     value: "30Mi"
   - name: CPU_LIMIT
-    value: "30m"
+    value: "45m"
   - name: MEMORY_LIMIT
-    value: "60Mi"
+    value: "90Mi"
   - name: MIN_REPLICAS
     description: The minimum amount of replicas for the horizontal pod autoscaler.
     value: "1"
@@ -169,7 +169,7 @@ objects:
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
+                      name: ${NAME}-${ZONE}
                       key: database-user
                 - name: SESSION_PATH
                   value: '/app/sessions'
@@ -213,12 +213,12 @@ objects:
                 - name: FLYWAY_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
+                      name: ${NAME}-${ZONE}
                       key: database-user
                 - name: FLYWAY_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
+                      name: ${NAME}-${ZONE}
                       key: database-password
                 - name: FLYWAY_BASELINE_ON_MIGRATE
                   value: "true"
