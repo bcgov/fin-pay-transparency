@@ -3,13 +3,11 @@ import passport from 'passport';
 import express from 'express';
 import {auth} from '../services/auth-service';
 import {logger as log} from '../../logger';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import {utils} from '../services/utils-service';
 
-import {
-  body,
-  validationResult
-} from 'express-validator';
+import {body, validationResult} from 'express-validator';
+
 const router = express.Router();
 
 
@@ -63,10 +61,9 @@ function addBaseRouterGet(strategyName, callbackURI) {
 addBaseRouterGet('oidcBusinessBceid', '/login_bceid');
 
 
-
 //removes tokens and destroys session
 router.get('/logout', async (req, res, next) => {
-  req.logout(function(err) {
+  req.logout(function (err) {
     if (err) {
       return next(err);
     }
@@ -139,20 +136,22 @@ router.get('/token', auth.refreshJWT, (req, res) => {
     res.status(401).json(UnauthorizedRsp);
   }
 });
+
 async function generateTokens(req, res) {
   const result = await auth.renew(req.user.refreshToken);
   if (result && result.jwt && result.refreshToken) {
     req.user.jwt = result.jwt;
     req.user.refreshToken = result.refreshToken;
-    /** req.user.jwtFrontend = auth.generateUiToken();
+    req.user.jwtFrontend = auth.generateUiToken();
     const responseJson = {
       jwtFrontend: req.user.jwtFrontend
-    }; **/
-    res.status(200).json({});
+    };
+    res.status(200).json(responseJson);
   } else {
     res.status(401).json(UnauthorizedRsp);
   }
 }
+
 router.get('/user-session-remaining-time', passport.authenticate('jwt', {session: false}), (req, res) => {
   if (req?.session?.cookie && req?.session?.passport?.user) {
     const remainingTime = req.session.cookie.maxAge;
