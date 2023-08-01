@@ -57,6 +57,16 @@ jobs:
     environment: dev
     runs-on: ubuntu-22.04
     steps:
+      - name: generate private and public key
+        id: generateKey
+        shell: bash
+        run: |
+          ssh-keygen -b 4096 -t rsa -f tempKey -m pem -q -N ""
+          echo "UI_PRIVATE_KEY_VAL=$(cat tempKey)" >> $GITHUB_OUTPUT
+          echo "UI_PUBLIC_KEY_VAL=$(ssh-keygen -f tempKey -e -m pem)" >> $GITHUB_OUTPUT
+          echo Removing key files
+          rm tempKey
+          rm tempKey.pub
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
           file: common/openshift.init.yml
@@ -68,7 +78,9 @@ jobs:
             -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
             -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }} 
             -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }} 
-            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} -p UI_PRIVATE_KEY=${{ steps.generateKey.outputs.UI_PRIVATE_KEY_VAL }} 
+            -p UI_PUBLIC_KEY=${{ steps.generateKey.outputs.UI_PUBLIC_KEY_VAL }}
+
 
   deploys:
     name: Deploy Containers to OpenShift

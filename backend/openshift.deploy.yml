@@ -139,6 +139,16 @@ objects:
               imagePullPolicy: Always
               name: ${NAME}
               env:
+                - name: PUBLIC_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: ui-public-key
+                - name: PRIVATE_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: ui-private-key
                 - name: KEYCLOAK_CLIENT_ID
                   valueFrom:
                     secretKeyRef:

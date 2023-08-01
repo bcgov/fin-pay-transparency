@@ -98,7 +98,7 @@ const auth = {
 
   generateUiToken() {
     const i = config.get('tokenGenerate:issuer');
-    const s = 'user@penrequest.ca';
+    const s = 'user@finpaytransparency.ca';
     const a = config.get('server:frontend');
     const signOptions = {
       issuer: i,

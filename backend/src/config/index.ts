@@ -20,10 +20,6 @@ config.defaults({
     clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
     discovery: process.env.KEYCLOAK_URL +'/realms/standard/.well-known/openid-configuration'
   },
-  frontendConfig: {
-    bannerEnvironment: process.env.BANNER_ENVIRONMENT,
-    bannerColor: process.env.BANNER_COLOR,
-  },
   tokenGenerate: {
     privateKey: process.env.PRIVATE_KEY,
     publicKey: process.env.PUBLIC_KEY,
