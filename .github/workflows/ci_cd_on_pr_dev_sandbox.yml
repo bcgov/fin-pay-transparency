@@ -64,9 +64,6 @@ jobs:
           ssh-keygen -b 4096 -t rsa -f tempKey -m pem -q -N ""
           echo "UI_PRIVATE_KEY_VAL=$(cat tempKey)" >> $GITHUB_OUTPUT
           echo "UI_PUBLIC_KEY_VAL=$(ssh-keygen -f tempKey -e -m pem)" >> $GITHUB_OUTPUT
-          echo Removing key files
-          rm tempKey
-          rm tempKey.pub
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
           file: common/openshift.init.yml
