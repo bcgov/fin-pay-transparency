@@ -54,7 +54,7 @@ parameters:
     description: Node Express logging level DEBUG, INFO, WARN, ERROR, PANIC, and FATAL
     value: "info"
   - name: SM_LOGOUT_ENDPOINT
-    value: "https://logontest.gov.bc.ca/clp-cgi/logoff.cgi"
+    value: "https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl="
 
 
 
@@ -218,9 +218,10 @@ objects:
                   path: /
                   port: 3000
                   scheme: HTTP
-                initialDelaySeconds: 60
-                periodSeconds: 15
-                timeoutSeconds: 5
+                initialDelaySeconds: 10
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 30
               livenessProbe:
                 successThreshold: 1
                 failureThreshold: 3
