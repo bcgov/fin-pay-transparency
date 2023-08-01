@@ -52,10 +52,9 @@ jobs:
 
 
   deploy-init:
+    if: '!github.event.pull_request.head.repo.fork'
     name: Deploy Init to OpenShift
     environment: dev
-    needs:
-      - builds
     runs-on: ubuntu-22.04
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
@@ -76,6 +75,7 @@ jobs:
     environment: dev
     needs:
       - deploy-init
+      - builds
     runs-on: ubuntu-22.04
     strategy:
       matrix:
