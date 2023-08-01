@@ -85,7 +85,7 @@ jobs:
             file: database/openshift.deploy.yml
             overwrite: false
           - name: backend
-            file: database/openshift.deploy.yml
+            file: backend/openshift.deploy.yml
             overwrite: true
             triggers: ('database/', 'backend/', 'frontend/')
             verification_path: /api
