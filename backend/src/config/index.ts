@@ -18,7 +18,7 @@ config.defaults({
     keycloakUrl: process.env.KEYCLOAK_URL,
     clientId: process.env.KEYCLOAK_CLIENT_ID,
     clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
-    discovery: process.env.KEYCLOAK_URL +'realms/standard/.well-known/openid-configuration'
+    discovery: process.env.KEYCLOAK_URL +'/realms/standard/.well-known/openid-configuration'
   },
   frontendConfig: {
     bannerEnvironment: process.env.BANNER_ENVIRONMENT,
