@@ -57,16 +57,6 @@ jobs:
     environment: dev
     runs-on: ubuntu-22.04
     steps:
-      - name: generate private and public key
-        id: generateKey
-        shell: bash
-        run: |
-          ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
-          openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
-          UI_PRIVATE_KEY_VAL=$(cat jwtRS256.key)  | tr " " "\n"
-          UI_PUBLIC_KEY_VAL=$(cat jwtRS256.key.pub)  | tr " " "\n"
-          echo "UI_PUBLIC_KEY=$UI_PUBLIC_KEY_VAL" >> $GITHUB_OUTPUT
-          echo "UI_PRIVATE_KEY=UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
           file: common/openshift.init.yml
@@ -78,8 +68,8 @@ jobs:
             -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
             -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }} 
             -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }} 
-            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} -p UI_PRIVATE_KEY=${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}
-            -p UI_PUBLIC_KEY=${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}
+            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} -p UI_PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}
+            -p UI_PUBLIC_KEY=${{ secrets.PUBLIC_KEY }}
 
 
   deploys:
