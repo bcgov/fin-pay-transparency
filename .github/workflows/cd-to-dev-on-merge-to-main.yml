@@ -1,12 +1,10 @@
 name: Merge to Main
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - ".github/ISSUE_TEMPLATE/*"
-      - "**.md"
+  workflow_run:
+    workflows: [ "Pull Request Closed" ]
+    types:
+      - completed
   workflow_dispatch:
 
 concurrency:
@@ -15,9 +13,29 @@ concurrency:
 
 jobs:
 
+  deploy-init:
+    name: Deploy Init to OpenShift
+    environment: dev
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
+        with:
+          file: common/openshift.init.yml
+          oc_namespace: ${{ vars.OC_NAMESPACE }}
+          oc_server: ${{ vars.OC_SERVER }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          overwrite: false
+          parameters:
+            -p ZONE=dev -p NAME=${{ github.event.repository.name }}
+            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:dev
+            -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+
   deploys-dev:
     name: Dev Deployments
     environment: dev
+    needs:
+      - deploy-init
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -25,14 +43,16 @@ jobs:
         include:
           - name: backend
             file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:dev -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }} -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:dev -p CPU_REQUEST=30m -p MEMORY_REQUEST=50Mi -p CPU_LIMIT=100m -p MEMORY_LIMIT=150Mi -p MIN_REPLICAS=3 -p MAX_REPLICAS=5
             overwrite: true
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
+            parameters: -p CPU_REQUEST=100m -p MEMORY_REQUEST=150Mi -p CPU_LIMIT=250m -p MEMORY_LIMIT=250Mi
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
+            parameters: -p CPU_REQUEST=25m -p MEMORY_REQUEST=40Mi -p CPU_LIMIT=75m -p MEMORY_LIMIT=80Mi -p MIN_REPLICAS=3 -p MAX_REPLICAS=5
           - name: init
             file: common/openshift.init.yml
             overwrite: false
@@ -47,6 +67,5 @@ jobs:
           parameters:
             -p ZONE=dev -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:dev
             -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
-
           penetration_test: true
 

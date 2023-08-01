@@ -19,19 +19,19 @@ parameters:
   - name: DOMAIN
     value: apps.silver.devops.gov.bc.ca
   - name: CPU_REQUEST
-    value: "75m"
+    value: "15m"
   - name: MEMORY_REQUEST
-    value: "50Mi"
+    value: "30Mi"
   - name: CPU_LIMIT
-    value: "300m"
+    value: "30m"
   - name: MEMORY_LIMIT
-    value: "150Mi"
+    value: "60Mi"
   - name: MIN_REPLICAS
     description: The minimum amount of replicas for the horizontal pod autoscaler.
-    value: "3"
+    value: "1"
   - name: MAX_REPLICAS
     description: The maximum amount of replicas for the horizontal pod autoscaler.
-    value: "5"
+    value: "1"
   - name: REGISTRY
     description: Container registry to import from (internal is image-registry.openshift-image-registry.svc:5000)
     value: ghcr.io
@@ -47,12 +47,7 @@ parameters:
   - name: COMPONENT_DB_MIGRATION
     description: Component name for database migrations
     value: database-migrations
-  - name: KEYCLOAK_CLIENT_ID
-    required: true
-  - name: KEYCLOAK_CLIENT_SECRET
-    required: true
-  - name: KEYCLOAK_URL
-    required: true
+
 objects:
   - apiVersion: v1
     kind: ImageStream
@@ -145,22 +140,31 @@ objects:
               name: ${NAME}
               env:
                 - name: KEYCLOAK_CLIENT_ID
-                  value: ${KEYCLOAK_CLIENT_ID}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: keycloak-client-id
                 - name: KEYCLOAK_CLIENT_SECRET
-                  value: ${KEYCLOAK_CLIENT_SECRET}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: keycloak-client-secret
                 - name: KEYCLOAK_URL
-                  value: ${KEYCLOAK_URL}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: keycloak-url
                 - name: POSTGRESQL_HOST
                   value: ${NAME}-${ZONE}-database
                 - name: POSTGRESQL_DATABASE
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
+                      name: ${NAME}-${ZONE}
                       key: database-name
                 - name: POSTGRESQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
+                      name: ${NAME}-${ZONE}
                       key: database-password
                 - name: POSTGRESQL_USER
                   valueFrom:

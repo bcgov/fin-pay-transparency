@@ -16,17 +16,26 @@ parameters:
     description: Password for the PostgreSQL connection user.
     from: "[a-zA-Z0-9]{16}"
     generate: expression
+  - name: KEYCLOAK_CLIENT_ID
+    required: true
+  - name: KEYCLOAK_CLIENT_SECRET
+    required: true
+  - name: KEYCLOAK_URL
+    required: true
 objects:
   - apiVersion: v1
     kind: Secret
     metadata:
-      name: ${NAME}-${ZONE}-${PG_DATABASE}
+      name: ${NAME}-${ZONE}
       labels:
         app: ${NAME}-${ZONE}
     stringData:
       database-name: ${NAME}
       database-password: ${DB_PASSWORD}
       database-user: ${NAME}
+      keycloak-client-id: ${KEYCLOAK_CLIENT_ID}
+      keycloak-client-secret: ${KEYCLOAK_CLIENT_SECRET}
+      keycloak-url: ${KEYCLOAK_URL}
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
     metadata:
