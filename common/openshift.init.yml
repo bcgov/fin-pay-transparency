@@ -22,6 +22,12 @@ parameters:
     required: true
   - name: KEYCLOAK_URL
     required: true
+  - name: UI_PRIVATE_KEY
+    description: Private key for the UI to use to connect to the backend.
+    required: true
+  - name: UI_PUBLIC_KEY
+    description: Public key for the UI to use to connect to the backend.
+    required: true
 objects:
   - apiVersion: v1
     kind: Secret
@@ -36,6 +42,8 @@ objects:
       keycloak-client-id: ${KEYCLOAK_CLIENT_ID}
       keycloak-client-secret: ${KEYCLOAK_CLIENT_SECRET}
       keycloak-url: ${KEYCLOAK_URL}
+      ui-private-key: ${UI_PRIVATE_KEY}
+      ui-public-key: ${UI_PUBLIC_KEY}
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
     metadata:
