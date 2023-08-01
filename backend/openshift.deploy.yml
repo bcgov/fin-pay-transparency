@@ -47,6 +47,9 @@ parameters:
   - name: COMPONENT_DB_MIGRATION
     description: Component name for database migrations
     value: database-migrations
+  - name: SESSION_PVC_SIZE
+    description: Size of the session PVC
+    value: "25Mi"
 
 objects:
   - apiVersion: v1
@@ -92,7 +95,7 @@ objects:
         - ReadWriteMany
       resources:
         requests:
-          storage: "100Mi"
+          storage: ${SESSION_PVC_SIZE}
       storageClassName: netapp-file-standard
   - apiVersion: v1
     kind: DeploymentConfig
