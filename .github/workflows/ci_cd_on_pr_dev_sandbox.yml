@@ -63,8 +63,10 @@ jobs:
         run: |
           ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
           openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
-          echo "UI_PRIVATE_KEY=$(cat jwtRS256.key)" >> $GITHUB_ENV
-          echo "UI_PUBLIC_KEY=$(cat jwtRS256.key.pub)" >> $GITHUB_ENV
+          UI_PRIVATE_KEY_VAL=$(cat jwtRS256.key)  | tr " " "\n"
+          UI_PUBLIC_KEY_VAL=$(cat jwtRS256.key.pub)  | tr " " "\n"
+          echo "UI_PUBLIC_KEY=$UI_PUBLIC_KEY_VAL" >> $GITHUB_OUTPUT
+          echo "UI_PRIVATE_KEY=UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
           file: common/openshift.init.yml
