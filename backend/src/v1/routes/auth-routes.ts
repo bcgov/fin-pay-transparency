@@ -63,20 +63,21 @@ addBaseRouterGet('oidcBusinessBceid', '/login_bceid');
 
 //removes tokens and destroys session
 router.get('/logout', async (req, res, next) => {
-  req.logout(function (err) {
+  req.logout(async function (err) {
     if (err) {
       return next(err);
     }
     req.session.destroy();
+    const discovery = await utils.getOidcDiscovery();
     let retUrl;
     if (req.query && req.query.sessionExpired) {
-      retUrl = encodeURIComponent(config.get('logoutEndpoint') + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/session-expired');
+      retUrl = encodeURIComponent( discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/session-expired');
     } else if (req.query && req.query.loginError) {
-      retUrl = encodeURIComponent(config.get('logoutEndpoint') + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/login-error');
+      retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/login-error');
     } else if (req.query && req.query.loginBceid) {
-      retUrl = encodeURIComponent(config.get('logoutEndpoint') + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/api/auth/login_bceid');
+      retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/api/auth/login_bceid');
     } else {
-      retUrl = encodeURIComponent(config.get('logoutEndpoint') + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/logout');
+      retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/logout');
     }
     res.redirect(config.get('siteMinder_logout_endpoint') + retUrl);
   });

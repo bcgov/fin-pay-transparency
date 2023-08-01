@@ -50,6 +50,13 @@ parameters:
   - name: SESSION_PVC_SIZE
     description: Size of the session PVC
     value: "25Mi"
+  - name: LOG_LEVEL
+    description: Node Express logging level DEBUG, INFO, WARN, ERROR, PANIC, and FATAL
+    value: "info"
+  - name: SM_LOGOUT_ENDPOINT
+    value: "https://logontest.gov.bc.ca/clp-cgi/logoff.cgi"
+
+
 
 objects:
   - apiVersion: v1
@@ -142,6 +149,16 @@ objects:
               imagePullPolicy: Always
               name: ${NAME}
               env:
+                - name: SERVER_FRONTEND
+                  value: https://${NAME}-${ZONE}-frontend.${DOMAIN}
+                - name: LOG_LEVEL
+                  value: ${LOG_LEVEL}
+                - name: AUDIENCE
+                  value: https://${NAME}-${ZONE}-frontend.${DOMAIN}
+                - name: ISSUER
+                  value: https://${NAME}-${ZONE}-backend.${DOMAIN}
+                - name: SITEMINDER_LOGOUT_ENDPOINT
+                  value: ${SM_LOGOUT_ENDPOINT}
                 - name: PUBLIC_KEY
                   valueFrom:
                     secretKeyRef:
