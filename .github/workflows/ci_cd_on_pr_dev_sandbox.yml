@@ -63,8 +63,8 @@ jobs:
         run: |
           ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
           openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
-          echo "UI_PRIVATE_KEY=$(cat jwtRS256.key)" >> $GITHUB_OUTPUT
-          echo "UI_PUBLIC_KEY=$(cat jwtRS256.key.pub)" >> $GITHUB_OUTPUT
+          echo "UI_PRIVATE_KEY=$(cat jwtRS256.key)" >> $GITHUB_ENV
+          echo "UI_PUBLIC_KEY=$(cat jwtRS256.key.pub)" >> $GITHUB_ENV
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
           file: common/openshift.init.yml
@@ -76,8 +76,8 @@ jobs:
             -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
             -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }} 
             -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }} 
-            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} -p UI_PRIVATE_KEY=${{ steps.generateKey.outputs.UI_PRIVATE_KEY }} 
-            -p UI_PUBLIC_KEY=${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}
+            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} -p UI_PRIVATE_KEY=${{ env.UI_PRIVATE_KEY }} 
+            -p UI_PUBLIC_KEY=${{ env.UI_PUBLIC_KEY }}
 
 
   deploys:
