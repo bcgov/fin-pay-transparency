@@ -78,7 +78,7 @@ function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) 
     }
 
     //set access and refresh tokens
-    profile.jwtFrontend = auth.generateUiToken();
+    //profile.jwtFrontend = auth.generateUiToken();
     profile.jwt = accessToken;
     profile._json = parseJwt(accessToken);
     profile.refreshToken = refreshToken;
@@ -98,7 +98,7 @@ const parseJwt = (token) => {
 utils.getOidcDiscovery().then(discovery => {
   //OIDC Strategy is used for authorization
   addLoginPassportUse(discovery, 'oidcBusinessBceid', config.get('server:frontend') + '/api/auth/callback_business_bceid', 'keycloak_bcdevexchange_bceid');
-  //JWT strategy is used for authorization
+  /*//JWT strategy is used for authorization
   passport.use('jwt', new JWTStrategy({
     algorithms: ['RS256'],
     // Keycloak 7.3.0 no longer automatically supplies matching client_id audience.
@@ -123,7 +123,7 @@ utils.getOidcDiscovery().then(discovery => {
       user_guid: jwtPayload.user_guid,
       realmRole: jwtPayload.realm_role
     });
-  }));
+  }));*/
 });
 //functions for serializing/deserializing users
 passport.serializeUser((user, next) => next(null, user));

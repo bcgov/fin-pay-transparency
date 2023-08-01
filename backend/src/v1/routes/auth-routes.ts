@@ -144,11 +144,11 @@ async function generateTokens(req, res) {
   if (result && result.jwt && result.refreshToken) {
     req.user.jwt = result.jwt;
     req.user.refreshToken = result.refreshToken;
-    req.user.jwtFrontend = auth.generateUiToken();
+    /** req.user.jwtFrontend = auth.generateUiToken();
     const responseJson = {
       jwtFrontend: req.user.jwtFrontend
-    };
-    res.status(200).json(responseJson);
+    }; **/
+    res.status(200).json({});
   } else {
     res.status(401).json(UnauthorizedRsp);
   }
