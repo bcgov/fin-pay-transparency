@@ -5,13 +5,14 @@ import HttpStatus from 'http-status-codes';
 import lodash from 'lodash';
 import {ApiError} from './error';
 import jsonwebtoken from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-import {LocalDateTime, DateTimeFormatter} from '@js-joda/core';
+import {v4 as uuidv4} from 'uuid';
+import {DateTimeFormatter, LocalDateTime} from '@js-joda/core';
 import {Locale} from '@js-joda/locale_en';
-let discovery = null;
 import cache from 'memory-cache';
-let memCache = new cache.Cache();
 import fsStringify from 'fast-safe-stringify';
+
+let discovery = null;
+let memCache = new cache.Cache();
 
 async function getOidcDiscovery() {
   if (!discovery) {
@@ -23,6 +24,22 @@ async function getOidcDiscovery() {
     }
   }
   return discovery;
+}
+
+async function getKeycloakPublicKey() {
+  try {
+    const response = await axios.get(config.get('oidc:keycloakUrl') + '/realms/standard');
+    const pubKey = response.data?.public_key;
+    if (pubKey) {
+      const soamFullPublicKey = `-----BEGIN PUBLIC KEY----- ${pubKey} -----END PUBLIC KEY-----`;
+      const newline = "\n";
+      return soamFullPublicKey.substring(0, 26) + newline + soamFullPublicKey.substring(27, 91) + newline + soamFullPublicKey.substring(91, 155) + newline + soamFullPublicKey.substring(155, 219) + newline + soamFullPublicKey.substring(219, 283) + newline + soamFullPublicKey.substring(283, 346) + newline + soamFullPublicKey.substring(346, 411) + newline + soamFullPublicKey.substring(411, 420) + newline + soamFullPublicKey.substring(420);
+
+    }
+  } catch (error) {
+    log.error('getOidcDiscovery', `OIDC Discovery failed - ${error.message}`);
+    throw error;
+  }
 }
 
 function minify(obj, keys = ['documentData']) {
@@ -242,12 +259,12 @@ function errorResponse(res, msg?, code?) {
 function handleExceptionResponse(e, res) {
   if (e.message === '404' || e.status === '404' || e.status === 404) {
     return res.status(HttpStatus.NOT_FOUND).json();
-  } else if(e.message === '403') {
+  } else if (e.message === '403') {
     return res.status(HttpStatus.FORBIDDEN).json({
       status: HttpStatus.FORBIDDEN,
       message: 'You do not have permission to access this information'
     });
-  } else if(e.message === '401'){
+  } else if (e.message === '401') {
     return res.status(HttpStatus.UNAUTHORIZED).json({
       status: HttpStatus.UNAUTHORIZED,
       message: 'Token is not valid'
@@ -326,10 +343,12 @@ function cacheMiddleware() {
     }
   };
 }
+
 function getBackendToken(req) {
   const thisSession = req.session;
   return thisSession && thisSession['passport'] && thisSession['passport'].user && thisSession['passport'].user.jwt;
 }
+
 function unauthorizedError(res) {
   return res.status(HttpStatus.UNAUTHORIZED).json({
     message: 'No access token'
@@ -368,6 +387,7 @@ const utils = {
   getCodes,
   cacheMiddleware,
   getCodeTable,
+  getKeycloakPublicKey,
 };
 
 export {utils};

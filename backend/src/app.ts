@@ -15,6 +15,7 @@ import {utils} from './v1/services/utils-service';
 import session from 'express-session';
 import {resolve} from 'path';
 import authRouter from './v1/routes/auth-routes';
+import userRouter from './v1/routes/user-info-routes';
 
 const {logger} = require("./logger");
 const JWTStrategy = require('passport-jwt').Strategy;
@@ -49,7 +50,7 @@ if ('local' === config.get('environment')) {
 }
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
 app.use(session({
-  name: 'edx_cookie',
+  name: 'fin_pay_transparency_cookie',
   secret: config.get('oidc:clientSecret'),
   resave: false,
   saveUninitialized: true,
@@ -71,17 +72,18 @@ function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) 
     callbackURL: callbackURI,
     scope: 'bceidbusiness',
     kc_idp_hint: kc_idp_hint
-  }, (_issuer, profile, _context, _idToken, accessToken, refreshToken, done) => {
+  }, (_issuer, profile, _context, idToken, accessToken, refreshToken, done) => {
     if ((typeof (accessToken) === 'undefined') || (accessToken === null) ||
       (typeof (refreshToken) === 'undefined') || (refreshToken === null)) {
       return done('No access token', null);
     }
 
     //set access and refresh tokens
-    //profile.jwtFrontend = auth.generateUiToken();
+    profile.jwtFrontend = auth.generateUiToken();
     profile.jwt = accessToken;
     profile._json = parseJwt(accessToken);
     profile.refreshToken = refreshToken;
+    profile.idToken= idToken;
     return done(null, profile);
   }));
 }
@@ -139,5 +141,6 @@ apiRouter.get("/", (req, res, next) => {
   res.sendStatus(200);// generally for route verification and health check.
 });
 apiRouter.use('/auth', authRouter);
+apiRouter.use('/user', userRouter);
 apiRouter.use("/v1/file-upload", fileUploadRouter);
 export {app};

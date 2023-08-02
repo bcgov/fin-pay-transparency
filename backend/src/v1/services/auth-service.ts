@@ -8,7 +8,7 @@ import HttpStatus from 'http-status-codes';
 import safeStringify from 'fast-safe-stringify';
 import {ApiError} from './error';
 import {pick} from 'lodash';
-
+let kcPublicKey;
 const auth = {
   // Check if JWT Access Token has expired
   isTokenExpired(token) {
@@ -24,6 +24,7 @@ const auth = {
     const payload = jsonwebtoken.decode(token);
 
     // Check if expiration exists, or lacks expiration
+
     return (typeof (payload.exp) !== 'undefined' && payload.exp !== null &&
       payload.exp === 0 || payload.exp > now);
   },
@@ -40,7 +41,7 @@ const auth = {
           client_secret: config.get('oidc:clientSecret'),
           grant_type: 'refresh_token',
           refresh_token: refreshToken,
-          scope: discovery.scopes_supported
+          scope: 'bceidbusiness'
         }), {
           headers: {
             Accept: 'application/json',
@@ -54,6 +55,7 @@ const auth = {
       if (response.data?.access_token && response.data?.refresh_token) {
         result.jwt = response.data.access_token;
         result.refreshToken = response.data.refresh_token;
+        result.idToken= response.data.id_token;
       } else {
         log.error('Access token or refresh token not retrieved properly');
       }
@@ -145,10 +147,17 @@ const auth = {
     }
   },
   isValidBackendToken() {
-    return function (req, res, next) {
+    return async function (req, res, next) {
+      if(!kcPublicKey){
+        kcPublicKey = await utils.getKeycloakPublicKey();
+        if(!kcPublicKey){
+          log.error('error is from getKeycloakPublicKey');
+          return res.status(HttpStatus.UNAUTHORIZED).json();
+        }
+      }
       if (req?.session?.passport?.user?.jwt) {
         try {
-          jsonwebtoken.verify(req.session.passport.user.jwt, config.get('oidc:publicKey'));
+          jsonwebtoken.verify(req.session.passport.user.jwt, kcPublicKey);
         } catch (e) {
           log.debug('error is from verify', e);
           return res.status(HttpStatus.UNAUTHORIZED).json();
@@ -161,6 +170,16 @@ const auth = {
         return res.status(HttpStatus.UNAUTHORIZED).json();
       }
     };
+  },
+  //TODO  call SOAP webservice of IDIM to get user info from BCeID
+  async  getUserInfo(req, res) {
+    const userInfo = req?.session?.passport?.user;
+    if (!userInfo || !userInfo.jwt || !userInfo._json ) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        message: 'No session data'
+      });
+    }
+    return res.status(HttpStatus.OK).json(userInfo._json);
   }
 };
 
