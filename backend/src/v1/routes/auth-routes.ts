@@ -37,9 +37,12 @@ function addOIDCRouterGet(strategyName, callbackURI, redirectURL) {
 
 router.get('/callback_business_bceid',
   passport.authenticate('oidcBusinessBceid', {
-    failureRedirect: 'error'
   }),
-  (req, res) => {
+  (err,req, res) => {
+  if(err){
+    console.error(err);
+    return res.redirect(config.get('server:frontend') + '/login-error');
+  }
     log.info(`Login flow callback bceid is called.`);
     const userInfo = utils.getSessionUser(req);
     const accessToken = userInfo.jwt;
