@@ -41,10 +41,13 @@ app.use(bodyParser.urlencoded({
 }));
 
 const cookie = {
-  secure: "auto",
+  secure: true,
   httpOnly: true,
   maxAge: 1800000 //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
+if ('local' === config.get('environment')) {
+  cookie.secure = false;
+}
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
 app.use(session({
