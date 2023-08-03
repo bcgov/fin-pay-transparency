@@ -37,7 +37,6 @@ function addOIDCRouterGet(strategyName, callbackURI, redirectURL) {
 
 router.get('/callback_business_bceid',
   passport.authenticate('oidcBusinessBceid', {
-    failureRedirect: 'error',
     failureMessage: true
   }),
   (req, res) => {
