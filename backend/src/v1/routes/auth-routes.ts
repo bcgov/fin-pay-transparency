@@ -42,6 +42,14 @@ router.get('/callback_business_bceid',
   }),
   (req, res) => {
     log.info(`Login flow callback bceid is called.`);
+    console.info('session');
+    console.info(req.session);
+    console.info('query');
+    console.info(req.query);
+    console.info('user');
+    console.info(req.user);
+    console.info('sessionStore:');
+    console.info(req.sessionStore);
     const userInfo = utils.getSessionUser(req);
     const accessToken = userInfo.jwt;
     const digitalID = userInfo._json.digitalIdentityID;
@@ -52,7 +60,14 @@ router.get('/callback_business_bceid',
 //a prettier way to handle errors
 router.get('/error', (req, res) => {
   log.error(`Login flow Error happened`);
-  console.error(req.session?.messages);
+  console.info('session');
+  console.info(req.session);
+  console.info('query');
+  console.info(req.query);
+  console.info('user');
+  console.info(req.user);
+  console.info('sessionStore:');
+  console.info(req.sessionStore);
   res.redirect(config.get('server:frontend') + '/login-error');
 });
 
