@@ -73,6 +73,7 @@ function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) 
     scope: 'bceidbusiness',
     kc_idp_hint: kc_idp_hint
   }, (_issuer, profile, _context, idToken, accessToken, refreshToken, done) => {
+    logger.info(`Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`);
     if ((typeof (accessToken) === 'undefined') || (accessToken === null) ||
       (typeof (refreshToken) === 'undefined') || (refreshToken === null)) {
       return done('No access token', null);

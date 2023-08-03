@@ -40,6 +40,7 @@ router.get('/callback_business_bceid',
     failureRedirect: 'error'
   }),
   (req, res) => {
+    log.info(`Login flow callback bceid is called.`);
     const userInfo = utils.getSessionUser(req);
     const accessToken = userInfo.jwt;
     const digitalID = userInfo._json.digitalIdentityID;
@@ -49,6 +50,7 @@ router.get('/callback_business_bceid',
 );
 //a prettier way to handle errors
 router.get('/error', (_req, res) => {
+  log.error(`Login flow Error happened`, _req);
   res.redirect(config.get('server:frontend') + '/login-error');
 });
 
