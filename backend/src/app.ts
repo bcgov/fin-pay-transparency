@@ -42,6 +42,7 @@ app.use(bodyParser.urlencoded({
 
 const cookie = {
   secure: true,
+  sameSite: false,
   httpOnly: true,
   maxAge: 1800000 //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
@@ -100,7 +101,7 @@ const parseJwt = (token) => {
 //initialize our authentication strategy
 utils.getOidcDiscovery().then(discovery => {
   //OIDC Strategy is used for authorization
-  addLoginPassportUse(discovery, 'oidcBusinessBceid', config.get('server:frontend') + '/api/auth/callback_business_bceid', 'keycloak_bcdevexchange_bceid');
+  addLoginPassportUse(discovery, 'oidcBusinessBceid', config.get('server:frontend') + '/api/auth/callback_business_bceid', 'bceidbusiness');
   //JWT strategy is used for authorization
   passport.use('jwt', new JWTStrategy({
     algorithms: ['RS256'],
