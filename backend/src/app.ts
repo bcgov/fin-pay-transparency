@@ -1,3 +1,5 @@
+import {MemoryStore} from "express-session";
+
 const express = require("express");
 const morgan = require("morgan");
 const nocache = require("nocache");
@@ -54,6 +56,7 @@ const sess= {
   resave: false,
   saveUninitialized: true,
   cookie: cookie,
+  store: new MemoryStore(),
   //store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
 };
 if ('production' === config.get('environment')) {
@@ -77,7 +80,8 @@ function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) 
     clientSecret: config.get('oidc:clientSecret'),
     callbackURL: callbackURI,
     scope: 'bceidbusiness',
-    kc_idp_hint: kc_idp_hint
+    kc_idp_hint: kc_idp_hint,
+    sessionKey: 'fin-pay-transparency',
   }, (_issuer, profile, _context, idToken, accessToken, refreshToken, done) => {
     logger.info(`Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`);
     if ((typeof (accessToken) === 'undefined') || (accessToken === null) ||
