@@ -41,20 +41,17 @@ app.use(bodyParser.urlencoded({
 }));
 
 const cookie = {
-  secure: true,
+  secure: "auto",
   httpOnly: true,
   maxAge: 1800000 //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
-if ('local' === config.get('environment')) {
-  cookie.secure = false;
-}
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
 app.use(session({
   name: 'fin_pay_transparency_cookie',
   secret: config.get('oidc:clientSecret'),
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: cookie,
   //store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
 }));
