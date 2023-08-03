@@ -27,7 +27,7 @@ const logStream = {
     logger.info(message);
   }
 };
-app.set("trust proxy", 1);
+
 app.use(cors());
 app.use(helmet());
 app.use(noCache());
@@ -41,23 +41,26 @@ app.use(bodyParser.urlencoded({
 }));
 
 const cookie = {
-  secure: true,
+  secure: false,
   httpOnly: true,
   maxAge: 1800000 //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
-if ('local' === config.get('environment')) {
-  cookie.secure = false;
-}
+
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
-app.use(session({
+const sess= {
   name: 'fin_pay_transparency_cookie',
   secret: config.get('oidc:clientSecret'),
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: cookie,
   //store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
-}));
+};
+if ('production' === config.get('environment')) {
+  app.set("trust proxy", 1);
+  sess.cookie.secure = true;
+}
+app.use(session(sess));
 //initialize routing and session. Cookies are now only reachable via requests (not js)
 app.use(passport.initialize());
 app.use(passport.session());

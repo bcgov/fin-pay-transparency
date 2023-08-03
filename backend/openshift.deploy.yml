@@ -149,6 +149,8 @@ objects:
               imagePullPolicy: Always
               name: ${NAME}
               env:
+                - name: NODE_ENV
+                  value: production
                 - name: SERVER_FRONTEND
                   value: https://${NAME}-${ZONE}-frontend.${DOMAIN}
                 - name: LOG_LEVEL
