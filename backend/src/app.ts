@@ -55,7 +55,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: cookie,
-  store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
+  //store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
 }));
 //initialize routing and session. Cookies are now only reachable via requests (not js)
 app.use(passport.initialize());
