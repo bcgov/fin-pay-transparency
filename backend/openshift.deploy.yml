@@ -21,11 +21,11 @@ parameters:
   - name: CPU_REQUEST
     value: "25m"
   - name: MEMORY_REQUEST
-    value: "100Mi"
+    value: "150Mi"
   - name: CPU_LIMIT
     value: "75m"
   - name: MEMORY_LIMIT
-    value: "250Mi"
+    value: "300Mi"
   - name: MIN_REPLICAS
     description: The minimum amount of replicas for the horizontal pod autoscaler.
     value: "1"
@@ -230,7 +230,7 @@ objects:
                   port: 3000
                   scheme: HTTP
                 initialDelaySeconds: 60
-                periodSeconds: 30
+                periodSeconds: 60
                 timeoutSeconds: 5
               volumeMounts:
                 - mountPath: /app/sessions
