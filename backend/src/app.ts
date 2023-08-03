@@ -41,14 +41,11 @@ app.use(bodyParser.urlencoded({
 }));
 
 const cookie = {
-  secure: true,
-  sameSite: false,
+  secure: "auto",
   httpOnly: true,
   maxAge: 1800000 //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
-if ('local' === config.get('environment')) {
-  cookie.secure = false;
-}
+
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
 app.use(session({
   name: 'fin_pay_transparency_cookie',
@@ -63,6 +60,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) {
+  logger.info(`Adding strategy ${strategyName} with callback ${callbackURI}`);
+  logger.info(`discovery: ${JSON.stringify(discovery)}`);
   passport.use(strategyName, new OidcStrategy({
     issuer: discovery.issuer,
     authorizationURL: discovery.authorization_endpoint,

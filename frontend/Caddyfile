@@ -24,8 +24,25 @@
   # Proxy requests to API service
   reverse_proxy /api/* {$BACKEND_URL} {
     header_up Host {http.reverse_proxy.upstream.hostport}
-    header_up X-Real-IP {remote_host}
-    header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Host {host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Uri {uri}
+        header_up X-Forwarded-Method {method}
+        header_up X-Forwarded-Proto {scheme}
+        header_up Authorization {http.request.header.Authorization}
+        header_up Accept {http.request.header.Accept}
+        header_up Content-Type {http.request.header.Content-Type}
+        header_up Content-Length {http.request.header.Content-Length}
+        header_up Cookie {http.request.header.Cookie}
+        header_up X-Frame-Options {http.request.header.X-Frame-Options}
+        header_up X-XSS-Protection {http.request.header.X-XSS-Protection}
+        header_up Cache-Control {http.request.header.Cache-Control}
+        header_up X-Content-Type-Options {http.request.header.X-Content-Type-Options}
+        header_up Strict-Transport-Security {http.request.header.Strict-Transport-Security}
+        header_up Content-Security-Policy {http.request.header.Content-Security-Policy}
+        header_up Referrer-Policy {http.request.header.Referrer-Policy}
+        header_up Feature-Policy {http.request.header.Feature-Policy}
   }
   header {
     X-Frame-Options "SAMEORIGIN"
