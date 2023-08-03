@@ -52,7 +52,7 @@ router.get('/callback_business_bceid',
 //a prettier way to handle errors
 router.get('/error', (req, res) => {
   log.error(`Login flow Error happened`);
-  log.error(req.session?.messages);
+  console.error(req.session?.messages);
   res.redirect(config.get('server:frontend') + '/login-error');
 });
 
