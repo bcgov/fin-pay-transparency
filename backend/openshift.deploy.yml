@@ -21,11 +21,11 @@ parameters:
   - name: CPU_REQUEST
     value: "25m"
   - name: MEMORY_REQUEST
-    value: "50Mi"
+    value: "100Mi"
   - name: CPU_LIMIT
     value: "75m"
   - name: MEMORY_LIMIT
-    value: "200Mi"
+    value: "250Mi"
   - name: MIN_REPLICAS
     description: The minimum amount of replicas for the horizontal pod autoscaler.
     value: "1"
@@ -49,7 +49,7 @@ parameters:
     value: database-migrations
   - name: SESSION_PVC_SIZE
     description: Size of the session PVC
-    value: "25Mi"
+    value: "75Mi"
   - name: LOG_LEVEL
     description: Node Express logging level DEBUG, INFO, WARN, ERROR, PANIC, and FATAL
     value: "info"

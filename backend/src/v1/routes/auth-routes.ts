@@ -38,8 +38,7 @@ function addOIDCRouterGet(strategyName, callbackURI, redirectURL) {
 router.get('/callback_business_bceid',
   passport.authenticate('oidcBusinessBceid', {
     failureRedirect: 'error',
-    failureMessage: true,
-    failureFlash: true
+    failureMessage: true
   }),
   (req, res) => {
     log.info(`Login flow callback bceid is called.`);
