@@ -4,6 +4,8 @@ on:
   push:
     branches:   
       - main
+    paths: 
+      - './backend/src/db/**'
   workflow_dispatch:
 
 concurrency:
