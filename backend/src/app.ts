@@ -43,7 +43,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 const cookie = {
-  secure: false,
   httpOnly: true,
   maxAge: 1800000 //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
@@ -61,7 +60,6 @@ const sess= {
 };
 if ('production' === config.get('environment')) {
   app.set("trust proxy", 1);
-  sess.cookie.secure = true;
 }
 app.use(session(sess));
 //initialize routing and session. Cookies are now only reachable via requests (not js)
