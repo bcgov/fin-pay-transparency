@@ -23,9 +23,31 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: dev
           tags: test
+  deploy-init:
+    name: Deploy Init to OpenShift
+    environment: test
+    needs:
+      - image-promotions-to-test
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
+        with:
+          file: common/openshift.init.yml
+          oc_namespace: ${{ vars.OC_NAMESPACE }}
+          oc_server: ${{ vars.OC_SERVER }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          overwrite: false
+          parameters:
+            -p ZONE=test -p NAME=${{ github.event.repository.name }}
+            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
+            -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+
   deploys-test:
     name: Test Deployments
-    needs: image-promotions-to-test
+    needs:
+      - image-promotions-to-test
+      - deploy-init
     environment: test
     runs-on: ubuntu-22.04
     strategy:
@@ -34,14 +56,16 @@ jobs:
         include:
           - name: backend
             file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:test
+            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:test -p CPU_REQUEST=30m -p MEMORY_REQUEST=50Mi -p CPU_LIMIT=100m -p MEMORY_LIMIT=150Mi -p MIN_REPLICAS=3 -p MAX_REPLICAS=5
             overwrite: true
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
+            parameters: -p CPU_REQUEST=100m -p MEMORY_REQUEST=150Mi -p CPU_LIMIT=250m -p MEMORY_LIMIT=250Mi -p PVC_SIZE=256Mi -p DB_PVC_SIZE=512Mi
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
+            parameters: -p CPU_REQUEST=25m -p MEMORY_REQUEST=40Mi -p CPU_LIMIT=75m -p MEMORY_LIMIT=80Mi -p MIN_REPLICAS=3 -p MAX_REPLICAS=5
           - name: init
             file: common/openshift.init.yml
             overwrite: false

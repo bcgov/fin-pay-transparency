@@ -2,6 +2,8 @@ name: Pull Request Closed
 
 on:
   pull_request:
+    branches:
+      - main
     types:
       - closed
 
@@ -13,6 +15,7 @@ concurrency:
 jobs:
   # Clean up OpenShift when PR closed, no conditions
   cleanup-openshift:
+    if: '!github.event.pull_request.head.repo.fork'
     name: Cleanup OpenShift
     runs-on: ubuntu-22.04
     steps:

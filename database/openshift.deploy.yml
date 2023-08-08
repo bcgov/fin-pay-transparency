@@ -20,7 +20,7 @@ parameters:
     description: Volume space available for data, e.g. 512Mi, 2Gi.
     displayName: Database Volume Capacity
     required: true
-    value: 256Mi
+    value: 56Mi
   - name: REGISTRY
     description: Container registry to import from (internal is image-registry.openshift-image-registry.svc:5000)
     value: ghcr.io
@@ -73,7 +73,7 @@ parameters:
     value: "0"
   - description: Volume space available for data, e.g. 512Mi, 2Gi.
     name: PVC_SIZE
-    value: 256Mi
+    value: 56Mi
   - name: CRON_MINUTES
     description: Random number, 0-60, for scheduling cronjobs
     from: "[0-5]{1}[0-9]{1}"
@@ -81,6 +81,14 @@ parameters:
   - name: PROMOTE
     description: Image (namespace/name:tag) to promote/import
     required: true
+  - name: CPU_REQUEST
+    value: "25m"
+  - name: MEMORY_REQUEST
+    value: "40Mi"
+  - name: CPU_LIMIT
+    value: "75m"
+  - name: MEMORY_LIMIT
+    value: "120Mi"
 objects:
   - kind: PersistentVolumeClaim
     apiVersion: v1
@@ -175,21 +183,28 @@ objects:
                 initialDelaySeconds: 30
                 periodSeconds: 15
                 timeoutSeconds: 1
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
               env:
                 - name: POSTGRES_DB
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-${COMPONENT}
+                      name: ${NAME}-${ZONE}
                       key: database-name
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-${COMPONENT}
+                      name: ${NAME}-${ZONE}
                       key: database-password
                 - name: POSTGRES_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-${COMPONENT}
+                      name: ${NAME}-${ZONE}
                       key: database-user
               volumeMounts:
                 - name: ${NAME}-${ZONE}-${COMPONENT}

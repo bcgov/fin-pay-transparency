@@ -21,12 +21,7 @@
     }
   }
   rewrite @spa_router {http.matchers.file.relative}
-  # Proxy requests to API service
-  reverse_proxy /api/* {$BACKEND_URL} {
-    header_up Host {http.reverse_proxy.upstream.hostport}
-    header_up X-Real-IP {remote_host}
-    header_up X-Forwarded-For {remote_host}
-  }
+
   header {
     X-Frame-Options "SAMEORIGIN"
     X-XSS-Protection "1;mode=block"
@@ -37,6 +32,8 @@
     Referrer-Policy "same-origin"
     Feature-Policy "fullscreen 'self'; camera 'none'; microphone 'none'"
   }
+  # Proxy requests to API service
+  reverse_proxy /api/* {$BACKEND_URL}
 }
 :3001 {
   handle /health {
