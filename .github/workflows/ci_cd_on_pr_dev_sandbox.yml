@@ -74,7 +74,7 @@ jobs:
           echo "$UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
-      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
+      - uses: bcgov-nr/action-deployer-openshift@v1.2.0
         with:
           file: common/openshift.init.yml
           oc_namespace: ${{ vars.OC_NAMESPACE }}
@@ -114,7 +114,7 @@ jobs:
             overwrite: true
             triggers: ('database/', 'backend/', 'frontend/')
     steps:
-      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
+      - uses: bcgov-nr/action-deployer-openshift@v1.2.0
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
