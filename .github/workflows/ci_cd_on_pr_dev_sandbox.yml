@@ -106,13 +106,11 @@ jobs:
           - name: backend
             file: backend/openshift.deploy.yml
             overwrite: true
-            triggers: ('database/', 'backend/', 'frontend/')
             verification_path: /api
             parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:${{ github.event.number }}
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
-            triggers: ('database/', 'backend/', 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
