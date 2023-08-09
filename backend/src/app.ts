@@ -1,5 +1,3 @@
-import {MemoryStore} from "express-session";
-
 const express = require("express");
 const morgan = require("morgan");
 const nocache = require("nocache");
@@ -55,8 +53,7 @@ const sess= {
   resave: false,
   saveUninitialized: true,
   cookie: cookie,
-  store: new MemoryStore(),
-  //store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
+  store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
 };
 if ('production' === config.get('environment')) {
   app.set("trust proxy", 1);
