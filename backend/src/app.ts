@@ -64,8 +64,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) {
-  logger.info(`Adding strategy ${strategyName} with callback ${callbackURI}`);
-  logger.info(`discovery: ${JSON.stringify(discovery)}`);
+  logger.debug(`Adding strategy ${strategyName} with callback ${callbackURI}`);
+  logger.debug(`discovery: ${JSON.stringify(discovery)}`);
   passport.use(strategyName, new OidcStrategy({
     issuer: discovery.issuer,
     authorizationURL: discovery.authorization_endpoint,
@@ -78,7 +78,7 @@ function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) 
     kc_idp_hint: kc_idp_hint,
     sessionKey: 'fin-pay-transparency',
   }, (_issuer, profile, _context, idToken, accessToken, refreshToken, done) => {
-    logger.info(`Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`);
+    logger.debug(`Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`);
     if ((typeof (accessToken) === 'undefined') || (accessToken === null) ||
       (typeof (refreshToken) === 'undefined') || (refreshToken === null)) {
       return done('No access token', null);
