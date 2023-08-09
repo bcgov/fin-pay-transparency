@@ -9,12 +9,20 @@ RUN npm ci --ignore-scripts && \
 
 RUN mkdir -p /app/sessions
 
+FROM node:18-bullseye-slim AS dependencies
+
+# Install packages, build and keep only prod packages
+WORKDIR /app
+COPY *.json ./
+RUN npm ci --omit=dev --ignore-scripts
+
+
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
 ENV NODE_ENV production
 # Copy over app.ts
 WORKDIR /app
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/sessions ./sessions
 
