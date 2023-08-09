@@ -73,7 +73,7 @@ jobs:
         include:
           - name: backend
             file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:prod -p CPU_REQUEST=30m -p MEMORY_REQUEST=50Mi -p CPU_LIMIT=100m -p MEMORY_LIMIT=150Mi -p MIN_REPLICAS=3 -p MAX_REPLICAS=5
+            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:prod -p CPU_REQUEST=50m -p MEMORY_REQUEST=150Mi -p CPU_LIMIT=150m -p MEMORY_LIMIT=300Mi -p MIN_REPLICAS=3 -p MAX_REPLICAS=5
             overwrite: true
           - name: database
             file: database/openshift.deploy.yml
