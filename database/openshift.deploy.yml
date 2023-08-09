@@ -82,13 +82,13 @@ parameters:
     description: Image (namespace/name:tag) to promote/import
     required: true
   - name: CPU_REQUEST
-    value: "25m"
+    value: "50m"
   - name: MEMORY_REQUEST
-    value: "40Mi"
+    value: "100Mi"
   - name: CPU_LIMIT
-    value: "75m"
+    value: "150m"
   - name: MEMORY_LIMIT
-    value: "120Mi"
+    value: "250Mi"
 objects:
   - kind: PersistentVolumeClaim
     apiVersion: v1
@@ -168,9 +168,9 @@ objects:
                     - bash
                     - -c
                     - psql -q -U $POSTGRES_USER -d $POSTGRES_DB -c 'SELECT 1'
-                failureThreshold: 5
-                initialDelaySeconds: 30
-                periodSeconds: 15
+                failureThreshold: 20
+                initialDelaySeconds: 5
+                periodSeconds: 5
                 timeoutSeconds: 1
               livenessProbe:
                 exec:
