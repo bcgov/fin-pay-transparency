@@ -41,10 +41,10 @@ jobs:
         include:
           - dir: backend
             sonar_projectKey: fin-pay-transparency_backend
-            token: SONAR_TOKEN
+            token: SONAR_TOKEN_BACKEND
           - dir: frontend
             sonar_projectKey: fin-pay-transparency_frontend
-            token: SONAR_TOKEN
+            token: SONAR_TOKEN_FRONTEND
     steps:
       - uses: bcgov-nr/action-test-and-analyse@v0.0.1
         with:
