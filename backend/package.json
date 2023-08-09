@@ -40,6 +40,7 @@
     "typescript": "5.1.3"
   },
   "scripts": {
+    "test:cov": "jest --coverage --detectOpenHandles --forceExit",
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts"
