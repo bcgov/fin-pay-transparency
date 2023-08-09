@@ -56,7 +56,7 @@ jobs:
             echo "$UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
             echo "$EOF" >> $GITHUB_OUTPUT
 
-      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
+      - uses: bcgov-nr/action-deployer-openshift@v1.2.1
         with:
           file: common/openshift.init.yml
           oc_namespace: ${{ vars.OC_NAMESPACE }}
@@ -94,7 +94,7 @@ jobs:
             parameters: -p CPU_REQUEST=25m -p MEMORY_REQUEST=40Mi -p CPU_LIMIT=75m -p MEMORY_LIMIT=80Mi -p MIN_REPLICAS=3 -p MAX_REPLICAS=5
 
     steps:
-      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
+      - uses: bcgov-nr/action-deployer-openshift@v1.2.1
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
