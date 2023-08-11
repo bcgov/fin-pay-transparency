@@ -43,4 +43,6 @@ jobs:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: ${{ github.event.number }}
-          tags: dev
+          tags: |
+            - dev
+            - ${{ github.sha }}

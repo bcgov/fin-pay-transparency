@@ -1,0 +1,10 @@
+apiVersion: v2
+appVersion: 2.0.1-12.4-latest
+description: A Helm chart for a Patroni Postgresql database cluster
+keywords:
+- patroni
+- postgresql
+- database
+name: patroni
+type: application
+version: 0.0.4

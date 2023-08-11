@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "backend.selectorLabels" . | nindent 8 }}
+    spec:
+      volumes:
+        - name: {{ include "backend.fullname" . }}
+          persistentVolumeClaim:
+            claimName: {{ include "backend.fullname" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: {{ include "backend.fullname" . }}-init
+          image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "backend.fullname" . }}-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          env:
+            - name: FLYWAY_URL
+              value: "jdbc:postgresql://{{.Release.Name}}-database-{{.Values.global.zone}}:5432/fin-pay-transparency"
+            - name: FLYWAY_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{ .Values.global.zone}}
+                  key: databaseUser
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{ .Values.global.zone}}
+                  key: databasePassword
+            - name: FLYWAY_BASELINE_ON_MIGRATE
+              value: "true"
+            - name: FLYWAY_DEFAULT_SCHEMA
+              value: "pay_transparency"
+      containers:
+        - name: {{ include "backend.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "backend.fullname" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: SERVER_FRONTEND
+              value: https://{{.Release.Name}}-{{.Values.global.zone}}-frontend.{{.Values.global.domain}}
+            - name: LOG_LEVEL
+              value: {{ .Values.app.env.logLevel }}
+            - name: AUDIENCE
+              value: https://{{.Release.Name}}-{{.Values.global.zone}}-frontend.{{.Values.global.domain}}
+            - name: ISSUER
+              value: https://{{.Release.Name}}-{{.Values.global.zone}}-backend.{{.Values.global.domain}}
+            - name: SITEMINDER_LOGOUT_ENDPOINT
+              value: {{ .Values.app.env.siteminderLogoutEndpoint }}
+            - name: PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: uiPublicKey
+            - name: PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: uiPrivateKey
+            - name: KEYCLOAK_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: keycloakClientId
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: keycloakClientSecret
+            - name: KEYCLOAK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: keycloakUrl
+            - name: POSTGRESQL_HOST
+              value: {{.Release.Name}}-database-{{.Values.global.zone}}
+            - name: POSTGRESQL_DATABASE
+              value: fin-pay-transparency
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: databasePassword
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: databaseUser
+            - name: SESSION_PATH
+              value: '/app/sessions'
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /app/sessions
+              name: {{ include "backend.fullname" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
