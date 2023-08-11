@@ -25,8 +25,8 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: dev
           tags: |
-           - test
-           - ${{ github.sha }}
+            test
+            ${{ github.sha }}
   deploys:
     name: Deploys
     needs: image-promotions-to-test

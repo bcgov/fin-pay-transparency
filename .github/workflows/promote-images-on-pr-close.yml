@@ -44,5 +44,5 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: ${{ github.event.number }}
           tags: |
-            - dev
-            - ${{ github.sha }}
+            dev
+            ${{ github.sha }}
