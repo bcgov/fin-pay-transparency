@@ -1,7 +1,7 @@
 name: Deploy to TEST On Workflow Dispatch.
 
 env:
-  deployment_name: pay_transparency
+  deployment_name: pay-transparency
 on:
   workflow_dispatch:
 
