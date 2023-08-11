@@ -135,4 +135,4 @@ backend/coverage
 frontend/dist
 .idea
 data
-```
+charts/fin-pay-transparency/values-local.yaml

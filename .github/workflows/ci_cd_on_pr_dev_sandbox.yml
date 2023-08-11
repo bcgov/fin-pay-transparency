@@ -49,14 +49,27 @@ jobs:
           triggers: ${{ matrix.triggers }}
           build_file: ${{ matrix.build_file }}
           build_context: ${{ matrix.build_context }}
+      
+      - uses: shrink/actions-docker-registry-tag@v3
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ github.event.number }}
+          tags: |
+            pr-${{ github.event.number }}
+            ${{ github.sha }}
+            ${{ github.event.number }}
 
 
-  deploy-init:
+  deploys:
     if: '!github.event.pull_request.head.repo.fork'
-    name: Deploy Init to OpenShift
+    name: Deploys
     environment: dev
+    needs:
+      - builds
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v3
       - name: generate private and public key
         id: generateKey
         shell: bash
@@ -73,56 +86,16 @@ jobs:
           echo "UI_PRIVATE_KEY<<$EOF" >> $GITHUB_OUTPUT
           echo "$UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
-
-      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
-        with:
-          file: common/openshift.init.yml
-          oc_namespace: ${{ vars.OC_NAMESPACE }}
-          oc_server: ${{ vars.OC_SERVER }}
-          oc_token: ${{ secrets.OC_TOKEN }}
-          overwrite: false
-          parameters:
-            -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
-            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }} 
-            -p KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }} -p KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }} 
-            -p KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }} -p UI_PRIVATE_KEY="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}"
-            -p UI_PUBLIC_KEY="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"
-
-
-  deploys:
-    name: Deploy Containers to OpenShift
-    environment: dev
-    needs:
-      - deploy-init
-      - builds
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        name: [database, backend, frontend]
-        include:
-          - name: database
-            file: database/openshift.deploy.yml
-            overwrite: false
-          - name: backend
-            file: backend/openshift.deploy.yml
-            overwrite: true
-            verification_path: /api
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:${{ github.event.number }}
-          - name: frontend
-            file: frontend/openshift.deploy.yml
-            overwrite: true
-    steps:
-      - uses: bcgov-nr/action-deployer-openshift@v1.1.1
-        with:
-          file: ${{ matrix.file }}
-          oc_namespace: ${{ vars.OC_NAMESPACE }}
-          oc_server: ${{ vars.OC_SERVER }}
-          oc_token: ${{ secrets.OC_TOKEN }}
-          overwrite: ${{ matrix.overwrite }}
-          parameters:
-            -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
-            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
-            ${{ matrix.parameters }}
-          triggers: ${{ matrix.triggers }}
-          verification_path: ${{ matrix.verification_path }}
+      - name: Deploy to OpenShift
+        shell: bash
+        run: |
+          # Allow pipefail, since we could be catching oc create errors
+          set +o pipefail
+          
+          # Login to OpenShift (NOTE: project command is a safeguard)
+          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+          oc project ${{ vars.oc_namespace }}
+          
+          # Deploy Helm Chart
+          helm upgrade --install --wait --atomic pay-transparency-${{ github.event.number }} --values charts/fin-pay-transparency/values-pr.yaml  --set backend.image.tag=${{ github.sha }} --set frontend.image.tag=${{ github.sha }} --set database.image.tag=${{ github.sha }} --set global.zone="pr-${{ github.event.number }}" --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --timeout 10m charts/fin-pay-transparency
 
