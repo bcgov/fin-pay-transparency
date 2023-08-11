@@ -60,13 +60,13 @@ spec:
             - name: NODE_ENV
               value: production
             - name: SERVER_FRONTEND
-              value: https://{{.Release.Name}}-{{.Values.global.zone}}-frontend.{{.Values.global.domain}}
+              value: https://{{.Release.Name}}-frontend-{{.Values.global.zone}}.{{.Values.global.domain}}
             - name: LOG_LEVEL
               value: {{ .Values.app.env.logLevel }}
             - name: AUDIENCE
-              value: https://{{.Release.Name}}-{{.Values.global.zone}}-frontend.{{.Values.global.domain}}
+              value: https://{{.Release.Name}}-frontend-{{.Values.global.zone}}.{{.Values.global.domain}}
             - name: ISSUER
-              value: https://{{.Release.Name}}-{{.Values.global.zone}}-backend.{{.Values.global.domain}}
+              value: https://{{.Release.Name}}-backend-{{.Values.global.zone}}.{{.Values.global.domain}}
             - name: SITEMINDER_LOGOUT_ENDPOINT
               value: {{ .Values.app.env.siteminderLogoutEndpoint }}
             - name: PUBLIC_KEY
