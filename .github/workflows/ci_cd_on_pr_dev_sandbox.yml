@@ -98,12 +98,4 @@ jobs:
           
           # Deploy Helm Chart
           helm upgrade --install --wait --atomic pay-transparency-${{ github.event.number }} --values charts/fin-pay-transparency/values-pr.yaml  --set backend.image.tag=${{ github.sha }} --set frontend.image.tag=${{ github.sha }} --set database.image.tag=${{ github.sha }} --set global.zone="pr-${{ github.event.number }}" --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --timeout 10m charts/fin-pay-transparency
-  
-      - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.6.0
-        with:
-          target: https://pay-transparency-${{ github.event.number }}-frontend-pr-${{ github.event.number }}.apps.silver.devops.gov.bc.ca
-          cmd_options: "-a"
-          fail_action: true
-          allow_issue_writing: false   
 

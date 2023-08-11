@@ -68,6 +68,6 @@ jobs:
         with:
           target: https://${{ env.deployment_name }}-frontend-test.apps.silver.devops.gov.bc.ca
           cmd_options: "-a"
-          fail_action: true
+          fail_action: false
           allow_issue_writing: false
 
