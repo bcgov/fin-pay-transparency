@@ -1,6 +1,6 @@
 name: Deploy to PROD On Workflow Dispatch.
 env:
-  deployment_name: pay_transparency
+  deployment_name: pay-transparency
 on:
   workflow_dispatch:
 

@@ -1,6 +1,6 @@
 name: Merge to Main
 env:
-  deployment_name: pay_transparency
+  deployment_name: pay-transparency
 on:
   workflow_run:
     workflows: [ "Pull Request Closed" ]
