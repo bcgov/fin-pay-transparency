@@ -1,25 +1,34 @@
-const {Entity, JoinColumn, OneToMany, PrimaryColumn, Column} = require('typeorm');
-import {ReportEntity} from './report-entity';
+import {ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 
-@Entity('company')
+const {Entity, JoinColumn, OneToMany, PrimaryColumn, Column} = require('typeorm');
+import {UserEntity} from "./user-entity";
+import {CompanyUserEntity} from "./companyuser-entity";
+
+@Entity('pay_transparency_company')
 export class CompanyEntity {
 
-  @PrimaryColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn("uuid")
+  company_id: string;
 
-  @Column({type: 'varchar', length: 200})
-  name: string;
+  @Column({ type: "uuid" })
+  bceid_business_guid: string;
 
-  @Column({type: 'varchar', length: 200})
-  address: string;
+  @Column({ type: "varchar", length: 255 })
+  company_name: string;
 
-  @Column({type: 'numeric'})
-  number_of_employees: number;
+  @Column({ type: "varchar", length: 255 })
+  company_address: string;
 
-  @OneToMany(() => ReportEntity, report => report.company, {
-    lazy: true,
-    cascade: true,
-    orphanedRowAction: 'delete'
-  })
-  reports: Promise<ReportEntity[]>;
+  @Column({ type: "varchar", length: 255 })
+  naics_code: string;
+
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  create_date: Date;
+
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  update_date: Date;
+
+  // Define one-to-many relation with pay_transparency_company_user
+  @OneToMany(() => CompanyUserEntity, (companyUser) => companyUser.company)
+  companyUsers: CompanyUserEntity[];
 }
