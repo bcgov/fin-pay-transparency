@@ -15,7 +15,7 @@
       <v-row no-gutters class="d-flex flex-column">
         <v-row class="d-flex justify-start ">
           <v-col cols="12">
-            <h2 class="text-center">Generate Report</h2>
+            <h2 class="text-center">Generate Reports</h2>
           </v-col>
           <v-col cols="12"
                  class="d-flex justify-center"

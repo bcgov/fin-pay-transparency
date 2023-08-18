@@ -7,8 +7,8 @@ metadata:
     {{- include "database.labels" . | nindent 4 }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.persistence.accessMode }}
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
-  storageClassName: netapp-file-standard
+  storageClassName: {{ .Values.persistence.storageClass }}
