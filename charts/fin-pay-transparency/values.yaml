@@ -140,7 +140,7 @@ database:
       memory: 100Mi
   persistence:
     enabled: true
-    size: 100Mi
+    size: 120Mi
     accessMode: ReadWriteMany
     storageClass: netapp-file-standard
 
