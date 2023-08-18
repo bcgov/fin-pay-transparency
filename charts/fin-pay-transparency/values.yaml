@@ -142,7 +142,7 @@ database:
     enabled: true
     size: 100Mi
     accessMode: ReadWriteMany
-    storageClass: netapp-block-standard
+    storageClass: netapp-file-standard
 
 backup:
   enabled: true
