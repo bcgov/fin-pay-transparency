@@ -49,7 +49,7 @@ backend:
     enabled: true
     minReplicas: 3
     maxReplicas: 5
-    targetCPUUtilizationPercentage: 80 # this percentage from request cpu
+    targetCPUUtilizationPercentage: 60 # this percentage from request cpu
   storage:
     enabled: true
     size: 50Mi
