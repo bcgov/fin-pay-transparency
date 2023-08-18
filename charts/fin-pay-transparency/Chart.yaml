@@ -34,9 +34,6 @@ dependencies:
   - name: database
     condition: database.enabled
     version: 0.1.0
-  - name: patroni
-    condition: patroni.enabled
-    version: 0.0.4
   - name: backup
     condition: backup.enabled
     version: 0.1.0

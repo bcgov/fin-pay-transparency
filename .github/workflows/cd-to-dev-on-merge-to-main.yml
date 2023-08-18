@@ -35,7 +35,7 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
-  
+
 
   deploys:
     name: Deploys
@@ -70,12 +70,12 @@ jobs:
           oc project ${{ vars.oc_namespace }}
           
           # Deploy Helm Chart
-          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set backend.image.tag=${{ github.sha }} --set frontend.image.tag=${{ github.sha }} --set database.image.tag=${{ github.sha }} --set global.zone=dev --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" --timeout 10m charts/fin-pay-transparency
-  
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set backend.image.tag=${{ github.sha }} --set frontend.image.tag=${{ github.sha }} --set database.image.tag=${{ github.sha }} --set global.zone=dev --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --timeout 10m charts/fin-pay-transparency
+
       - name: Penetration Test
         uses: zaproxy/action-full-scan@v0.6.0
         with:
           target: https://${{ env.deployment_name }}-frontend-dev.apps.silver.devops.gov.bc.ca
           cmd_options: "-a"
           fail_action: false
-          allow_issue_writing: false   
+          allow_issue_writing: false

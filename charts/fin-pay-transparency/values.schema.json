@@ -467,6 +467,9 @@
             "databaseUser": {
               "type": "string"
             },
+            "databaseName": {
+              "type": "string"
+            },
             "keycloakClientId": {
               "type": "string"
             },
@@ -495,6 +498,9 @@
           },
           "additionalProperties": false,
           "required": [
+            "databaseName",
+            "databasePassword",
+            "databaseUser",
             "keycloakClientId",
             "keycloakClientSecret",
             "keycloakUrl",
@@ -768,6 +774,6 @@
       "required": ["enabled"]
     }
   },
-  "required": ["nameOverride", "fullnameOverride", "backend", "frontend", "database", "global", "patroni", "backup"],
+  "required": ["nameOverride", "fullnameOverride", "backend", "frontend", "database", "global", "backup"],
   "additionalProperties": false
 }

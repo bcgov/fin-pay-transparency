@@ -35,7 +35,7 @@ spec:
 
           env:
             - name: FLYWAY_URL
-              value: "jdbc:postgresql://{{.Release.Name}}-database-{{.Values.global.zone}}:5432/fin-pay-transparency"
+              value: "jdbc:postgresql://{{.Release.Name}}-database-{{.Values.global.zone}}:5432/{{ .Values.global.secrets.databaseName}}"
             - name: FLYWAY_USER
               valueFrom:
                 secretKeyRef:
@@ -97,7 +97,10 @@ spec:
             - name: POSTGRESQL_HOST
               value: {{.Release.Name}}-database-{{.Values.global.zone}}
             - name: POSTGRESQL_DATABASE
-              value: fin-pay-transparency
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-{{.Values.global.zone}}
+                  key: databaseName
             - name: POSTGRESQL_PASSWORD
               valueFrom:
                 secretKeyRef:
