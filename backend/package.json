@@ -49,9 +49,10 @@
   },
   "scripts": {
     "test:cov": "jest --coverage --detectOpenHandles --forceExit",
-    "build": "prisma generate --schema=./src/v1/prisma/schema.prisma && tsc",
+    "build": "npm run generate && tsc",
+    "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
     "start": "node dist/server.js",
-    "dev": "prisma generate --schema=./src/v1/prisma/schema.prisma && nodemon src/server.ts"
+    "dev": "npm run generate && nodemon src/server.ts"
   },
   "jest": {
     "moduleFileExtensions": [
