@@ -1,9 +1,9 @@
 import {auth} from "../services/auth-service";
-
-const express = require("express");
+import express from "express";
 import passport from 'passport';
+
 const fileUploadRouter = express.Router();
-const {getCompanies, saveFileUpload} = require('../services/file-upload-service');
+import {getCompanies} from '../services/file-upload-service';
 fileUploadRouter.post("/",passport.authenticate('jwt', {session: false}, undefined), auth.isValidBackendToken(), async (req, res) => {
   //await saveFileUpload(req.body);
   console.log(req.body);

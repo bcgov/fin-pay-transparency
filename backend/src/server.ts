@@ -1,13 +1,16 @@
-const http = require('http');
+import http from 'http';
 import {config} from './config/index';
 
-const {logger} = require('./logger');
+import {logger} from './logger';
 
-const {app} = require('./app');
-const {AppDataSource} = require('./db/database');
+import {app} from './app';
+import prisma from './v1/prisma/prisma-client';
+
+// run inside `async` function
+
 const port = config.get('server:port');
 const server = http.createServer(app);
-AppDataSource.initialize().then(() => {
+prisma.$connect().then(() => {
   app.set('port', port);
   logger.info('Postgres initialized');
   server.listen(port);
@@ -74,14 +77,14 @@ function onListening() {
 }
 
 process.on('SIGINT', async () => {
-  await AppDataSource.destroy();
-  await server.close();
+  await prisma.$disconnect();
+  server.close();
   logger.info('process terminated by SIGINT');
   process.exit(0);
 });
 process.on('SIGTERM', async () => {
-  await AppDataSource.destroy();
-  await server.close();
+  await prisma.$disconnect();
+  server.close();
   logger.info('process terminated by SIGTERM');
   process.exit(0);
 });

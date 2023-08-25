@@ -1,9 +1,9 @@
-const express = require("express");
-const morgan = require("morgan");
-const nocache = require("nocache");
-const helmet = require("helmet");
-const cors = require("cors");
-const bodyParser = require("body-parser");
+import express from "express";
+
+import morgan from "morgan";
+import helmet from "helmet";
+import cors from "cors";
+import bodyParser from "body-parser";
 const app = express();
 const apiRouter = express.Router();
 import {fileUploadRouter} from './v1/routes/file-upload-routes';
@@ -17,7 +17,7 @@ import {resolve} from 'path';
 import authRouter from './v1/routes/auth-routes';
 import userRouter from './v1/routes/user-info-routes';
 
-const {logger} = require("./logger");
+import {logger} from "./logger";
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const OidcStrategy = require('passport-openidconnect-keycloak-idp').Strategy;
