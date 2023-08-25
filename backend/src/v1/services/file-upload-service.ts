@@ -1,15 +1,10 @@
-import {CompanyEntity} from "../entities/company-entity";
-
-const {AppDataSource} = require('../../db/database');
-
+import prisma from '../prisma/prisma-client';
 async function saveFileUpload(fileUpload) {
-  const fileUploadRepository = await AppDataSource.getRepository(CompanyEntity);
-  return fileUploadRepository.save(fileUpload);
+  return prisma.pay_transparency_company.create({data: {...fileUpload}});
 }
 
 async function getCompanies() {
-  const fileUploadRepository = await AppDataSource.getRepository(CompanyEntity);
-  return fileUploadRepository.find();
+  return prisma.pay_transparency_company.findMany();
 }
 
 export {saveFileUpload, getCompanies};

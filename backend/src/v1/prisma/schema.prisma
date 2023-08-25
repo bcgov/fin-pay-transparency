@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model company_history {
+  company_history_id       String                   @id(map: "company_history_pk") @db.Uuid
+  company_id               String                   @db.Uuid
+  bceid_business_guid      String                   @db.Uuid
+  company_name             String                   @db.VarChar(255)
+  company_address          String                   @db.VarChar(255)
+  create_date              DateTime                 @default(now()) @db.Timestamp(6)
+  update_date              DateTime                 @default(now()) @db.Timestamp(6)
+  create_user              String?                  @db.VarChar(255)
+  update_user              String?                  @db.VarChar(255)
+  pay_transparency_company pay_transparency_company @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "company_history_company_id_fk")
+}
+
+model employee_count_range {
+  employee_count_range_id String                    @id(map: "employee_count_range_id_pk") @db.Uuid
+  employee_count_range    String                    @db.VarChar(255)
+  create_date             DateTime                  @default(now()) @db.Timestamp(6)
+  update_date             DateTime                  @default(now()) @db.Timestamp(6)
+  effective_date          DateTime                  @default(now()) @db.Timestamp(6)
+  expiry_date             DateTime                  @default(now()) @db.Timestamp(6)
+  create_user             String                    @db.VarChar(255)
+  update_user             String                    @db.VarChar(255)
+  pay_transparency_report pay_transparency_report[]
+  report_history          report_history[]
+}
+
+model flyway_schema_history {
+  installed_rank Int      @id(map: "flyway_schema_history_pk")
+  version        String?  @db.VarChar(50)
+  description    String   @db.VarChar(200)
+  type           String   @db.VarChar(20)
+  script         String   @db.VarChar(1000)
+  checksum       Int?
+  installed_by   String   @db.VarChar(100)
+  installed_on   DateTime @default(now()) @db.Timestamp(6)
+  execution_time Int
+  success        Boolean
+
+  @@index([success], map: "flyway_schema_history_s_idx")
+}
+
+model naics_code {
+  naics_code                                                             String                    @id(map: "naics_code_id_pk") @db.VarChar(255)
+  naics_label                                                            String                    @db.VarChar(255)
+  naics_code_desc                                                        String                    @db.VarChar(255)
+  effective_date                                                         DateTime                  @default(now()) @db.Timestamp(6)
+  expiry_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
+  create_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
+  update_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
+  create_user                                                            String                    @db.VarChar(255)
+  update_user                                                            String                    @db.VarChar(255)
+  pay_transparency_report_pay_transparency_report_naics_codeTonaics_code pay_transparency_report[] @relation("pay_transparency_report_naics_codeTonaics_code")
+}
+
+model pay_transparency_calculated_data {
+  calculated_data_id                String                  @id(map: "calculated_data_pk") @db.Uuid
+  report_id                         String                  @db.Uuid
+  average_hourly_wage               Decimal                 @db.Decimal
+  percentage_average_hourly_wage    Decimal                 @db.Decimal
+  percentage_reference_category     String                  @db.VarChar(255)
+  gender                            String                  @db.VarChar(1)
+  received_overtime_pay             Decimal                 @db.Decimal
+  received_bonus_pay                Decimal                 @db.Decimal
+  mean_hourly_pay_rate_difference   Decimal                 @db.Decimal
+  median_hourly_pay_rate_difference Decimal                 @db.Decimal
+  mean_overtime_pay_difference      Decimal                 @db.Decimal
+  median_overtime_pay_difference    Decimal                 @db.Decimal
+  mean_overtime_hours_difference    Decimal                 @db.Decimal
+  median_overtime_hours_difference  Decimal                 @db.Decimal
+  mean_bonus_pay_difference         Decimal                 @db.Decimal
+  median_bonus_pay_difference       Decimal                 @db.Decimal
+  pay_transparency_report           pay_transparency_report @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_report_id_fk")
+}
+
+model pay_transparency_company {
+  company_id              String                    @id(map: "company_id_pk") @db.Uuid
+  bceid_business_guid     String                    @unique(map: "company_bceid_business_guid_uk") @db.Uuid
+  company_name            String                    @db.VarChar(255)
+  company_address         String                    @db.VarChar(255)
+  create_date             DateTime                  @default(now()) @db.Timestamp(6)
+  update_date             DateTime                  @default(now()) @db.Timestamp(6)
+  company_history         company_history[]
+  pay_transparency_report pay_transparency_report[]
+  report_history          report_history[]
+}
+
+model pay_transparency_input_data {
+  report_id               String                  @db.Uuid
+  input_data_id           String                  @id(map: "input_data_pk") @db.Uuid
+  employee_number         String                  @db.VarChar(10)
+  gender_code             String                  @db.VarChar(1)
+  hours_worked            Decimal                 @db.Decimal
+  regular_pay             Decimal                 @db.Decimal
+  special_pay             Decimal                 @db.Decimal
+  overtime_pay            Decimal                 @db.Decimal
+  overtime_hours          Decimal                 @db.Decimal
+  bonus_pay               Decimal                 @db.Decimal
+  pay_transparency_report pay_transparency_report @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "input_data_report_id_fk")
+}
+
+model pay_transparency_report {
+  report_id                                                 String                                    @id(map: "report_id_pk") @db.Uuid
+  company_id                                                String                                    @db.Uuid
+  user_id                                                   String                                    @db.Uuid
+  user_comment                                              String                                    @db.VarChar(4000)
+  employee_count_range_id                                   String                                    @db.Uuid
+  naics_code                                                String                                    @db.VarChar(255)
+  report_data                                               Bytes
+  report_start_date                                         DateTime                                  @default(now()) @db.Timestamp(6)
+  report_end_date                                           DateTime                                  @default(now()) @db.Timestamp(6)
+  create_date                                               DateTime                                  @default(now()) @db.Timestamp(6)
+  update_date                                               DateTime                                  @default(now()) @db.Timestamp(6)
+  create_user                                               String                                    @db.VarChar(255)
+  update_user                                               String                                    @db.VarChar(255)
+  pay_transparency_calculated_data                          pay_transparency_calculated_data[]
+  pay_transparency_input_data                               pay_transparency_input_data[]
+  naics_code_pay_transparency_report_naics_codeTonaics_code naics_code                                @relation("pay_transparency_report_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_naics_code_fk")
+  employee_count_range                                      employee_count_range                      @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_employee_count_range_id_fk")
+  pay_transparency_company                                  pay_transparency_company                  @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_pt_company_id_fk")
+  pay_transparency_user                                     pay_transparency_user                     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_pt_user_id_fk")
+  pay_transparency_suppressed_report_data                   pay_transparency_suppressed_report_data[]
+  report_history                                            report_history[]
+}
+
+model pay_transparency_suppressed_report_data {
+  suppressed_report_data_id         String                  @id(map: "suppressed_report_data_pk") @db.Uuid
+  report_id                         String                  @db.Uuid
+  average_hourly_wage               Decimal                 @db.Decimal
+  percentage_average_hourly_wage    Decimal                 @db.Decimal
+  percentage_reference_category     String                  @db.VarChar(255)
+  gender                            String                  @db.VarChar(1)
+  received_overtime_pay             Decimal                 @db.Decimal
+  received_bonus_pay                Decimal                 @db.Decimal
+  mean_hourly_pay_rate_difference   Decimal                 @db.Decimal
+  median_hourly_pay_rate_difference Decimal                 @db.Decimal
+  mean_overtime_pay_difference      Decimal                 @db.Decimal
+  median_overtime_pay_difference    Decimal                 @db.Decimal
+  mean_overtime_hours_difference    Decimal                 @db.Decimal
+  median_overtime_hours_difference  Decimal                 @db.Decimal
+  mean_bonus_pay_difference         Decimal                 @db.Decimal
+  median_bonus_pay_difference       Decimal                 @db.Decimal
+  pay_transparency_report           pay_transparency_report @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_report_id_fk")
+}
+
+model pay_transparency_user {
+  user_id                 String                    @id(map: "user_id_pk") @db.Uuid
+  bceid_user_guid         String                    @db.Uuid
+  bceid_business_guid     String                    @db.Uuid
+  display_name            String                    @db.VarChar(255)
+  create_date             DateTime                  @default(now()) @db.Timestamp(6)
+  update_date             DateTime                  @default(now()) @db.Timestamp(6)
+  pay_transparency_report pay_transparency_report[]
+  report_history          report_history[]
+}
+
+model report_history {
+  report_history_id        String                   @id(map: "report_history_pk") @db.Uuid
+  report_id                String                   @db.Uuid
+  company_id               String                   @db.Uuid
+  user_id                  String                   @db.Uuid
+  employee_count_range_id  String                   @db.Uuid
+  user_comment             String                   @db.VarChar(4000)
+  report_data              Bytes
+  report_start_date        DateTime                 @default(now()) @db.Timestamp(6)
+  report_end_date          DateTime                 @default(now()) @db.Timestamp(6)
+  create_date              DateTime                 @default(now()) @db.Timestamp(6)
+  update_date              DateTime                 @default(now()) @db.Timestamp(6)
+  create_user              String?                  @db.VarChar(255)
+  update_user              String?                  @db.VarChar(255)
+  pay_transparency_company pay_transparency_company @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_company_id_fk")
+  employee_count_range     employee_count_range     @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_employee_count_range_id_fk")
+  pay_transparency_report  pay_transparency_report  @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_report_id_fk")
+  pay_transparency_user    pay_transparency_user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_user_id_fk")
+}

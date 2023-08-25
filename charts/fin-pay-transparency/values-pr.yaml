@@ -148,7 +148,7 @@ database:
   persistence:
     enabled: true
     size: 60Mi
-    accessMode: ReadWriteOnce
+    accessMode: ReadWriteMany
     storageClass: netapp-block-standard
 
 backup:
