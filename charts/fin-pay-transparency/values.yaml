@@ -44,6 +44,13 @@ backend:
     requests:
       cpu: 50m
       memory: 250Mi
+  initResources:
+    limits:
+      cpu: 350m
+      memory: 500Mi
+    requests:
+      cpu: 150m
+      memory: 250Mi
 
   autoscaling:
     enabled: true
