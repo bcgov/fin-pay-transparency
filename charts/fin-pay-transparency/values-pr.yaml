@@ -36,7 +36,13 @@ backend:
     port: 80
     targetPort: 3000
 
-
+  initResources:
+    limits:
+      cpu: 350m
+      memory: 500Mi
+    requests:
+      cpu: 150m
+      memory: 250Mi
   resources:
     limits:
       cpu: 100m
