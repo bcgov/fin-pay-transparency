@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<database name="default" schema="pay_transparency" type="PostgreSQL - 15.4 (Debian 15.4-1.pgdg120+1)">
+   <tables>
+      <table name="company_history" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="company_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="company_id" foreignKey="company_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="bceid_business_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="company_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="company_address" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="create_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="update_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="company_history_id" sequenceNumberInPK="1"/>
+         <index name="company_history_pk" unique="true">
+            <column ascending="true" name="company_history_id"/>
+         </index>
+      </table>
+      <table name="employee_count_range" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="employee_count_range_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="employee_count_range_id" foreignKey="report_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+            <child column="employee_count_range_id" foreignKey="report_history_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="employee_count_range" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="2" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="effective_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="expiry_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="employee_count_range_id" sequenceNumberInPK="1"/>
+         <index name="employee_count_range_id_pk" unique="true">
+            <column ascending="true" name="employee_count_range_id"/>
+         </index>
+      </table>
+      <table name="flyway_schema_history" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="installed_rank" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="version" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="false" remarks="" size="200" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="type" nullable="false" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="script" nullable="false" remarks="" size="1000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="checksum" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="installed_by" nullable="false" remarks="" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="7" name="installed_on" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="execution_time" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="success" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <primaryKey column="installed_rank" sequenceNumberInPK="1"/>
+         <index name="flyway_schema_history_pk" unique="true">
+            <column ascending="true" name="installed_rank"/>
+         </index>
+         <index name="flyway_schema_history_s_idx" unique="false">
+            <column ascending="true" name="success"/>
+         </index>
+      </table>
+      <table name="naics_code" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="naics_code" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <child column="naics_code" foreignKey="pay_transparency_report_naics_code_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="naics_label" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="naics_code_desc" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="effective_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="expiry_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="naics_code" sequenceNumberInPK="1"/>
+         <index name="naics_code_id_pk" unique="true">
+            <column ascending="true" name="naics_code"/>
+         </index>
+      </table>
+      <table name="pay_transparency_calculated_data" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="calculated_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="average_hourly_wage" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="percentage_average_hourly_wage" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="percentage_reference_category" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="gender" nullable="false" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="received_overtime_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="received_bonus_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="mean_hourly_pay_rate_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="median_hourly_pay_rate_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="mean_overtime_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="median_overtime_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="mean_overtime_hours_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="median_overtime_hours_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="mean_bonus_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="median_bonus_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <primaryKey column="calculated_data_id" sequenceNumberInPK="1"/>
+         <index name="calculated_data_pk" unique="true">
+            <column ascending="true" name="calculated_data_id"/>
+         </index>
+      </table>
+      <table name="pay_transparency_company" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="company_id" foreignKey="company_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="company_history"/>
+            <child column="company_id" foreignKey="report_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+            <child column="company_id" foreignKey="report_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="bceid_business_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="company_address" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="company_id" sequenceNumberInPK="1"/>
+         <index name="company_id_pk" unique="true">
+            <column ascending="true" name="company_id"/>
+         </index>
+         <index name="company_bceid_business_guid_uk" unique="true">
+            <column ascending="true" name="bceid_business_guid"/>
+         </index>
+      </table>
+      <table name="pay_transparency_input_data" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_id" foreignKey="input_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="input_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="employee_number" nullable="false" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="gender_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="hours_worked" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="regular_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="special_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="overtime_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="overtime_hours" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="bonus_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <primaryKey column="input_data_id" sequenceNumberInPK="1"/>
+         <index name="input_data_pk" unique="true">
+            <column ascending="true" name="input_data_id"/>
+         </index>
+      </table>
+      <table name="pay_transparency_report" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
+            <child column="report_id" foreignKey="input_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_input_data"/>
+            <child column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_suppressed_report_data"/>
+            <child column="report_id" foreignKey="report_history_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="company_id" foreignKey="report_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="user_id" foreignKey="report_pt_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="user_comment" nullable="false" remarks="" size="4000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="employee_count_range_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="employee_count_range_id" foreignKey="report_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="employee_count_range"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="naics_code" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="naics_code" foreignKey="pay_transparency_report_naics_code_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="naics_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="report_data" nullable="false" remarks="" size="2147483647" type="bytea" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="7" name="report_start_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="report_end_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="9" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="10" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="report_id" sequenceNumberInPK="1"/>
+         <index name="report_id_pk" unique="true">
+            <column ascending="true" name="report_id"/>
+         </index>
+      </table>
+      <table name="pay_transparency_suppressed_report_data" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="suppressed_report_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="average_hourly_wage" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="percentage_average_hourly_wage" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="percentage_reference_category" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="gender" nullable="false" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="received_overtime_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="received_bonus_pay" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="mean_hourly_pay_rate_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="median_hourly_pay_rate_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="mean_overtime_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="median_overtime_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="mean_overtime_hours_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="median_overtime_hours_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="mean_bonus_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="median_bonus_pay_difference" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <primaryKey column="suppressed_report_data_id" sequenceNumberInPK="1"/>
+         <index name="suppressed_report_data_pk" unique="true">
+            <column ascending="true" name="suppressed_report_data_id"/>
+         </index>
+      </table>
+      <table name="pay_transparency_user" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="user_id" foreignKey="report_pt_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+            <child column="user_id" foreignKey="report_history_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="bceid_user_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="bceid_business_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="display_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="user_id" sequenceNumberInPK="1"/>
+         <index name="user_id_pk" unique="true">
+            <column ascending="true" name="user_id"/>
+         </index>
+      </table>
+      <table name="report_history" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="report_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_id" foreignKey="report_history_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="company_id" foreignKey="report_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="user_id" foreignKey="report_history_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="employee_count_range_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="employee_count_range_id" foreignKey="report_history_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="employee_count_range"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="user_comment" nullable="false" remarks="" size="4000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="report_data" nullable="false" remarks="" size="2147483647" type="bytea" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="7" name="report_start_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="report_end_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="9" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="10" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="create_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="update_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
+         <index name="report_history_pk" unique="true">
+            <column ascending="true" name="report_history_id"/>
+         </index>
+      </table>
+   </tables>
+</database>
