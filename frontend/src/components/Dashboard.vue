@@ -41,16 +41,17 @@
             ></v-text-field>
           </v-col>
 
-          <v-col cols="4"
+          <v-col cols="5"
                  class="d-flex justify-center"
           >
-            <v-text-field
+            <v-combobox
                 id="employeeCount"
                 v-model="employeeCount"
                 :rules="requiredRules"
-                label="Number of Employees"
+                label="Employee Range Count"
+                :items="['1000+ more', '300-999', '50-299']"
                 required
-            ></v-text-field>
+            ></v-combobox>
           </v-col>
           <v-col>
             <v-file-input
