@@ -44,14 +44,15 @@
           <v-col cols="5"
                  class="d-flex justify-center"
           >
-            <v-combobox
+            <v-select
                 id="employeeCount"
                 v-model="employeeCount"
                 :rules="requiredRules"
+                chips
                 label="Employee Range Count"
                 :items="['1000+ more', '300-999', '50-299']"
                 required
-            ></v-combobox>
+            ></v-select>
           </v-col>
           <v-col>
             <v-file-input
