@@ -516,6 +516,9 @@
         },
         "tag": {
           "type": "string"
+        },
+        "serverFrontend": {
+          "type": ["string", "null"]
         }
       },
       "required": [
