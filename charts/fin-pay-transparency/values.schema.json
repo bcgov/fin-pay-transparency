@@ -518,7 +518,7 @@
           "type": "string"
         },
         "serverFrontend": {
-          "type": "string"
+          "type": ["string", "null"]
         }
       },
       "required": [
