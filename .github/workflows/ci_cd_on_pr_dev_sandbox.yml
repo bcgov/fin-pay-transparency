@@ -40,14 +40,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: bcgov-nr/action-builder-ghcr@v1.1.2
+      - uses: bcgov-nr/action-builder-ghcr@v1.3.0
         with:
           package: ${{ matrix.package }}
           tag: ${{ github.event.number }}
           tag_fallback: test
-          token: ${{ secrets.GITHUB_TOKEN }}
           triggers: ${{ matrix.triggers }}
-          build_file: ${{ matrix.build_file }}
           build_context: ${{ matrix.build_context }}
 
       - uses: shrink/actions-docker-registry-tag@v3
