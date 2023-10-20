@@ -4,29 +4,16 @@ env:
   deployment_name: pay-transparency
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The Docker Tag to deploy, it would be the latest tagged version that you want to deploy from dev to TEST.'
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
-  image-promotions-to-test:
-    name: Image Promotions to TEST
-    runs-on: ubuntu-22.04
-    permissions:
-      packages: write
-    strategy:
-      matrix:
-        package: [backend, database, database-migrations, frontend]
-    steps:
-      - uses: shrink/actions-docker-registry-tag@v3
-        with:
-          registry: ghcr.io
-          repository: ${{ github.repository }}/${{ matrix.package }}
-          target: dev
-          tags: |
-            test
-            ${{ github.sha }}
   deploys:
     name: Deploys
     needs: image-promotions-to-test
@@ -61,7 +48,7 @@ jobs:
           oc project ${{ vars.oc_namespace }}
           
           # Deploy Helm Chart
-          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set backend.image.tag=${{ github.sha }} --set frontend.image.tag=${{ github.sha }} --set database.image.tag=test --set global.zone=test  --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://test.paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set-string backend.image.tag="${{ github.event.inputs.tag }}" --set-string frontend.image.tag="${{ github.event.inputs.tag }}" --set-string database.image.tag="${{ github.event.inputs.tag }}" --set-string global.zone=test  --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://test.paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
 
       - name: Penetration Test
         uses: zaproxy/action-full-scan@v0.6.0
