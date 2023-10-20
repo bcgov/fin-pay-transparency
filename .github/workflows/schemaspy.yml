@@ -49,7 +49,7 @@ jobs:
           mkdir output
           chmod a+rwx -R output
       - name: Run Schemaspy
-        run: docker run --network host -v "$PWD/output:/output" schemaspy/schemaspy:snapshot -t pgsql -db default -host 127.0.0.1 -port 5432 -u default -p default -schemas pay_transparency
+        run: docker run --network host -v "$PWD/output:/output" schemaspy/schemaspy:6.2.4 -t pgsql -db default -host 127.0.0.1 -port 5432 -u default -p default -schemas pay_transparency
       - name: Deploy to Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
