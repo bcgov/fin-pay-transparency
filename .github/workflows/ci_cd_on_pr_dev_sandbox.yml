@@ -39,15 +39,13 @@ jobs:
             build_context: ./backend/db
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: bcgov-nr/action-builder-ghcr@v1.1.2
+      - uses: actions/checkout@v4
+      - uses: bcgov-nr/action-builder-ghcr@v1.3.0
         with:
           package: ${{ matrix.package }}
           tag: ${{ github.event.number }}
           tag_fallback: test
-          token: ${{ secrets.GITHUB_TOKEN }}
           triggers: ${{ matrix.triggers }}
-          build_file: ${{ matrix.build_file }}
           build_context: ${{ matrix.build_context }}
 
       - uses: shrink/actions-docker-registry-tag@v3
@@ -69,7 +67,7 @@ jobs:
       - builds
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: generate private and public key
         id: generateKey
         shell: bash

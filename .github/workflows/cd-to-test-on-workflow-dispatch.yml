@@ -20,7 +20,7 @@ jobs:
     environment: test
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: generate private and public key
         id: generateKey
         shell: bash
@@ -51,7 +51,7 @@ jobs:
           helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set-string backend.image.tag="${{ github.event.inputs.tag }}" --set-string frontend.image.tag="${{ github.event.inputs.tag }}" --set-string database.image.tag="${{ github.event.inputs.tag }}" --set-string global.zone=test  --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://test.paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
 
       - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.6.0
+        uses: zaproxy/action-full-scan@v0.7.0
         with:
           target: https://${{ env.deployment_name }}-frontend-test.apps.silver.devops.gov.bc.ca
           cmd_options: "-a"
