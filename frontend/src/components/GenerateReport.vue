@@ -13,7 +13,10 @@
     </v-alert>
     <v-form ref="generateReportForm" v-model="validForm">
       <v-row no-gutters class="d-flex flex-column">
-        <v-row class="d-flex justify-start ">
+        <v-row class="pt-7">
+          <v-btn to="/">Back</v-btn>
+        </v-row>
+        <v-row class="d-flex justify-start">
           <v-col cols="12">
             <h2 class="text-center">Generate Reports</h2>
           </v-col>
