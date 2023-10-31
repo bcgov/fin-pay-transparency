@@ -3,13 +3,19 @@ env:
   deployment_name: pay-transparency
 on:
   workflow_dispatch:
-
+    inputs:
+      tag:
+        description: 'The Docker Tag to deploy, it would be the latest tagged version that you want to deploy from TEST to PROD.'
+        required: true
+      release_notes:
+        description: 'The release notes for the release.'
+        required: true
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
-  image-promotions-to-prod:
+  image-promotions-to-prod: # This is just for adding another tag to the image to reflect which docker tag is deployed to PROD.
     name: Image Promotions to PROD
     runs-on: ubuntu-22.04
     permissions:
@@ -22,17 +28,15 @@ jobs:
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.package }}
-          target: test
-          tags: |
-           prod
-           ${{ github.sha }}
+          target: "${{ github.event.inputs.tag }}"
+          tags: prod
   deploys:
     name: Deploys
     needs: image-promotions-to-prod
     environment: prod
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: generate private and public key
         id: generateKey
         shell: bash
@@ -60,12 +64,23 @@ jobs:
           oc project ${{ vars.oc_namespace }}
           
           # Deploy Helm Chart
-          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set backend.image.tag=${{ github.sha }} --set frontend.image.tag=${{ github.sha }} --set database.image.tag=prod --set global.zone=prod  --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set-string backend.image.tag="${{ github.event.inputs.tag }}" --set-string frontend.image.tag="${{ github.event.inputs.tag }}" --set-string database.image.tag="${{ github.event.inputs.tag }}" --set-string global.zone=prod  --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
 
       - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.6.0
+        uses: zaproxy/action-full-scan@v0.7.0
         with:
           target: https://${{ env.deployment_name }}-frontend-prod.apps.silver.devops.gov.bc.ca
           cmd_options: "-a"
           fail_action: false
           allow_issue_writing: false
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          token: ${{ github.token }}
+          tag_name: ${{ github.event.inputs.tag }}
+          name: Release-${{ github.event.inputs.tag }}
+          body: ${{ github.event.inputs.release_notes }}

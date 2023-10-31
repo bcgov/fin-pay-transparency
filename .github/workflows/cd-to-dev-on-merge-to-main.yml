@@ -21,7 +21,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Initialize
         uses: github/codeql-action/init@v2
@@ -36,13 +36,49 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
 
+  semantic-version: # Create a semantic version based on the commit messages and tag the commit.
+    outputs:
+      semanticVersion: ${{ steps.changelog.outputs.version }}
+      tag: ${{ steps.changelog.outputs.tag }}
+      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conventional Changelog Update
+        uses: TriPSs/conventional-changelog-action@v3
+        id: changelog
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          output-file: 'CHANGELOG.md'
+          skip-version-file: 'true'
+          skip-commit: 'true'
+          skip-on-empty: 'false'
+          git-push: 'true'
+  retag-images:
+    needs: [ semantic-version ]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        package: [ database, backend, database-migrations, frontend ]
+    steps:
+      -
+        name: Tag Docker Images
+        uses: shrink/actions-docker-registry-tag@v3
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: dev
+          tags: ${{ needs.semantic-version.outputs.semanticVersion }}
 
   deploys:
+    needs: [retag-images, semantic-version]
     name: Deploys
     environment: dev
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: generate private and public key
         id: generateKey
         shell: bash
@@ -59,6 +95,7 @@ jobs:
           echo "UI_PRIVATE_KEY<<$EOF" >> $GITHUB_OUTPUT
           echo "$UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
+
       - name: Deploy to OpenShift
         shell: bash
         run: |
@@ -70,12 +107,14 @@ jobs:
           oc project ${{ vars.oc_namespace }}
           
           # Deploy Helm Chart
-          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set backend.image.tag=${{ github.sha }} --set frontend.image.tag=${{ github.sha }} --set database.image.tag=dev --set global.zone=dev --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://dev.paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set-string backend.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} --set-string frontend.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} --set database.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} --set global.zone=dev --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://dev.paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
 
       - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.6.0
+        uses: zaproxy/action-full-scan@v0.7.0
         with:
           target: https://${{ env.deployment_name }}-frontend-dev.apps.silver.devops.gov.bc.ca
           cmd_options: "-a"
           fail_action: false
           allow_issue_writing: false
+
+
