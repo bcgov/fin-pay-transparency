@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router';
 import Home from './components/Home.vue';
+import GenerateReport from './components/GenerateReport.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import {appStore} from './store/modules/app';
 import {PAGE_TITLES} from './utils/constant';
@@ -33,6 +34,15 @@ const router = createRouter({
       component: Login,
       meta: {
         pageTitle: PAGE_TITLES.LOGIN,
+        requiresAuth: false
+      }
+    },
+    {
+      path: '/GenerateReport',
+      name: 'GenerateReport',
+      component: GenerateReport,
+      meta: {
+        pageTitle: PAGE_TITLES.REPORT,
         requiresAuth: false
       }
     },
