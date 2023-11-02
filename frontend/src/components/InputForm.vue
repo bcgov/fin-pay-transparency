@@ -171,7 +171,10 @@ export default {
 </script>
 
 <style lang="scss">
-/* style the vue-datepicker component to closely match the Vuetify components */
+/* The vue-datepicker component is not from the vuetify library, and its default
+ look and feel doesn't match the other vuetify components used here.  
+ The following css class is used to style the vue-datepicker components to closely 
+ match the Vuetify components. */
 .datepicker-input {
   border-top: none;
   border-left: none;
