@@ -2,7 +2,6 @@ import axios from 'axios';
 import jsonwebtoken from 'jsonwebtoken';
 import { auth } from './auth-service';
 import { utils } from './utils-service';
-import { config } from '../../config';
 
 //Mock the entire axios module so we never inadvertently make real 
 //HTTP calls to remote services
@@ -40,7 +39,6 @@ jest.mock('./utils-service', () => {
   }
 })
 
-jest.mock('../../config')
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -260,13 +258,6 @@ describe("refreshJWT", () => {
 
 describe("generateUiToken", () => {
   it("generates a new JWT token that expires in 30 minute (1800 seconds)", async () => {
-
-    (config.get as jest.Mock).mockImplementation((key) => { return {
-      "tokenGenerate:issuer": "issuer",
-      "server:frontend": "server-frontend",
-      "tokenGenerate:audience": "audience",
-      "tokenGenerate:privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQBg9ppMMo/Lo/r4A7NLNwkdJPLhbQUD2V+tK8ibXVw7eUJlLSaX\npCMmQjHF/OMLFHjrmme6Hr4bGMiVomjaQzFM1W8ZS5mFKV9mok5PzDlIsLQOqkgr\npdkoN8U4Ahxv7yPiupnjsqnyp7QeOvwRhczShbeiOD4j93ucIjXeyD+qfCtLETLP\npHlyBGd/27vKLQoKgbdKjPApHwsbWtcsfX/6FfgoF3Md8m7LQpsT3iIT6xxc8l3p\nIOhxgucjuO+9z0mmvkRSgVBA0ineNUIbyQn7mu9umkpT8RknJUBT7J4DJoA/fqie\nofnFN92LVH0wjRKnrr8p2KP4lS3HJ4vi3BlNAgMBAAECggEAW0xXhJ+nHcvNJ3H0\nhEHR5ws/Vlrcef9XQysSvJdvnOBUUAfvaqE2J3P0gcPX1Dr2kIDWYj1IKyNu2tYN\nfFYAOaRN87dnWibWmUECE8jrtzIKmDRluBN1IZVBsbbrJ8o4M+gXtnon4z9dLYnE\nhotBjIgznB7xA9SnIyBjMN3EdLVEVIrxxYOwnUbh+59ezWKTR9w0JrENyofO5CSb\ndPFhc7yLuwRCcZyofKtRUuuELAILd2ttjrzxe3XryyYh0znTkzLjgw7UmDXRomIi\n5RrfrYb5awZq86lenfGWYG29JekO+Q+1DbI13mWbbhxR1MPaWYk1KmpzWuelFsgv\nIbHp0QKBgQCp3RfdME9PndHtlf8QBQLPMco2ymTcDHmFfxVjFtq37UWeUSCn7Xyw\nM2nuKU1IL76maU8otruUgaZGc14lwTm1J2iz2fJeYk8fH/redwbXcl8mJSh5d4mi\nKchb9EWi19wW9O/152zf2Ol5lUpzOY+9gWiPLBqo+b3qD5IX3W7QtwKBgQCSIezl\nT3VUtFrWKtbvln8B3kcs2nlntzL3NxCaMfV1+FhG5A6Vd0E/gjVQJRtiTFwnp1/y\ndlbKVeLNyacm4DWjC9xqMknY/5MDvUy8uY97Zl/iGoiCNkcHthbt4/EAblKJ8KNy\n42JsC7AsSddktuU9y6vVNJZ6jNNhqOSAHFKaGwKBgQCb4Wd69lByMdRqgZIWM2MG\nnRyC921jepcyaRNJYbnJvBZ9WNntAUXBtQzrID/plNcSg+W+6SJvACOE1254mz/H\n/KhbFBEViIYve/uOmBBROoYSzVq9TXOiu1FBAYO+EvXIo3JqabxCGB76EoTGBPbh\n45X+fWzh0H32A9//wpdlNQKBgEKvjp6aYw2zfBxt0kXlZLIikFJspKhq1qwwCbiE\nAeLC4O4A1pLop/LmZZPcSyHRfOBvpf5MeJC/HtAQLOI1wORV3lDr//0xrBIxyZn6\nB/slHa5ds1vQjxt6wf3vXiR3M91U3hHoqBpsPwoG7G8+c2B+2DxkUiM8rp3LZ/L6\nectvAoGBAJhJyRfc9FQme0qoPuT1EqC130guIf/mR7ztq4bevXb5KluGP9K7Yosp\nwbXcBEbiWJpixTojnKTxJWGb1SmMrJZR/T+o4dN9OwernKxH2OT55N/qN20IzJSY\n3Mw5QC768PCirGVhXYe5TtL2KKJ+nr/hASAyNmrWYytPvNJuui/7\n-----END RSA PRIVATE KEY-----"
-    }[key]})
 
     const token = auth.generateUiToken();
     const payload = jsonwebtoken.decode(token);
