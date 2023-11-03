@@ -42,6 +42,7 @@ jest.mock('./utils-service', () => {
 
 jest.mock('../../config')
 const actualConfig = jest.requireActual('../../config').config
+console.log(actualConfig)
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -261,6 +262,8 @@ describe("refreshJWT", () => {
 
 describe("generateUiToken", () => {
   it("generates a new JWT token that expires in 30 minute (1800 seconds)", async () => {
+
+    console.log(`process.env.PRIVATE_KEY=${process.env.PRIVATE_KEY}`)
 
     (config.get as jest.Mock).mockImplementation((key) => { return {
       "tokenGenerate:issuer": "issuer",
