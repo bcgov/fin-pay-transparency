@@ -40,15 +40,16 @@
             </v-col>
 
             <v-col cols="6">
-              <VueDatePicker id="startDate" v-model="startDate" model-type="yyyy-MM" month-picker auto-apply
-                format="MMMM yyyy" placeholder="Start Date" input-class-name="datepicker-input"
-                :min-date="earliestSelectableDate"
+              <VueDatePicker id="startDate" ref="startDate" v-model="startDate" model-type="yyyy-MM" month-picker
+                auto-apply format="MMMM yyyy" placeholder="Start Date" input-class-name="datepicker-input"
+                :min-date="minStartDate" :max-date="maxStartDate" prevent-min-max-navigation
                 :action-row="{ showSelect: false, showCancel: false, showNow: false, showPreview: false }" />
             </v-col>
 
             <v-col cols="6">
-              <VueDatePicker id="endDate" v-model="endDate" model-type="yyyy-MM" month-picker auto-apply
-                format="MMMM yyyy" placeholder="End Date" input-class-name="datepicker-input"
+              <VueDatePicker id="endDate" ref="endDate" v-model="endDate" model-type="yyyy-MM" month-picker auto-apply
+                format="MMMM yyyy" placeholder="End Date" input-class-name="datepicker-input" :min-date="minEndDate"
+                :max-date="maxEndDate" prevent-min-max-navigation
                 :action-row="{ showSelect: false, showCancel: false, showNow: false, showPreview: false }" />
             </v-col>
 
@@ -99,9 +100,12 @@ export default {
     employeeCount: null,
     isProcessing: false,
     uploadFileValue: null,
-    earliestSelectableDate: moment().subtract(2, "years").format("yyyy-MM"),
-    startDate: null,
-    endDate: null,
+    minStartDate: moment().subtract(2, "years").format("yyyy-MM"),
+    maxStartDate: moment().subtract(1, "years").format("yyyy-MM"),
+    minEndDate: moment().subtract(1, "years").format("yyyy-MM"),
+    maxEndDate: moment().format("yyyy-MM"),
+    startDate: moment().subtract(1, "years").format("yyyy-MM"),
+    endDate: moment().subtract(1, "month").format("yyyy-MM"),
     comments: null,
     fileAccept: '.csv',
     fileRules: [],
