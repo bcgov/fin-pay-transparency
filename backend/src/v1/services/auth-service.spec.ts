@@ -2,6 +2,7 @@ import axios from 'axios';
 import jsonwebtoken from 'jsonwebtoken';
 import { auth } from './auth-service';
 import { utils } from './utils-service';
+import { config } from '../../config';
 
 //Mock the entire axios module so we never inadvertently make real 
 //HTTP calls to remote services
@@ -39,6 +40,8 @@ jest.mock('./utils-service', () => {
   }
 })
 
+jest.mock('../../config')
+const actualConfig = jest.requireActual('../../config').config
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -258,6 +261,14 @@ describe("refreshJWT", () => {
 
 describe("generateUiToken", () => {
   it("generates a new JWT token that expires in 30 minute (1800 seconds)", async () => {
+
+    (config.get as jest.Mock).mockImplementation((key) => { return {
+      "tokenGenerate:issuer": "issuer",
+      "server:frontend": "server-frontend",
+      "tokenGenerate:audience": "audience",
+      "tokenGenerate:privateKey": actualConfig.get("tokenGenerate:privateKey")
+    }[key]})
+    
 
     const token = auth.generateUiToken();
     const payload = jsonwebtoken.decode(token);
