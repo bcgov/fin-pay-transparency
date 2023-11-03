@@ -20,17 +20,18 @@
             </v-col>
 
             <v-col cols="12">
-              <v-text-field id="companyNameField" v-model="companyName" label="Company Name" :rules="requiredRules"
+              <v-text-field id="companyName" v-model="companyName" label="Company Name" :rules="requiredRules"
                 required></v-text-field>
             </v-col>
 
             <v-col cols="12">
-              <v-text-field id="addressField" v-model="companyAddress" :rules="requiredRules" label="Company Address"
+              <v-text-field id="companyAddress" v-model="companyAddress" :rules="requiredRules" label="Company Address"
                 required></v-text-field>
             </v-col>
 
             <v-col cols="12">
-              <v-autocomplete v-model="naicsCode" :items="naicsCodeList" label="NAICS Code"></v-autocomplete>
+              <v-autocomplete id="naicsCode" v-model="naicsCode" :items="naicsCodeList"
+                label="NAICS Code"></v-autocomplete>
             </v-col>
 
             <v-col cols="12">
@@ -39,23 +40,24 @@
             </v-col>
 
             <v-col cols="6">
-              <VueDatePicker v-model="startDate" model-type="yyyy-MM" month-picker auto-apply format="MMMM yyyy"
-                placeholder="Start Date" input-class-name="datepicker-input" :min-date="earliestSelectableDate"
+              <VueDatePicker id="startDate" v-model="startDate" model-type="yyyy-MM" month-picker auto-apply
+                format="MMMM yyyy" placeholder="Start Date" input-class-name="datepicker-input"
+                :min-date="earliestSelectableDate"
                 :action-row="{ showSelect: false, showCancel: false, showNow: false, showPreview: false }" />
             </v-col>
 
             <v-col cols="6">
-              <VueDatePicker v-model="endDate" model-type="yyyy-MM" month-picker auto-apply format="MMMM yyyy"
-                placeholder="End Date" input-class-name="datepicker-input"
+              <VueDatePicker id="endDate" v-model="endDate" model-type="yyyy-MM" month-picker auto-apply
+                format="MMMM yyyy" placeholder="End Date" input-class-name="datepicker-input"
                 :action-row="{ showSelect: false, showCancel: false, showNow: false, showPreview: false }" />
             </v-col>
 
             <v-col cols="12" class="mt-6">
-              <v-textarea v-model="comments" label="Contextual Info/Comments" clearable></v-textarea>
+              <v-textarea id="comments" v-model="comments" label="Contextual Info/Comments" clearable></v-textarea>
             </v-col>
 
             <v-col cols="12">
-              <v-file-input id="selectFileInput" v-model="uploadFileValue" color="#003366" :accept="fileAccept"
+              <v-file-input id="csvFile" v-model="uploadFileValue" color="#003366" :accept="fileAccept"
                 hint="CSV File supported" :error-messages="fileInputError" placeholder="Select your file"
                 :rules="fileRules" />
             </v-col>
@@ -97,7 +99,7 @@ export default {
     employeeCount: null,
     isProcessing: false,
     uploadFileValue: null,
-    earliestSelectableDate: new Date().setFullYear(new Date().getFullYear() - 2),
+    earliestSelectableDate: moment().subtract(2, "years").format("yyyy-MM"),
     startDate: null,
     endDate: null,
     comments: null,
