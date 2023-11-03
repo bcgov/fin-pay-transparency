@@ -10,4 +10,4 @@ Both the frontend and the backend have test suites.  Run them as follows:
 
 Frontend: `npm run test`
 
-Backendend: `npm run test`
+Backend: `npm run test`
