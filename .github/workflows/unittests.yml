@@ -55,6 +55,7 @@ jobs:
           echo "PRIVATE_KEY<<$EOF" >> $GITHUB_ENV
           echo "$PRIVATE_KEY_VAL" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
+          echo $PRIVATE_KEY # test the env var was set or not
       - uses: bcgov-nr/action-test-and-analyse@v0.0.1
         with:
           commands: |
