@@ -107,7 +107,7 @@
               </p>
               <v-sheet class="pa-5" style="border-style: dashed; border: 3px dashed #666666; border-radius: 10px;">
                 <v-file-input id="csvFile" v-model="uploadFileValue" color="#003366" :accept="fileAccept"
-                  hint="CSV File supported" :error-messages="fileInputError" placeholder="Select your file"
+                  hint="Select a CSV file" :error-messages="fileInputError" placeholder="Select a CSV file"
                   :rules="fileRules" />
 
                 <p class="d-flex justify-center">
