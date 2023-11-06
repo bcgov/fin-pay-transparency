@@ -81,7 +81,7 @@
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
-import PrimaryButton from './util/primarybutton.vue';
+import PrimaryButton from './util/PrimaryButton.vue';
 import ApiService from '../common/apiService';
 import moment from 'moment';
 
