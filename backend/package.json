@@ -48,6 +48,7 @@
     "typescript": "5.1.3"
   },
   "scripts": {
+    "test": "jest",
     "test:cov": "jest --coverage --detectOpenHandles --forceExit",
     "build": "npm run generate && tsc",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
