@@ -14,9 +14,50 @@
             </v-col>
           </v-row>
 
+          <!-- timeline -->
+          <v-row class="pt-7 mb-4">
+            <v-col cols="12">
+
+              <v-row>
+                <v-col class="d-flex-col justify-center align-center">
+                  <div class="circle">1</div>
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                  <div class="dash disabled"></div>
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                  <div class="circle disabled">2</div>
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                  <div class="dash disabled"></div>
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                  <div class="circle disabled">3</div>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col class="d-flex-col justify-center align-center">
+                  <h5>Upload</h5>
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                  <h5>Review</h5>
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                </v-col>
+                <v-col class="d-flex justify-center align-center">
+                  <h5>Generate</h5>
+                </v-col>
+              </v-row>
+
+            </v-col>
+          </v-row>
+
           <v-row class="d-flex justify-start" dense>
             <v-col cols="12">
-              <h2 class="text-center">Upload</h2>
+              <h2 class="text-center">Your Company Information</h2>
             </v-col>
 
             <v-col cols="12">
@@ -58,11 +99,25 @@
             </v-col>
 
             <v-col cols="12">
-              <v-file-input id="csvFile" v-model="uploadFileValue" color="#003366" :accept="fileAccept"
-                hint="CSV File supported" :error-messages="fileInputError" placeholder="Select your file"
-                :rules="fileRules" />
+              <h3 class="mb-2">File Upload</h3>
+              <p class="mb-4">
+                To proceed, upload your employee data in comma-separated value (CSV) format. Ensure the CSV file follows
+                the provided CSV template
+                (<u>bc-pay-transparency-tool-data-template.csv</u>) for accurate processing.
+              </p>
+              <v-sheet class="pa-5" style="border-style: dashed; border: 3px dashed #666666; border-radius: 10px;">
+                <v-file-input id="csvFile" v-model="uploadFileValue" color="#003366" :accept="fileAccept"
+                  hint="CSV File supported" :error-messages="fileInputError" placeholder="Select your file"
+                  :rules="fileRules" />
+
+                <p class="d-flex justify-center">
+                  Supported format: CSV. Maximum file size: xxMB.
+                </p>
+              </v-sheet>
             </v-col>
+
           </v-row>
+
           <v-row>
             <v-col cols="12" class="d-flex justify-center">
               <primary-button id="submitButton" :disabled="!validForm" :loading="isProcessing" text="Submit"
@@ -211,5 +266,32 @@ export default {
   border-bottom-right-radius: 0px;
   background-color: #f6f6f6 !important;
   padding: 15px 5px 15px 35px;
+}
+
+.circle {
+  height: 60px;
+  width: 60px;
+  background-color: #003366;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &.disabled {
+    background-color: #aaaaaa;
+  }
+}
+
+.dash {
+  height: 1px;
+  width: 100%;
+  background-color: #003366;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  &.disabled {
+    background-color: #aaaaaa;
+  }
 }
 </style>
