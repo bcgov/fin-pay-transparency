@@ -26,7 +26,7 @@ model employee_count_range {
   create_date             DateTime                  @default(now()) @db.Timestamp(6)
   update_date             DateTime                  @default(now()) @db.Timestamp(6)
   effective_date          DateTime                  @default(now()) @db.Timestamp(6)
-  expiry_date             DateTime                  @default(now()) @db.Timestamp(6)
+  expiry_date             DateTime?                 @db.Timestamp(6)
   create_user             String                    @db.VarChar(255)
   update_user             String                    @db.VarChar(255)
   pay_transparency_report pay_transparency_report[]
