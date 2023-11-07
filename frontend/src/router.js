@@ -1,6 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router';
 import Home from './components/Home.vue';
-import GenerateReport from './components/GenerateReport.vue';
+import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import {appStore} from './store/modules/app';
 import {PAGE_TITLES} from './utils/constant';
@@ -38,9 +38,9 @@ const router = createRouter({
       }
     },
     {
-      path: '/GenerateReport',
-      name: 'GenerateReport',
-      component: GenerateReport,
+      path: '/inputForm',
+      name: 'InputForm',
+      component: InputForm,
       meta: {
         pageTitle: PAGE_TITLES.REPORT,
         requiresAuth: false
