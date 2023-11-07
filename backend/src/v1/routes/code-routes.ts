@@ -6,7 +6,7 @@ import { codeService } from '../services/code-service';
 const isValidBackendToken = auth.isValidBackendToken();
 const router = express.Router();
 
-router.get('/employee_count_range ', passport.authenticate('jwt', { session: false }), isValidBackendToken, async (req, res) => {
+router.get('/employee-count-range ', passport.authenticate('jwt', { session: false }), isValidBackendToken, async (req, res) => {
   res.sendStatus(200).json(codeService.getAllEmployeeCountRanges);
 });
 
