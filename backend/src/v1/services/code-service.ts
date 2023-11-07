@@ -30,13 +30,23 @@ const codeService = {
           employee_count_range_id: true,
           employee_count_range: true
         },
+        //Only fetch records that are within the effective time range
+        //i.e. current time >= effective date and either no expiry date is given, 
+        //or expiry date is in the future
         where: {
           effective_date: {
             lte: now.toDate(),
           },
-          expiry_date: {
-            gt: now.toDate(),
-          },
+          OR: [
+            {
+              expiry_date: null
+            },
+            {
+              expiry_date: {
+                gt: now.toDate(),
+              }
+            }
+          ]          
         }
       });
 
