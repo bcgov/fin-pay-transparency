@@ -1,23 +1,24 @@
 import express from "express";
 
-import morgan from "morgan";
-import helmet from "helmet";
-import cors from "cors";
 import bodyParser from "body-parser";
+import cors from "cors";
+import session from 'express-session';
+import helmet from "helmet";
+import morgan from "morgan";
+import noCache from 'nocache';
+import passport from 'passport';
+import { resolve } from 'path';
+import { config } from './config';
+import authRouter from './v1/routes/auth-routes';
+import codeRouter from './v1/routes/code-routes';
+import { fileUploadRouter } from './v1/routes/file-upload-routes';
+import userRouter from './v1/routes/user-info-routes';
+import { auth } from './v1/services/auth-service';
+import { utils } from './v1/services/utils-service';
 const app = express();
 const apiRouter = express.Router();
-import {fileUploadRouter} from './v1/routes/file-upload-routes';
-import noCache from 'nocache';
-import {config} from './config';
-import passport from 'passport';
-import {auth} from './v1/services/auth-service';
-import {utils} from './v1/services/utils-service';
-import session from 'express-session';
-import {resolve} from 'path';
-import authRouter from './v1/routes/auth-routes';
-import userRouter from './v1/routes/user-info-routes';
 
-import {logger} from "./logger";
+import { logger } from "./logger";
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const OidcStrategy = require('passport-openidconnect-keycloak-idp').Strategy;
@@ -34,7 +35,7 @@ app.use(noCache());
 
 
 //tells the app to use json as means of transporting data
-app.use(bodyParser.json({limit: "50mb", extended: true}));
+app.use(bodyParser.json({ limit: "50mb", extended: true }));
 app.use(bodyParser.urlencoded({
   extended: true,
   limit: "50mb"
@@ -47,13 +48,13 @@ const cookie = {
 
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
-const sess= {
+const sess = {
   name: 'fin_pay_transparency_cookie',
   secret: config.get('oidc:clientSecret'),
   resave: false,
   saveUninitialized: true,
   cookie: cookie,
-  store: new fileSession({path: resolve('./', config.get('server:sessionPath'))}),
+  store: new fileSession({ path: resolve('./', config.get('server:sessionPath')) }),
 };
 if ('production' === config.get('environment')) {
   app.set("trust proxy", 1);
@@ -89,7 +90,7 @@ function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) 
     profile.jwt = accessToken;
     profile._json = parseJwt(accessToken);
     profile.refreshToken = refreshToken;
-    profile.idToken= idToken;
+    profile.idToken = idToken;
     return done(null, profile);
   }));
 }
@@ -149,4 +150,6 @@ apiRouter.get("/", (req, res, next) => {
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/user', userRouter);
 apiRouter.use("/v1/file-upload", fileUploadRouter);
-export {app};
+apiRouter.use("/v1/codes", codeRouter);
+export { app };
+
