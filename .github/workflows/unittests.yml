@@ -58,7 +58,7 @@ jobs:
           echo $PRIVATE_KEY # test the env var was set or not
           PUBLIC_KEY_VAL="${{ vars.PUBLIC_KEY }}"
           echo "PUBLIC_KEY<<$EOF" >> $GITHUB_ENV
-          echo "PUBLIC_KEY_VAL" >> $GITHUB_ENV
+          echo "$PUBLIC_KEY_VAL" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
           echo $PUBLIC_KEY # test the env var was set or not          
       - uses: bcgov-nr/action-test-and-analyse@v0.0.1
