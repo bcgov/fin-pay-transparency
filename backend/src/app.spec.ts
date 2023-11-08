@@ -39,7 +39,7 @@ jest.mock('./v1/prisma/prisma-client', () => {
   }
 })
 
-// In auth-service mock only isValidBackendToken.  This function is used by API endpoints
+// In auth-service mock only isValidBackendToken().  This function is used by API endpoints
 // as the second part of a two-step authorization phase.  To keep the API tests simple we
 // omit the session and token checks done by the function.  All other functions in this
 // module keep the original implementation.
@@ -54,6 +54,30 @@ jest.mock('./v1/services/auth-service', () => {
     }
   }
 });
+
+// Setup in app.ts requires access to certain config properties.  These may be present when
+// testing in a development environment (via a .env file), but they may not be present 
+// during builds by the CI/CD process.  Here we define the needed config properties.
+jest.mock('./config', () => {
+  const actualConfig = jest.requireActual('./config').config
+  const mockedConfig = (jest.genMockFromModule('./config') as any).config;
+  return {
+    config: {
+      get: jest.fn().mockImplementation((key) => {
+        return {
+          "oidc:clientSecret": "secret",
+          "server:sessionPath": "session-path",
+          "environment": "dev",
+          "oidc:clientId": "client-id",
+          "server:frontend": "http://localhost:8081",
+          "tokenGenerate:issuer": "http://localhost:3000",
+          "tokenGenerate:privateKey": actualConfig.get("tokenGenerate:privateKey"),
+          "tokenGenerate:publicKey": actualConfig.get("tokenGenerate:publicKey")
+        }[key]
+      })
+    }
+  }
+})
 
 afterEach(() => {
   jest.clearAllMocks();
