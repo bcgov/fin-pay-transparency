@@ -71,6 +71,8 @@ spec:
               value: {{ .Values.app.env.siteminderLogoutEndpoint }}
             - name: SESSION_PATH
               value: '/app/sessions'
+            - name: POSTGRESQL_HOST
+              value: {{.Release.Name}}-database-{{.Values.global.zone}}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
