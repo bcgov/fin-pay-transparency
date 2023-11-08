@@ -1,13 +1,15 @@
 import express from 'express';
+import passport from 'passport';
 import { auth } from "../services/auth-service";
+import { codeService } from "../services/code-service";
 
 const isValidBackendToken = auth.isValidBackendToken();
-const codeRouter = express.Router();
-//passport.authenticate('jwt', { session: false }), isValidBackendToken,
-codeRouter.get('/employee-count-range ', async (req, res) => {
-  console.log("ASDFS");
-  res.sendStatus(200); //.json(codeService.getAllEmployeeCountRanges);
+const router = express.Router();
+
+router.get('/employee-count-ranges', passport.authenticate('jwt', { session: false }), isValidBackendToken, async (req, res) => {
+  const body = await codeService.getAllEmployeeCountRanges()
+  res.status(200).json(body);
 });
 
-export { codeRouter };
+export = router;
 

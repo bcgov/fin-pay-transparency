@@ -10,7 +10,7 @@ import passport from 'passport';
 import { resolve } from 'path';
 import { config } from './config';
 import authRouter from './v1/routes/auth-routes';
-import { codeRouter } from './v1/routes/code-routes';
+import codeRouter from './v1/routes/code-routes';
 import { fileUploadRouter } from './v1/routes/file-upload-routes';
 import userRouter from './v1/routes/user-info-routes';
 import { auth } from './v1/services/auth-service';
