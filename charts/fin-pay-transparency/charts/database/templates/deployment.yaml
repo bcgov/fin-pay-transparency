@@ -64,22 +64,9 @@ spec:
             timeoutSeconds: 1
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          env:
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{ .Values.global.zone}}
-                  key: databaseName
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{ .Values.global.zone}}
-                  key: databasePassword
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{ .Values.global.zone}}
-                  key: databaseUser
+          envFrom:
+            - secretRef:
+                name: {{.Release.Name}}-{{ .Values.global.zone}}
           volumeMounts:
             - name: {{ include "database.fullname" . }}
               mountPath: /var/lib/postgresql
