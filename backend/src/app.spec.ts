@@ -1,4 +1,5 @@
 import { app } from './app';
+import { config } from './config';
 import prisma from './v1/prisma/prisma-client';
 import { auth } from './v1/services/auth-service';
 const request = require('supertest');
@@ -79,6 +80,8 @@ jest.mock('./config', () => {
     }
   }
 })
+console.log("pub key:" + config.get("tokenGenerate:publicKey"))
+console.log("pub key:" + (config.get("tokenGenerate:privateKey") ? config.get("tokenGenerate:privateKey").substring(0, 10) + "..." : config.get("tokenGenerate:privateKey")));
 
 afterEach(() => {
   jest.clearAllMocks();
