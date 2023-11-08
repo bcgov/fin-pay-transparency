@@ -5,18 +5,20 @@ import {promisify} from "util";
 import {config} from "../../config";
 import {logger} from "../../logger";
 
-
+const basic_auth = config.get('bceidWsIntegration:auth:username') + ':' + config.get('bceidWsIntegration:auth:password');
+const base64BasicAuthVal = Buffer.from(basic_auth).toString('base64');
+const onlineServiceId = config.get('bceidWsIntegration:onlineServiceId');
 const parseStringSync = promisify(parseString);
 
 const serviceUrl = config.get('bceidWsIntegration:url');
 
-const generateXML = (userGuid: string) => `<?xml version="1.0" encoding="UTF-8"?>
+const generateXML = (userGuid: string, onlineServiceID: string = onlineServiceId) => `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Header/>
  <soapenv:Body>
     <getAccountDetail xmlns="http://www.bceid.ca/webservices/Client/V10/">
        <accountDetailRequest>
-          <onlineServiceId>${config.get('bceidWsIntegration:onlineServiceId')}</onlineServiceId>
+          <onlineServiceId>${onlineServiceID}</onlineServiceId>
           <requesterAccountTypeCode>Business</requesterAccountTypeCode>
           <requesterUserGuid>${userGuid}</requesterUserGuid>
           <userGuid>${userGuid}</userGuid>
@@ -27,25 +29,22 @@ const generateXML = (userGuid: string) => `<?xml version="1.0" encoding="UTF-8"?
 </soapenv:Envelope>`;
 
 
-const getCompanyDetails = async (userGuid: string) => {
-  const basic_auth = config.get('bceidWsIntegration:auth:username') + ':' + config.get('bceidWsIntegration:auth:password');
-  const base64BasicAuth = Buffer.from(basic_auth).toString('base64');
+const getCompanyDetails = async (userGuid: string, base64BasicAuth: string = base64BasicAuthVal, serviceURL: string = serviceUrl, xml: string = generateXML(userGuid)) => {
+
   const defaultHeaders = {
     'Content-Type': 'text/xml;charset=UTF-8',
     authorization: `Basic ${base64BasicAuth}`,
   };
 
-  const xml = generateXML(userGuid);
-  logger.info(xml);
-  logger.info(serviceUrl);
-  logger.info(defaultHeaders);
+  logger.silly(xml);
+  logger.silly(serviceURL);
+  logger.silly(defaultHeaders);
   const {response}: any = await soapRequest({
-    url: serviceUrl,
+    url: serviceURL,
     headers: defaultHeaders,
     xml,
     timeout: 10000,
   });
-
 
   const {headers, body, statusCode} = response;
   const result = await parseStringSync(body);
