@@ -81,7 +81,7 @@ jest.mock('./config', () => {
   }
 })
 console.log("pub key:" + config.get("tokenGenerate:publicKey"))
-console.log("pub key:" + (config.get("tokenGenerate:privateKey") ? config.get("tokenGenerate:privateKey").substring(0, 10) + "..." : config.get("tokenGenerate:privateKey")));
+console.log("priv key:" + (config.get("tokenGenerate:privateKey") ? config.get("tokenGenerate:privateKey").substring(0, 10) + "..." : config.get("tokenGenerate:privateKey")));
 
 afterEach(() => {
   jest.clearAllMocks();
