@@ -1,20 +1,8 @@
 <!--suppress ALL -->
 <template>
-  <v-container
-      fluid
-
-      class="d-flex justify-center"
-  >
-    <v-row>
-      <v-col
-          cols="12"
-          class="d-flex justify-center"
-      >
-        <dashboard></dashboard>
-      </v-col>
-    </v-row>
+  <v-container fluid class="d-flex justify-center fill-height">
+    <dashboard></dashboard>
   </v-container>
-
 </template>
 
 <script>
@@ -23,7 +11,7 @@ import Dashboard from './Dashboard.vue';
 
 export default {
   name: 'Home',
-  components: {Dashboard},
+  components: { Dashboard },
   data() {
     return {};
   },
