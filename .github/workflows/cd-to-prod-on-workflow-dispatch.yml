@@ -64,8 +64,26 @@ jobs:
           oc project ${{ vars.oc_namespace }}
           
           # Deploy Helm Chart
-          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set-string backend.image.tag="${{ github.event.inputs.tag }}" --set-string frontend.image.tag="${{ github.event.inputs.tag }}" --set-string database.image.tag="${{ github.event.inputs.tag }}" --set-string global.zone=prod  --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}"  --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
-
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }} \
+          --values charts/fin-pay-transparency/values.yaml \
+          --set-string backend.image.tag=${{ github.event.inputs.tag }} \
+          --set-string frontend.image.tag=${{ github.event.inputs.tag }} \
+          --set-string database.image.tag=${{ github.event.inputs.tag }} \
+          --set-string global.zone=prod \
+          --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
+          --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \
+          --set-string global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" \
+          --set-string global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" \
+          --set-string global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" \
+          --set-string global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" \
+          --set-string global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" \
+          --set-string global.secrets.databaseName="${{ secrets.DATABASE_NAME }}"  \
+          --set-string global.secrets.bceidWsUrl="${{ secrets.BCEID_WS_URL }}" \
+          --set-string global.secrets.bceidWsAuthPassword="${{ secrets.BCEID_WS_BASIC_AUTH_PASSWORD }}" \
+          --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
+          --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
+          --set-string global.serverFrontend="https://paytransparency.fin.gov.bc.ca" \
+          --timeout 10m charts/fin-pay-transparency
       - name: Penetration Test
         uses: zaproxy/action-full-scan@v0.7.0
         with:
