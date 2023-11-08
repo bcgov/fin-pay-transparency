@@ -47,7 +47,7 @@ jobs:
             sonar_projectKey: fin-pay-transparency_frontend
             token: SONAR_TOKEN_FRONTEND
     steps:
-      - name: expose private key as env var
+      - name: expose private and public key as env var
         shell: bash
         run: |
           EOF=" "
@@ -56,6 +56,11 @@ jobs:
           echo "$PRIVATE_KEY_VAL" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
           echo $PRIVATE_KEY # test the env var was set or not
+          PUBLIC_KEY_VAL="${{ vars.PUBLIC_KEY }}"
+          echo "PUBLIC_KEY<<$EOF" >> $GITHUB_ENV
+          echo "$PUBLIC_KEY_VAL" >> $GITHUB_ENV
+          echo "$EOF" >> $GITHUB_ENV
+          echo $PUBLIC_KEY # test the env var was set or not          
       - uses: bcgov-nr/action-test-and-analyse@v0.0.1
         with:
           commands: |
