@@ -486,11 +486,18 @@
             "uiPublicKey": {
               "type": "string"
             },
-            "databaseReplicationPassword": {
+            "bceidWsAuthPassword": {
               "type": "string"
             },
-            "databaseSuperUserPassword": {
+            "bceidWsAuthUserName": {
               "type": "string"
+            },
+            "bceidWsOnlineServiceId": {
+              "type": "string"
+            },
+            "bceidWsUrl": {
+              "type": "string",
+              "format": "uri"
             },
             "annotation": {
                 "type": "object"
@@ -505,7 +512,11 @@
             "keycloakClientSecret",
             "keycloakUrl",
             "uiPrivateKey",
-            "uiPublicKey"
+            "uiPublicKey",
+            "bceidWsAuthPassword",
+            "bceidWsAuthUserName",
+            "bceidWsOnlineServiceId",
+            "bceidWsUrl"
           ]
         },
         "zone": {
