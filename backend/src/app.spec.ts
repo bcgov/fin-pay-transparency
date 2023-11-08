@@ -1,13 +1,14 @@
 import { app } from './app';
 import prisma from './v1/prisma/prisma-client';
+import { auth } from './v1/services/auth-service';
 const request = require('supertest');
 
 // ----------------------------------------------------------------------------
 // Setup
 // ----------------------------------------------------------------------------
 
-const validFrontendToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2OTk0MDY0NDksImV4cCI6MTY5OTQwODI0OSwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgxIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwic3ViIjoidXNlckBmaW5wYXl0cmFuc3BhcmVuY3kuY2EifQ.EPKQXLlhotXGMD3fSJT32McYWB1UJR0HwwaTGiRmKUO-hyqvhezODtPV7J6o0r3aBvUePXfpecYRpVVlDtTUDlBeaiiMXzhe40I60OTLkCUy0xHK-ELGbBZtt_wHwjcwRCwkp0Hdswn2wITMJgH0l7xguCao2CYv22pVftzOrSbVE12f7b1nL4pUYLzmQvy1iJO3jIU-i8sNxjGQFJAS37f5FQsIWbyv82DNqgxgrBz8nROtpQ2etQQ15iKlQlQaJ9nosvo0epAmkeGjLCnte5Wy2yYYuEFdJ-5XN3Y_zS89u7OhSuWAaPhzO0ZR_Il09gCkskyZYo3S8SgpAelYStLtVl5q3UVYARIIXGNZJSIUG23G8_EfYdLZHJdNAYGKNsHAP7UV_3L-_USwJmRM6IgcN0DsEOWtBAYFsNv7oJf1U3g_LrEj5JaHGfaEfkVgjvI3OMvamnIAF8XcRuFh9mFn-g050e99D4iNZn0vt9cJQbOXBuBjcxezLnvySkfngY62JidzYdnsb1RndfpFjbltCoAXhkZlxOzwZul6NsSFRqCV8Id8hGqgF_PvZYVaHvhBPAt0yPr7UKv_94mY6Stza8JMrYDRBZy1RRRGHbnCgNTd-qpIneRoWQ_6mvmfc_3WQOPZAoIUfAuFFH8YZP9W4IKq4GsD2rft-wvymyw';
-const invalidFrontendToken = 'g37hTtciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2OTk0MDY0NDksImV4cCI6MTY5OTQwODI0OSwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgxIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwic3ViIjoidXNlckBmaW5wYXl0cmFuc3BhcmVuY3kuY2EifQ.EPKQXLlhotXGMD3fSJT32McYWB1UJR0HwwaTGiRmKUO-hyqvhezODtPV7J6o0r3aBvUePXfpecYRpVVlDtTUDlBeaiiMXzhe40I60OTLkCUy0xHK-ELGbBZtt_wHwjcwRCwkp0Hdswn2wITMJgH0l7xguCao2CYv22pVftzOrSbVE12f7b1nL4pUYLzmQvy1iJO3jIU-i8sNxjGQFJAS37f5FQsIWbyv82DNqgxgrBz8nROtpQ2etQQ15iKlQlQaJ9nosvo0epAmkeGjLCnte5Wy2yYYuEFdJ-5XN3Y_zS89u7OhSuWAaPhzO0ZR_Il09gCkskyZYo3S8SgpAelYStLtVl5q3UVYARIIXGNZJSIUG23G8_EfYdLZHJdNAYGKNsHAP7UV_3L-_USwJmRM6IgcN0DsEOWtBAYFsNv7oJf1U3g_LrEj5JaHGfaEfkVgjvI3OMvamnIAF8XcRuFh9mFn-g050e99D4iNZn0vt9cJQbOXBuBjcxezLnvySkfngY62JidzYdnsb1RndfpFjbltCoAXhkZlxOzwZul6gFdFRqCV8Id8hGqgF_PvZYVaHvhBPAt0yPr7UKv_94mY6Stza8JMrYDRBZy1RRRGHbnCgNTd-qpIneRoWQ_6mvmfc_3WQOPZAoIUfAuFFH8YZP9W4IKq4GsD2223-GfEmxd';
+const validFrontendToken = auth.generateUiToken();
+const invalidFrontendToken = 'invalid-token';
 
 // In utils-service mock only those methods that make calls to remote services
 // (for all other methods in this module keep the original implementation)
