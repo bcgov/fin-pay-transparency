@@ -118,11 +118,41 @@ frontend:
   tolerations: [ ]
   affinity: { }
 database:
-  enabled: false
+    enabled: true
+    replicaCount: 1
+    nameOverride: ""
+    fullnameOverride: ""
+    image:
+      repository: ghcr.io/bcgov/fin-pay-transparency/database
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ~
+    podAnnotations: { }
+    podSecurityContext: { }
+    securityContext: { }
+    imagePullSecrets: [ ]
+    autoscaling:
+      enabled: false
+    service:
+      type: ClusterIP
+      port: 5432
+      targetPort: 5432
+    nodeSelector: { }
+    tolerations: [ ]
+    affinity: { }
+    resources:
+      limits:
+        cpu: 250m
+        memory: 250Mi
+      requests:
+        cpu: 50m
+        memory: 100Mi
+    persistence:
+      enabled: true
+      size: 120Mi
+      accessMode: ReadWriteMany
+      storageClass: netapp-file-standard
 
-patroni:
-  enabled: true
-  secretOverride: patroni
 backup:
   enabled: true
   nameOverride: ""
