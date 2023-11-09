@@ -85,13 +85,13 @@ router.get('/logout', async (req, res, next) => {
     }
     req.session.destroy();
     const discovery = await utils.getOidcDiscovery();
-    let retUrl;
+    let retUrl: string;
     if (idToken) {
-      if (req.query && req.query.sessionExpired) {
+      if (req.query?.sessionExpired) {
         retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/session-expired' + '&id_token_hint=' + idToken);
-      } else if (req.query && req.query.loginError) {
+      } else if (req.query?.loginError) {
         retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/login-error' + '&id_token_hint=' + idToken);
-      } else if (req.query && req.query.loginBceid) {
+      } else if (req.query?.loginBceid) {
         retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/api/auth/login_bceid' + '&id_token_hint=' + idToken);
       } else {
         retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/logout' + '&id_token_hint=' + idToken);
@@ -120,21 +120,19 @@ router.post('/refresh', [
       errors: errors.array()
     });
   }
-  if (!req['user'] || !req['user'].refreshToken || !req?.user?.jwt) {
+  if (!req['user']?.refreshToken || !req?.user?.jwt) {
     res.status(401).json(UnauthorizedRsp);
-  } else {
-    if (auth.isTokenExpired(req.user.jwt)) {
-      if (req?.user?.refreshToken && auth.isRenewable(req.user.refreshToken)) {
-        return generateTokens(req, res);
-      } else {
-        res.status(401).json(UnauthorizedRsp);
-      }
+  } else if (auth.isTokenExpired(req.user.jwt)) {
+    if (req?.user?.refreshToken && auth.isRenewable(req.user.refreshToken)) {
+      return generateTokens(req, res);
     } else {
-      const responseJson = {
-        jwtFrontend: req.user.jwtFrontend
-      };
-      return res.status(200).json(responseJson);
+      res.status(401).json(UnauthorizedRsp);
     }
+  } else {
+    const responseJson = {
+      jwtFrontend: req.user.jwtFrontend
+    };
+    return res.status(200).json(responseJson);
   }
 });
 
@@ -161,7 +159,7 @@ router.get('/token', auth.refreshJWT, (req, res) => {
 
 async function generateTokens(req, res) {
   const result = await auth.renew(req.user.refreshToken);
-  if (result && result.jwt && result.refreshToken) {
+  if (result?.jwt && result?.refreshToken) {
     req.user.jwt = result.jwt;
     req.user.refreshToken = result.refreshToken;
     req.user.jwtFrontend = auth.generateUiToken();
