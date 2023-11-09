@@ -13,8 +13,10 @@ global:
     keycloakUrl: ~
     uiPrivateKey: ~
     uiPublicKey: ~
-    databaseReplicationPassword: ~
-    databaseSuperUserPassword: ~
+    bceidWsAuthPassword: ~
+    bceidWsAuthUserName: ~
+    bceidWsUrl: ~
+    bceidWsOnlineServiceId: ~
   zone: ~ # it is required, could be pr-123, dev, test, prod
   domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
 
@@ -191,3 +193,5 @@ backup:
     requests:
       cpu: 20m
       memory: 128Mi
+patroni:
+  enabled: false
