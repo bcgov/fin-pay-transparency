@@ -128,7 +128,7 @@ jobs:
           --set-string global.serverFrontend="https://dev.paytransparency.fin.gov.bc.ca" \
           --timeout 10m charts/fin-pay-transparency
       - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.7.0
+        uses: zaproxy/action-full-scan@v0.8.0
         with:
           target: https://${{ env.deployment_name }}-frontend-dev.apps.silver.devops.gov.bc.ca
           cmd_options: "-a"
