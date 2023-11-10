@@ -24,7 +24,7 @@ export const ApiRoutes = Object.freeze({
   fileUpload: {
     BASE_URL: fileUploadRoot,
   },
-
+  EMPLOYEE_COUNT_RANGES: baseRoot + "/v1/codes/employee-count-ranges"
 });
 
 export const PAGE_TITLES = Object.freeze({
