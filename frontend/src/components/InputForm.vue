@@ -4,7 +4,6 @@
       {{ alertMessage }}
     </v-alert>
     <v-form ref="generateReportForm" v-model="validForm">
-
       <v-row class="d-flex justify-center">
         <v-col xs="12" sm="10" md="8">
 
@@ -15,8 +14,8 @@
           </v-row>
 
           <!-- timeline -->
-          <v-row class="pt-7 mb-4">
-            <v-col cols="12">
+          <v-row class="pt-7 mb-4 d-flex justify-center">
+            <v-col cols="10">
 
               <v-row>
                 <v-col class="d-flex-col justify-center align-center">
@@ -55,29 +54,28 @@
             </v-col>
           </v-row>
 
-          <v-row class="d-flex justify-start" dense>
+          <v-row class="d-flex justify-start mt-12" dense>
             <v-col cols="12">
               <h2 class="text-center">Your Company Information</h2>
             </v-col>
 
             <v-col cols="12">
-              <v-text-field id="companyName" v-model="companyName" label="Company Name" :rules="requiredRules"
-                required></v-text-field>
+              <v-text-field id="companyName" v-model="companyName" label="Company Name" :rules="requiredRules" required
+                disabled></v-text-field>
             </v-col>
 
             <v-col cols="12">
               <v-text-field id="companyAddress" v-model="companyAddress" :rules="requiredRules" label="Company Address"
-                required></v-text-field>
+                required disabled></v-text-field>
             </v-col>
 
             <v-col cols="12">
-              <v-autocomplete id="naicsCode" v-model="naicsCode" :items="naicsCodeList"
-                label="NAICS Code"></v-autocomplete>
+              <v-autocomplete id="naicsCode" v-model="naicsCode" :items="naicsCodes" label="NAICS Code"></v-autocomplete>
             </v-col>
 
             <v-col cols="12">
               <v-select id="employeeCount" v-model="employeeCount" :rules="requiredRules" label="Employee Range Count"
-                :items="['50-299', '300-999', '1000+',]" required></v-select>
+                :items="employeeCountRanges" item-title="employee_count_range" required></v-select>
             </v-col>
 
             <v-col cols="6">
@@ -118,7 +116,7 @@
 
           </v-row>
 
-          <v-row>
+          <v-row class="mt-12 mb-12">
             <v-col cols="12" class="d-flex justify-center">
               <primary-button id="submitButton" :disabled="!validForm" :loading="isProcessing" text="Submit"
                 :click-action="submit" />
@@ -138,6 +136,9 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import PrimaryButton from './util/PrimaryButton.vue';
 import ApiService from '../common/apiService';
+import { useCodeStore } from '../store/modules/codeStore';
+import { authStore } from '../store/modules/auth';
+import { mapState, } from 'pinia';
 import moment from 'moment';
 
 export default {
@@ -153,6 +154,7 @@ export default {
     naicsCode: null,
     naicsCodeList: ["2342"],
     employeeCount: null,
+    employeeCountOptions: [],
     isProcessing: false,
     uploadFileValue: null,
     minStartDate: moment().subtract(2, "years").format("yyyy-MM"),
@@ -223,8 +225,8 @@ export default {
   },
   watch: {
     startDate(newVal) {
-      /* When the startDate changes, automatically adjust the endDate to be
-      12 months later */
+      // When the startDate changes, automatically adjust the endDate to be
+      // 12 months later
       if (newVal) {
         const startDate = moment(newVal)
         const endDate = moment(newVal).add(1, 'years').subtract(1, 'months')
@@ -232,16 +234,31 @@ export default {
       }
     },
     endDate(newVal) {
-      /* When the endDate changes, automatically adjust the startDate to be
-      12 months earlier */
+      // When the endDate changes, automatically adjust the startDate to be
+      // 12 months earlier
       if (newVal) {
         const endDate = moment(newVal)
         const startDate = moment(newVal).subtract(1, 'years').add(1, 'months')
         this.startDate = startDate.format("yyyy-MM");
       }
-    }
+    },
+    userInfo: {
+      // Watch for changes to userInfo (from the authStore).  Copy company name
+      // and address from that object into state variables in this component.
+      immediate: true,
+      handler(userInfo) {
+        this.companyName = userInfo?.legalName;
+        const address = `${userInfo?.addressLine1 ? userInfo?.addressLine1 : ""} ${userInfo?.addressLine2 ? userInfo?.addressLine2 : ""}`.trim();
+        this.companyAddress = address;
+      }
+    },
   },
   computed: {
+    ...mapState(useCodeStore, [
+      'employeeCountRanges',
+      'naicsCodes'
+    ]),
+    ...mapState(authStore, ['userInfo']),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },
