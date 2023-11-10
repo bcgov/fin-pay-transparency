@@ -8,6 +8,7 @@ import HttpStatus from 'http-status-codes';
 import safeStringify from 'fast-safe-stringify';
 import {ApiError} from './error';
 import {pick} from 'lodash';
+
 let kcPublicKey;
 const auth = {
   // Check if JWT Access Token has expired
@@ -55,7 +56,7 @@ const auth = {
       if (response.data?.access_token && response.data?.refresh_token) {
         result.jwt = response.data.access_token;
         result.refreshToken = response.data.refresh_token;
-        result.idToken= response.data.id_token;
+        result.idToken = response.data.id_token;
       } else {
         log.error('Access token or refresh token not retrieved properly');
       }
@@ -148,9 +149,9 @@ const auth = {
   },
   isValidBackendToken() {
     return async function (req, res, next) {
-      if(!kcPublicKey){
+      if (!kcPublicKey) {
         kcPublicKey = await utils.getKeycloakPublicKey();
-        if(!kcPublicKey){
+        if (!kcPublicKey) {
           log.error('error is from getKeycloakPublicKey');
           return res.status(HttpStatus.UNAUTHORIZED).json();
         }
@@ -172,14 +173,18 @@ const auth = {
     };
   },
   //TODO  call SOAP webservice of IDIM to get user info from BCeID
-  async  getUserInfo(req, res) {
+  async getUserInfo(req, res) {
     const userInfo = req?.session?.passport?.user;
-    if (!userInfo || !userInfo.jwt || !userInfo._json ) {
+    if (!userInfo || !userInfo.jwt || !userInfo._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         message: 'No session data'
       });
     }
-    return res.status(HttpStatus.OK).json(userInfo._json);
+    const userInfoFrontend = {
+      displayName: userInfo._json.display_name,
+      ...req.session.companyDetails
+    };
+    return res.status(HttpStatus.OK).json(userInfoFrontend);
   }
 };
 

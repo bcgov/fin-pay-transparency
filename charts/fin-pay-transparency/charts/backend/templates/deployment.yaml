@@ -32,20 +32,12 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.initResources | nindent 12 }}
-
+          envFrom:
+            - secretRef:
+                name: {{.Release.Name}}-{{ .Values.global.zone }}
           env:
             - name: FLYWAY_URL
               value: "jdbc:postgresql://{{.Release.Name}}-database-{{.Values.global.zone}}:5432/{{ .Values.global.secrets.databaseName}}"
-            - name: FLYWAY_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{ .Values.global.zone}}
-                  key: databaseUser
-            - name: FLYWAY_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{ .Values.global.zone}}
-                  key: databasePassword
             - name: FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
             - name: FLYWAY_DEFAULT_SCHEMA
@@ -56,6 +48,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "backend.fullname" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{.Release.Name}}-{{ .Values.global.zone }}
           env:
             - name: NODE_ENV
               value: production
@@ -74,50 +69,10 @@ spec:
               value: https://{{.Release.Name}}-backend-{{.Values.global.zone}}.{{.Values.global.domain}}
             - name: SITEMINDER_LOGOUT_ENDPOINT
               value: {{ .Values.app.env.siteminderLogoutEndpoint }}
-            - name: PUBLIC_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: uiPublicKey
-            - name: PRIVATE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: uiPrivateKey
-            - name: KEYCLOAK_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: keycloakClientId
-            - name: KEYCLOAK_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: keycloakClientSecret
-            - name: KEYCLOAK_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: keycloakUrl
-            - name: POSTGRESQL_HOST
-              value: {{.Release.Name}}-database-{{.Values.global.zone}}
-            - name: POSTGRESQL_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: databaseName
-            - name: POSTGRESQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: databasePassword
-            - name: POSTGRESQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{.Release.Name}}-{{.Values.global.zone}}
-                  key: databaseUser
             - name: SESSION_PATH
               value: '/app/sessions'
+            - name: POSTGRESQL_HOST
+              value: {{.Release.Name}}-database-{{.Values.global.zone}}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

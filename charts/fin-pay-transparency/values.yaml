@@ -13,8 +13,10 @@ global:
     keycloakUrl: ~
     uiPrivateKey: ~
     uiPublicKey: ~
-    databaseReplicationPassword: ~
-    databaseSuperUserPassword: ~
+    bceidWsAuthPassword: ~
+    bceidWsAuthUserName: ~
+    bceidWsUrl: ~
+    bceidWsOnlineServiceId: ~
     annotation:
       helm.sh/policy: "keep"
   zone: ~ # it is required, could be pr-123, dev, test, prod
@@ -150,6 +152,7 @@ database:
     size: 120Mi
     accessMode: ReadWriteMany
     storageClass: netapp-file-standard
+
 
 backup:
   enabled: true
