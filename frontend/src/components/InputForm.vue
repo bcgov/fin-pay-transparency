@@ -70,12 +70,14 @@
             </v-col>
 
             <v-col cols="12">
-              <v-autocomplete id="naicsCode" v-model="naicsCode" :items="naicsCodes" label="NAICS Code"></v-autocomplete>
+              <v-autocomplete id="naicsCode" ref="naicsCode" v-model="naicsCode" :items="naicsCodes"
+                label="NAICS Code"></v-autocomplete>
             </v-col>
 
             <v-col cols="12">
-              <v-select id="employeeCount" v-model="employeeCount" :rules="requiredRules" label="Employee Range Count"
-                :items="employeeCountRanges" item-title="employee_count_range" required></v-select>
+              <v-select id="employeeCountRange" ref="employeeCountRange" v-model="employeeCountRange"
+                :rules="requiredRules" label="Employee Count Range" :items="employeeCountRanges"
+                item-title="employee_count_range" required></v-select>
             </v-col>
 
             <v-col cols="6">
@@ -153,8 +155,7 @@ export default {
     companyAddress: '',
     naicsCode: null,
     naicsCodeList: ["2342"],
-    employeeCount: null,
-    employeeCountOptions: [],
+    employeeCountRange: null,
     isProcessing: false,
     uploadFileValue: null,
     minStartDate: moment().subtract(2, "years").format("yyyy-MM"),
