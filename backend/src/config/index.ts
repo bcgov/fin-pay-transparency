@@ -25,5 +25,13 @@ config.defaults({
     audience: process.env.AUDIENCE,
     issuer: process.env.ISSUER,
   },
+  bceidWsIntegration: {
+    auth: {
+      username: process.env.BCEID_WS_BASIC_AUTH_USERNAME,
+      password: process.env.BCEID_WS_BASIC_AUTH_PASSWORD,
+    },
+    url: process.env.BCEID_WS_URL,
+    onlineServiceId: process.env.BCEID_WS_ONLINE_SERVICE_ID,
+  }
 });
 export {config}

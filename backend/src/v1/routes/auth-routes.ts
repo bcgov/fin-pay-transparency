@@ -7,6 +7,8 @@ import {v4 as uuidv4} from 'uuid';
 import {utils} from '../services/utils-service';
 
 import {body, validationResult} from 'express-validator';
+import jsonwebtoken from "jsonwebtoken";
+import {getCompanyDetails} from '../../external/services/bceid-service';
 
 const router = express.Router();
 
@@ -39,12 +41,23 @@ router.get('/callback_business_bceid',
   passport.authenticate('oidcBusinessBceid', {
     failureMessage: true
   }),
-  (req, res) => {
+  async (req, res) => {
     log.debug(`Login flow callback bceid is called.`);
     const userInfo = utils.getSessionUser(req);
     const accessToken = userInfo.jwt;
-    const digitalID = userInfo._json.digitalIdentityID;
-    const correlationID = req.session?.correlationID;
+    const userGuid = jsonwebtoken.decode(accessToken)?.bceid_user_guid;
+    if (!userGuid) {
+      res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
+    }
+    if(!req.session?.companyDetails){
+      try{
+        req.session.companyDetails = await getCompanyDetails(userGuid);
+        // TODO add a call to store this information in the database via a service.
+      }catch (e) {
+        log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
+        res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
+      }
+    }
     res.redirect(config.get('server:frontend'));
   }
 );
@@ -72,19 +85,19 @@ router.get('/logout', async (req, res, next) => {
     }
     req.session.destroy();
     const discovery = await utils.getOidcDiscovery();
-    let retUrl;
-    if(idToken){
-      if (req.query && req.query.sessionExpired) {
-        retUrl = encodeURIComponent( discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/session-expired' + '&id_token_hint=' + idToken);
-      } else if (req.query && req.query.loginError) {
+    let retUrl: string;
+    if (idToken) {
+      if (req.query?.sessionExpired) {
+        retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/session-expired' + '&id_token_hint=' + idToken);
+      } else if (req.query?.loginError) {
         retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/login-error' + '&id_token_hint=' + idToken);
-      } else if (req.query && req.query.loginBceid) {
+      } else if (req.query?.loginBceid) {
         retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/api/auth/login_bceid' + '&id_token_hint=' + idToken);
       } else {
         retUrl = encodeURIComponent(discovery.end_session_endpoint + '?post_logout_redirect_uri=' + config.get('server:frontend') + '/logout' + '&id_token_hint=' + idToken);
       }
       res.redirect(config.get('siteMinder_logout_endpoint') + retUrl);
-    }else{
+    } else {
       res.redirect(config.get('server:frontend') + '/api/auth/login_bceid');
     }
 
@@ -107,21 +120,19 @@ router.post('/refresh', [
       errors: errors.array()
     });
   }
-  if (!req['user'] || !req['user'].refreshToken || !req?.user?.jwt) {
+  if (!req['user']?.refreshToken || !req?.user?.jwt) {
     res.status(401).json(UnauthorizedRsp);
-  } else {
-    if (auth.isTokenExpired(req.user.jwt)) {
-      if (req?.user?.refreshToken && auth.isRenewable(req.user.refreshToken)) {
-        return generateTokens(req, res);
-      } else {
-        res.status(401).json(UnauthorizedRsp);
-      }
+  } else if (auth.isTokenExpired(req.user.jwt)) {
+    if (req?.user?.refreshToken && auth.isRenewable(req.user.refreshToken)) {
+      return generateTokens(req, res);
     } else {
-      const responseJson = {
-        jwtFrontend: req.user.jwtFrontend
-      };
-      return res.status(200).json(responseJson);
+      res.status(401).json(UnauthorizedRsp);
     }
+  } else {
+    const responseJson = {
+      jwtFrontend: req.user.jwtFrontend
+    };
+    return res.status(200).json(responseJson);
   }
 });
 
@@ -148,7 +159,7 @@ router.get('/token', auth.refreshJWT, (req, res) => {
 
 async function generateTokens(req, res) {
   const result = await auth.renew(req.user.refreshToken);
-  if (result && result.jwt && result.refreshToken) {
+  if (result?.jwt && result?.refreshToken) {
     req.user.jwt = result.jwt;
     req.user.refreshToken = result.refreshToken;
     req.user.jwtFrontend = auth.generateUiToken();

@@ -21,29 +21,11 @@ prisma.$connect().then(() => {
   process.exit(1);
 });
 
-/**
- * Normalize a port into a number, string, or false.
- */
-function normalizePort(val) {
-  const portNumber = parseInt(val, 10);
-
-  if (isNaN(portNumber)) {
-    // named pipe
-    return val;
-  }
-
-  if (portNumber >= 0) {
-    // port number
-    return portNumber;
-  }
-
-  return false;
-}
 
 /**
  * Event listener for HTTP server "error" event.
  */
-function onError(error) {
+function onError(error: { syscall: string; code: any; }) {
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -76,15 +58,27 @@ function onListening() {
   logger.info('Listening on ' + bind);
 }
 
-process.on('SIGINT', async () => {
-  await prisma.$disconnect();
-  server.close();
-  logger.info('process terminated by SIGINT');
-  process.exit(0);
+process.on('SIGINT', () => {
+  prisma.$disconnect()
+    .then(() => {
+      server.close();
+      logger.info('process terminated by SIGINT');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Error while disconnecting from Prisma:', error);
+      process.exit(1); // Handle the error and exit with a non-zero status code
+    });
 });
-process.on('SIGTERM', async () => {
-  await prisma.$disconnect();
-  server.close();
-  logger.info('process terminated by SIGTERM');
-  process.exit(0);
+process.on('SIGTERM', () => {
+  prisma.$disconnect()
+    .then(() => {
+      server.close();
+      logger.info('process terminated by SIGTERM');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Error while disconnecting from Prisma:', error);
+      process.exit(1); // Handle the error and exit with a non-zero status code
+    });
 });

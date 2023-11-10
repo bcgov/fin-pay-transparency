@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Conventional Changelog Update
-        uses: TriPSs/conventional-changelog-action@v3
+        uses: TriPSs/conventional-changelog-action@v4
         id: changelog
         continue-on-error: true
         with:
@@ -107,10 +107,28 @@ jobs:
           oc project ${{ vars.oc_namespace }}
           
           # Deploy Helm Chart
-          helm upgrade --install --wait --atomic ${{ env.deployment_name }} --values charts/fin-pay-transparency/values.yaml  --set-string backend.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} --set-string frontend.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} --set database.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} --set global.zone=dev --set global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" --set global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" --set global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" --set global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" --set global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" --set global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" --set global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" --set global.secrets.databaseName="${{ secrets.DATABASE_NAME }}" --set global.serverFrontend="https://dev.paytransparency.fin.gov.bc.ca" --timeout 10m charts/fin-pay-transparency
-
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }} \
+          --values charts/fin-pay-transparency/values.yaml \
+          --set-string backend.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} \
+          --set-string frontend.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} \
+          --set-string database.image.tag=${{ needs.semantic-version.outputs.semanticVersion }} \
+          --set-string global.zone=dev \
+          --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
+          --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \
+          --set-string global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" \
+          --set-string global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" \
+          --set-string global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" \
+          --set-string global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" \
+          --set-string global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" \
+          --set-string global.secrets.databaseName="${{ secrets.DATABASE_NAME }}"  \
+          --set-string global.secrets.bceidWsUrl="${{ secrets.BCEID_WS_URL }}" \
+          --set-string global.secrets.bceidWsAuthPassword="${{ secrets.BCEID_WS_BASIC_AUTH_PASSWORD }}" \
+          --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
+          --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
+          --set-string global.serverFrontend="https://dev.paytransparency.fin.gov.bc.ca" \
+          --timeout 10m charts/fin-pay-transparency
       - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.7.0
+        uses: zaproxy/action-full-scan@v0.8.0
         with:
           target: https://${{ env.deployment_name }}-frontend-dev.apps.silver.devops.gov.bc.ca
           cmd_options: "-a"
