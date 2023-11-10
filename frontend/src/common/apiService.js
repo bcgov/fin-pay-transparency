@@ -59,6 +59,26 @@ export default {
       delete apiAxios.defaults.headers.common['Authorization'];
     }
   },
+  async getEmployeeCountRanges() {
+    try{
+      const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error("Unable to fetch employee count ranges from API");
+    } catch(e) {
+      console.log(`Failed to get employee count ranges from API - ${e}`);
+      throw e;
+    }
+  },
+  async getNaicsCodes() {
+    try{      
+      return ["1", "2", "3"]
+    } catch(e) {
+      console.log(`Failed to get NAICS from API - ${e}`);
+      throw e;
+    }
+  },  
   async getUserInfo() {
     try{
       return await apiAxios.get(ApiRoutes.USER);
