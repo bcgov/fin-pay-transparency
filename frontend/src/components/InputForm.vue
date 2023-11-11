@@ -1,10 +1,8 @@
 <template>
   <v-container class="d-flex justify-center">
-    <v-alert v-model="alert" dense outlined dismissible :class="alertType" class="mb-3">
-      {{ alertMessage }}
-    </v-alert>
-    <v-form ref="generateReportForm" v-model="validForm">
-      <v-row class="d-flex justify-center">
+
+    <v-form ref="inputForm">
+      <v-row class=" d-flex justify-center">
         <v-col xs="12" sm="10" md="8">
 
           <v-row class="pt-7">
@@ -69,29 +67,33 @@
                 required disabled></v-text-field>
             </v-col>
 
-            <v-col cols="12">
-              <v-autocomplete id="naicsCode" ref="naicsCode" v-model="naicsCode" :items="naicsCodes"
-                label="NAICS Code"></v-autocomplete>
+            <v-col cols="12" class="d-flex">
+              <v-autocomplete id="naicsCode" ref="naicsCode" v-model="naicsCode" :rules="requiredRules"
+                :items="naicsCodes" label="NAICS Code" required></v-autocomplete>
+              <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!naicsCode"></v-icon>
             </v-col>
 
-            <v-col cols="12">
+            <v-col cols="12" class="d-flex">
               <v-select id="employeeCountRange" ref="employeeCountRange" v-model="employeeCountRange"
                 :rules="requiredRules" label="Employee Count Range" :items="employeeCountRanges"
                 item-title="employee_count_range" required></v-select>
+              <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!employeeCountRange"></v-icon>
             </v-col>
 
-            <v-col cols="6">
+            <v-col cols="6" class="d-flex">
               <VueDatePicker id="startDate" ref="startDate" v-model="startDate" model-type="yyyy-MM" month-picker
                 auto-apply format="MMMM yyyy" placeholder="Start Date" input-class-name="datepicker-input"
                 :min-date="minStartDate" :max-date="maxStartDate" prevent-min-max-navigation
                 :action-row="{ showSelect: false, showCancel: false, showNow: false, showPreview: false }" />
+              <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!startDate"></v-icon>
             </v-col>
 
-            <v-col cols="6">
+            <v-col cols="6" class="d-flex">
               <VueDatePicker id="endDate" ref="endDate" v-model="endDate" model-type="yyyy-MM" month-picker auto-apply
                 format="MMMM yyyy" placeholder="End Date" input-class-name="datepicker-input" :min-date="minEndDate"
                 :max-date="maxEndDate" prevent-min-max-navigation
                 :action-row="{ showSelect: false, showCancel: false, showNow: false, showPreview: false }" />
+              <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!endDate"></v-icon>
             </v-col>
 
             <v-col cols="12" class="mt-6">
@@ -106,9 +108,12 @@
                 (<u>bc-pay-transparency-tool-data-template.csv</u>) for accurate processing.
               </p>
               <v-sheet class="pa-5" style="border-style: dashed; border: 3px dashed #666666; border-radius: 10px;">
-                <v-file-input id="csvFile" v-model="uploadFileValue" color="#003366" :accept="fileAccept"
-                  hint="Select a CSV file" :error-messages="fileInputError" placeholder="Select a CSV file"
-                  :rules="fileRules" />
+                <div class="d-flex">
+                  <v-file-input id="csvFile" v-model="uploadFileValue" color="#003366" :accept="fileAccept"
+                    hint="Select a CSV file" :error-messages="fileInputError" placeholder="Select a CSV file"
+                    :rules="requiredRules" />
+                  <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!uploadFileValue"></v-icon>
+                </div>
 
                 <p class="d-flex justify-center">
                   Supported format: CSV. Maximum file size: xxMB.
@@ -118,10 +123,23 @@
 
           </v-row>
 
-          <v-row class="mt-12 mb-12">
+          <v-row class="mt-6">
+            <v-col cols="12" class="d-flex justify-center" v-if="!areRequiredFieldsComplete">
+              <v-icon color="error" icon="mdi-asterisk" size="x-small"></v-icon>
+              Please complete all required fields
+            </v-col>
             <v-col cols="12" class="d-flex justify-center">
-              <primary-button id="submitButton" :disabled="!validForm" :loading="isProcessing" text="Submit"
-                :click-action="submit" />
+
+              <primary-button id="submitButton" :disabled="!areRequiredFieldsComplete" :loading="isProcessing"
+                text="Submit" :click-action="submit" />
+            </v-col>
+          </v-row>
+
+          <v-row class="mt-6">
+            <v-col>
+              <v-alert v-model="alert" dense outlined dismissible :class="alertType" class="mb-3">
+                {{ alertMessage }}
+              </v-alert>
             </v-col>
           </v-row>
 
@@ -149,12 +167,11 @@ export default {
     VueDatePicker
   },
   data: () => ({
-    validForm: false,
+    validForm: null,
     requiredRules: [v => !!v || 'Required'],
     companyName: '',
     companyAddress: '',
     naicsCode: null,
-    naicsCodeList: ["2342"],
     employeeCountRange: null,
     isProcessing: false,
     uploadFileValue: null,
@@ -187,12 +204,22 @@ export default {
       this.isProcessing = true;
       console.log('generate report');
       try {
-        const response = await ApiService.apiAxios.post('/api/v1/file-upload', {
+        const formData = new FormData();
+        formData.append('companyName', this.companyName);
+        formData.append('companyAddress', this.companyAddress);
+        formData.append('naicsCode', this.naicsCode);
+        formData.append('employeeCountRange', this.employeeCountRange);
+        formData.append('startDate', this.startDate);
+        formData.append('endDate', this.endDate);
+        formData.append('comments', this.comments);
+        formData.append('file', this.uploadFileValue[0]);
+        const oldBody = {
           companyName: this.companyName,
           companyAddress: this.companyAddress,
           employeeCount: this.employeeCount,
           file: this.uploadFileValue[0],
-        });
+        }
+        const response = await ApiService.postSubmission(formData);
         console.log(response);
         this.setSuccessAlert('Report generated successfully');
         this.isProcessing = false;
@@ -266,6 +293,15 @@ export default {
     fromDateDisp() {
       return this.fromDateVal;
     },
+    areRequiredFieldsComplete() {
+      return !!this.companyName &&
+        !!this.companyAddress &&
+        !!this.naicsCode &&
+        !!this.employeeCountRange &&
+        !!this.startDate &&
+        !!this.endDate &&
+        !!this.uploadFileValue
+    }
   }
 };
 </script>
