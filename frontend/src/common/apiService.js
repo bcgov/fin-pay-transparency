@@ -59,6 +59,18 @@ export default {
       delete apiAxios.defaults.headers.common['Authorization'];
     }
   },
+  async postSubmission(formData) {
+    try{
+      const resp = await apiAxios.post(ApiRoutes.POST_SUBMISSION, formData);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error("Unable to post the submission");
+    } catch(e) {
+      console.log(`Failed topost the submission - ${e}`);
+      throw e;
+    }
+  },
   async getEmployeeCountRanges() {
     try{
       const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
