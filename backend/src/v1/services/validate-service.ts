@@ -30,11 +30,21 @@ const NUMERIC_COLUMNS = [
 ];
 const INVALID_COLUMN_ERROR = "Invalid CSV format. Please ensure the uploaded file contains the following columns: " + EXPECTED_COLUMNS.join(",")
 const GENDER_CODES = ["M", "F", "X", "U", "W"];
-const ZERO_SYNONYMS = ["", "N/A"]
+const ZERO_SYNONYMS = ["N/A"]
 
 interface Row {
   record: any;
   raw: string
+}
+
+interface FileErrors {
+  generalErrors: string[],
+  lineErrors: LineErrors[]
+}
+
+interface LineErrors {
+  lineNum: number,
+  errors: string[]
 }
 
 const validateService = {
@@ -53,9 +63,12 @@ const validateService = {
   are found, or returns an empty array if no errors are found (if the 
   submission is valid)
   */
-  validateCsv(csvContent: string): string[] {
+  validateCsv(csvContent: string): FileErrors {
 
-    const errorsToReturn: string[] = [];
+    const fileErrors: FileErrors = {
+      generalErrors: null,
+      lineErrors: null
+    }
 
     // Parse the CSV content and check that the column names as
     // expected (and in the expected order)    
@@ -64,22 +77,26 @@ const validateService = {
       rows = this.parseCsv(csvContent)
     }
     catch (e) {
-      errorsToReturn.push(e.message);
+      fileErrors.generalErrors = [e.message];
     }
 
     // If there were errors during the first stages of validation then
     // return those errors now without doing any further validation.
-    if (errorsToReturn?.length) {
-      return errorsToReturn;
+    if (fileErrors.generalErrors?.length) {
+      return fileErrors;
     }
 
     // Scan each row, checking that they all have valid content in all columns
-    const rowErrors = this.validateRows(rows);
-    if (rowErrors?.length) {
-      errorsToReturn.push(...rowErrors);
+    const lineErrors: LineErrors[] = this.validateRows(rows);
+    if (lineErrors?.length) {
+      fileErrors.lineErrors = lineErrors;
     }
 
-    return errorsToReturn;
+    if (fileErrors.generalErrors?.length || fileErrors.lineErrors?.length) {
+      return fileErrors
+    }
+
+    return null;
   },
 
   /*
@@ -148,15 +165,18 @@ const validateService = {
   Scans all rows.  For each row check that all columns have valid values.  
   Return an array of any row errors found
   */
-  validateRows(rows: Row[]): string[] {
-    const allRowErrors: string[] = [];
+  validateRows(rows: Row[]): LineErrors[] {
+    const allRowErrors: LineErrors[] = [];
     for (var rowNum = 0; rowNum < rows.length; rowNum++) {
-      const lineNum = rowNum + 1;
+
+      //+1 because the line numbers are not zero-indexed, and 
+      //+1 again because the first data line is actually the second line of the file(after the header line)
+      const lineNum = rowNum + 2;
+
       const row = rows[rowNum];
-      const errorsForCurrentRow = this.validateRow(lineNum, row);
-      if (errorsForCurrentRow?.length) {
-        const rowError = `Line ${lineNum}: ${errorsForCurrentRow.join(" ")}`
-        allRowErrors.push(rowError);
+      const errorsForCurrentLine: LineErrors = this.validateRow(lineNum, row);
+      if (errorsForCurrentLine) {
+        allRowErrors.push(errorsForCurrentLine);
       }
     }
     return allRowErrors;
@@ -164,21 +184,30 @@ const validateService = {
 
   /*
   Scans the given row. Check that all columns have valid values.  
-  Return an array of any errors in the given row
+  Return a LineErrors object if any errors are found, or returns null 
+  if no errors are found
   */
-  validateRow(rowNum: number, row: Row): string[] {
+  validateRow(lineNum: number, row: Row): LineErrors {
     const record = row.record;
-    const errors: string[] = [];
+    const errorMessages: string[] = [];
     if (GENDER_CODES.indexOf(record[COL_GENDER_CODE]) == -1) {
-      errors.push(`Invalid ${COL_GENDER_CODE} '${record[COL_GENDER_CODE]}' (expected one of: ${GENDER_CODES}).`)
+      errorMessages.push(`Invalid ${COL_GENDER_CODE} '${record[COL_GENDER_CODE]}' (expected one of: ${GENDER_CODES}).`)
     }
     NUMERIC_COLUMNS.forEach(colName => {
-      if (!this.isZeroSynonym(record[colName]) && !this.isValidNumber(record[colName])) {
-        errors.push(`Invalid number '${record[colName]}' in ${colName}.`)
+      if (!this.isZeroSynonym(record[colName]) && !this.isValidNumber(record[colName], 0)) {
+        errorMessages.push(`Invalid number '${record[colName]}' in ${colName}.`)
       }
     })
 
-    return errors;
+    if (errorMessages.length) {
+      const lineErrors = {
+        lineNum: lineNum,
+        errors: errorMessages
+      }
+      return lineErrors;
+    }
+
+    return null;
   },
 
   /*
@@ -194,7 +223,6 @@ const validateService = {
 
   isValidNumber(val: any, min: number = null, max: number = null): boolean {
     if (val === null || isNaN(val)) {
-      console.log("null value");
       return false
     }
 
@@ -223,5 +251,8 @@ const validateService = {
 
 }
 
-export { validateService };
+export {
+  FileErrors,
+  validateService
+};
 

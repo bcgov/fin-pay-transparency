@@ -2,15 +2,17 @@ import express from "express";
 import passport from 'passport';
 import { auth } from "../services/auth-service";
 import { getCompanies } from '../services/file-upload-service';
-import { validateService } from "../services/validate-service";
+import { FileErrors, validateService } from "../services/validate-service";
 const multer = require('multer');
 const upload = multer();
 
 interface ValidationErrorResponse {
   status: string;
-  body_errors: string[];
-  file_errors: string[];
-  general_errors: string[];
+  errors: {
+    bodyErrors: string[];
+    fileErrors: FileErrors | null;
+    generalErrors: string[];
+  }
 }
 
 const fileUploadRouter = express.Router();
@@ -24,11 +26,13 @@ fileUploadRouter.post("/",
     try {
       const bodyErrors = validateService.validateBody(req.body);
       const fileErrors = validateService.validateCsv(req.file.buffer);
-      if (bodyErrors?.length || fileErrors?.length) {
+      if (bodyErrors?.length || fileErrors) {
         res.status(400).json({
           status: "error",
-          body_errors: bodyErrors,
-          file_errors: fileErrors
+          errors: {
+            bodyErrors: bodyErrors,
+            fileErrors: fileErrors
+          }
         } as ValidationErrorResponse)
         return;
       }
@@ -36,7 +40,9 @@ fileUploadRouter.post("/",
     catch (e) {
       res.status(500).json({
         status: "error",
-        general_errors: ["Something went wrong"]
+        errors: {
+          generalErrors: ["Something went wrong"]
+        }
       } as ValidationErrorResponse)
       return;
     }
