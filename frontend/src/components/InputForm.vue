@@ -135,10 +135,54 @@
             </v-col>
           </v-row>
 
-          <v-row class="mt-6">
+          <v-row class="mt-3">
             <v-col>
-              <v-alert v-model="alert" dense outlined dismissible :class="alertType" class="mb-3">
+              <v-alert v-if="alertMessage" dense outlined dismissible :class="alertType" class="mb-3">
                 {{ alertMessage }}
+              </v-alert>
+            </v-col>
+          </v-row>
+
+          <v-row class="mt-3" v-if="submissionErrors">
+            <v-col>
+              <v-alert dense outlined dismissible class="bootstrap-error mb-3">
+                <h4 class="mb-3">The uploaded CSV file is invalid. Please see below for an explanation.</h4>
+
+                <v-table v-if="submissionErrors.generalErrors" density="compact">
+                  <tbody>
+                    <tr v-for="generalError in submissionErrors.generalErrors">
+                      <td class="text-left">
+                        {{ generalError }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+
+                <p class="mb-3">Problems were found on the following lines.</p>
+                <div v-if="submissionErrors.fileErrors">
+                  <v-table density="compact">
+                    <thead>
+                      <tr>
+                        <th class="text-left">
+                          Line
+                        </th>
+                        <th class="text-left">
+                          Problem(s)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="lineError in submissionErrors.fileErrors.lineErrors" :key="lineError.lineNum">
+                        <td class="text-left">{{ lineError.lineNum }}</td>
+                        <td class="text-left ">
+                          <span v-for="errMsg in lineError.errors" class="mr-2">
+                            {{ errMsg }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </div>
               </v-alert>
             </v-col>
           </v-row>
@@ -150,7 +194,7 @@
 
   </v-container>
 </template>
-<script>
+<script lang="ts">
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -160,6 +204,22 @@ import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
 import { mapState, } from 'pinia';
 import moment from 'moment';
+
+interface LineErrors {
+  lineNum: number,
+  errors: string[]
+}
+
+interface FileErrors {
+  generalErrors: string[] | null;
+  lineErrors: LineErrors[] | null;
+}
+
+interface SubmissionErrors {
+  bodyErrors: string[] | null;
+  fileErrors: FileErrors | null;
+  generalErrors: string[];
+}
 
 export default {
   components: {
@@ -185,20 +245,17 @@ export default {
     fileAccept: '.csv',
     fileRules: [],
     fileInputError: [],
-    alert: false,
     alertMessage: null,
     alertType: null,
+    submissionErrors: null as SubmissionErrors | null
   }),
   methods: {
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
-      this.alert = true;
     },
-    setErrorAlert(alertMessage) {
-      this.alertMessage = alertMessage;
-      this.alertType = 'bootstrap-error';
-      this.alert = true;
+    setErrorAlert(submissionErrors: SubmissionErrors | null) {
+      this.submissionErrors = submissionErrors;
     },
     async submit() {
       this.isProcessing = true;
@@ -221,12 +278,14 @@ export default {
         }
         const response = await ApiService.postSubmission(formData);
         console.log(response);
-        this.setSuccessAlert('Report generated successfully');
+        this.setSuccessAlert('Submission received.');
+        this.setErrorAlert(null);
         this.isProcessing = false;
       } catch (error) {
         console.error(error);
         this.isProcessing = false;
-        this.setErrorAlert(error.response.data.message);
+        this.setSuccessAlert(null);
+        this.setErrorAlert(error.response.data?.errors);
       }
 
     },
@@ -242,7 +301,9 @@ export default {
             reader.readAsBinaryString(this.uploadFileValue[0]);
           } else {
             this.active = false;
-            this.setErrorAlert('Please remove spaces and special characters from file name and try uploading again.');
+            this.setErrorAlert({
+              general_errors: ["Please remove spaces and special characters from file name and try uploading again."]
+            });
           }
         } catch (e) {
 
