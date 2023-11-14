@@ -1,6 +1,6 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
-import ApiService from '../../common/apiService.js';
+import ApiService from '../../common/apiService';
 import { authStore } from './auth.js';
 
 /*
@@ -26,6 +26,7 @@ export const useCodeStore = defineStore('code', () => {
   const fetchAllCodes = async () => {
     const employeeCountRanges = await ApiService.getEmployeeCountRanges()
     setEmployeeCountRanges(employeeCountRanges)
+
 
     const naicsCodes = await ApiService.getNaicsCodes()
     setNaicsCodes(naicsCodes)
