@@ -25,6 +25,7 @@ export const ApiRoutes = Object.freeze({
     BASE_URL: fileUploadRoot,
   },
   EMPLOYEE_COUNT_RANGES: baseRoot + "/v1/codes/employee-count-ranges",
+  NAICS_CODES: baseRoot + "/v1/codes/naics-codes",
   POST_SUBMISSION: baseRoot + "/v1/file-upload",
 });
 
