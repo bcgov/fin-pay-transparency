@@ -59,6 +59,42 @@ export default {
       delete apiAxios.defaults.headers.common['Authorization'];
     }
   },
+  async postSubmission(formData) {
+    try{
+      const resp = await apiAxios.post(ApiRoutes.POST_SUBMISSION, formData);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error("Unable to post the submission");
+    } catch(e) {
+      console.log(`Failed topost the submission - ${e}`);
+      throw e;
+    }
+  },
+  async getEmployeeCountRanges() {
+    try{
+      const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error("Unable to fetch employee count ranges from API");
+    } catch(e) {
+      console.log(`Failed to get employee count ranges from API - ${e}`);
+      throw e;
+    }
+  },
+  async getNaicsCodes() {
+    try{      
+      const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
+      if (resp?.data) {        
+        return resp.data;
+      }
+      throw new Error("Unable to fetch NAICS codes from API");
+    } catch(e) {
+      console.log(`Failed to get NAICS from API - ${e}`);
+      throw e;
+    }
+  },  
   async getUserInfo() {
     try{
       return await apiAxios.get(ApiRoutes.USER);

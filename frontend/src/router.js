@@ -43,7 +43,7 @@ const router = createRouter({
       component: InputForm,
       meta: {
         pageTitle: PAGE_TITLES.REPORT,
-        requiresAuth: false
+        requiresAuth: true
       }
     },
   ]

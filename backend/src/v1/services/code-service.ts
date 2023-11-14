@@ -26,6 +26,7 @@ const codeService = {
     }
 
     //No cached values, so fetch from database
+
     if (!employeeCountRangeCache?.length) {
       employeeCountRangeCache = await prisma.employee_count_range.findMany({
         select: {
@@ -48,6 +49,7 @@ const codeService = {
                 gt: now.toDate(),
               }
             }
+
           ]
         }
       });
