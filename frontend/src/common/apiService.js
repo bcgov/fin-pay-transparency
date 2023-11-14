@@ -85,7 +85,11 @@ export default {
   },
   async getNaicsCodes() {
     try{      
-      return ["1", "2", "3"]
+      const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
+      if (resp?.data) {        
+        return resp.data;
+      }
+      throw new Error("Unable to fetch NAICS codes from API");
     } catch(e) {
       console.log(`Failed to get NAICS from API - ${e}`);
       throw e;
