@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createVuetify } from "vuetify";
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
 import InputForm from '../InputForm.vue';
 
@@ -76,11 +77,46 @@ describe("InputForm", () => {
     // this property and uses it to populate the list of options for the NAICS Code
     // form field.
     const codeStore = useCodeStore(pinia)
-    const naicsCodes = ["1", "2"];
+    const naicsCodes = [
+      {
+        "naics_code": "11",
+        "naics_label": "Agriculture, forestry, fishing and hunting",
+        "naics_code_desc": "Agriculture, forestry, fishing and hunting"
+      },
+      {
+        "naics_code": "913",
+        "naics_label": "Local, municipal and regional public administration",
+        "naics_code_desc": "Public administration > Local, municipal and regional public administration"
+      }
+    ];
     await codeStore.$patch({ naicsCodes: naicsCodes } as any)
 
-    const employeeCountRangeComponent = wrapper.findComponent({ ref: 'naicsCode' })
-    expect(employeeCountRangeComponent.vm.items.length).toBe(naicsCodes.length);
+    const naicsCodeComponent = wrapper.findComponent({ ref: 'naicsCode' })
+    expect(naicsCodeComponent.vm.items.length).toBe(naicsCodes.length);
+
+  })
+
+  it("Form controls for company name and address are auto-populated and disabled", async () => {
+
+    // Mock the userInfo property of the authStore.  InputForm.vue reads
+    // this property and uses it to populate the Company Name and Company Address
+    //fields.
+    const auth = authStore(pinia)
+    const userInfo = {
+      legalName: "Fake Company",
+      addressLine1: "123 main st",
+      addressLine2: ""
+    };
+    await auth.$patch({ userInfo: userInfo } as any)
+
+    const companyNameComponent = wrapper.findComponent({ ref: 'companyName' })
+    expect(companyNameComponent.vm.value).toBe(userInfo.legalName);
+    expect(companyNameComponent.vm.disabled).toBeTruthy();
+
+    const companyAddressComponent = wrapper.findComponent({ ref: 'companyAddress' })
+    expect(companyAddressComponent.vm.value).toContain(userInfo.addressLine1);
+    expect(companyAddressComponent.vm.value).toContain(userInfo.addressLine2);
+    expect(companyAddressComponent.vm.disabled).toBeTruthy();
 
   })
 

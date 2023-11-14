@@ -58,18 +58,19 @@
             </v-col>
 
             <v-col cols="12">
-              <v-text-field id="companyName" v-model="companyName" label="Company Name" :rules="requiredRules" required
-                disabled></v-text-field>
+              <v-text-field id="companyName" ref="companyName" v-model="companyName" label="Company Name"
+                :rules="requiredRules" required disabled></v-text-field>
             </v-col>
 
             <v-col cols="12">
-              <v-text-field id="companyAddress" v-model="companyAddress" :rules="requiredRules" label="Company Address"
-                required disabled></v-text-field>
+              <v-text-field id="companyAddress" ref="companyAddress" v-model="companyAddress" :rules="requiredRules"
+                label="Company Address" required disabled></v-text-field>
             </v-col>
 
             <v-col cols="12" class="d-flex">
               <v-autocomplete id="naicsCode" ref="naicsCode" v-model="naicsCode" :rules="requiredRules"
-                :items="naicsCodes" label="NAICS Code" required></v-autocomplete>
+                :items="naicsCodes" :item-title="n => `${n.naics_code} - ${n.naics_label}`" label="NAICS Code"
+                required></v-autocomplete>
               <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!naicsCode"></v-icon>
             </v-col>
 
@@ -232,6 +233,7 @@ export default {
     companyName: '',
     companyAddress: '',
     naicsCode: null,
+    naicsCodesTruncated: [],
     employeeCountRange: null,
     isProcessing: false,
     uploadFileValue: null,
@@ -313,6 +315,9 @@ export default {
     },
   },
   watch: {
+    naicsCodes(val) {
+      this.naicsCodesTruncated = val?.length > 25 ? val.slice(0, 25) : val
+    },
     startDate(newVal) {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later

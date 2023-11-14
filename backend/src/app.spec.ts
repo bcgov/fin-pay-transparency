@@ -36,6 +36,9 @@ jest.mock('./v1/prisma/prisma-client', () => {
   return {
     employee_count_range: {
       findMany: jest.fn()
+    },
+    naics_code: {
+      findMany: jest.fn()
     }
   }
 })
@@ -120,6 +123,48 @@ describe("GET /employee-count-range", () => {
 
       const res = await request(app)
         .get("/api/v1/codes/employee-count-ranges")
+        .set('Authorization', 'Bearer ' + invalidFrontendToken)
+        .set('Accept', 'application/json')
+
+      expect(res.statusCode).toBe(401);
+
+    })
+  })
+})
+
+describe("GET /naics-codes", () => {
+
+  // Mock the database query executed by the API endpoint's implementation:
+  // (The call to codeService.getAllNaicsCodes can cause a database 
+  // query.)
+  const mockDBResp = [
+    {
+      naics_code: '1',
+      naics_label: 'test1',
+      naics_code_desc: 'test1desc',
+    }
+  ];
+  (prisma.naics_code.findMany as jest.Mock).mockResolvedValue(mockDBResp);
+
+  describe("given a valid 'frontend token' in the Authorization header", () => {
+    it("responds with HTTP 200 and a JSON array of values in the body", async () => {
+
+      const res = await request(app)
+        .get("/api/v1/codes/naics-codes")
+        .set('Authorization', 'Bearer ' + validFrontendToken)
+        .set('Accept', 'application/json')
+
+      expect(res.statusCode).toBe(200);
+      expect(res.headers["content-type"]).toContain("application/json");
+      expect(res.body[0].naics_code).toBe(mockDBResp[0].naics_code);
+
+    })
+  })
+  describe("given an invalid 'frontend token' in the Authorization header", () => {
+    it("returns HTTP 401 (unauthorized)", async () => {
+
+      const res = await request(app)
+        .get("/api/v1/codes/naics-codes")
         .set('Authorization', 'Bearer ' + invalidFrontendToken)
         .set('Accept', 'application/json')
 
