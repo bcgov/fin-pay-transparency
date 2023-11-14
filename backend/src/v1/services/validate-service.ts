@@ -253,6 +253,8 @@ const validateService = {
 
 export {
   FileErrors,
+  LineErrors,
+  Row,
   validateService
 };
 
