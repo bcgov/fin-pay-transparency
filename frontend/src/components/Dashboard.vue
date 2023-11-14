@@ -17,7 +17,7 @@
               Then click the button below to access a submission
               form, where you'll be asked to enter information about your company and upload your CSV file.
             </p>
-            <v-btn color="secondary" to="GenerateReport">Generate Pay Transparency Report</v-btn>
+            <v-btn color="secondary" to="InputForm">Generate Pay Transparency Report</v-btn>
           </v-card-text>
         </v-card>
 
