@@ -69,7 +69,8 @@
 
             <v-col cols="12" class="d-flex">
               <v-autocomplete id="naicsCode" ref="naicsCode" v-model="naicsCode" :rules="requiredRules"
-                :items="naicsCodes" label="NAICS Code" required></v-autocomplete>
+                :items="naicsCodesTruncated" :item-title="n => `${n.naics_code} - ${n.naics_label}`" label="NAICS Code"
+                required></v-autocomplete>
               <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!naicsCode"></v-icon>
             </v-col>
 
@@ -172,6 +173,7 @@ export default {
     companyName: '',
     companyAddress: '',
     naicsCode: null,
+    naicsCodesTruncated: [],
     employeeCountRange: null,
     isProcessing: false,
     uploadFileValue: null,
@@ -252,6 +254,9 @@ export default {
     },
   },
   watch: {
+    naicsCodes(val) {
+      this.naicsCodesTruncated = val?.length > 25 ? val.slice(0, 25) : val
+    },
     startDate(newVal) {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later
