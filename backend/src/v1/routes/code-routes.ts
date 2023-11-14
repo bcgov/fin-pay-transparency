@@ -11,5 +11,10 @@ router.get('/employee-count-ranges', passport.authenticate('jwt', { session: fal
   res.status(200).json(body);
 });
 
+router.get('/naics-codes', passport.authenticate('jwt', { session: false }), isValidBackendToken, async (req, res) => {
+  const body = await codeService.getAllNaicsCodes()
+  res.status(200).json(body);
+});
+
 export = router;
 
