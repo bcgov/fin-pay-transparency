@@ -1,29 +1,24 @@
 <template>
   <v-app id="app">
-    <MsieBanner v-if="isIE"/>
-    <Header/>
-    <SnackBar/>
-    <NavBar
-        v-if="pageTitle"
-        :title="pageTitle"
-    />
-    <v-main
-        fluid
-        class="align-start"
-    >
-      <router-view/>
+    <MsieBanner v-if="isIE" />
+    <Header />
+    <SnackBar />
+    <NavBar v-if="pageTitle" :title="pageTitle" />
+    <v-main fluid class="align-start">
+      <router-view />
     </v-main>
-    <Footer/>
+    <Footer />
   </v-app>
 </template>
 
 <script>
-import {appStore} from './store/modules/app';
-import {mapState} from 'pinia';
+import { appStore } from './store/modules/app';
+import { mapState } from 'pinia';
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
+import { NotificationService } from './common/notificationService';
 
 export default {
   name: 'App',
@@ -37,6 +32,14 @@ export default {
     ...mapState(appStore, ['pageTitle']),
     isIE() {
       return /Trident\/|MSIE/.test(window.navigator.userAgent);
+    }
+  },
+  watch: {
+    '$route'(to, from) {
+      if (to.fullPath != "/error") {
+        //Reset error page message back to the default
+        NotificationService.setErrorPageMessage();
+      }
     }
   },
   async created() {
@@ -167,5 +170,4 @@ h1 {
 .theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
   background-color: rgba(0, 0, 0, .12) !important;
 }
-
 </style>
