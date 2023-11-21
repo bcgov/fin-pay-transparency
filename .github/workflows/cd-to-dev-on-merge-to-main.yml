@@ -79,6 +79,6 @@ jobs:
     with:
       target: dev
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}
-      frontend_url: https://dev.paytransparency.fin.gov.bc.ca
+      frontend-url: https://dev.paytransparency.fin.gov.bc.ca
 
 

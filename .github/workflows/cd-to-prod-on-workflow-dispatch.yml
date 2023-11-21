@@ -36,5 +36,5 @@ jobs:
       target: prod
       tag: ${{ github.event.inputs.tag }}
       penetration_test: false
-      frontend_url: https://paytransparency.fin.gov.bc.ca
+      frontend-url: https://paytransparency.fin.gov.bc.ca
 
