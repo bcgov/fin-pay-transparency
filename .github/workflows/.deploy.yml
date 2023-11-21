@@ -43,6 +43,10 @@ on:
         description: 'Frontend URL of the application'
         required: true
         type: string
+      environment:
+        description: 'Environment to read secrets from GitHub secrets'
+        required: true
+        type: string
 
 
 jobs:

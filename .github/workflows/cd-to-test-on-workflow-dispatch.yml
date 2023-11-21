@@ -36,5 +36,6 @@ jobs:
     secrets: inherit
     with:
       target: test
+      environment: test
       tag: ${{ github.event.inputs.tag }}
       frontend-url: https://test.paytransparency.fin.gov.bc.ca

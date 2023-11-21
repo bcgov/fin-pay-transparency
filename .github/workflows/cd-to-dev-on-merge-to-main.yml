@@ -78,6 +78,7 @@ jobs:
     secrets: inherit
     with:
       target: dev
+      environment: dev
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
 
