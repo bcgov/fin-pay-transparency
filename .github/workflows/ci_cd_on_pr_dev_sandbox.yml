@@ -82,7 +82,6 @@ jobs:
     secrets: inherit
     with:
       autoscaling: false
-      environment: dev
       target: pr-${{ github.event.number }}
       tag: ${{ github.sha }}
       values: 'values-pr.yaml'

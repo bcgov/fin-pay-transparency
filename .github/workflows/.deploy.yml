@@ -45,7 +45,8 @@ on:
         type: string
       environment:
         description: 'Environment to read secrets from GitHub secrets'
-        required: true
+        required: false
+        default: dev
         type: string
 
 
@@ -53,7 +54,7 @@ jobs:
   # https://github.com/bcgov-nr/action-deployer-openshift
   deploys:
     name: Helm
-    environment: ${{ inputs.target }}
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
