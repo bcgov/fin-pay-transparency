@@ -11,15 +11,11 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "database.fullname" -}}
+{{- $componentName := include "database.name" .  }}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s-%s" .Release.Name .Chart.Name .Values.global.zone  | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{- printf "%s-%s" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 
@@ -38,6 +34,7 @@ helm.sh/chart: {{ include "database.chart" . }}
 {{ include "database.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/short-name: {{ include "database.name" . }}
 {{- end }}
 app.kubernetes.io/image-version: {{ .Values.image.tag | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
