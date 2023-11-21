@@ -25,11 +25,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           add_markdown: |
             ---
-            
             Thanks for the PR!
             
             Deployments, as required, will be available below:
             - [Frontend](https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }})
+            
   builds:
     if: '!github.event.pull_request.head.repo.fork'
     name: Build Containers for OpenShift Deployment
