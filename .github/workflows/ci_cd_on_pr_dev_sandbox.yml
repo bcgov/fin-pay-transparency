@@ -1,7 +1,4 @@
 name: Build And Deploy to Sandbox in Dev namespace
-env:
-  DOMAIN: apps.silver.devops.gov.bc.ca
-  PREFIX: pay-transparency-pr-${{ github.event.number }}
 on:
   pull_request:
     branches:
@@ -88,5 +85,5 @@ jobs:
       target: pr-${{ github.event.number }}
       tag: ${{ github.sha }}
       values: 'values-pr.yaml'
-      frontend_url: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+      frontend_url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
 
