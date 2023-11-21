@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "frontend.name" -}}
-{{- default .Chart.Name .Values.nameOverride "-" .Values.global.zone | trunc 63 | trimSuffix "-" }}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -11,15 +11,11 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "frontend.fullname" -}}
+{{- $componentName := include "frontend.name" .  }}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride "-" .Values.global.zone }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name "-" .Values.global.zone | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s-%s" .Release.Name .Chart.Name .Values.global.zone  | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{- printf "%s-%s" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 
@@ -38,6 +34,7 @@ helm.sh/chart: {{ include "frontend.chart" . }}
 {{ include "frontend.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/short-name: {{ include "frontend.name" . }}
 {{- end }}
 app.kubernetes.io/image-version: {{ .Values.image.tag | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
