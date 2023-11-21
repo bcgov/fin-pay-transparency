@@ -8,6 +8,7 @@ import HttpStatus from 'http-status-codes';
 import safeStringify from 'fast-safe-stringify';
 import {ApiError} from './error';
 import {pick} from 'lodash';
+import prisma from "../prisma/prisma-client";
 
 let kcPublicKey;
 const auth = {
@@ -185,6 +186,76 @@ const auth = {
       ...req.session.companyDetails
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);
+  },
+
+  createOrUpdatePayTransparencyCompany: async function (userInfo, req, tx) {
+    const existing_pay_transparency_company = await tx.pay_transparency_company.findUnique({
+      where: {
+        bceid_business_guid: userInfo._json.bceid_business_guid,
+      }
+    });
+    if (existing_pay_transparency_company) {
+      existing_pay_transparency_company.update_date = new Date();
+      existing_pay_transparency_company.company_name = req.session.companyDetails.legalName;
+      existing_pay_transparency_company.company_address = req.session.companyDetails.addressLine1;
+      await tx.pay_transparency_company.update({
+        where: {
+          company_id: existing_pay_transparency_company.company_id,
+        },
+        data: existing_pay_transparency_company
+      });
+    } else {
+      await tx.pay_transparency_company.create({
+        data: {
+          bceid_business_guid: userInfo._json.bceid_business_guid,
+          company_name: req.session.companyDetails.legalName,
+          company_address: req.session.companyDetails.addressLine1,
+          create_date: new Date(),
+          update_date: new Date()
+        }
+      });
+    }
+  },
+  createOrUpdatePayTransparencyUser: async function (userInfo,tx) {
+    const existingPayTransparencyUser = await tx.pay_transparency_user.findUnique({
+      where: {
+        bceid_user_guid: userInfo._json.bceid_user_guid,
+        bceid_business_guid: userInfo._json.bceid_business_guid
+      }
+    });
+    if (existingPayTransparencyUser) {
+      existingPayTransparencyUser.update_date = new Date();
+      existingPayTransparencyUser.display_name = userInfo._json.display_name;
+      await tx.pay_transparency_user.update({
+        where: {
+          user_id: existingPayTransparencyUser.user_id,
+        },
+        data: existingPayTransparencyUser
+      });
+    } else {
+      await tx.pay_transparency_user.create({
+        data: {
+          bceid_user_guid: userInfo._json.bceid_user_guid,
+          bceid_business_guid: userInfo._json.bceid_business_guid,
+          display_name: userInfo._json.display_name,
+          create_date: new Date(),
+          update_date: new Date()
+        }
+      });
+    }
+  },
+  async storeUserInfo(req, userInfo) {
+    if (!userInfo || !userInfo.jwt || !userInfo._json) {
+      throw new Error('No session data');
+    }
+    try{
+      await prisma.$transaction( async(tx)=>{
+        await this.createOrUpdatePayTransparencyCompany(userInfo, req, tx);
+        await this.createOrUpdatePayTransparencyUser(userInfo, tx);
+      });
+    }catch (e) {
+      throw new Error('Error while storing user info');
+    }
   }
 };
 

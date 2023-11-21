@@ -13,30 +13,6 @@ import {getCompanyDetails} from '../../external/services/bceid-service';
 const router = express.Router();
 
 
-router.get('/', (_req, res) => {
-  res.status(200).json({
-    endpoints: [
-      '/callback_business_bceid',
-      '/login',
-      '/logout',
-      '/refresh',
-      '/token'
-    ]
-  });
-});
-
-function addOIDCRouterGet(strategyName, callbackURI, redirectURL) {
-  router.get(callbackURI,
-    passport.authenticate(strategyName, {
-      failureRedirect: 'error'
-    }),
-    (_req, res) => {
-      res.redirect(redirectURL);
-    }
-  );
-}
-
-
 router.get('/callback_business_bceid',
   passport.authenticate('oidcBusinessBceid', {
     failureMessage: true
@@ -47,12 +23,13 @@ router.get('/callback_business_bceid',
     const accessToken = userInfo.jwt;
     const userGuid = jsonwebtoken.decode(accessToken)?.bceid_user_guid;
     if (!userGuid) {
+      log.error(`no bceid_user_guid found in the jwt token`);
       res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
     }
     if(!req.session?.companyDetails){
       try{
         req.session.companyDetails = await getCompanyDetails(userGuid);
-        // TODO add a call to store this information in the database via a service.
+        await auth.storeUserInfo(req, userInfo);
       }catch (e) {
         log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
         res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
