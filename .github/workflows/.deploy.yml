@@ -36,7 +36,7 @@ on:
         type: string
       penetration-test:
         description: 'Penetration test'
-        default: 'true'
+        default: true
         required: false
         type: boolean
       frontend-url:
