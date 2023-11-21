@@ -112,7 +112,7 @@ jobs:
           --timeout ${{ inputs.timeout-minutes }}m  ${{ inputs.directory }}
       - name: Penetration Test
         uses: zaproxy/action-full-scan@v0.8.0
-        if: ${{ inputs.penetration-test == 'true' }}
+        if: ${{ inputs.penetration-test == true }}
         with:
           target: ${{ inputs.frontend-url }}
           cmd_options: "-a"
