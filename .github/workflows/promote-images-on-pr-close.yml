@@ -48,12 +48,3 @@ jobs:
           tags: |
             dev
             ${{ github.sha }}
-  report-error:
-    name: Report Error
-    if: !(github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main')
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Report Error
-        run: |
-          echo "PR was not merged into main, skipping image promotions"
-          exit 1
