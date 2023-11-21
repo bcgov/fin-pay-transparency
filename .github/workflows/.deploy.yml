@@ -1,0 +1,115 @@
+name: Deploy
+env:
+  deployment_name: pay-transparency
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: 'PR number, test or prod.'
+        required: true
+        type: string
+      autoscaling:
+        description: 'Autoscaling enabled or not for the deployments'
+        required: false
+        type: boolean
+        default: true
+      tag:
+        description: 'Docker tag; e.g. PR number, tag, test or prod'
+        required: false
+        type: string
+        default: ${{ github.event.number }}
+
+      directory:
+        description: 'Chart directory.'
+        default: 'charts/${{ github.event.repository.name }}'
+        required: false
+        type: string
+      timeout-minutes:
+        description: 'Timeout minutes'
+        default: 10
+        required: false
+        type: number
+      values:
+        description: 'Values file.'
+        default: 'values.yaml'
+        required: false
+        type: string
+      penetration-test:
+        description: 'Penetration test'
+        default: 'true'
+        required: false
+        type: boolean
+      frontend-url:
+        description: 'Frontend URL of the application'
+        required: true
+        type: string
+
+
+jobs:
+  # https://github.com/bcgov-nr/action-deployer-openshift
+  deploys:
+    name: Helm
+    environment: ${{ inputs.target }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: generate private and public key
+        id: generateKey
+        shell: bash
+        run: |
+          EOF=" "
+          ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key -q -N ""
+          openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
+          UI_PRIVATE_KEY_VAL=$(cat jwtRS256.key)
+          UI_PUBLIC_KEY_VAL=$(cat jwtRS256.key.pub)
+          echo "UI_PUBLIC_KEY<<$EOF" >> $GITHUB_OUTPUT
+          echo "$UI_PUBLIC_KEY_VAL" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+          echo "UI_PRIVATE_KEY<<$EOF" >> $GITHUB_OUTPUT
+          echo "$UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Deploy to OpenShift
+        shell: bash
+        run: |
+          # Allow pipefail, since we could be catching oc create errors
+          set +o pipefail
+
+          # Login to OpenShift (NOTE: project command is a safeguard)
+          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+          oc project ${{ vars.oc_namespace }}
+          
+          #upgrade helm dependencies.
+          helm dependency update ${{ inputs.directory }}
+          
+          #Perform atomic upgrade/installation of helm chart
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }}-${{ inputs.target }} \
+          --values ${{ inputs.directory }}/${{ inputs.values }} \
+          --set-string backend.image.tag="${{ inputs.tag }}" \
+          --set-string frontend.image.tag="${{ inputs.tag }}" \
+          --set-string database.image.tag="${{ inputs.tag }}" \
+          --set global.autoscaling.enabled=${{ inputs.autoscaling }} \
+          --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
+          --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \
+          --set-string global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" \
+          --set-string global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" \
+          --set-string global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" \
+          --set-string global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" \
+          --set-string global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" \
+          --set-string global.secrets.databaseName="${{ secrets.DATABASE_NAME }}"  \
+          --set-string global.secrets.bceidWsUrl="${{ secrets.BCEID_WS_URL }}" \
+          --set-string global.secrets.bceidWsAuthPassword="${{ secrets.BCEID_WS_BASIC_AUTH_PASSWORD }}" \
+          --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
+          --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
+          --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
+          --timeout ${{ inputs.timeout-minutes }}m  ${{ inputs.directory }}
+      - name: Penetration Test
+        uses: zaproxy/action-full-scan@v0.8.0
+        if: ${{ inputs.penetration-test == 'true' }}
+        with:
+          target: ${{ inputs.frontend-url }}
+          cmd_options: "-a"
+          fail_action: false
+          allow_issue_writing: false
