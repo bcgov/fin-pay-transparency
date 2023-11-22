@@ -31,7 +31,7 @@ const DOLLARS_COLUMNS = [
 ];
 const INVALID_COLUMN_ERROR = "Invalid CSV format. Please ensure the uploaded file contains the following columns: " + EXPECTED_COLUMNS.join(",")
 const GENDER_CODES = ["M", "F", "X", "U", "W"];
-const ZERO_SYNONYMS = ["N/A", ""];
+const ZERO_SYNONYMS = [""];
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
 
