@@ -3,11 +3,24 @@ import jsonwebtoken from 'jsonwebtoken';
 import { config } from '../../config';
 import { auth } from './auth-service';
 import { utils } from './utils-service';
-
+import prisma from '../prisma/prisma-client';
 //Mock the entire axios module so we never inadvertently make real 
 //HTTP calls to remote services
 jest.mock('axios');
-
+jest.mock('../prisma/prisma-client', () => {
+  return {
+    pay_transparency_company: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    pay_transparency_user: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    }
+  }
+})
 //Mock only the renew method in auth-service (for all other methods
 //in this module keep the original implementation)
 jest.mock('./auth-service', () => {
