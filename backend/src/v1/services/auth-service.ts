@@ -118,36 +118,7 @@ const auth = {
     return uiToken;
   },
 
-  async getApiCredentials() {
-    try {
-      const discovery = await utils.getOidcDiscovery();
-      const response = await axios.post(discovery.token_endpoint,
-        qs.stringify({
-          client_id: config.get('oidc:clientId'),
-          client_secret: config.get('oidc:clientSecret'),
-          grant_type: 'client_credentials',
-          scope: discovery.scopes_supported
-        }), {
-          headers: {
-            Accept: 'application/json',
-            'Cache-Control': 'no-cache',
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        }
-      );
 
-      log.verbose('getApiCredentials Res', safeStringify(response.data));
-
-      let result: any = {};
-      result.accessToken = response.data.access_token;
-      result.refreshToken = response.data.refresh_token;
-      return result;
-    } catch (error) {
-      log.error('getApiCredentials Error', error.response ? pick(error.response, ['status', 'statusText', 'data']) : error.message);
-      const status = error.response ? error.response.status : HttpStatus.INTERNAL_SERVER_ERROR;
-      throw new ApiError(status, {message: 'Get getApiCredentials error'}, error);
-    }
-  },
   isValidBackendToken() {
     return async function (req, res, next) {
       if (!kcPublicKey) {
@@ -173,10 +144,9 @@ const auth = {
       }
     };
   },
-  //TODO  call SOAP webservice of IDIM to get user info from BCeID
   async getUserInfo(req, res) {
     const userInfo = req?.session?.passport?.user;
-    if (!userInfo || !userInfo.jwt || !userInfo._json) {
+    if (!userInfo?.jwt || !userInfo?._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         message: 'No session data'
       });
@@ -255,7 +225,7 @@ const auth = {
     }
   },
   async storeUserInfo(req, userInfo) {
-    if (!userInfo || !userInfo.jwt || !userInfo._json) {
+    if (!userInfo?.jwt || !userInfo?._json) {
       throw new Error('No session data');
     }
     try {

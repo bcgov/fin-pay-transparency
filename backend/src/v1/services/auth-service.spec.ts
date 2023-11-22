@@ -303,11 +303,6 @@ describe("generateUiToken", () => {
   })
 })
 
-describe("getApiCredentials", () => {
-  it("TODO: The method is not actually used.  Confirm it is needed before taking time to write a test", async () => {
-    //expect(null).toBeTruthy();
-  })
-})
 
 describe("isValidBackendToken", () => {
   describe("when there is a backend access token stored in the session and the token's signature is valid", () => {
