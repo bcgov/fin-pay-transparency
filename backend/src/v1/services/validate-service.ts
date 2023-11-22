@@ -215,7 +215,7 @@ const validateService = {
       }
       // Range check.  Only do this check if the above check passes
       else if (value < 0 || value > MAX_HOURS) {
-        errorMessages.push(`${colName} must specify a positive number no larger than ${MAX_HOURS}.`)
+        errorMessages.push(`${colName} must specify a positive number no larger than ${MAX_HOURS}. Found '${value}'.`)
       }
     });
 
