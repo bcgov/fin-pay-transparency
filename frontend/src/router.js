@@ -6,6 +6,7 @@ import {appStore} from './store/modules/app';
 import {PAGE_TITLES} from './utils/constant';
 import Login from './components/Login.vue';
 import {authStore} from './store/modules/auth';
+import Logout from './components/Logout.vue';
 
 
 // a comment for commit.
@@ -36,6 +37,11 @@ const router = createRouter({
         pageTitle: PAGE_TITLES.LOGIN,
         requiresAuth: false
       }
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: Logout
     },
     {
       path: '/inputForm',

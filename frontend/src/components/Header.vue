@@ -28,7 +28,7 @@
           style="color:white"
       >{{ appTitle }}</h3></v-toolbar-title>
     </a>
-    <v-spacer></v-spacer>
+    <v-spacer />
 
     <v-btn v-if="isAuthenticated" :href="authRoutes.LOGOUT">
       Logout
