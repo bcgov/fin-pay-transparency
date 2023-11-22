@@ -153,14 +153,26 @@ const validateService = {
     // Confirm that the CSV contains the expected columns in the expected order
     const firstRow = rows[0];
     const colNames = Object.getOwnPropertyNames(firstRow.record);
-    if (colNames?.length != EXPECTED_COLUMNS.length) {
+    if (colNames?.length < EXPECTED_COLUMNS.length) {
+      console.log(colNames)
+      console.log(EXPECTED_COLUMNS)
       throw new Error(INVALID_COLUMN_ERROR);
+
     }
-    for (var i = 0; i < colNames.length; i++) {
+    for (var i = 0; i < EXPECTED_COLUMNS.length; i++) {
       if (colNames[i] != EXPECTED_COLUMNS[i]) {
         throw new Error(INVALID_COLUMN_ERROR);
       }
     }
+
+    // Don't throw an error if the CSV contains extra columns
+    // that they occur after all the required columns.  The main reason
+    // not to throw an error in this case is that extra commas
+    // at the end of a line can cause the CSV parser to detect "ghost"
+    // columns (i.e. columns with no header and with empty strings 
+    // as values).  We don't want to complain about "ghost" columns,
+    // It may be reasonable to complain about extra 
+    // non-ghost columns (although we don't do that currently).
 
     return rows;
   },
