@@ -13,8 +13,8 @@ import {
 
 const VALID_DOLLAR_AMOUNTS = ["999999999", "1919", "2029.20", "150.4", "N/A", "", "0"];
 const INVALID_DOLLAR_AMOUNTS = ["NA", "$399,929.90", "1373385000.50", "-362566.20", "14b", "a", "$14", "-2", "-1", "1000000000", "1000000000.01"];
-const VALID_HOUR_AMOUNTS = ["9999", "75", "100.50", "N/A", "", "0"];
-const INVALID_HOUR_AMOUNTS = ["1779C", "-1", "10000", "NA", "14b", "a", "$14", "-2"];
+const VALID_HOUR_AMOUNTS = ["8760", "75", "100.50", "N/A", "", "0"];
+const INVALID_HOUR_AMOUNTS = ["1779C", "-1", "8761", "NA", "14b", "a", "$14", "-2"];
 const VALID_GENDER_CODES = ["M", "F", "X", "U", "W"];
 const INVALID_GENDER_CODES = ["H", "N/A", ""]
 
