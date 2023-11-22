@@ -1,3 +1,4 @@
+{{- if .Values.enabled }}
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -15,3 +16,4 @@ spec:
         name: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
       referencePolicy:
         type: Local
+{{- end }}
