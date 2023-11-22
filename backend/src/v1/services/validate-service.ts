@@ -8,7 +8,6 @@ const COL_SPECIAL_SALARY = "Special Salary";
 const COL_OVERTIME_HOURS = "Overtime Hours";
 const COL_OVERTIME_PAY = "Overtime Pay";
 const COL_BONUS_PAY = "Bonus Pay";
-const COL_REGULAR_HOURLY_WAGE = "Regular Hourly Wage";
 const EXPECTED_COLUMNS: string[] = [
   COL_GENDER_CODE,
   COL_HOURS_WORKED,
@@ -16,21 +15,26 @@ const EXPECTED_COLUMNS: string[] = [
   COL_SPECIAL_SALARY,
   COL_OVERTIME_HOURS,
   COL_OVERTIME_PAY,
-  COL_BONUS_PAY,
-  COL_REGULAR_HOURLY_WAGE
+  COL_BONUS_PAY
 ];
-const NUMERIC_COLUMNS = [
+// columns which are express numbers in units of 'hours'
+const HOURS_COLUMNS = [
   COL_HOURS_WORKED,
+  COL_OVERTIME_HOURS,
+];
+// columns which are express numbers in units of 'dollars'
+const DOLLARS_COLUMNS = [
   COL_REGULAR_SALARY,
   COL_SPECIAL_SALARY,
-  COL_OVERTIME_HOURS,
   COL_OVERTIME_PAY,
-  COL_BONUS_PAY,
-  COL_REGULAR_HOURLY_WAGE
+  COL_BONUS_PAY
 ];
 const INVALID_COLUMN_ERROR = "Invalid CSV format. Please ensure the uploaded file contains the following columns: " + EXPECTED_COLUMNS.join(",")
 const GENDER_CODES = ["M", "F", "X", "U", "W"];
-const ZERO_SYNONYMS = ["N/A"]
+const ZERO_SYNONYMS = ["N/A", ""];
+const MAX_HOURS = 9999;
+const MAX_DOLLARS = 999999999;
+
 
 interface Row {
   record: any;
@@ -190,14 +194,43 @@ const validateService = {
   validateRow(lineNum: number, row: Row): LineErrors {
     const record = row.record;
     const errorMessages: string[] = [];
+
+    // Validation checks common to all columns with data in units of 'hours'
+    HOURS_COLUMNS.forEach(colName => {
+      const value = record[colName];
+      if (!this.isZeroSynonym(value) && !this.isValidNumber(value)) {
+        errorMessages.push(`Invalid number '${value}' in ${colName}.`)
+      }
+      // Range check.  Only do this check if the above check passes
+      else if (value < 0 || value > MAX_HOURS) {
+        errorMessages.push(`${colName} must specify a positive number no larger than ${MAX_HOURS}.`)
+      }
+    });
+
+    // Validation checks common to all columns with data in units of 'dollars'
+    DOLLARS_COLUMNS.forEach(colName => {
+      const value = record[colName];
+      if (!this.isZeroSynonym(value) && !this.isValidNumber(value)) {
+        errorMessages.push(`Invalid number '${value}' in ${colName}.`)
+      }
+      // Range check.  Only do this check if the above check passes
+      else if (value < 0 || value > MAX_DOLLARS) {
+        errorMessages.push(`${colName} must specify a positive number no larger than ${MAX_DOLLARS}.  Found '${value}'.`)
+      }
+    })
+
+    // Other column-specific validation checks
     if (GENDER_CODES.indexOf(record[COL_GENDER_CODE]) == -1) {
       errorMessages.push(`Invalid ${COL_GENDER_CODE} '${record[COL_GENDER_CODE]}' (expected one of: ${GENDER_CODES}).`)
     }
-    NUMERIC_COLUMNS.forEach(colName => {
-      if (!this.isZeroSynonym(record[colName]) && !this.isValidNumber(record[colName], 0)) {
-        errorMessages.push(`Invalid number '${record[colName]}' in ${colName}.`)
-      }
-    })
+    if (!this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
+      !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
+      errorMessages.push(`${COL_HOURS_WORKED} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
+    }
+    if (!this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
+      !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
+      errorMessages.push(`${COL_REGULAR_SALARY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
+    }
 
     if (errorMessages.length) {
       const lineErrors = {
@@ -221,7 +254,7 @@ const validateService = {
     return ZERO_SYNONYMS.indexOf(val) >= 0;
   },
 
-  isValidNumber(val: any, min: number = null, max: number = null): boolean {
+  isValidNumber(val: any): boolean {
     if (val === null || isNaN(val)) {
       return false
     }
@@ -237,14 +270,6 @@ const validateService = {
       return false;
     }
 
-    // If the minimum or maximum were specified, validate against those
-    if (min !== null && num < min) {
-      return false;
-    }
-    if (max !== null && num > max) {
-      return false;
-    }
-
     return true;
 
   }
@@ -252,7 +277,10 @@ const validateService = {
 }
 
 export {
-  FileErrors,
+  COL_BONUS_PAY, COL_GENDER_CODE,
+  COL_HOURS_WORKED, COL_OVERTIME_HOURS,
+  COL_OVERTIME_PAY, COL_REGULAR_SALARY,
+  COL_SPECIAL_SALARY, FileErrors,
   LineErrors,
   Row,
   validateService
