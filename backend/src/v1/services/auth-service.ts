@@ -189,7 +189,7 @@ const auth = {
   },
 
   createOrUpdatePayTransparencyCompany: async function (userInfo, req, tx) {
-    const existing_pay_transparency_company = await tx.pay_transparency_company.findUnique({
+    const existing_pay_transparency_company = await tx.pay_transparency_company.findFirst({
       where: {
         bceid_business_guid: userInfo._json.bceid_business_guid,
       }
@@ -197,7 +197,12 @@ const auth = {
     if (existing_pay_transparency_company) {
       existing_pay_transparency_company.update_date = new Date();
       existing_pay_transparency_company.company_name = req.session.companyDetails.legalName;
-      existing_pay_transparency_company.company_address = req.session.companyDetails.addressLine1;
+      existing_pay_transparency_company.address_line1 = req.session.companyDetails.addressLine1;
+      existing_pay_transparency_company.address_line2 = req.session.companyDetails.addressLine2;
+      existing_pay_transparency_company.city = req.session.companyDetails.city;
+      existing_pay_transparency_company.province = req.session.companyDetails.province;
+      existing_pay_transparency_company.country = req.session.companyDetails.country;
+      existing_pay_transparency_company.postal_code = req.session.companyDetails.postal;
       await tx.pay_transparency_company.update({
         where: {
           company_id: existing_pay_transparency_company.company_id,
@@ -209,15 +214,20 @@ const auth = {
         data: {
           bceid_business_guid: userInfo._json.bceid_business_guid,
           company_name: req.session.companyDetails.legalName,
-          company_address: req.session.companyDetails.addressLine1,
+          address_line1: req.session.companyDetails.addressLine1,
+          address_line2: req.session.companyDetails.addressLine2,
+          city: req.session.companyDetails.city,
+          province: req.session.companyDetails.province,
+          country: req.session.companyDetails.country,
+          postal_code: req.session.companyDetails.postal,
           create_date: new Date(),
           update_date: new Date()
         }
       });
     }
   },
-  createOrUpdatePayTransparencyUser: async function (userInfo,tx) {
-    const existingPayTransparencyUser = await tx.pay_transparency_user.findUnique({
+  createOrUpdatePayTransparencyUser: async function (userInfo, tx) {
+    const existingPayTransparencyUser = await tx.pay_transparency_user.findFirst({
       where: {
         bceid_user_guid: userInfo._json.bceid_user_guid,
         bceid_business_guid: userInfo._json.bceid_business_guid
@@ -248,12 +258,12 @@ const auth = {
     if (!userInfo || !userInfo.jwt || !userInfo._json) {
       throw new Error('No session data');
     }
-    try{
-      await prisma.$transaction( async(tx)=>{
+    try {
+      await prisma.$transaction(async (tx) => {
         await this.createOrUpdatePayTransparencyCompany(userInfo, req, tx);
         await this.createOrUpdatePayTransparencyUser(userInfo, tx);
       });
-    }catch (e) {
+    } catch (e) {
       throw new Error('Error while storing user info');
     }
   }

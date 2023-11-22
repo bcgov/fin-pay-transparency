@@ -24,7 +24,7 @@ router.get('/callback_business_bceid',
     const userGuid = jsonwebtoken.decode(accessToken)?.bceid_user_guid;
     if (!userGuid) {
       log.error(`no bceid_user_guid found in the jwt token`);
-      res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
+      res.redirect(config.get('server:frontend') + '/login-error');
     }
     if(!req.session?.companyDetails){
       try{
@@ -32,7 +32,7 @@ router.get('/callback_business_bceid',
         await auth.storeUserInfo(req, userInfo);
       }catch (e) {
         log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
-        res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
+        res.redirect(config.get('server:frontend') + '/login-error');
       }
     }
     res.redirect(config.get('server:frontend'));
