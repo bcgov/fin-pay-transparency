@@ -2,6 +2,7 @@ import {createRouter, createWebHistory} from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
+import TokenExpired from './components/TokenExpired.vue';
 import {appStore} from './store/modules/app';
 import {PAGE_TITLES} from './utils/constant';
 import Login from './components/Login.vue';
@@ -46,6 +47,15 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/token-expired',
+      name: 'TokenExpired',
+      component: TokenExpired,
+      meta: {
+        pageTitle: PAGE_TITLES.TOKEN_EXPIRED,
+        requiresAuth: false
+      }
+    },       
   ]
 });
 
@@ -59,7 +69,7 @@ router.beforeEach((to, _from, next) => {
         next('/token-expired');
       } else {
         aStore.getUserInfo().then(() => {
-            if(true){//something to check if user is authorized to view this page
+            if (true) {//something to check if user is authorized to view this page
               next();
             }
         }).catch(() => {
@@ -74,15 +84,13 @@ router.beforeEach((to, _from, next) => {
       }
     });
   }
-  else{
-    if (!aStore.userInfo) {
-      next();
-    }
+  else {
     if (to && to.meta) {
       apStore.setPageTitle(to.meta.pageTitle);
     } else {
       apStore.setPageTitle('');
     }
+    //Proceed normally to the requested route 
     next();
   }
 });
