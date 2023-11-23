@@ -64,7 +64,7 @@ backend:
     accessMode: ReadWriteMany
   app:
     env:
-      siteminderLogoutEndpoint: https://logontest.gov.bc.ca/clp-cgi/logoff.cgi
+      siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi
       logLevel: info
   podAnnotations: { }
   podSecurityContext: { }
