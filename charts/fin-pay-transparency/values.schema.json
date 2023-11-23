@@ -519,9 +519,6 @@
             "bceidWsUrl"
           ]
         },
-        "zone": {
-          "type": "string"
-        },
         "domain": {
           "type": "string"
         },
@@ -530,11 +527,18 @@
         },
         "serverFrontend": {
           "type": ["string", "null"]
+        },
+        "autoscaling": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          }
         }
       },
       "required": [
         "secrets",
-        "zone",
         "domain"
       ],
       "additionalProperties": false
@@ -788,6 +792,6 @@
       "required": ["enabled"]
     }
   },
-  "required": ["nameOverride", "fullnameOverride", "backend", "frontend", "database", "global", "backup"],
+  "required": [ "backend", "frontend", "database", "global", "backup"],
   "additionalProperties": false
 }

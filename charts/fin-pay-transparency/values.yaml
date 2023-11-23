@@ -19,9 +19,10 @@ global:
     bceidWsOnlineServiceId: ~
     annotation:
       helm.sh/policy: "keep"
-  zone: ~ # it is required, could be pr-123, dev, test, prod
   domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
   serverFrontend: ~
+  autoscaling:
+    enabled: true
 backend:
   enabled: true
   replicaCount: 1
