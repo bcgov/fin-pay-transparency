@@ -58,7 +58,7 @@ a:hover {
 }
 
 .v-application {
-  font-family: 'BC Sans', 'Noto Sans', 'Verdana', 'Arial', 'sans-serif' !important;
+  font-family: 'BC Sans', 'Noto Sans', Verdana, Arial, sans-serif !important;
 }
 
 .v-card--flat {
