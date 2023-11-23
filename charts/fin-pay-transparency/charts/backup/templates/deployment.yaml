@@ -1,3 +1,4 @@
+{{- if .Values.enabled }}
 kind: CronJob
 apiVersion: "batch/v1"
 metadata:
@@ -44,7 +45,7 @@ spec:
                 - name: MONTHLY_BACKUPS
                   value: {{ .Values.monthlyBackups | quote }}
                 - name: DATABASE_SERVICE_NAME
-                  value: {{.Release.Name}}-database-{{.Values.global.zone}}
+                  value: {{.Release.Name}}-database
                 - name: DEFAULT_PORT
                   value: "5432"
                 - name: POSTGRESQL_DATABASE
@@ -52,12 +53,12 @@ spec:
                 - name: DATABASE_USER
                   valueFrom:
                     secretKeyRef:
-                      name: {{.Release.Name}}-{{.Values.global.zone}}
+                      name: {{.Release.Name}}
                       key: "databaseUser"
                 - name: DATABASE_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: {{.Release.Name}}-{{.Values.global.zone}}
+                      name: {{.Release.Name}}
                       key: "databasePassword"
           volumes:
             - name: backup
@@ -68,3 +69,4 @@ spec:
           activeDeadlineSeconds: 1600
           dnsPolicy: "ClusterFirst"
           serviceAccountName: {{ .Values.serviceAccount }}
+{{- end }}

@@ -17,6 +17,8 @@ jobs:
   cleanup-openshift:
     if: '!github.event.pull_request.head.repo.fork'
     name: Cleanup OpenShift
+    env:
+      release: pay-transparency-pr-${{ github.event.number }}
     runs-on: ubuntu-22.04
     steps:
       - name: Remove OpenShift artifacts
@@ -24,8 +26,8 @@ jobs:
           oc login --token=${{ secrets.OC_TOKEN }} --server=${{ vars.OC_SERVER }}
           oc project ${{ vars.OC_NAMESPACE }}
 
-          # Remove old build runs, build pods and deployment pods
-          helm uninstall pay-transparency-${{ github.event.number }}
+          helm status ${{ env.release }} && helm uninstall --no-hooks ${{ env.release }} || \
+            echo "Not found: ${{ env.release }}"
 
   # If merged into main, then handle any image promotions
   image-promotions:
