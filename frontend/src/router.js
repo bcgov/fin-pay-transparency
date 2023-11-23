@@ -2,6 +2,7 @@ import {createRouter, createWebHistory} from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
+import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
 import {appStore} from './store/modules/app';
 import {PAGE_TITLES} from './utils/constant';
@@ -25,10 +26,17 @@ const router = createRouter({
 
     },
     {
+      //A route to show a general error for unrecoverable system failures
       path: '/error',
       name: 'error',
       component: ErrorPage
     },
+    {
+      //A route to show an error specifically related to failed logins
+      path: '/login-error',
+      name: 'login-error',
+      component: LoginError
+    },    
     {
       path: '/login',
       name: 'login',
