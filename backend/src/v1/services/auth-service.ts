@@ -5,10 +5,8 @@ import jsonwebtoken from 'jsonwebtoken';
 import qs from 'querystring';
 import {utils} from './utils-service';
 import HttpStatus from 'http-status-codes';
-import safeStringify from 'fast-safe-stringify';
-import {ApiError} from './error';
-import {pick} from 'lodash';
 import prisma from "../prisma/prisma-client";
+import {getCompanyDetails} from "../../external/services/bceid-service";
 
 let kcPublicKey;
 const auth = {
@@ -234,8 +232,27 @@ const auth = {
         await this.createOrUpdatePayTransparencyUser(userInfo, tx);
       });
     } catch (e) {
+      log.error(e);
       throw new Error('Error while storing user info');
     }
+  },
+  async handleCallBackBusinessBceid(req, res){
+    const userInfo = utils.getSessionUser(req);
+    const userGuid = jsonwebtoken.decode(userInfo.jwt)?.bceid_user_guid;
+    if (!userGuid) {
+      log.error(`no bceid_user_guid found in the jwt token`, userInfo.jwt);
+      res.redirect(config.get('server:frontend') + '/login-error');
+    }
+    if(!req.session?.companyDetails){
+      try{
+        req.session.companyDetails = await getCompanyDetails(userGuid);
+        await auth.storeUserInfo(req, userInfo);
+      }catch (e) {
+        log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
+        res.redirect(config.get('server:frontend') + '/login-error');
+      }
+    }
+    res.redirect(config.get('server:frontend'));
   }
 };
 

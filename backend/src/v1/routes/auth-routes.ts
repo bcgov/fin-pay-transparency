@@ -18,24 +18,8 @@ router.get('/callback_business_bceid',
     failureMessage: true
   }),
   async (req, res) => {
-    log.debug(`Login flow callback bceid is called.`);
-    const userInfo = utils.getSessionUser(req);
-    const accessToken = userInfo.jwt;
-    const userGuid = jsonwebtoken.decode(accessToken)?.bceid_user_guid;
-    if (!userGuid) {
-      log.error(`no bceid_user_guid found in the jwt token`);
-      res.redirect(config.get('server:frontend') + '/login-error');
-    }
-    if(!req.session?.companyDetails){
-      try{
-        req.session.companyDetails = await getCompanyDetails(userGuid);
-        await auth.storeUserInfo(req, userInfo);
-      }catch (e) {
-        log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
-        res.redirect(config.get('server:frontend') + '/login-error');
-      }
-    }
-    res.redirect(config.get('server:frontend'));
+    log.debug(`Login flow callback business bceid is called.`);
+    await auth.handleCallBackBusinessBceid(req, res);
   }
 );
 //a prettier way to handle errors
