@@ -17,7 +17,7 @@
               Then click the button below to access a submission
               form, where you'll be asked to enter information about your company and upload your CSV file.
             </p>
-            <v-btn color="secondary" to="InputForm">Generate Pay Transparency Report</v-btn>
+            <v-btn color="primary" to="InputForm">Generate Pay Transparency Report</v-btn>
           </v-card-text>
         </v-card>
 
@@ -34,7 +34,7 @@
           <v-col>
 
             <v-card>
-              <v-toolbar color='secondary'>
+              <v-toolbar color='primary'>
                 <v-toolbar-title>Sample CSV</v-toolbar-title>
               </v-toolbar>
               <v-card-text>
@@ -42,7 +42,7 @@
                   View a sample comma-separated value (CSV) file showing the required format for pay transparency data
                   uploads.
                 </p>
-                <v-btn color="secondary">Download sample CSV</v-btn>
+                <v-btn color="primary">Download sample CSV</v-btn>
               </v-card-text>
             </v-card>
 
@@ -52,7 +52,7 @@
           <v-col>
 
             <v-card>
-              <v-toolbar color='secondary'>
+              <v-toolbar color='primary'>
                 <v-toolbar-title>Updates</v-toolbar-title>
               </v-toolbar>
               <v-card-text>
