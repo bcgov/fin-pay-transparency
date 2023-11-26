@@ -92,7 +92,7 @@ jobs:
           
           #check helm status to see if this is an already deployed PR or a new PR
           DEPLOYMENT_STATUS=$(helm status pay-transparency-pr-${{ github.event.number }} -o json | jq .info.status || false)
-          
+          echo "DEPLOYMENT_STATUS is '$DEPLOYMENT_STATUS'"
           # if deployment status is false, then this is a new PR and we need to check quota
           if [[ $DEPLOYMENT_STATUS == "false" ]]; then
               echo "This is a new PR, checking quota"
