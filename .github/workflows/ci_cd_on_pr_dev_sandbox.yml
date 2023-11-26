@@ -91,7 +91,7 @@ jobs:
           oc project ${{ vars.oc_namespace }}
           
           #check helm status to see if this is an already deployed PR or a new PR
-          DEPLOYMENT_STATUS=PREVIOUS=$(helm status pay-transparency-pr-${{ github.event.number }} -o json | jq .info.status || false)
+          DEPLOYMENT_STATUS=$(helm status pay-transparency-pr-${{ github.event.number }} -o json | jq .info.status || false)
           
           # if deployment status is false, then this is a new PR and we need to check quota
           if [[ $DEPLOYMENT_STATUS == "false" ]]; then
@@ -114,6 +114,9 @@ jobs:
               if [[ $AVL_QUOTA -lt 500 ]]; then
                 echo "Not Enough Resource(CPU Limits) Quota not available to deploy PR"
                 exit 1
+              else 
+                echo "Quota available for deployment."
+                exit 0
               fi
           else
               echo "This is an already deployed PR, skipping quota check"
