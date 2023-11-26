@@ -74,6 +74,53 @@ jobs:
             ${{ github.sha }}
             ${{ github.event.number }}
 
+  check-qouta:
+    name: Check Quota
+    runs-on: ubuntu-22.04
+    environment: dev
+    steps:
+      - name: Check Quota For Deployment
+        shell: bash
+        run: |
+          
+          # Allow pipefail, since we could be catching oc create errors
+          set +o pipefail
+
+          # Login to OpenShift (NOTE: project command is a safeguard)
+          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+          oc project ${{ vars.oc_namespace }}
+          
+          #check helm status to see if this is an already deployed PR or a new PR
+          DEPLOYMENT_STATUS=PREVIOUS=$(helm status pay-transparency-pr-${{ github.event.number }} -o json | jq .info.status || false)
+          
+          # if deployment status is false, then this is a new PR and we need to check quota
+          if [[ $DEPLOYMENT_STATUS == "false" ]]; then
+              echo "This is a new PR, checking quota"
+              # PRINT QUOTA
+              oc describe quota compute-long-running-quota
+              
+              QUOTA=$(oc get quota compute-long-running-quota -o json | jq -r '.status.used."limits.cpu"')
+              
+              # if quota contains 'm' get only the number by removing the last character
+              if [[ $QUOTA == *"m"* ]]; then
+                  QUOTA=${QUOTA::-1}
+              fi
+              echo "USED QUOTA: $QUOTA"
+              
+              # find available quota by subtracting from the total quota
+              AVL_QUOTA=$((4000-$QUOTA))
+              echo "AVL_QUOTA: $AVL_QUOTA"
+              #Total quota required for PR to deploy is backend + database + frontend = 480 milli cores.
+              if [[ $AVL_QUOTA -lt 500 ]]; then
+                echo "Not Enough Resource(CPU Limits) Quota not available to deploy PR"
+                exit 1
+              fi
+          else
+              echo "This is an already deployed PR, skipping quota check"
+              exit 0
+          fi
+          
+          
 
   deploys:
     name: Deploys
