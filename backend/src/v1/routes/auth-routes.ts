@@ -7,8 +7,6 @@ import {v4 as uuidv4} from 'uuid';
 import {utils} from '../services/utils-service';
 
 import {body, validationResult} from 'express-validator';
-import jsonwebtoken from "jsonwebtoken";
-import {getCompanyDetails} from '../../external/services/bceid-service';
 
 const router = express.Router();
 
