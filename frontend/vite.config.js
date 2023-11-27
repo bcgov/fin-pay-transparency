@@ -12,6 +12,9 @@ export default defineConfig({
       inline: ["vuetify"],
     },
     globals: true,
+    coverage: {
+      reporter: ['lcov', 'text-summary','text', 'json', 'html'],
+    }
   },
   server: {
     port: 8081,

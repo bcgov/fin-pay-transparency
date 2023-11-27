@@ -19,11 +19,17 @@ const myCustomLightTheme = {
   dark: false,
   colors: {
     primary: '#003366',
-    secondary: '#385a8a'
+    secondary: '#385a8a',
+    error: '#712024',
+    warning: '#81692c',
+    success: '#234720',
   }
 };
 
 const vuetify = createVuetify({
+  options: {
+    customProperties: true
+  },
   icons: {
     defaultSet: 'mdi'
   },
