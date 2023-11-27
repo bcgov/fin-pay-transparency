@@ -25,6 +25,7 @@ global:
     enabled: true
 backend:
   enabled: true
+  deploymentStrategy: RollingUpdate
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
@@ -77,6 +78,7 @@ backend:
   affinity: { }
 frontend:
   enabled: true
+  deploymentStrategy: RollingUpdate
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
@@ -120,6 +122,7 @@ frontend:
   affinity: { }
 database:
   enabled: true
+  deploymentStrategy: RollingUpdate
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""

@@ -7,34 +7,8 @@ import {v4 as uuidv4} from 'uuid';
 import {utils} from '../services/utils-service';
 
 import {body, validationResult} from 'express-validator';
-import jsonwebtoken from "jsonwebtoken";
-import {getCompanyDetails} from '../../external/services/bceid-service';
 
 const router = express.Router();
-
-
-router.get('/', (_req, res) => {
-  res.status(200).json({
-    endpoints: [
-      '/callback_business_bceid',
-      '/login',
-      '/logout',
-      '/refresh',
-      '/token'
-    ]
-  });
-});
-
-function addOIDCRouterGet(strategyName, callbackURI, redirectURL) {
-  router.get(callbackURI,
-    passport.authenticate(strategyName, {
-      failureRedirect: 'error'
-    }),
-    (_req, res) => {
-      res.redirect(redirectURL);
-    }
-  );
-}
 
 
 router.get('/callback_business_bceid',
@@ -42,23 +16,8 @@ router.get('/callback_business_bceid',
     failureMessage: true
   }),
   async (req, res) => {
-    log.debug(`Login flow callback bceid is called.`);
-    const userInfo = utils.getSessionUser(req);
-    const accessToken = userInfo.jwt;
-    const userGuid = jsonwebtoken.decode(accessToken)?.bceid_user_guid;
-    if (!userGuid) {
-      res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
-    }
-    if(!req.session?.companyDetails){
-      try{
-        req.session.companyDetails = await getCompanyDetails(userGuid);
-        // TODO add a call to store this information in the database via a service.
-      }catch (e) {
-        log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
-        res.redirect(config.get('server:frontend') + '/login-error'); // TODO implement login error page in the frontend.
-      }
-    }
-    res.redirect(config.get('server:frontend'));
+    log.debug(`Login flow callback business bceid is called.`);
+    await auth.handleCallBackBusinessBceid(req, res);
   }
 );
 //a prettier way to handle errors

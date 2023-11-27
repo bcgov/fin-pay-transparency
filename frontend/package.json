@@ -11,6 +11,7 @@
     "lint:fix": "eslint --ext vue,js,ts,tsx src --fix"
   },
   "dependencies": {
+    "@bcgov/bc-sans": "^2.1.0",
     "@braintree/sanitize-url": "^6.0.2",
     "@fortawesome/fontawesome-free": "6.3.0",
     "@js-joda/core": "^5.5.2",

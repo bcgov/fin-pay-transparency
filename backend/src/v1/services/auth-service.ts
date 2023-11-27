@@ -5,9 +5,8 @@ import jsonwebtoken from 'jsonwebtoken';
 import qs from 'querystring';
 import {utils} from './utils-service';
 import HttpStatus from 'http-status-codes';
-import safeStringify from 'fast-safe-stringify';
-import {ApiError} from './error';
-import {pick} from 'lodash';
+import prisma from "../prisma/prisma-client";
+import {getCompanyDetails} from "../../external/services/bceid-service";
 
 let kcPublicKey;
 const auth = {
@@ -117,36 +116,7 @@ const auth = {
     return uiToken;
   },
 
-  async getApiCredentials() {
-    try {
-      const discovery = await utils.getOidcDiscovery();
-      const response = await axios.post(discovery.token_endpoint,
-        qs.stringify({
-          client_id: config.get('oidc:clientId'),
-          client_secret: config.get('oidc:clientSecret'),
-          grant_type: 'client_credentials',
-          scope: discovery.scopes_supported
-        }), {
-          headers: {
-            Accept: 'application/json',
-            'Cache-Control': 'no-cache',
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        }
-      );
 
-      log.verbose('getApiCredentials Res', safeStringify(response.data));
-
-      let result: any = {};
-      result.accessToken = response.data.access_token;
-      result.refreshToken = response.data.refresh_token;
-      return result;
-    } catch (error) {
-      log.error('getApiCredentials Error', error.response ? pick(error.response, ['status', 'statusText', 'data']) : error.message);
-      const status = error.response ? error.response.status : HttpStatus.INTERNAL_SERVER_ERROR;
-      throw new ApiError(status, {message: 'Get getApiCredentials error'}, error);
-    }
-  },
   isValidBackendToken() {
     return async function (req, res, next) {
       if (!kcPublicKey) {
@@ -172,10 +142,9 @@ const auth = {
       }
     };
   },
-  //TODO  call SOAP webservice of IDIM to get user info from BCeID
   async getUserInfo(req, res) {
     const userInfo = req?.session?.passport?.user;
-    if (!userInfo || !userInfo.jwt || !userInfo._json) {
+    if (!userInfo?.jwt || !userInfo?._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         message: 'No session data'
       });
@@ -185,6 +154,105 @@ const auth = {
       ...req.session.companyDetails
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);
+  },
+
+  createOrUpdatePayTransparencyCompany: async function (userInfo, req, tx) {
+    const existing_pay_transparency_company = await tx.pay_transparency_company.findFirst({
+      where: {
+        bceid_business_guid: userInfo._json.bceid_business_guid,
+      }
+    });
+    if (existing_pay_transparency_company) {
+      existing_pay_transparency_company.update_date = new Date();
+      existing_pay_transparency_company.company_name = req.session.companyDetails.legalName;
+      existing_pay_transparency_company.address_line1 = req.session.companyDetails.addressLine1;
+      existing_pay_transparency_company.address_line2 = req.session.companyDetails.addressLine2;
+      existing_pay_transparency_company.city = req.session.companyDetails.city;
+      existing_pay_transparency_company.province = req.session.companyDetails.province;
+      existing_pay_transparency_company.country = req.session.companyDetails.country;
+      existing_pay_transparency_company.postal_code = req.session.companyDetails.postal;
+      await tx.pay_transparency_company.update({
+        where: {
+          company_id: existing_pay_transparency_company.company_id,
+        },
+        data: existing_pay_transparency_company
+      });
+    } else {
+      await tx.pay_transparency_company.create({
+        data: {
+          bceid_business_guid: userInfo._json.bceid_business_guid,
+          company_name: req.session.companyDetails.legalName,
+          address_line1: req.session.companyDetails.addressLine1,
+          address_line2: req.session.companyDetails.addressLine2,
+          city: req.session.companyDetails.city,
+          province: req.session.companyDetails.province,
+          country: req.session.companyDetails.country,
+          postal_code: req.session.companyDetails.postal,
+          create_date: new Date(),
+          update_date: new Date()
+        }
+      });
+    }
+  },
+  createOrUpdatePayTransparencyUser: async function (userInfo, tx) {
+    const existingPayTransparencyUser = await tx.pay_transparency_user.findFirst({
+      where: {
+        bceid_user_guid: userInfo._json.bceid_user_guid,
+        bceid_business_guid: userInfo._json.bceid_business_guid
+      }
+    });
+    if (existingPayTransparencyUser) {
+      existingPayTransparencyUser.update_date = new Date();
+      existingPayTransparencyUser.display_name = userInfo._json.display_name;
+      await tx.pay_transparency_user.update({
+        where: {
+          user_id: existingPayTransparencyUser.user_id,
+        },
+        data: existingPayTransparencyUser
+      });
+    } else {
+      await tx.pay_transparency_user.create({
+        data: {
+          bceid_user_guid: userInfo._json.bceid_user_guid,
+          bceid_business_guid: userInfo._json.bceid_business_guid,
+          display_name: userInfo._json.display_name,
+          create_date: new Date(),
+          update_date: new Date()
+        }
+      });
+    }
+  },
+  async storeUserInfo(req, userInfo) {
+    if (!userInfo?.jwt || !userInfo?._json) {
+      throw new Error('No session data');
+    }
+    try {
+      await prisma.$transaction(async (tx) => {
+        await this.createOrUpdatePayTransparencyCompany(userInfo, req, tx);
+        await this.createOrUpdatePayTransparencyUser(userInfo, tx);
+      });
+    } catch (e) {
+      log.error(e);
+      throw new Error('Error while storing user info');
+    }
+  },
+  async handleCallBackBusinessBceid(req, res){
+    const userInfo = utils.getSessionUser(req);
+    const userGuid = jsonwebtoken.decode(userInfo.jwt)?.bceid_user_guid;
+    if (!userGuid) {
+      log.error(`no bceid_user_guid found in the jwt token`, userInfo.jwt);
+      res.redirect(config.get('server:frontend') + '/login-error');
+    }
+    if(!req.session?.companyDetails){
+      try{
+        req.session.companyDetails = await getCompanyDetails(userGuid);
+        await auth.storeUserInfo(req, userInfo);
+      }catch (e) {
+        log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
+        res.redirect(config.get('server:frontend') + '/login-error');
+      }
+    }
+    res.redirect(config.get('server:frontend'));
   }
 };
 

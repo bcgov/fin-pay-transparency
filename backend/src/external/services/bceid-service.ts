@@ -67,13 +67,15 @@ const getCompanyDetails = async (userGuid: string, base64BasicAuth: string = bas
   const city = get(address, 'city.0.value.0');
   const province = get(address, 'province.0.value.0');
   const country = get(address, 'country.0.value.0');
+  const postal = get(address, 'postal.0.value.0');
   const companyDetails = {
     legalName,
     addressLine1,
     addressLine2,
     city,
     province,
-    country
+    country,
+    postal
   }
   logger.silly(companyDetails);
   return companyDetails;
