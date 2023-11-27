@@ -80,13 +80,11 @@ describe("InputForm", () => {
     const naicsCodes = [
       {
         "naics_code": "11",
-        "naics_label": "Agriculture, forestry, fishing and hunting",
-        "naics_code_desc": "Agriculture, forestry, fishing and hunting"
+        "naics_label": "Agriculture, forestry, fishing and hunting"
       },
       {
         "naics_code": "913",
-        "naics_label": "Local, municipal and regional public administration",
-        "naics_code_desc": "Public administration > Local, municipal and regional public administration"
+        "naics_label": "Local, municipal and regional public administration"
       }
     ];
     await codeStore.$patch({ naicsCodes: naicsCodes } as any)
