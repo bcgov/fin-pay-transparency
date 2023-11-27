@@ -243,6 +243,11 @@ const validateService = {
       !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
       errorMessages.push(`${COL_REGULAR_SALARY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
     }
+    if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
+      this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
+      this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
+      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_REGULAR_SALARY} don't contain data.`)
+    }
 
     if (errorMessages.length) {
       const lineErrors = {
