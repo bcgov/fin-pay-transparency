@@ -8,7 +8,7 @@ datasource db {
 }
 
 model company_history {
-  company_history_id       String                   @id(map: "company_history_pk") @db.Uuid
+  company_history_id       String                   @id(map: "company_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   company_id               String                   @db.Uuid
   bceid_business_guid      String                   @db.Uuid
   company_name             String                   @db.VarChar(255)
@@ -21,7 +21,7 @@ model company_history {
 }
 
 model employee_count_range {
-  employee_count_range_id String                    @id(map: "employee_count_range_id_pk") @db.Uuid
+  employee_count_range_id String                    @id(map: "employee_count_range_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   employee_count_range    String                    @db.VarChar(255)
   create_date             DateTime                  @default(now()) @db.Timestamp(6)
   update_date             DateTime                  @default(now()) @db.Timestamp(6)
@@ -62,7 +62,7 @@ model naics_code {
 }
 
 model pay_transparency_calculated_data {
-  calculated_data_id                String                  @id(map: "calculated_data_pk") @db.Uuid
+  calculated_data_id                String                  @id(map: "calculated_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   report_id                         String                  @db.Uuid
   average_hourly_wage               Decimal                 @db.Decimal
   percentage_average_hourly_wage    Decimal                 @db.Decimal
@@ -82,12 +82,17 @@ model pay_transparency_calculated_data {
 }
 
 model pay_transparency_company {
-  company_id              String                    @id(map: "company_id_pk") @db.Uuid
+  company_id              String                    @id(map: "company_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   bceid_business_guid     String                    @unique(map: "company_bceid_business_guid_uk") @db.Uuid
   company_name            String                    @db.VarChar(255)
-  company_address         String                    @db.VarChar(255)
   create_date             DateTime                  @default(now()) @db.Timestamp(6)
   update_date             DateTime                  @default(now()) @db.Timestamp(6)
+  address_line1           String?                   @db.VarChar(255)
+  address_line2           String?                   @db.VarChar(255)
+  city                    String?                   @db.VarChar(255)
+  province                String?                   @db.VarChar(255)
+  country                 String?                   @db.VarChar(255)
+  postal_code             String?                   @db.VarChar(255)
   company_history         company_history[]
   pay_transparency_report pay_transparency_report[]
   report_history          report_history[]
@@ -95,7 +100,7 @@ model pay_transparency_company {
 
 model pay_transparency_input_data {
   report_id               String                  @db.Uuid
-  input_data_id           String                  @id(map: "input_data_pk") @db.Uuid
+  input_data_id           String                  @id(map: "input_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   employee_number         String                  @db.VarChar(10)
   gender_code             String                  @db.VarChar(1)
   hours_worked            Decimal                 @db.Decimal
@@ -108,7 +113,7 @@ model pay_transparency_input_data {
 }
 
 model pay_transparency_report {
-  report_id                                                 String                                    @id(map: "report_id_pk") @db.Uuid
+  report_id                                                 String                                    @id(map: "report_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   company_id                                                String                                    @db.Uuid
   user_id                                                   String                                    @db.Uuid
   user_comment                                              String                                    @db.VarChar(4000)
@@ -121,6 +126,7 @@ model pay_transparency_report {
   update_date                                               DateTime                                  @default(now()) @db.Timestamp(6)
   create_user                                               String                                    @db.VarChar(255)
   update_user                                               String                                    @db.VarChar(255)
+  report_status                                             String?                                   @default("Draft") @db.VarChar(255)
   pay_transparency_calculated_data                          pay_transparency_calculated_data[]
   pay_transparency_input_data                               pay_transparency_input_data[]
   naics_code_pay_transparency_report_naics_codeTonaics_code naics_code                                @relation("pay_transparency_report_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_naics_code_fk")
@@ -132,7 +138,7 @@ model pay_transparency_report {
 }
 
 model pay_transparency_suppressed_report_data {
-  suppressed_report_data_id         String                  @id(map: "suppressed_report_data_pk") @db.Uuid
+  suppressed_report_data_id         String                  @id(map: "suppressed_report_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   report_id                         String                  @db.Uuid
   average_hourly_wage               Decimal                 @db.Decimal
   percentage_average_hourly_wage    Decimal                 @db.Decimal
@@ -152,7 +158,7 @@ model pay_transparency_suppressed_report_data {
 }
 
 model pay_transparency_user {
-  user_id                 String                    @id(map: "user_id_pk") @db.Uuid
+  user_id                 String                    @id(map: "user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   bceid_user_guid         String                    @db.Uuid
   bceid_business_guid     String                    @db.Uuid
   display_name            String                    @db.VarChar(255)
@@ -163,7 +169,7 @@ model pay_transparency_user {
 }
 
 model report_history {
-  report_history_id        String                   @id(map: "report_history_pk") @db.Uuid
+  report_history_id        String                   @id(map: "report_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   report_id                String                   @db.Uuid
   company_id               String                   @db.Uuid
   user_id                  String                   @db.Uuid
@@ -176,6 +182,7 @@ model report_history {
   update_date              DateTime                 @default(now()) @db.Timestamp(6)
   create_user              String?                  @db.VarChar(255)
   update_user              String?                  @db.VarChar(255)
+  report_status            String?                  @default("Draft") @db.VarChar(255)
   pay_transparency_company pay_transparency_company @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_company_id_fk")
   employee_count_range     employee_count_range     @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_employee_count_range_id_fk")
   pay_transparency_report  pay_transparency_report  @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_report_id_fk")
