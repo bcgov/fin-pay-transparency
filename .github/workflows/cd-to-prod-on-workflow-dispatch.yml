@@ -38,4 +38,4 @@ jobs:
       tag: ${{ github.event.inputs.tag }}
       penetration-test: false
       frontend-url: https://paytransparency.fin.gov.bc.ca
-
+      semver: ${{ github.event.inputs.tag }}
