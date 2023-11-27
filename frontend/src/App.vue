@@ -52,6 +52,8 @@ export default {
 </script>
 
 <style>
+@import '@bcgov/bc-sans/css/BC_Sans.css';
+
 a {
   color: #1976d2;
 }
@@ -65,7 +67,7 @@ a:hover {
 }
 
 .v-application {
-  font-family: 'BCSans', Verdana, Arial, sans-serif !important;
+  font-family: 'BC Sans', 'Noto Sans', Verdana, Arial, sans-serif !important;
 }
 
 .v-card--flat {

@@ -1,0 +1,10 @@
+set search_path = pay_transparency;
+alter table pay_transparency_user alter column user_id set default gen_random_uuid();
+alter table pay_transparency_company alter column company_id set default gen_random_uuid();
+alter table employee_count_range alter column employee_count_range_id set default gen_random_uuid();
+alter table company_history alter column company_history_id set default gen_random_uuid();
+alter table pay_transparency_calculated_data alter column calculated_data_id set default gen_random_uuid();
+alter table pay_transparency_input_data alter column input_data_id set default gen_random_uuid();
+alter table pay_transparency_report alter column report_id set default gen_random_uuid();
+alter table pay_transparency_suppressed_report_data alter column suppressed_report_data_id set default gen_random_uuid();
+alter table report_history alter column report_history_id set default gen_random_uuid();
