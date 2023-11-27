@@ -11,6 +11,7 @@ import {
   validateService
 } from './validate-service';
 
+const NO_DATA_VALUES = ["", "0"]
 const VALID_DOLLAR_AMOUNTS = ["999999999", "1919", "2029.20", "150.4", "", "0"];
 const INVALID_DOLLAR_AMOUNTS = ["N/A", "NA", "$399,929.90", "1373385000.50", "-362566.20", "14b", "a", "$14", "-2", "-1", "1000000000", "1000000000.01"];
 const VALID_HOUR_AMOUNTS = ["8760", "75", "100.50", "", "0"];
@@ -24,7 +25,12 @@ describe("validateRow", () => {
   describe(`given an row that is fully valid`, () => {
     it("returns null", () => {
 
-      const validRow: Row = createSampleRow();
+      const overrides = {};
+      //Valid rows must either have values for both (Hours Worked and Regular Salary)
+      //or a value for Special Salary.
+      overrides[COL_HOURS_WORKED] = 10;
+      overrides[COL_REGULAR_SALARY] = 20;
+      const validRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
       const lineErrors: LineErrors = validateService.validateRow(lineNum, validRow);
@@ -49,6 +55,26 @@ describe("validateRow", () => {
       expect(lineErrors?.errors?.length).toBe(1);
       expect(doesAnyLineErrorContain(lineErrors, COL_HOURS_WORKED)).toBeTruthy();
       expect(doesAnyLineErrorContain(lineErrors, COL_SPECIAL_SALARY)).toBeTruthy();
+
+    })
+  })
+
+  describe(`given an row that specifies no data in any of the following columns: ${COL_HOURS_WORKED}, ${COL_REGULAR_SALARY} and ${COL_SPECIAL_SALARY}`, () => {
+    it("returns a line error", () => {
+
+      const overrides = {};
+      overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
+      overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
+      overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+      const invalidRow: Row = createSampleRow(overrides);
+
+      const lineNum = 1;
+      const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
+
+      //expect one line error that mentions COL_HOURS_WORKED, COL_REGULAR_SALARY and COL_SPECIAL_SALARY
+      expect(lineErrors).not.toBeNull();
+      expect(lineErrors?.errors?.length).toBe(1);
+      expect(doesAnyLineErrorContainAll(lineErrors, [COL_HOURS_WORKED, COL_REGULAR_SALARY, COL_SPECIAL_SALARY])).toBeTruthy();
 
     })
   })
@@ -133,6 +159,18 @@ describe("validateRow", () => {
           // Create a sample row and uses a specific Hours Worked value
           const overrides = {};
           overrides[COL_HOURS_WORKED] = hoursWorked;
+
+          //Hours Worked is semi-optional (it, along with Regular Salary, are mutually
+          //exclusive with Special Salary).  Make sure the related columns have
+          //appropriate values for the record to be fully valid.
+          if (hoursWorked) {
+            overrides[COL_REGULAR_SALARY] = 10;
+            overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+          }
+          else {
+            overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
+            overrides[COL_SPECIAL_SALARY] = 100;
+          }
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
@@ -174,12 +212,24 @@ describe("validateRow", () => {
 
     // Check that validation passes for each given value of Regular Salary
     validRegularSalary.forEach(regularSalary => {
-      describe(`${COL_REGULAR_SALARY} = ${regularSalary}`, () => {
+      describe(`${COL_REGULAR_SALARY} = '${regularSalary}'`, () => {
         it("returns no errors for this column", () => {
 
           // Create a sample row and uses a specific Regular Salary value
           const overrides = {};
           overrides[COL_REGULAR_SALARY] = regularSalary;
+
+          //Regular Salary is semi-optional (it, along with Hours Worked, are mutually
+          //exclusive with Special Salary).  Make sure the related columns have
+          //appropriate values for the record to be fully valid.
+          if (regularSalary) {
+            overrides[COL_HOURS_WORKED] = 10;
+            overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+          }
+          else {
+            overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
+            overrides[COL_SPECIAL_SALARY] = 100;
+          }
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
@@ -222,18 +272,25 @@ describe("validateRow", () => {
 
     // Check that validation passes for each given value of Special Salary
     validSpecialSalary.forEach(specialSalary => {
-      describe(`${COL_SPECIAL_SALARY} = ${specialSalary}`, () => {
+      describe(`${COL_SPECIAL_SALARY} = '${specialSalary}'`, () => {
         it("returns no errors for this column", () => {
 
           // Create a sample row and uses a specific Special Salary value
           const overrides = {};
           overrides[COL_SPECIAL_SALARY] = specialSalary;
+
+          //Special Salary is semi-optional (mutually exclusive with Hours Worked and
+          //Regular Salary).  If a blank value for Special Salary is given, be sure
+          //to include non-blank values for the mutually exclusive cols.
+          if (!specialSalary) {
+            overrides[COL_HOURS_WORKED] = 10;
+            overrides[COL_REGULAR_SALARY] = 20;
+          }
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(doesAnyLineErrorContain(lineErrors, COL_SPECIAL_SALARY)).toBeFalsy();
-
         });
       })
     })
@@ -417,14 +474,37 @@ const createSampleRow = (override: any = {}): Row => {
  * the given text.  Returns false otherwise.
  */
 const doesAnyLineErrorContain = (lineErrors: LineErrors, text: string): boolean => {
+  return doesAnyLineErrorContainAll(lineErrors, [text]);
+}
+
+/**
+ * Scans all error messages in the given LineErrors object, and
+ * returns True if at least one of the error messages contains
+ * all of the given values.  Returns false otherwise
+ */
+const doesAnyLineErrorContainAll = (lineErrors: LineErrors, values: string[]): boolean => {
   if (!lineErrors) {
     return false;
   }
-  for (var i = 0; i < lineErrors?.errors?.length; i++) {
-    const errorMsg: string = lineErrors.errors[i];
-    if (errorMsg?.indexOf(text) >= 0) {
+  for (var lineIndex = 0; lineIndex < lineErrors?.errors?.length; lineIndex++) {
+    const errorMsg: string = lineErrors.errors[lineIndex];
+    var lineContainsAll = true;
+    for (var valueIndex = 0; valueIndex < values.length; valueIndex++) {
+      const value = values[valueIndex];
+      const lineContainsValue = (errorMsg?.indexOf(value) >= 0);
+      lineContainsAll = lineContainsAll && lineContainsValue;
+      if (!lineContainsValue) {
+        //at least one require value no found on this line, so stop analyzing this line
+        break;
+      }
+    }
+    if (lineContainsAll) {
+      //the current line contains all the required values.
       return true;
     }
   }
+  //all lines have been scanned, and none of them contains all the required
+  //values
   return false;
 }
+
