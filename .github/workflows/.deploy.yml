@@ -48,6 +48,11 @@ on:
         required: false
         default: dev
         type: string
+      semver:
+        description: 'Semver version of the helm chart'
+        required: false
+        type: string
+        default: 0.0.1
 
 
 jobs:
@@ -89,6 +94,9 @@ jobs:
           #upgrade helm dependencies.
           helm dependency update ${{ inputs.directory }}
           
+          #Package helm chart
+          helm package --app-version="${{ inputs.tag }}" --version=${{ inputs.semver }} ./${{ inputs.directory }}
+          
           #Perform atomic upgrade/installation of helm chart
           helm upgrade --install --wait --atomic ${{ env.deployment_name }}-${{ inputs.target }} \
           --values ${{ inputs.directory }}/${{ inputs.values }} \
@@ -109,10 +117,13 @@ jobs:
           --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
           --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
-          --timeout ${{ inputs.timeout-minutes }}m  ${{ inputs.directory }}
+          --timeout ${{ inputs.timeout-minutes }}m  ./${{ github.event.repository.name }}-${{ inputs.semver }}.tgz
+          
+          # print history 
+          helm history ${{ env.deployment_name }}-${{ inputs.target }}
       - name: Penetration Test
         uses: zaproxy/action-full-scan@v0.8.0
-        if: ${{ inputs.penetration-test == 'true' }}
+        if: ${{ inputs.penetration-test == true }}
         with:
           target: ${{ inputs.frontend-url }}
           cmd_options: "-a"
