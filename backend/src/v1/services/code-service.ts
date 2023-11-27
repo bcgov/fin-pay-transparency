@@ -46,7 +46,7 @@ const codeService = {
             },
             {
               expiry_date: {
-                gt: now.toDate(),
+                gte: now.toDate(),
               }
             }
 
@@ -82,8 +82,7 @@ const codeService = {
       naicsCodesCache = await prisma.naics_code.findMany({
         select: {
           naics_code: true,
-          naics_label: true,
-          naics_code_desc: true,          
+          naics_label: true,        
         },
         where: {
           effective_date: {
@@ -95,7 +94,7 @@ const codeService = {
             },
             {
               expiry_date: {
-                gt: now.toDate(),
+                gte: now.toDate(),
               }
             }
           ]
