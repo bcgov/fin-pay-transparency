@@ -49,9 +49,8 @@ model flyway_schema_history {
 }
 
 model naics_code {
-  naics_code                                                             String                    @id(map: "naics_code_id_pk") @db.VarChar(255)
+  naics_code                                                             String                    @id(map: "naics_code_id_pk") @db.VarChar(5)
   naics_label                                                            String                    @db.VarChar(255)
-  naics_code_desc                                                        String                    @db.VarChar(1023)
   effective_date                                                         DateTime                  @default(dbgenerated("CURRENT_DATE")) @db.Date
   expiry_date                                                            DateTime?                 @db.Date
   create_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
@@ -119,7 +118,7 @@ model pay_transparency_report {
   user_id                                                   String                                    @db.Uuid
   user_comment                                              String                                    @db.VarChar(4000)
   employee_count_range_id                                   String                                    @db.Uuid
-  naics_code                                                String                                    @db.VarChar(255)
+  naics_code                                                String                                    @db.VarChar(5)
   report_data                                               Bytes
   report_start_date                                         DateTime                                  @default(now()) @db.Timestamp(6)
   report_end_date                                           DateTime                                  @default(now()) @db.Timestamp(6)

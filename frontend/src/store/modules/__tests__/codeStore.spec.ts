@@ -45,17 +45,14 @@ const testNaicsCodes = [
   {
     naics_code: '1',
     naics_label: 'test1',
-    naics_code_desc: 'test1desc',
   },
   {
     naics_code: '2',
     naics_label: 'test2',
-    naics_code_desc: 'test2desc',
   },
   {
     naics_code: '3',
     naics_label: 'test3',
-    naics_code_desc: 'test3desc',
   }
 ]
 

@@ -1,121 +1,119 @@
 <template>
-  <div
-    @mouseover="pause = true"
-    @mouseleave="pause = false"
-  >
-    <v-snackbar
-      id="mainSnackBar"
-      v-model="showSnackBar"
-      :timeout="timeout"
-      elevation="24"
-      location="top"
-      centered
-      :color="colour"
-      transition="slide-y-transition"
-      class="snackbar"
-    >
-      {{ alertNotificationText }}
+  <div @mouseover="pause = true" @mouseleave="pause = false">
+    <v-snackbar id="mainSnackBar" v-model="isVisible" :key="notificationKey" :timeout="timeout" elevation="24"
+      location="top" centered :color="colour" transition="slide-y-transition" class="snackbar">
+      {{ message }}
       <template #actions>
-        <v-btn
-          text
-          color="white"
-          v-bind="$attrs"
-          @click="showSnackBar = false"
-        >
-          {{ alertNotificationQueue.length > 0 ? 'Next (' + alertNotificationQueue.length + ')' : 'Close' }}
+        <v-btn text color="white" v-bind="$attrs" @click="processNextNotification()">
+          {{ notificationQueue.length > 0 ? 'Next (' + notificationQueue.length + ')' : 'Close' }}
         </v-btn>
       </template>
     </v-snackbar>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
-import { appStore } from '../../store/modules/app';
-import {mapActions, mapState} from 'pinia';
-import {ALERT_NOTIFICATION_TYPES} from '../../utils/constants/AlertNotificationTypes';
+import { NotificationService, Notification, NotificationTypes } from '../../common/notificationService';
+import { useTheme } from 'vuetify'
 
 export default {
   name: 'SnackBar',
   data() {
     return {
       colour: '',
+      theme: null,
       polling: null,
       timeout: 5000,
-      pause: false
+      pause: false,
+      message: null,
+      notificationQueue: [],
+      isVisible: false,
+      // This attribute is used to force Vue to update the snackbar in the case
+      // where isVisible quickly changes between true, false and then true again.
+      notificationKey: 0
     };
   },
+  mounted() {
+    NotificationService.registerNotificationListener(this.onNotificationEvent);
+
+    // Get access to colors defined in the Vuetify theme
+    this.theme = useTheme()
+  },
   computed: {
-    ...mapState(appStore, ['alertNotificationText', 'alertNotificationQueue', 'alertNotification']),
     hasNotificationsPending() {
-      return this.alertNotificationQueue.length > 0;
+      return this.notificationQueue.length > 0;
     },
-    showSnackBar: {
-      get(){
-        return this.alertNotification;
-      },
-      set(val){
-        this.setAlertNotification(val);
-      }
-    }
   },
   watch: {
-    showSnackBar() {
-      if(!this.showSnackBar && this.hasNotificationsPending) {
-        this.$nextTick(() => this.showSnackBar = true);
-      } else if (this.showSnackBar && this.hasNotificationsPending) {
-        this.setupSnackBar();
-      }
-      else {
-        this.teardownSnackBar();
+    isVisible(isVisible) {
+      if (!isVisible) {
+        this.onNotificationExpired()
       }
     },
   },
   methods: {
-    ...mapActions(appStore, ['setAlertNotificationText', 'setAlertNotification']),
-    setAlertType(alertType) {
-      if(!alertType) {
-        alertType = '';
-      }
-      switch(alertType.toLowerCase()) {
-      case(ALERT_NOTIFICATION_TYPES.ERROR):
-        this.colour = ALERT_NOTIFICATION_TYPES.ERROR;
-        break;
-      case(ALERT_NOTIFICATION_TYPES.WARN):
-        this.colour = ALERT_NOTIFICATION_TYPES.WARN;
-        break;
-      case(ALERT_NOTIFICATION_TYPES.SUCCESS):
-        this.colour = ALERT_NOTIFICATION_TYPES.SUCCESS;
-        break;
-      case(ALERT_NOTIFICATION_TYPES.INFO):
-      default:
-        this.colour = ALERT_NOTIFICATION_TYPES.INFO;
+    onNotificationEvent(notification: Notification) {
+      this.notificationQueue.push(notification);
+      if (!this.isVisible) {
+        this.processNextNotification();
       }
     },
-    setupSnackBar() {
-      let alertObject = this.alertNotificationQueue.shift();
-      this.setAlertNotificationText(alertObject.text);
-      this.setAlertType(alertObject.alertType);
-      document.addEventListener('keydown', this.close);
-      if (alertObject.alertType === ALERT_NOTIFICATION_TYPES.ERROR) {
-        this.timeout = 8000;
-      } else {
-        this.timeout = 5000;
+    onNotificationExpired() {
+      this.close();
+      this.notificationKey++;
+      if (this.hasNotificationsPending) {
+        this.processNextNotification();
       }
-      this.timeoutCounter();
     },
-    teardownSnackBar() {
-      document.removeEventListener('keydown', this.close);
+    setSeverity(severity) {
+      if (!severity) {
+        severity = '';
+      }
+      this.timeout = 5000;
+      switch (severity) {
+        case (NotificationTypes.NOTIFICATION_ERROR):
+          this.timeout = 8000;
+          this.colour = this.theme.current.colors.error;
+          break;
+        case (NotificationTypes.NOTIFICATION_WARNING):
+          this.colour = this.theme.current.colors.warning;
+          break;
+        case (NotificationTypes.NOTIFICATION_SUCCESS):
+          this.colour = this.theme.current.colors.success;
+          break;
+        default:
+          this.colour = this.theme.current.colors.secondary;
+      }
+    },
+    processNextNotification() {
+      if (this.notificationQueue.length) {
+        this.isVisible = true;
+        const notification = this.notificationQueue.shift();
+        this.message = notification.message;
+        this.setSeverity(notification.severity)
+        document.addEventListener('keydown', this.onKeyPressed);
+        this.timeoutCounter();
+      }
+      else {
+        this.close();
+      }
+    },
+    onKeyPressed(e) {
+      if ((e.key === 'Escape' || e.key === 'Esc') && this.isVisible) {
+        this.processNextNotification();
+      }
+    },
+    close() {
+      this.message = null;
+      this.color = null;
+      this.isVisible = false;
+      document.removeEventListener('keydown', this.onKeyPressed);
       clearInterval(this.polling);
-    },
-    close(e) {
-      if ((e.key === 'Escape' || e.key === 'Esc') && this.showSnackBar) {
-        this.showSnackBar = false;
-      }
     },
     timeoutCounter() {
       this.polling = setInterval(() => {
-        if(this.pause) {
+        if (this.pause) {
           this.timeout += 1;
         }
       }, 1000);
