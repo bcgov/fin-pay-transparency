@@ -154,8 +154,6 @@ const validateService = {
     const firstRow = rows[0];
     const colNames = Object.getOwnPropertyNames(firstRow.record);
     if (colNames?.length < EXPECTED_COLUMNS.length) {
-      console.log(colNames)
-      console.log(EXPECTED_COLUMNS)
       throw new Error(INVALID_COLUMN_ERROR);
 
     }
@@ -254,6 +252,7 @@ const validateService = {
         lineNum: lineNum,
         errors: errorMessages
       }
+
       return lineErrors;
     }
 
@@ -265,6 +264,21 @@ const validateService = {
   zero, otherwise returns false.
   */
   isZeroSynonym(val: any): boolean {
+
+    //Check if the value can be parsed as number, and if it can,
+    //check if that number is equal to zero.
+    try {
+      const num = parseFloat(val);
+      if (num == 0) {
+        return true;
+      }
+    }
+    catch (e) {
+      //ignore the error
+    }
+
+    //If the value wasn't strictly a numeric zero, check whether
+    //there it is equal to any of the allowable synonyms for zero.
     if (typeof val == "string") {
       val = val.toUpperCase();
     }
