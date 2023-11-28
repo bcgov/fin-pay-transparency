@@ -132,4 +132,18 @@ describe("InputForm", () => {
 
   })
 
+  it('Range of allowable start and end months is correct', async () => {
+
+    //Earliest allowable start month is two years before the current month
+    expect(moment(wrapper.vm.minStartDate).format("YYYY-MM")).toBe(moment().subtract(2, "years").startOf("month").format("YYYY-MM"));
+    //Latest allowable end month is the month prior the current month
+    expect(moment(wrapper.vm.maxEndDate).format("YYYY-MM")).toBe(moment().subtract(1, "month").endOf("month").format("YYYY-MM"));
+
+    //Latest allowable start month is 11 months before the latest allowable end month
+    expect(moment(wrapper.vm.maxStartDate).format("YYYY-MM")).toBe(moment(wrapper.vm.maxEndDate).subtract(11, "months").format("YYYY-MM"));
+    //Earliest allowable end month is 11 months after earliest allowable start month
+    expect(moment(wrapper.vm.minEndDate).format("YYYY-MM")).toBe(moment(wrapper.vm.minStartDate).add(11, "months").format("YYYY-MM"));    
+
+  })
+
 })
