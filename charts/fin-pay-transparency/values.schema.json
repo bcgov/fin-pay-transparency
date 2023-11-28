@@ -541,7 +541,7 @@
         "secrets",
         "domain"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "patroni": {
       "type": "object",
