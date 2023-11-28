@@ -24,6 +24,9 @@
       </v-col>
       <v-col>
         <v-card min-height="70%">
+          <v-toolbar color='primary'>
+            <v-toolbar-title>View Generated Reports</v-toolbar-title>
+          </v-toolbar>
           <v-card-text>
             No generated reports yet.
           </v-card-text>

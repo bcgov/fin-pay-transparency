@@ -11,14 +11,34 @@ import {
   validateService
 } from './validate-service';
 
-const NO_DATA_VALUES = ["", "0"]
-const VALID_DOLLAR_AMOUNTS = ["999999999", "1919", "2029.20", "150.4", "", "0"];
+const NO_DATA_VALUES = ["", "0", "0.0", "0.00"]
+const VALID_DOLLAR_AMOUNTS = ["999999999", "1919", "2029.20", "150.4", "", "0", "0.0", "0.00"];
 const INVALID_DOLLAR_AMOUNTS = ["N/A", "NA", "$399,929.90", "1373385000.50", "-362566.20", "14b", "a", "$14", "-2", "-1", "1000000000", "1000000000.01"];
-const VALID_HOUR_AMOUNTS = ["8760", "75", "100.50", "", "0"];
+const VALID_HOUR_AMOUNTS = ["8760", "75", "100.50", "", "0", "0.0", "0.00"];
 const INVALID_HOUR_AMOUNTS = ["1779C", "-1", "8761", "N/A", "NA", "14b", "a", "$14", "-2"];
 const VALID_GENDER_CODES = ["M", "F", "W", "X", "U"];
 const INVALID_GENDER_CODES = ["H", "N/A", ""]
 
+
+describe("isZeroSynonym", () => {
+  NO_DATA_VALUES.forEach(value => {
+    describe(`given a value ('${value}') that should be treated as zero`, () => {
+      it("returns true", () => {
+        expect(validateService.isZeroSynonym(value)).toBeTruthy();
+      })
+    })
+  });
+
+  const nonZeroValues = ["999999999", "1919", "2029.20", "150.4", "F", "N/A"];
+  nonZeroValues.forEach(value => {
+    describe(`given a value ('${value}') that should not be treated as zero`, () => {
+      it("returns false", () => {
+        expect(validateService.isZeroSynonym(value)).toBeFalsy();
+      })
+    })
+  });
+
+})
 
 describe("validateRow", () => {
 
@@ -30,6 +50,24 @@ describe("validateRow", () => {
       //or a value for Special Salary.
       overrides[COL_HOURS_WORKED] = 10;
       overrides[COL_REGULAR_SALARY] = 20;
+      const validRow: Row = createSampleRow(overrides);
+
+      const lineNum = 1;
+      const lineErrors: LineErrors = validateService.validateRow(lineNum, validRow);
+      expect(lineErrors).toBeNull();
+
+    })
+  })
+
+  describe(`given a valid row with 0.00 in one of the columns`, () => {
+    it("the 0.00 is interpreted the same as 0", () => {
+
+      const overrides = {};
+      //Valid rows must either have values for both (Hours Worked and Regular Salary)
+      //or a value for Special Salary.
+      overrides[COL_HOURS_WORKED] = 10;
+      overrides[COL_REGULAR_SALARY] = 20;
+      overrides[COL_SPECIAL_SALARY] = "0.00";
       const validRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
@@ -163,7 +201,7 @@ describe("validateRow", () => {
           //Hours Worked is semi-optional (it, along with Regular Salary, are mutually
           //exclusive with Special Salary).  Make sure the related columns have
           //appropriate values for the record to be fully valid.
-          if (hoursWorked) {
+          if (!validateService.isZeroSynonym(hoursWorked)) {
             overrides[COL_REGULAR_SALARY] = 10;
             overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
           }
@@ -175,6 +213,7 @@ describe("validateRow", () => {
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
+
           expect(doesAnyLineErrorContain(lineErrors, COL_HOURS_WORKED)).toBeFalsy();
 
         });
@@ -222,7 +261,7 @@ describe("validateRow", () => {
           //Regular Salary is semi-optional (it, along with Hours Worked, are mutually
           //exclusive with Special Salary).  Make sure the related columns have
           //appropriate values for the record to be fully valid.
-          if (regularSalary) {
+          if (!validateService.isZeroSynonym(regularSalary)) {
             overrides[COL_HOURS_WORKED] = 10;
             overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
           }
@@ -234,8 +273,8 @@ describe("validateRow", () => {
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
-          expect(doesAnyLineErrorContain(lineErrors, COL_REGULAR_SALARY)).toBeFalsy();
 
+          expect(doesAnyLineErrorContain(lineErrors, COL_REGULAR_SALARY)).toBeFalsy();
         });
       })
     })
@@ -282,9 +321,13 @@ describe("validateRow", () => {
           //Special Salary is semi-optional (mutually exclusive with Hours Worked and
           //Regular Salary).  If a blank value for Special Salary is given, be sure
           //to include non-blank values for the mutually exclusive cols.
-          if (!specialSalary) {
+          if (validateService.isZeroSynonym(specialSalary)) {
             overrides[COL_HOURS_WORKED] = 10;
             overrides[COL_REGULAR_SALARY] = 20;
+          }
+          else {
+            overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
+            overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
           }
           const row: Row = createSampleRow(overrides);
 
