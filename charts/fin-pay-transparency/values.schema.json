@@ -158,7 +158,7 @@
                   "type": "string"
                 }
               },
-              "additionalProperties": false
+              "additionalProperties": true
             }
           },
           "additionalProperties": false
@@ -541,7 +541,7 @@
         "secrets",
         "domain"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "patroni": {
       "type": "object",

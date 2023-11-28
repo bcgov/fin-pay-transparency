@@ -18,6 +18,7 @@ import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
+import { NotificationService } from './common/notificationService';
 
 export default {
   name: 'App',
@@ -31,6 +32,14 @@ export default {
     ...mapState(appStore, ['pageTitle']),
     isIE() {
       return /Trident\/|MSIE/.test(window.navigator.userAgent);
+    }
+  },
+  watch: {
+    '$route'(to, from) {
+      if (to.fullPath != "/error") {
+        //Reset error page message back to the default
+        NotificationService.setErrorPageMessage();
+      }
     }
   },
   async created() {
