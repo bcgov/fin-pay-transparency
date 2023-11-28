@@ -54,6 +54,8 @@ spec:
           envFrom:
             - secretRef:
                 name: {{.Release.Name}}
+            - configMapRef:
+                name: {{.Release.Name}}
           env:
             - name: NODE_ENV
               value: production

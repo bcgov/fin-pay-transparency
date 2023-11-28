@@ -23,6 +23,8 @@ global:
   serverFrontend: ~
   autoscaling:
     enabled: true
+  config:
+    upload_file_max_size: '8000000'
 backend:
   enabled: true
   deploymentStrategy: RollingUpdate
@@ -69,6 +71,7 @@ backend:
     env:
       siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
       logLevel: info
+
   podAnnotations: { }
   podSecurityContext: { }
   securityContext: { }
