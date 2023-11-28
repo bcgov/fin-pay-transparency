@@ -7,6 +7,6 @@ metadata:
   labels:
     {{- include "backend.labels" . | nindent 4 }}
 data:
-    UPLOAD_FILE_MAX_SIZE: {{ .Values.app.env.upload_file_max_size }}
+    UPLOAD_FILE_MAX_SIZE: {{ .Values.app.env.upload_file_max_size | quote }}
 
 {{- end }}
