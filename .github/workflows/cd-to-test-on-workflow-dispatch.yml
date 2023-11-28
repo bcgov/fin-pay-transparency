@@ -39,3 +39,4 @@ jobs:
       environment: test
       tag: ${{ github.event.inputs.tag }}
       frontend-url: https://test.paytransparency.fin.gov.bc.ca
+      semver: ${{ github.event.inputs.tag }}

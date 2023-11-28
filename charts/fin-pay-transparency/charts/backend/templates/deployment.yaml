@@ -6,6 +6,8 @@ metadata:
   labels:
     {{- include "backend.labels" . | nindent 4 }}
 spec:
+  strategy:
+    type: {{ .Values.deploymentStrategy }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -51,6 +53,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - secretRef:
+                name: {{.Release.Name}}
+            - configMapRef:
                 name: {{.Release.Name}}
           env:
             - name: NODE_ENV

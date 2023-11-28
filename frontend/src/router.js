@@ -2,10 +2,13 @@ import {createRouter, createWebHistory} from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
+import LoginError from './components/LoginError.vue';
+import TokenExpired from './components/TokenExpired.vue';
 import {appStore} from './store/modules/app';
 import {PAGE_TITLES} from './utils/constant';
 import Login from './components/Login.vue';
 import {authStore} from './store/modules/auth';
+import Logout from './components/Logout.vue';
 
 
 // a comment for commit.
@@ -24,10 +27,17 @@ const router = createRouter({
 
     },
     {
+      //A route to show a general error for unrecoverable system failures
       path: '/error',
       name: 'error',
       component: ErrorPage
     },
+    {
+      //A route to show an error specifically related to failed logins
+      path: '/login-error',
+      name: 'login-error',
+      component: LoginError
+    },    
     {
       path: '/login',
       name: 'login',
@@ -38,6 +48,11 @@ const router = createRouter({
       }
     },
     {
+      path: '/logout',
+      name: 'logout',
+      component: Logout
+    },
+    {
       path: '/inputForm',
       name: 'InputForm',
       component: InputForm,
@@ -46,6 +61,15 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/token-expired',
+      name: 'TokenExpired',
+      component: TokenExpired,
+      meta: {
+        pageTitle: PAGE_TITLES.TOKEN_EXPIRED,
+        requiresAuth: false
+      }
+    },       
   ]
 });
 
@@ -59,7 +83,7 @@ router.beforeEach((to, _from, next) => {
         next('/token-expired');
       } else {
         aStore.getUserInfo().then(() => {
-            if(true){//something to check if user is authorized to view this page
+            if (true) {//something to check if user is authorized to view this page
               next();
             }
         }).catch(() => {
@@ -74,15 +98,13 @@ router.beforeEach((to, _from, next) => {
       }
     });
   }
-  else{
-    if (!aStore.userInfo) {
-      next();
-    }
+  else {
     if (to && to.meta) {
       apStore.setPageTitle(to.meta.pageTitle);
     } else {
       apStore.setPageTitle('');
     }
+    //Proceed normally to the requested route 
     next();
   }
 });

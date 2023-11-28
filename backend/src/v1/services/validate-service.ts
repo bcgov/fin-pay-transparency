@@ -31,8 +31,8 @@ const DOLLARS_COLUMNS = [
 ];
 const INVALID_COLUMN_ERROR = "Invalid CSV format. Please ensure the uploaded file contains the following columns: " + EXPECTED_COLUMNS.join(",")
 const GENDER_CODES = ["M", "F", "X", "U", "W"];
-const ZERO_SYNONYMS = ["N/A", ""];
-const MAX_HOURS = 9999;
+const ZERO_SYNONYMS = [""];
+const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
 
 
@@ -242,6 +242,11 @@ const validateService = {
     if (!this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
       !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
       errorMessages.push(`${COL_REGULAR_SALARY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
+    }
+    if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
+      this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
+      this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
+      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_REGULAR_SALARY} don't contain data.`)
     }
 
     if (errorMessages.length) {

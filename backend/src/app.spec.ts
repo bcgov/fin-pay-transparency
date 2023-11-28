@@ -141,7 +141,6 @@ describe("GET /naics-codes", () => {
     {
       naics_code: '1',
       naics_label: 'test1',
-      naics_code_desc: 'test1desc',
     }
   ];
   (prisma.naics_code.findMany as jest.Mock).mockResolvedValue(mockDBResp);
