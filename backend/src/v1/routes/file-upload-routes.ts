@@ -5,7 +5,7 @@ import { getCompanies } from '../services/file-upload-service';
 import { FileErrors, validateService } from "../services/validate-service";
 import {config} from "../../config";
 const multer = require('multer');
-const upload = multer({ fileSize: config.get('server:uploadFileMaxSize') || 500000});
+const upload = multer({ fileSize: config.get('server:uploadFileMaxSize') || 8000000});
 
 interface ValidationErrorResponse {
   status: string;

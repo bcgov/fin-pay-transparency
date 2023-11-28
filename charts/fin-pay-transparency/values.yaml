@@ -69,7 +69,7 @@ backend:
     env:
       siteminderLogoutEndpoint: https://logontest.gov.bc.ca/clp-cgi/logoff.cgi
       logLevel: info
-      upload_file_max_size: 50000000
+      upload_file_max_size: 8000000
   podAnnotations: { }
   podSecurityContext: { }
   securityContext: { }
