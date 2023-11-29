@@ -30,7 +30,7 @@
     </a>
     <v-spacer />
 
-    <v-btn v-if="isAuthenticated" :href="authRoutesLogout">
+    <v-btn v-if="isAuthenticated" :href="authRoutes.LOGOUT">
       Logout
     </v-btn>
   </v-app-bar>
@@ -40,13 +40,12 @@
 import { mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
 import { AuthRoutes } from '../utils/constant';
-import { sanitizeUrl } from '@braintree/sanitize-url';
 
 export default {
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
-      authRoutesLogout: sanitizeUrl(AuthRoutes.LOGOUT)
+      authRoutes: AuthRoutes
     };
   },
   computed: {

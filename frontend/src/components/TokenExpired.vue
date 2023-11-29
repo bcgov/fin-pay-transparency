@@ -5,7 +5,7 @@
         <v-alert dense outlined class="bootstrap-error mb-3">
           Your session has expired.
         </v-alert>
-        <v-btn color="primary" :href="authRoutesLogin">Login Again</v-btn>
+        <v-btn color="primary" :href="authRoutes.LOGIN_BCEID">Login Again</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -24,7 +24,7 @@ export default {
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
-      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID)
+      authRoutes: AuthRoutes
     };
   },
   computed: {
