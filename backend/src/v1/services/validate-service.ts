@@ -29,8 +29,8 @@ const DOLLARS_COLUMNS = [
   COL_OVERTIME_PAY,
   COL_BONUS_PAY
 ];
-const INVALID_COLUMN_ERROR = "Invalid CSV format. Please ensure the uploaded file contains the following columns: " + EXPECTED_COLUMNS.join(",")
-const GENDER_CODES = ["M", "F", "X", "U", "W"];
+const INVALID_COLUMN_ERROR = `Invalid CSV format. Please ensure the uploaded file contains the following columns: ${EXPECTED_COLUMNS.join(", ")}`
+const GENDER_CODES = ["M", "F", "W", "X", "U"];
 const ZERO_SYNONYMS = [""];
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
@@ -231,7 +231,7 @@ const validateService = {
 
     // Other column-specific validation checks
     if (GENDER_CODES.indexOf(record[COL_GENDER_CODE]) == -1) {
-      errorMessages.push(`Invalid ${COL_GENDER_CODE} '${record[COL_GENDER_CODE]}' (expected one of: ${GENDER_CODES}).`)
+      errorMessages.push(`Invalid ${COL_GENDER_CODE} '${record[COL_GENDER_CODE]}' (expected one of: ${GENDER_CODES.join(", ")}).`)
     }
     if (!this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
       !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
@@ -244,7 +244,7 @@ const validateService = {
     if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
       this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
       this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_REGULAR_SALARY} don't contain data.`)
+      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_REGULAR_SALARY} do not contain data.`)
     }
 
     if (errorMessages.length) {
