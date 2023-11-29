@@ -160,7 +160,7 @@
                 </v-table>
 
                 <div v-if="submissionErrors?.fileErrors?.lineErrors">
-                  <p class="mb-3">Problems were found on the following lines.</p>
+                  <p class="mb-3">Problems were found on the following lines:</p>
                   <v-table density="compact">
                     <thead>
                       <tr>
