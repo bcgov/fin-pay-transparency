@@ -46,7 +46,6 @@
 import { authStore } from '../store/modules/auth';
 import { mapState } from 'pinia';
 import { AuthRoutes } from '../utils/constant';
-import { sanitizeUrl } from '@braintree/sanitize-url';
 
 export default {
   name: 'Login',
@@ -56,7 +55,7 @@ export default {
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
-      authRoutes: sanitizeUrl(AuthRoutes.LOGIN_BCEID)
+      authRoutes: AuthRoutes
     };
   },
   computed: {
