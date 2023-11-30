@@ -29,7 +29,7 @@
             <v-btn
               id="login-button"
               variant="outlined"
-              :href="authRoutes.LOGIN_BCEID"
+              :href="authRoutesLogin"
               class="ma-2"
               @click="clearStorage"
             >
@@ -56,7 +56,7 @@ export default {
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
-      authRoutes: sanitizeUrl(AuthRoutes.LOGIN_BCEID)
+      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID)
     };
   },
   computed: {
