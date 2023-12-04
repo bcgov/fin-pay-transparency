@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "database": "podman compose up -d database-migrations"
+  }
+}
