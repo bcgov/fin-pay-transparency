@@ -1,6 +1,7 @@
 import { parse } from 'csv-parse/sync';
 import { logger as log } from '../../logger';
 
+const FIELD_DATA_CONSTRAINTS = "Data Constraints";
 const COL_GENDER_CODE = "Gender Code";
 const COL_HOURS_WORKED = "Hours Worked";
 const COL_ORDINARY_PAY = "Ordinary Pay";
@@ -34,7 +35,7 @@ const GENDER_CODES = ["M", "F", "W", "X", "U"];
 const ZERO_SYNONYMS = [""];
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
-
+const MAX_LEN_DATA_CONSTRAINTS = 3000;
 
 interface Row {
   record: any;
@@ -55,10 +56,15 @@ const validateService = {
 
   /*
   Validates the content of the submission body, which includes all form fields, 
-  but excludes the uploaded CSV file.
+  but excludes the uploaded CSV file.  Returns a list of any validation error messages, 
+  or an empty list if no errors.
   */
-  validateBody(body: string): string[] {
-    return [];
+  validateBody(body: any): string[] {
+    const errorMessages = [];
+    if (body?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
+      errorMessages.push(`Text in ${FIELD_DATA_CONSTRAINTS} must not exceed ${MAX_LEN_DATA_CONSTRAINTS} characters.`)
+    }
+    return errorMessages;
   },
 
   /*
@@ -308,10 +314,13 @@ const validateService = {
 }
 
 export {
+  FIELD_DATA_CONSTRAINTS,
   COL_BONUS_PAY, COL_GENDER_CODE,
   COL_HOURS_WORKED, COL_OVERTIME_HOURS,
   COL_OVERTIME_PAY, COL_ORDINARY_PAY,
-  COL_SPECIAL_SALARY, FileErrors,
+  COL_SPECIAL_SALARY, 
+  MAX_LEN_DATA_CONSTRAINTS,
+  FileErrors,  
   LineErrors,
   Row,
   validateService

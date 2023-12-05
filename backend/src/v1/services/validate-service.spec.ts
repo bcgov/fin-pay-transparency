@@ -1,4 +1,5 @@
 import {
+  FIELD_DATA_CONSTRAINTS,
   COL_BONUS_PAY,
   COL_GENDER_CODE,
   COL_HOURS_WORKED,
@@ -6,6 +7,7 @@ import {
   COL_OVERTIME_PAY,
   COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY,
+  MAX_LEN_DATA_CONSTRAINTS,
   LineErrors,
   Row,
   validateService
@@ -18,7 +20,6 @@ const VALID_HOUR_AMOUNTS = ["8760", "75", "100.50", "", "0", "0.0", "0.00"];
 const INVALID_HOUR_AMOUNTS = ["1779C", "-1", "8761", "N/A", "NA", "14b", "a", "$14", "-2"];
 const VALID_GENDER_CODES = ["M", "F", "W", "X", "U"];
 const INVALID_GENDER_CODES = ["H", "N/A", ""]
-
 
 describe("isZeroSynonym", () => {
   NO_DATA_VALUES.forEach(value => {
@@ -37,6 +38,45 @@ describe("isZeroSynonym", () => {
       })
     })
   });
+
+})
+
+describe("validateBody", () => {
+
+  const validBody = {
+    companyName: 'Fake Company Name',
+    companyAddress: '1200 Fake St.',
+    naicsCode: '11',
+    employeeCountRange: "enmployeeRangeCountId",
+    startDate: '2022-12',
+    endDate: '2023-11',
+    dataConstraints: 'data constraints',
+    comments: 'other comments'
+  }
+
+  describe(`given data constraints that exceed the maximum length`, () => {
+    it("returns an error message", () => {      
+      const dataConstraintsTooLong = "a".repeat(MAX_LEN_DATA_CONSTRAINTS+1);
+      const invalidBody = Object.assign({}, validBody, {dataConstraints: dataConstraintsTooLong})
+      const bodyErrors: string[] = validateService.validateBody(invalidBody);
+      expect(doesAnyStringContainAll(bodyErrors, [
+        FIELD_DATA_CONSTRAINTS, 
+        MAX_LEN_DATA_CONSTRAINTS+""
+      ])).toBeTruthy();
+    })
+  })
+
+  describe(`given valid data constraints`, () => {
+    it("returns no error messages related to data constraints", () => {
+      const dataConstraintsTooLong = "a".repeat(MAX_LEN_DATA_CONSTRAINTS);
+      const invalidBody = Object.assign({}, validBody, {dataConstraints: dataConstraintsTooLong})
+      const bodyErrors: string[] = validateService.validateBody(invalidBody);
+      expect(doesAnyStringContainAll(bodyErrors, [
+        FIELD_DATA_CONSTRAINTS, 
+        MAX_LEN_DATA_CONSTRAINTS+""
+      ])).toBeFalsy();
+    })
+  })
 
 })
 
@@ -509,6 +549,36 @@ const createSampleRow = (override: any = {}): Row => {
   }
 
   return row;
+}
+
+/**
+ * Returns true if at least one string in 'stringsToLookIn' contains
+ * all the strings in 'stringsToLookFor'.  Returns false otherwise.
+ * This is useful for testing whether specific keywords are mentioned
+ * in upload "body" error messages
+ */
+const doesAnyStringContainAll = (stringsToLookIn: string[], stringsToLookFor: string[]) : boolean => {
+  if (!stringsToLookIn) {
+    return false;
+  }
+  for (var stringsToLookInIndex = 0; stringsToLookInIndex < stringsToLookIn.length; stringsToLookInIndex++) {
+    const stringToLookIn = stringsToLookIn[stringsToLookInIndex];
+    var containsAll = true;
+    for (var stringsToLookForIndex = 0; stringsToLookForIndex < stringsToLookFor.length; stringsToLookForIndex++) {
+      const stringToLookFor = stringsToLookFor[stringsToLookForIndex];
+      const containsThis = stringToLookIn.indexOf(stringToLookFor) >= 0;
+      containsAll = containsAll && containsThis;
+      if (!containsThis) {
+        break;
+      }
+    }
+    if (containsAll) {
+      return true;
+    }
+  }
+  //all strings in 'stringsToLookIn' have been scanned, and none of them contains all the required
+  //values
+  return false;
 }
 
 /**
