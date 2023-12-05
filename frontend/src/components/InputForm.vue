@@ -98,7 +98,21 @@
             </v-col>
 
             <v-col cols="12" class="mt-6">
-              <v-textarea id="comments" v-model="comments" label="Contextual Info/Comments" clearable></v-textarea>
+              <p class="text-subtitle-2">Please note any limitations, dependencies, or constraints with the payroll data
+                which
+                will appear at the
+                bottom of the report</p>
+              <v-textarea id="dataConstraints" v-model="dataConstraints" label="Data Constraints" maxlength="3000"
+                clearable>
+                <template v-slot:details>
+                </template>
+              </v-textarea>
+            </v-col>
+
+            <v-col cols="12" class="">
+              <p class="text-subtitle-2">Other comments</p>
+              <v-textarea id="comments" v-model="comments" label="Contextual Info/Comments" clearable>
+              </v-textarea>
             </v-col>
 
             <v-col cols="12">
@@ -243,6 +257,7 @@ export default {
     maxEndDate: moment().subtract(1, "month").endOf("month").toDate(),
     startDate: moment().subtract(1, "years").format("yyyy-MM"),
     endDate: moment().subtract(1, "month").format("yyyy-MM"),
+    dataConstraints: null,
     comments: null,
     fileAccept: '.csv',
     fileRules: [],
@@ -270,6 +285,7 @@ export default {
         formData.append('employeeCountRange', this.employeeCountRange);
         formData.append('startDate', this.startDate);
         formData.append('endDate', this.endDate);
+        formData.append('dataConstraints', this.dataConstraints);
         formData.append('comments', this.comments);
         formData.append('file', this.uploadFileValue[0]);
         const oldBody = {
