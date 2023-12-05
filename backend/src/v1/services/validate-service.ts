@@ -1,9 +1,10 @@
 import { parse } from 'csv-parse/sync';
 import { logger as log } from '../../logger';
 
+const FIELD_DATA_CONSTRAINTS = "Data Constraints";
 const COL_GENDER_CODE = "Gender Code";
 const COL_HOURS_WORKED = "Hours Worked";
-const COL_REGULAR_SALARY = "Regular Salary";
+const COL_ORDINARY_PAY = "Ordinary Pay";
 const COL_SPECIAL_SALARY = "Special Salary";
 const COL_OVERTIME_HOURS = "Overtime Hours";
 const COL_OVERTIME_PAY = "Overtime Pay";
@@ -11,20 +12,20 @@ const COL_BONUS_PAY = "Bonus Pay";
 const EXPECTED_COLUMNS: string[] = [
   COL_GENDER_CODE,
   COL_HOURS_WORKED,
-  COL_REGULAR_SALARY,
+  COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY,
   COL_OVERTIME_HOURS,
   COL_OVERTIME_PAY,
   COL_BONUS_PAY
 ];
-// columns which are express numbers in units of 'hours'
+// columns which express numbers in units of 'hours'
 const HOURS_COLUMNS = [
   COL_HOURS_WORKED,
   COL_OVERTIME_HOURS,
 ];
-// columns which are express numbers in units of 'dollars'
+// columns which express numbers in units of 'dollars'
 const DOLLARS_COLUMNS = [
-  COL_REGULAR_SALARY,
+  COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY,
   COL_OVERTIME_PAY,
   COL_BONUS_PAY
@@ -34,7 +35,7 @@ const GENDER_CODES = ["M", "F", "W", "X", "U"];
 const ZERO_SYNONYMS = [""];
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
-
+const MAX_LEN_DATA_CONSTRAINTS = 3000;
 
 interface Row {
   record: any;
@@ -55,10 +56,15 @@ const validateService = {
 
   /*
   Validates the content of the submission body, which includes all form fields, 
-  but excludes the uploaded CSV file.
+  but excludes the uploaded CSV file.  Returns a list of any validation error messages, 
+  or an empty list if no errors.
   */
-  validateBody(body: string): string[] {
-    return [];
+  validateBody(body: any): string[] {
+    const errorMessages = [];
+    if (body?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
+      errorMessages.push(`Text in ${FIELD_DATA_CONSTRAINTS} must not exceed ${MAX_LEN_DATA_CONSTRAINTS} characters.`)
+    }
+    return errorMessages;
   },
 
   /*
@@ -117,7 +123,7 @@ const validateService = {
       record: {
         'Gender Code': 'F',
         'Hours Worked': '1853',
-        'Regular Salary': '85419.00',
+        'Ordinary Pay': '85419.00',
         'Special Salary': '',
         'Overtime Hours': '7',
         'Overtime Pay': '484.03',
@@ -237,14 +243,14 @@ const validateService = {
       !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
       errorMessages.push(`${COL_HOURS_WORKED} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
     }
-    if (!this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
+    if (!this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
       !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_REGULAR_SALARY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
+      errorMessages.push(`${COL_ORDINARY_PAY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
     }
     if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
-      this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
+      this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
       this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_REGULAR_SALARY} do not contain data.`)
+      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_ORDINARY_PAY} do not contain data.`)
     }
 
     if (errorMessages.length) {
@@ -308,10 +314,13 @@ const validateService = {
 }
 
 export {
+  FIELD_DATA_CONSTRAINTS,
   COL_BONUS_PAY, COL_GENDER_CODE,
   COL_HOURS_WORKED, COL_OVERTIME_HOURS,
-  COL_OVERTIME_PAY, COL_REGULAR_SALARY,
-  COL_SPECIAL_SALARY, FileErrors,
+  COL_OVERTIME_PAY, COL_ORDINARY_PAY,
+  COL_SPECIAL_SALARY, 
+  MAX_LEN_DATA_CONSTRAINTS,
+  FileErrors,  
   LineErrors,
   Row,
   validateService
