@@ -17,12 +17,12 @@ const EXPECTED_COLUMNS: string[] = [
   COL_OVERTIME_PAY,
   COL_BONUS_PAY
 ];
-// columns which are express numbers in units of 'hours'
+// columns which express numbers in units of 'hours'
 const HOURS_COLUMNS = [
   COL_HOURS_WORKED,
   COL_OVERTIME_HOURS,
 ];
-// columns which are express numbers in units of 'dollars'
+// columns which express numbers in units of 'dollars'
 const DOLLARS_COLUMNS = [
   COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY,
@@ -117,7 +117,7 @@ const validateService = {
       record: {
         'Gender Code': 'F',
         'Hours Worked': '1853',
-        'Regular Salary': '85419.00',
+        'Ordinary Pay': '85419.00',
         'Special Salary': '',
         'Overtime Hours': '7',
         'Overtime Pay': '484.03',
