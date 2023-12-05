@@ -147,7 +147,7 @@
           <v-row class="mt-3" v-if="submissionErrors">
             <v-col>
               <v-alert dense outlined dismissible class="bootstrap-error mb-3">
-                <h4 class="mb-3">The uploaded CSV file is invalid. Please see below for an explanation.</h4>
+                <h4 class="mb-3">The uploaded CSV file contains errors which must be corrected.</h4>
 
                 <v-table v-if="submissionErrors?.fileErrors?.generalErrors" density="compact">
                   <tbody>
@@ -160,7 +160,7 @@
                 </v-table>
 
                 <div v-if="submissionErrors?.fileErrors?.lineErrors">
-                  <p class="mb-3">Problems were found on the following lines:</p>
+                  <h4 class="mb-3">Please review the following lines and description of the error:</h4>
                   <v-table density="compact">
                     <thead>
                       <tr>
