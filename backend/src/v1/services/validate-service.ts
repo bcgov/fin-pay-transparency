@@ -3,7 +3,7 @@ import { logger as log } from '../../logger';
 
 const COL_GENDER_CODE = "Gender Code";
 const COL_HOURS_WORKED = "Hours Worked";
-const COL_REGULAR_SALARY = "Regular Salary";
+const COL_ORDINARY_PAY = "Ordinary Pay";
 const COL_SPECIAL_SALARY = "Special Salary";
 const COL_OVERTIME_HOURS = "Overtime Hours";
 const COL_OVERTIME_PAY = "Overtime Pay";
@@ -11,7 +11,7 @@ const COL_BONUS_PAY = "Bonus Pay";
 const EXPECTED_COLUMNS: string[] = [
   COL_GENDER_CODE,
   COL_HOURS_WORKED,
-  COL_REGULAR_SALARY,
+  COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY,
   COL_OVERTIME_HOURS,
   COL_OVERTIME_PAY,
@@ -24,7 +24,7 @@ const HOURS_COLUMNS = [
 ];
 // columns which are express numbers in units of 'dollars'
 const DOLLARS_COLUMNS = [
-  COL_REGULAR_SALARY,
+  COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY,
   COL_OVERTIME_PAY,
   COL_BONUS_PAY
@@ -237,14 +237,14 @@ const validateService = {
       !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
       errorMessages.push(`${COL_HOURS_WORKED} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
     }
-    if (!this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
+    if (!this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
       !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_REGULAR_SALARY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
+      errorMessages.push(`${COL_ORDINARY_PAY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
     }
     if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
-      this.isZeroSynonym(record[COL_REGULAR_SALARY]) &&
+      this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
       this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_REGULAR_SALARY} do not contain data.`)
+      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_ORDINARY_PAY} do not contain data.`)
     }
 
     if (errorMessages.length) {
@@ -310,7 +310,7 @@ const validateService = {
 export {
   COL_BONUS_PAY, COL_GENDER_CODE,
   COL_HOURS_WORKED, COL_OVERTIME_HOURS,
-  COL_OVERTIME_PAY, COL_REGULAR_SALARY,
+  COL_OVERTIME_PAY, COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY, FileErrors,
   LineErrors,
   Row,

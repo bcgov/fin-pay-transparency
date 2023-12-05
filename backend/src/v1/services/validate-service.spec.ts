@@ -4,7 +4,7 @@ import {
   COL_HOURS_WORKED,
   COL_OVERTIME_HOURS,
   COL_OVERTIME_PAY,
-  COL_REGULAR_SALARY,
+  COL_ORDINARY_PAY,
   COL_SPECIAL_SALARY,
   LineErrors,
   Row,
@@ -46,10 +46,10 @@ describe("validateRow", () => {
     it("returns null", () => {
 
       const overrides = {};
-      //Valid rows must either have values for both (Hours Worked and Regular Salary)
+      //Valid rows must either have values for both (Hours Worked and )
       //or a value for Special Salary.
       overrides[COL_HOURS_WORKED] = 10;
-      overrides[COL_REGULAR_SALARY] = 20;
+      overrides[COL_ORDINARY_PAY] = 20;
       const validRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
@@ -63,10 +63,10 @@ describe("validateRow", () => {
     it("the 0.00 is interpreted the same as 0", () => {
 
       const overrides = {};
-      //Valid rows must either have values for both (Hours Worked and Regular Salary)
+      //Valid rows must either have values for both (Hours Worked and Ordinary Pay)
       //or a value for Special Salary.
       overrides[COL_HOURS_WORKED] = 10;
-      overrides[COL_REGULAR_SALARY] = 20;
+      overrides[COL_ORDINARY_PAY] = 20;
       overrides[COL_SPECIAL_SALARY] = "0.00";
       const validRow: Row = createSampleRow(overrides);
 
@@ -97,22 +97,22 @@ describe("validateRow", () => {
     })
   })
 
-  describe(`given an row that specifies no data in any of the following columns: ${COL_HOURS_WORKED}, ${COL_REGULAR_SALARY} and ${COL_SPECIAL_SALARY}`, () => {
+  describe(`given an row that specifies no data in any of the following columns: ${COL_HOURS_WORKED}, ${COL_ORDINARY_PAY} and ${COL_SPECIAL_SALARY}`, () => {
     it("returns a line error", () => {
 
       const overrides = {};
       overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
-      overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
+      overrides[COL_ORDINARY_PAY] = NO_DATA_VALUES[0];
       overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
       const invalidRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
       const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
 
-      //expect one line error that mentions COL_HOURS_WORKED, COL_REGULAR_SALARY and COL_SPECIAL_SALARY
+      //expect one line error that mentions COL_HOURS_WORKED, COL_ORDINARY_PAY and COL_SPECIAL_SALARY
       expect(lineErrors).not.toBeNull();
       expect(lineErrors?.errors?.length).toBe(1);
-      expect(doesAnyLineErrorContainAll(lineErrors, [COL_HOURS_WORKED, COL_REGULAR_SALARY, COL_SPECIAL_SALARY])).toBeTruthy();
+      expect(doesAnyLineErrorContainAll(lineErrors, [COL_HOURS_WORKED, COL_ORDINARY_PAY, COL_SPECIAL_SALARY])).toBeTruthy();
 
     })
   })
@@ -198,15 +198,15 @@ describe("validateRow", () => {
           const overrides = {};
           overrides[COL_HOURS_WORKED] = hoursWorked;
 
-          //Hours Worked is semi-optional (it, along with Regular Salary, are mutually
+          //Hours Worked is semi-optional (it, along with Ordinary Pay, are mutually
           //exclusive with Special Salary).  Make sure the related columns have
           //appropriate values for the record to be fully valid.
           if (!validateService.isZeroSynonym(hoursWorked)) {
-            overrides[COL_REGULAR_SALARY] = 10;
+            overrides[COL_ORDINARY_PAY] = 10;
             overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
           }
           else {
-            overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
+            overrides[COL_ORDINARY_PAY] = NO_DATA_VALUES[0];
             overrides[COL_SPECIAL_SALARY] = 100;
           }
           const row: Row = createSampleRow(overrides);
@@ -221,47 +221,47 @@ describe("validateRow", () => {
     })
   })
 
-  describe(`given an row with invalid '${COL_REGULAR_SALARY}'`, () => {
-    const invalidRegularSalary = INVALID_DOLLAR_AMOUNTS;
+  describe(`given an row with invalid '${COL_ORDINARY_PAY}'`, () => {
+    const invalidOrdinaryPay = INVALID_DOLLAR_AMOUNTS;
 
     //Check that validation fails for each of several different 
-    //invalid values for 'Regular Salar'
-    invalidRegularSalary.forEach(regularSalary => {
-      describe(`${COL_REGULAR_SALARY} = ${regularSalary}`, () => {
+    //invalid values for 'Ordinary Pay'
+    invalidOrdinaryPay.forEach(ordinaryPay => {
+      describe(`${COL_ORDINARY_PAY} = ${ordinaryPay}`, () => {
         it("returns a line error", () => {
 
           // Create a sample row that is valid except for the value of the 
-          // Regular Salary
+          // Ordinary Pay
           const overrides = {};
-          overrides[COL_REGULAR_SALARY] = regularSalary;
+          overrides[COL_ORDINARY_PAY] = ordinaryPay;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_REGULAR_SALARY)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, COL_ORDINARY_PAY)).toBeTruthy();
         });
       })
     })
   })
 
-  describe(`given a row with valid '${COL_REGULAR_SALARY}'`, () => {
-    const validRegularSalary = VALID_DOLLAR_AMOUNTS;
+  describe(`given a row with valid '${COL_ORDINARY_PAY}'`, () => {
+    const validOrdinaryPay = VALID_DOLLAR_AMOUNTS;
 
-    // Check that validation passes for each given value of Regular Salary
-    validRegularSalary.forEach(regularSalary => {
-      describe(`${COL_REGULAR_SALARY} = '${regularSalary}'`, () => {
+    // Check that validation passes for each given value of Ordinary Pay
+    validOrdinaryPay.forEach(ordinaryPay => {
+      describe(`${COL_ORDINARY_PAY} = '${ordinaryPay}'`, () => {
         it("returns no errors for this column", () => {
 
-          // Create a sample row and uses a specific Regular Salary value
+          // Create a sample row and uses a specific Ordinary Pay value
           const overrides = {};
-          overrides[COL_REGULAR_SALARY] = regularSalary;
+          overrides[COL_ORDINARY_PAY] = ordinaryPay;
 
-          //Regular Salary is semi-optional (it, along with Hours Worked, are mutually
+          //Ordinary Pay is semi-optional (it, along with Hours Worked, are mutually
           //exclusive with Special Salary).  Make sure the related columns have
           //appropriate values for the record to be fully valid.
-          if (!validateService.isZeroSynonym(regularSalary)) {
+          if (!validateService.isZeroSynonym(ordinaryPay)) {
             overrides[COL_HOURS_WORKED] = 10;
             overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
           }
@@ -274,7 +274,7 @@ describe("validateRow", () => {
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
 
-          expect(doesAnyLineErrorContain(lineErrors, COL_REGULAR_SALARY)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, COL_ORDINARY_PAY)).toBeFalsy();
         });
       })
     })
@@ -319,15 +319,15 @@ describe("validateRow", () => {
           overrides[COL_SPECIAL_SALARY] = specialSalary;
 
           //Special Salary is semi-optional (mutually exclusive with Hours Worked and
-          //Regular Salary).  If a blank value for Special Salary is given, be sure
+          //Ordinary Pay).  If a blank value for Special Salary is given, be sure
           //to include non-blank values for the mutually exclusive cols.
           if (validateService.isZeroSynonym(specialSalary)) {
             overrides[COL_HOURS_WORKED] = 10;
-            overrides[COL_REGULAR_SALARY] = 20;
+            overrides[COL_ORDINARY_PAY] = 20;
           }
           else {
             overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
-            overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
+            overrides[COL_ORDINARY_PAY] = NO_DATA_VALUES[0];
           }
           const row: Row = createSampleRow(overrides);
 
@@ -494,14 +494,14 @@ const createSampleRow = (override: any = {}): Row => {
   const defaults = {};
   defaults[COL_GENDER_CODE] = 'F';
   defaults[COL_HOURS_WORKED] = "";
-  defaults[COL_REGULAR_SALARY] = "";
+  defaults[COL_ORDINARY_PAY] = "";
   defaults[COL_SPECIAL_SALARY] = "";
   defaults[COL_OVERTIME_HOURS] = "5";
   defaults[COL_OVERTIME_PAY] = '100.00';
   defaults[COL_BONUS_PAY] = '';
 
   const rec = Object.assign({}, defaults, override);
-  const raw = `${rec[COL_GENDER_CODE]},${rec[COL_HOURS_WORKED]},${rec[COL_REGULAR_SALARY]},${rec[COL_SPECIAL_SALARY]},${rec[COL_OVERTIME_HOURS]},${rec[COL_OVERTIME_PAY]},${rec[COL_BONUS_PAY]}\r`
+  const raw = `${rec[COL_GENDER_CODE]},${rec[COL_HOURS_WORKED]},${rec[COL_ORDINARY_PAY]},${rec[COL_SPECIAL_SALARY]},${rec[COL_OVERTIME_HOURS]},${rec[COL_OVERTIME_PAY]},${rec[COL_BONUS_PAY]}\r`
 
   const row: Row = {
     record: rec,
