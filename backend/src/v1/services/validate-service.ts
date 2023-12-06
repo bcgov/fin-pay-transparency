@@ -252,6 +252,14 @@ const validateService = {
       this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
       errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_ORDINARY_PAY} do not contain data.`)
     }
+    if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
+      !this.isZeroSynonym(record[COL_ORDINARY_PAY])) {
+      errorMessages.push(`${COL_HOURS_WORKED} must not be blank or 0 when ${COL_ORDINARY_PAY} contains data.`)
+    }
+    if (this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
+      !this.isZeroSynonym(record[COL_HOURS_WORKED])) {
+      errorMessages.push(`${COL_ORDINARY_PAY} must not be blank or 0 when ${COL_HOURS_WORKED} contains data.`)
+    }
 
     if (errorMessages.length) {
       const lineErrors = {

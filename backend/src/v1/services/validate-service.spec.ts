@@ -130,10 +130,41 @@ describe("validateRow", () => {
 
       //expect one line error that mentions both COL_HOURS_WORKED and COL_SPECIAL_SALARY
       expect(lineErrors).not.toBeNull();
-      expect(lineErrors?.errors?.length).toBe(1);
-      expect(doesAnyLineErrorContain(lineErrors, COL_HOURS_WORKED)).toBeTruthy();
-      expect(doesAnyLineErrorContain(lineErrors, COL_SPECIAL_SALARY)).toBeTruthy();
+      expect(doesAnyLineErrorContainAll(lineErrors, [COL_HOURS_WORKED, COL_SPECIAL_SALARY])).toBeTruthy();
+    })
+  })
 
+  describe(`given an row that specifies ${COL_HOURS_WORKED} but not ${COL_ORDINARY_PAY}`, () => {
+    it("returns a line error", () => {
+
+      const overrides = {};
+      overrides[COL_HOURS_WORKED] = 20;
+      overrides[COL_ORDINARY_PAY] = NO_DATA_VALUES[0];
+      overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+      const invalidRow: Row = createSampleRow(overrides);
+
+      const lineNum = 1;
+      const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
+
+      //expect one line error that mentions both COL_HOURS_WORKED and COL_ORDINARY_PAY
+      expect(doesAnyLineErrorContainAll(lineErrors, [COL_HOURS_WORKED, COL_ORDINARY_PAY])).toBeTruthy();
+    })
+  })
+
+  describe(`given an row that specifies ${COL_ORDINARY_PAY} but not ${COL_HOURS_WORKED}`, () => {
+    it("returns a line error", () => {
+
+      const overrides = {};
+      overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
+      overrides[COL_ORDINARY_PAY] = 35;
+      overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+      const invalidRow: Row = createSampleRow(overrides);
+
+      const lineNum = 1;
+      const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
+
+      //expect one line error that mentions both COL_HOURS_WORKED and COL_ORDINARY_PAY
+      expect(doesAnyLineErrorContainAll(lineErrors, [COL_HOURS_WORKED, COL_ORDINARY_PAY])).toBeTruthy();
     })
   })
 
