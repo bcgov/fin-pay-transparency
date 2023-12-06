@@ -5,7 +5,7 @@
   "dependencies": {
     "@js-joda/core": "^5.5.3",
     "@js-joda/locale_en": "^4.8.10",
-    "@prisma/client": "^5.2.0",
+    "@prisma/client": "^5.7.0",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -58,7 +58,7 @@
     "test:cov": "npm run generate && jest --coverage --detectOpenHandles --forceExit",
     "build": "npm run generate && tsc",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
-    "pull":"npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
+    "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
     "start": "node dist/server.js",
     "dev": "npm run generate && nodemon src/server.ts"
   },
