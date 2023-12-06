@@ -131,7 +131,7 @@
                 </div>
 
                 <p class="d-flex justify-center">
-                  Supported format: CSV. Maximum file size: xxMB.
+                  Supported format: CSV. Maximum file size: 8MB.
                 </p>
               </v-sheet>
             </v-col>
@@ -161,8 +161,21 @@
           <v-row class="mt-3" v-if="submissionErrors">
             <v-col>
               <v-alert dense outlined dismissible class="bootstrap-error mb-3">
-                <h4 class="mb-3">The uploaded CSV file contains errors which must be corrected.</h4>
+                <h4 class="mb-3">The submission contains errors which must be corrected.</h4>
 
+                <!-- general errors related to the submission (either with the 
+                  form fields or with the file itself) -->
+                <v-table v-if="submissionErrors?.generalErrors" density="compact">
+                  <tbody>
+                    <tr v-for="generalError in submissionErrors.generalErrors">
+                      <td class="text-left">
+                        {{ generalError }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+
+                <!-- general errors related to contents of the file -->
                 <v-table v-if="submissionErrors?.fileErrors?.generalErrors" density="compact">
                   <tbody>
                     <tr v-for="generalError in submissionErrors.fileErrors.generalErrors">
@@ -173,8 +186,10 @@
                   </tbody>
                 </v-table>
 
+                <!-- errors related to the content of specific lines in the file -->
                 <div v-if="submissionErrors?.fileErrors?.lineErrors">
-                  <h4 class="mb-3">Please review the following lines and description of the error:</h4>
+                  <h4 class="mb-3">Please review the following lines from the uploaded file:
+                  </h4>
                   <v-table density="compact">
                     <thead>
                       <tr>
