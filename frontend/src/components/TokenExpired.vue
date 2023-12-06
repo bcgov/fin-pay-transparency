@@ -15,6 +15,7 @@
 import { authStore } from '../store/modules/auth';
 import { mapState } from 'pinia';
 import { AuthRoutes } from '../utils/constant';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 export default {
   name: 'TokenExpired',
