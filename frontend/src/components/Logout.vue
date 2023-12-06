@@ -5,7 +5,7 @@
         <v-alert dense outlined class="mb-3">
           You have logged out.
         </v-alert>
-        <v-btn color="primary" :href="authRoutesLogin">Login Again</v-btn>
+        <v-btn color="primary" @click="redirectToLogin">Login Again</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -28,8 +28,9 @@ export default {
     authStore().setJwtToken();
   },
   methods: {
-    clearStorage() {
+    redirectToLogin() {
       authStore().setJwtToken();
+      window.location.href = this.authRoutesLogin;
     }
   }
 };
