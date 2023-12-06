@@ -36,7 +36,7 @@ fileUploadRouter.post("/",
       if (err instanceof multer.MulterError) {
         
         // A default, general-purpose error message
-        var errorMessage = "Invalid submission";
+        let errorMessage = "Invalid submission";
 
         // In some cases, replace the default error message with something more
         // specific.
@@ -71,7 +71,7 @@ fileUploadRouter.get("/", passport.authenticate('jwt', { session: false }, undef
  * A callback function, called if validation of the submission (body and file)
  * were successful
  */
-const onValidationSuccess =(req, res) => {
+const onValidationSuccess = (req, res) => {
   // This is where code should be added that will save the submission 
   // to the database.  For now don't save, and just return a success 
   // response
@@ -84,7 +84,9 @@ const onValidationSuccess =(req, res) => {
  * attached file.
  * Side effects: if any validation errors were found, updates the response (res) 
  * object with appropriate status codes and return data. if no validation errors
- * were found, calls onValidCallback(req, res).
+ * were found does *not* modify the response (res), and calls 
+ * onValidCallback(req, res).  Note: The callback function may or may not modify 
+ * the response (res) object.
  */
 const validateSubmission = (req, res, onValidCallback) => {
   try {
@@ -115,4 +117,8 @@ const validateSubmission = (req, res, onValidCallback) => {
 }
 
 export { fileUploadRouter };
+
+export const exportedForTesting = {
+  validateSubmission
+}
 
