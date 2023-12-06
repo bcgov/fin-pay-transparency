@@ -1,7 +1,22 @@
 import { exportedForTesting } from './file-upload-routes';
 import { validateService, FileErrors } from '../services/validate-service';
 
-jest.mock('../services/validate-service')
+jest.mock('../services/validate-service');
+//Mock only the renew method in auth-service (for all other methods
+//in this module keep the original implementation)
+jest.mock('../services/auth-service', () => {
+  const actualAuth = jest.requireActual('../services/auth-service').auth
+  const mockedAuth = (jest.genMockFromModule('../services/auth-service') as any).auth;
+
+  return {
+    auth: {
+      ...mockedAuth,
+      ...actualAuth,
+      isValidBackendToken: jest.fn().mockReturnValue((req, res, next) => next())
+    }
+  }
+})
+jest.mock('../prisma/prisma-client');
 
 afterEach(() => {
   jest.clearAllMocks();
