@@ -30,9 +30,7 @@
     </a>
     <v-spacer />
 
-    <v-btn v-if="isAuthenticated" :href="authRoutesLogout">
-      Logout
-    </v-btn>
+    <v-btn v-if="isAuthenticated" @click="redirectToLogout" icon="fa:fas fa-sign-out" />
   </v-app-bar>
 </template>
 
@@ -52,7 +50,11 @@ export default {
   computed: {
     ...mapState(authStore, ['isAuthenticated']),
   },
-  methods: {}
+  methods: {
+    redirectToLogout() {
+      window.location.href = this.authRoutesLogout;
+    }
+  }
 };
 </script>
 

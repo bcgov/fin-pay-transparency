@@ -29,9 +29,8 @@
             <v-btn
               id="login-button"
               variant="outlined"
-              :href="authRoutesLogin"
               class="ma-2"
-              @click="clearStorage"
+              @click="clearStorageAndRedirectToLogin"
             >
               Log In with Business BCeID<v-icon>mdi-login</v-icon>
             </v-btn>
@@ -56,15 +55,16 @@ export default {
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
-      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID)
+      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
     };
   },
   computed: {
     ...mapState(authStore, ['isAuthenticated']),
   },
   methods: {
-    clearStorage() {
+    clearStorageAndRedirectToLogin() {
       authStore().setJwtToken();
+      window.location.href = this.authRoutesLogin;
     }
   }
 };

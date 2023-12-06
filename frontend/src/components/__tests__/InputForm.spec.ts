@@ -50,6 +50,7 @@ describe("InputForm", () => {
     expect(wrapper.findAll("#employeeCountRange").length).toBe(1);
     expect(wrapper.findAll("#startDate").length).toBe(1);
     expect(wrapper.findAll("#endDate").length).toBe(1);
+    expect(wrapper.findAll("#dataConstraints").length).toBe(1);
     expect(wrapper.findAll("#comments").length).toBe(1);
     expect(wrapper.find("#csvFile").attributes("type")).toBe("file");
     expect(wrapper.find("#csvFile").attributes("accept")).toBe(".csv");

@@ -11,6 +11,9 @@ import styles from 'vuetify/styles';
 import * as labs from 'vuetify/labs/components';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import { fa } from 'vuetify/iconsets/fa';
+import '@fortawesome/fontawesome-free/css/all.css';
+import { aliases, mdi } from 'vuetify/iconsets/mdi';
 import '@mdi/font/css/materialdesignicons.css';
 import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
@@ -31,7 +34,12 @@ const vuetify = createVuetify({
     customProperties: true
   },
   icons: {
-    defaultSet: 'mdi'
+    defaultSet: 'mdi',
+    aliases,
+    sets: {
+      fa,
+      mdi,
+    },
   },
   theme: {
     defaultTheme: 'myCustomLightTheme',
