@@ -30,8 +30,7 @@
     </a>
     <v-spacer />
 
-    <v-btn v-if="isAuthenticated" :href="authRoutesLogout" icon="mdi-logout">
-    </v-btn>
+    <v-btn v-if="isAuthenticated" :href="authRoutesLogout" icon="fa:fas fa-sign-out" />
   </v-app-bar>
 </template>
 
