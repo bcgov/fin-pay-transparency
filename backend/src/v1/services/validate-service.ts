@@ -11,7 +11,7 @@ const CSV_COLUMNS = {
   OVERTIME_PAY: "Overtime Pay",
   BONUS_PAY: "Bonus Pay"
 }
-const EXPECTED_COLUMNS: string[] = Object.keys(CSV_COLUMNS);
+const EXPECTED_COLUMNS: string[] = Object.values(CSV_COLUMNS);
 // columns which express numbers in units of 'hours'
 const HOURS_COLUMNS = [
   CSV_COLUMNS.HOURS_WORKED,
