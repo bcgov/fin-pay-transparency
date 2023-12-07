@@ -29,46 +29,47 @@ const fileUploadService = {
   },
 
   async handleFileUpload(req, res, next) {
+    console.log("handleFileUpload");
     // Process the multipart form data and use the multer library's
     // built-in checks to perform a preliminary validation of the
     // uploaded file (ensure file size is within the allowed limit)
-    try {
-      parseMultipartFormData(req, res, (err) => {
-        if (err instanceof multer.MulterError) {
 
-          // A default, general-purpose error message
-          let errorMessage = "Invalid submission";
+    parseMultipartFormData(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
 
-          // In some cases, replace the default error message with something more
-          // specific.
-          if (err?.code == "LIMIT_FILE_SIZE") {
-            errorMessage = `The uploaded file exceeds the size limit (${MAX_FILE_SIZE_BYTES / 1000000}MB).`;
+        // A default, general-purpose error message
+        let errorMessage = "Invalid submission";
+
+        // In some cases, replace the default error message with something more
+        // specific.
+        if (err?.code == "LIMIT_FILE_SIZE") {
+          errorMessage = `The uploaded file exceeds the size limit (${MAX_FILE_SIZE_BYTES / 1000000}MB).`;
+        }
+
+        res.status(400).json({
+          status: "error",
+          errors: {
+            generalErrors: [errorMessage]
           }
+        } as ValidationErrorResponse)
+        next();
+        return;
+      }
 
-          res.status(400).json({
-            status: "error",
-            errors: {
-              generalErrors: [errorMessage]
-            }
-          } as ValidationErrorResponse)
-          next();
-          return;
-        }
-        // At this stage no MulterErrors were detected,
-        // so start a deeper validation of the request body (form fields) and
-        // the contents of the uploaded file.
-        const isValid = fileUploadServicePrivate.validateSubmission(req, res);
+      // At this stage no MulterErrors were detected,
+      // so start a deeper validation of the request body (form fields) and
+      // the contents of the uploaded file.
+      const isValid = fileUploadServicePrivate.validateSubmission(req, res);
 
-        if (isValid) {
-          // This is where the save-to-database call will go
-          res.sendStatus(200);
-        }
+      if (isValid) {
+        // This is where the save-to-database call will go
+        res.sendStatus(200);
+      }
 
-      });
-    } catch (err) {
-      console.error(err);
-    }
-    next();
+      next();
+    });
+
+
   }
 }
 
@@ -97,7 +98,6 @@ const fileUploadServicePrivate = {
         } as ValidationErrorResponse)
         return false;
       }
-      return true;
     }
     catch (e) {
       res.status(500).json({
@@ -108,7 +108,7 @@ const fileUploadServicePrivate = {
       } as ValidationErrorResponse)
       return false;
     }
-
+    return true;
   }
 }
 
