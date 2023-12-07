@@ -126,10 +126,10 @@ const auth = {
    */
   validateClaims: function (jwt) {
     const payload = jsonwebtoken.decode(jwt);
-    if (!payload['identity_provider'] || payload['identity_provider'] !== 'bceidbusiness') {
+    if (payload?.identity_provider !== 'bceidbusiness') {
       throw new Error('backend token invalid, identity_provider is not bceidbusiness', jwt);
     }
-    if (!payload['aud'] || payload['aud'] !== config.get('oidc:clientId')) {
+    if (payload?.aud !== config.get('oidc:clientId')) {
       throw new Error('backend token invalid, aud claim validation failed', jwt);
     }
     return true;
