@@ -318,9 +318,16 @@ describe("isValidBackendToken", () => {
       //function depends on a remote service.  To remove this test's dependency on remote services
       //we instead mock utils.getKeycloakPublicKey().
       utils.getKeycloakPublicKey = jest.fn().mockResolvedValueOnce(secret);
-
+      (config.get as jest.Mock).mockImplementation((key) => {
+        return {
+          "oidc:clientId": "clientId",
+        }[key]
+      })
       const backendAccessToken = jsonwebtoken.sign(
-        {data: 'payload'},
+        {
+          identity_provider: 'bceidbusiness',
+          aud: 'clientId'
+        },
         secret,
         {expiresIn: '1h'});
       const req = {
@@ -526,6 +533,11 @@ describe('storeUserInfo', () => {
 });
 
 describe('handleCallBackBusinessBceid', () => {
+  (config.get as jest.Mock).mockImplementation((key) => {
+    return {
+      "oidc:clientId": "clientId",
+    }[key]
+  })
   const res = {
     redirect: jest.fn(),
     status: jest.fn(),
@@ -536,6 +548,8 @@ describe('handleCallBackBusinessBceid', () => {
       bceid_user_guid: '727dc60a-95a3-4a83-9b6b-1fb0e1de7cc3',
       bceid_business_guid: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2',
       display_name: 'Test User',
+      aud: 'clientId',
+      identity_provider: 'bceidbusiness'
     });
   });
   it('should handle the callback successfully', async () => {
@@ -554,6 +568,7 @@ describe('handleCallBackBusinessBceid', () => {
     jest.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
       return Promise.resolve(mockCompanyInSession);
     });
+
     (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValueOnce(mockCompanyInDB);
     (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(mockUserInDB);
     const modifiedReq ={

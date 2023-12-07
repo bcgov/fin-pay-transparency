@@ -48,7 +48,7 @@ function minify(obj, keys = ['documentData']) {
 }
 
 function getSessionUser(req) {
-  log.verbose('getSessionUser', req.session);
+  log.verbose('getSessionUser', req.session?.passport?.user);
   const session = req.session;
   return session && session.passport && session.passport.user;
 }

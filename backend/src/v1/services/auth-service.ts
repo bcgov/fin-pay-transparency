@@ -70,7 +70,7 @@ const auth = {
   // Update or remove token based on JWT and user state
   async refreshJWT(req, _res, next) {
     try {
-      if (!!req && !!req.user && !!req.user.jwt) {
+      if (req.user?.jwt) {
         log.verbose('refreshJWT', 'User & JWT exists');
 
         if (auth.isTokenExpired(req.user.jwt)) {
@@ -117,6 +117,23 @@ const auth = {
   },
 
 
+  /**
+   * check if the jwt contains valid claims.
+   * The token should be issued by bceidbusiness and the audience should be the configured client id
+   * Since the app is using the standard realm of Keycloak, this extra check is required to make sure other users are not able to get access.
+   * https://github.com/bcgov/sso-keycloak/wiki/Using-Your-SSO-Client#do-validate-the-idp-in-the-jwt
+   * @param jwt the token
+   */
+  validateClaims: function (jwt) {
+    const payload = jsonwebtoken.decode(jwt);
+    if (payload?.identity_provider !== 'bceidbusiness') {
+      throw new Error('backend token invalid, identity_provider is not bceidbusiness', jwt);
+    }
+    if (payload?.aud !== config.get('oidc:clientId')) {
+      throw new Error('backend token invalid, aud claim validation failed', jwt);
+    }
+    return true;
+  },
   isValidBackendToken() {
     return async function (req, res, next) {
       if (!kcPublicKey) {
@@ -127,14 +144,15 @@ const auth = {
         }
       }
       if (req?.session?.passport?.user?.jwt) {
+        const jwt = req.session.passport.user.jwt;
         try {
-          jsonwebtoken.verify(req.session.passport.user.jwt, kcPublicKey);
+          jsonwebtoken.verify(jwt, kcPublicKey);
+          auth.validateClaims(jwt);
+          return next();
         } catch (e) {
-          log.debug('error is from verify', e);
+          log.error('error is from verify', e);
           return res.status(HttpStatus.UNAUTHORIZED).json();
         }
-        log.silly('Backend token is valid moving to next');
-        return next();
       } else {
         log.silly(req.session);
         log.silly('no jwt responding back 401');
@@ -243,16 +261,22 @@ const auth = {
       log.error(`no bceid_user_guid found in the jwt token`, userInfo.jwt);
       res.redirect(config.get('server:frontend') + '/login-error');
     }
-    if(!req.session?.companyDetails){
-      try{
-        req.session.companyDetails = await getCompanyDetails(userGuid);
-        await auth.storeUserInfo(req, userInfo);
-      }catch (e) {
-        log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
-        res.redirect(config.get('server:frontend') + '/login-error');
+    try {
+      auth.validateClaims(userInfo.jwt);
+      if(!req.session?.companyDetails){
+        try{
+          req.session.companyDetails = await getCompanyDetails(userGuid);
+          await auth.storeUserInfo(req, userInfo);
+        }catch (e) {
+          log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
+          res.redirect(config.get('server:frontend') + '/login-error');
+        }
       }
+      res.redirect(config.get('server:frontend'));
+    }catch (e) {
+      log.error('invalid claims in token', e);
+      res.redirect(config.get('server:frontend') + '/login-error');
     }
-    res.redirect(config.get('server:frontend'));
   }
 };
 
