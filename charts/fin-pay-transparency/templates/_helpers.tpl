@@ -38,6 +38,23 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Crunchy Specific Labels, System has two users, so two different labels selctors.
+*/}}
+{{- define "crunchyLabels.app" -}}
+{{- include "labels" . }}
+postgres-operator.crunchydata.com/cluster: {{ .Release.Name}}
+postgres-operator.crunchydata.com/pguser: fin-pay-transparency
+postgres-operator.crunchydata.com/role: pguser
+{{- end }}
+
+{{- define "crunchyLabels.postgres" -}}
+{{- include "labels" . }}
+postgres-operator.crunchydata.com/cluster: {{ .Release.Name}}
+postgres-operator.crunchydata.com/pguser: postgres
+postgres-operator.crunchydata.com/role: pguser
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "selectorLabels" -}}

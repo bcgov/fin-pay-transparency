@@ -25,6 +25,7 @@ global:
     enabled: true
   config:
     upload_file_max_size: '8000000'
+  crunchyEnabled: true
 backend:
   enabled: true
   deploymentStrategy: RollingUpdate
@@ -124,73 +125,98 @@ frontend:
   tolerations: [ ]
   affinity: { }
 database:
+  enabled: false
+crunchy:
   enabled: true
-  deploymentStrategy: RollingUpdate
-  replicaCount: 1
-  nameOverride: ""
-  fullnameOverride: ""
-  image:
-    repository: ghcr.io/bcgov/fin-pay-transparency/database
-    pullPolicy: Always
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: ~
-  podAnnotations: { }
-  podSecurityContext: { }
-  securityContext: { }
-  imagePullSecrets: [ ]
-  autoscaling:
-    enabled: false
-  service:
-    type: ClusterIP
-    port: 5432
-    targetPort: 5432
-  nodeSelector: { }
-  tolerations: [ ]
-  affinity: { }
-  resources:
-    limits:
-      cpu: 250m
-      memory: 250Mi
-    requests:
-      cpu: 50m
-      memory: 100Mi
-  persistence:
-    enabled: true
-    size: 120Mi
-    accessMode: ReadWriteMany
-    storageClass: netapp-file-standard
-
-
-backup:
-  enabled: true
-  nameOverride: ""
-  fullnameOverride: ""
-  image:
-    repository: bcgovimages/backup-container
-    pullPolicy: Always
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: latest
-  persistence:
-    accessModes:
-      - ReadWriteOnce
-    mountPath: "/backups/"
-    size: 256Mi #Volume space available for data, e.g. 512Mi, 2Gi.
-    storageClass: "netapp-block-standard"
-  schedule: "0 0 * * *" # cron job schedule
-  strategy: "rolling" # daily or rolling
-  numBackups: 5 # The number of backup files to be retained.  Used for the `daily` backup strategy.  Ignored when using the `rolling` backup strategy.
-  dailyBackups: 7 # The number of daily backup files to be retained.  Used for the `rolling` backup strategy.
-  weeklyBackups: 4 # The number of weekly backup files to be retained.  Used for the `rolling` backup strategy.
-  monthlyBackups: 1 # The number of monthly backup files to be retained.  Used for the `rolling` backup strategy.
-
-  serviceAccount: default # "Name of the Service Account To Execute the Job As."
-  successHistoryLimit: 5 # "The number of successful jobs that will be retained"
-  failedHistoryLimit: 2 # "The number of failed jobs that will be retained"
-  backoffLimit: 0 # "The number of attempts to try for a successful job outcome"
-  resources:
-    limits:
-      cpu: 150m
-      memory: 256Mi
+  postgresVersion: 15
+  imagePullPolicy: IfNotPresent
+  instances:
+    name: db
+    replicas: 2
+    dataVolumeClaimSpec:
+      storage: 480Mi
+      storageClassName: netapp-block-standard
     requests:
       cpu: 50m
       memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi
+    replicaCertCopy:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 20m
+        memory: 32Mi
+
+  pgBackRest:
+    image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+    retention: "2" # Ideally a larger number such as 30 backups/days
+    # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
+    # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
+    retentionFullType: count
+    repos:
+      schedules:
+        full: 0 8 * * *
+        incremental: 0 0,4,12,16,20 * * *
+      volume:
+        accessModes: "ReadWriteOnce"
+        storage: 64Mi
+        storageClassName: netapp-file-backup
+    config:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      limits:
+        cpu: 20m
+        memory: 64Mi
+    repoHost:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      limits:
+        cpu: 20m
+        memory: 64Mi
+    sidecars:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 20m
+        memory: 64Mi
+
+  patroni:
+    postgresql:
+      pg_hba: "host all all 0.0.0.0/0 md5"
+      parameters:
+        shared_buffers: 16MB # default is 128MB; a good tuned default for shared_buffers is 25% of the memory allocated to the pod
+        wal_buffers: "64kB" # this can be set to -1 to automatically set as 1/32 of shared_buffers or 64kB, whichever is larger
+        min_wal_size: 32MB
+        max_wal_size: 64MB # default is 1GB
+        max_slot_wal_keep_size: 128MB # default is -1, allowing unlimited wal growth when replicas fall behind
+
+  proxy:
+    pgBouncer:
+      image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+      replicas: 2
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 20m
+        memory: 32Mi
+
+  # Postgres Cluster resource values:
+  pgmonitor:
+    enabled: true
+    exporter:
+      image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 30m
+        memory: 32Mi
+
+

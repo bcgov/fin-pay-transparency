@@ -39,8 +39,17 @@ spec:
             - secretRef:
                 name: {{.Release.Name}}
           env:
+            {{- if .Values.global.crunchyEnabled }}
+            - name: FLYWAY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-crunchy-pguser-fin-pay-transparency #-- this key is created by the crunchy operator, refer to the PostgresCluster Yaml inside Crunchy Postgres
+                  key: crunchyFlywayUrl
+            {{- else }}
             - name: FLYWAY_URL
               value: "jdbc:postgresql://{{.Release.Name}}-database:5432/{{ .Values.global.secrets.databaseName}}"
+            {{- end }}
+
             - name: FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
             - name: FLYWAY_DEFAULT_SCHEMA
