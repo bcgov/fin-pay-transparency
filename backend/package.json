@@ -56,7 +56,7 @@
   },
   "scripts": {
     "test": "jest",
-    "test:cov": "jest --coverage --detectOpenHandles --forceExit",
+    "test:cov": "npm run generate && jest --coverage --detectOpenHandles --forceExit",
     "build": "npm run generate && tsc",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
     "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
