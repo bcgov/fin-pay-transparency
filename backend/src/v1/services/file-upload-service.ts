@@ -1,5 +1,7 @@
+import { Readable } from 'stream';
 import { config } from "../../config";
 import prisma from '../prisma/prisma-client';
+import { CalculatedAmount, reportCalcService } from "../services/report-calc-service";
 import { FileErrors, validateService } from "../services/validate-service";
 const multer = require('multer');
 
@@ -28,13 +30,17 @@ const fileUploadService = {
     return prisma.pay_transparency_company.findMany();
   },
 
+  async saveDraftReport(body, calculatedData) {
+
+  },
+
   async handleFileUpload(req, res, next) {
     console.log("handleFileUpload");
     // Process the multipart form data and use the multer library's
     // built-in checks to perform a preliminary validation of the
     // uploaded file (ensure file size is within the allowed limit)
 
-    parseMultipartFormData(req, res, (err) => {
+    parseMultipartFormData(req, res, async (err) => {
       if (err instanceof multer.MulterError) {
 
         // A default, general-purpose error message
@@ -58,12 +64,33 @@ const fileUploadService = {
 
       // At this stage no MulterErrors were detected,
       // so start a deeper validation of the request body (form fields) and
-      // the contents of the uploaded file.
+      // the contents of the uploaded file. (Note: this statement causes response 
+      // status to be set and error data to be added to the response if any 
+      // validation error is found.)
       const isValid = fileUploadServicePrivate.validateSubmission(req, res);
 
       if (isValid) {
-        // This is where the save-to-database call will go
-        res.sendStatus(200);
+        console.log("is valid")
+        try {
+          //add entire CSV file to Readable stream (so it can be processed asyncronously)
+          const csvReadable = new Readable();
+          csvReadable.push(req.file.buffer);
+          csvReadable.push(null);
+          const calculatedAmounts: CalculatedAmount[] = await reportCalcService.calculateAll(csvReadable);
+          //await this.saveDraftReport(req.body, calculatedAmounts);
+          res.sendStatus(200);
+        }
+        catch (err) {
+          // An internal error occurred while saving the validated data to the 
+          // database
+          console.error(err);
+          res.status(500).json({
+            status: "error",
+            errors: {
+              generalErrors: ["Something went wrong"]
+            }
+          } as ValidationErrorResponse)
+        }
       }
 
       next();
