@@ -24,6 +24,7 @@ const DOLLARS_COLUMNS = [
   CSV_COLUMNS.OVERTIME_PAY,
   CSV_COLUMNS.BONUS_PAY
 ];
+const NUMERIC_COLUMNS = [...HOURS_COLUMNS, ...DOLLARS_COLUMNS];
 const INVALID_COLUMN_ERROR = `Invalid CSV format. Please ensure the uploaded file contains the following columns: ${EXPECTED_COLUMNS.join(", ")}`
 const GENDER_CODES = ["M", "F", "W", "X", "U"];
 const ZERO_SYNONYMS = [""];
@@ -317,7 +318,7 @@ const validateService = {
 
 export {
   CSV_COLUMNS, FIELD_DATA_CONSTRAINTS, FileErrors,
-  LineErrors, MAX_LEN_DATA_CONSTRAINTS, Row,
+  LineErrors, MAX_LEN_DATA_CONSTRAINTS, NUMERIC_COLUMNS, Row,
   validateService
 };
 
