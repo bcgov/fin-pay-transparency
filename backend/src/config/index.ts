@@ -12,7 +12,7 @@ config.defaults({
     morganFormat: 'dev',
     port: process.env.PORT || 3000,
     sessionPath: process.env.SESSION_PATH,
-    uploadFileMaxSize: process.env.UPLOAD_FILE_MAX_SIZE
+    uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE)
   },
   oidc: {
     keycloakUrl: process.env.KEYCLOAK_URL,
