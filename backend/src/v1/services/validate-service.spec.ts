@@ -646,3 +646,4 @@ const doesAnyLineErrorContainAll = (lineErrors: LineErrors, values: string[]): b
   return false;
 }
 
+export { createSampleRow };
