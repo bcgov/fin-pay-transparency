@@ -2,33 +2,27 @@ import { parse } from 'csv-parse/sync';
 import { logger as log } from '../../logger';
 
 const FIELD_DATA_CONSTRAINTS = "Data Constraints";
-const COL_GENDER_CODE = "Gender Code";
-const COL_HOURS_WORKED = "Hours Worked";
-const COL_ORDINARY_PAY = "Ordinary Pay";
-const COL_SPECIAL_SALARY = "Special Salary";
-const COL_OVERTIME_HOURS = "Overtime Hours";
-const COL_OVERTIME_PAY = "Overtime Pay";
-const COL_BONUS_PAY = "Bonus Pay";
-const EXPECTED_COLUMNS: string[] = [
-  COL_GENDER_CODE,
-  COL_HOURS_WORKED,
-  COL_ORDINARY_PAY,
-  COL_SPECIAL_SALARY,
-  COL_OVERTIME_HOURS,
-  COL_OVERTIME_PAY,
-  COL_BONUS_PAY
-];
+const CSV_COLUMNS = {
+  GENDER_CODE: "Gender Code",
+  HOURS_WORKED: "Hours Worked",
+  ORDINARY_PAY: "Ordinary Pay",
+  SPECIAL_SALARY: "Special Salary",
+  OVERTIME_HOURS: "Overtime Hours",
+  OVERTIME_PAY: "Overtime Pay",
+  BONUS_PAY: "Bonus Pay"
+}
+const EXPECTED_COLUMNS: string[] = Object.keys(CSV_COLUMNS);
 // columns which express numbers in units of 'hours'
 const HOURS_COLUMNS = [
-  COL_HOURS_WORKED,
-  COL_OVERTIME_HOURS,
+  CSV_COLUMNS.HOURS_WORKED,
+  CSV_COLUMNS.OVERTIME_HOURS,
 ];
 // columns which express numbers in units of 'dollars'
 const DOLLARS_COLUMNS = [
-  COL_ORDINARY_PAY,
-  COL_SPECIAL_SALARY,
-  COL_OVERTIME_PAY,
-  COL_BONUS_PAY
+  CSV_COLUMNS.ORDINARY_PAY,
+  CSV_COLUMNS.SPECIAL_SALARY,
+  CSV_COLUMNS.OVERTIME_PAY,
+  CSV_COLUMNS.BONUS_PAY
 ];
 const INVALID_COLUMN_ERROR = `Invalid CSV format. Please ensure the uploaded file contains the following columns: ${EXPECTED_COLUMNS.join(", ")}`
 const GENDER_CODES = ["M", "F", "W", "X", "U"];
@@ -236,29 +230,29 @@ const validateService = {
     })
 
     // Other column-specific validation checks
-    if (GENDER_CODES.indexOf(record[COL_GENDER_CODE]) == -1) {
-      errorMessages.push(`Invalid ${COL_GENDER_CODE} '${record[COL_GENDER_CODE]}' (expected one of: ${GENDER_CODES.join(", ")}).`)
+    if (GENDER_CODES.indexOf(record[CSV_COLUMNS.GENDER_CODE]) == -1) {
+      errorMessages.push(`Invalid ${CSV_COLUMNS.GENDER_CODE} '${record[CSV_COLUMNS.GENDER_CODE]}' (expected one of: ${GENDER_CODES.join(", ")}).`)
     }
-    if (!this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
-      !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_HOURS_WORKED} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
+    if (!this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED]) &&
+      !this.isZeroSynonym(record[CSV_COLUMNS.SPECIAL_SALARY])) {
+      errorMessages.push(`${CSV_COLUMNS.HOURS_WORKED} must not contain data when ${CSV_COLUMNS.SPECIAL_SALARY} contains data.`)
     }
-    if (!this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
-      !this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_ORDINARY_PAY} must not contain data when ${COL_SPECIAL_SALARY} contains data.`)
+    if (!this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY]) &&
+      !this.isZeroSynonym(record[CSV_COLUMNS.SPECIAL_SALARY])) {
+      errorMessages.push(`${CSV_COLUMNS.ORDINARY_PAY} must not contain data when ${CSV_COLUMNS.SPECIAL_SALARY} contains data.`)
     }
-    if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
-      this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
-      this.isZeroSynonym(record[COL_SPECIAL_SALARY])) {
-      errorMessages.push(`${COL_SPECIAL_SALARY} must contain data when ${COL_HOURS_WORKED} and ${COL_ORDINARY_PAY} do not contain data.`)
+    if (this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED]) &&
+      this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY]) &&
+      this.isZeroSynonym(record[CSV_COLUMNS.SPECIAL_SALARY])) {
+      errorMessages.push(`${CSV_COLUMNS.SPECIAL_SALARY} must contain data when ${CSV_COLUMNS.HOURS_WORKED} and ${CSV_COLUMNS.ORDINARY_PAY} do not contain data.`)
     }
-    if (this.isZeroSynonym(record[COL_HOURS_WORKED]) &&
-      !this.isZeroSynonym(record[COL_ORDINARY_PAY])) {
-      errorMessages.push(`${COL_HOURS_WORKED} must not be blank or 0 when ${COL_ORDINARY_PAY} contains data.`)
+    if (this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED]) &&
+      !this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY])) {
+      errorMessages.push(`${CSV_COLUMNS.HOURS_WORKED} must not be blank or 0 when ${CSV_COLUMNS.ORDINARY_PAY} contains data.`)
     }
-    if (this.isZeroSynonym(record[COL_ORDINARY_PAY]) &&
-      !this.isZeroSynonym(record[COL_HOURS_WORKED])) {
-      errorMessages.push(`${COL_ORDINARY_PAY} must not be blank or 0 when ${COL_HOURS_WORKED} contains data.`)
+    if (this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY]) &&
+      !this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED])) {
+      errorMessages.push(`${CSV_COLUMNS.ORDINARY_PAY} must not be blank or 0 when ${CSV_COLUMNS.HOURS_WORKED} contains data.`)
     }
 
     if (errorMessages.length) {
@@ -322,15 +316,8 @@ const validateService = {
 }
 
 export {
-  FIELD_DATA_CONSTRAINTS,
-  COL_BONUS_PAY, COL_GENDER_CODE,
-  COL_HOURS_WORKED, COL_OVERTIME_HOURS,
-  COL_OVERTIME_PAY, COL_ORDINARY_PAY,
-  COL_SPECIAL_SALARY, 
-  MAX_LEN_DATA_CONSTRAINTS,
-  FileErrors,  
-  LineErrors,
-  Row,
+  CSV_COLUMNS, FIELD_DATA_CONSTRAINTS, FileErrors,
+  LineErrors, MAX_LEN_DATA_CONSTRAINTS, Row,
   validateService
 };
 
