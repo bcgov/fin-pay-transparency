@@ -1,6 +1,6 @@
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
-import { CSV_COLUMNS } from './validate-service';
+import { CSV_COLUMNS, NUMERIC_COLUMNS, validateService } from './validate-service';
 
 interface CalculatedAmount {
   key: string,
@@ -129,7 +129,7 @@ const reportCalcService = {
     const hourlyPayStats = new StatisticsHelper();
 
     for await (const csvRecord of csvParser) {
-      console.log(csvRecord);
+      this.cleanCsvRecord(csvRecord);
       const hourlyPayDollars = reportCalcServicePrivate.getHourlyPayDollars(csvRecord);
       hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
     }
@@ -139,12 +139,47 @@ const reportCalcService = {
 }
 
 const reportCalcServicePrivate = {
+
+  /* 
+    Modifies the given csvRecord object so that it is ready for 
+    calculations to be performed against its contents.  The following
+    cleanup steps are applied:
+     - for all columns that allow numeric values:
+      - converts blanks to zeros  
+      - parse strings as numbers              
+    Assumes the given csvRecord has already passed validation. 
+    (Behaviour is undefined if this isn't the case.)
+    Returns the modified object.
+    */
+  cleanCsvRecord(csvRecord: any): any {
+    Object.keys(csvRecord).forEach(col => {
+      if (NUMERIC_COLUMNS.indexOf(col) >= 0) {
+        if (validateService.isZeroSynonym(csvRecord[col])) {
+          csvRecord[col] = 0;
+        }
+        else {
+          csvRecord[col] = parseFloat(csvRecord[col]);
+        }
+      }
+    })
+    return csvRecord;
+  },
+
   /* Given a parsed csvRecord (represented as an object with column 
     names as keys), determine the hourly pay (in dollars).  This 
     involves either calculating the hourly pay from regular (annual) pay
-    and regular hours worked, or from special salary */
-  getHourlyPayDollars(csvRecord): number {
-    return 0;
+    and regular hours worked, or from special salary
+    Assumes the clean() function has been previously called on the 
+    csvRecord. (Behaviour is undefined if this isn't the case.)
+    */
+  getHourlyPayDollars(csvRecord: any): number {
+    if (!csvRecord) {
+      throw new Error("csvRecord must be specified");
+    }
+    if (csvRecord[CSV_COLUMNS.ORDINARY_PAY] && csvRecord[CSV_COLUMNS.HOURS_WORKED]) {
+      return csvRecord[CSV_COLUMNS.ORDINARY_PAY] / csvRecord[CSV_COLUMNS.HOURS_WORKED];
+    }
+    return csvRecord[CSV_COLUMNS.ORDINARY_PAY];
   }
 }
 
