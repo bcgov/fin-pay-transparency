@@ -40,8 +40,9 @@ spec:
                 name: {{.Release.Name}}
           env:
             {{- if .Values.global.crunchyEnabled }}
+            #-- "crunchy" as a name is always added to the paths for secrets and pods , because the alias used in chart.yaml is crunchy, refer line #40 in Chart.yaml
             - name: FLYWAY_URL
-              value: "jdbc:postgresql://{{.Release.Name}}-crunchy-pgbouncer:5432/{{ .Values.global.secrets.databaseName}}"
+              value: "jdbc:postgresql://{{.Release.Name}}-crunchy-primary.{{.Release.Namespace}}.svc:5432/{{ .Values.global.secrets.databaseName}}"
             - name: FLYWAY_USER
               value: {{ .Values.global.secrets.databaseUser }}
             - name: FLYWAY_PASSWORD
@@ -73,11 +74,12 @@ spec:
                 name: {{.Release.Name}}
           env:
             {{- if .Values.global.crunchyEnabled }}
+            #-- "crunchy" as a name is always added to the paths for secrets and pods , because the alias used in chart.yaml is crunchy, refer line #40 in Chart.yaml
             - name: POSTGRESQL_HOST
               valueFrom:
                 secretKeyRef:
                   name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
-                  key: pgbouncer-host
+                  key: host
             - name: POSTGRESQL_USER
               valueFrom:
                 secretKeyRef:
@@ -93,13 +95,10 @@ spec:
                 secretKeyRef:
                   name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
                   key: dbname
-            - name: PG_BOUNCER_ENABLED
-              value: "true"
             {{- else }}
+            #-- here all the secrets are auto-mounted from the global secrets, when crunchy is not enabled. refer secret.yaml line#14.
             - name: POSTGRESQL_HOST
               value: {{.Release.Name}}-database
-            - name: PG_BOUNCER_ENABLED
-              value: "false"
             {{- end }}
             - name: NODE_ENV
               value: production
