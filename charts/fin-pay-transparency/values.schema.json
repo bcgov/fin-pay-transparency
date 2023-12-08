@@ -462,7 +462,10 @@
           "type": "object",
           "properties": {
             "databasePassword": {
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "databaseUser": {
               "type": "string"

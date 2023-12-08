@@ -79,9 +79,9 @@ spec:
                     postgres-operator.crunchydata.com/instance-set: {{ .Values.instances.name }}-ha
 
   users:
-    - name: fin-pay-transparency
+    - name: {{ .Values.global.secrets.databaseUser }}
       databases:
-        - fin-pay-transparency
+        - {{ .Values.global.secrets.databaseName }}
       options: "CREATEROLE"
     - name: postgres
       databases:
@@ -124,6 +124,14 @@ spec:
       sidecars:
         # this stuff is for the "pgbackrest" container in the "postgres-crunchy-ha" set of pods
         pgbackrest:
+          resources:
+            requests:
+              cpu: {{ .Values.pgBackRest.sidecars.requests.cpu }}
+              memory: {{ .Values.pgBackRest.sidecars.requests.memory }}
+            limits:
+              cpu: {{ .Values.pgBackRest.sidecars.limits.cpu }}
+              memory: {{ .Values.pgBackRest.sidecars.limits.memory }}
+        pgbackrestConfig:
           resources:
             requests:
               cpu: {{ .Values.pgBackRest.sidecars.requests.cpu }}
