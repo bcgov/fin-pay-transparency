@@ -1,0 +1,80 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:disableMajor",
+    "group:allNonMajor",
+    "group:definitelyTyped",
+    "group:linters",
+    "group:monorepos",
+    "group:react",
+    "group:recommended",
+    ":combinePatchMinorReleases",
+    ":enableVulnerabilityAlerts",
+    ":maintainLockFilesMonthly",
+    ":preserveSemverRanges",
+    ":rebaseStalePrs",
+    ":semanticCommits",
+    ":semanticCommitScope(deps)"
+  ],
+  "prConcurrentLimit": 1,
+  "dependencyDashboard": true,
+  "onboardingConfig": {
+    "extends": [
+      "config:base"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "One week stability period for npm packages",
+      "matchDatasources": [
+        "npm"
+      ],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "github actions all dependencies",
+      "groupSlug": "github actions all",
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "JS - group vite",
+      "groupName": "vite",
+      "matchPackagePatterns": [
+        "^vite$",
+        "^@vitejs\\/"
+      ],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "JS - group linters",
+      "groupName": "linters",
+      "matchPackagePatterns": [
+        "eslint",
+        "^@prettier\\/",
+        "^prettier-plugin-"
+      ]
+    },
+    {
+      "matchManagers": [
+        "dockerfile",
+        "docker-compose"
+      ],
+      "enabled": false
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "autodiscover": true,
+  "autodiscoverFilter": "bcgov/fin-pay-transparency",
+  "rebaseWhen": "behind-base-branch",
+  "schedule": [
+    "after 10pm every weekday",
+    "before 5am every weekday",
+    "every weekend"
+  ]
+}
