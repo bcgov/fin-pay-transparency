@@ -93,9 +93,13 @@ spec:
                 secretKeyRef:
                   name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
                   key: dbname
+            - name: PG_BOUNCER_ENABLED
+              value: "true"
             {{- else }}
             - name: POSTGRESQL_HOST
               value: {{.Release.Name}}-database
+            - name: PG_BOUNCER_ENABLED
+              value: "false"
             {{- end }}
             - name: NODE_ENV
               value: production
