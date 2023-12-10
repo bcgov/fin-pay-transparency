@@ -17,6 +17,7 @@
     ":semanticCommits",
     ":semanticCommitScope(deps)"
   ],
+  "automerge": false,
   "prConcurrentLimit": 1,
   "dependencyDashboard": true,
   "onboardingConfig": {
