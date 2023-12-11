@@ -5,7 +5,7 @@
         <v-alert dense outlined class="bootstrap-error mb-3">
           Your session has expired.
         </v-alert>
-        <v-btn color="primary" :href="authRoutesLogin">Login Again</v-btn>
+        <v-btn color="primary" @click="redirectToLogin">Login Again</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -15,6 +15,7 @@
 import { authStore } from '../store/modules/auth';
 import { mapState } from 'pinia';
 import { AuthRoutes } from '../utils/constant';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 export default {
   name: 'TokenExpired',
@@ -31,8 +32,9 @@ export default {
     ...mapState(authStore, ['isAuthenticated']),
   },
   methods: {
-    clearStorage() {
+    redirectToLogin() {
       authStore().setJwtToken();
+      window.location.href = this.authRoutesLogin;
     }
   }
 };

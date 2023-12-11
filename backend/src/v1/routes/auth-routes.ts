@@ -102,7 +102,7 @@ router.get('/token', auth.refreshJWT, (req, res) => {
       const correlationID = uuidv4();
       req.session.correlationID = correlationID;
       const correlation = {
-        user_guid: req.session?.passport?.user?._json.user_guid,
+        user_guid: req.session?.passport?.user?._json?.user_guid,
         correlation_id: correlationID
       };
       log.info('created correlation id and stored in session', correlation);

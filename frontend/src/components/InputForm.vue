@@ -98,7 +98,21 @@
             </v-col>
 
             <v-col cols="12" class="mt-6">
-              <v-textarea id="comments" v-model="comments" label="Contextual Info/Comments" clearable></v-textarea>
+              <p class="text-subtitle-2">Please note any limitations, dependencies, or constraints with the payroll data
+                which
+                will appear at the
+                bottom of the report</p>
+              <v-textarea id="dataConstraints" v-model="dataConstraints" label="Data Constraints" maxlength="3000"
+                clearable>
+                <template v-slot:details>
+                </template>
+              </v-textarea>
+            </v-col>
+
+            <v-col cols="12" class="">
+              <p class="text-subtitle-2">Other comments</p>
+              <v-textarea id="comments" v-model="comments" label="Contextual Info/Comments" clearable>
+              </v-textarea>
             </v-col>
 
             <v-col cols="12">
@@ -117,7 +131,7 @@
                 </div>
 
                 <p class="d-flex justify-center">
-                  Supported format: CSV. Maximum file size: xxMB.
+                  Supported format: CSV. Maximum file size: 8MB.
                 </p>
               </v-sheet>
             </v-col>
@@ -147,8 +161,21 @@
           <v-row class="mt-3" v-if="submissionErrors">
             <v-col>
               <v-alert dense outlined dismissible class="bootstrap-error mb-3">
-                <h4 class="mb-3">The uploaded CSV file is invalid. Please see below for an explanation.</h4>
+                <h4 class="mb-3">The submission contains errors which must be corrected.</h4>
 
+                <!-- general errors related to the submission (either with the 
+                  form fields or with the file itself) -->
+                <v-table v-if="submissionErrors?.generalErrors" density="compact">
+                  <tbody>
+                    <tr v-for="generalError in submissionErrors.generalErrors">
+                      <td class="text-left">
+                        {{ generalError }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+
+                <!-- general errors related to contents of the file -->
                 <v-table v-if="submissionErrors?.fileErrors?.generalErrors" density="compact">
                   <tbody>
                     <tr v-for="generalError in submissionErrors.fileErrors.generalErrors">
@@ -159,8 +186,10 @@
                   </tbody>
                 </v-table>
 
+                <!-- errors related to the content of specific lines in the file -->
                 <div v-if="submissionErrors?.fileErrors?.lineErrors">
-                  <p class="mb-3">Problems were found on the following lines:</p>
+                  <h4 class="mb-3">Please review the following lines from the uploaded file:
+                  </h4>
                   <v-table density="compact">
                     <thead>
                       <tr>
@@ -243,6 +272,7 @@ export default {
     maxEndDate: moment().subtract(1, "month").endOf("month").toDate(),
     startDate: moment().subtract(1, "years").format("yyyy-MM"),
     endDate: moment().subtract(1, "month").format("yyyy-MM"),
+    dataConstraints: null,
     comments: null,
     fileAccept: '.csv',
     fileRules: [],
@@ -270,6 +300,7 @@ export default {
         formData.append('employeeCountRange', this.employeeCountRange);
         formData.append('startDate', this.startDate);
         formData.append('endDate', this.endDate);
+        formData.append('dataConstraints', this.dataConstraints);
         formData.append('comments', this.comments);
         formData.append('file', this.uploadFileValue[0]);
         const oldBody = {

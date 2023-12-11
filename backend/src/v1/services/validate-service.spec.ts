@@ -1,12 +1,8 @@
 import {
-  COL_BONUS_PAY,
-  COL_GENDER_CODE,
-  COL_HOURS_WORKED,
-  COL_OVERTIME_HOURS,
-  COL_OVERTIME_PAY,
-  COL_REGULAR_SALARY,
-  COL_SPECIAL_SALARY,
+  CSV_COLUMNS,
+  FIELD_DATA_CONSTRAINTS,
   LineErrors,
+  MAX_LEN_DATA_CONSTRAINTS,
   Row,
   validateService
 } from './validate-service';
@@ -18,7 +14,6 @@ const VALID_HOUR_AMOUNTS = ["8760", "75", "100.50", "", "0", "0.0", "0.00"];
 const INVALID_HOUR_AMOUNTS = ["1779C", "-1", "8761", "N/A", "NA", "14b", "a", "$14", "-2"];
 const VALID_GENDER_CODES = ["M", "F", "W", "X", "U"];
 const INVALID_GENDER_CODES = ["H", "N/A", ""]
-
 
 describe("isZeroSynonym", () => {
   NO_DATA_VALUES.forEach(value => {
@@ -40,16 +35,55 @@ describe("isZeroSynonym", () => {
 
 })
 
+describe("validateBody", () => {
+
+  const validBody = {
+    companyName: 'Fake Company Name',
+    companyAddress: '1200 Fake St.',
+    naicsCode: '11',
+    employeeCountRange: "enmployeeRangeCountId",
+    startDate: '2022-12',
+    endDate: '2023-11',
+    dataConstraints: 'data constraints',
+    comments: 'other comments'
+  }
+
+  describe(`given data constraints that exceed the maximum length`, () => {
+    it("returns an error message", () => {
+      const dataConstraintsTooLong = "a".repeat(MAX_LEN_DATA_CONSTRAINTS + 1);
+      const invalidBody = Object.assign({}, validBody, { dataConstraints: dataConstraintsTooLong })
+      const bodyErrors: string[] = validateService.validateBody(invalidBody);
+      expect(doesAnyStringContainAll(bodyErrors, [
+        FIELD_DATA_CONSTRAINTS,
+        MAX_LEN_DATA_CONSTRAINTS + ""
+      ])).toBeTruthy();
+    })
+  })
+
+  describe(`given valid data constraints`, () => {
+    it("returns no error messages related to data constraints", () => {
+      const dataConstraintsTooLong = "a".repeat(MAX_LEN_DATA_CONSTRAINTS);
+      const invalidBody = Object.assign({}, validBody, { dataConstraints: dataConstraintsTooLong })
+      const bodyErrors: string[] = validateService.validateBody(invalidBody);
+      expect(doesAnyStringContainAll(bodyErrors, [
+        FIELD_DATA_CONSTRAINTS,
+        MAX_LEN_DATA_CONSTRAINTS + ""
+      ])).toBeFalsy();
+    })
+  })
+
+})
+
 describe("validateRow", () => {
 
   describe(`given an row that is fully valid`, () => {
     it("returns null", () => {
 
       const overrides = {};
-      //Valid rows must either have values for both (Hours Worked and Regular Salary)
+      //Valid rows must either have values for both (Hours Worked and )
       //or a value for Special Salary.
-      overrides[COL_HOURS_WORKED] = 10;
-      overrides[COL_REGULAR_SALARY] = 20;
+      overrides[CSV_COLUMNS.HOURS_WORKED] = 10;
+      overrides[CSV_COLUMNS.ORDINARY_PAY] = 20;
       const validRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
@@ -63,11 +97,11 @@ describe("validateRow", () => {
     it("the 0.00 is interpreted the same as 0", () => {
 
       const overrides = {};
-      //Valid rows must either have values for both (Hours Worked and Regular Salary)
+      //Valid rows must either have values for both (Hours Worked and Ordinary Pay)
       //or a value for Special Salary.
-      overrides[COL_HOURS_WORKED] = 10;
-      overrides[COL_REGULAR_SALARY] = 20;
-      overrides[COL_SPECIAL_SALARY] = "0.00";
+      overrides[CSV_COLUMNS.HOURS_WORKED] = 10;
+      overrides[CSV_COLUMNS.ORDINARY_PAY] = 20;
+      overrides[CSV_COLUMNS.SPECIAL_SALARY] = "0.00";
       const validRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
@@ -77,402 +111,433 @@ describe("validateRow", () => {
     })
   })
 
-  describe(`given an row that specifies both ${COL_HOURS_WORKED} and ${COL_SPECIAL_SALARY}`, () => {
+  describe(`given an row that specifies both ${CSV_COLUMNS.HOURS_WORKED} and ${CSV_COLUMNS.SPECIAL_SALARY}`, () => {
     it("returns a line error", () => {
 
       const overrides = {};
-      overrides[COL_HOURS_WORKED] = VALID_HOUR_AMOUNTS[0];
-      overrides[COL_SPECIAL_SALARY] = VALID_DOLLAR_AMOUNTS[0];
+      overrides[CSV_COLUMNS.HOURS_WORKED] = VALID_HOUR_AMOUNTS[0];
+      overrides[CSV_COLUMNS.SPECIAL_SALARY] = VALID_DOLLAR_AMOUNTS[0];
       const invalidRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
       const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
 
-      //expect one line error that mentions both COL_HOURS_WORKED and COL_SPECIAL_SALARY
+      //expect one line error that mentions both CSV_COLUMNS.HOURS_WORKED and CSV_COLUMNS.SPECIAL_SALARY
       expect(lineErrors).not.toBeNull();
-      expect(lineErrors?.errors?.length).toBe(1);
-      expect(doesAnyLineErrorContain(lineErrors, COL_HOURS_WORKED)).toBeTruthy();
-      expect(doesAnyLineErrorContain(lineErrors, COL_SPECIAL_SALARY)).toBeTruthy();
-
+      expect(doesAnyLineErrorContainAll(lineErrors, [CSV_COLUMNS.HOURS_WORKED, CSV_COLUMNS.SPECIAL_SALARY])).toBeTruthy();
     })
   })
 
-  describe(`given an row that specifies no data in any of the following columns: ${COL_HOURS_WORKED}, ${COL_REGULAR_SALARY} and ${COL_SPECIAL_SALARY}`, () => {
+  describe(`given an row that specifies ${CSV_COLUMNS.HOURS_WORKED} but not ${CSV_COLUMNS.ORDINARY_PAY}`, () => {
     it("returns a line error", () => {
 
       const overrides = {};
-      overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
-      overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
-      overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+      overrides[CSV_COLUMNS.HOURS_WORKED] = 20;
+      overrides[CSV_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
+      overrides[CSV_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
       const invalidRow: Row = createSampleRow(overrides);
 
       const lineNum = 1;
       const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
 
-      //expect one line error that mentions COL_HOURS_WORKED, COL_REGULAR_SALARY and COL_SPECIAL_SALARY
+      //expect one line error that mentions both CSV_COLUMNS.HOURS_WORKED and CSV_COLUMNS.ORDINARY_PAY
+      expect(doesAnyLineErrorContainAll(lineErrors, [CSV_COLUMNS.HOURS_WORKED, CSV_COLUMNS.ORDINARY_PAY])).toBeTruthy();
+    })
+  })
+
+  describe(`given an row that specifies ${CSV_COLUMNS.ORDINARY_PAY} but not ${CSV_COLUMNS.HOURS_WORKED}`, () => {
+    it("returns a line error", () => {
+
+      const overrides = {};
+      overrides[CSV_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
+      overrides[CSV_COLUMNS.ORDINARY_PAY] = 35;
+      overrides[CSV_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
+      const invalidRow: Row = createSampleRow(overrides);
+
+      const lineNum = 1;
+      const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
+
+      //expect one line error that mentions both CSV_COLUMNS.HOURS_WORKED and CSV_COLUMNS.ORDINARY_PAY
+      expect(doesAnyLineErrorContainAll(lineErrors, [CSV_COLUMNS.HOURS_WORKED, CSV_COLUMNS.ORDINARY_PAY])).toBeTruthy();
+    })
+  })
+
+  describe(`given an row that specifies no data in any of the following columns: ${CSV_COLUMNS.HOURS_WORKED}, ${CSV_COLUMNS.ORDINARY_PAY} and ${CSV_COLUMNS.SPECIAL_SALARY}`, () => {
+    it("returns a line error", () => {
+
+      const overrides = {};
+      overrides[CSV_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
+      overrides[CSV_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
+      overrides[CSV_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
+      const invalidRow: Row = createSampleRow(overrides);
+
+      const lineNum = 1;
+      const lineErrors: LineErrors = validateService.validateRow(lineNum, invalidRow);
+
+      //expect one line error that mentions CSV_COLUMNS.HOURS_WORKED, CSV_COLUMNS.ORDINARY_PAY and CSV_COLUMNS.SPECIAL_SALARY
       expect(lineErrors).not.toBeNull();
       expect(lineErrors?.errors?.length).toBe(1);
-      expect(doesAnyLineErrorContainAll(lineErrors, [COL_HOURS_WORKED, COL_REGULAR_SALARY, COL_SPECIAL_SALARY])).toBeTruthy();
+      expect(doesAnyLineErrorContainAll(lineErrors, [CSV_COLUMNS.HOURS_WORKED, CSV_COLUMNS.ORDINARY_PAY, CSV_COLUMNS.SPECIAL_SALARY])).toBeTruthy();
 
     })
   })
 
-  describe(`given an row with invalid '${COL_GENDER_CODE}'`, () => {
+  describe(`given an row with invalid '${CSV_COLUMNS.GENDER_CODE}'`, () => {
     //Check that validation fails for each of several different 
     //invalid gender codes
     INVALID_GENDER_CODES.forEach(genderCode => {
-      describe(`${COL_GENDER_CODE} = ${genderCode}`, () => {
+      describe(`${CSV_COLUMNS.GENDER_CODE} = ${genderCode}`, () => {
         it("returns a line error", () => {
 
           // Create a sample row that is valid except for the value of the
           // Gender Code
           const overrides = {};
-          overrides[COL_GENDER_CODE] = genderCode;
+          overrides[CSV_COLUMNS.GENDER_CODE] = genderCode;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_GENDER_CODE)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.GENDER_CODE)).toBeTruthy();
         });
       })
     })
   })
 
-  describe(`given a row with valid '${COL_GENDER_CODE}'`, () => {
+  describe(`given a row with valid '${CSV_COLUMNS.GENDER_CODE}'`, () => {
     // Check that validation passes for each given gender code
     VALID_GENDER_CODES.forEach(genderCode => {
-      describe(`${COL_GENDER_CODE} = ${genderCode}`, () => {
+      describe(`${CSV_COLUMNS.GENDER_CODE} = ${genderCode}`, () => {
         it("returns no errors for this column", () => {
 
           // Create a sample row and uses a specific Gender Code value
           const overrides = {};
-          overrides[COL_GENDER_CODE] = genderCode;
+          overrides[CSV_COLUMNS.GENDER_CODE] = genderCode;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
-          expect(doesAnyLineErrorContain(lineErrors, COL_GENDER_CODE)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.GENDER_CODE)).toBeFalsy();
 
         });
       })
     })
   })
 
-  describe("given an row with invalid '${COL_HOURS_WORKED}'", () => {
+  describe("given an row with invalid '${CSV_COLUMNS.HOURS_WORKED}'", () => {
     const invalidHoursWorked = INVALID_HOUR_AMOUNTS;
 
     //Check that validation fails for each of several different 
-    //invalid values for COL_HOURS_WORKED
+    //invalid values for CSV_COLUMNS.HOURS_WORKED
     invalidHoursWorked.forEach(hoursWorked => {
-      describe(`${COL_HOURS_WORKED} = ${hoursWorked}`, () => {
+      describe(`${CSV_COLUMNS.HOURS_WORKED} = ${hoursWorked}`, () => {
         it("returns a line error", () => {
 
 
           // Create a sample row that is valid except for the value of the
           // Hours worked
           const overrides = {};
-          overrides[COL_HOURS_WORKED] = hoursWorked;
+          overrides[CSV_COLUMNS.HOURS_WORKED] = hoursWorked;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_HOURS_WORKED)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.HOURS_WORKED)).toBeTruthy();
         });
       })
     })
   })
 
-  describe(`given a row with valid '${COL_HOURS_WORKED}'`, () => {
+  describe(`given a row with valid '${CSV_COLUMNS.HOURS_WORKED}'`, () => {
     const validHoursWorked = VALID_HOUR_AMOUNTS;
 
     // Check that validation passes for each given value of Hours Worked
     validHoursWorked.forEach(hoursWorked => {
-      describe(`${COL_HOURS_WORKED} = ${hoursWorked}`, () => {
+      describe(`${CSV_COLUMNS.HOURS_WORKED} = ${hoursWorked}`, () => {
         it("returns no errors for this column", () => {
 
           // Create a sample row and uses a specific Hours Worked value
           const overrides = {};
-          overrides[COL_HOURS_WORKED] = hoursWorked;
+          overrides[CSV_COLUMNS.HOURS_WORKED] = hoursWorked;
 
-          //Hours Worked is semi-optional (it, along with Regular Salary, are mutually
+          //Hours Worked is semi-optional (it, along with Ordinary Pay, are mutually
           //exclusive with Special Salary).  Make sure the related columns have
           //appropriate values for the record to be fully valid.
           if (!validateService.isZeroSynonym(hoursWorked)) {
-            overrides[COL_REGULAR_SALARY] = 10;
-            overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+            overrides[CSV_COLUMNS.ORDINARY_PAY] = 10;
+            overrides[CSV_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
           }
           else {
-            overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
-            overrides[COL_SPECIAL_SALARY] = 100;
+            overrides[CSV_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
+            overrides[CSV_COLUMNS.SPECIAL_SALARY] = 100;
           }
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
 
-          expect(doesAnyLineErrorContain(lineErrors, COL_HOURS_WORKED)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.HOURS_WORKED)).toBeFalsy();
 
         });
       })
     })
   })
 
-  describe(`given an row with invalid '${COL_REGULAR_SALARY}'`, () => {
-    const invalidRegularSalary = INVALID_DOLLAR_AMOUNTS;
+  describe(`given an row with invalid '${CSV_COLUMNS.ORDINARY_PAY}'`, () => {
+    const invalidOrdinaryPay = INVALID_DOLLAR_AMOUNTS;
 
     //Check that validation fails for each of several different 
-    //invalid values for 'Regular Salar'
-    invalidRegularSalary.forEach(regularSalary => {
-      describe(`${COL_REGULAR_SALARY} = ${regularSalary}`, () => {
+    //invalid values for 'Ordinary Pay'
+    invalidOrdinaryPay.forEach(ordinaryPay => {
+      describe(`${CSV_COLUMNS.ORDINARY_PAY} = ${ordinaryPay}`, () => {
         it("returns a line error", () => {
 
           // Create a sample row that is valid except for the value of the 
-          // Regular Salary
+          // Ordinary Pay
           const overrides = {};
-          overrides[COL_REGULAR_SALARY] = regularSalary;
+          overrides[CSV_COLUMNS.ORDINARY_PAY] = ordinaryPay;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_REGULAR_SALARY)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.ORDINARY_PAY)).toBeTruthy();
         });
       })
     })
   })
 
-  describe(`given a row with valid '${COL_REGULAR_SALARY}'`, () => {
-    const validRegularSalary = VALID_DOLLAR_AMOUNTS;
+  describe(`given a row with valid '${CSV_COLUMNS.ORDINARY_PAY}'`, () => {
+    const validOrdinaryPay = VALID_DOLLAR_AMOUNTS;
 
-    // Check that validation passes for each given value of Regular Salary
-    validRegularSalary.forEach(regularSalary => {
-      describe(`${COL_REGULAR_SALARY} = '${regularSalary}'`, () => {
+    // Check that validation passes for each given value of Ordinary Pay
+    validOrdinaryPay.forEach(ordinaryPay => {
+      describe(`${CSV_COLUMNS.ORDINARY_PAY} = '${ordinaryPay}'`, () => {
         it("returns no errors for this column", () => {
 
-          // Create a sample row and uses a specific Regular Salary value
+          // Create a sample row and uses a specific Ordinary Pay value
           const overrides = {};
-          overrides[COL_REGULAR_SALARY] = regularSalary;
+          overrides[CSV_COLUMNS.ORDINARY_PAY] = ordinaryPay;
 
-          //Regular Salary is semi-optional (it, along with Hours Worked, are mutually
+          //Ordinary Pay is semi-optional (it, along with Hours Worked, are mutually
           //exclusive with Special Salary).  Make sure the related columns have
           //appropriate values for the record to be fully valid.
-          if (!validateService.isZeroSynonym(regularSalary)) {
-            overrides[COL_HOURS_WORKED] = 10;
-            overrides[COL_SPECIAL_SALARY] = NO_DATA_VALUES[0];
+          if (!validateService.isZeroSynonym(ordinaryPay)) {
+            overrides[CSV_COLUMNS.HOURS_WORKED] = 10;
+            overrides[CSV_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
           }
           else {
-            overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
-            overrides[COL_SPECIAL_SALARY] = 100;
+            overrides[CSV_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
+            overrides[CSV_COLUMNS.SPECIAL_SALARY] = 100;
           }
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
 
-          expect(doesAnyLineErrorContain(lineErrors, COL_REGULAR_SALARY)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.ORDINARY_PAY)).toBeFalsy();
         });
       })
     })
   })
 
-  describe(`given an row with invalid '${COL_SPECIAL_SALARY}'`, () => {
+  describe(`given an row with invalid '${CSV_COLUMNS.SPECIAL_SALARY}'`, () => {
     const invalidSpecialSalary = INVALID_DOLLAR_AMOUNTS;
 
     //Check that validation fails for each of several different 
-    //invalid values for COL_SPECIAL_SALARY
+    //invalid values for CSV_COLUMNS.SPECIAL_SALARY
     invalidSpecialSalary.forEach(specialSalary => {
-      describe(`${COL_SPECIAL_SALARY} = ${specialSalary}`, () => {
+      describe(`${CSV_COLUMNS.SPECIAL_SALARY} = ${specialSalary}`, () => {
         it("returns a line error", () => {
 
 
           // Create a sample row that is valid except for the value of the 
           // Special Salary
           const overrides = {};
-          overrides[COL_SPECIAL_SALARY] = specialSalary;
+          overrides[CSV_COLUMNS.SPECIAL_SALARY] = specialSalary;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_SPECIAL_SALARY)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.SPECIAL_SALARY)).toBeTruthy();
         })
       })
     })
   })
 
-  describe(`given a row with valid '${COL_SPECIAL_SALARY}'`, () => {
+  describe(`given a row with valid '${CSV_COLUMNS.SPECIAL_SALARY}'`, () => {
     const validSpecialSalary = VALID_DOLLAR_AMOUNTS;
 
     // Check that validation passes for each given value of Special Salary
     validSpecialSalary.forEach(specialSalary => {
-      describe(`${COL_SPECIAL_SALARY} = '${specialSalary}'`, () => {
+      describe(`${CSV_COLUMNS.SPECIAL_SALARY} = '${specialSalary}'`, () => {
         it("returns no errors for this column", () => {
 
           // Create a sample row and uses a specific Special Salary value
           const overrides = {};
-          overrides[COL_SPECIAL_SALARY] = specialSalary;
+          overrides[CSV_COLUMNS.SPECIAL_SALARY] = specialSalary;
 
           //Special Salary is semi-optional (mutually exclusive with Hours Worked and
-          //Regular Salary).  If a blank value for Special Salary is given, be sure
+          //Ordinary Pay).  If a blank value for Special Salary is given, be sure
           //to include non-blank values for the mutually exclusive cols.
           if (validateService.isZeroSynonym(specialSalary)) {
-            overrides[COL_HOURS_WORKED] = 10;
-            overrides[COL_REGULAR_SALARY] = 20;
+            overrides[CSV_COLUMNS.HOURS_WORKED] = 10;
+            overrides[CSV_COLUMNS.ORDINARY_PAY] = 20;
           }
           else {
-            overrides[COL_HOURS_WORKED] = NO_DATA_VALUES[0];
-            overrides[COL_REGULAR_SALARY] = NO_DATA_VALUES[0];
+            overrides[CSV_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
+            overrides[CSV_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
           }
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
-          expect(doesAnyLineErrorContain(lineErrors, COL_SPECIAL_SALARY)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.SPECIAL_SALARY)).toBeFalsy();
         });
       })
     })
   })
 
-  describe(`given an row with invalid '${COL_OVERTIME_HOURS}'`, () => {
+  describe(`given an row with invalid '${CSV_COLUMNS.OVERTIME_HOURS}'`, () => {
     const invalidOvertimeHours = INVALID_HOUR_AMOUNTS;
 
     //Check that validation fails for each of several different 
-    //invalid values for COL_OVERTIME_HOURS
+    //invalid values for CSV_COLUMNS.OVERTIME_HOURS
     invalidOvertimeHours.forEach(overtimeHours => {
-      describe(`${COL_OVERTIME_HOURS} = ${overtimeHours}`, () => {
+      describe(`${CSV_COLUMNS.OVERTIME_HOURS} = ${overtimeHours}`, () => {
         it("returns a line error", () => {
 
           // Create a sample row that is valid except for the value of the 
           // Overtime Hours
           const overrides = {};
-          overrides[COL_OVERTIME_HOURS] = overtimeHours;
+          overrides[CSV_COLUMNS.OVERTIME_HOURS] = overtimeHours;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_OVERTIME_HOURS)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.OVERTIME_HOURS)).toBeTruthy();
         })
       })
     })
   })
 
-  describe(`given a row with valid '${COL_OVERTIME_HOURS}'`, () => {
+  describe(`given a row with valid '${CSV_COLUMNS.OVERTIME_HOURS}'`, () => {
     const validOvertimeHours = VALID_HOUR_AMOUNTS;
 
     // Check that validation passes for each given value of Overtime Hours
     validOvertimeHours.forEach(overtimeHours => {
-      describe(`${COL_OVERTIME_HOURS} = ${overtimeHours}`, () => {
+      describe(`${CSV_COLUMNS.OVERTIME_HOURS} = ${overtimeHours}`, () => {
         it("returns no errors for this column", () => {
 
           // Create a sample row and uses a specific Overtime Hours value
           const overrides = {};
-          overrides[COL_OVERTIME_HOURS] = overtimeHours;
+          overrides[CSV_COLUMNS.OVERTIME_HOURS] = overtimeHours;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
-          expect(doesAnyLineErrorContain(lineErrors, COL_OVERTIME_HOURS)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.OVERTIME_HOURS)).toBeFalsy();
 
         });
       })
     })
   })
 
-  describe(`given an row with invalid '${COL_OVERTIME_PAY}'`, () => {
+  describe(`given an row with invalid '${CSV_COLUMNS.OVERTIME_PAY}'`, () => {
     const invalidOvertimePay = INVALID_DOLLAR_AMOUNTS;
 
     //Check that validation fails for each of several different 
-    //invalid values for COL_OVERTIME_PAY
+    //invalid values for CSV_COLUMNS.OVERTIME_PAY
     invalidOvertimePay.forEach(overtimePay => {
-      describe(`${COL_OVERTIME_PAY} = ${overtimePay}`, () => {
+      describe(`${CSV_COLUMNS.OVERTIME_PAY} = ${overtimePay}`, () => {
         it("returns a line error", () => {
 
           // Create a sample row that is valid except for the value of the 
           // Overtime Pay
           const overrides = {};
-          overrides[COL_OVERTIME_PAY] = overtimePay;
+          overrides[CSV_COLUMNS.OVERTIME_PAY] = overtimePay;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_OVERTIME_PAY)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.OVERTIME_PAY)).toBeTruthy();
         })
       })
     })
   })
 
-  describe(`given a row with valid '${COL_OVERTIME_PAY}'`, () => {
+  describe(`given a row with valid '${CSV_COLUMNS.OVERTIME_PAY}'`, () => {
     const validOvertimePay = VALID_DOLLAR_AMOUNTS;
 
     // Check that validation passes for each given value of Overtime Pay
     validOvertimePay.forEach(overtimePay => {
-      describe(`${COL_OVERTIME_PAY} = ${overtimePay}`, () => {
+      describe(`${CSV_COLUMNS.OVERTIME_PAY} = ${overtimePay}`, () => {
         it("returns no errors for this column", () => {
 
           // Create a sample row and uses a specific Overtime Pay value
           const overrides = {};
-          overrides[COL_OVERTIME_PAY] = overtimePay;
+          overrides[CSV_COLUMNS.OVERTIME_PAY] = overtimePay;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
-          expect(doesAnyLineErrorContain(lineErrors, COL_OVERTIME_PAY)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.OVERTIME_PAY)).toBeFalsy();
 
         });
       })
     })
   })
 
-  describe(`given an row with invalid '${COL_BONUS_PAY}'`, () => {
+  describe(`given an row with invalid '${CSV_COLUMNS.BONUS_PAY}'`, () => {
     const invalidBonusPay = ["NA", "3,000", "$7,000", "$7000", "-1", "1000000000"]
     invalidBonusPay.forEach(bonusPay => {
-      describe(`${COL_BONUS_PAY} = ${bonusPay}`, () => {
+      describe(`${CSV_COLUMNS.BONUS_PAY} = ${bonusPay}`, () => {
         it("returns a line error", () => {
 
           // Create a sample row that is valid except for the value of the 
           // Bonus Pay
           const overrides = {};
-          overrides[COL_BONUS_PAY] = bonusPay;
+          overrides[CSV_COLUMNS.BONUS_PAY] = bonusPay;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
           expect(lineErrors).not.toBeNull();
           expect(lineErrors.lineNum).toBe(lineNum);
-          expect(doesAnyLineErrorContain(lineErrors, COL_BONUS_PAY)).toBeTruthy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.BONUS_PAY)).toBeTruthy();
 
         })
       })
     })
   })
 
-  describe(`given a row with valid '${COL_BONUS_PAY}'`, () => {
+  describe(`given a row with valid '${CSV_COLUMNS.BONUS_PAY}'`, () => {
     const validBonusPay = VALID_DOLLAR_AMOUNTS;
 
     // Check that validation passes for each given value of Overtime Pay
     validBonusPay.forEach(bonusPay => {
-      describe(`${COL_BONUS_PAY} = ${bonusPay}`, () => {
+      describe(`${CSV_COLUMNS.BONUS_PAY} = ${bonusPay}`, () => {
         it("returns no errors for this column", () => {
 
 
           // Create a sample row and uses a specific Overtime Pay value
           const overrides = {};
-          overrides[COL_BONUS_PAY] = bonusPay;
+          overrides[CSV_COLUMNS.BONUS_PAY] = bonusPay;
           const row: Row = createSampleRow(overrides);
 
           const lineNum = 1;
           const lineErrors: LineErrors = validateService.validateRow(lineNum, row);
-          expect(doesAnyLineErrorContain(lineErrors, COL_BONUS_PAY)).toBeFalsy();
+          expect(doesAnyLineErrorContain(lineErrors, CSV_COLUMNS.BONUS_PAY)).toBeFalsy();
         });
       })
     })
@@ -492,16 +557,16 @@ describe("validateRow", () => {
 const createSampleRow = (override: any = {}): Row => {
 
   const defaults = {};
-  defaults[COL_GENDER_CODE] = 'F';
-  defaults[COL_HOURS_WORKED] = "";
-  defaults[COL_REGULAR_SALARY] = "";
-  defaults[COL_SPECIAL_SALARY] = "";
-  defaults[COL_OVERTIME_HOURS] = "5";
-  defaults[COL_OVERTIME_PAY] = '100.00';
-  defaults[COL_BONUS_PAY] = '';
+  defaults[CSV_COLUMNS.GENDER_CODE] = 'F';
+  defaults[CSV_COLUMNS.HOURS_WORKED] = "";
+  defaults[CSV_COLUMNS.ORDINARY_PAY] = "";
+  defaults[CSV_COLUMNS.SPECIAL_SALARY] = "";
+  defaults[CSV_COLUMNS.OVERTIME_HOURS] = "5";
+  defaults[CSV_COLUMNS.OVERTIME_PAY] = '100.00';
+  defaults[CSV_COLUMNS.BONUS_PAY] = '';
 
   const rec = Object.assign({}, defaults, override);
-  const raw = `${rec[COL_GENDER_CODE]},${rec[COL_HOURS_WORKED]},${rec[COL_REGULAR_SALARY]},${rec[COL_SPECIAL_SALARY]},${rec[COL_OVERTIME_HOURS]},${rec[COL_OVERTIME_PAY]},${rec[COL_BONUS_PAY]}\r`
+  const raw = `${rec[CSV_COLUMNS.GENDER_CODE]},${rec[CSV_COLUMNS.HOURS_WORKED]},${rec[CSV_COLUMNS.ORDINARY_PAY]},${rec[CSV_COLUMNS.SPECIAL_SALARY]},${rec[CSV_COLUMNS.OVERTIME_HOURS]},${rec[CSV_COLUMNS.OVERTIME_PAY]},${rec[CSV_COLUMNS.BONUS_PAY]}\r`
 
   const row: Row = {
     record: rec,
@@ -509,6 +574,36 @@ const createSampleRow = (override: any = {}): Row => {
   }
 
   return row;
+}
+
+/**
+ * Returns true if at least one string in 'stringsToLookIn' contains
+ * all the strings in 'stringsToLookFor'.  Returns false otherwise.
+ * This is useful for testing whether specific keywords are mentioned
+ * in upload "body" error messages
+ */
+const doesAnyStringContainAll = (stringsToLookIn: string[], stringsToLookFor: string[]): boolean => {
+  if (!stringsToLookIn) {
+    return false;
+  }
+  for (var stringsToLookInIndex = 0; stringsToLookInIndex < stringsToLookIn.length; stringsToLookInIndex++) {
+    const stringToLookIn = stringsToLookIn[stringsToLookInIndex];
+    var containsAll = true;
+    for (var stringsToLookForIndex = 0; stringsToLookForIndex < stringsToLookFor.length; stringsToLookForIndex++) {
+      const stringToLookFor = stringsToLookFor[stringsToLookForIndex];
+      const containsThis = stringToLookIn.indexOf(stringToLookFor) >= 0;
+      containsAll = containsAll && containsThis;
+      if (!containsThis) {
+        break;
+      }
+    }
+    if (containsAll) {
+      return true;
+    }
+  }
+  //all strings in 'stringsToLookIn' have been scanned, and none of them contains all the required
+  //values
+  return false;
 }
 
 /**
