@@ -96,11 +96,6 @@
       "plugin:vuetify/recommended",
       "prettier"
     ],
-    "globals": {
-      "Atomics": "readonly",
-      "SharedArrayBuffer": "readonly",
-      "_": false
-    },
     "parser": "vue-eslint-parser",
     "parserOptions": {
       "parser": "@typescript-eslint/parser",
@@ -109,42 +104,10 @@
     },
     "rules": {
       "vue/max-attributes-per-line": "off",
-      "vue/first-attribute-linebreak": "off",
-      "vue/multi-word-component-names": 0,
-      "vue/no-v-text-v-html-on-component": 0,
-      "vue/no-mutating-props": 0,
-      "vue/no-unused-vars": 0,
-      "vue/valid-v-slot": 0,
-      "vue/no-reserved-component-names": 0,
-      "no-console": "off",
-      "eol-last": [
-        "error",
-        "always"
-      ],
-      "selector-pseudo-class-no-unknown": [
-        0,
-        {
-          "ignorePseudoClasses": [
-            "deep"
-          ]
-        }
-      ],
-      "indent": [
-        "error",
-        2
-      ],
-      "quotes": [
-        "error",
-        "single"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ]
+      "vue/first-attribute-linebreak": "off"
     }
   },
   "eslintIgnore": [
-    "tests/e2e/*"
   ],
   "prettier": {
     "singleQuote": true
