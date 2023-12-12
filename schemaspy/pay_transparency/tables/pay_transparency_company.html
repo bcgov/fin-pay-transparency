@@ -114,7 +114,7 @@
                                     <td>2147483647</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>gen_random_uuid()</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
@@ -175,23 +175,6 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="company_address">company_address</span></td>
-                                    <td>varchar</td>
-                                    <td>255</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td><span id="create_date">create_date</span></td>
                                     <td>timestamp</td>
                                     <td>29,6</td>
@@ -215,6 +198,108 @@
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>CURRENT_TIMESTAMP</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="address_line1">address_line1</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="address_line2">address_line2</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="city">city</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="province">province</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="country">country</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="postal_code">postal_code</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -290,25 +375,25 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="508,5,735,152">
-<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,196,429,441">
-<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="473,169,769,404">
-<area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="813,232,1084,467">
+<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="486,5,702,152">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,196,411,588">
+<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="455,169,733,404">
+<area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="777,232,1031,467">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/pay_transparency_company.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="508,84,735,231">
-<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,429,251">
-<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="849,479,1225,567">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="473,376,769,464">
-<area shape="rect" id="node6" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="79,268,356,356">
-<area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="131,479,303,567">
-<area shape="rect" id="node8" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="78,373,357,461">
-<area shape="rect" id="node5" href="pay_transparency_input_data.html" target="_top" title="pay_transparency_input_data" alt="" coords="871,584,1204,672">
-<area shape="rect" id="node9" href="pay_transparency_suppressed_report_data.html" target="_top" title="pay_transparency_suppressed_report_data" alt="" coords="813,373,1261,461">
-<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="936,268,1139,356">
+<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="486,84,702,231">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,411,397">
+<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="811,625,1164,713">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="455,523,733,611">
+<area shape="rect" id="node6" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="77,415,339,503">
+<area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="125,625,291,713">
+<area shape="rect" id="node8" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="77,520,339,608">
+<area shape="rect" id="node5" href="pay_transparency_input_data.html" target="_top" title="pay_transparency_input_data" alt="" coords="830,731,1145,819">
+<area shape="rect" id="node9" href="pay_transparency_suppressed_report_data.html" target="_top" title="pay_transparency_suppressed_report_data" alt="" coords="777,520,1197,608">
+<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="891,415,1084,503">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/pay_transparency_company.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
@@ -330,7 +415,7 @@
                         <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
                         <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
                     </div>
-                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 7.0.0-SNAPSHOT</a></strong>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.2.4</a></strong>
                 </div>
                 <!-- /.container -->
             </footer>

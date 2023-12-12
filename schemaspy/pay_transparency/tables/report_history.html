@@ -114,7 +114,7 @@
                                     <td>2147483647</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>gen_random_uuid()</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -349,6 +349,23 @@
                                     </td>
                                     <td></td>
                                 </tr>
+                                <tr>
+                                    <td><span id="report_status">report_status</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>&#39;Draft&#39;::character varying</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -391,6 +408,38 @@
                     </div>
                     <div class="box box-primary">
                         <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 class="box-title">Check Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="check_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Constraint</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>report_status_check</td>
+                                    <td>(((report_status)::text &#61; ANY ((ARRAY[&#39;Draft&#39;::character varying, &#39;Published&#39;::character varying])::text[])))</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
                             <i class="fa fa-code-fork"></i>
                             <h3 id="Relationships" class="box-title">Relationships</h3>
                             <div class="box-tools pull-right">
@@ -408,26 +457,26 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="369,77,665,312">
-<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,325,152">
-<area shape="rect" id="node3" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="27,313,304,431">
-<area shape="rect" id="node4" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="26,172,305,289">
-<area shape="rect" id="node5" href="report_history.html" target="_top" title="report_history" alt="" coords="709,123,1121,573">
+<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,77,629,312">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,307,152">
+<area shape="rect" id="node3" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,313,287,431">
+<area shape="rect" id="node4" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,172,287,289">
+<area shape="rect" id="node5" href="report_history.html" target="_top" title="report_history" alt="" coords="673,123,1068,603">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/report_history.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="404,131,631,219">
-<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,236,325,324">
-<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="745,5,1121,93">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="369,236,665,324">
-<area shape="rect" id="node6" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="27,447,304,535">
-<area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="79,131,251,219">
-<area shape="rect" id="node8" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="26,341,305,429">
-<area shape="rect" id="node5" href="pay_transparency_input_data.html" target="_top" title="pay_transparency_input_data" alt="" coords="767,111,1100,199">
-<area shape="rect" id="node9" href="pay_transparency_suppressed_report_data.html" target="_top" title="pay_transparency_suppressed_report_data" alt="" coords="709,216,1157,304">
-<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="727,321,1139,772">
+<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="382,131,598,219">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,236,307,324">
+<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="707,5,1060,93">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,236,629,324">
+<area shape="rect" id="node6" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,447,287,535">
+<area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,131,239,219">
+<area shape="rect" id="node8" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,341,287,429">
+<area shape="rect" id="node5" href="pay_transparency_input_data.html" target="_top" title="pay_transparency_input_data" alt="" coords="726,111,1041,199">
+<area shape="rect" id="node9" href="pay_transparency_suppressed_report_data.html" target="_top" title="pay_transparency_suppressed_report_data" alt="" coords="673,216,1093,304">
+<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="686,321,1081,801">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/report_history.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
@@ -449,7 +498,7 @@
                         <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
                         <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
                     </div>
-                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 7.0.0-SNAPSHOT</a></strong>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.2.4</a></strong>
                 </div>
                 <!-- /.container -->
             </footer>
