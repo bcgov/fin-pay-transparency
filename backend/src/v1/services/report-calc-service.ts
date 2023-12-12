@@ -3,19 +3,19 @@ import { Readable } from 'stream';
 import { CSV_COLUMNS, GENDER_CODES, NUMERIC_COLUMNS, validateService } from './validate-service';
 
 
-const CALCULATION_KEYS = {
+const CALCULATION_CODES = {
   MEAN_HOURLY_PAY_DIFF_M: "MEAN_HOURLY_PAY_DIFF_M",
-  MEAN_HOURLY_PAY_DIFF_F: "MEAN_HOURLY_PAY_DIFF_F",
+  MEAN_HOURLY_PAY_DIFF_W: "MEAN_HOURLY_PAY_DIFF_W",
   MEAN_HOURLY_PAY_DIFF_X: "MEAN_HOURLY_PAY_DIFF_X",
   MEAN_HOURLY_PAY_DIFF_U: "MEAN_HOURLY_PAY_DIFF_U",
   MEDIAN_HOURLY_PAY_DIFF_M: "MEDIAN_HOURLY_PAY_DIFF_M",
-  MEDIAN_HOURLY_PAY_DIFF_F: "MEDIAN_HOURLY_PAY_DIFF_F",
+  MEDIAN_HOURLY_PAY_DIFF_W: "MEDIAN_HOURLY_PAY_DIFF_W",
   MEDIAN_HOURLY_PAY_DIFF_X: "MEDIAN_HOURLY_PAY_DIFF_X",
   MEDIAN_HOURLY_PAY_DIFF_U: "MEDIAN_HOURLY_PAY_DIFF_U",
 }
 
 interface CalculatedAmount {
-  key: string,
+  calculationCode: string,
   value: string,
   isSuppressed: boolean
 }
@@ -233,22 +233,22 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_M,
+      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M,
       value: meanHourlyPayDiffM,
       isSuppressed: meanHourlyPayDiffM === null
     });
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_F,
+      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W,
       value: meanHourlyPayDiffF,
       isSuppressed: meanHourlyPayDiffF === null
     });
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_X,
+      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X,
       value: meanHourlyPayDiffX,
       isSuppressed: meanHourlyPayDiffX === null
     });
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_U,
+      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U,
       value: meanHourlyPayDiffU,
       isSuppressed: meanHourlyPayDiffU === null
     });
@@ -290,22 +290,22 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_M,
+      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M,
       value: medianHourlyPayDiffM,
       isSuppressed: medianHourlyPayDiffM === null
     });
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_F,
+      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W,
       value: medianHourlyPayDiffF,
       isSuppressed: medianHourlyPayDiffF === null
     });
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_X,
+      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X,
       value: medianHourlyPayDiffX,
       isSuppressed: medianHourlyPayDiffX === null
     });
     calculatedAmounts.push({
-      key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_U,
+      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U,
       value: medianHourlyPayDiffU,
       isSuppressed: medianHourlyPayDiffU === null
     });
@@ -356,5 +356,5 @@ const reportCalcServicePrivate = {
   }
 }
 
-export { CALCULATION_KEYS, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate };
+export { CALCULATION_CODES, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate };
 

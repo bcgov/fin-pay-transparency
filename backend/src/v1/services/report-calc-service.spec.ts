@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { CALCULATION_KEYS, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate } from './report-calc-service';
+import { CALCULATION_CODES, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate } from './report-calc-service';
 import { CSV_COLUMNS, GENDER_CODES, Row } from './validate-service';
 import { createSampleRow } from './validate-service.spec';
 
@@ -121,10 +121,10 @@ describe("calculateMeanHourlyPayGaps", () => {
       });
       const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats);
 
-      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
-      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
     })
   })
 })
@@ -148,10 +148,10 @@ describe("calculateMedianHourlyPayGaps", () => {
       });
       const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats);
 
-      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
-      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
     })
   })
 })
@@ -179,20 +179,20 @@ describe("calculateAll", () => {
       const allCalculatedAmounts: CalculatedAmount[] = await reportCalcService.calculateAll(csvReadable);
 
       // Check that all the required calculations were performed (once each)
-      Object.values(CALCULATION_KEYS).forEach(calculationCode => {
-        expect(allCalculatedAmounts.filter(d => d.key == calculationCode).length).toBe(1);
+      Object.values(CALCULATION_CODES).forEach(calculationCode => {
+        expect(allCalculatedAmounts.filter(d => d.calculationCode == calculationCode).length).toBe(1);
       })
 
       // Confirm the values of some specific calculations
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
 
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
     })
   })
 })
