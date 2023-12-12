@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "fin-pay-transparency",
+			"path": "."
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"esbenp.prettier-vscode"
+		]
+	}
+}
