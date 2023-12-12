@@ -90,7 +90,6 @@ const fileUploadService = {
     const existingReport = await tx.pay_transparency_report.findFirst({
       where: {
         company_id: payTransparencyCompany.company_id,
-        user_id: payTransparencyUser.user_id,
         report_start_date: startDate,
         report_end_date: endDate
       }
