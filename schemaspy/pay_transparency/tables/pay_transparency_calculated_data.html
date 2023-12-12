@@ -148,7 +148,29 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="average_hourly_wage">average_hourly_wage</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="calculation_code_id">calculation_code_id</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="pay_transparency_calculated_data.calculation_code_id references calculation_code.calculation_code_id via calculation_code_id_fk"><a href='calculation_code.html'>calculation_code</a><span class='relatedKey'>.calculation_code_id</span></td>
+                                                <td class="constraint detail">calculation_code_id_fk</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="value">value</span></td>
                                     <td>numeric</td>
                                     <td>0</td>
                                     <td title=''></td>
@@ -165,42 +187,8 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="percentage_average_hourly_wage">percentage_average_hourly_wage</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="percentage_reference_category">percentage_reference_category</span></td>
-                                    <td>varchar</td>
-                                    <td>255</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="gender">gender</span></td>
-                                    <td>varchar</td>
+                                    <td><span id="is_suppressed">is_suppressed</span></td>
+                                    <td>bool</td>
                                     <td>1</td>
                                     <td title=''></td>
                                     <td title=''></td>
@@ -216,12 +204,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="received_overtime_pay">received_overtime_pay</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
+                                    <td><span id="create_date">create_date</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>CURRENT_TIMESTAMP</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -233,12 +221,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="received_bonus_pay">received_bonus_pay</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
+                                    <td><span id="update_date">update_date</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>CURRENT_TIMESTAMP</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -250,12 +238,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="mean_hourly_pay_rate_difference">mean_hourly_pay_rate_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
+                                    <td><span id="create_user">create_user</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>CURRENT_USER</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -267,114 +255,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="median_hourly_pay_rate_difference">median_hourly_pay_rate_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
+                                    <td><span id="update_user">update_user</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="mean_overtime_pay_difference">mean_overtime_pay_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="median_overtime_pay_difference">median_overtime_pay_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="mean_overtime_hours_difference">mean_overtime_hours_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="median_overtime_hours_difference">median_overtime_hours_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="mean_bonus_pay_difference">mean_bonus_pay_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="median_bonus_pay_difference">median_bonus_pay_difference</span></td>
-                                    <td>numeric</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
+                                    <td>CURRENT_USER</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -421,6 +307,12 @@
                                     <td><span title='Ascending'>Asc</span></td>
                                     <td>calculated_data_id</td>
                                 </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> pay_transparency_calculated_d_report_id_calculation_code_id_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>report_id + calculation_code_id</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div><!-- /.box-body -->
@@ -444,22 +336,23 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,5,795,544">
-<area shape="rect" id="node2" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,37,284,272">
+<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,85,785,419">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,257,251,380">
+<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,5,284,240">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/pay_transparency_calculated_data.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="673,5,1140,544">
-<area shape="rect" id="node2" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,559,629,793">
-<area shape="rect" id="node4" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,529,307,617">
-<area shape="rect" id="node5" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,845,287,933">
-<area shape="rect" id="node6" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,740,239,828">
-<area shape="rect" id="node7" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,635,287,723">
-<area shape="rect" id="node3" href="pay_transparency_input_data.html" target="_top" title="pay_transparency_input_data" alt="" coords="749,561,1064,649">
-<area shape="rect" id="node8" href="pay_transparency_suppressed_report_data.html" target="_top" title="pay_transparency_suppressed_report_data" alt="" coords="697,667,1117,755">
-<area shape="rect" id="node9" href="report_history.html" target="_top" title="report_history" alt="" coords="810,792,1003,880">
+<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="673,5,1131,339">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="384,67,596,189">
+<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,327,629,561">
+<area shape="rect" id="node5" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,257,307,345">
+<area shape="rect" id="node6" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,577,287,665">
+<area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,472,239,560">
+<area shape="rect" id="node8" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,367,287,455">
+<area shape="rect" id="node4" href="pay_transparency_input_data.html" target="_top" title="pay_transparency_input_data" alt="" coords="745,356,1059,444">
+<area shape="rect" id="node9" href="report_history.html" target="_top" title="report_history" alt="" coords="805,515,999,603">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/pay_transparency_calculated_data.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>

@@ -1,11 +1,11 @@
 flyway_schema_history
 report_history
-pay_transparency_suppressed_report_data
-pay_transparency_input_data
 pay_transparency_calculated_data
+pay_transparency_input_data
 company_history
 pay_transparency_report
 naics_code
+calculation_code
 pay_transparency_user
 employee_count_range
 pay_transparency_company

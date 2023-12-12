@@ -6,7 +6,6 @@ digraph "twoDegreesRelationshipsDiagram" {
   "pay_transparency_report":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_report":"naics_code":w -> "naics_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_report":"user_id":w -> "pay_transparency_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "pay_transparency_suppressed_report_data":"elipses":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"company_id":w -> "pay_transparency_company":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -45,7 +44,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="205" HEIGHT="16"><B>pay_transparency_calculated_data</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="pay_transparency_calculated_data.html"
     target="_top"
@@ -78,22 +77,11 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="149" HEIGHT="16"><B>pay_transparency_report</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">3 &gt;</TD></TR>
     </TABLE>>
     URL="pay_transparency_report.html"
     target="_top"
     tooltip="pay_transparency_report"
-  ];
-  "pay_transparency_suppressed_report_data" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="255" HEIGHT="16"><B>pay_transparency_suppressed_report_data</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="pay_transparency_suppressed_report_data.html"
-    target="_top"
-    tooltip="pay_transparency_suppressed_report_data"
   ];
   "pay_transparency_user" [
    label=<
