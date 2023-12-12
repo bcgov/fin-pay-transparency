@@ -5,24 +5,24 @@ SET search_path TO pay_transparency;
 create table if not exists calculation_code
 (
     calculation_code_id      uuid          default gen_random_uuid() not null,    
-    calculation_code_desc                  varchar(255)              not null,
+    calculation_code                  varchar(255)              not null,
     constraint calculation_code_id_pk primary key (calculation_code_id),
-    unique(calculation_code_desc)
+    unique(calculation_code)
 );
 
 -- Populate 'calculation_code' with codes corresponding to all
 -- calculations needed for the report
 insert into calculation_code 
-  (calculation_code_desc)
+  (calculation_code)
 values 
-  ('Mean hourly pay gap M'),
-  ('Mean hourly pay gap W'),
-  ('Mean hourly pay gap X'),
-  ('Mean hourly pay gap U'),
-  ('Median hourly pay gap M'),
-  ('Median hourly pay gap W'),
-  ('Median hourly pay gap X'),
-  ('Median hourly pay gap U');
+  ('MEAN_HOURLY_PAY_DIFF_M'),
+  ('MEAN_HOURLY_PAY_DIFF_W'),
+  ('MEAN_HOURLY_PAY_DIFF_X'),
+  ('MEAN_HOURLY_PAY_DIFF_U'),
+  ('MEDIAN_HOURLY_PAY_DIFF_M'),
+  ('MEDIAN_HOURLY_PAY_DIFF_W'),
+  ('MEDIAN_HOURLY_PAY_DIFF_X'),
+  ('MEDIAN_HOURLY_PAY_DIFF_U');
 
 
 
@@ -34,14 +34,19 @@ values
 drop table pay_transparency_calculated_data;
 create table if not exists pay_transparency_calculated_data
 (
-    calculated_data_id                uuid         not null,
-    report_id                         uuid         not null,
-    calculation_code_id               uuid         not null,
-    value                             numeric      not null,
-    is_suppressed                     boolean      not null,
+    calculated_data_id                uuid      default gen_random_uuid() not null,
+    report_id                         uuid                                not null,
+    calculation_code_id               uuid                                not null,
+    value                             numeric                             not null,
+    is_suppressed                     boolean                             not null,
+    create_date                       timestamp default current_timestamp not null,
+    update_date                       timestamp default current_timestamp not null,
+    create_user                       varchar(255) default current_user   not null,
+    update_user                       varchar(255) default current_user   not null,    
     constraint calculated_data_pk primary key (calculated_data_id),
     constraint calculated_data_report_id_fk foreign key (report_id) references pay_transparency_report (report_id),
-    constraint calculation_code_id_fk foreign key (calculation_code_id) references calculation_code (calculation_code_id)
+    constraint calculation_code_id_fk foreign key (calculation_code_id) references calculation_code (calculation_code_id),
+    unique(report_id, calculation_code_id)
 );
 
 -- Column changes in 'pay_transparency_report'.  
