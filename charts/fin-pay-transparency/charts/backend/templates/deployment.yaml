@@ -39,12 +39,28 @@ spec:
             - secretRef:
                 name: {{.Release.Name}}
           env:
+            {{- if .Values.global.crunchyEnabled }}
+            #-- "crunchy" as a name is always added to the paths for secrets and pods , because the alias used in chart.yaml is crunchy, refer line #40 in Chart.yaml
+            - name: FLYWAY_URL
+              value: "jdbc:postgresql://{{.Release.Name}}-crunchy-primary.{{.Release.Namespace}}.svc:5432/{{ .Values.global.secrets.databaseName}}"
+            - name: FLYWAY_USER
+              value: {{ .Values.global.secrets.databaseUser }}
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseUser }}
+                  key: password
+            {{- else }}
             - name: FLYWAY_URL
               value: "jdbc:postgresql://{{.Release.Name}}-database:5432/{{ .Values.global.secrets.databaseName}}"
+            {{- end }}
+
             - name: FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
             - name: FLYWAY_DEFAULT_SCHEMA
               value: "pay_transparency"
+            - name: FLYWAY_CONNECT_RETRIES
+              value: "10"
       containers:
         - name: {{ include "backend.fullname" . }}
           securityContext:
@@ -57,6 +73,33 @@ spec:
             - configMapRef:
                 name: {{.Release.Name}}
           env:
+            {{- if .Values.global.crunchyEnabled }}
+            #-- "crunchy" as a name is always added to the paths for secrets and pods , because the alias used in chart.yaml is crunchy, refer line #40 in Chart.yaml
+            - name: POSTGRESQL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
+                  key: host
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
+                  key: user
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
+                  key: password
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
+                  key: dbname
+            {{- else }}
+            #-- here all the secrets are auto-mounted from the global secrets, when crunchy is not enabled. refer secret.yaml line#14.
+            - name: POSTGRESQL_HOST
+              value: {{.Release.Name}}-database
+            {{- end }}
             - name: NODE_ENV
               value: production
             {{- if .Values.global.serverFrontend }}
@@ -76,8 +119,7 @@ spec:
               value: {{ .Values.app.env.siteminderLogoutEndpoint }}
             - name: SESSION_PATH
               value: '/app/sessions'
-            - name: POSTGRESQL_HOST
-              value: {{.Release.Name}}-database
+
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

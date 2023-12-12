@@ -12,6 +12,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true
-
-  }
+  },
+  "include": [
+      "./src"
+  ]
 }
