@@ -50,23 +50,25 @@
               <v-list-item>
                 <v-list-item-title class="styles-override">{{ userInfo?.displayName }}</v-list-item-title>
                 <v-list-item-subtitle class="styles-override">{{ userInfo?.legalName }}</v-list-item-subtitle>
-                <v-list-item-subtitle class="styles-override">{{ `${userInfo?.addressLine1 ? userInfo?.addressLine1 : ""} ${userInfo?.addressLine2 ? userInfo?.addressLine2 : ""}`.trim() }}</v-list-item-subtitle>
               </v-list-item>
             </v-list>
           </template>
-          <template v-slot:append>
-            <v-card-actions>
-              <v-tooltip text="Logout" location="bottom">
-                <template v-slot:activator="{ props }">
-                  <v-btn 
-                    v-bind="props" 
-                    icon="mdi-logout"
-                    @click="redirectToLogout"
-                    ></v-btn>
-                </template>
-              </v-tooltip>               
-            </v-card-actions>
-          </template>
+
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-tooltip text="Logout" location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-spacer></v-spacer>
+                <v-btn 
+                  v-bind="props" 
+                  icon="mdi-logout"
+                  @click="redirectToLogout"
+                  ></v-btn>
+              </template>
+            </v-tooltip>               
+          </v-card-actions>
+
         </v-card>
       </v-menu>
     </template>  
