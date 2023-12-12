@@ -58,7 +58,11 @@
             <v-card-actions>
               <v-tooltip text="Logout" location="bottom">
                 <template v-slot:activator="{ props }">
-                  <v-btn v-bind="props" icon="mdi-logout"></v-btn>
+                  <v-btn 
+                    v-bind="props" 
+                    icon="mdi-logout"
+                    @click="redirectToLogout"
+                    ></v-btn>
                 </template>
               </v-tooltip>               
             </v-card-actions>
