@@ -3,6 +3,7 @@ import { Readable } from 'stream';
 import { config } from "../../config";
 import { logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
+import { codeService } from "../services/code-service";
 import { CalculatedAmount, reportCalcService } from "../services/report-calc-service";
 import { FileErrors, validateService } from "../services/validate-service";
 import { utils } from './utils-service';
@@ -43,11 +44,11 @@ const fileUploadService = {
   },
 
   /* save the report body and the calculated amounts to the database */
-  async saveDraftReport(req: any, calculatedData: CalculatedAmount[]) {
+  async saveDraftReport(req: any, calculatedAmounts: CalculatedAmount[]) {
     try {
       await prisma.$transaction(async (tx) => {
         const reportId = await fileUploadService.saveReportBody(req, tx);
-        await fileUploadService.saveReportCalculations(calculatedData, reportId, tx);
+        await fileUploadService.saveReportCalculations(calculatedAmounts, reportId, tx);
       });
     } catch (err) {
       if (err instanceof PayTransparencyUserError) {
@@ -112,11 +113,32 @@ const fileUploadService = {
   },
 
   /*
-  Saves the given calculated data and associates it with the 
+  Saves the given calculated data to the database, associating it with the 
   given report id.
   */
-  async saveReportCalculations(calculatedData: CalculatedAmount[], reportId: string, tx) {
-    console.log("todo: save report calculations");
+  async saveReportCalculations(calculatedAmounts: CalculatedAmount[], reportId: string, tx) {
+
+    const calculationCodeToIdMap = await codeService.getAllCalculationCodesAndIds();
+    console.log(calculationCodeToIdMap)
+
+    for (var i = 0; i < calculatedAmounts.length; i++) {
+      const calculatedAmount = calculatedAmounts[i];
+
+      const calculationCodeId = calculationCodeToIdMap[calculatedAmount.calculationCode];
+      if (!calculationCodeId) {
+        throw new Error(`Unknown calculation code '${calculatedAmount.calculationCode}'`);
+      }
+
+      await tx.pay_transparency_calculated_data.create({
+        data: {
+          report_id: reportId,
+          calculation_code_id: calculationCodeId,
+          value: calculatedAmount.value,
+          is_suppressed: calculatedAmount.isSuppressed
+        }
+      });
+
+    };
   },
 
   /*
