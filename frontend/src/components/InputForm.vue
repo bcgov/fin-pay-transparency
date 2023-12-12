@@ -69,15 +69,15 @@
 
             <v-col cols="12" class="d-flex">
               <v-autocomplete id="naicsCode" ref="naicsCode" v-model="naicsCode" :rules="requiredRules"
-                :items="naicsCodes" :item-title="n => `${n.naics_code} - ${n.naics_label}`" label="NAICS Code"
-                required></v-autocomplete>
+                :items="naicsCodes" :item-title="n => `${n.naics_code} - ${n.naics_label}`" item-value="naics_code"
+                label="NAICS Code" required></v-autocomplete>
               <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!naicsCode"></v-icon>
             </v-col>
 
             <v-col cols="12" class="d-flex">
               <v-select id="employeeCountRange" ref="employeeCountRange" v-model="employeeCountRange"
                 :rules="requiredRules" label="Employee Count Range" :items="employeeCountRanges"
-                item-title="employee_count_range" required></v-select>
+                item-title="employee_count_range" item-value="employee_count_range_id" required></v-select>
               <v-icon color="error" icon="mdi-asterisk" size="x-small" v-if="!employeeCountRange"></v-icon>
             </v-col>
 
@@ -291,13 +291,12 @@ export default {
     },
     async submit() {
       this.isProcessing = true;
-      console.log('generate report');
       try {
         const formData = new FormData();
         formData.append('companyName', this.companyName);
         formData.append('companyAddress', this.companyAddress);
         formData.append('naicsCode', this.naicsCode);
-        formData.append('employeeCountRange', this.employeeCountRange);
+        formData.append('employeeCountRangeId', this.employeeCountRange);
         formData.append('startDate', this.startDate);
         formData.append('endDate', this.endDate);
         formData.append('dataConstraints', this.dataConstraints);

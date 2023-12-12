@@ -24,8 +24,15 @@ const DOLLARS_COLUMNS = [
   CSV_COLUMNS.OVERTIME_PAY,
   CSV_COLUMNS.BONUS_PAY
 ];
+const NUMERIC_COLUMNS = [...HOURS_COLUMNS, ...DOLLARS_COLUMNS];
 const INVALID_COLUMN_ERROR = `Invalid CSV format. Please ensure the uploaded file contains the following columns: ${EXPECTED_COLUMNS.join(", ")}`
-const GENDER_CODES = ["M", "F", "W", "X", "U"];
+const GENDER_CODES = {
+  MALE: ["M"],
+  FEMALE: ["F", "W"],
+  NON_BINARY: ["X"],
+  UNKNOWN: ["U"]
+}
+const ALL_VALID_GENDER_CODES = [...GENDER_CODES.MALE, ...GENDER_CODES.FEMALE, ...GENDER_CODES.NON_BINARY, ...GENDER_CODES.UNKNOWN];
 const ZERO_SYNONYMS = [""];
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
@@ -230,8 +237,8 @@ const validateService = {
     })
 
     // Other column-specific validation checks
-    if (GENDER_CODES.indexOf(record[CSV_COLUMNS.GENDER_CODE]) == -1) {
-      errorMessages.push(`Invalid ${CSV_COLUMNS.GENDER_CODE} '${record[CSV_COLUMNS.GENDER_CODE]}' (expected one of: ${GENDER_CODES.join(", ")}).`)
+    if (ALL_VALID_GENDER_CODES.indexOf(record[CSV_COLUMNS.GENDER_CODE]) == -1) {
+      errorMessages.push(`Invalid ${CSV_COLUMNS.GENDER_CODE} '${record[CSV_COLUMNS.GENDER_CODE]}' (expected one of: ${ALL_VALID_GENDER_CODES.join(", ")}).`)
     }
     if (!this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED]) &&
       !this.isZeroSynonym(record[CSV_COLUMNS.SPECIAL_SALARY])) {
@@ -265,6 +272,30 @@ const validateService = {
     }
 
     return null;
+  },
+
+  /*
+  For any gender that can be represented by multiple codes, converts 
+  any of the possible options into a common standard format.
+  e.g. the Female gender category can be represented by either "F" or 
+  "W".  If either of these values is passed into standardizeGenderCode(..)
+  the output will be a common value such as "F_W".
+  */
+  standardizeGenderCode(genderCode: string) {
+    var standardizedGenderCode = null;
+    Object.keys(GENDER_CODES).forEach(key => {
+      const genderCodeSynonyms = GENDER_CODES[key];
+      if (genderCodeSynonyms.indexOf(genderCode) >= 0) {
+        //the standardized form is a list of all synonym codes separated by underscores.
+        standardizedGenderCode = genderCodeSynonyms.join("_");
+        //break out of the loop
+        return;
+      }
+    });
+    if (!standardizedGenderCode) {
+      throw new Error(`Unknown gender code '${genderCode}'`);
+    }
+    return standardizedGenderCode;
   },
 
   /*
@@ -316,8 +347,7 @@ const validateService = {
 }
 
 export {
-  CSV_COLUMNS, FIELD_DATA_CONSTRAINTS, FileErrors,
-  LineErrors, MAX_LEN_DATA_CONSTRAINTS, Row,
+  CSV_COLUMNS, FIELD_DATA_CONSTRAINTS, FileErrors, GENDER_CODES, LineErrors, MAX_LEN_DATA_CONSTRAINTS, NUMERIC_COLUMNS, Row,
   validateService
 };
 
