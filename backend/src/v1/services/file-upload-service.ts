@@ -9,6 +9,11 @@ import { FileErrors, validateService } from "../services/validate-service";
 import { utils } from './utils-service';
 const multer = require('multer');
 
+const REPORT_STATUS = {
+  DRAFT: "Draft",
+  PUBLISHED: "Published"
+};
+
 const MAX_FILE_SIZE_BYTES = config.get('server:uploadFileMaxSizeBytes') || 8000000;
 const parseMultipartFormData = multer({
   limits: {
@@ -91,25 +96,39 @@ const fileUploadService = {
       }
     });
 
-    if (existingReport) {
-      throw new PayTransparencyUserError("A report for these dates already exists.");
-    }
+    const reportData = {
+      company_id: payTransparencyCompany.company_id,
+      user_id: payTransparencyUser.user_id,
+      user_comment: body?.comments,
+      data_constraints: body?.dataConstraints,
+      employee_count_range_id: body?.employeeCountRangeId,
+      naics_code: body?.naicsCode,
+      revision: 1,
+      report_status: REPORT_STATUS.DRAFT,
+      report_start_date: startDate.toDate(),
+      report_end_date: endDate.toDate()
+    };
 
-    const report = await tx.pay_transparency_report.create({
-      data: {
-        company_id: payTransparencyCompany.company_id,
-        user_id: payTransparencyUser.user_id,
-        user_comment: body?.comments,
-        data_constraints: body?.dataConstraints,
-        employee_count_range_id: body?.employeeCountRangeId,
-        naics_code: body?.naicsCode,
-        revision: 1,
-        report_status: "Draft",
-        report_start_date: startDate.toDate(),
-        report_end_date: endDate.toDate()
+    if (existingReport) {
+      if (existingReport.report_status != REPORT_STATUS.DRAFT) {
+        throw new PayTransparencyUserError(`Cannot update a ${REPORT_STATUS.PUBLISHED} report.`);
       }
-    });
-    return report.report_id;
+
+      await tx.pay_transparency_report.update({
+        where: {
+          report_id: existingReport.report_id,
+        },
+        data: Object.assign({}, reportData, { revision: existingReport.revision + 1 })
+      });
+      return existingReport.report_id;
+
+    }
+    else {
+      const report = await tx.pay_transparency_report.create({
+        data: reportData
+      });
+      return report.report_id;
+    }
   },
 
   /*
@@ -118,8 +137,11 @@ const fileUploadService = {
   */
   async saveReportCalculations(calculatedAmounts: CalculatedAmount[], reportId: string, tx) {
 
+    if (!reportId) {
+      throw new Error("Cannot save a calculation without a corresponding reportId");
+    }
+
     const calculationCodeToIdMap = await codeService.getAllCalculationCodesAndIds();
-    console.log(calculationCodeToIdMap)
 
     for (var i = 0; i < calculatedAmounts.length; i++) {
       const calculatedAmount = calculatedAmounts[i];
@@ -129,14 +151,34 @@ const fileUploadService = {
         throw new Error(`Unknown calculation code '${calculatedAmount.calculationCode}'`);
       }
 
-      await tx.pay_transparency_calculated_data.create({
-        data: {
+      const existing = await tx.pay_transparency_calculated_data.findFirst({
+        where: {
           report_id: reportId,
-          calculation_code_id: calculationCodeId,
-          value: calculatedAmount.value,
-          is_suppressed: calculatedAmount.isSuppressed
+          calculation_code_id: calculationCodeId
         }
       });
+
+      if (existing) {
+        await tx.pay_transparency_calculated_data.update({
+          where: {
+            calculated_data_id: existing.calculated_data_id
+          },
+          data: {
+            value: calculatedAmount.value,
+            is_suppressed: calculatedAmount.isSuppressed
+          }
+        });
+      }
+      else {
+        await tx.pay_transparency_calculated_data.create({
+          data: {
+            report_id: reportId,
+            calculation_code_id: calculationCodeId,
+            value: calculatedAmount.value,
+            is_suppressed: calculatedAmount.isSuppressed
+          }
+        });
+      }
 
     };
   },
