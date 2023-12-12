@@ -1,8 +1,11 @@
+import moment from 'moment';
 import { Readable } from 'stream';
 import { config } from "../../config";
+import { logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CalculatedAmount, reportCalcService } from "../services/report-calc-service";
 import { FileErrors, validateService } from "../services/validate-service";
+import { utils } from './utils-service';
 const multer = require('multer');
 
 const MAX_FILE_SIZE_BYTES = config.get('server:uploadFileMaxSizeBytes') || 8000000;
@@ -21,6 +24,15 @@ interface ValidationErrorResponse {
   }
 }
 
+/* An Error subclass to help us distinguish between unexpected internal errors
+and errors caused by incorrect actions from a user */
+class PayTransparencyUserError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = this.constructor.name;
+  }
+}
+
 const fileUploadService = {
   async saveFileUpload(fileUpload) {
     return prisma.pay_transparency_company.create({ data: { ...fileUpload } });
@@ -30,15 +42,89 @@ const fileUploadService = {
     return prisma.pay_transparency_company.findMany();
   },
 
-  async saveDraftReport(body, calculatedData) {
-
+  /* save the report body and the calculated amounts to the database */
+  async saveDraftReport(req: any, calculatedData: CalculatedAmount[]) {
+    try {
+      await prisma.$transaction(async (tx) => {
+        const reportId = await fileUploadService.saveReportBody(req, tx);
+        await fileUploadService.saveReportCalculations(calculatedData, reportId, tx);
+      });
+    } catch (err) {
+      if (err instanceof PayTransparencyUserError) {
+        throw err; //rethrow
+      }
+      else {
+        log.error(err);
+        throw new Error('Error saving report');
+      }
+    }
   },
 
+  /* 
+  Saves the report body to the database.
+  Returns the report_id of the new record 
+  */
+  async saveReportBody(req: any, tx: any): Promise<string> {
+    const body = req.body;
+    const userInfo = utils.getSessionUser(req);
+    const startDate = moment(body.startDate, "YYYY-MM").startOf("month");
+    const endDate = moment(body.startDate, "YYYY-MM").endOf("month");
+
+    const payTransparencyUser = await tx.pay_transparency_user.findFirst({
+      where: {
+        bceid_user_guid: userInfo._json.bceid_user_guid,
+        bceid_business_guid: userInfo._json.bceid_business_guid
+      }
+    });
+    const payTransparencyCompany = await tx.pay_transparency_company.findFirst({
+      where: {
+        bceid_business_guid: userInfo._json.bceid_business_guid,
+      }
+    });
+    const existingReport = await tx.pay_transparency_report.findFirst({
+      where: {
+        company_id: payTransparencyCompany.company_id,
+        user_id: payTransparencyUser.user_id,
+        report_start_date: startDate,
+        report_end_date: endDate
+      }
+    });
+
+    if (existingReport) {
+      throw new PayTransparencyUserError("A report for these dates already exists.");
+    }
+
+    const report = await tx.pay_transparency_report.create({
+      data: {
+        company_id: payTransparencyCompany.company_id,
+        user_id: payTransparencyUser.user_id,
+        user_comment: body?.comments,
+        data_constraints: body?.dataConstraints,
+        employee_count_range_id: body?.employeeCountRangeId,
+        naics_code: body?.naicsCode,
+        revision: 1,
+        report_status: "Draft",
+        report_start_date: startDate.toDate(),
+        report_end_date: endDate.toDate()
+      }
+    });
+    return report.report_id;
+  },
+
+  /*
+  Saves the given calculated data and associates it with the 
+  given report id.
+  */
+  async saveReportCalculations(calculatedData: CalculatedAmount[], reportId: string, tx) {
+    console.log("todo: save report calculations");
+  },
+
+  /*
+  Process the multipart form data and use the multer library's
+  built-in checks to perform a preliminary validation of the
+  uploaded file (ensure file size is within the allowed limit)
+  */
   async handleFileUpload(req, res, next) {
-    console.log("handleFileUpload");
-    // Process the multipart form data and use the multer library's
-    // built-in checks to perform a preliminary validation of the
-    // uploaded file (ensure file size is within the allowed limit)
 
     parseMultipartFormData(req, res, async (err) => {
       if (err instanceof multer.MulterError) {
@@ -70,26 +156,39 @@ const fileUploadService = {
       const isValid = fileUploadServicePrivate.validateSubmission(req, res);
 
       if (isValid) {
-        console.log("is valid")
         try {
           //add entire CSV file to Readable stream (so it can be processed asyncronously)
           const csvReadable = new Readable();
           csvReadable.push(req.file.buffer);
           csvReadable.push(null);
           const calculatedAmounts: CalculatedAmount[] = await reportCalcService.calculateAll(csvReadable);
-          //await this.saveDraftReport(req.body, calculatedAmounts);
+          await fileUploadService.saveDraftReport(req, calculatedAmounts);
           res.sendStatus(200);
         }
         catch (err) {
-          // An internal error occurred while saving the validated data to the 
-          // database
-          console.error(err);
-          res.status(500).json({
-            status: "error",
-            errors: {
-              generalErrors: ["Something went wrong"]
-            }
-          } as ValidationErrorResponse)
+          if (err instanceof PayTransparencyUserError) {
+            // The request was somehow invalid.  Try to show the user a helpful
+            // error message.
+            res.status(400).json({
+              status: "error",
+              errors: {
+                generalErrors: [err.message]
+              }
+            } as ValidationErrorResponse)
+          }
+          else {
+            // An internal error occurred while saving the validated data to the
+            // database.  Don't show the user the internal error message.  Instead,
+            // return a non-specific general error message.
+            log.error(err);
+            res.status(500).json({
+              status: "error",
+              errors: {
+                generalErrors: ["Something went wrong"]
+              }
+            } as ValidationErrorResponse)
+          }
+
         }
       }
 
