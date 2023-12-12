@@ -19,6 +19,7 @@ global:
   domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
   autoscaling:
     enabled: false
+  crunchyEnabled: false
 
 backend:
   deploymentStrategy: Recreate
@@ -54,7 +55,29 @@ frontend:
     logLevel: info
 
 database:
+  enabled: true
   deploymentStrategy: Recreate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/database
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  podAnnotations: { }
+  podSecurityContext: { }
+  securityContext: { }
+  imagePullSecrets: [ ]
+  autoscaling:
+    enabled: false
+  service:
+    type: ClusterIP
+    port: 5432
+    targetPort: 5432
+  nodeSelector: { }
+  tolerations: [ ]
+  affinity: { }
   resources:
     limits:
       cpu: 100m
@@ -68,6 +91,6 @@ database:
     accessMode: ReadWriteMany
     storageClass: netapp-file-standard
 
-backup:
+crunchy:
   enabled: false
 
