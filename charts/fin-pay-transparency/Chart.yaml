@@ -34,9 +34,10 @@ dependencies:
   - name: database
     condition: database.enabled
     version: 0.1.0
-  - name: backup
-    condition: backup.enabled
-    version: 0.1.0
+  - name: crunchy-postgres
+    condition: crunchy.enabled
+    version: 0.5.1
+    alias: crunchy
 keywords:
   - fin-pay-transparency
   - fin
