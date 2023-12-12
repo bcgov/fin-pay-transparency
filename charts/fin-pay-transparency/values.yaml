@@ -199,10 +199,10 @@ crunchy:
         max_slot_wal_keep_size: 128MB # default is -1, allowing unlimited wal growth when replicas fall behind
 
   proxy:
-    enabled: false
+    enabled: true
     pgBouncer:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
-      replicas: 2
+      replicas: 1
       requests:
         cpu: 5m
         memory: 16Mi
