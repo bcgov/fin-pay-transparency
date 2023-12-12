@@ -62,13 +62,19 @@ model naics_code {
 }
 
 model pay_transparency_calculated_data {
-  calculated_data_id      String                  @id(map: "calculated_data_pk") @db.Uuid
+  calculated_data_id      String                  @id(map: "calculated_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   report_id               String                  @db.Uuid
   calculation_code_id     String                  @db.Uuid
   value                   Decimal                 @db.Decimal
   is_suppressed           Boolean
+  create_date             DateTime                @default(now()) @db.Timestamp(6)
+  update_date             DateTime                @default(now()) @db.Timestamp(6)
+  create_user             String                  @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
+  update_user             String                  @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
   pay_transparency_report pay_transparency_report @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_report_id_fk")
   calculation_code        calculation_code        @relation(fields: [calculation_code_id], references: [calculation_code_id], onDelete: NoAction, onUpdate: NoAction, map: "calculation_code_id_fk")
+
+  @@unique([report_id, calculation_code_id], map: "pay_transparency_calculated_d_report_id_calculation_code_id_key")
 }
 
 model pay_transparency_company {
@@ -161,6 +167,6 @@ model report_history {
 
 model calculation_code {
   calculation_code_id              String                             @id(map: "calculation_code_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  calculation_code_desc            String                             @unique @db.VarChar(255)
+  calculation_code                 String                             @unique @db.VarChar(255)
   pay_transparency_calculated_data pay_transparency_calculated_data[]
 }
