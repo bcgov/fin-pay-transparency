@@ -4,12 +4,14 @@ import { CSV_COLUMNS, GENDER_CODES, NUMERIC_COLUMNS, validateService } from './v
 
 
 const CALCULATION_KEYS = {
+  MEAN_HOURLY_PAY_DIFF_M: "MEAN_HOURLY_PAY_DIFF_M",
   MEAN_HOURLY_PAY_DIFF_F: "MEAN_HOURLY_PAY_DIFF_F",
   MEAN_HOURLY_PAY_DIFF_X: "MEAN_HOURLY_PAY_DIFF_X",
   MEAN_HOURLY_PAY_DIFF_U: "MEAN_HOURLY_PAY_DIFF_U",
-  MEDIAN_HOURLY_PAY_DIFF_F: "MEAN_HOURLY_PAY_DIFF_F",
-  MEDIAN_HOURLY_PAY_DIFF_X: "MEAN_HOURLY_PAY_DIFF_X",
-  MEDIAN_HOURLY_PAY_DIFF_U: "MEAN_HOURLY_PAY_DIFF_U",
+  MEDIAN_HOURLY_PAY_DIFF_M: "MEDIAN_HOURLY_PAY_DIFF_M",
+  MEDIAN_HOURLY_PAY_DIFF_F: "MEDIAN_HOURLY_PAY_DIFF_F",
+  MEDIAN_HOURLY_PAY_DIFF_X: "MEDIAN_HOURLY_PAY_DIFF_X",
+  MEDIAN_HOURLY_PAY_DIFF_U: "MEDIAN_HOURLY_PAY_DIFF_U",
 }
 
 interface CalculatedAmount {
@@ -89,7 +91,11 @@ class ColumnStats {
   */
   getReferenceGenderCode(): string {
     let referenceGenderCode: string = null;
-    Object.values(ColumnStats.REF_CATEGORY_PREFERENCE).forEach((genderCodeSynonyms: string[]) => {
+    const genderCategories = Object.values(ColumnStats.REF_CATEGORY_PREFERENCE);
+    for (let index = 0; index < genderCategories.length; index++) {
+      //a list of all synonyms for the given gender category
+      const genderCodeSynonyms = genderCategories[index];
+
       // Arbitrarily pick any one value from the list
       // of synonyms for this gender category
       const genderCode = genderCodeSynonyms[0];
@@ -98,9 +104,9 @@ class ColumnStats {
       if (numPeopleInGenderCategory >= ColumnStats.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY) {
         referenceGenderCode = genderCode;
         //break out of forEach loop
-        return;
+        break;
       }
-    });
+    };
     return referenceGenderCode;
   }
 
@@ -178,7 +184,7 @@ const reportCalcService = {
     const hourlyPayStats = new ColumnStats();
 
     for await (const csvRecord of csvParser) {
-      this.cleanCsvRecord(csvRecord);
+      reportCalcServicePrivate.cleanCsvRecord(csvRecord);
       const hourlyPayDollars = reportCalcServicePrivate.getHourlyPayDollars(csvRecord);
       hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
     }
@@ -196,12 +202,18 @@ const reportCalcServicePrivate = {
   calculateMeanHourlyPayGaps(hourlyPayStats: ColumnStats): CalculatedAmount[] {
     const refGenderCode = hourlyPayStats.getReferenceGenderCode();
 
+    let meanHourlyPayDiffM = null;
     let meanHourlyPayDiffF = null;
     let meanHourlyPayDiffX = null;
     let meanHourlyPayDiffU = null;
 
     if (refGenderCode) {
       const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode);
+      if (!hourlyPayStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        meanHourlyPayDiffM =
+          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.MALE[0])) /
+          meanHourlyPayRef;
+      }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
         meanHourlyPayDiffF =
           (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.FEMALE[0])) /
@@ -221,19 +233,24 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
+      key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_M,
+      value: meanHourlyPayDiffM,
+      isSuppressed: meanHourlyPayDiffM === null
+    });
+    calculatedAmounts.push({
       key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_F,
       value: meanHourlyPayDiffF,
-      isSuppressed: meanHourlyPayDiffF !== null
+      isSuppressed: meanHourlyPayDiffF === null
     });
     calculatedAmounts.push({
       key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_X,
       value: meanHourlyPayDiffX,
-      isSuppressed: meanHourlyPayDiffX !== null
+      isSuppressed: meanHourlyPayDiffX === null
     });
     calculatedAmounts.push({
       key: CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_U,
       value: meanHourlyPayDiffU,
-      isSuppressed: meanHourlyPayDiffU !== null
+      isSuppressed: meanHourlyPayDiffU === null
     });
 
     return calculatedAmounts;
@@ -242,12 +259,18 @@ const reportCalcServicePrivate = {
   calculateMedianHourlyPayGaps(hourlyPayStats: ColumnStats): CalculatedAmount[] {
     const refGenderCode = hourlyPayStats.getReferenceGenderCode();
 
+    let medianHourlyPayDiffM = null;
     let medianHourlyPayDiffF = null;
     let medianHourlyPayDiffX = null;
     let medianHourlyPayDiffU = null;
 
     if (refGenderCode) {
       const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode);
+      if (!hourlyPayStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        medianHourlyPayDiffM =
+          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.MALE[0])) /
+          meanHourlyPayRef;
+      }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
         medianHourlyPayDiffF =
           (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.FEMALE[0])) /
@@ -267,19 +290,24 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
+      key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_M,
+      value: medianHourlyPayDiffM,
+      isSuppressed: medianHourlyPayDiffM === null
+    });
+    calculatedAmounts.push({
       key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_F,
       value: medianHourlyPayDiffF,
-      isSuppressed: medianHourlyPayDiffF !== null
+      isSuppressed: medianHourlyPayDiffF === null
     });
     calculatedAmounts.push({
       key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_X,
       value: medianHourlyPayDiffX,
-      isSuppressed: medianHourlyPayDiffX !== null
+      isSuppressed: medianHourlyPayDiffX === null
     });
     calculatedAmounts.push({
       key: CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_U,
       value: medianHourlyPayDiffU,
-      isSuppressed: medianHourlyPayDiffU !== null
+      isSuppressed: medianHourlyPayDiffU === null
     });
 
     return calculatedAmounts;
@@ -312,8 +340,8 @@ const reportCalcServicePrivate = {
 
   /* Given a parsed csvRecord (represented as an object with column 
     names as keys), determine the hourly pay (in dollars).  This 
-    involves either calculating the hourly pay from regular (annual) pay
-    and regular hours worked, or from special salary
+    involves either calculating the hourly pay from ordinary (annual) pay
+    and hours worked, or from special salary (which is an hourly amount).
     Assumes the clean() function has been previously called on the 
     csvRecord. (Behaviour is undefined if this isn't the case.)
     */
@@ -328,5 +356,5 @@ const reportCalcServicePrivate = {
   }
 }
 
-export { CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate };
+export { CALCULATION_KEYS, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate };
 
