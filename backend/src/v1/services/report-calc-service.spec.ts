@@ -1,4 +1,5 @@
-import { ColumnStats, reportCalcServicePrivate } from './report-calc-service';
+import { Readable } from 'stream';
+import { CALCULATION_KEYS, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate } from './report-calc-service';
 import { CSV_COLUMNS, GENDER_CODES, Row } from './validate-service';
 import { createSampleRow } from './validate-service.spec';
 
@@ -97,6 +98,101 @@ describe("getHourlyPayDollars", () => {
       const hourlyPayDollars = reportCalcServicePrivate.getHourlyPayDollars(cleanedCsvRecord);
       const expectedHourlyPayDollars = cleanedCsvRecord[CSV_COLUMNS.ORDINARY_PAY] / cleanedCsvRecord[CSV_COLUMNS.HOURS_WORKED];
       expect(hourlyPayDollars).toBe(expectedHourlyPayDollars);
+    })
+  })
+})
+
+describe("calculateMeanHourlyPayGaps", () => {
+  describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
+    it(`mean and median gender pay gaps are calculated correctly`, () => {
+
+      // For these mock hourly pay data, assume:
+      // - All males earn $100/hr
+      // - All females earn $99/hr
+      // - All non-binary people earn $98/hr
+      // - All people whose gender is unknown earn $97/hr
+      // Add 10 fake people in each gender category
+      const hourlyPayStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
+        hourlyPayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        hourlyPayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        hourlyPayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats);
+
+      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
+      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(means.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateMedianHourlyPayGaps", () => {
+  describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
+    it(`mean and median gender pay gaps are calculated correctly`, () => {
+
+      // For these mock hourly pay data, assume:
+      // - All males earn $100/hr
+      // - All females earn $99/hr
+      // - All non-binary people earn $98/hr
+      // - All people whose gender is unknown earn $97/hr
+      // Add 10 fake people in each gender category
+      const hourlyPayStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
+        hourlyPayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        hourlyPayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        hourlyPayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats);
+
+      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
+      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(medians.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateAll", () => {
+  describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
+    it(`all calculations are performed`, async () => {
+
+      // Create a mock pay transparency CSV.
+      // For these mock hourly pay data, assume:
+      // - All males earn $100/hr
+      // - All females earn $99/hr
+      // - All non-binary people earn $98/hr
+      // - All people whose gender is unknown earn $97/hr
+      // Add 10 fake people in each gender category
+      const csvReadable = new Readable();
+      csvReadable.push(`Gender Code,Hours Worked,Ordinary Pay,Special Salary,Overtime Hours,Overtime Pay,Bonus Pay\n`);
+      Array(10).fill(100).forEach(v => {
+        csvReadable.push(`${GENDER_CODES.MALE[0]},1,100,0,0,0,0\n`);
+        csvReadable.push(`${GENDER_CODES.FEMALE[0]},1,99,0,0,0,0\n`);
+        csvReadable.push(`${GENDER_CODES.NON_BINARY[0]},1,98,0,0,0,0\n`);
+        csvReadable.push(`${GENDER_CODES.UNKNOWN[0]},1,97,0,0,0,0\n`);
+      });
+      csvReadable.push(null);
+      const allCalculatedAmounts: CalculatedAmount[] = await reportCalcService.calculateAll(csvReadable);
+
+      // Check that all the required calculations were performed (once each)
+      Object.values(CALCULATION_KEYS).forEach(calculationCode => {
+        expect(allCalculatedAmounts.filter(d => d.key == calculationCode).length).toBe(1);
+      })
+
+      // Confirm the values of some specific calculations
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_F)[0].value).toBe(0.01);
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(allCalculatedAmounts.filter(d => d.key == CALCULATION_KEYS.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
     })
   })
 })
