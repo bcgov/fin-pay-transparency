@@ -12,53 +12,58 @@
     -webkit-print-color-adjust: exact;
   }
 
-  h1 {
+  a {
+    /* overwrite the bootstrap value to prevent the page header from being modified */
+    text-decoration: none !important;
+  }
+
+  .pay-transparency-report .h1 {
     font-size: 40px;
     font-weight: bold;
   }
 
-  h2 {
+  .pay-transparency-report .h2 {
     font-size: 26px;
     font-weight: bold;
   }
 
-  h3 {
+  .pay-transparency-report .h3 {
     font-size: 20px;
     font-weight: bold;
   }
 
-  h4 {
+  .pay-transparency-report .h4 {
     font-size: 16px;
     font-weight: bold;
   }
 
-  .text-primary {
+  .pay-transparency-report .text-primary {
     color: #003366 !important;
   }
 
-  .bg-primary-1 {
+  .pay-transparency-report .bg-primary-1 {
     background-color: #003366 !important;
   }
 
-  .normal {
+  .pay-transparency-report .normal {
     color: #000000;
   }
 
-  .table-header {
+  .pay-transparency-report .table-header {
     color: #003366 !important;
     font-size: 16px;
     font-weight: bold;
   }
 
-  .table {
+  .pay-transparency-report .table {
     border: 2px solid #003366;
   }
 
-  .table td {
+  .pay-transparency-report .table td {
     border: 1px solid #999999;
   }
 
-  .header-circle {
+  .pay-transparency-report .header-circle {
     position: absolute;
     height: 80px;
     width: 80px;
@@ -71,13 +76,13 @@
     align-items: center;
   }
 
-  .header-block {
+  .pay-transparency-report .header-block {
     height: 100px;
     display: flex;
     align-items: center;
   }
 
-  .header-block-title {
+  .pay-transparency-report .header-block-title {
     background-color: #003366;
     color: #ffffff;
     display: flex;
@@ -90,91 +95,92 @@
     padding-bottom: 5px;
   }
 
-  .page {
+  .pay-transparency-report .page {
     page-break-after: always;
   }
 </style>
 
 <body>
-  <div class="page">
-    <h1 class="text-primary mb-4">Pay Transparency Report</h1>
+  <div class="pay-transparency-report">
+    <div class="page">
+      <h1 class="text-primary mb-4">Pay Transparency Report</h1>
 
-    <p class="text-tertiary ">
-      Note: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus pretium fermentum elementum. Quisque varius
-      libero
-      eu mi rhoncus, non congue eros convallis. Pellentesque dictum auctor dolor, ac gravida mi convallis a. Mauris enim
-      mauris,
-      efficitur aliquet lacus ac, suscipit sollicitudin mauris.
-    </p>
+      <p class="text-tertiary ">
+        Note: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus pretium fermentum elementum. Quisque
+        varius
+        libero
+        eu mi rhoncus, non congue eros convallis. Pellentesque dictum auctor dolor, ac gravida mi convallis a. Mauris
+        enim
+        mauris,
+        efficitur aliquet lacus ac, suscipit sollicitudin mauris.
+      </p>
 
-    <h2 class="text-primary mb-4">Employer Details</h3>
+      <h2 class="text-primary mb-4">Employer Details</h3>
 
-      <table class="table" style="width:100%">
-        <tr>
-          <td class="table-header">Employer:</td>
-          <td>
-            <%= report.companyName %>
-          </td>
-        </tr>
-        <tr>
-          <td class="table-header">Address:</td>
-          <td>
-            <%= report.companyAddress %>
-          </td>
-        </tr>
-        <tr>
-          <td class="table-header">Time Period:</td>
-          <td>
-            <%= report.reportStartDate %> - <%= report.reportEndDate %>
-          </td>
-        </tr>
-        <tr>
-          <td class="table-header">NAICS Code:</td>
-          <td>
-            <%= report.naicsCode %> - <%= report.naicsLabel %>
-          </td>
-        </tr>
-        <tr>
-          <td class="table-header">Number of Employees:</td>
-          <td>
-            <%= report.employeeCountRange %>
-          </td>
-        </tr>
-      </table>
+        <table class="table" style="width:100%">
+          <tr>
+            <td class="table-header">Employer:</td>
+            <td>
+              <%= report.companyName %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">Address:</td>
+            <td>
+              <%= report.companyAddress %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">Time Period:</td>
+            <td>
+              <%= report.reportStartDate %> - <%= report.reportEndDate %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">NAICS Code:</td>
+            <td>
+              <%= report.naicsCode %> - <%= report.naicsLabel %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">Number of Employees:</td>
+            <td>
+              <%= report.employeeCountRange %>
+            </td>
+          </tr>
+        </table>
 
-      <div class="header-block mb-4">
-        <div class="header-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor"
-            class="bi bi-clock text-primary" viewBox="0 0 16 16">
-            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
-            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
-          </svg>
+        <div class="header-block mb-4">
+          <div class="header-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor"
+              class="bi bi-clock text-primary" viewBox="0 0 16 16">
+              <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
+            </svg>
+          </div>
+          <div class="header-block-title flex-fill">
+            <h2>Hourly Pay</h2>
+          </div>
         </div>
-        <div class="header-block-title flex-fill">
-          <h2>Hourly Pay</h2>
-        </div>
-      </div>
 
-      <table>
-        <tr>
-          <td class="pe-2">
-            <h4 class="text-primary">Mean hourly pay gap<sup>1</sup></h4>
-            <div id="mean-hourly-pay-gap-chart"></div>
-          </td>
-          <td>
-            <h4 class="text-primary">Median hourly pay gap<sup>2</sup></h4>
-            <div id="median-hourly-pay-gap-chart"></div>
-          </td>
-        </tr>
-      </table>
+        <table>
+          <tr>
+            <td class="pe-2">
+              <h4 class="text-primary">Mean hourly pay gap<sup>1</sup></h4>
+              <div id="mean-hourly-pay-gap-chart"></div>
+            </td>
+            <td>
+              <h4 class="text-primary">Median hourly pay gap<sup>2</sup></h4>
+              <div id="median-hourly-pay-gap-chart"></div>
+            </td>
+          </tr>
+        </table>
+
+    </div>
+
+    <div class="page"></div>
 
   </div>
-
-  <div class="page">
-
-  </div>
-
-
 
 </body>
 
