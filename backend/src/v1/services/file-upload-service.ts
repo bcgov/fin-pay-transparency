@@ -1,13 +1,14 @@
 import moment from 'moment';
+import multer from 'multer';
 import { Readable } from 'stream';
 import { config } from "../../config";
 import { logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { codeService } from "../services/code-service";
 import { CalculatedAmount, reportCalcService } from "../services/report-calc-service";
+import { reportService } from "../services/report-service";
 import { FileErrors, validateService } from "../services/validate-service";
 import { utils } from './utils-service';
-const multer = require('multer');
 
 const REPORT_STATUS = {
   DRAFT: "Draft",
@@ -49,10 +50,11 @@ const fileUploadService = {
   },
 
   /* save the report body and the calculated amounts to the database */
-  async saveDraftReport(req: any, calculatedAmounts: CalculatedAmount[]) {
+  async saveDraftReport(req, calculatedAmounts: CalculatedAmount[]): Promise<string> {
+    let reportId = null;
     try {
       await prisma.$transaction(async (tx) => {
-        const reportId = await fileUploadService.saveReportBody(req, tx);
+        reportId = await fileUploadService.saveReportBody(req, tx);
         await fileUploadService.saveReportCalculations(calculatedAmounts, reportId, tx);
       });
     } catch (err) {
@@ -64,13 +66,14 @@ const fileUploadService = {
         throw new Error('Error saving report');
       }
     }
+    return reportId;
   },
 
   /* 
   Saves the report body to the database.
   Returns the report_id of the new record 
   */
-  async saveReportBody(req: any, tx: any): Promise<string> {
+  async saveReportBody(req, tx): Promise<string> {
     const body = req.body;
     const userInfo = utils.getSessionUser(req);
     const startDate = moment(body.startDate, "YYYY-MM").startOf("month");
@@ -117,7 +120,7 @@ const fileUploadService = {
         where: {
           report_id: existingReport.report_id,
         },
-        data: Object.assign({}, reportData, { revision: existingReport.revision + 1 })
+        data: Object.assign({}, reportData, { revision: parseInt(existingReport.revision) + 1 })
       });
       return existingReport.report_id;
 
@@ -142,7 +145,7 @@ const fileUploadService = {
 
     const calculationCodeToIdMap = await codeService.getAllCalculationCodesAndIds();
 
-    for (var i = 0; i < calculatedAmounts.length; i++) {
+    for (let i = 0; i < calculatedAmounts.length; i++) {
       const calculatedAmount = calculatedAmounts[i];
 
       const calculationCodeId = calculationCodeToIdMap[calculatedAmount.calculationCode];
@@ -185,7 +188,9 @@ const fileUploadService = {
   /*
   Process the multipart form data and use the multer library's
   built-in checks to perform a preliminary validation of the
-  uploaded file (ensure file size is within the allowed limit)
+  uploaded file (ensure file size is within the allowed limit).
+  If there are any problem, return a JSON error.  If success,
+  returns an draft report in HTML format.
   */
   async handleFileUpload(req, res, next) {
 
@@ -225,8 +230,9 @@ const fileUploadService = {
           csvReadable.push(req.file.buffer);
           csvReadable.push(null);
           const calculatedAmounts: CalculatedAmount[] = await reportCalcService.calculateAll(csvReadable);
-          await fileUploadService.saveDraftReport(req, calculatedAmounts);
-          res.sendStatus(200);
+          const reportId = await fileUploadService.saveDraftReport(req, calculatedAmounts);
+          const draftReportHtml = await reportService.getReportHtml(req, reportId);
+          res.type('html').status(200).send(draftReportHtml);
         }
         catch (err) {
           if (err instanceof PayTransparencyUserError) {
