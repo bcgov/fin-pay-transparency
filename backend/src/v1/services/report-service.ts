@@ -10,7 +10,7 @@ import { utils } from './utils-service';
 const REPORT_TEMPLATE = "./src/templates/report.template.html";
 const REPORT_TEMPLATE_SCRIPT = "./src/templates/report.script.js";
 const GENDER_CHART_LABELS = {
-  MALE: "Men",
+  MALE: "Male",
   FEMALE: "Female",
   NON_BINARY: "Non-binary",
   UNKNOWN: "Prefer not to say / Unknown"
@@ -92,19 +92,21 @@ const reportService = {
     const reportAndCalculations = await this.getReportAndCalculations(req, reportId);
     const calcs = reportAndCalculations.calculations;
 
-    // Isolate specific calculations to show on specific graphs
-    const meanHourlyPayGapData = [
-      { label: GENDER_CHART_LABELS.MALE, value: calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M] },
-      { label: GENDER_CHART_LABELS.FEMALE, value: calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W] },
-      { label: GENDER_CHART_LABELS.NON_BINARY, value: calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X] },
-      { label: GENDER_CHART_LABELS.UNKNOWN, value: calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U] }
-    ];
-    const medianHourlyPayGapData = [
-      { label: GENDER_CHART_LABELS.MALE, value: calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M] },
-      { label: GENDER_CHART_LABELS.FEMALE, value: calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W] },
-      { label: GENDER_CHART_LABELS.NON_BINARY, value: calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X] },
-      { label: GENDER_CHART_LABELS.UNKNOWN, value: calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U] }
-    ];
+    // Organize specific calculations to show on specific graphs
+    const chartData = {
+      meanHourlyPayGap: [
+        { label: GENDER_CHART_LABELS.MALE, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M] },
+        { label: GENDER_CHART_LABELS.FEMALE, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W] },
+        { label: GENDER_CHART_LABELS.NON_BINARY, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X] },
+        { label: GENDER_CHART_LABELS.UNKNOWN, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U] }
+      ],
+      medianHourlyPayGap: [
+        { label: GENDER_CHART_LABELS.MALE, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M] },
+        { label: GENDER_CHART_LABELS.FEMALE, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W] },
+        { label: GENDER_CHART_LABELS.NON_BINARY, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X] },
+        { label: GENDER_CHART_LABELS.UNKNOWN, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U] }
+      ]
+    }
 
     const ejsTemplate = await fs.readFile(REPORT_TEMPLATE, { encoding: 'utf8' });
     const templateParams = {
@@ -118,10 +120,6 @@ const reportService = {
         employeeCountRange: reportAndCalculations.report.employee_count_range.employee_count_range,
         dataConstraints: reportAndCalculations.report.data_constraints,
         comments: reportAndCalculations.report.user_comment,
-      },
-      charts: {
-        //  meanHourlyPayGap: await this.horizontalBarChart(meanHourlyPayGapData),
-        //  medianHourlyPayGap: await this.horizontalBarChart(medianHourlyPayGapData)
       }
     };
 
@@ -132,9 +130,6 @@ const reportService = {
     await (async () => {
       const browser = await puppeteer.launch({ headless: "new", dumpio: true, args: ['--enable-logging', '--v=1', '--allow-file-access-from-files'] });
       const page = await browser.newPage();
-      page.on('console', (d) => {
-        console.log(d)
-      })
 
       // Note: page.addScriptTag() must come before page.setContent()
       await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' })
@@ -142,9 +137,7 @@ const reportService = {
 
       await page.setContent(workingHtml, { waitUntil: 'networkidle0' });
 
-
-
-      await page.evaluate(() => {
+      await page.evaluate((chartData) => {
         const chartColors = [
           "#1c3664", //Male
           "#1b75bb", //Female
@@ -154,24 +147,14 @@ const reportService = {
 
         document.getElementById("mean-hourly-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart([
-            { "label": "Male", "value": "1" },
-            { "label": "Female", "value": "0.93" },
-            { "label": "Non binary", "value": "0.95" },
-            { "label": "Unknown", "value": "0.91" }
-          ], chartColors)
+          horizontalBarChart(chartData.meanHourlyPayGap, chartColors)
         );
         document.getElementById("median-hourly-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart([
-            { "label": "Male", "value": "1" },
-            { "label": "Female", "value": "0.94" },
-            { "label": "Non binary", "value": "0.88" },
-            { "label": "Unknown", "value": "0.90" }
-          ], chartColors)
+          horizontalBarChart(chartData.meanHourlyPayGap, chartColors)
         )
 
-      })
+      }, chartData)
       const div = await page.$('#median-hourly-pay-gap-chart');
       console.log(div)
       renderedHtml = await page.content();
