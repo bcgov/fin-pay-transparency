@@ -67,7 +67,7 @@
   "scripts": {
     "test": "jest",
     "test:cov": "npm run generate && jest --coverage --detectOpenHandles --forceExit",
-    "build": "npm run generate && tsc && copyfiles -u 1 templates/**/*.* dist/templates",
+    "build": "npm run generate && tsc && copyfiles -u 1 src/**/*.html dist",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
     "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
     "start": "node dist/server.js",
