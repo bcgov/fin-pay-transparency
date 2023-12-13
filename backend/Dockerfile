@@ -16,6 +16,7 @@ WORKDIR /app
 COPY *.json ./
 RUN npm ci --omit=dev --ignore-scripts
 
+RUN apk add --no-cache chromium
 
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
@@ -24,13 +25,15 @@ ENV NODE_ENV production
 
 # Copy over app.ts
 WORKDIR /app
-COPY --from=build /.cache /.cache
+COPY --from=build /usr/bin/chromium-browser /usr/bin/chromium-browser
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/sessions ./sessions
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Port and health check
 EXPOSE 3000
