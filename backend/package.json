@@ -46,6 +46,7 @@
     "@types/node": "^20.3.1",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^27.6.0",
@@ -66,7 +67,7 @@
   "scripts": {
     "test": "jest",
     "test:cov": "npm run generate && jest --coverage --detectOpenHandles --forceExit",
-    "build": "npm run generate && tsc",
+    "build": "npm run generate && tsc && copyfiles -u 1 templates/**/*.* dist/templates",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
     "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
     "start": "node dist/server.js",
