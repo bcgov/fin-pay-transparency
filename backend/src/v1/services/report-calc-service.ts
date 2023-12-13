@@ -265,26 +265,26 @@ const reportCalcServicePrivate = {
     let medianHourlyPayDiffU = null;
 
     if (refGenderCode) {
-      const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode);
+      const medianHourlyPayRef = hourlyPayStats.getMedian(refGenderCode);
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.MALE[0])) {
         medianHourlyPayDiffM =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.MALE[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.MALE[0])) /
+          medianHourlyPayRef;
       }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
         medianHourlyPayDiffF =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.FEMALE[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.FEMALE[0])) /
+          medianHourlyPayRef;
       }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
         medianHourlyPayDiffX =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.NON_BINARY[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.NON_BINARY[0])) /
+          medianHourlyPayRef;
       }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
         medianHourlyPayDiffU =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.UNKNOWN[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.UNKNOWN[0])) /
+          medianHourlyPayRef;
       }
     }
 
