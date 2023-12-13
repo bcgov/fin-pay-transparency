@@ -15,8 +15,9 @@ FROM node:18-bullseye-slim AS dependencies
 WORKDIR /app
 COPY *.json ./
 
-RUN mkdir -p /puppeteer_downloads
-ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_downloads
+RUN mkdir -p /puppeteer_cache  && chmod 777 /puppeteer_cache
+ENV PUPPETEER_CACHE_DIR=/puppeteer_cache
+RUN npx puppeteer browsers install chrome
 
 RUN npm ci --omit=dev --ignore-scripts
 
@@ -25,7 +26,7 @@ FROM gcr.io/distroless/nodejs:18
 
 # Copy over app.ts
 WORKDIR /app
-COPY --from=dependencies /puppeteer_downloads /.cache/puppeteer
+COPY --from=dependencies /puppeteer_cache /.cache/puppeteer
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
