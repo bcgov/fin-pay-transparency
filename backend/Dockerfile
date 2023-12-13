@@ -20,10 +20,7 @@ RUN npm ci --omit=dev --ignore-scripts
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
 
-RUN mkdir /.cache && chmod 777 /.cache
-
 ENV NODE_ENV production
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Copy over app.ts
 WORKDIR /app
