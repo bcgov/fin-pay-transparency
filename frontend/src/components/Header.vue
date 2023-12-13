@@ -66,7 +66,7 @@
                   @click="redirectToLogout"
                   ></v-btn>
               </template>
-            </v-tooltip>               
+            </v-tooltip>                
           </v-card-actions>
 
         </v-card>
