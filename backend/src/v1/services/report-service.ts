@@ -7,8 +7,8 @@ import prisma from "../prisma/prisma-client";
 import { CALCULATION_CODES } from './report-calc-service';
 import { utils } from './utils-service';
 
-const REPORT_TEMPLATE = "./src/templates/report.template.html";
-const REPORT_TEMPLATE_SCRIPT = "./src/templates/report.script.js";
+const REPORT_TEMPLATE = "./templates/report.template.html";
+const REPORT_TEMPLATE_SCRIPT = "./templates/report.script.js";
 const GENDER_CHART_LABELS = {
   MALE: "Male",
   FEMALE: "Female",
