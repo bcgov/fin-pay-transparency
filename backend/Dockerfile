@@ -4,7 +4,7 @@ FROM node:18-bullseye-slim AS build
 WORKDIR /app
 COPY *.json ./
 COPY ./src ./src
-RUN npm ci --ignore-scripts && \
+RUN npm ci && \
     npm run build
 
 RUN mkdir -p /app/sessions
@@ -14,7 +14,7 @@ FROM node:18-bullseye-slim AS dependencies
 # Install packages, build and keep only prod packages
 WORKDIR /app
 COPY *.json ./
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm ci --omit=dev
 
 
 # Deployment container
