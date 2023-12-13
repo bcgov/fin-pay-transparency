@@ -16,14 +16,14 @@
             <v-col cols="10" class="w-100">
 
               <v-row>
-                <v-col class="d-flex-col justify-center align-center">
-                  <div class="circle" :class="{ disabled: stage != 'UPLOAD' }">1</div>
+                <v-col class="d-flex-col justify-center align-center">                                    
+                  <div class="circle" :class="{ active: stage == 'UPLOAD', available: stage != 'UPLOAD'  }" v-on:click="stage = 'UPLOAD'">1</div>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
                   <div class="dash disabled"></div>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <div class="circle" :class="{ disabled: stage != 'REVIEW' }">2</div>
+                  <div class="circle" :class="{ active: stage == 'REVIEW', available: stage == 'GENERATE', disabled: stage == 'UPLOAD' }">2</div>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
                   <div class="dash disabled"></div>
@@ -52,7 +52,7 @@
             </v-col>
           </v-row>
 
-          <div v-if="stage !== 'ANY'">
+          <div v-if="stage === 'UPLOAD'">
 
             <v-row class="d-flex justify-start mt-12" dense>
               <v-col cols="12">
@@ -432,16 +432,26 @@ export default {
 
 .circle {
   height: 60px;
-  width: 60px;
-  background-color: #003366;
+  width: 60px;  
   color: #ffffff;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  
+  &.available {
+    background-color: #00336633;
+    cursor: pointer;
+  }
+
+  &.active {
+    background-color: #003366;
+    cursor: arrow;
+  }
 
   &.disabled {
     background-color: #aaaaaa;
+    cursor: not-allowed;
   }
 }
 
