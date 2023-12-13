@@ -6,4 +6,5 @@ metadata:
   labels: {{- include "labels" . | nindent 4 }}
 data:
   UPLOAD_FILE_MAX_SIZE: {{ .Values.global.config.upload_file_max_size | quote }}
+  TEMPLATE_PATH: {{ .Values.global.config.template_path | quote }}
 
