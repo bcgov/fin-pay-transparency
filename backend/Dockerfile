@@ -25,15 +25,13 @@ FROM gcr.io/distroless/nodejs:18
 
 # Copy over app.ts
 WORKDIR /app
-COPY --from=dependencies /puppeteer_downloads /puppeteer_downloads
+COPY --from=dependencies /puppeteer_downloads /.cache/puppeteer
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/sessions ./sessions
-
-ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_downloads
 
 # Port and health check
 EXPOSE 3000
