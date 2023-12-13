@@ -14,18 +14,18 @@ FROM node:18-bullseye-slim AS dependencies
 # Install packages, build and keep only prod packages
 WORKDIR /app
 COPY *.json ./
-RUN npm ci --omit=dev --ignore-scripts
 
-RUN apk add --no-cache chromium
+RUN mkdir -p /puppeteer_downloads
+ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_downloads
+
+RUN npm ci --omit=dev --ignore-scripts
 
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
 
-ENV NODE_ENV production
-
 # Copy over app.ts
 WORKDIR /app
-COPY --from=build /usr/bin/chromium-browser /usr/bin/chromium-browser
+COPY --from=dependencies /puppeteer_downloads /puppeteer_downloads
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
@@ -33,7 +33,7 @@ COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/sessions ./sessions
 
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_downloads
 
 # Port and health check
 EXPOSE 3000
