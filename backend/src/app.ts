@@ -60,7 +60,7 @@ const sess = {
   resave: false,
   saveUninitialized: true,
   cookie: cookie,
-  store: new fileSession({ path: resolve('./', config.get('server:sessionPath')), logFn: logger.info }),
+  store: new fileSession({ path: resolve('./', config.get('server:sessionPath')) }),
 };
 if ('production' === config.get('environment')) {
   app.set("trust proxy", 1);
