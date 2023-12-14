@@ -49,7 +49,7 @@ RUN apk add --no-cache \
       ca-certificates \
       ttf-freefont 
      
-#ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Port and health check
 EXPOSE 3000
