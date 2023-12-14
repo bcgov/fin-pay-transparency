@@ -4,10 +4,15 @@ FROM node:18-bullseye-slim AS build
 WORKDIR /app
 COPY *.json ./
 COPY ./src ./src
-RUN npm ci --ignore-scripts && \
+
+RUN mkdir -p /puppeteer_downloads  && chmod 777 /puppeteer_downloads
+ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_downloads
+
+RUN npm ci && \
     npm run build
 
 RUN mkdir -p /app/sessions
+RUN echo $(ls -la /puppeteer_downloads)
 
 FROM node:18-bullseye-slim AS dependencies
 
@@ -15,24 +20,26 @@ FROM node:18-bullseye-slim AS dependencies
 WORKDIR /app
 COPY *.json ./
 
-RUN mkdir -p /puppeteer_cache  && chmod 777 /puppeteer_cache
-ENV PUPPETEER_CACHE_DIR=/puppeteer_cache
-RUN npx puppeteer browsers install chrome
+#RUN mkdir -p /puppeteer_cache  && chmod 777 /puppeteer_cache
+#ENV PUPPETEER_CACHE_DIR=/puppeteer_cache
+#ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_cache
+#RUN npx puppeteer browsers install chrome
 
 RUN npm ci --omit=dev --ignore-scripts
+RUN echo $(ls -la /root/.cache)
 
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
 
 # Copy over app.ts
 WORKDIR /app
-COPY --from=dependencies /puppeteer_cache /.cache/puppeteer
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/sessions ./sessions
+COPY --from=build /puppeteer_downloads /.cache/puppeteer
 
 # Port and health check
 EXPOSE 3000
