@@ -28,9 +28,50 @@
           style="color:white"
       >{{ appTitle }}</h3></v-toolbar-title>
     </a>
+    
     <v-spacer />
 
-    <v-btn v-if="isAuthenticated" @click="redirectToLogout" icon="fa:fas fa-sign-out" />
+    <template v-slot:append>
+      <v-menu
+        v-model="menu"
+        v-if="isAuthenticated"
+        :close-on-content-click="false"
+        location="bottom">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            color="white"
+            v-bind="props"
+            icon="mdi-account"
+          ></v-btn>
+        </template>
+        <v-card min-width="250">
+          <template v-slot:prepend>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title class="styles-override">{{ userInfo?.displayName }}</v-list-item-title>
+                <v-list-item-subtitle class="styles-override">{{ userInfo?.legalName }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </template>
+
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-tooltip text="Logout" location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-spacer></v-spacer>
+                <v-btn 
+                  v-bind="props" 
+                  icon="mdi-logout"
+                  @click="redirectToLogout"
+                  ></v-btn>
+              </template>
+            </v-tooltip>                
+          </v-card-actions>
+
+        </v-card>
+      </v-menu>
+    </template>  
   </v-app-bar>
 </template>
 
@@ -44,11 +85,16 @@ export default {
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
+      fav: true,
+      menu: false,
+      message: false,
+      hints: true,        
       authRoutesLogout: sanitizeUrl(AuthRoutes.LOGOUT)
     };
   },
   computed: {
     ...mapState(authStore, ['isAuthenticated']),
+    ...mapState(authStore, ['userInfo']),
   },
   methods: {
     redirectToLogout() {
@@ -103,6 +149,15 @@ a {
 .top-down {
   padding-top: 20px;
   height: 80%;
+}
+
+.v-list-item-title.styles-override {
+  font-weight: 600;
+  padding-bottom: 5px;
+}
+
+.v-list-item-subtitle.styles-override {
+  line-height: 1.2rem;
 }
 
 @media screen and (max-width: 801px) {

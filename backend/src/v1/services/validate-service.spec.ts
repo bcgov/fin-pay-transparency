@@ -1,6 +1,7 @@
 import {
   CSV_COLUMNS,
   FIELD_DATA_CONSTRAINTS,
+  GENDER_CODES,
   LineErrors,
   MAX_LEN_DATA_CONSTRAINTS,
   Row,
@@ -14,6 +15,17 @@ const VALID_HOUR_AMOUNTS = ["8760", "75", "100.50", "", "0", "0.0", "0.00"];
 const INVALID_HOUR_AMOUNTS = ["1779C", "-1", "8761", "N/A", "NA", "14b", "a", "$14", "-2"];
 const VALID_GENDER_CODES = ["M", "F", "W", "X", "U"];
 const INVALID_GENDER_CODES = ["H", "N/A", ""]
+
+describe("standardizeGenderCode", () => {
+  const standardized1 = validateService.standardizeGenderCode(
+    GENDER_CODES.FEMALE[0]
+  );
+  const standardized2 = validateService.standardizeGenderCode(
+    GENDER_CODES.FEMALE[GENDER_CODES.FEMALE.length - 1]
+  );
+  expect(standardized1).not.toBeNull();
+  expect(standardized1).toBe(standardized2);
+})
 
 describe("isZeroSynonym", () => {
   NO_DATA_VALUES.forEach(value => {
@@ -645,4 +657,6 @@ const doesAnyLineErrorContainAll = (lineErrors: LineErrors, values: string[]): b
   //values
   return false;
 }
+
+export { createSampleRow };
 
