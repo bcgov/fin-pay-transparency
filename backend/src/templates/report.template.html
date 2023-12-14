@@ -1,8 +1,10 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <title>Pay Transparency Report</title>
 </head>
 <style>
   html {
@@ -114,33 +116,33 @@
 
       <h2 class="text-primary mb-4">Employer Details</h3>
 
-        <table class="table" style="width:100%">
+        <table class="table" role="presentation" style="width:100%">
           <tr>
-            <td class="table-header">Employer:</td>
+            <th scope="row" class="table-header">Employer:</th>
             <td>
               <%= report.companyName %>
             </td>
           </tr>
           <tr>
-            <td class="table-header">Address:</td>
+            <th scope="row" class="table-header">Address:</th>
             <td>
               <%= report.companyAddress %>
             </td>
           </tr>
           <tr>
-            <td class="table-header">Time Period:</td>
+            <th scope="row" class="table-header">Time Period:</th>
             <td>
               <%= report.reportStartDate %> - <%= report.reportEndDate %>
             </td>
           </tr>
           <tr>
-            <td class="table-header">NAICS Code:</td>
+            <th scope="row" class="table-header">NAICS Code:</th>
             <td>
               <%= report.naicsCode %> - <%= report.naicsLabel %>
             </td>
           </tr>
           <tr>
-            <td class="table-header">Number of Employees:</td>
+            <th scope="row" class="table-header">Number of Employees:</th>
             <td>
               <%= report.employeeCountRange %>
             </td>
@@ -160,7 +162,7 @@
           </div>
         </div>
 
-        <table>
+        <table role="presentation">
           <tr>
             <td class="pe-2">
               <h4 class="text-primary">Mean hourly pay gap<sup>1</sup></h4>

@@ -120,7 +120,7 @@ const fileUploadService = {
         where: {
           report_id: existingReport.report_id,
         },
-        data: Object.assign({}, reportData, { revision: parseInt(existingReport.revision) + 1 })
+        data: { ...reportData, revision: parseInt(existingReport.revision) + 1 }
       });
       return existingReport.report_id;
 
@@ -145,8 +145,7 @@ const fileUploadService = {
 
     const calculationCodeToIdMap = await codeService.getAllCalculationCodesAndIds();
 
-    for (let i = 0; i < calculatedAmounts.length; i++) {
-      const calculatedAmount = calculatedAmounts[i];
+    for (let calculatedAmount of calculatedAmounts) {
 
       const calculationCodeId = calculationCodeToIdMap[calculatedAmount.calculationCode];
       if (!calculationCodeId) {

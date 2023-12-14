@@ -92,9 +92,7 @@ class ColumnStats {
   getReferenceGenderCode(): string {
     let referenceGenderCode: string = null;
     const genderCategories = Object.values(ColumnStats.REF_CATEGORY_PREFERENCE);
-    for (let index = 0; index < genderCategories.length; index++) {
-      //a list of all synonyms for the given gender category
-      const genderCodeSynonyms = genderCategories[index];
+    for (let genderCodeSynonyms of genderCategories) {
 
       // Arbitrarily pick any one value from the list
       // of synonyms for this gender category
