@@ -1,4 +1,4 @@
-FROM node:18-bullseye-slim AS build
+FROM node:20-alpine
 
 # Install packages, build and keep only prod packages
 WORKDIR /app
@@ -12,32 +12,6 @@ RUN npm ci && \
     npm run build
 
 RUN mkdir -p /app/sessions
-
-FROM node:18-bullseye-slim AS dependencies
-
-# Install packages, build and keep only prod packages
-WORKDIR /app
-COPY *.json ./
-
-#RUN mkdir -p /puppeteer_cache  && chmod 777 /puppeteer_cache
-#ENV PUPPETEER_CACHE_DIR=/puppeteer_cache
-#ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_cache
-#RUN npx puppeteer browsers install chrome
-
-RUN npm ci --omit=dev --ignore-scripts
-
-# Deployment container
-FROM node:20-alpine
-
-# Copy over app.ts
-WORKDIR /app
-COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build /app/node_modules/prisma ./node_modules/prisma
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/sessions ./sessions
-COPY --from=build /puppeteer_downloads /.cache/puppeteer
 
 # Install chromium and its dependencies.  This is needed
 # to support Puppeteer
