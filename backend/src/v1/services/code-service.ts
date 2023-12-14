@@ -7,6 +7,7 @@ let employeeCountRangeCache: any[] = [];
 let employeeCountRangeCacheExpiryDate: moment.Moment = null;
 let naicsCodesCache: any[] = [];
 let naicsCodesCacheExpiryDate: moment.Moment = null;
+let calculationCodeAndIdCache: any;  //keys are calc codes, values are calc code ids
 
 const codeService = {
 
@@ -61,7 +62,7 @@ const codeService = {
     return employeeCountRangeCache;
   },
 
-  
+
   /* This function returns a list of untyped objects representing 
   NAICS Codes.
   The NAICS Codes are stored in the database.  Because the values
@@ -82,7 +83,7 @@ const codeService = {
       naicsCodesCache = await prisma.naics_code.findMany({
         select: {
           naics_code: true,
-          naics_label: true,        
+          naics_label: true,
         },
         where: {
           effective_date: {
@@ -107,6 +108,31 @@ const codeService = {
 
     return naicsCodesCache;
   },
+
+  /* This function returns an object in which the keys are calculation codes, and the 
+  values are the corresponding calculation code IDs.
+  The Calculation Codes are stored in the database.  Because the values
+  change infrequently, we reduce roundtrips to the database by caching (in memory)
+  the full list of all values. */
+  async getAllCalculationCodesAndIds() {
+
+    //No cached values, so fetch from database
+    if (!calculationCodeAndIdCache?.length) {
+      const calculationCodes = await prisma.calculation_code.findMany({
+        select: {
+          calculation_code_id: true,
+          calculation_code: true,
+        }
+      });
+      calculationCodeAndIdCache = {};
+      calculationCodes.forEach(c => {
+        calculationCodeAndIdCache[c.calculation_code] = c.calculation_code_id;
+      })
+    }
+
+    return calculationCodeAndIdCache;
+  },
+
 
 };
 
