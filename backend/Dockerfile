@@ -52,7 +52,7 @@ RUN apk add --no-cache \
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Port and health check
-EXPOSE 3000
+EXPOSE 3000 
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost/:3000
 
 # Non-privileged user
