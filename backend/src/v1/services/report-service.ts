@@ -130,7 +130,25 @@ const reportService = {
     let renderedHtml = null;
 
     await (async () => {
-      const browser = await puppeteer.launch({ headless: "new", dumpio: true, args: ['--enable-logging', '--v=1', '--allow-file-access-from-files'] });
+      //const browser = await puppeteer.launch({ headless: "new", dumpio: true, args: ['--enable-logging', '--v=1', '--allow-file-access-from-files'] });
+
+      const browser = await puppeteer.launch({
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--enable-logging',
+          '--v=1',
+          '--allow-file-access-from-files'
+        ],
+        headless: 'new',
+        dumpio: true,
+        env: {
+          ELECTRON_DISABLE_SANDBOX: '1',
+        },
+      });
+
       const page = await browser.newPage();
 
       // Note: page.addScriptTag() must come before page.setContent()
