@@ -371,6 +371,7 @@ import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
 import { mapState } from 'pinia';
 import moment from 'moment';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 interface LineErrors {
   lineNum: number;
@@ -452,8 +453,7 @@ export default {
           file: this.uploadFileValue[0],
         };
         const response = await ApiService.postSubmission(formData);
-        console.log(response)
-        this.draftReport = response;
+        this.draftReport = sanitizeUrl(response);
         this.stage = "REVIEW";
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
