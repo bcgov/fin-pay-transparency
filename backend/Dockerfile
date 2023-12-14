@@ -12,7 +12,6 @@ RUN npm ci && \
     npm run build
 
 RUN mkdir -p /app/sessions
-RUN echo $(ls -la /puppeteer_downloads)
 
 FROM node:18-bullseye-slim AS dependencies
 
@@ -26,10 +25,9 @@ COPY *.json ./
 #RUN npx puppeteer browsers install chrome
 
 RUN npm ci --omit=dev --ignore-scripts
-RUN echo $(ls -la /root/.cache)
 
 # Deployment container
-FROM gcr.io/distroless/nodejs:18
+FROM node:20-alpine
 
 # Copy over app.ts
 WORKDIR /app
@@ -40,6 +38,18 @@ COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/sessions ./sessions
 COPY --from=build /puppeteer_downloads /.cache/puppeteer
+
+# Install chromium and its dependencies.  This is needed
+# to support Puppeteer
+RUN apk add --no-cache \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ca-certificates \
+      ttf-freefont 
+     
+#ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Port and health check
 EXPOSE 3000
