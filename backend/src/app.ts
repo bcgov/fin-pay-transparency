@@ -15,10 +15,15 @@ import { fileUploadRouter } from './v1/routes/file-upload-routes';
 import userRouter from './v1/routes/user-info-routes';
 import { auth } from './v1/services/auth-service';
 import { utils } from './v1/services/utils-service';
+import prom from 'prom-client';
+import prisma from './v1/prisma/prisma-client';
+import { logger } from './logger';
+
+const register = new prom.Registry();
+prom.collectDefaultMetrics({ register });
 const app = express();
 const apiRouter = express.Router();
 
-import { logger } from "./logger";
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const OidcStrategy = require('passport-openidconnect-keycloak-idp').Strategy;
@@ -144,6 +149,12 @@ app.use(morgan("dev", {
     return req.baseUrl === "" || req.baseUrl === "/" || req.baseUrl === "/health";
   }
 }));
+app.get('/metrics', async (_req, res) => {
+  const prismaMetrics = await prisma.$metrics.prometheus();
+  const appMetrics = await register.metrics();
+  res.end(prismaMetrics + appMetrics);
+});
+
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get("/", (req, res, next) => {
   res.sendStatus(200);// generally for route verification and health check.
