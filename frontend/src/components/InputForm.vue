@@ -208,78 +208,8 @@
                 template (<u>bc-pay-transparency-tool-data-template.csv</u>) for
                 accurate processing.
               </p>
-              <v-sheet
-                class="pa-5"
-                style="
-                  border-style: dashed;
-                  border: 3px dashed #666666;
-                  border-radius: 10px;
-                "
-              >
-                <div class="d-flex">
-                  <v-file-input
-                    id="csvFile"
-                    v-model="uploadFileValue"
-                    color="#003366"
-                    :accept="fileAccept"
-                    hint="Select a CSV file"
-                    :error-messages="fileInputError"
-                    placeholder="Select a CSV file"
-                    :rules="requiredRules"
-                  />
-                  <v-icon
-                    color="error"
-                    icon="mdi-asterisk"
-                    size="x-small"
-                    v-if="!uploadFileValue"
-                  ></v-icon>
-                </div>
 
-                <p class="d-flex justify-center">
-                  Supported format: CSV. Maximum file size: 8MB.
-                </p>
-              </v-sheet>
-            </v-col>
-          </v-row>
-
-          <v-row class="mt-6">
-            <v-col
-              cols="12"
-              class="d-flex justify-center"
-              v-if="!areRequiredFieldsComplete"
-            >
-              <v-icon color="error" icon="mdi-asterisk" size="x-small"></v-icon>
-              Please complete all required fields
-            </v-col>
-            <v-col cols="12" class="d-flex justify-center">
-              <primary-button
-                id="submitButton"
-                :disabled="!areRequiredFieldsComplete"
-                :loading="isProcessing"
-                text="Submit"
-                :click-action="submit"
-              />
-            </v-col>
-          </v-row>
-
-          <v-row class="mt-3">
-            <v-col>
-              <v-alert
-                v-if="alertMessage"
-                dense
-                outlined
-                dismissible
-                :class="alertType"
-                class="mb-3"
-              >
-                {{ alertMessage }}
-              </v-alert>
-            </v-col>
-          </v-row>
-
-          <v-row class="mt-3" v-if="submissionErrors">
-            <v-col>
-              <v-alert dense outlined dismissible class="bootstrap-error mb-3">
+              <v-alert dense outlined dismissible v-if="submissionErrors" class="bootstrap-error mb-3">
                 <h4 class="mb-3">
                   The submission contains errors which must be corrected.
                 </h4>
@@ -347,6 +277,74 @@
               </v-alert>
             </v-col>
           </v-row>
+
+          <v-sheet
+            class="pa-5"
+            style="
+              border-style: dashed;
+              border: 3px dashed #666666;
+              border-radius: 10px;
+            "
+          >
+            <div class="d-flex">
+              <v-file-input
+                id="csvFile"
+                v-model="uploadFileValue"
+                color="#003366"
+                :accept="fileAccept"
+                hint="Select a CSV file"
+                :error-messages="fileInputError"
+                placeholder="Select a CSV file"
+                :rules="requiredRules"
+              />
+              <v-icon
+                color="error"
+                icon="mdi-asterisk"
+                size="x-small"
+                v-if="!uploadFileValue"
+              ></v-icon>
+            </div>
+
+            <p class="d-flex justify-center">
+              Supported format: CSV. Maximum file size: 8MB.
+            </p>
+          </v-sheet>
+        </v-col>
+      </v-row>
+
+      <v-row class="mt-6">
+        <v-col
+          cols="12"
+          class="d-flex justify-center"
+          v-if="!areRequiredFieldsComplete"
+        >
+          <v-icon color="error" icon="mdi-asterisk" size="x-small"></v-icon>
+          Please complete all required fields
+        </v-col>
+        <v-col cols="12" class="d-flex justify-center">
+          <primary-button
+            id="submitButton"
+            :disabled="!areRequiredFieldsComplete"
+            :loading="isProcessing"
+            text="Submit"
+            :click-action="submit"
+          />
+        </v-col>
+      </v-row>
+
+      <v-row class="mt-3">
+        <v-col>
+          <v-alert
+            v-if="alertMessage"
+            dense
+            outlined
+            dismissible
+            :class="alertType"
+            class="mb-3"
+          >
+            {{ alertMessage }}
+          </v-alert>
+
         </v-col>
       </v-row>
     </v-form>
@@ -419,6 +417,9 @@ export default {
     },
     setErrorAlert(submissionErrors: SubmissionErrors | null) {
       this.submissionErrors = submissionErrors;
+      if(submissionErrors) {
+        this.uploadFileValue = null;
+      }    
     },
     async submit() {
       this.isProcessing = true;
