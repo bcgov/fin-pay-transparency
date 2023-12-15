@@ -9,8 +9,7 @@ import prisma from "../prisma/prisma-client";
 import { CALCULATION_CODES } from './report-calc-service';
 import { utils } from './utils-service';
 
-const REPORT_TEMPLATE = resolve(config.get('server:templatePath') || "", "report.template.html");
-const REPORT_TEMPLATE_SCRIPT = resolve(config.get('server:templatePath') || "", "report.script.js");
+
 const GENDER_CHART_LABELS = {
   MALE: "Male",
   FEMALE: "Female",
@@ -22,6 +21,11 @@ interface ReportAndCalculations {
   report: unknown,
   calculated_datas: unknown[]
 };
+
+const reportServicePrivate = {
+  REPORT_TEMPLATE: resolve(config.get('server:templatePath') || "", "report.template.html"),
+  REPORT_TEMPLATE_SCRIPT: resolve(config.get('server:templatePath') || "", "report.script.js")
+}
 
 const reportService = {
 
@@ -110,7 +114,7 @@ const reportService = {
       ]
     }
 
-    const ejsTemplate = await fs.readFile(REPORT_TEMPLATE, { encoding: 'utf8' });
+    const ejsTemplate = await fs.readFile(reportServicePrivate.REPORT_TEMPLATE, { encoding: 'utf8' });
     const templateParams = {
       report: {
         companyName: reportAndCalculations.report.pay_transparency_company.company_name,
@@ -130,7 +134,6 @@ const reportService = {
     let renderedHtml = null;
 
     await (async () => {
-      //const browser = await puppeteer.launch({ headless: "new", dumpio: true, args: ['--enable-logging', '--v=1', '--allow-file-access-from-files'] });
 
       const browser = await puppeteer.launch({
         args: [
@@ -153,7 +156,7 @@ const reportService = {
 
       // Note: page.addScriptTag() must come before page.setContent()
       await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' })
-      await page.addScriptTag({ path: REPORT_TEMPLATE_SCRIPT })
+      await page.addScriptTag({ path: reportServicePrivate.REPORT_TEMPLATE_SCRIPT })
 
       await page.setContent(workingHtml, { waitUntil: 'networkidle0' });
 
@@ -190,5 +193,6 @@ const reportService = {
 
 }
 
-export { reportService };
+export { reportService, reportServicePrivate };
+
 
