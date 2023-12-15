@@ -62,7 +62,12 @@ jobs:
           echo "PUBLIC_KEY<<$EOF" >> $GITHUB_ENV
           echo "$PUBLIC_KEY_VAL" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
-          echo $PUBLIC_KEY # test the env var was set or not          
+          echo $PUBLIC_KEY # test the env var was set or not 
+          TEMPLATE_PATH_VAL="${{ vars.TEMPLATE_PATH }}"
+          echo "TEMPLATE_PATH<<$EOF" >> $GITHUB_ENV
+          echo "$TEMPLATE_PATH_VAL" >> $GITHUB_ENV
+          echo "$EOF" >> $GITHUB_ENV
+          echo $TEMPLATE_PATH # test the env var was set or not
       - uses: bcgov-nr/action-test-and-analyse@v1.1.0
         with:
           commands: |
