@@ -213,6 +213,78 @@
                   template (<u>bc-pay-transparency-tool-data-template.csv</u>) for
                   accurate processing.
                 </p>
+
+                <v-row class="mt-3" v-if="submissionErrors">
+                  <v-col>
+                    <v-alert dense outlined dismissible class="bootstrap-error mb-3">
+                      <h4 class="mb-3">
+                        The submission contains errors which must be corrected.
+                      </h4>
+
+                      <!-- general errors related to the submission (either with the 
+                        form fields or with the file itself) -->
+                      <v-table
+                        v-if="submissionErrors?.generalErrors"
+                        density="compact"
+                      >
+                        <tbody>
+                          <tr v-for="generalError in submissionErrors.generalErrors">
+                            <td class="text-left">
+                              {{ generalError }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+
+                      <!-- general errors related to contents of the file -->
+                      <v-table
+                        v-if="submissionErrors?.fileErrors?.generalErrors"
+                        density="compact"
+                      >
+                        <tbody>
+                          <tr
+                            v-for="generalError in submissionErrors.fileErrors
+                              .generalErrors"
+                          >
+                            <td class="text-left">
+                              {{ generalError }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+
+                      <!-- errors related to the content of specific lines in the file -->
+                      <div v-if="submissionErrors?.fileErrors?.lineErrors">
+                        <h4 class="mb-3">
+                          Please review the following lines from the uploaded file:
+                        </h4>
+                        <v-table density="compact">
+                          <thead>
+                            <tr>
+                              <th class="text-left">Line</th>
+                              <th class="text-left">Problem(s)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr
+                              v-for="lineError in submissionErrors.fileErrors
+                                .lineErrors"
+                              :key="lineError.lineNum"
+                            >
+                              <td class="text-left">{{ lineError.lineNum }}</td>
+                              <td class="text-left">
+                                <span v-for="errMsg in lineError.errors" class="mr-2">
+                                  {{ errMsg }}
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </v-table>
+                      </div>
+                    </v-alert>
+                  </v-col>
+                </v-row>
+
                 <v-sheet
                   class="pa-5"
                   style="
@@ -282,81 +354,12 @@
                 </v-alert>
               </v-col>
             </v-row>
-
-            <v-row class="mt-3" v-if="submissionErrors">
-              <v-col>
-                <v-alert dense outlined dismissible class="bootstrap-error mb-3">
-                  <h4 class="mb-3">
-                    The submission contains errors which must be corrected.
-                  </h4>
-
-                  <!-- general errors related to the submission (either with the 
-                    form fields or with the file itself) -->
-                  <v-table
-                    v-if="submissionErrors?.generalErrors"
-                    density="compact"
-                  >
-                    <tbody>
-                      <tr v-for="generalError in submissionErrors.generalErrors">
-                        <td class="text-left">
-                          {{ generalError }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </v-table>
-
-                  <!-- general errors related to contents of the file -->
-                  <v-table
-                    v-if="submissionErrors?.fileErrors?.generalErrors"
-                    density="compact"
-                  >
-                    <tbody>
-                      <tr
-                        v-for="generalError in submissionErrors.fileErrors
-                          .generalErrors"
-                      >
-                        <td class="text-left">
-                          {{ generalError }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </v-table>
-
-                  <!-- errors related to the content of specific lines in the file -->
-                  <div v-if="submissionErrors?.fileErrors?.lineErrors">
-                    <h4 class="mb-3">
-                      Please review the following lines from the uploaded file:
-                    </h4>
-                    <v-table density="compact">
-                      <thead>
-                        <tr>
-                          <th class="text-left">Line</th>
-                          <th class="text-left">Problem(s)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr
-                          v-for="lineError in submissionErrors.fileErrors
-                            .lineErrors"
-                          :key="lineError.lineNum"
-                        >
-                          <td class="text-left">{{ lineError.lineNum }}</td>
-                          <td class="text-left">
-                            <span v-for="errMsg in lineError.errors" class="mr-2">
-                              {{ errMsg }}
-                            </span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </v-table>
-                  </div>
-                </v-alert>
-              </v-col>
-            </v-row>
+            
           </div>
           <div v-if="stage == 'REVIEW'" v-html="draftReport">
 
           </div>
+          
         </v-col>
       </v-row>
     </v-form>
@@ -432,6 +435,9 @@ export default {
     },
     setErrorAlert(submissionErrors: SubmissionErrors | null) {
       this.submissionErrors = submissionErrors;
+      if(submissionErrors) {
+        this.uploadFileValue = null;
+      }    
     },
     async submit() {
       this.isProcessing = true;
