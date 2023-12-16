@@ -85,6 +85,7 @@ const fileUploadService = {
         bceid_business_guid: userInfo._json.bceid_business_guid
       }
     });
+
     const payTransparencyCompany = await tx.pay_transparency_company.findFirst({
       where: {
         bceid_business_guid: userInfo._json.bceid_business_guid,
@@ -306,5 +307,5 @@ const fileUploadServicePrivate = {
   }
 }
 
-export { fileUploadService, fileUploadServicePrivate };
+export { PayTransparencyUserError, REPORT_STATUS, fileUploadService, fileUploadServicePrivate };
 
