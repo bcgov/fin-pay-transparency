@@ -16,7 +16,7 @@ const CALCULATION_CODES = {
 
 interface CalculatedAmount {
   calculationCode: string,
-  value: string,
+  value: number,
   isSuppressed: boolean
 }
 /*
