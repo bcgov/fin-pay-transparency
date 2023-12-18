@@ -9,19 +9,12 @@
     "axios": "^1.6.2",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-<<<<<<< HEAD
     "cron": "^3.1.6",
     "csv-parse": "^5.5.3",
     "d3": "^7.8.5",
     "dotenv": "^16.3.1",
     "easy-soap-request": "^5.5.0",
     "ejs": "^3.1.9",
-=======
-    "cron": "^3.1.6",
-    "csv-parse": "^5.5.3",
-    "dotenv": "^16.3.1",
-    "easy-soap-request": "^5.5.0",
->>>>>>> main
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "express-session": "^1.17.3",
@@ -40,16 +33,10 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-openidconnect-keycloak-idp": "^0.1.6",
-<<<<<<< HEAD
-    "pg": "^8.11.0",
-    "prom-client": "^15.0.0",
-    "puppeteer": "^21.6.1",
-    "reflect-metadata": "^0.1.13",
-=======
     "pg": "^8.11.3",
     "prom-client": "^15.1.0",
+    "puppeteer": "^21.6.1",
     "reflect-metadata": "^0.2.1",
->>>>>>> main
     "session-file-store": "^1.5.0",
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
