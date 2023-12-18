@@ -1,36 +1,32 @@
-FROM node:18-bullseye-slim AS build
+FROM node:20-alpine
 
 # Install packages, build and keep only prod packages
 WORKDIR /app
 COPY *.json ./
 COPY ./src ./src
-RUN npm ci --ignore-scripts && \
+
+RUN mkdir -p /puppeteer_downloads  && chmod 777 /puppeteer_downloads
+ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_downloads
+
+RUN npm ci && \
     npm run build
 
 RUN mkdir -p /app/sessions
 
-FROM node:18-bullseye-slim AS dependencies
-
-# Install packages, build and keep only prod packages
-WORKDIR /app
-COPY *.json ./
-RUN npm ci --omit=dev --ignore-scripts
-
-
-# Deployment container
-FROM gcr.io/distroless/nodejs:18
-ENV NODE_ENV production
-# Copy over app.ts
-WORKDIR /app
-COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build /app/node_modules/prisma ./node_modules/prisma
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/sessions ./sessions
+# Install chromium and its dependencies.  This is needed
+# to support Puppeteer
+RUN apk add --no-cache \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ca-certificates \
+      ttf-freefont 
+     
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Port and health check
-EXPOSE 3000
+EXPOSE 3000 
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost/:3000
 
 # Non-privileged user

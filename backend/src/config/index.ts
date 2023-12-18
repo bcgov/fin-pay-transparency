@@ -1,5 +1,5 @@
-import config from 'nconf';
 import dotenv from 'dotenv';
+import config from 'nconf';
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
 
@@ -12,13 +12,14 @@ config.defaults({
     morganFormat: 'dev',
     port: process.env.PORT || 3000,
     sessionPath: process.env.SESSION_PATH,
+    templatePath: process.env.TEMPLATE_PATH || "./src/templates",
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE)
   },
   oidc: {
     keycloakUrl: process.env.KEYCLOAK_URL,
     clientId: process.env.KEYCLOAK_CLIENT_ID,
     clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
-    discovery: process.env.KEYCLOAK_URL +'/realms/standard/.well-known/openid-configuration'
+    discovery: process.env.KEYCLOAK_URL + '/realms/standard/.well-known/openid-configuration'
   },
   tokenGenerate: {
     privateKey: process.env.PRIVATE_KEY,
@@ -35,4 +36,5 @@ config.defaults({
     onlineServiceId: process.env.BCEID_WS_ONLINE_SERVICE_ID,
   }
 });
-export {config}
+export { config };
+
