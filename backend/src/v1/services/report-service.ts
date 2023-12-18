@@ -137,18 +137,18 @@ const reportService = {
 
       const browser = await puppeteer.launch({
         args: [
-          //'--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
+          '--no-sandbox',
+          //'--disable-setuid-sandbox',
+          //'--disable-dev-shm-usage',
+          //'--disable-gpu',
           '--enable-logging',
-          '--v=1',
+          //'--v=1',
           '--allow-file-access-from-files'
         ],
         headless: 'new',
         dumpio: true,
         env: {
-          ELECTRON_DISABLE_SANDBOX: '1',
+          //ELECTRON_DISABLE_SANDBOX: '1',
         },
       });
 
