@@ -164,7 +164,7 @@ const validateService = {
       throw new Error(INVALID_COLUMN_ERROR);
 
     }
-    for (var i = 0; i < EXPECTED_COLUMNS.length; i++) {
+    for (let i = 0; i < EXPECTED_COLUMNS.length; i++) {
       if (colNames[i] != EXPECTED_COLUMNS[i]) {
         throw new Error(INVALID_COLUMN_ERROR);
       }
@@ -282,16 +282,16 @@ const validateService = {
   the output will be a common value such as "F_W".
   */
   standardizeGenderCode(genderCode: string) {
-    var standardizedGenderCode = null;
-    Object.keys(GENDER_CODES).forEach(key => {
+    let standardizedGenderCode = null;
+    for (let key of Object.keys(GENDER_CODES)) {
       const genderCodeSynonyms = GENDER_CODES[key];
       if (genderCodeSynonyms.indexOf(genderCode) >= 0) {
         //the standardized form is a list of all synonym codes separated by underscores.
         standardizedGenderCode = genderCodeSynonyms.join("_");
         //break out of the loop
-        return;
+        break;
       }
-    });
+    };
     if (!standardizedGenderCode) {
       throw new Error(`Unknown gender code '${genderCode}'`);
     }

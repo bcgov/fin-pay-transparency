@@ -16,7 +16,7 @@ const CALCULATION_CODES = {
 
 interface CalculatedAmount {
   calculationCode: string,
-  value: string,
+  value: number,
   isSuppressed: boolean
 }
 /*
@@ -92,9 +92,7 @@ class ColumnStats {
   getReferenceGenderCode(): string {
     let referenceGenderCode: string = null;
     const genderCategories = Object.values(ColumnStats.REF_CATEGORY_PREFERENCE);
-    for (let index = 0; index < genderCategories.length; index++) {
-      //a list of all synonyms for the given gender category
-      const genderCodeSynonyms = genderCategories[index];
+    for (let genderCodeSynonyms of genderCategories) {
 
       // Arbitrarily pick any one value from the list
       // of synonyms for this gender category
@@ -265,26 +263,26 @@ const reportCalcServicePrivate = {
     let medianHourlyPayDiffU = null;
 
     if (refGenderCode) {
-      const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode);
+      const medianHourlyPayRef = hourlyPayStats.getMedian(refGenderCode);
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.MALE[0])) {
         medianHourlyPayDiffM =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.MALE[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.MALE[0])) /
+          medianHourlyPayRef;
       }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
         medianHourlyPayDiffF =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.FEMALE[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.FEMALE[0])) /
+          medianHourlyPayRef;
       }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
         medianHourlyPayDiffX =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.NON_BINARY[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.NON_BINARY[0])) /
+          medianHourlyPayRef;
       }
       if (!hourlyPayStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
         medianHourlyPayDiffU =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.UNKNOWN[0])) /
-          meanHourlyPayRef;
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.UNKNOWN[0])) /
+          medianHourlyPayRef;
       }
     }
 
