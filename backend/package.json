@@ -10,11 +10,11 @@
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
 <<<<<<< HEAD
-    "cron": "^2.3.0",
-    "csv-parse": "^5.5.2",
+    "cron": "^3.1.6",
+    "csv-parse": "^5.5.3",
     "d3": "^7.8.5",
-    "dotenv": "^16.0.3",
-    "easy-soap-request": "^5.4.0",
+    "dotenv": "^16.3.1",
+    "easy-soap-request": "^5.5.0",
     "ejs": "^3.1.9",
 =======
     "cron": "^3.1.6",
