@@ -204,26 +204,38 @@ const reportCalcService = {
         relax_column_count: true
       }));
 
+    // Create objects to manage data and statistics for specific columns
     const hourlyPayStats = new ColumnStats();
     const overtimePayStats = new ColumnStats();
     const overtimeHoursStats = new ColumnStats();
+    const bonusPayStats = new ColumnStats();
 
+    // Scan each row from the CSV file, and push the value of each column
+    // into the objects that will be used to manage the column data and stats
     for await (const csvRecord of csvParser) {
       reportCalcServicePrivate.cleanCsvRecord(csvRecord);
       const hourlyPayDollars = reportCalcServicePrivate.getHourlyPayDollars(csvRecord);
       const overtimePayDollarsPerHour = csvRecord[CSV_COLUMNS.OVERTIME_PAY];
       const overtimeHours = csvRecord[CSV_COLUMNS.OVERTIME_HOURS];
+      const bonusPayDollars = csvRecord[CSV_COLUMNS.BONUS_PAY];
       hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
       overtimePayStats.push(overtimePayDollarsPerHour, csvRecord[CSV_COLUMNS.GENDER_CODE]);
       overtimeHoursStats.push(overtimeHours, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      bonusPayStats.push(bonusPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
     }
 
+    // Perform calculations on the raw CSV data, and collect them
+    // into an array of CalculatedAmount objects
+    // (Each CalculatedAmount has a code indicating which calculation it
+    // represents, and a value for that calculation)
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanBonusPayGaps(bonusPayStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianBonusPayGaps(bonusPayStats));
 
     // Although not technically a calculated amount, include the reference gender category 
     // code in the list of CalculatedAmounts
@@ -582,6 +594,120 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
+  calculateMeanBonusPayGaps(bonusPayStats: ColumnStats): CalculatedAmount[] {
+    const refGenderCode = bonusPayStats.getReferenceGenderCode();
+
+    let meanBonusPayDiffM = null;
+    let meanBonusPayDiffF = null;
+    let meanBonusPayDiffX = null;
+    let meanBonusPayDiffU = null;
+
+    if (refGenderCode) {
+      const meanBonusPayRef = bonusPayStats.getMean(refGenderCode);
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        meanBonusPayDiffM =
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.MALE[0])) /
+          meanBonusPayRef;
+      }
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
+        meanBonusPayDiffF =
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.FEMALE[0])) /
+          meanBonusPayRef;
+      }
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
+        meanBonusPayDiffX =
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.NON_BINARY[0])) /
+          meanBonusPayRef;
+      }
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
+        meanBonusPayDiffU =
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.UNKNOWN[0])) /
+          meanBonusPayRef;
+      }
+    }
+
+    const calculatedAmounts = [];
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M,
+      value: meanBonusPayDiffM,
+      isSuppressed: meanBonusPayDiffM === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W,
+      value: meanBonusPayDiffF,
+      isSuppressed: meanBonusPayDiffF === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X,
+      value: meanBonusPayDiffX,
+      isSuppressed: meanBonusPayDiffX === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U,
+      value: meanBonusPayDiffU,
+      isSuppressed: meanBonusPayDiffU === null
+    });
+
+    return calculatedAmounts;
+  },
+
+  calculateMedianBonusPayGaps(bonusPayStats: ColumnStats): CalculatedAmount[] {
+    const refGenderCode = bonusPayStats.getReferenceGenderCode();
+
+    let medianBonusPayDiffM = null;
+    let medianBonusPayDiffF = null;
+    let medianBonusPayDiffX = null;
+    let medianBonusPayDiffU = null;
+
+    if (refGenderCode) {
+      const medianBonusPayRef = bonusPayStats.getMedian(refGenderCode);
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        medianBonusPayDiffM =
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.MALE[0])) /
+          medianBonusPayRef;
+      }
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
+        medianBonusPayDiffF =
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.FEMALE[0])) /
+          medianBonusPayRef;
+      }
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
+        medianBonusPayDiffX =
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.NON_BINARY[0])) /
+          medianBonusPayRef;
+      }
+      if (!bonusPayStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
+        medianBonusPayDiffU =
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.UNKNOWN[0])) /
+          medianBonusPayRef;
+      }
+    }
+
+    const calculatedAmounts = [];
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M,
+      value: medianBonusPayDiffM,
+      isSuppressed: medianBonusPayDiffM === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W,
+      value: medianBonusPayDiffF,
+      isSuppressed: medianBonusPayDiffF === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X,
+      value: medianBonusPayDiffX,
+      isSuppressed: medianBonusPayDiffX === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U,
+      value: medianBonusPayDiffU,
+      isSuppressed: medianBonusPayDiffU === null
+    });
+
+    return calculatedAmounts;
+  },
+
   /* 
     Modifies the given csvRecord object so that it is ready for 
     calculations to be performed against its contents.  The following
@@ -621,7 +747,7 @@ const reportCalcServicePrivate = {
     if (csvRecord[CSV_COLUMNS.ORDINARY_PAY] && csvRecord[CSV_COLUMNS.HOURS_WORKED]) {
       return csvRecord[CSV_COLUMNS.ORDINARY_PAY] / csvRecord[CSV_COLUMNS.HOURS_WORKED];
     }
-    return csvRecord[CSV_COLUMNS.ORDINARY_PAY];
+    return csvRecord[CSV_COLUMNS.SPECIAL_SALARY];
   }
 }
 

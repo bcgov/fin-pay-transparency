@@ -134,6 +134,18 @@ const reportService = {
         { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W]) },
         { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X]) },
         { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U]) }
+      ],
+      meanBonusPayGap: [
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M]) },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W]) },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X]) },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U]) }
+      ],
+      medianBonusPayGap: [
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M]) },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W]) },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X]) },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U]) }
       ]
     }
 
@@ -218,6 +230,14 @@ const reportService = {
           horizontalBarChart(chartData.meanOvertimePayGap, chartColors)
         );
         document.getElementById("median-overtime-pay-gap-chart").appendChild(
+          // @ts-ignore
+          horizontalBarChart(chartData.medianOvertimePayGap, chartColors)
+        )
+        document.getElementById("mean-bonus-pay-gap-chart").appendChild(
+          // @ts-ignore
+          horizontalBarChart(chartData.meanOvertimePayGap, chartColors)
+        );
+        document.getElementById("median-bonus-pay-gap-chart").appendChild(
           // @ts-ignore
           horizontalBarChart(chartData.medianOvertimePayGap, chartColors)
         )
