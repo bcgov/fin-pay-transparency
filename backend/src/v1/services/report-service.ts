@@ -10,11 +10,18 @@ import { CALCULATION_CODES } from './report-calc-service';
 import { utils } from './utils-service';
 
 
-const GENDER_CHART_LABELS = {
-  MALE: "Male",
-  FEMALE: "Female",
+const GENDER_LABELS = {
+  MALE: "Men",
+  FEMALE: "Women",
   NON_BINARY: "Non-binary",
   UNKNOWN: "Prefer not to say / Unknown"
+}
+
+const GENDER_CODES = {
+  MALE: "M",
+  FEMALE: "W",
+  NON_BINARY: "X",
+  UNKNOWN: "U"
 }
 
 interface ReportAndCalculations {
@@ -24,7 +31,12 @@ interface ReportAndCalculations {
 
 const reportServicePrivate = {
   REPORT_TEMPLATE: resolve(config.get('server:templatePath') || "", "report.template.html"),
-  REPORT_TEMPLATE_SCRIPT: resolve(config.get('server:templatePath') || "", "report.script.js")
+  REPORT_TEMPLATE_SCRIPT: resolve(config.get('server:templatePath') || "", "report.script.js"),
+
+  genderCodeToLabel: (genderCode) => {
+    const matches = Object.keys(GENDER_CODES).filter(k => GENDER_CODES[k] == genderCode).map(k => GENDER_LABELS[k]);
+    return matches?.length ? matches[0] : 0;
+  }
 }
 
 const reportService = {
@@ -37,7 +49,6 @@ const reportService = {
     let reportAndCalculations = null;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo) {
-      console.log(userInfo)
       log.error("Unable to look user info");
       throw new Error("Something went wrong")
     }
@@ -101,16 +112,28 @@ const reportService = {
     // Organize specific calculations to show on specific graphs
     const chartData = {
       meanHourlyPayGap: [
-        { label: GENDER_CHART_LABELS.MALE, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M] },
-        { label: GENDER_CHART_LABELS.FEMALE, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W] },
-        { label: GENDER_CHART_LABELS.NON_BINARY, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X] },
-        { label: GENDER_CHART_LABELS.UNKNOWN, value: 1 - calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U] }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M]) },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W]) },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X]) },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U]) }
       ],
       medianHourlyPayGap: [
-        { label: GENDER_CHART_LABELS.MALE, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M] },
-        { label: GENDER_CHART_LABELS.FEMALE, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W] },
-        { label: GENDER_CHART_LABELS.NON_BINARY, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X] },
-        { label: GENDER_CHART_LABELS.UNKNOWN, value: 1 - calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U] }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M]) },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W]) },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X]) },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U]) }
+      ],
+      meanOvertimePayGap: [
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_M]) },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_W]) },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_X]) },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_U]) }
+      ],
+      medianOvertimePayGap: [
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_M]) },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_W]) },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_X]) },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_U]) }
       ]
     }
 
@@ -126,9 +149,23 @@ const reportService = {
         employeeCountRange: reportAndCalculations.report.employee_count_range.employee_count_range,
         dataConstraints: reportAndCalculations.report.data_constraints,
         comments: reportAndCalculations.report.user_comment,
+        referenceGenderCategory: reportServicePrivate.genderCodeToLabel(calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]),
+        meanOvertimeHoursGap: [
+          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_M])) },
+          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_W])) },
+          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_X])) },
+          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_U])) }
+        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]),
+        medianOvertimeHoursGap: [
+          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_M])) },
+          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_W])) },
+          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_X])) },
+          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_U])) }
+        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]),
       }
     };
 
+    console.log(templateParams);
 
     const workingHtml = ejs.render(ejsTemplate, templateParams);
     let renderedHtml = null;
@@ -176,10 +213,18 @@ const reportService = {
           // @ts-ignore
           horizontalBarChart(chartData.medianHourlyPayGap, chartColors)
         )
+        document.getElementById("mean-overtime-pay-gap-chart").appendChild(
+          // @ts-ignore
+          horizontalBarChart(chartData.meanOvertimePayGap, chartColors)
+        );
+        document.getElementById("median-overtime-pay-gap-chart").appendChild(
+          // @ts-ignore
+          horizontalBarChart(chartData.medianOvertimePayGap, chartColors)
+        )
 
       }, chartData)
-      const div = await page.$('#median-hourly-pay-gap-chart');
-      console.log(div)
+      //const div = await page.$('#median-hourly-pay-gap-chart');
+      //console.log(div)
       renderedHtml = await page.content();
 
       await browser.close();

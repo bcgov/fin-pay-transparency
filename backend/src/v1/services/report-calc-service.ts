@@ -4,6 +4,7 @@ import { CSV_COLUMNS, GENDER_CODES, NUMERIC_COLUMNS, validateService } from './v
 
 
 const CALCULATION_CODES = {
+  REFERENCE_GENDER_CATEGORY_CODE: "REFERENCE_GENDER_CATEGORY_CODE",
   MEAN_HOURLY_PAY_DIFF_M: "MEAN_HOURLY_PAY_DIFF_M",
   MEAN_HOURLY_PAY_DIFF_W: "MEAN_HOURLY_PAY_DIFF_W",
   MEAN_HOURLY_PAY_DIFF_X: "MEAN_HOURLY_PAY_DIFF_X",
@@ -12,11 +13,27 @@ const CALCULATION_CODES = {
   MEDIAN_HOURLY_PAY_DIFF_W: "MEDIAN_HOURLY_PAY_DIFF_W",
   MEDIAN_HOURLY_PAY_DIFF_X: "MEDIAN_HOURLY_PAY_DIFF_X",
   MEDIAN_HOURLY_PAY_DIFF_U: "MEDIAN_HOURLY_PAY_DIFF_U",
+  MEAN_OVERTIME_PAY_DIFF_M: "MEAN_OVERTIME_PAY_DIFF_M",
+  MEAN_OVERTIME_PAY_DIFF_W: "MEAN_OVERTIME_PAY_DIFF_W",
+  MEAN_OVERTIME_PAY_DIFF_X: "MEAN_OVERTIME_PAY_DIFF_X",
+  MEAN_OVERTIME_PAY_DIFF_U: "MEAN_OVERTIME_PAY_DIFF_U",
+  MEDIAN_OVERTIME_PAY_DIFF_M: "MEDIAN_OVERTIME_PAY_DIFF_M",
+  MEDIAN_OVERTIME_PAY_DIFF_W: "MEDIAN_OVERTIME_PAY_DIFF_W",
+  MEDIAN_OVERTIME_PAY_DIFF_X: "MEDIAN_OVERTIME_PAY_DIFF_X",
+  MEDIAN_OVERTIME_PAY_DIFF_U: "MEDIAN_OVERTIME_PAY_DIFF_U",
+  MEAN_OVERTIME_HOURS_DIFF_M: "MEAN_OVERTIME_HOURS_DIFF_M",
+  MEAN_OVERTIME_HOURS_DIFF_W: "MEAN_OVERTIME_HOURS_DIFF_W",
+  MEAN_OVERTIME_HOURS_DIFF_X: "MEAN_OVERTIME_HOURS_DIFF_X",
+  MEAN_OVERTIME_HOURS_DIFF_U: "MEAN_OVERTIME_HOURS_DIFF_U",
+  MEDIAN_OVERTIME_HOURS_DIFF_M: "MEDIAN_OVERTIME_HOURS_DIFF_M",
+  MEDIAN_OVERTIME_HOURS_DIFF_W: "MEDIAN_OVERTIME_HOURS_DIFF_W",
+  MEDIAN_OVERTIME_HOURS_DIFF_X: "MEDIAN_OVERTIME_HOURS_DIFF_X",
+  MEDIAN_OVERTIME_HOURS_DIFF_U: "MEDIAN_OVERTIME_HOURS_DIFF_U",
 }
 
 interface CalculatedAmount {
   calculationCode: string,
-  value: number,
+  value: string,
   isSuppressed: boolean
 }
 /*
@@ -180,15 +197,33 @@ const reportCalcService = {
       }));
 
     const hourlyPayStats = new ColumnStats();
+    const overtimePayStats = new ColumnStats();
+    const overtimeHoursStats = new ColumnStats();
 
     for await (const csvRecord of csvParser) {
       reportCalcServicePrivate.cleanCsvRecord(csvRecord);
       const hourlyPayDollars = reportCalcServicePrivate.getHourlyPayDollars(csvRecord);
+      const overtimePayDollarsPerHour = csvRecord[CSV_COLUMNS.OVERTIME_PAY];
+      const overtimeHours = csvRecord[CSV_COLUMNS.OVERTIME_HOURS];
       hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      overtimePayStats.push(overtimePayDollarsPerHour, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      overtimeHoursStats.push(overtimeHours, csvRecord[CSV_COLUMNS.GENDER_CODE]);
     }
 
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats));
+
+    // Although not technically a calculated amount, include the reference gender category 
+    // code in the list of CalculatedAmounts
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE,
+      value: hourlyPayStats.getReferenceGenderCode(),
+      isSuppressed: hourlyPayStats.isSuppressed(hourlyPayStats.getReferenceGenderCode())
+    });
 
     return calculatedAmounts;
   },
@@ -306,6 +341,234 @@ const reportCalcServicePrivate = {
       calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U,
       value: medianHourlyPayDiffU,
       isSuppressed: medianHourlyPayDiffU === null
+    });
+
+    return calculatedAmounts;
+  },
+
+  calculateMeanOvertimePayGaps(overtimePayStats: ColumnStats): CalculatedAmount[] {
+    const refGenderCode = overtimePayStats.getReferenceGenderCode();
+
+    let meanOvertimePayDiffM = null;
+    let meanOvertimePayDiffF = null;
+    let meanOvertimePayDiffX = null;
+    let meanOvertimePayDiffU = null;
+
+    if (refGenderCode) {
+      const meanOvertimePayRef = overtimePayStats.getMean(refGenderCode);
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        meanOvertimePayDiffM =
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.MALE[0])) /
+          meanOvertimePayRef;
+      }
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
+        meanOvertimePayDiffF =
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.FEMALE[0])) /
+          meanOvertimePayRef;
+      }
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
+        meanOvertimePayDiffX =
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.NON_BINARY[0])) /
+          meanOvertimePayRef;
+      }
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
+        meanOvertimePayDiffU =
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.UNKNOWN[0])) /
+          meanOvertimePayRef;
+      }
+    }
+
+    const calculatedAmounts = [];
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_M,
+      value: meanOvertimePayDiffM,
+      isSuppressed: meanOvertimePayDiffM === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_W,
+      value: meanOvertimePayDiffF,
+      isSuppressed: meanOvertimePayDiffF === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_X,
+      value: meanOvertimePayDiffX,
+      isSuppressed: meanOvertimePayDiffX === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_U,
+      value: meanOvertimePayDiffU,
+      isSuppressed: meanOvertimePayDiffU === null
+    });
+
+    return calculatedAmounts;
+  },
+
+  calculateMedianOvertimePayGaps(overtimePayStats: ColumnStats): CalculatedAmount[] {
+    const refGenderCode = overtimePayStats.getReferenceGenderCode();
+
+    let medianOvertimePayDiffM = null;
+    let medianOvertimePayDiffF = null;
+    let medianOvertimePayDiffX = null;
+    let medianOvertimePayDiffU = null;
+
+    if (refGenderCode) {
+      const medianOvertimePayRef = overtimePayStats.getMedian(refGenderCode);
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        medianOvertimePayDiffM =
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.MALE[0])) /
+          medianOvertimePayRef;
+      }
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
+        medianOvertimePayDiffF =
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.FEMALE[0])) /
+          medianOvertimePayRef;
+      }
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
+        medianOvertimePayDiffX =
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.NON_BINARY[0])) /
+          medianOvertimePayRef;
+      }
+      if (!overtimePayStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
+        medianOvertimePayDiffU =
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.UNKNOWN[0])) /
+          medianOvertimePayRef;
+      }
+    }
+
+    const calculatedAmounts = [];
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_M,
+      value: medianOvertimePayDiffM,
+      isSuppressed: medianOvertimePayDiffM === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_W,
+      value: medianOvertimePayDiffF,
+      isSuppressed: medianOvertimePayDiffF === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_X,
+      value: medianOvertimePayDiffX,
+      isSuppressed: medianOvertimePayDiffX === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_U,
+      value: medianOvertimePayDiffU,
+      isSuppressed: medianOvertimePayDiffU === null
+    });
+
+    return calculatedAmounts;
+  },
+
+  /*
+  Calculated gaps are given as a difference in mean overtime hours between 
+  each gender group and the reference group
+  */
+  calculateMeanOvertimeHoursGaps(overtimeHoursStats: ColumnStats): CalculatedAmount[] {
+    const refGenderCode = overtimeHoursStats.getReferenceGenderCode();
+
+    let meanOvertimeHoursDiffM = null;
+    let meanOvertimeHoursDiffF = null;
+    let meanOvertimeHoursDiffX = null;
+    let meanOvertimeHoursDiffU = null;
+
+    if (refGenderCode) {
+      const meanOvertimeHoursRef = overtimeHoursStats.getMean(refGenderCode);
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        meanOvertimeHoursDiffM =
+          (meanOvertimeHoursRef - overtimeHoursStats.getMean(GENDER_CODES.MALE[0]));
+      }
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
+        meanOvertimeHoursDiffF =
+          (meanOvertimeHoursRef - overtimeHoursStats.getMean(GENDER_CODES.FEMALE[0]));
+      }
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
+        meanOvertimeHoursDiffX =
+          (meanOvertimeHoursRef - overtimeHoursStats.getMean(GENDER_CODES.NON_BINARY[0]));
+      }
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
+        meanOvertimeHoursDiffU =
+          (meanOvertimeHoursRef - overtimeHoursStats.getMean(GENDER_CODES.UNKNOWN[0]));
+      }
+    }
+
+    const calculatedAmounts = [];
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_M,
+      value: meanOvertimeHoursDiffM,
+      isSuppressed: meanOvertimeHoursDiffM === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_W,
+      value: meanOvertimeHoursDiffF,
+      isSuppressed: meanOvertimeHoursDiffF === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_X,
+      value: meanOvertimeHoursDiffX,
+      isSuppressed: meanOvertimeHoursDiffX === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_U,
+      value: meanOvertimeHoursDiffU,
+      isSuppressed: meanOvertimeHoursDiffU === null
+    });
+
+    return calculatedAmounts;
+  },
+
+  /*
+  Calculated gaps are given as a difference in median overtime hours between 
+  each gender group and the reference group
+  */
+  calculateMedianOvertimeHoursGaps(overtimeHoursStats: ColumnStats): CalculatedAmount[] {
+    const refGenderCode = overtimeHoursStats.getReferenceGenderCode();
+
+    let medianOvertimeHoursDiffM = null;
+    let medianOvertimeHoursDiffF = null;
+    let medianOvertimeHoursDiffX = null;
+    let medianOvertimeHoursDiffU = null;
+
+    if (refGenderCode) {
+      const medianOvertimeHoursRef = overtimeHoursStats.getMedian(refGenderCode);
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.MALE[0])) {
+        medianOvertimeHoursDiffM =
+          (medianOvertimeHoursRef - overtimeHoursStats.getMedian(GENDER_CODES.MALE[0]));
+      }
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.FEMALE[0])) {
+        medianOvertimeHoursDiffF =
+          (medianOvertimeHoursRef - overtimeHoursStats.getMedian(GENDER_CODES.FEMALE[0]));
+      }
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.NON_BINARY[0])) {
+        medianOvertimeHoursDiffX =
+          (medianOvertimeHoursRef - overtimeHoursStats.getMedian(GENDER_CODES.NON_BINARY[0]));
+      }
+      if (!overtimeHoursStats.isSuppressed(GENDER_CODES.UNKNOWN[0])) {
+        medianOvertimeHoursDiffU =
+          (medianOvertimeHoursRef - overtimeHoursStats.getMedian(GENDER_CODES.UNKNOWN[0]));
+      }
+    }
+
+    const calculatedAmounts = [];
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_M,
+      value: medianOvertimeHoursDiffM,
+      isSuppressed: medianOvertimeHoursDiffM === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_W,
+      value: medianOvertimeHoursDiffF,
+      isSuppressed: medianOvertimeHoursDiffF === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_X,
+      value: medianOvertimeHoursDiffX,
+      isSuppressed: medianOvertimeHoursDiffX === null
+    });
+    calculatedAmounts.push({
+      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_U,
+      value: medianOvertimeHoursDiffU,
+      isSuppressed: medianOvertimeHoursDiffU === null
     });
 
     return calculatedAmounts;

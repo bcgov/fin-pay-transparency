@@ -16,24 +16,37 @@
     text-decoration: none !important;
   }
 
-  .pay-transparency-report .h1 {
+  .pay-transparency-report h1 {
     font-size: 40px;
     font-weight: bold;
   }
 
-  .pay-transparency-report .h2 {
-    font-size: 26px;
+  .pay-transparency-report h2 {
+    font-size: 22px;
     font-weight: bold;
   }
 
-  .pay-transparency-report .h3 {
-    font-size: 20px;
+  .pay-transparency-report h3 {
+    font-size: 18px;
     font-weight: bold;
   }
 
-  .pay-transparency-report .h4 {
+  .pay-transparency-report h4 {
     font-size: 16px;
     font-weight: bold;
+    color: #000000;
+  }
+
+  .pay-transparency-report h5 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000000;
+  }
+
+  .pay-transparency-report h6 {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    color: #000000;
   }
 
   .pay-transparency-report .text-primary {
@@ -54,8 +67,17 @@
     font-weight: bold;
   }
 
-  .pay-transparency-report .table {
+  .employer-details .table {
     border: 2px solid #003366;
+  }
+
+  .pay-transparency-report .centered {
+    text-align: center;
+  }
+
+  .pay-transparency-report td .center-content {
+    display: flex;
+    justify-content: center;
   }
 
   .pay-transparency-report .table td {
@@ -92,10 +114,25 @@
     padding-right: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
+    height: 50px;
   }
 
   .pay-transparency-report .page {
     page-break-after: always;
+  }
+
+  .explanatory-notes {
+    background-color: #dff6fc;
+    font-size: 14px;
+    padding: 20px 30px 20px 30px;
+  }
+
+  .footnote {
+    display: flex;
+  }
+
+  .footnote-number {
+    margin-right: 10px;
   }
 </style>
 
@@ -114,9 +151,9 @@
         efficitur aliquet lacus ac, suscipit sollicitudin mauris.
       </p>
 
-      <h2 class="text-primary mb-4">Employer Details</h3>
+      <h2 class="text-primary mb-4">Employer details</h3>
 
-        <table class="table" role="presentation" style="width:100%">
+        <table class="employer-details table" role="presentation" style="width:100%">
           <tr>
             <td class="table-header">Employer:</td>
             <td>
@@ -158,26 +195,201 @@
             </svg>
           </div>
           <div class="header-block-title flex-fill">
-            <h2>Hourly Pay</h2>
+            <h2 class="mb-0">Hourly pay</h2>
           </div>
         </div>
 
         <table role="presentation">
           <tr>
             <td class="pe-2">
-              <h4 class="text-primary">Mean hourly pay gap<sup>1</sup></h4>
+              <h4>Mean hourly pay gap<sup>1</sup></h4>
               <div id="mean-hourly-pay-gap-chart"></div>
             </td>
             <td>
-              <h4 class="text-primary">Median hourly pay gap<sup>2</sup></h4>
+              <h4>Median hourly pay gap<sup>2</sup></h4>
               <div id="median-hourly-pay-gap-chart"></div>
             </td>
           </tr>
         </table>
 
+        <div class="explanatory-notes">
+          <h4>Explanatory notes</h4>
+          <div class="footnote">
+            <div class="footnote-number">1.</div>
+            <div>&quot;Mean hourly pay gap&quot; refers to the differences in pay
+              between gender groups calculated by average pay. Hourly pay does
+              not include bonuses and overtime.</div>
+          </div>
+          <div class="footnote">
+            <div class="footnote-number">2.</div>
+            <div>&quot;Median hourly pay gap&quot; refers to the differences in pay
+              between gender groups calculated by the mid range of pay for
+              each group. Hourly pay does not include bonuses and overtime.</div>
+          </div>
+          <div class="footnote">
+            <div class="footnote-number">3.</div>
+            <div></div>
+          </div>
+          <div class="footnote">
+            <div class="footnote-number">4.</div>
+            <div></div>
+          </div>
+        </div>
+
     </div>
 
-    <div class="page"></div>
+    <div class="page">
+
+      <div class="header-block mb-4">
+        <div class="header-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor"
+            class="bi bi-clock text-primary" viewBox="0 0 16 16">
+          </svg>
+        </div>
+        <div class="header-block-title flex-fill">
+          <h2 class="mb-0">Overtime pay</h2>
+        </div>
+      </div>
+
+      <table role="presentation">
+        <tr>
+          <td class="pe-2">
+            <h4>Mean overtime pay<sup>5</sup></h4>
+            <div id="mean-overtime-pay-gap-chart"></div>
+          </td>
+          <td>
+            <h4>Median overtime pay<sup>6</sup></h4>
+            <div id="median-overtime-pay-gap-chart"></div>
+          </td>
+        </tr>
+      </table>
+
+      <hr />
+
+      <table role="presentation" width="100%" class="overtime-hours-tables">
+        <tr>
+          <td class="pe-2" width="50%">
+            <h4 class="mb-0">Mean overtime paid hours<sup>7</sup></h4>
+            <p class="mb-2">Difference as compared to reference group (<%= report.referenceGenderCategory %>)</p>
+            <table id="mean-overtime-hours-table" class="table" role="presentation">
+              <% for(var i=0; i < report.meanOvertimeHoursGap.length; i++) { %>
+                <tr>
+                  <td>
+                    <%= report.meanOvertimeHoursGap[i].label %>
+                  </td>
+                  <td width="30%" class="centered">
+                    <%= report.meanOvertimeHoursGap[i].value %>
+                  </td>
+                </tr>
+                <% } %>
+            </table>
+          </td>
+          <td class="ps-2" width="50%">
+            <h4 class="mb-0">Median overtime paid hours<sup>8</sup></h4>
+            <p class="mb-2">Difference as compared to reference group (<%= report.referenceGenderCategory %>)</p>
+            <table id="median-overtime-hours-table" class="table" role="presentation">
+              <% for(var i=0; i < report.medianOvertimeHoursGap.length; i++) { %>
+                <tr>
+                  <td>
+                    <%= report.medianOvertimeHoursGap[i].label %>
+                  </td>
+                  <td width="30%" class="centered">
+                    <%= report.medianOvertimeHoursGap[i].value %>
+                  </td>
+                </tr>
+                <% } %>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <hr />
+
+      <h4 class="mb-0">Percentage of employees in each gender category receiving overtime pay</h4>
+
+      <p>TODO: pie charts here</p>
+
+      <div class="explanatory-notes">
+        <h4>Explanatory notes</h4>
+        <div class="footnote">
+          <div class="footnote-number">5.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">6.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">7.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">8.</div>
+          <div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page">
+
+      <div class="header-block mb-4">
+        <div class="header-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor"
+            class="bi bi-clock text-primary" viewBox="0 0 16 16">
+
+          </svg>
+
+        </div>
+        <div class="header-block-title flex-fill">
+          <h2 class="mb-0">Bonus pay</h2>
+        </div>
+      </div>
+
+      <table role="presentation">
+        <tr>
+          <td class="pe-2">
+            <h4>Mean bonus pay<sup>9</sup></h4>
+            <div id="mean-overtime-pay-chart"></div>
+          </td>
+          <td>
+            <h4>Median bonus pay<sup>10</sup></h4>
+            <div id="median-overtime-pay-chart"></div>
+          </td>
+        </tr>
+      </table>
+
+      <hr />
+
+      <div class="header-block mb-4">
+        <div class="header-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor"
+            class="bi bi-clock text-primary" viewBox="0 0 16 16">
+          </svg>
+
+        </div>
+        <div class="header-block-title flex-fill">
+          <h2>Percentage of each gender in each pay quarter</h2><sup>11</sup>
+        </div>
+      </div>
+
+      <div class="explanatory-notes">
+        <h4>Explanatory notes</h4>
+        <div class="footnote">
+          <div class="footnote-number">9.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">10.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">11.</div>
+          <div></div>
+        </div>
+      </div>
+
+    </div>
 
   </div>
 

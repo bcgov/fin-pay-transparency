@@ -66,7 +66,7 @@ model pay_transparency_calculated_data {
   calculated_data_id      String                  @id(map: "calculated_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   report_id               String                  @db.Uuid
   calculation_code_id     String                  @db.Uuid
-  value                   Decimal?                @db.Decimal
+  value                   String?                 @db.VarChar(50)
   is_suppressed           Boolean
   create_date             DateTime                @default(now()) @db.Timestamp(6)
   update_date             DateTime                @default(now()) @db.Timestamp(6)

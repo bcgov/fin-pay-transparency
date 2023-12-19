@@ -104,7 +104,7 @@ describe("getHourlyPayDollars", () => {
 
 describe("calculateMeanHourlyPayGaps", () => {
   describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
-    it(`mean and median gender pay gaps are calculated correctly`, () => {
+    it(`mean gender hourly pay gaps are calculated correctly`, () => {
 
       // For these mock hourly pay data, assume:
       // - All males earn $100/hr
@@ -131,7 +131,7 @@ describe("calculateMeanHourlyPayGaps", () => {
 
 describe("calculateMedianHourlyPayGaps", () => {
   describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
-    it(`mean and median gender pay gaps are calculated correctly`, () => {
+    it(`median gender hourly pay gaps are calculated correctly`, () => {
 
       // For these mock hourly pay data, assume:
       // - All males earn $100/hr
@@ -156,16 +156,70 @@ describe("calculateMedianHourlyPayGaps", () => {
   })
 })
 
-describe("calculateAll", () => {
-  describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
-    it(`all calculations are performed`, async () => {
+describe("calculateMeanOvertimePayGaps", () => {
+  describe(`given a simulated list of people with gender codes and overtime pay data`, () => {
+    it(`mean gender overtime pay gaps are calculated correctly`, () => {
 
-      // Create a mock pay transparency CSV.
       // For these mock hourly pay data, assume:
       // - All males earn $100/hr
       // - All females earn $99/hr
       // - All non-binary people earn $98/hr
       // - All people whose gender is unknown earn $97/hr
+      // Add 10 fake people in each gender category
+      const overtimePayStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        overtimePayStats.push(v, GENDER_CODES.MALE[0]);
+        overtimePayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        overtimePayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimePayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats);
+
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_M)[0].value).toBe(0);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateMedianOvertimePayGaps", () => {
+  describe(`given a simulated list of people with gender codes and overtime pay data`, () => {
+    it(` median gender overtime pay gaps are calculated correctly`, () => {
+
+      // For these mock overtime pay data, assume:
+      // - All males earn $100/hr for overtime
+      // - All females earn $99/hr for overtime
+      // - All non-binary people earn $98/hr for overtime
+      // - All people whose gender is unknown earn $97/hr for overtime
+      // Add 10 fake people in each gender category
+      const overtimePayStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        overtimePayStats.push(v, GENDER_CODES.MALE[0]);
+        overtimePayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        overtimePayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimePayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats);
+
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_M)[0].value).toBe(0);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateAll", () => {
+  describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
+    it(`all calculations are performed`, async () => {
+
+      // Create a mock pay transparency CSV.
+      // For these mock overtime pay data, assume:
+      // - All males earn $100/hr for overtime
+      // - All females earn $99/hr for overtime
+      // - All non-binary people earn $98/hr for overtime
+      // - All people whose gender is unknown earn $97/hr for overtime
       // Add 10 fake people in each gender category
       const csvReadable = new Readable();
       csvReadable.push(`Gender Code,Hours Worked,Ordinary Pay,Special Salary,Overtime Hours,Overtime Pay,Bonus Pay\n`);
