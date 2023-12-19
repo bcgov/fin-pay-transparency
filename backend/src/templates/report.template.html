@@ -71,6 +71,16 @@
     border: 2px solid #003366;
   }
 
+  .overtime-hours-tables .table {
+    padding: 0px;
+    width: 100%;
+  }
+
+  .overtime-hours-tables .table td {
+    margin: 0px;
+    padding: 2px 4px 2px 4px;
+  }
+
   .pay-transparency-report .centered {
     text-align: center;
   }
@@ -133,6 +143,11 @@
 
   .footnote-number {
     margin-right: 10px;
+  }
+
+  hr {
+    margin-bottom: 14px;
+    margin-top: 14px;
   }
 </style>
 
@@ -226,14 +241,6 @@
               between gender groups calculated by the mid range of pay for
               each group. Hourly pay does not include bonuses and overtime.</div>
           </div>
-          <div class="footnote">
-            <div class="footnote-number">3.</div>
-            <div></div>
-          </div>
-          <div class="footnote">
-            <div class="footnote-number">4.</div>
-            <div></div>
-          </div>
         </div>
 
     </div>
@@ -254,11 +261,11 @@
       <table role="presentation">
         <tr>
           <td class="pe-2">
-            <h4>Mean overtime pay<sup>5</sup></h4>
+            <h4>Mean overtime pay<sup>3</sup></h4>
             <div id="mean-overtime-pay-gap-chart"></div>
           </td>
           <td>
-            <h4>Median overtime pay<sup>6</sup></h4>
+            <h4>Median overtime pay<sup>4</sup></h4>
             <div id="median-overtime-pay-gap-chart"></div>
           </td>
         </tr>
@@ -269,7 +276,7 @@
       <table role="presentation" width="100%" class="overtime-hours-tables">
         <tr>
           <td class="pe-2" width="50%">
-            <h4 class="mb-0">Mean overtime paid hours<sup>7</sup></h4>
+            <h4 class="mb-0">Mean overtime paid hours<sup>5</sup></h4>
             <p class="mb-2">Difference as compared to reference group (<%= report.referenceGenderCategory %>)</p>
             <table id="mean-overtime-hours-table" class="table" role="presentation">
               <% for(var i=0; i < report.meanOvertimeHoursGap.length; i++) { %>
@@ -285,7 +292,7 @@
             </table>
           </td>
           <td class="ps-2" width="50%">
-            <h4 class="mb-0">Median overtime paid hours<sup>8</sup></h4>
+            <h4 class="mb-0">Median overtime paid hours<sup>6</sup></h4>
             <p class="mb-2">Difference as compared to reference group (<%= report.referenceGenderCategory %>)</p>
             <table id="median-overtime-hours-table" class="table" role="presentation">
               <% for(var i=0; i < report.medianOvertimeHoursGap.length; i++) { %>
@@ -312,19 +319,19 @@
       <div class="explanatory-notes">
         <h4>Explanatory notes</h4>
         <div class="footnote">
+          <div class="footnote-number">3.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">4.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
           <div class="footnote-number">5.</div>
           <div></div>
         </div>
         <div class="footnote">
           <div class="footnote-number">6.</div>
-          <div></div>
-        </div>
-        <div class="footnote">
-          <div class="footnote-number">7.</div>
-          <div></div>
-        </div>
-        <div class="footnote">
-          <div class="footnote-number">8.</div>
           <div></div>
         </div>
       </div>
@@ -349,11 +356,11 @@
       <table role="presentation">
         <tr>
           <td class="pe-2">
-            <h4>Mean bonus pay<sup>9</sup></h4>
+            <h4>Mean bonus pay<sup>7</sup></h4>
             <div id="mean-overtime-pay-chart"></div>
           </td>
           <td>
-            <h4>Median bonus pay<sup>10</sup></h4>
+            <h4>Median bonus pay<sup>8</sup></h4>
             <div id="median-overtime-pay-chart"></div>
           </td>
         </tr>
@@ -369,22 +376,22 @@
 
         </div>
         <div class="header-block-title flex-fill">
-          <h2>Percentage of each gender in each pay quarter</h2><sup>11</sup>
+          <h2>Percentage of each gender in each pay quarter</h2><sup>9</sup>
         </div>
       </div>
 
       <div class="explanatory-notes">
         <h4>Explanatory notes</h4>
         <div class="footnote">
+          <div class="footnote-number">7.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">8.</div>
+          <div></div>
+        </div>
+        <div class="footnote">
           <div class="footnote-number">9.</div>
-          <div></div>
-        </div>
-        <div class="footnote">
-          <div class="footnote-number">10.</div>
-          <div></div>
-        </div>
-        <div class="footnote">
-          <div class="footnote-number">11.</div>
           <div></div>
         </div>
       </div>
