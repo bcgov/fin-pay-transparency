@@ -175,10 +175,10 @@ describe("calculateMeanOvertimePayGaps", () => {
       });
       const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats);
 
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_M)[0].value).toBe(0);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_M)[0].value).toBe(0);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_U)[0].value).toBe(0.03);
     })
   })
 })
@@ -202,10 +202,10 @@ describe("calculateMedianOvertimePayGaps", () => {
       });
       const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats);
 
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_M)[0].value).toBe(0);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M)[0].value).toBe(0);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U)[0].value).toBe(0.03);
     })
   })
 })

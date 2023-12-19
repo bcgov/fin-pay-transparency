@@ -13,22 +13,30 @@ const CALCULATION_CODES = {
   MEDIAN_HOURLY_PAY_DIFF_W: "MEDIAN_HOURLY_PAY_DIFF_W",
   MEDIAN_HOURLY_PAY_DIFF_X: "MEDIAN_HOURLY_PAY_DIFF_X",
   MEDIAN_HOURLY_PAY_DIFF_U: "MEDIAN_HOURLY_PAY_DIFF_U",
-  MEAN_OVERTIME_PAY_DIFF_M: "MEAN_OVERTIME_PAY_DIFF_M",
-  MEAN_OVERTIME_PAY_DIFF_W: "MEAN_OVERTIME_PAY_DIFF_W",
-  MEAN_OVERTIME_PAY_DIFF_X: "MEAN_OVERTIME_PAY_DIFF_X",
-  MEAN_OVERTIME_PAY_DIFF_U: "MEAN_OVERTIME_PAY_DIFF_U",
-  MEDIAN_OVERTIME_PAY_DIFF_M: "MEDIAN_OVERTIME_PAY_DIFF_M",
-  MEDIAN_OVERTIME_PAY_DIFF_W: "MEDIAN_OVERTIME_PAY_DIFF_W",
-  MEDIAN_OVERTIME_PAY_DIFF_X: "MEDIAN_OVERTIME_PAY_DIFF_X",
-  MEDIAN_OVERTIME_PAY_DIFF_U: "MEDIAN_OVERTIME_PAY_DIFF_U",
-  MEAN_OVERTIME_HOURS_DIFF_M: "MEAN_OVERTIME_HOURS_DIFF_M",
-  MEAN_OVERTIME_HOURS_DIFF_W: "MEAN_OVERTIME_HOURS_DIFF_W",
-  MEAN_OVERTIME_HOURS_DIFF_X: "MEAN_OVERTIME_HOURS_DIFF_X",
-  MEAN_OVERTIME_HOURS_DIFF_U: "MEAN_OVERTIME_HOURS_DIFF_U",
-  MEDIAN_OVERTIME_HOURS_DIFF_M: "MEDIAN_OVERTIME_HOURS_DIFF_M",
-  MEDIAN_OVERTIME_HOURS_DIFF_W: "MEDIAN_OVERTIME_HOURS_DIFF_W",
-  MEDIAN_OVERTIME_HOURS_DIFF_X: "MEDIAN_OVERTIME_HOURS_DIFF_X",
-  MEDIAN_OVERTIME_HOURS_DIFF_U: "MEDIAN_OVERTIME_HOURS_DIFF_U",
+  MEAN_OT_PAY_DIFF_M: "MEAN_OT_PAY_DIFF_M",
+  MEAN_OT_PAY_DIFF_W: "MEAN_OT_PAY_DIFF_W",
+  MEAN_OT_PAY_DIFF_X: "MEAN_OT_PAY_DIFF_X",
+  MEAN_OT_PAY_DIFF_U: "MEAN_OT_PAY_DIFF_U",
+  MEDIAN_OT_PAY_DIFF_M: "MEDIAN_OT_PAY_DIFF_M",
+  MEDIAN_OT_PAY_DIFF_W: "MEDIAN_OT_PAY_DIFF_W",
+  MEDIAN_OT_PAY_DIFF_X: "MEDIAN_OT_PAY_DIFF_X",
+  MEDIAN_OT_PAY_DIFF_U: "MEDIAN_OT_PAY_DIFF_U",
+  MEAN_OT_HOURS_DIFF_M: "MEAN_OT_HOURS_DIFF_M",
+  MEAN_OT_HOURS_DIFF_W: "MEAN_OT_HOURS_DIFF_W",
+  MEAN_OT_HOURS_DIFF_X: "MEAN_OT_HOURS_DIFF_X",
+  MEAN_OT_HOURS_DIFF_U: "MEAN_OT_HOURS_DIFF_U",
+  MEDIAN_OT_HOURS_DIFF_M: "MEDIAN_OT_HOURS_DIFF_M",
+  MEDIAN_OT_HOURS_DIFF_W: "MEDIAN_OT_HOURS_DIFF_W",
+  MEDIAN_OT_HOURS_DIFF_X: "MEDIAN_OT_HOURS_DIFF_X",
+  MEDIAN_OT_HOURS_DIFF_U: "MEDIAN_OT_HOURS_DIFF_U",
+  MEAN_BONUS_PAY_DIFF_M: "MEAN_BONUS_PAY_DIFF_M",
+  MEAN_BONUS_PAY_DIFF_W: "MEAN_BONUS_PAY_DIFF_W",
+  MEAN_BONUS_PAY_DIFF_X: "MEAN_BONUS_PAY_DIFF_X",
+  MEAN_BONUS_PAY_DIFF_U: "MEAN_BONUS_PAY_DIFF_U",
+  MEDIAN_BONUS_PAY_DIFF_M: "MEDIAN_BONUS_PAY_DIFF_M",
+  MEDIAN_BONUS_PAY_DIFF_W: "MEDIAN_BONUS_PAY_DIFF_W",
+  MEDIAN_BONUS_PAY_DIFF_X: "MEDIAN_BONUS_PAY_DIFF_X",
+  MEDIAN_BONUS_PAY_DIFF_U: "MEDIAN_BONUS_PAY_DIFF_U",
 }
 
 interface CalculatedAmount {
@@ -380,22 +388,22 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_M,
+      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_M,
       value: meanOvertimePayDiffM,
       isSuppressed: meanOvertimePayDiffM === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_W,
+      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_W,
       value: meanOvertimePayDiffF,
       isSuppressed: meanOvertimePayDiffF === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_X,
+      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_X,
       value: meanOvertimePayDiffX,
       isSuppressed: meanOvertimePayDiffX === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_PAY_DIFF_U,
+      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_U,
       value: meanOvertimePayDiffU,
       isSuppressed: meanOvertimePayDiffU === null
     });
@@ -437,22 +445,22 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_M,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M,
       value: medianOvertimePayDiffM,
       isSuppressed: medianOvertimePayDiffM === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_W,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W,
       value: medianOvertimePayDiffF,
       isSuppressed: medianOvertimePayDiffF === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_X,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X,
       value: medianOvertimePayDiffX,
       isSuppressed: medianOvertimePayDiffX === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_PAY_DIFF_U,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U,
       value: medianOvertimePayDiffU,
       isSuppressed: medianOvertimePayDiffU === null
     });
@@ -494,22 +502,22 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_M,
+      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M,
       value: meanOvertimeHoursDiffM,
       isSuppressed: meanOvertimeHoursDiffM === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_W,
+      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W,
       value: meanOvertimeHoursDiffF,
       isSuppressed: meanOvertimeHoursDiffF === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_X,
+      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X,
       value: meanOvertimeHoursDiffX,
       isSuppressed: meanOvertimeHoursDiffX === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OVERTIME_HOURS_DIFF_U,
+      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U,
       value: meanOvertimeHoursDiffU,
       isSuppressed: meanOvertimeHoursDiffU === null
     });
@@ -551,22 +559,22 @@ const reportCalcServicePrivate = {
 
     const calculatedAmounts = [];
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_M,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M,
       value: medianOvertimeHoursDiffM,
       isSuppressed: medianOvertimeHoursDiffM === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_W,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W,
       value: medianOvertimeHoursDiffF,
       isSuppressed: medianOvertimeHoursDiffF === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_X,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X,
       value: medianOvertimeHoursDiffX,
       isSuppressed: medianOvertimeHoursDiffX === null
     });
     calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OVERTIME_HOURS_DIFF_U,
+      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U,
       value: medianOvertimeHoursDiffU,
       isSuppressed: medianOvertimeHoursDiffU === null
     });
