@@ -77,7 +77,7 @@ const fileUploadService = {
     const body = req.body;
     const userInfo = utils.getSessionUser(req);
     const startDate = moment(body.startDate, "YYYY-MM").startOf("month");
-    const endDate = moment(body.startDate, "YYYY-MM").endOf("month");
+    const endDate = moment(body.endDate, "YYYY-MM").endOf("month");
 
     const payTransparencyUser = await tx.pay_transparency_user.findFirst({
       where: {
