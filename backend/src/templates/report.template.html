@@ -156,14 +156,8 @@
     <div class="page">
       <h1 class="text-primary mb-4">Pay Transparency Report</h1>
 
-      <p class="text-tertiary ">
-        Note: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus pretium fermentum elementum. Quisque
-        varius
-        libero
-        eu mi rhoncus, non congue eros convallis. Pellentesque dictum auctor dolor, ac gravida mi convallis a. Mauris
-        enim
-        mauris,
-        efficitur aliquet lacus ac, suscipit sollicitudin mauris.
+      <p class="text-tertiary" v-if="<%= report.comments %>">
+        <%= report.comments %>
       </p>
 
       <h2 class="text-primary mb-4">Employer details</h3>
