@@ -4,7 +4,6 @@ import { config } from "../../config";
 
 jest.mock('easy-soap-request'); // Mock the soapRequest function
 jest.mock("../../config"); // Mock the config module
-jest.mock("../../logger");
 
 // Define a mock response for the soapRequest function
 const mockSoapResponse = {
