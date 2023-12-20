@@ -33,16 +33,10 @@ describe('horizontalBarChart', () => {
     //Define the data and colors that we'll show in the bar chart
     const params = {
       chartData: [
-        { label: 'Male', value: 1.0 },
-        { label: 'Feale', value: 0.92 },
-        { label: 'Non-binary', value: 0.97 },
-        { label: 'Unknown', value: 1.01 },
-      ],
-      chartColors: [
-        '#1c3664', //Male
-        '#1b75bb', //Female
-        '#00a54f', //Non-binary
-        '#444444', //Unknown
+        { label: 'Male', value: 1.0, color: '#1c3664' },
+        { label: 'Feale', value: 0.92, color: '#1b75bb' },
+        { label: 'Non-binary', value: 0.97, color: '#00a54f' },
+        { label: 'Unknown', value: 1.01, color: '#444444' },
       ],
     };
 
@@ -51,7 +45,7 @@ describe('horizontalBarChart', () => {
       const numberFormat = '0.2f'; //don't apply formatting to numbers
       document.getElementById('chart').appendChild(
         // @ts-ignore
-        horizontalBarChart(params.chartData, params.chartColors, numberFormat),
+        horizontalBarChart(params.chartData, numberFormat),
       );
     }, params);
 
@@ -75,7 +69,7 @@ describe('horizontalBarChart', () => {
 
     await browser.close();
 
-    expect(barColors).toEqual(params.chartColors);
+    expect(barColors).toEqual(params.chartData.map((d) => d.color));
     expect(genderCategoryLabels).toEqual(params.chartData.map((d) => d.label));
     expect(payGapLabels.map((d) => parseFloat(d))).toEqual(
       params.chartData.map((d) => d.value),
