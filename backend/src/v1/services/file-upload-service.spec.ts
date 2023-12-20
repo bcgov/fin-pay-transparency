@@ -158,7 +158,7 @@ describe("saveReportCalculations", () => {
     const reportId = "mock_report_id";
     const mockCalculatedAmounts: CalculatedAmount[] = [];
     Object.keys(MOCK_CALCULATION_CODES).forEach(code => {
-      mockCalculatedAmounts.push({ calculationCode: code, value: 1, isSuppressed: false })
+      mockCalculatedAmounts.push({ calculationCode: code, value: "1", isSuppressed: false })
     })
 
     it("the saves the calculations to new records", async () => {
@@ -177,7 +177,7 @@ describe("saveReportCalculations", () => {
     const existingCalculatedData = {};
     const mockCalculatedAmounts: CalculatedAmount[] = [];
     Object.keys(MOCK_CALCULATION_CODES).forEach(code => {
-      mockCalculatedAmounts.push({ calculationCode: code, value: 1, isSuppressed: false })
+      mockCalculatedAmounts.push({ calculationCode: code, value: "1", isSuppressed: false })
     })
 
     it("updates the existing calculated data records", async () => {
@@ -195,7 +195,7 @@ describe("saveReportCalculations", () => {
     const reportId = "mock_report_id";
     const existingCalculatedData = {};
     const mockCalculatedAmounts: CalculatedAmount[] = [
-      { calculationCode: "invalid code", value: 1, isSuppressed: false }
+      { calculationCode: "invalid code", value: "1", isSuppressed: false }
     ];
 
     it("throws an error", async () => {

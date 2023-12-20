@@ -85,7 +85,7 @@ describe("cleanCsvRecord", () => {
 
 describe("getHourlyPayDollars", () => {
   describe(`when ${CSV_COLUMNS.HOURS_WORKED} and ${CSV_COLUMNS.ORDINARY_PAY} are specified`, () => {
-    it(`hourly rate ${CSV_COLUMNS.ORDINARY_PAY} divided by ${CSV_COLUMNS.HOURS_WORKED}`, () => {
+    it(`hourly rate is ${CSV_COLUMNS.ORDINARY_PAY} divided by ${CSV_COLUMNS.HOURS_WORKED}`, () => {
       const overrides = {};
       overrides[CSV_COLUMNS.HOURS_WORKED] = "10";
       overrides[CSV_COLUMNS.ORDINARY_PAY] = "200";
@@ -100,11 +100,27 @@ describe("getHourlyPayDollars", () => {
       expect(hourlyPayDollars).toBe(expectedHourlyPayDollars);
     })
   })
+  describe(`when ${CSV_COLUMNS.SPECIAL_SALARY} is specified`, () => {
+    it(`hourly rate ${CSV_COLUMNS.SPECIAL_SALARY}`, () => {
+      const overrides = {};
+      overrides[CSV_COLUMNS.HOURS_WORKED] = "";
+      overrides[CSV_COLUMNS.ORDINARY_PAY] = "";
+      overrides[CSV_COLUMNS.SPECIAL_SALARY] = "100";
+      const row: Row = createSampleRow(overrides);
+      // A precondition of getHourlyPayDollars(..) is:
+      //  cleanCsvRecord(..) must be been called before it.
+      // Do that now.
+      const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(row.record);
+      const hourlyPayDollars = reportCalcServicePrivate.getHourlyPayDollars(cleanedCsvRecord);
+      const expectedHourlyPayDollars = cleanedCsvRecord[CSV_COLUMNS.SPECIAL_SALARY];
+      expect(hourlyPayDollars).toBe(expectedHourlyPayDollars);
+    })
+  })
 })
 
 describe("calculateMeanHourlyPayGaps", () => {
   describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
-    it(`mean and median gender pay gaps are calculated correctly`, () => {
+    it(`mean gender hourly pay gaps are calculated correctly`, () => {
 
       // For these mock hourly pay data, assume:
       // - All males earn $100/hr
@@ -131,7 +147,7 @@ describe("calculateMeanHourlyPayGaps", () => {
 
 describe("calculateMedianHourlyPayGaps", () => {
   describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
-    it(`mean and median gender pay gaps are calculated correctly`, () => {
+    it(`median gender hourly pay gaps are calculated correctly`, () => {
 
       // For these mock hourly pay data, assume:
       // - All males earn $100/hr
@@ -156,16 +172,179 @@ describe("calculateMedianHourlyPayGaps", () => {
   })
 })
 
-describe("calculateAll", () => {
-  describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
-    it(`all calculations are performed`, async () => {
+describe("calculateMeanOvertimePayGaps", () => {
+  describe(`given a simulated list of people with gender codes and overtime pay data`, () => {
+    it(`mean gender overtime pay gaps are calculated correctly`, () => {
 
-      // Create a mock pay transparency CSV.
       // For these mock hourly pay data, assume:
       // - All males earn $100/hr
       // - All females earn $99/hr
       // - All non-binary people earn $98/hr
       // - All people whose gender is unknown earn $97/hr
+      // Add 10 fake people in each gender category
+      const overtimePayStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        overtimePayStats.push(v, GENDER_CODES.MALE[0]);
+        overtimePayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        overtimePayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimePayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats);
+
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_M)[0].value).toBe(0);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateMedianOvertimePayGaps", () => {
+  describe(`given a simulated list of people with gender codes and overtime pay data`, () => {
+    it(` median gender overtime pay gaps are calculated correctly`, () => {
+
+      // For these mock overtime pay data, assume:
+      // - All males earn $100/hr for overtime
+      // - All females earn $99/hr for overtime
+      // - All non-binary people earn $98/hr for overtime
+      // - All people whose gender is unknown earn $97/hr for overtime
+      // Add 10 fake people in each gender category
+      const overtimePayStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        overtimePayStats.push(v, GENDER_CODES.MALE[0]);
+        overtimePayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        overtimePayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimePayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats);
+
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M)[0].value).toBe(0);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateMeanOvertimeHoursGaps", () => {
+  describe(`given a simulated list of people with gender codes and overtime hours data`, () => {
+    it(`mean gender overtime hours gaps are calculated correctly`, () => {
+
+      // For these mock overtime hours data, assume:
+      // - All males work 100 OT hours
+      // - All females work 99 OT hours
+      // - All non-binary people work 98 OT hours
+      // - All people whose gender is unknown work 97 OT hours
+      // Add 10 fake people in each gender category
+      const overtimeHoursStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        overtimeHoursStats.push(v, GENDER_CODES.MALE[0]);
+        overtimeHoursStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        overtimeHoursStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimeHoursStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats);
+
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M)[0].value).toBe(0);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W)[0].value).toBe(1);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X)[0].value).toBe(2);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U)[0].value).toBe(3);
+    })
+  })
+})
+
+describe("calculateMedianOvertimeHoursGaps", () => {
+  describe(`given a simulated list of people with gender codes and overtime hours data`, () => {
+    it(` median gender overtime hours gaps are calculated correctly`, () => {
+
+      // For these mock overtime hours data, assume:
+      // - All males work 100 OT hours
+      // - All females work 99 OT hours
+      // - All non-binary people work 98 OT hours
+      // - All people whose gender is unknown work 97 OT hours
+      // Add 10 fake people in each gender category
+      const overtimeHoursStats = new ColumnStats();
+      Array(10).fill(100).forEach(v => {
+        overtimeHoursStats.push(v, GENDER_CODES.MALE[0]);
+        overtimeHoursStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+        overtimeHoursStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimeHoursStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+      });
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats);
+
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M)[0].value).toBe(0);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W)[0].value).toBe(1);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X)[0].value).toBe(2);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U)[0].value).toBe(3);
+    })
+  })
+})
+
+
+describe("calculateMeanBonusPayGaps", () => {
+  describe(`given a simulated list of people with gender codes and bonus pay data`, () => {
+    it(`mean gender bonus pay gaps are calculated correctly`, () => {
+
+      // For these mock bonus pay data, assume:
+      // - All males earn $1000 in annual bonus pay
+      // - All females earn $990 in annual bonus pay
+      // - All non-binary people earn $980 in annual bonus pay
+      // - All people whose gender is unknown earn $970 in annual bonus pay
+      // Add 10 fake people in each gender category
+      const hourlyPayStats = new ColumnStats();
+      Array(10).fill(1000).forEach(v => {
+        hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
+        hourlyPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);
+        hourlyPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
+        hourlyPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
+      });
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanBonusPayGaps(hourlyPayStats);
+
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateMedianBonusPayGaps", () => {
+  describe(`given a simulated list of people with gender codes and bonus pay data`, () => {
+    it(`median gender bonus pay gaps are calculated correctly`, () => {
+
+      // For these mock bonus pay data, assume:
+      // - All males earn $1000 in annual bonus pay
+      // - All females earn $990 in annual bonus pay
+      // - All non-binary people earn $980 in annual bonus pay
+      // - All people whose gender is unknown earn $970 in annual bonus pay
+      // Add 10 fake people in each gender category
+      const hourlyPayStats = new ColumnStats();
+      Array(10).fill(1000).forEach(v => {
+        hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
+        hourlyPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);
+        hourlyPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
+        hourlyPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
+      });
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianBonusPayGaps(hourlyPayStats);
+
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W)[0].value).toBe(0.01);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X)[0].value).toBe(0.02);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U)[0].value).toBe(0.03);
+    })
+  })
+})
+
+describe("calculateAll", () => {
+  describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
+    it(`all calculations are performed`, async () => {
+
+      // Create a mock pay transparency CSV.
+      // For these mock overtime pay data, assume:
+      // - All males earn $100/hr for overtime
+      // - All females earn $99/hr for overtime
+      // - All non-binary people earn $98/hr for overtime
+      // - All people whose gender is unknown earn $97/hr for overtime
       // Add 10 fake people in each gender category
       const csvReadable = new Readable();
       csvReadable.push(`Gender Code,Hours Worked,Ordinary Pay,Special Salary,Overtime Hours,Overtime Pay,Bonus Pay\n`);

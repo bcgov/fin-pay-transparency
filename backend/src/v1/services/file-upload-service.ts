@@ -77,7 +77,7 @@ const fileUploadService = {
     const body = req.body;
     const userInfo = utils.getSessionUser(req);
     const startDate = moment(body.startDate, "YYYY-MM").startOf("month");
-    const endDate = moment(body.startDate, "YYYY-MM").endOf("month");
+    const endDate = moment(body.endDate, "YYYY-MM").endOf("month");
 
     const payTransparencyUser = await tx.pay_transparency_user.findFirst({
       where: {
@@ -148,6 +148,7 @@ const fileUploadService = {
 
     for (let calculatedAmount of calculatedAmounts) {
 
+
       const calculationCodeId = calculationCodeToIdMap[calculatedAmount.calculationCode];
       if (!calculationCodeId) {
         throw new Error(`Unknown calculation code '${calculatedAmount.calculationCode}'`);
@@ -160,13 +161,20 @@ const fileUploadService = {
         }
       });
 
+      // All calculated values are cast to strings before saving to the 
+      // database
+      const calculatedValueAsString =
+        calculatedAmount.value !== null ?
+          calculatedAmount.value.toString() :
+          null;
+
       if (existing) {
         await tx.pay_transparency_calculated_data.update({
           where: {
             calculated_data_id: existing.calculated_data_id
           },
           data: {
-            value: calculatedAmount.value,
+            value: calculatedValueAsString,
             is_suppressed: calculatedAmount.isSuppressed
           }
         });
@@ -176,7 +184,7 @@ const fileUploadService = {
           data: {
             report_id: reportId,
             calculation_code_id: calculationCodeId,
-            value: calculatedAmount.value,
+            value: calculatedValueAsString,
             is_suppressed: calculatedAmount.isSuppressed
           }
         });
