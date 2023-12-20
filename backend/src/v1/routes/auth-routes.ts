@@ -1,12 +1,12 @@
-import {config} from '../../config';
+import { config } from '../../config';
 import passport from 'passport';
 import express from 'express';
-import {auth} from '../services/auth-service';
-import {logger as log} from '../../logger';
-import {v4 as uuidv4} from 'uuid';
-import {utils} from '../services/utils-service';
+import { auth } from '../services/auth-service';
+import { logger as log } from '../../logger';
+import { v4 as uuidv4 } from 'uuid';
+import { utils } from '../services/utils-service';
 
-import {body, validationResult} from 'express-validator';
+import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
 
@@ -99,13 +99,8 @@ router.post('/refresh', [
 router.get('/token', auth.refreshJWT, (req, res) => {
   if (req?.user && req.user?.jwtFrontend && req.user?.refreshToken) {
     if (req.session?.passport?.user?._json) {
-      const correlationID = uuidv4();
-      req.session.correlationID = correlationID;
-      const correlation = {
-        user_guid: req.session?.passport?.user?._json?.user_guid,
-        correlation_id: correlationID
-      };
-      log.info('created correlation id and stored in session', correlation);
+      req.session.correlationID = uuidv4();
+      log.info(`created correlation id and stored in session for user guid: ${req.session?.passport?.user?._json?.bceid_user_guid}, user name: ${req.session?.passport?.user?._json?.bceid_username}, correlation_id:  ${req.session.correlationID}`);
     }
     const responseJson = {
       jwtFrontend: req.user.jwtFrontend

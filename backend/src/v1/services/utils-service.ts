@@ -34,7 +34,6 @@ async function getKeycloakPublicKey() {
       const soamFullPublicKey = `-----BEGIN PUBLIC KEY----- ${pubKey} -----END PUBLIC KEY-----`;
       const newline = "\n";
       return soamFullPublicKey.substring(0, 26) + newline + soamFullPublicKey.substring(27, 91) + newline + soamFullPublicKey.substring(91, 155) + newline + soamFullPublicKey.substring(155, 219) + newline + soamFullPublicKey.substring(219, 283) + newline + soamFullPublicKey.substring(283, 346) + newline + soamFullPublicKey.substring(346, 411) + newline + soamFullPublicKey.substring(411, 420) + newline + soamFullPublicKey.substring(420);
-
     }
   } catch (error) {
     log.error('getOidcDiscovery', `OIDC Discovery failed - ${error.message}`);
@@ -48,14 +47,11 @@ function minify(obj, keys = ['documentData']) {
 }
 
 function getSessionUser(req) {
-  log.verbose('getSessionUser', req.session?.passport?.user);
-  const session = req.session;
-  return session && session.passport && session.passport.user;
+  return req.session?.passport?.user;
 }
 
 function getAccessToken(req) {
-  const user = getSessionUser(req);
-  return user && user.jwt;
+  return getSessionUser(req)?.jwt;
 }
 
 async function deleteData(token, url, correlationID) {
