@@ -25,8 +25,8 @@ const GENDER_CODES = {
 }
 
 interface ReportAndCalculations {
-  report: unknown,
-  calculated_datas: unknown[]
+  report: any,
+  calculations: {}
 };
 
 const reportServicePrivate = {
@@ -46,7 +46,7 @@ const reportService = {
   along with the calculated data associated with that report 
   */
   async getReportAndCalculations(req, reportId: string): Promise<ReportAndCalculations> {
-    let reportAndCalculations = null;
+    let reportAndCalculations: ReportAndCalculations | null = null;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo) {
       log.error("Unable to look user info");
@@ -87,12 +87,16 @@ const reportService = {
       });
 
       // Reorganize the calculation data results into an object of this format:
-      // [CALCULATION CODE 1] => [VALUE]    
-      // [CALCULATION CODE 2] => [VALUE] 
+      // [CALCULATION CODE 1] => { value: "100", isSuppressed: false }
+      // [CALCULATION CODE 2] => { value: "200", isSuppressed: false }
       // ...etc
       const calcs = {};
       calculatedDatas.forEach(c => {
-        calcs[c.calculation_code.calculation_code] = c.value;
+        calcs[c.calculation_code.calculation_code] =
+        {
+          value: c.value,
+          isSuppressed: c.is_suppressed
+        };
       });
 
       reportAndCalculations = {
@@ -177,22 +181,22 @@ const reportService = {
       }
     };
 
-    console.log(templateParams);
-
     const workingHtml = ejs.render(ejsTemplate, templateParams);
     let renderedHtml = null;
 
     await (async () => {
 
+      // Launch a headless browser which we'll use to prepare the report as
+      // an HTML web page.
       const browser = await puppeteer.launch({
         args: [
-          '--no-sandbox',
+          '--no-sandbox', //required when running inside our docker container
+          '--enable-logging',
+          '--allow-file-access-from-files'
           //'--disable-setuid-sandbox',
           //'--disable-dev-shm-usage',
           //'--disable-gpu',
-          '--enable-logging',
           //'--v=1',
-          '--allow-file-access-from-files'
         ],
         headless: 'new',
         dumpio: true,
@@ -209,6 +213,8 @@ const reportService = {
 
       await page.setContent(workingHtml, { waitUntil: 'networkidle0' });
 
+      // Generate charts as SVG, and inject the charts into the DOM of the 
+      // current page
       await page.evaluate((chartData) => {
         const chartColors = [
           "#1c3664", //Male
@@ -216,7 +222,6 @@ const reportService = {
           "#00a54f", //Non-binary
           "#444444"  //Unknown
         ];
-
         document.getElementById("mean-hourly-pay-gap-chart").appendChild(
           // @ts-ignore
           horizontalBarChart(chartData.meanHourlyPayGap, chartColors)
@@ -242,9 +247,9 @@ const reportService = {
           horizontalBarChart(chartData.medianOvertimePayGap, chartColors)
         )
 
-      }, chartData)
-      //const div = await page.$('#median-hourly-pay-gap-chart');
-      //console.log(div)
+      }, chartData);
+
+      // Extract the HTML of the active DOM, which includes the injected charts
       renderedHtml = await page.content();
 
       await browser.close();
@@ -258,6 +263,6 @@ const reportService = {
 
 }
 
-export { reportService, reportServicePrivate };
+export { GENDER_CODES, ReportAndCalculations, reportService, reportServicePrivate };
 
 
