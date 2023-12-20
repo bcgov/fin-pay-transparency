@@ -17,7 +17,7 @@ prisma.$connect().then(() => {
   server.on('error', onError);
   server.on('listening', onListening);
 }).catch((error) => {
-  logger.info(error);
+  logger.error(error);
   process.exit(1);
 });
 
@@ -66,7 +66,7 @@ process.on('SIGINT', () => {
       process.exit(0);
     })
     .catch((error) => {
-      console.error('Error while disconnecting from Prisma:', error);
+      logger.error('Error while disconnecting from Prisma:', error);
       process.exit(1); // Handle the error and exit with a non-zero status code
     });
 });
@@ -78,7 +78,7 @@ process.on('SIGTERM', () => {
       process.exit(0);
     })
     .catch((error) => {
-      console.error('Error while disconnecting from Prisma:', error);
+      logger.error('Error while disconnecting from Prisma:', error);
       process.exit(1); // Handle the error and exit with a non-zero status code
     });
 });
