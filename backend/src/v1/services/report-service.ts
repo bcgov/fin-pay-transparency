@@ -165,19 +165,19 @@ const reportService = {
         employeeCountRange: reportAndCalculations.report.employee_count_range.employee_count_range,
         dataConstraints: reportAndCalculations.report.data_constraints,
         comments: reportAndCalculations.report.user_comment,
-        referenceGenderCategory: reportServicePrivate.genderCodeToLabel(calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]),
+        referenceGenderCategory: reportServicePrivate.genderCodeToLabel(calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value),
         meanOvertimeHoursGap: [
-          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M])) },
-          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W])) },
-          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X])) },
-          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U])) }
-        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]),
+          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M].value)) },
+          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W].value)) },
+          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X].value)) },
+          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U].value)) }
+        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value),
         medianOvertimeHoursGap: [
-          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M])) },
-          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W])) },
-          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X])) },
-          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U])) }
-        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]),
+          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M].value)) },
+          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W].value)) },
+          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X].value)) },
+          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U].value)) }
+        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value),
       }
     };
 
