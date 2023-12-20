@@ -1,10 +1,10 @@
-import express from "express";
+import express from 'express';
 
-import bodyParser from "body-parser";
-import cors from "cors";
+import bodyParser from 'body-parser';
+import cors from 'cors';
 import session from 'express-session';
-import helmet from "helmet";
-import morgan from "morgan";
+import helmet from 'helmet';
+import morgan from 'morgan';
 import noCache from 'nocache';
 import passport from 'passport';
 import { resolve } from 'path';
@@ -41,10 +41,10 @@ app.use(noCache());
 
 
 //tells the app to use json as means of transporting data
-app.use(bodyParser.json({ limit: "50mb", extended: true }));
+app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({
   extended: true,
-  limit: "50mb"
+  limit: '50mb'
 }));
 
 const cookie = {
@@ -58,12 +58,16 @@ const sess = {
   name: 'fin_pay_transparency_cookie',
   secret: config.get('oidc:clientSecret'),
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: cookie,
-  store: new fileSession({ path: resolve('./', config.get('server:sessionPath')) }),
+  store: new fileSession({
+    path: resolve('./', config.get('server:sessionPath')), logFn: (msg: string) => {
+      logger.silly(msg);
+    }
+  })
 };
 if ('production' === config.get('environment')) {
-  app.set("trust proxy", 1);
+  app.set('trust proxy', 1);
 }
 app.use(session(sess));
 //initialize routing and session. Cookies are now only reachable via requests (not js)
@@ -83,7 +87,7 @@ function addLoginPassportUse(discovery, strategyName, callbackURI, kc_idp_hint) 
     callbackURL: callbackURI,
     scope: 'bceidbusiness',
     kc_idp_hint: kc_idp_hint,
-    sessionKey: 'fin-pay-transparency',
+    sessionKey: 'fin-pay-transparency'
   }, (_issuer, profile, _context, idToken, accessToken, refreshToken, done) => {
     logger.debug(`Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`);
     if ((typeof (accessToken) === 'undefined') || (accessToken === null) ||
@@ -143,10 +147,10 @@ utils.getOidcDiscovery().then(discovery => {
 //functions for serializing/deserializing users
 passport.serializeUser((user, next) => next(null, user));
 passport.deserializeUser((obj, next) => next(null, obj));
-app.use(morgan("dev", {
+app.use(morgan('dev', {
   stream: logStream,
   skip: (req, _res) => {
-    return req.baseUrl === "" || req.baseUrl === "/" || req.baseUrl === "/health";
+    return req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health';
   }
 }));
 app.get('/metrics', async (_req, res) => {
@@ -156,12 +160,12 @@ app.get('/metrics', async (_req, res) => {
 });
 
 app.use(/(\/api)?/, apiRouter);
-apiRouter.get("/", (req, res, next) => {
+apiRouter.get('/', (req, res, next) => {
   res.sendStatus(200);// generally for route verification and health check.
 });
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/user', userRouter);
-apiRouter.use("/v1/file-upload", fileUploadRouter);
-apiRouter.use("/v1/codes", codeRouter);
+apiRouter.use('/v1/file-upload', fileUploadRouter);
+apiRouter.use('/v1/codes', codeRouter);
 export { app };
 
