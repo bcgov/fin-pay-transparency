@@ -1,5 +1,5 @@
 # Build static files
-FROM node:alpine3.16 AS build
+FROM node:lts-alpine AS build
 
 WORKDIR /app
 COPY . .
@@ -7,7 +7,7 @@ RUN npm ci --ignore-scripts && \
     npm run build
 
 # Caddy
-FROM caddy:2.6.4-alpine
+FROM caddy:2.7-alpine
 
 # Copy static files and config
 COPY --from=build /app/dist /app/dist

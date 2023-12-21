@@ -58,13 +58,6 @@
         "^@prettier\\/",
         "^prettier-plugin-"
       ]
-    },
-    {
-      "matchManagers": [
-        "dockerfile",
-        "docker-compose"
-      ],
-      "enabled": false
     }
   ],
   "lockFileMaintenance": {

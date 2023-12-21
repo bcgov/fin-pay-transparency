@@ -449,8 +449,8 @@ export default {
         formData.append('employeeCountRangeId', this.employeeCountRange);
         formData.append('startDate', this.startDate);
         formData.append('endDate', this.endDate);
-        formData.append('dataConstraints', this.dataConstraints);
-        formData.append('comments', this.comments);
+        formData.append('dataConstraints', this.dataConstraints ? this.dataConstraints : "");
+        formData.append('comments', this.comments ? this.comments : "");
         formData.append('file', this.uploadFileValue[0]);
         const oldBody = {
           companyName: this.companyName,
