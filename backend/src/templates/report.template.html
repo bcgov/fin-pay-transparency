@@ -157,7 +157,7 @@
       <h1 class="text-primary mb-4">Pay Transparency Report</h1>
 
       <% if (comments) { %>
-        <p class="text-tertiary">
+        <p class="text-tertiary mb-4">
           <%= comments %>
         </p>
         <% } %>
@@ -228,7 +228,7 @@
               <% if (explanatoryNotes.dataConstraints) { %>
                 <div class="footnote">
                   <div class="footnote-number">
-                    <%= explanatoryNotes.dataConstraints.num %>
+                    <%= explanatoryNotes.dataConstraints.num %>.
                   </div>
                   <div>
                     <%= explanatoryNotes.dataConstraints.text %>
