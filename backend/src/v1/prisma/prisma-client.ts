@@ -17,6 +17,11 @@ if (!prisma) {
     errorFormat: 'pretty',
     datasourceUrl: datasourceUrl
   });
+  // @ts-expect-error, this is a prisma thing.
+  prisma.$on('query', (e) => {
+    // @ts-expect-error, this is a prisma thing.
+    logger.info(`Params: ${e.params} \n Duration: ${e.duration}ms`);
+  });
 }
 
 export default prisma;
