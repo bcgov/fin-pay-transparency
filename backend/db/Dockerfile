@@ -1,7 +1,7 @@
-FROM flyway/flyway:9.19-alpine
+FROM flyway/flyway:10-alpine
 
 # Non-root user
-RUN adduser -D app.ts
+RUN adduser -D app
 USER app
 
 # Copy migrations
