@@ -95,20 +95,6 @@ model pay_transparency_company {
   report_history          report_history[]
 }
 
-model pay_transparency_input_data {
-  report_id               String                  @db.Uuid
-  input_data_id           String                  @id(map: "input_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  employee_number         String                  @db.VarChar(10)
-  gender_code             String                  @db.VarChar(1)
-  hours_worked            Decimal                 @db.Decimal
-  regular_pay             Decimal                 @db.Decimal
-  special_pay             Decimal                 @db.Decimal
-  overtime_pay            Decimal                 @db.Decimal
-  overtime_hours          Decimal                 @db.Decimal
-  bonus_pay               Decimal                 @db.Decimal
-  pay_transparency_report pay_transparency_report @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "input_data_report_id_fk")
-}
-
 model pay_transparency_report {
   report_id                                                 String                             @id(map: "report_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   company_id                                                String                             @db.Uuid
@@ -126,7 +112,6 @@ model pay_transparency_report {
   revision                                                  Decimal                            @db.Decimal
   data_constraints                                          String?                            @db.VarChar(3000)
   pay_transparency_calculated_data                          pay_transparency_calculated_data[]
-  pay_transparency_input_data                               pay_transparency_input_data[]
   naics_code_pay_transparency_report_naics_codeTonaics_code naics_code                         @relation("pay_transparency_report_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_naics_code_fk")
   employee_count_range                                      employee_count_range               @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_employee_count_range_id_fk")
   pay_transparency_company                                  pay_transparency_company           @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_pt_company_id_fk")
