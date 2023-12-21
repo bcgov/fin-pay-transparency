@@ -2,7 +2,7 @@ import ejs from 'ejs';
 import puppeteer from 'puppeteer';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
-import { GENDER_CODES, ReportAndCalculations, reportService } from './report-service';
+import { GENDERS, GenderChartInfo, ReportAndCalculations, reportService, reportServicePrivate } from './report-service';
 import { utils } from './utils-service';
 
 jest.mock('./utils-service');
@@ -158,7 +158,7 @@ describe("getReportHtml", () => {
         },
         calculations: {}
       }
-      mockReportAndCalculations.calculations[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE] = GENDER_CODES.MALE;
+      mockReportAndCalculations.calculations[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE] = { value: GENDERS.MALE.code };
 
       jest.spyOn(reportService, "getReportAndCalculations").mockResolvedValueOnce(mockReportAndCalculations);
       const mockPage = {
@@ -198,3 +198,22 @@ describe("getReportHtml", () => {
     })
   })
 })
+
+describe("genderCodeToGenderChartInfo", () => {
+  describe("when a valid gender code is provided", () => {
+    it("returns an object containing info about how the gender category should be depicted on charts", () => {
+      Object.values(GENDERS).map(d => d.code).forEach(genderCode => {
+        const genderChartInfo: GenderChartInfo = reportServicePrivate.genderCodeToGenderChartInfo(genderCode);
+        expect(genderChartInfo?.code).toBe(genderCode);
+        expect(genderChartInfo?.label).not.toBeNull();
+        expect(genderChartInfo?.color).not.toBeNull();
+      });
+    });
+  });
+  describe("when an valid gender code is provided", () => {
+    it("returns null", () => {
+      const genderChartInfo: GenderChartInfo = reportServicePrivate.genderCodeToGenderChartInfo("NOT_A_GENDER_CODE");
+      expect(genderChartInfo).toBeNull();
+    });
+  });
+});

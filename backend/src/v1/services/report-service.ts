@@ -9,40 +9,95 @@ import prisma from "../prisma/prisma-client";
 import { CALCULATION_CODES } from './report-calc-service';
 import { utils } from './utils-service';
 
-const GENDER_COLORS = {
-  MALE: "#1c3664",
-  FEMALE: "#1b75bb",
-  NON_BINARY: "#00a54f",
-  UNKNOWN: "#444444"
-}
-
-const GENDER_LABELS = {
-  MALE: "Men",
-  FEMALE: "Women",
-  NON_BINARY: "Non-binary",
-  UNKNOWN: "Prefer not to say / Unknown"
-}
-
-const GENDER_CODES = {
-  MALE: "M",
-  FEMALE: "W",
-  NON_BINARY: "X",
-  UNKNOWN: "U"
-}
-
 interface ReportAndCalculations {
   report: any,
   calculations: {}
 };
 
+interface CalcCodeGenderCode {
+  calculationCode: string,
+  genderCode: string
+}
+
+interface ChartDataRecord {
+  label: string,
+  value: number,
+  color: string
+}
+
+interface GenderChartInfo {
+  code: string,
+  label: string,
+  color: string
+}
+
+const GENDERS = {
+  MALE: { code: "M", label: "Men", color: "#1c3664" } as GenderChartInfo,
+  FEMALE: { code: "F", label: "Women", color: "#1b75bb" } as GenderChartInfo,
+  NON_BINARY: { code: "X", label: "Non-binary", color: "#00a54f" } as GenderChartInfo,
+  UNKNOWN: { code: "U", label: "Prefer not to say / Unknown", color: "#444444" } as GenderChartInfo,
+}
+
 const reportServicePrivate = {
   REPORT_TEMPLATE: resolve(config.get('server:templatePath') || "", "report.template.html"),
   REPORT_TEMPLATE_SCRIPT: resolve(config.get('server:templatePath') || "", "report.script.js"),
 
-  genderCodeToLabel: (genderCode) => {
-    const matches = Object.keys(GENDER_CODES).filter(k => GENDER_CODES[k] == genderCode).map(k => GENDER_LABELS[k]);
-    return matches?.length ? matches[0] : 0;
-  }
+  /*
+  Converts a gender code (such as "M" or "U") into a GenderChartInfo
+  object which includes information about how that gender category should 
+  be shown in charts
+  */
+  genderCodeToGenderChartInfo(genderCode: string): GenderChartInfo {
+    const matches = Object.keys(GENDERS).filter(k => GENDERS[k].code == genderCode).map(k => GENDERS[k]);
+    return matches?.length ? matches[0] : null;
+  },
+
+  /* 
+    Pay gaps are represented internally as percentages relative to
+    a reference category.  For reporting this internal representation of
+    pay gaps is converted into a dollar amount relative to the reference 
+    category which is assumed to be $1.  This lets representation lets
+    us show "for every $1 earned by a person in category A, a person
+    in category B earn $X"  
+    */
+  payGapPercentToDollar(percent: number): number {
+    return 1 - percent / 100;
+  },
+
+  /*
+  Converts a CalcCodeGenderCode object (which identifies a calculation code
+  and the gender code it corresponds to) into a ChartDataRecord object
+  (which contains everything needed to draw the calculation corresponding
+  to the calculation code on a chart).
+  If a conversion is not possible, returns null.
+  @param calculations is an object with calculation codes as keys,
+  and values are objects of this format { value: "100", isSuppressed: false }
+  For example:
+    CALCULATION_CODE_1 => { value: "100", isSuppressed: false }
+    CALCULATION_CODE_2 => { value: "200", isSuppressed: false }
+  @param valueMapFunction: a function to convert the raw calculated value into 
+  a different format.
+  */
+  toChartDataRecord(
+    calculations: any,
+    calcCodeGenderCode: CalcCodeGenderCode,
+    valueMapFunction: Function = (d) => d
+  ): ChartDataRecord | null {
+    const hasCalc = calculations.hasOwnProperty(calcCodeGenderCode.calculationCode)
+    if (!hasCalc || calculations[calcCodeGenderCode.calculationCode].isSuppressed) {
+      return null;
+    }
+    const genderChartInfo = this.genderCodeToGenderChartInfo(calcCodeGenderCode.genderCode);
+    if (!genderChartInfo) {
+      throw new Error(`Unable to lookup GenderChartInfo for gender code '${calcCodeGenderCode.genderCode}'`);
+    }
+    return {
+      label: genderChartInfo.label,
+      value: valueMapFunction(parseFloat(calculations[calcCodeGenderCode.calculationCode].value)),
+      color: genderChartInfo.color
+    }
+  },
+
 }
 
 const reportService = {
@@ -86,6 +141,7 @@ const reportService = {
       const calculatedDatas = await tx.pay_transparency_calculated_data.findMany({
         where: {
           report_id: reportId,
+          is_suppressed: false
         },
         include: {
           calculation_code: true
@@ -115,6 +171,7 @@ const reportService = {
     return reportAndCalculations;
   },
 
+
   async getReportHtml(req, reportId: string): Promise<string> {
     const reportAndCalculations = await this.getReportAndCalculations(req, reportId);
     const calcs = reportAndCalculations.calculations;
@@ -122,41 +179,48 @@ const reportService = {
     // Organize specific calculations to show on specific charts
     const chartData = {
       meanHourlyPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
-      ],
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U } as CalcCodeGenderCode
+      ].map(d => reportServicePrivate.toChartDataRecord(calcs, d, reportServicePrivate.payGapPercentToDollar)).filter(d => d),
       medianHourlyPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
-      ],
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U } as CalcCodeGenderCode
+      ].map(d => reportServicePrivate.toChartDataRecord(calcs, d, reportServicePrivate.payGapPercentToDollar)).filter(d => d),
       meanOvertimePayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
-      ],
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_U } as CalcCodeGenderCode
+      ].map(d => reportServicePrivate.toChartDataRecord(calcs, d, reportServicePrivate.payGapPercentToDollar)).filter(d => d),
       medianOvertimePayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
-      ],
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U } as CalcCodeGenderCode
+      ].map(d => reportServicePrivate.toChartDataRecord(calcs, d, reportServicePrivate.payGapPercentToDollar)).filter(d => d),
       meanBonusPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
-      ],
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U } as CalcCodeGenderCode
+      ].map(d => reportServicePrivate.toChartDataRecord(calcs, d, reportServicePrivate.payGapPercentToDollar)).filter(d => d),
       medianBonusPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U]?.value) / 100 }
-      ]
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U } as CalcCodeGenderCode
+      ].map(d => reportServicePrivate.toChartDataRecord(calcs, d, reportServicePrivate.payGapPercentToDollar)).filter(d => d)
+    }
+
+    console.log(chartData)
+
+    const referenceGenderChartInfo = reportServicePrivate.genderCodeToGenderChartInfo(calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]?.value)
+    if (!referenceGenderChartInfo) {
+      throw new Error(`Cannot find chart info for the reference category '${calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]?.value}'`);
     }
 
     const ejsTemplate = await fs.readFile(reportServicePrivate.REPORT_TEMPLATE, { encoding: 'utf8' });
@@ -171,19 +235,23 @@ const reportService = {
         employeeCountRange: reportAndCalculations.report.employee_count_range.employee_count_range,
         dataConstraints: reportAndCalculations.report.data_constraints,
         comments: reportAndCalculations.report.user_comment,
-        referenceGenderCategory: reportServicePrivate.genderCodeToLabel(calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value),
+        referenceGenderCategory: referenceGenderChartInfo.label,
         meanOvertimeHoursGap: [
-          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M]?.value)) },
-          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W]?.value)) },
-          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X]?.value)) },
-          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U]?.value)) }
-        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value),
+          { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M } as CalcCodeGenderCode,
+          { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W } as CalcCodeGenderCode,
+          { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X } as CalcCodeGenderCode,
+          { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U } as CalcCodeGenderCode
+        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value)
+          .map(d => reportServicePrivate.toChartDataRecord(calcs, d, Math.round))
+          .filter(d => d),
         medianOvertimeHoursGap: [
-          { genderCode: GENDER_CODES.MALE, label: GENDER_LABELS.MALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M]?.value)) },
-          { genderCode: GENDER_CODES.FEMALE, label: GENDER_LABELS.FEMALE, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W]?.value)) },
-          { genderCode: GENDER_CODES.NON_BINARY, label: GENDER_LABELS.NON_BINARY, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X]?.value)) },
-          { genderCode: GENDER_CODES.UNKNOWN, label: GENDER_LABELS.UNKNOWN, value: Math.round(parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U]?.value)) }
-        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value),
+          { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M } as CalcCodeGenderCode,
+          { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W } as CalcCodeGenderCode,
+          { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X } as CalcCodeGenderCode,
+          { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U } as CalcCodeGenderCode
+        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value)
+          .map(d => reportServicePrivate.toChartDataRecord(calcs, d, Math.round))
+          .filter(d => d),
       }
     };
 
@@ -191,6 +259,7 @@ const reportService = {
     let renderedHtml = null;
 
     await (async () => {
+
 
       // Launch a headless browser which we'll use to prepare the report as
       // an HTML web page.
@@ -222,29 +291,42 @@ const reportService = {
       // Generate charts as SVG, and inject the charts into the DOM of the 
       // current page
       await page.evaluate((chartData) => {
+        const INSUFFICIENT_DATA_ERROR = "This measure cannot be displayed as the reference category has less than 10 employees";
         document.getElementById("mean-hourly-pay-gap-chart").appendChild(
-          // @ts-ignore
-          horizontalBarChart(chartData.meanHourlyPayGap)
+          chartData.medianHourlyPayGap.length ?
+            // @ts-ignore
+            horizontalBarChart(chartData.meanHourlyPayGap) :
+            document.createTextNode(INSUFFICIENT_DATA_ERROR)
         );
         document.getElementById("median-hourly-pay-gap-chart").appendChild(
-          // @ts-ignore
-          horizontalBarChart(chartData.medianHourlyPayGap)
+          chartData.medianHourlyPayGap.length ?
+            // @ts-ignore
+            horizontalBarChart(chartData.medianHourlyPayGap) :
+            document.createTextNode(INSUFFICIENT_DATA_ERROR)
         )
         document.getElementById("mean-overtime-pay-gap-chart").appendChild(
-          // @ts-ignore
-          horizontalBarChart(chartData.meanOvertimePayGap)
+          chartData.meanOvertimePayGap.length ?
+            // @ts-ignore
+            horizontalBarChart(chartData.meanOvertimePayGap) :
+            document.createTextNode(INSUFFICIENT_DATA_ERROR)
         );
         document.getElementById("median-overtime-pay-gap-chart").appendChild(
-          // @ts-ignore
-          horizontalBarChart(chartData.medianOvertimePayGap)
+          chartData.medianOvertimePayGap.length ?
+            // @ts-ignore
+            horizontalBarChart(chartData.medianOvertimePayGap) :
+            document.createTextNode(INSUFFICIENT_DATA_ERROR)
         )
         document.getElementById("mean-bonus-pay-gap-chart").appendChild(
-          // @ts-ignore
-          horizontalBarChart(chartData.meanBonusPayGap)
+          chartData.medianBonusPayGap.length ?
+            // @ts-ignore
+            horizontalBarChart(chartData.meanBonusPayGap) :
+            document.createTextNode(INSUFFICIENT_DATA_ERROR)
         );
         document.getElementById("median-bonus-pay-gap-chart").appendChild(
-          // @ts-ignore
-          horizontalBarChart(chartData.medianBonusPayGap)
+          chartData.medianBonusPayGap.length ?
+            // @ts-ignore
+            horizontalBarChart(chartData.medianBonusPayGap) :
+            document.createTextNode(INSUFFICIENT_DATA_ERROR)
         )
 
       }, chartData);
@@ -263,6 +345,6 @@ const reportService = {
 
 }
 
-export { GENDER_CODES, ReportAndCalculations, reportService, reportServicePrivate };
+export { GENDERS, GenderChartInfo, ReportAndCalculations, reportService, reportServicePrivate };
 
 
