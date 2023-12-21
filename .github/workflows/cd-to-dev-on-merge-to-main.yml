@@ -2,17 +2,39 @@ name: Merge to Main
 env:
   deployment_name: pay-transparency
 on:
-  workflow_run:
-    workflows: [ "Pull Request Closed" ]
-    types:
-      - completed
+  push:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - 'docker-compose.yml'
+      - 'renovate.json'
+      - 'COMPLIANCE.yaml'
+      - '.gitignore'
+      - '.vscode/**'
+      - '.diagrams/**'
+      - '.graphics/**'
   workflow_dispatch:
+    inputs:
+      pr_no:
+        description: "PR-numbered container set to deploy"
+        type: number
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
+  vars:
+    name: Set Variables
+    outputs:
+      pr: ${{ steps.pr.outputs.pr }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 1
+    steps: # Get PR number for squash merges to main
+      - name: PR Number
+        id: pr
+        uses: bcgov-nr/action-get-pr@v0.0.1
   codeql:
     name: Semantic Code Analysis
     runs-on: ubuntu-22.04
@@ -57,7 +79,7 @@ jobs:
           skip-on-empty: 'false'
           git-push: 'true'
   retag-images:
-    needs: [ semantic-version ]
+    needs: [ vars, semantic-version ]
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -68,8 +90,10 @@ jobs:
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.package }}
-          target: dev
-          tags: ${{ needs.semantic-version.outputs.semanticVersion }}
+          target: ${{ needs.vars.outputs.pr }}
+          tags: |
+            ${{ needs.semantic-version.outputs.semanticVersion }}
+            dev
 
   deploys:
     name: Deploys (dev)

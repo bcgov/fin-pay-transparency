@@ -18,7 +18,7 @@ import { utils } from './v1/services/utils-service';
 import prom from 'prom-client';
 import prisma from './v1/prisma/prisma-client';
 import { logger } from './logger';
-
+import { rateLimit } from 'express-rate-limit';
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
 const app = express();
@@ -149,10 +149,20 @@ passport.serializeUser((user, next) => next(null, user));
 passport.deserializeUser((obj, next) => next(null, obj));
 app.use(morgan('dev', {
   stream: logStream,
-  skip: (req, _res) => {
+  skip: (req) => {
     return req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health';
   }
 }));
+if(config.get('server:rateLimit:enabled')) {
+  const limiter = rateLimit({
+    windowMs: config.get('server:rateLimit:windowMs'),
+    limit: config.get('server:rateLimit:limit'),
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers,
+    skipSuccessfulRequests: true, // Do not count successful responses
+  });
+  app.use(limiter);
+}
 app.get('/metrics', async (_req, res) => {
   const prismaMetrics = await prisma.$metrics.prometheus();
   const appMetrics = await register.metrics();
@@ -160,7 +170,7 @@ app.get('/metrics', async (_req, res) => {
 });
 
 app.use(/(\/api)?/, apiRouter);
-apiRouter.get('/', (req, res, next) => {
+apiRouter.get('/', (_req, res) => {
   res.sendStatus(200);// generally for route verification and health check.
 });
 apiRouter.use('/auth', authRouter);

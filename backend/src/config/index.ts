@@ -13,7 +13,12 @@ config.defaults({
     port: process.env.PORT || 3000,
     sessionPath: process.env.SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || "./src/templates",
-    uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE)
+    uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
+    rateLimit:{
+      enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
+      windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
+      limit: process.env.RATE_LIMIT_LIMIT || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
+    }
   },
   oidc: {
     keycloakUrl: process.env.KEYCLOAK_URL,
