@@ -10,8 +10,8 @@ describe("ColumnStats", () => {
   // Add enough Non-binary for Non-binary to be the reference category 
   //and for Non-binary to be 
   const numNonBinary = Math.max(
-    reportCalcServicePrivate.MIN_REQUIRED_PEOPLE_COUNT,
-    reportCalcServicePrivate.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY);
+    reportCalcService.MIN_REQUIRED_PEOPLE_COUNT,
+    reportCalcService.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY);
   beforeEach(() => {
     columnStats = new ColumnStats();
     columnStats.push(10, GENDER_CODES.FEMALE[0]);
@@ -81,7 +81,7 @@ describe("meetsPeopleCountThreshold", () => {
   describe(`when a gender group meets the people count threshold for calculations to be performed`, () => {
     it(`returns true`, () => {
       const columnStats = new ColumnStats();
-      Array(reportCalcServicePrivate.MIN_REQUIRED_PEOPLE_COUNT).fill(100).forEach(v => {
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.FEMALE[0]);
       })
       const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats, GENDER_CODES.FEMALE[0]);
@@ -91,7 +91,7 @@ describe("meetsPeopleCountThreshold", () => {
   describe(`when a gender group doesn't meet the people count threshold for calculations to be performed`, () => {
     it(`returns false`, () => {
       const columnStats = new ColumnStats();
-      Array(reportCalcServicePrivate.MIN_REQUIRED_PEOPLE_COUNT - 1).fill(100).forEach(v => {
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT - 1).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.FEMALE[0]);
       })
       const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats, GENDER_CODES.FEMALE[0]);
@@ -104,7 +104,7 @@ describe("meetsPeopleWithDataCountThreshold", () => {
   describe(`when a gender group meets the threshold for number of people with data for calculations to be performed`, () => {
     it(`returns true`, () => {
       const columnStats = new ColumnStats();
-      Array(reportCalcServicePrivate.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT).fill(100).forEach(v => {
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
       })
       const meetsThreshold = reportCalcServicePrivate.meetsPeopleWithDataCountThreshold(columnStats, GENDER_CODES.NON_BINARY[0]);
@@ -114,7 +114,7 @@ describe("meetsPeopleWithDataCountThreshold", () => {
   describe(`when a gender group doesn't meet the threshold for number of people with data for calculations to be performed`, () => {
     it(`returns false`, () => {
       const columnStats = new ColumnStats();
-      Array(reportCalcServicePrivate.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT - 1).fill(100).forEach(v => {
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT - 1).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
       })
       columnStats.push(0, GENDER_CODES.NON_BINARY[0]);

@@ -6,7 +6,7 @@ import puppeteer from 'puppeteer';
 import { config } from '../../config';
 import { logger as log } from '../../logger';
 import prisma from "../prisma/prisma-client";
-import { CALCULATION_CODES } from './report-calc-service';
+import { CALCULATION_CODES, reportCalcService } from './report-calc-service';
 import { utils } from './utils-service';
 
 interface ReportAndCalculations {
@@ -29,6 +29,11 @@ interface GenderChartInfo {
   code: string,
   label: string,
   color: string
+}
+
+interface ExplanatoryNote {
+  num: number,
+  text: string
 }
 
 const GENDERS = {
@@ -171,9 +176,52 @@ const reportService = {
     return reportAndCalculations;
   },
 
+  /*
+  Create an object listing all explanatory notes (footnote number, and note text) 
+  that will appear in the report.  The returned object has the following format:
+  {
+    meanHourlyPayDiff: { num: 1, text: "Note 1 text here" },
+    medianHourlyPayDiff: { num: 2, text: "Note 2 text here" },
+    ...
+    where the object keys are code values that uniquely identify each explanatory 
+    note, and the values are objects that include the note number and text.
+  }
+  */
+  createExplanatoryNotes(report: any) {
+    const explanatoryNotes = {};
+    let nextNum = 1;
+    if (report.data_constraints) {
+      explanatoryNotes["dataConstraints"] = {
+        num: nextNum++,
+        text: report.data_constraints
+      } as ExplanatoryNote
+    }
+
+    //assign numbers to all the other notes
+    const noteCodes = [
+      "meanHourlyPayDiff",
+      "medianHourlyPayDiff",
+      "meanOvertimePayDiff",
+      "medianOvertimePayDiff",
+      "meanOvertimeHoursDiff",
+      "medianOvertimeHoursDiff",
+      "meanBonusPayDiff",
+      "medianBonusPayDiff",
+      "payQuartiles"
+    ];
+    noteCodes.forEach(noteCode => {
+      explanatoryNotes[noteCode] = {
+        num: nextNum++
+        //don't include the text.  the template file has the text of the note
+      } as ExplanatoryNote
+    });
+
+    return explanatoryNotes;
+  },
 
   async getReportHtml(req, reportId: string): Promise<string> {
     const reportAndCalculations = await this.getReportAndCalculations(req, reportId);
+    const report = reportAndCalculations.report;
     const calcs = reportAndCalculations.calculations;
 
     // Organize specific calculations to show on specific charts
@@ -216,7 +264,24 @@ const reportService = {
       ].map(d => reportServicePrivate.toChartDataRecord(calcs, d, reportServicePrivate.payGapPercentToDollar)).filter(d => d)
     }
 
-    console.log(chartData)
+    const tableData = {
+      meanOvertimeHoursGap: [
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U } as CalcCodeGenderCode
+      ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value)
+        .map(d => reportServicePrivate.toChartDataRecord(calcs, d, Math.round))
+        .filter(d => d),
+      medianOvertimeHoursGap: [
+        { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M } as CalcCodeGenderCode,
+        { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W } as CalcCodeGenderCode,
+        { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X } as CalcCodeGenderCode,
+        { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U } as CalcCodeGenderCode
+      ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value)
+        .map(d => reportServicePrivate.toChartDataRecord(calcs, d, Math.round))
+        .filter(d => d),
+    };
 
     const referenceGenderChartInfo = reportServicePrivate.genderCodeToGenderChartInfo(calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]?.value)
     if (!referenceGenderChartInfo) {
@@ -224,42 +289,26 @@ const reportService = {
     }
 
     const ejsTemplate = await fs.readFile(reportServicePrivate.REPORT_TEMPLATE, { encoding: 'utf8' });
-    const templateParams = {
-      report: {
-        companyName: reportAndCalculations.report.pay_transparency_company.company_name,
-        companyAddress: `${reportAndCalculations.report.pay_transparency_company.address_line1} ${reportAndCalculations.report.pay_transparency_company.address_line2}`.trim(),
-        reportStartDate: moment(reportAndCalculations.report.report_start_date).startOf("month").format("MMMM D, YYYY"),
-        reportEndDate: moment(reportAndCalculations.report.report_end_date).endOf("month").format("MMMM D, YYYY"),
-        naicsCode: reportAndCalculations.report.naics_code_pay_transparency_report_naics_codeTonaics_code.naics_code,
-        naicsLabel: reportAndCalculations.report.naics_code_pay_transparency_report_naics_codeTonaics_code.naics_label,
-        employeeCountRange: reportAndCalculations.report.employee_count_range.employee_count_range,
-        dataConstraints: reportAndCalculations.report.data_constraints,
-        comments: reportAndCalculations.report.user_comment,
-        referenceGenderCategory: referenceGenderChartInfo.label,
-        meanOvertimeHoursGap: [
-          { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M } as CalcCodeGenderCode,
-          { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W } as CalcCodeGenderCode,
-          { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X } as CalcCodeGenderCode,
-          { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U } as CalcCodeGenderCode
-        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value)
-          .map(d => reportServicePrivate.toChartDataRecord(calcs, d, Math.round))
-          .filter(d => d),
-        medianOvertimeHoursGap: [
-          { genderCode: GENDERS.MALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M } as CalcCodeGenderCode,
-          { genderCode: GENDERS.FEMALE.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W } as CalcCodeGenderCode,
-          { genderCode: GENDERS.NON_BINARY.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X } as CalcCodeGenderCode,
-          { genderCode: GENDERS.UNKNOWN.code, calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U } as CalcCodeGenderCode
-        ].filter(d => d.genderCode != calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value)
-          .map(d => reportServicePrivate.toChartDataRecord(calcs, d, Math.round))
-          .filter(d => d),
-      }
+    const reportData = {
+      companyName: report.pay_transparency_company.company_name,
+      companyAddress: `${report.pay_transparency_company.address_line1} ${report.pay_transparency_company.address_line2}`.trim(),
+      reportStartDate: moment(report.report_start_date).startOf("month").format("MMMM D, YYYY"),
+      reportEndDate: moment(report.report_end_date).endOf("month").format("MMMM D, YYYY"),
+      naicsCode: report.naics_code_pay_transparency_report_naics_codeTonaics_code.naics_code,
+      naicsLabel: report.naics_code_pay_transparency_report_naics_codeTonaics_code.naics_label,
+      employeeCountRange: report.employee_count_range.employee_count_range,
+      comments: report.user_comment,
+      referenceGenderCategory: referenceGenderChartInfo.label,
+      chartSuppressedError: `This measure cannot be displayed as the reference category (${referenceGenderChartInfo.label}) has less than ${reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT} employees.`,
+      tableData: tableData,
+      chartData: chartData,
+      explanatoryNotes: this.createExplanatoryNotes(report)
     };
 
-    const workingHtml = ejs.render(ejsTemplate, templateParams);
+    const workingHtml = ejs.render(ejsTemplate, reportData);
     let renderedHtml = null;
 
     await (async () => {
-
 
       // Launch a headless browser which we'll use to prepare the report as
       // an HTML web page.
@@ -290,53 +339,52 @@ const reportService = {
 
       // Generate charts as SVG, and inject the charts into the DOM of the 
       // current page
-      await page.evaluate((chartData) => {
-        const INSUFFICIENT_DATA_ERROR = "This measure cannot be displayed as the reference category has less than 10 employees";
+      await page.evaluate((reportData) => {
+        const chartData = reportData.chartData;
         document.getElementById("mean-hourly-pay-gap-chart").appendChild(
           chartData.medianHourlyPayGap.length ?
             // @ts-ignore
             horizontalBarChart(chartData.meanHourlyPayGap) :
-            document.createTextNode(INSUFFICIENT_DATA_ERROR)
+            document.createTextNode(reportData.chartSuppressedError)
         );
         document.getElementById("median-hourly-pay-gap-chart").appendChild(
           chartData.medianHourlyPayGap.length ?
             // @ts-ignore
             horizontalBarChart(chartData.medianHourlyPayGap) :
-            document.createTextNode(INSUFFICIENT_DATA_ERROR)
+            document.createTextNode(reportData.chartSuppressedError)
         )
         document.getElementById("mean-overtime-pay-gap-chart").appendChild(
           chartData.meanOvertimePayGap.length ?
             // @ts-ignore
             horizontalBarChart(chartData.meanOvertimePayGap) :
-            document.createTextNode(INSUFFICIENT_DATA_ERROR)
+            document.createTextNode(reportData.chartSuppressedError)
         );
         document.getElementById("median-overtime-pay-gap-chart").appendChild(
           chartData.medianOvertimePayGap.length ?
             // @ts-ignore
             horizontalBarChart(chartData.medianOvertimePayGap) :
-            document.createTextNode(INSUFFICIENT_DATA_ERROR)
+            document.createTextNode(reportData.chartSuppressedError)
         )
         document.getElementById("mean-bonus-pay-gap-chart").appendChild(
-          chartData.medianBonusPayGap.length ?
+          chartData.meanBonusPayGap.length ?
             // @ts-ignore
             horizontalBarChart(chartData.meanBonusPayGap) :
-            document.createTextNode(INSUFFICIENT_DATA_ERROR)
+            document.createTextNode(reportData.chartSuppressedError)
         );
         document.getElementById("median-bonus-pay-gap-chart").appendChild(
           chartData.medianBonusPayGap.length ?
             // @ts-ignore
             horizontalBarChart(chartData.medianBonusPayGap) :
-            document.createTextNode(INSUFFICIENT_DATA_ERROR)
+            document.createTextNode(reportData.chartSuppressedError)
         )
 
-      }, chartData);
+      }, reportData);
 
       // Extract the HTML of the active DOM, which includes the injected charts
       renderedHtml = await page.content();
 
       await browser.close();
     })();
-
 
     return renderedHtml;
   },

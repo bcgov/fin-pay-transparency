@@ -121,7 +121,7 @@ class ColumnStats {
       const genderCode = genderCodeSynonyms[0];
 
       const numPeopleInGenderCategory = this.getCount(genderCode);
-      if (numPeopleInGenderCategory >= reportCalcServicePrivate.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY) {
+      if (numPeopleInGenderCategory >= reportCalcService.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY) {
         referenceGenderCode = genderCode;
         //break out of forEach loop
         break;
@@ -186,6 +186,10 @@ class ColumnStats {
 }
 
 const reportCalcService = {
+
+  MIN_REQUIRED_COUNT_FOR_REF_CATEGORY: 10,
+  MIN_REQUIRED_PEOPLE_COUNT: 10,
+  MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT: 10,
 
   /*
     Scans the entire CSV file and calculates all the amounts needed for the report.
@@ -252,18 +256,14 @@ const reportCalcService = {
 
 const reportCalcServicePrivate = {
 
-  MIN_REQUIRED_COUNT_FOR_REF_CATEGORY: 10,
-  MIN_REQUIRED_PEOPLE_COUNT: 10,
-  MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT: 10,
-
   meetsPeopleCountThreshold(columnStats: ColumnStats, genderCode: string) {
     const count = columnStats.getCount(genderCode);
-    return count >= this.MIN_REQUIRED_PEOPLE_COUNT;
+    return count >= reportCalcService.MIN_REQUIRED_PEOPLE_COUNT;
   },
 
   meetsPeopleWithDataCountThreshold(columnStats: ColumnStats, genderCode: string) {
     const count = columnStats.getCountWithNonZeroData(genderCode);
-    return count >= this.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT;
+    return count >= reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT;
   },
 
   calculateMeanHourlyPayGaps(hourlyPayStats: ColumnStats): CalculatedAmount[] {
