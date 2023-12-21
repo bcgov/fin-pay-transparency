@@ -9,6 +9,12 @@ import prisma from "../prisma/prisma-client";
 import { CALCULATION_CODES } from './report-calc-service';
 import { utils } from './utils-service';
 
+const GENDER_COLORS = {
+  MALE: "#1c3664",
+  FEMALE: "#1b75bb",
+  NON_BINARY: "#00a54f",
+  UNKNOWN: "#444444"
+}
 
 const GENDER_LABELS = {
   MALE: "Men",
@@ -113,43 +119,43 @@ const reportService = {
     const reportAndCalculations = await this.getReportAndCalculations(req, reportId);
     const calcs = reportAndCalculations.calculations;
 
-    // Organize specific calculations to show on specific graphs
+    // Organize specific calculations to show on specific charts
     const chartData = {
       meanHourlyPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M]?.value) },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W]?.value) },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X]?.value) },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U]?.value) }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
       ],
       medianHourlyPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M]?.value) },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W]?.value) },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X]?.value) },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U]?.value) }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
       ],
       meanOvertimePayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_M]?.value) },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_W]?.value) },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_X]?.value) },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_U]?.value) }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_OT_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
       ],
       medianOvertimePayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M]?.value) },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W]?.value) },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X]?.value) },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U]?.value) }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
       ],
       meanBonusPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M]?.value) },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W]?.value) },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X]?.value) },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U]?.value) }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U]?.value) / 100, color: GENDER_COLORS.UNKNOWN }
       ],
       medianBonusPayGap: [
-        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M]?.value) },
-        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W]?.value) },
-        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X]?.value) },
-        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U]?.value) }
+        { label: GENDER_LABELS.MALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M]?.value) / 100, color: GENDER_COLORS.MALE },
+        { label: GENDER_LABELS.FEMALE, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W]?.value) / 100, color: GENDER_COLORS.FEMALE },
+        { label: GENDER_LABELS.NON_BINARY, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X]?.value) / 100, color: GENDER_COLORS.NON_BINARY },
+        { label: GENDER_LABELS.UNKNOWN, value: 1 - parseFloat(calcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U]?.value) / 100 }
       ]
     }
 
@@ -216,35 +222,29 @@ const reportService = {
       // Generate charts as SVG, and inject the charts into the DOM of the 
       // current page
       await page.evaluate((chartData) => {
-        const chartColors = [
-          "#1c3664", //Male
-          "#1b75bb", //Female
-          "#00a54f", //Non-binary
-          "#444444"  //Unknown
-        ];
         document.getElementById("mean-hourly-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart(chartData.meanHourlyPayGap, chartColors)
+          horizontalBarChart(chartData.meanHourlyPayGap)
         );
         document.getElementById("median-hourly-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart(chartData.medianHourlyPayGap, chartColors)
+          horizontalBarChart(chartData.medianHourlyPayGap)
         )
         document.getElementById("mean-overtime-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart(chartData.meanOvertimePayGap, chartColors)
+          horizontalBarChart(chartData.meanOvertimePayGap)
         );
         document.getElementById("median-overtime-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart(chartData.medianOvertimePayGap, chartColors)
+          horizontalBarChart(chartData.medianOvertimePayGap)
         )
         document.getElementById("mean-bonus-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart(chartData.meanOvertimePayGap, chartColors)
+          horizontalBarChart(chartData.meanBonusPayGap)
         );
         document.getElementById("median-bonus-pay-gap-chart").appendChild(
           // @ts-ignore
-          horizontalBarChart(chartData.medianOvertimePayGap, chartColors)
+          horizontalBarChart(chartData.medianBonusPayGap)
         )
 
       }, chartData);

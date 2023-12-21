@@ -3,11 +3,9 @@
  Transparency Report. Depends on d3.js (i.e. must run from a page 
  with d3.js included).
  @data is an array of objects with this format 
-   {label: "MY_LABEL", value: NUMERIC_VAL_HERE}
- @colors is an array of hex colors.  length of this array should match 
-  length of data array
+   {label: "MY_LABEL", value: NUMERIC_VAL_HERE, color: "HEX_COLOR"}
 */
-function horizontalBarChart(data, colors, numberFormat = '$0.2f') {
+function horizontalBarChart(data, numberFormat = '$0.2f') {
   const barHeight = 37;
   const marginTop = 0;
   const marginRight = 110;
@@ -57,7 +55,7 @@ function horizontalBarChart(data, colors, numberFormat = '$0.2f') {
     .selectAll()
     .data(data)
     .join('rect')
-    .attr('fill', (d, i) => color(i))
+    .attr('fill', (d, i) => d.color)
     .attr('x', x(0))
     .attr('y', (d) => y(d.label))
     .attr('width', (d) => x(d.value) - x(0))

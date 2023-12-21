@@ -138,9 +138,9 @@ describe("calculateMeanHourlyPayGaps", () => {
       const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W)[0].value).toBe(1);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(2);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(3);
     })
   })
 })
@@ -165,9 +165,9 @@ describe("calculateMedianHourlyPayGaps", () => {
       const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W)[0].value).toBe(1);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(2);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(3);
     })
   })
 })
@@ -192,9 +192,9 @@ describe("calculateMeanOvertimePayGaps", () => {
       const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_M)[0].value).toBe(0);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_W)[0].value).toBe(1);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_X)[0].value).toBe(2);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_U)[0].value).toBe(3);
     })
   })
 })
@@ -219,9 +219,9 @@ describe("calculateMedianOvertimePayGaps", () => {
       const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M)[0].value).toBe(0);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W)[0].value).toBe(1);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X)[0].value).toBe(2);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U)[0].value).toBe(3);
     })
   })
 })
@@ -233,22 +233,22 @@ describe("calculateMeanOvertimeHoursGaps", () => {
       // For these mock overtime hours data, assume:
       // - All males work 100 OT hours
       // - All females work 99 OT hours
-      // - All non-binary people work 98 OT hours
+      // - All non-binary people work 102 OT hours
       // - All people whose gender is unknown work 97 OT hours
       // Add 10 fake people in each gender category
       const overtimeHoursStats = new ColumnStats();
       Array(10).fill(100).forEach(v => {
         overtimeHoursStats.push(v, GENDER_CODES.MALE[0]);
         overtimeHoursStats.push(v - 1, GENDER_CODES.FEMALE[0]);
-        overtimeHoursStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimeHoursStats.push(v + 2, GENDER_CODES.NON_BINARY[0]);
         overtimeHoursStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
       const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M)[0].value).toBe(0);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W)[0].value).toBe(1);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W)[0].value).toBe(-1);
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X)[0].value).toBe(2);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U)[0].value).toBe(3);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U)[0].value).toBe(-3);
     })
   })
 })
@@ -260,22 +260,22 @@ describe("calculateMedianOvertimeHoursGaps", () => {
       // For these mock overtime hours data, assume:
       // - All males work 100 OT hours
       // - All females work 99 OT hours
-      // - All non-binary people work 98 OT hours
+      // - All non-binary people work 102 OT hours
       // - All people whose gender is unknown work 97 OT hours
       // Add 10 fake people in each gender category
       const overtimeHoursStats = new ColumnStats();
       Array(10).fill(100).forEach(v => {
         overtimeHoursStats.push(v, GENDER_CODES.MALE[0]);
         overtimeHoursStats.push(v - 1, GENDER_CODES.FEMALE[0]);
-        overtimeHoursStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+        overtimeHoursStats.push(v + 2, GENDER_CODES.NON_BINARY[0]);
         overtimeHoursStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
       const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M)[0].value).toBe(0);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W)[0].value).toBe(1);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W)[0].value).toBe(-1);
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X)[0].value).toBe(2);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U)[0].value).toBe(3);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U)[0].value).toBe(-3);
     })
   })
 })
@@ -301,9 +301,9 @@ describe("calculateMeanBonusPayGaps", () => {
       const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanBonusPayGaps(hourlyPayStats);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W)[0].value).toBe(1);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X)[0].value).toBe(2);
+      expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U)[0].value).toBe(3);
     })
   })
 })
@@ -328,9 +328,9 @@ describe("calculateMedianBonusPayGaps", () => {
       const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianBonusPayGaps(hourlyPayStats);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W)[0].value).toBe(1);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X)[0].value).toBe(2);
+      expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U)[0].value).toBe(3);
     })
   })
 })
@@ -364,14 +364,14 @@ describe("calculateAll", () => {
 
       // Confirm the values of some specific calculations
       expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W)[0].value).toBe(1);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X)[0].value).toBe(2);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U)[0].value).toBe(3);
 
       expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
-      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W)[0].value).toBe(0.01);
-      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(0.02);
-      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(0.03);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W)[0].value).toBe(1);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X)[0].value).toBe(2);
+      expect(allCalculatedAmounts.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U)[0].value).toBe(3);
     })
   })
 })
