@@ -102,6 +102,12 @@ spec:
             {{- end }}
             - name: NODE_ENV
               value: production
+            - name: IS_RATE_LIMIT_ENABLED
+              value: 'true'
+            - name: RATE_LIMIT_WINDOW_MS
+              value: '60000'
+            - name: RATE_LIMIT_LIMIT
+              value: '100'
             {{- if .Values.global.serverFrontend }}
             - name: SERVER_FRONTEND
               value: {{ tpl .Values.global.serverFrontend $ }}
