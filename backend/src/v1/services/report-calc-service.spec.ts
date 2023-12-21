@@ -10,8 +10,8 @@ describe("ColumnStats", () => {
   // Add enough Non-binary for Non-binary to be the reference category 
   //and for Non-binary to be 
   const numNonBinary = Math.max(
-    ColumnStats.MIN_REQUIRED_COUNT_FOR_NOT_SUPPRESSED,
-    ColumnStats.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY);
+    reportCalcService.MIN_REQUIRED_PEOPLE_COUNT,
+    reportCalcService.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY);
   beforeEach(() => {
     columnStats = new ColumnStats();
     columnStats.push(10, GENDER_CODES.FEMALE[0]);
@@ -22,6 +22,8 @@ describe("ColumnStats", () => {
     for (var i = 0; i < numNonBinary; i++) {
       columnStats.push(50, GENDER_CODES.NON_BINARY[0]);
     }
+    columnStats.push(0, GENDER_CODES.UNKNOWN[0]);
+    columnStats.push(1, GENDER_CODES.UNKNOWN[0]);
   })
 
   describe("getValues", () => {
@@ -38,6 +40,16 @@ describe("ColumnStats", () => {
       expect(columnStats.getCount(GENDER_CODES.FEMALE[0])).toBe(3);
       expect(columnStats.getCount(GENDER_CODES.MALE[0])).toBe(2);
       expect(columnStats.getCount(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
+      expect(columnStats.getCount(GENDER_CODES.UNKNOWN[0])).toBe(2);
+    })
+  })
+
+  describe("getCountWithNonZeroData", () => {
+    it("returns the number of records in the given gender category with non-zero data values", () => {
+      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.FEMALE[0])).toBe(3);
+      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.MALE[0])).toBe(2);
+      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
+      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.UNKNOWN[0])).toBe(1);
     })
   })
 
@@ -57,15 +69,60 @@ describe("ColumnStats", () => {
     })
   })
 
-  describe("isSuppressed", () => {
-    it("determines whether the gender category should be 'suppressed' (i.e. excluded from the report)", () => {
-      expect(columnStats.isSuppressed(GENDER_CODES.FEMALE[0])).toBe(true);
-      expect(columnStats.isSuppressed(GENDER_CODES.MALE[0])).toBe(true);
-      expect(columnStats.isSuppressed(GENDER_CODES.NON_BINARY[0])).toBe(false);
-      expect(columnStats.isSuppressed(GENDER_CODES.UNKNOWN[0])).toBe(true);
+  describe("getReferenceGenderCode", () => {
+    it("returns the expected reference category", () => {
+      expect(columnStats.getReferenceGenderCode()).toBe(GENDER_CODES.NON_BINARY[0]);
     })
   })
+
 });
+
+describe("meetsPeopleCountThreshold", () => {
+  describe(`when a gender group meets the people count threshold for calculations to be performed`, () => {
+    it(`returns true`, () => {
+      const columnStats = new ColumnStats();
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT).fill(100).forEach(v => {
+        columnStats.push(v, GENDER_CODES.FEMALE[0]);
+      })
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats, GENDER_CODES.FEMALE[0]);
+      expect(meetsThreshold).toBeTruthy();
+    })
+  })
+  describe(`when a gender group doesn't meet the people count threshold for calculations to be performed`, () => {
+    it(`returns false`, () => {
+      const columnStats = new ColumnStats();
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT - 1).fill(100).forEach(v => {
+        columnStats.push(v, GENDER_CODES.FEMALE[0]);
+      })
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats, GENDER_CODES.FEMALE[0]);
+      expect(meetsThreshold).toBeFalsy();
+    })
+  })
+})
+
+describe("meetsPeopleWithDataCountThreshold", () => {
+  describe(`when a gender group meets the threshold for number of people with data for calculations to be performed`, () => {
+    it(`returns true`, () => {
+      const columnStats = new ColumnStats();
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT).fill(100).forEach(v => {
+        columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
+      })
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleWithDataCountThreshold(columnStats, GENDER_CODES.NON_BINARY[0]);
+      expect(meetsThreshold).toBeTruthy();
+    })
+  })
+  describe(`when a gender group doesn't meet the threshold for number of people with data for calculations to be performed`, () => {
+    it(`returns false`, () => {
+      const columnStats = new ColumnStats();
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT - 1).fill(100).forEach(v => {
+        columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
+      })
+      columnStats.push(0, GENDER_CODES.NON_BINARY[0]);
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleWithDataCountThreshold(columnStats, GENDER_CODES.NON_BINARY[0]);
+      expect(meetsThreshold).toBeFalsy();
+    })
+  })
+})
 
 describe("cleanCsvRecord", () => {
   describe(`when numeric columns have values represented as strings`, () => {
