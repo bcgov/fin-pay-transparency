@@ -19,6 +19,8 @@ import prom from 'prom-client';
 import prisma from './v1/prisma/prisma-client';
 import { logger } from './logger';
 import { rateLimit } from 'express-rate-limit';
+import lusca from 'lusca';
+const csrf = lusca.csrf;
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
 const app = express();
@@ -70,6 +72,7 @@ if ('production' === config.get('environment')) {
   app.set('trust proxy', 1);
 }
 app.use(session(sess));
+app.use(csrf());
 //initialize routing and session. Cookies are now only reachable via requests (not js)
 app.use(passport.initialize());
 app.use(passport.session());
