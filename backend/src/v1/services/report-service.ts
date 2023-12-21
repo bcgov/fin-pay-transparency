@@ -115,10 +115,6 @@ const reportService = {
     return reportAndCalculations;
   },
 
-  getDataSummaryText() {
-
-  },
-
   async getReportHtml(req, reportId: string): Promise<string> {
     const reportAndCalculations = await this.getReportAndCalculations(req, reportId);
     const calcs = reportAndCalculations.calculations;
