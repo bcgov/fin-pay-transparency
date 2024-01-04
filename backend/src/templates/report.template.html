@@ -156,9 +156,9 @@
     <div class="page">
       <h1 class="text-primary mb-4">Pay Transparency Report</h1>
 
-      <% if (report.comments) { %>
-        <p class="text-tertiary">
-          <%= report.comments %>
+      <% if (comments) { %>
+        <p class="text-tertiary mb-4">
+          <%= comments %>
         </p>
         <% } %>
 
@@ -168,31 +168,31 @@
               <tr>
                 <td class="table-header">Employer:</td>
                 <td>
-                  <%= report.companyName %>
+                  <%= companyName %>
                 </td>
               </tr>
               <tr>
                 <td class="table-header">Address:</td>
                 <td>
-                  <%= report.companyAddress %>
+                  <%= companyAddress %>
                 </td>
               </tr>
               <tr>
                 <td class="table-header">Time Period:</td>
                 <td>
-                  <%= report.reportStartDate %> - <%= report.reportEndDate %>
+                  <%= reportStartDate %> - <%= reportEndDate %>
                 </td>
               </tr>
               <tr>
                 <td class="table-header">NAICS Code:</td>
                 <td>
-                  <%= report.naicsCode %> - <%= report.naicsLabel %>
+                  <%= naicsCode %> - <%= naicsLabel %>
                 </td>
               </tr>
               <tr>
                 <td class="table-header">Number of Employees:</td>
                 <td>
-                  <%= report.employeeCountRange %>
+                  <%= employeeCountRange %>
                 </td>
               </tr>
             </table>
@@ -225,18 +225,32 @@
 
             <div class="explanatory-notes">
               <h4>Explanatory notes</h4>
-              <div class="footnote">
-                <div class="footnote-number">1.</div>
-                <div>&quot;Mean hourly pay gap&quot; refers to the differences in pay
-                  between gender groups calculated by average pay. Hourly pay does
-                  not include bonuses and overtime.</div>
-              </div>
-              <div class="footnote">
-                <div class="footnote-number">2.</div>
-                <div>&quot;Median hourly pay gap&quot; refers to the differences in pay
-                  between gender groups calculated by the mid range of pay for
-                  each group. Hourly pay does not include bonuses and overtime.</div>
-              </div>
+              <% if (explanatoryNotes.dataConstraints) { %>
+                <div class="footnote">
+                  <div class="footnote-number">
+                    <%= explanatoryNotes.dataConstraints.num %>.
+                  </div>
+                  <div>
+                    <%= explanatoryNotes.dataConstraints.text %>
+                  </div>
+                </div>
+                <% } %>
+                  <div class="footnote">
+                    <div class="footnote-number">
+                      <%= explanatoryNotes.meanHourlyPayDiff.num %>.
+                    </div>
+                    <div>&quot;Mean hourly pay gap&quot; refers to the differences in pay
+                      between gender groups calculated by average pay. Hourly pay does
+                      not include bonuses and overtime.</div>
+                  </div>
+                  <div class="footnote">
+                    <div class="footnote-number">
+                      <%= explanatoryNotes.medianHourlyPayDiff.num %>.
+                    </div>
+                    <div>&quot;Median hourly pay gap&quot; refers to the differences in pay
+                      between gender groups calculated by the mid range of pay for
+                      each group. Hourly pay does not include bonuses and overtime.</div>
+                  </div>
             </div>
 
     </div>
@@ -257,11 +271,15 @@
       <table role="presentation">
         <tr>
           <td class="pe-2">
-            <h4>Mean overtime pay<sup>3</sup></h4>
+            <h4>Mean overtime pay<sup>
+                <%= explanatoryNotes.meanOvertimePayDiff.num %>
+              </sup></h4>
             <div id="mean-overtime-pay-gap-chart"></div>
           </td>
           <td>
-            <h4>Median overtime pay<sup>4</sup></h4>
+            <h4>Median overtime pay<sup>
+                <%= explanatoryNotes.medianOvertimePayDiff.num %>
+              </sup></h4>
             <div id="median-overtime-pay-gap-chart"></div>
           </td>
         </tr>
@@ -272,36 +290,48 @@
       <table role="presentation" width="100%" class="overtime-hours-tables">
         <tr>
           <td class="pe-2" width="50%">
-            <h4 class="mb-0">Mean overtime paid hours<sup>5</sup></h4>
-            <p class="mb-2">Difference as compared to reference group (<%= report.referenceGenderCategory %>)</p>
-            <table id="mean-overtime-hours-table" class="table" role="presentation">
-              <% for(var i=0; i < report.meanOvertimeHoursGap.length; i++) { %>
-                <tr>
-                  <td>
-                    <%= report.meanOvertimeHoursGap[i].label %>
-                  </td>
-                  <td width="30%" class="centered">
-                    <%= report.meanOvertimeHoursGap[i].value %>
-                  </td>
-                </tr>
-                <% } %>
-            </table>
+            <h4 class="mb-0">Mean overtime paid hours<sup>
+                <%= explanatoryNotes.meanOvertimeHoursDiff.num %>
+              </sup></h4>
+            <% if (tableData.meanOvertimeHoursGap.length) { %>
+              <p class="mb-2">Difference as compared to reference group (<%= referenceGenderCategory %>)</p>
+              <table id="mean-overtime-hours-table" class="table" role="presentation">
+                <% for(var i=0; i < tableData.meanOvertimeHoursGap.length; i++) { %>
+                  <tr>
+                    <td>
+                      <%= tableData.meanOvertimeHoursGap[i].label %>
+                    </td>
+                    <td width="30%" class="centered">
+                      <%= tableData.meanOvertimeHoursGap[i].value %>
+                    </td>
+                  </tr>
+                  <% } %>
+              </table>
+              <%} else { %>
+                <%= chartSuppressedError %>
+                  <% } %>
           </td>
           <td class="ps-2" width="50%">
-            <h4 class="mb-0">Median overtime paid hours<sup>6</sup></h4>
-            <p class="mb-2">Difference as compared to reference group (<%= report.referenceGenderCategory %>)</p>
-            <table id="median-overtime-hours-table" class="table" role="presentation">
-              <% for(var i=0; i < report.medianOvertimeHoursGap.length; i++) { %>
-                <tr>
-                  <td>
-                    <%= report.medianOvertimeHoursGap[i].label %>
-                  </td>
-                  <td width="30%" class="centered">
-                    <%= report.medianOvertimeHoursGap[i].value %>
-                  </td>
-                </tr>
-                <% } %>
-            </table>
+            <h4 class="mb-0">Median overtime paid hours<sup>
+                <%= explanatoryNotes.medianOvertimeHoursDiff.num %>
+              </sup></h4>
+            <% if (tableData.medianOvertimeHoursGap.length) { %>
+              <p class="mb-2">Difference as compared to reference group (<%= referenceGenderCategory %>)</p>
+              <table id="median-overtime-hours-table" class="table" role="presentation">
+                <% for(var i=0; i < tableData.medianOvertimeHoursGap.length; i++) { %>
+                  <tr>
+                    <td>
+                      <%= tableData.medianOvertimeHoursGap[i].label %>
+                    </td>
+                    <td width="30%" class="centered">
+                      <%= tableData.medianOvertimeHoursGap[i].value %>
+                    </td>
+                  </tr>
+                  <% } %>
+              </table>
+              <%} else { %>
+                <%= chartSuppressedError %>
+                  <% } %>
           </td>
         </tr>
       </table>
@@ -315,20 +345,28 @@
       <div class="explanatory-notes">
         <h4>Explanatory notes</h4>
         <div class="footnote">
-          <div class="footnote-number">3.</div>
+          <div class="footnote-number">
+            <%= explanatoryNotes.meanOvertimePayDiff.num %>.
+          </div>
           <div>&quot;Mean overtime pay&quot; refers to overtime pay when averaged for each group.</div>
         </div>
         <div class="footnote">
-          <div class="footnote-number">4.</div>
+          <div class="footnote-number">
+            <%= explanatoryNotes.medianOvertimePayDiff.num %>.
+          </div>
           <div>&quot;Median overtime pay&quot; refers to the middle point of overtime pay for each group.</div>
         </div>
         <div class="footnote">
-          <div class="footnote-number">5.</div>
+          <div class="footnote-number">
+            <%= explanatoryNotes.meanOvertimeHoursDiff.num %>.
+          </div>
           <div>&quot;Mean overtime paid hours&quot; refers to the average number of hours of overtime worked for each
             group.</div>
         </div>
         <div class="footnote">
-          <div class="footnote-number">6.</div>
+          <div class="footnote-number">
+            <%= explanatoryNotes.medianOvertimeHoursDiff.num %>.
+          </div>
           <div>&quot;Median overtime paid hours&quot; refers to the middle point of number of overtime hours worked for
             each group.</div>
         </div>
@@ -354,11 +392,15 @@
       <table role="presentation">
         <tr>
           <td class="pe-2">
-            <h4>Mean bonus pay<sup>7</sup></h4>
+            <h4>Mean bonus pay<sup>
+                <%= explanatoryNotes.meanBonusPayDiff.num %>
+              </sup></h4>
             <div id="mean-bonus-pay-gap-chart"></div>
           </td>
           <td>
-            <h4>Median bonus pay<sup>8</sup></h4>
+            <h4>Median bonus pay<sup>
+                <%= explanatoryNotes.medianBonusPayDiff.num %>
+              </sup></h4>
             <div id="median-bonus-pay-gap-chart"></div>
           </td>
         </tr>
@@ -374,22 +416,30 @@
 
         </div>
         <div class="header-block-title flex-fill">
-          <h2>Percentage of each gender in each pay quarter</h2><sup>9</sup>
+          <h2>Percentage of each gender in each pay quarter</h2><sup>
+            <%= explanatoryNotes.payQuartiles.num %>
+          </sup>
         </div>
       </div>
 
       <div class="explanatory-notes">
         <h4>Explanatory notes</h4>
         <div class="footnote">
-          <div class="footnote-number">7.</div>
+          <div class="footnote-number">
+            <%= explanatoryNotes.meanBonusPayDiff.num %>.
+          </div>
           <div>&quot;Mean bonus pay&quot; refers to bonus pay when averaged for each group.</div>
         </div>
         <div class="footnote">
-          <div class="footnote-number">8.</div>
+          <div class="footnote-number">
+            <%= explanatoryNotes.medianBonusPayDiff.num %>.
+          </div>
           <div>&quot;Median bonus pay&quot; refers to the middle point of bonus pay for each group.</div>
         </div>
         <div class="footnote">
-          <div class="footnote-number">9.</div>
+          <div class="footnote-number">
+            <%= explanatoryNotes.payQuartiles.num %>.
+          </div>
           <div></div>
         </div>
       </div>
