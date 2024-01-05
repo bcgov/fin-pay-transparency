@@ -5,7 +5,6 @@ calculation_code
 naics_code
 pay_transparency_report
 company_history
-pay_transparency_input_data
 pay_transparency_calculated_data
 report_history
 flyway_schema_history
