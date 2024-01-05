@@ -5,14 +5,14 @@
   >
     <v-row
       align="center"
-      justify="center"
-      style="min-height: 12em;"
+      justify="center"  
+      class="v-row-pretty"
     >
       <v-progress-circular
         :size="70"
         :width="7"
         color="primary"
-        indeterminate
+        indeterminate='disable-shrink' 
       />
     </v-row>
   </v-card>
@@ -31,5 +31,12 @@ export default {
 </script>
 
 <style scoped>
-
+.v-card--variant-elevated {
+    box-shadow: none;
+    height: 100% !important;
+}
+.v-row-pretty {
+    min-height: 14em;
+    height: 100% !important;
+}
 </style>
