@@ -432,9 +432,6 @@ export default {
     stage: "UPLOAD"
   }),
   methods: {
-    onFileInputChange() {
-
-    }
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
