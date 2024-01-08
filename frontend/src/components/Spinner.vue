@@ -1,21 +1,10 @@
 <template>
-  <v-card
-    :flat="flat"
-    class="mx-auto pa-4"
-  >
-    <v-row
-      align="center"
-      justify="center"
-      style="min-height: 12em;"
-    >
-      <v-progress-circular
-        :size="70"
-        :width="7"
-        color="primary"
-        indeterminate
-      />
-    </v-row>
-  </v-card>
+  <v-progress-circular
+    :size="70"
+    :width="7"
+    color="primary"
+    indeterminate='disable-shrink' 
+  />
 </template>
 
 <script>
@@ -31,5 +20,8 @@ export default {
 </script>
 
 <style scoped>
-
+.v-card--variant-elevated {
+    box-shadow: none;
+    height: 100% !important;
+}
 </style>
