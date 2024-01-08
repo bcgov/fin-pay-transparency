@@ -21,10 +21,6 @@ spec:
       labels:
         {{- include "doc-gen-service.selectorLabels" . | nindent 8 }}
     spec:
-      volumes:
-        - name: {{ include "doc-gen-service.fullname" . }}
-          persistentVolumeClaim:
-            claimName: {{ include "doc-gen-service.fullname" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
