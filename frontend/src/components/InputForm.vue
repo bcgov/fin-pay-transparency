@@ -2,7 +2,7 @@
   <v-container class="d-flex justify-center h-100">
 
     <v-form ref="inputForm" class="w-100 h-100">
-        <v-row v-if="!isProcessing" class=" d-flex justify-center w-100">
+        <v-row class=" d-flex justify-center w-100">
           <v-col xs="12" sm="10" md="8" class="w-100">
 
             <v-row class="pt-7">
@@ -333,7 +333,6 @@
                   <primary-button
                     id="submitButton"
                     :disabled="!areRequiredFieldsComplete"
-                    :loading="isProcessing"
                     text="Submit"
                     :click-action="submit"
                   />
@@ -362,7 +361,13 @@
             
           </v-col>
         </v-row>
-        <spinner v-else />
+        <v-overlay
+          :persistent="true"
+          :model-value="isProcessing"
+          class="align-center justify-center"
+        >
+          <spinner />
+        </v-overlay>        
     </v-form>
   </v-container>
 </template>
