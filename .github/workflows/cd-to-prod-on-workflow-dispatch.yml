@@ -19,7 +19,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [backend, database, database-migrations, frontend]
+        package: [backend, database, database-migrations, frontend, doc-gen-service]
     steps:
       - uses: shrink/actions-docker-registry-tag@v3
         with:
@@ -39,3 +39,4 @@ jobs:
       penetration-test: false
       frontend-url: https://paytransparency.fin.gov.bc.ca
       semver: ${{ github.event.inputs.tag }}
+      params: --set doc-gen-service.replicaCount=3

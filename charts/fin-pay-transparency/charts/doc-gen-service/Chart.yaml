@@ -1,6 +1,6 @@
 apiVersion: v2
+name: doc-gen-service
 icon: https://raw.githubusercontent.com/bcgov/fin-pay-transparency/main/frontend/public/favicon.ico
-name: fin-pay-transparency
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -23,29 +23,3 @@ version: 0.1.0
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "0.1.0"
-
-dependencies:
-  - name: backend
-    condition: backend.enabled
-    version: 0.1.0
-  - name: frontend
-    condition: frontend.enabled
-    version: 0.1.0
-  - name: database
-    condition: database.enabled
-    version: 0.1.0
-  - name: crunchy-postgres
-    condition: crunchy.enabled
-    version: 0.5.1
-    alias: crunchy
-  - name: doc-gen-service
-    condition: doc-gen-service.enabled
-    version: 0.1.0
-keywords:
-  - fin-pay-transparency
-  - fin
-  - pay
-  - transparency
-maintainers:
-  - name: Sukanya Rath
-    email: sukanya.rath@gov.bc.ca

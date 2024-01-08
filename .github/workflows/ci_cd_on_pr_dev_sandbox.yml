@@ -26,7 +26,7 @@ jobs:
             
             Deployments, as required, will be available below:
             - [Frontend](https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca)
-            
+
   builds:
     if: '!github.event.pull_request.head.repo.fork'
     name: Build Containers for OpenShift Deployment
@@ -35,7 +35,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [backend, database, database-migrations, frontend]
+        package: [backend, database, database-migrations, frontend, doc-gen-service]
         include:
           - package: backend
             triggers: ('backend/')
@@ -53,6 +53,10 @@ jobs:
             triggers: ('backend/db')
             build_file: ./backend/db/Dockerfile
             build_context: ./backend/db
+          - package: doc-gen-service
+            triggers: ('doc-gen-service/')
+            build_file: ./doc-gen-service/Dockerfile
+            build_context: ./doc-gen-service
 
     steps:
       - uses: actions/checkout@v4
@@ -121,7 +125,7 @@ jobs:
               echo "This is an already deployed PR, skipping quota check"
               exit 0
           fi
-          
+
   deploys:
     name: Deploys
     needs: [builds, check-quota]
