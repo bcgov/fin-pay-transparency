@@ -45,7 +45,7 @@ config.defaults({
   },
   docGenService: {
     url: process.env.DOC_GEN_SERVICE_URL || 'http://localhost:3001/api',
-    apiKey: process.env.DOC_GEN_SERVICE_API_KEY || 'api-key',
+    apiKey: process.env.DOC_GEN_API_KEY || 'api-key',
   },
 });
 export { config };
