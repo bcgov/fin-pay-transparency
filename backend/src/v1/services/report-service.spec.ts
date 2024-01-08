@@ -1,12 +1,9 @@
-import ejs from 'ejs';
-import puppeteer from 'puppeteer';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import { GENDERS, GenderChartInfo, ReportAndCalculations, reportService, reportServicePrivate } from './report-service';
 import { utils } from './utils-service';
 
 jest.mock('./utils-service');
-jest.mock('puppeteer');
 jest.mock('../prisma/prisma-client', () => {
   return {
     pay_transparency_company: {
@@ -136,7 +133,11 @@ describe("getReportAndCalculations", () => {
 describe("getReportHtml", () => {
   describe("when a valid report id is provided", () => {
     it("returns an HTML string of the report", async () => {
-      const mockReq = {};
+      const mockReq = {
+        session:{
+          correlationID: "mockCorrelationId"
+        }
+      };
       const mockReportId = mockReportInDB.report_id;
       const mockReportAndCalculations: ReportAndCalculations = {
         report: {
@@ -161,39 +162,17 @@ describe("getReportHtml", () => {
       mockReportAndCalculations.calculations[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE] = { value: GENDERS.MALE.code };
 
       jest.spyOn(reportService, "getReportAndCalculations").mockResolvedValueOnce(mockReportAndCalculations);
-      const mockPage = {
-        addScriptTag: jest.fn(),
-        evaluate: jest.fn(),
-        setContent: jest.fn(),
-        content: jest.fn().mockResolvedValue("mock report")
-      }
-      const mockBrowser = {
-        newPage: jest.fn().mockResolvedValue(mockPage),
-        close: jest.fn()
-      };
-      (puppeteer.launch as jest.Mock).mockResolvedValue(mockBrowser);
-      const ejsRenderSpy = jest.spyOn(ejs, "render");
 
       const reportHtml = await reportService.getReportHtml(mockReq, mockReportId);
 
       // Although it isn't the final value returned from reportService.getReportHtml,
       // it's useful to verify that its intermediate processing step produces
       // a partial HTML report
-      const workingHtml = ejsRenderSpy.mock.results[0].value;
-      expect(workingHtml.startsWith("<!DOCTYPE html>")).toBeTruthy();
-      expect(workingHtml).toContain(mockReportAndCalculations.report.pay_transparency_company.company_name);
-      expect(workingHtml).toContain(mockReportAndCalculations.report.pay_transparency_company.address_line1);
-      expect(workingHtml).toContain(mockReportAndCalculations.report.naics_code_pay_transparency_report_naics_codeTonaics_code.naics_label);
-      expect(workingHtml).toContain(mockReportAndCalculations.report.employee_count_range.employee_count_range);
 
       // It's hard to test the rendering of the final report HTML when we're
       // using a mock puppeteer, but we can at least verify that
       // some of the puppeteer functions have been called.
       expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
-      expect(puppeteer.launch).toHaveBeenCalledTimes(1);
-      expect(mockBrowser.newPage).toHaveBeenCalledTimes(1);
-      expect(mockPage.setContent).toHaveBeenCalledTimes(1);
-      expect(mockBrowser.close).toHaveBeenCalledTimes(1);
 
     })
   })

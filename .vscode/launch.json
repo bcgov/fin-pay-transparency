@@ -15,6 +15,15 @@
       "preLaunchTask": "database"
     },
     {
+      "name": "DocGenService",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "dev"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["doc-gen-service/<node_internals>/**"],
+      "type": "node",
+      "cwd": "${workspaceFolder}/doc-gen-service"
+    },
+    {
       "name": "Frontend",
       "request": "launch",
       "runtimeArgs": ["run-script", "serve"],
@@ -34,7 +43,7 @@
   "compounds": [
     {
       "name": "Launch All",
-      "configurations": ["Backend", "Frontend", "Launch Edge"],
+      "configurations": ["Backend", "Frontend", "Launch Edge", "DocGenService"],
       "stopAll": true
     }
   ]

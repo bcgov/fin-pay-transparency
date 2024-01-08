@@ -46,25 +46,41 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
     environment:
       NODE_ENV: development
       POSTGRESQL_HOST: database
-      POSTGRESQL_USER: postgres
-      POSTGRESQL_PASSWORD: postgres
-      POSTGRESQL_DATABASE: postgres
-      POSTGRESQL_PORT: 5432
+      PORT: '3000'
+      DOC_GEN_SERVICE_URL: http://doc-gen-service:3000
     hostname: backend
     links:
       - database
     ports:
-      - "3001:3000"
+      - "3000:3000"
     user: root
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+
     depends_on:
       database:
         condition: service_healthy
       database-migrations:
+        condition: service_started
+    networks:
+      - default
+  doc-gen-service:
+    image: doc-gen-service:latest
+    build:
+      context: doc-gen-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: '3000'
+    hostname: doc-gen-service
+    ports:
+      - "3001:3000"
+    user: '1001'
+    depends_on:
+      backend:
         condition: service_started
     networks:
       - default

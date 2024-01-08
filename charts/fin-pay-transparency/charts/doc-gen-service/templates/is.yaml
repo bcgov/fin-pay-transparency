@@ -1,0 +1,19 @@
+{{- if .Values.enabled }}
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: {{ include "doc-gen-service.fullname" . }}
+  labels:
+    {{- include "doc-gen-service.labels" . | nindent 4 }}
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: "{{ .Values.image.tag | default .Chart.AppVersion }}"
+      from:
+        kind: DockerImage
+        name: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+      referencePolicy:
+        type: Local
+{{- end }}
