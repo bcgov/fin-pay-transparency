@@ -53,6 +53,11 @@ on:
         required: false
         type: string
         default: 0.0.1
+      params:
+        description: 'Extra params to pass to helm upgrade command'
+        required: false
+        type: string
+        default: ''
 
 
 jobs:
@@ -103,6 +108,7 @@ jobs:
           --set-string backend.image.tag="${{ inputs.tag }}" \
           --set-string frontend.image.tag="${{ inputs.tag }}" \
           --set-string database.image.tag="${{ inputs.tag }}" \
+          --set-string doc-gen-service.image.tag="${{ inputs.tag }}" \
           --set global.autoscaling.enabled=${{ inputs.autoscaling }} \
           --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
           --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \
@@ -117,6 +123,7 @@ jobs:
           --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
           --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
+          ${{ inputs.params }} \
           --timeout ${{ inputs.timeout-minutes }}m  ./${{ github.event.repository.name }}-${{ inputs.semver }}.tgz
           
           # print history 
