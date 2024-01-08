@@ -94,3 +94,13 @@ database:
 crunchy:
   enabled: false
 
+docGenService:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 30m
+      memory: 50Mi

@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import config from 'nconf';
+
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
 
@@ -12,19 +13,21 @@ config.defaults({
     morganFormat: 'dev',
     port: process.env.PORT || 3000,
     sessionPath: process.env.SESSION_PATH,
-    templatePath: process.env.TEMPLATE_PATH || "./src/templates",
+    templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
-    rateLimit:{
+    rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
       limit: process.env.RATE_LIMIT_LIMIT || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
-    }
+    },
   },
   oidc: {
     keycloakUrl: process.env.KEYCLOAK_URL,
     clientId: process.env.KEYCLOAK_CLIENT_ID,
     clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
-    discovery: process.env.KEYCLOAK_URL + '/realms/standard/.well-known/openid-configuration'
+    discovery:
+      process.env.KEYCLOAK_URL +
+      '/realms/standard/.well-known/openid-configuration',
   },
   tokenGenerate: {
     privateKey: process.env.PRIVATE_KEY,
@@ -39,7 +42,10 @@ config.defaults({
     },
     url: process.env.BCEID_WS_URL,
     onlineServiceId: process.env.BCEID_WS_ONLINE_SERVICE_ID,
-  }
+  },
+  docGenService: {
+    url: process.env.DOC_GEN_SERVICE_URL || 'http://localhost:3001/api',
+    apiKey: process.env.DOC_GEN_SERVICE_API_KEY || 'api-key',
+  },
 });
 export { config };
-

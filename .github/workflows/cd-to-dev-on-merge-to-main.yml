@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [ database, backend, database-migrations, frontend ]
+        package: [ database, backend, database-migrations, frontend, doc-gen-service ]
     steps:
       - name: Tag Docker Images
         uses: shrink/actions-docker-registry-tag@v3

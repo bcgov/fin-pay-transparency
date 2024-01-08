@@ -454,5 +454,5 @@
     "database",
     "global"
   ],
-  "additionalProperties": false
+  "additionalProperties": true
 }
