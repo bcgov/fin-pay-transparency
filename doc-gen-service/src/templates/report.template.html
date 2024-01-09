@@ -131,14 +131,19 @@
     page-break-after: always;
   }
 
+  .pay-transparency-report .text-normal {
+    font-size: 14px;
+  }
+
+  .pay-transparency-report .footnote {
+    display: flex;
+    font-size: 12px;
+  }
+
   .explanatory-notes {
     background-color: #dff6fc;
     font-size: 14px;
     padding: 20px 30px 20px 30px;
-  }
-
-  .footnote {
-    display: flex;
   }
 
   .footnote-number {
@@ -214,11 +219,29 @@
               <tr>
                 <td class="pe-2">
                   <h4>Mean hourly pay gap<sup>1</sup></h4>
-                  <div id="mean-hourly-pay-gap-chart"></div>
+                  <div id="mean-hourly-pay-gap">
+                    <% if (chartData.meanHourlyPayGap.length) { %>
+                      <div id="mean-hourly-pay-gap-chart"></div>
+                      <div class="text-normal mt-2 mb-2">
+                        <%= chartSummaryText.meanHourlyPayGap %>
+                      </div>
+                      <% } else { %>
+                        <%= chartSuppressedError %>
+                          <% } %>
+                  </div>
                 </td>
                 <td>
                   <h4>Median hourly pay gap<sup>2</sup></h4>
-                  <div id="median-hourly-pay-gap-chart"></div>
+                  <div id="mean-hourly-pay-gap">
+                    <% if (chartData.medianHourlyPayGap.length) { %>
+                      <div id="median-hourly-pay-gap-chart"></div>
+                      <div class="text-normal mt-2 mb-2">
+                        <%= chartSummaryText.medianHourlyPayGap %>
+                      </div>
+                      <% } else { %>
+                        <%= chartSuppressedError %>
+                          <% } %>
+                  </div>
                 </td>
               </tr>
             </table>
@@ -274,13 +297,32 @@
             <h4>Mean overtime pay<sup>
                 <%= explanatoryNotes.meanOvertimePayDiff.num %>
               </sup></h4>
-            <div id="mean-overtime-pay-gap-chart"></div>
+            <div id="mean-overtime-pay-gap">
+              <% if (chartData.meanOvertimePayGap.length) { %>
+                <div id="mean-overtime-pay-gap-chart"></div>
+                <div class="text-normal mt-2 mb-2">
+                  <%= chartSummaryText.meanOvertimePayGap %>
+                </div>
+                <% } else { %>
+                  <%= chartSuppressedError %>
+                    <% } %>
+            </div>
           </td>
           <td>
             <h4>Median overtime pay<sup>
                 <%= explanatoryNotes.medianOvertimePayDiff.num %>
               </sup></h4>
-            <div id="median-overtime-pay-gap-chart"></div>
+            <div id="median-overtime-pay-gap">
+              <% if (chartData.medianOvertimePayGap.length) { %>
+                <div id="median-overtime-pay-gap-chart"></div>
+                <div class="text-normal mt-2 mb-2">
+                  <%= chartSummaryText.medianOvertimePayGap %>
+                </div>
+                <% } else { %>
+                  <%= chartSuppressedError %>
+                    <% } %>
+            </div>
+
           </td>
         </tr>
       </table>
@@ -299,7 +341,7 @@
                 <% for(var i=0; i < tableData.meanOvertimeHoursGap.length; i++) { %>
                   <tr>
                     <td>
-                      <%= tableData.meanOvertimeHoursGap[i].label %>
+                      <%= tableData.meanOvertimeHoursGap[i].genderChartInfo.label %>
                     </td>
                     <td width="30%" class="centered">
                       <%= tableData.meanOvertimeHoursGap[i].value %>
@@ -307,6 +349,9 @@
                   </tr>
                   <% } %>
               </table>
+              <div class="text-normal mt-2 mb-2">
+                <%= chartSummaryText.meanOvertimeHoursGap %>
+              </div>
               <%} else { %>
                 <%= chartSuppressedError %>
                   <% } %>
@@ -321,7 +366,7 @@
                 <% for(var i=0; i < tableData.medianOvertimeHoursGap.length; i++) { %>
                   <tr>
                     <td>
-                      <%= tableData.medianOvertimeHoursGap[i].label %>
+                      <%= tableData.medianOvertimeHoursGap[i].genderChartInfo.label %>
                     </td>
                     <td width="30%" class="centered">
                       <%= tableData.medianOvertimeHoursGap[i].value %>
@@ -329,6 +374,9 @@
                   </tr>
                   <% } %>
               </table>
+              <div class="text-normal mt-2 mb-2">
+                <%= chartSummaryText.medianOvertimeHoursGap %>
+              </div>
               <%} else { %>
                 <%= chartSuppressedError %>
                   <% } %>
@@ -395,13 +443,31 @@
             <h4>Mean bonus pay<sup>
                 <%= explanatoryNotes.meanBonusPayDiff.num %>
               </sup></h4>
-            <div id="mean-bonus-pay-gap-chart"></div>
+            <div id="mean-bonus-pay-gap">
+              <% if (chartData.meanBonusPayGap.length) { %>
+                <div id="mean-bonus-pay-gap-chart"></div>
+                <div class="text-normal mt-2 mb-2">
+                  <%= chartSummaryText.meanBonusPayGap %>
+                </div>
+                <% } else { %>
+                  <%= chartSuppressedError %>
+                    <% } %>
+            </div>
           </td>
           <td>
             <h4>Median bonus pay<sup>
                 <%= explanatoryNotes.medianBonusPayDiff.num %>
               </sup></h4>
-            <div id="median-bonus-pay-gap-chart"></div>
+            <div id="median-bonus-pay-gap">
+              <% if (chartData.medianBonusPayGap.length) { %>
+                <div id="median-bonus-pay-gap-chart"></div>
+                <div class="text-normal mt-2 mb-2">
+                  <%= chartSummaryText.medianBonusPayGap %>
+                </div>
+                <% } else { %>
+                  <%= chartSuppressedError %>
+                    <% } %>
+            </div>
           </td>
         </tr>
       </table>
