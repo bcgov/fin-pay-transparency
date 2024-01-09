@@ -146,20 +146,25 @@ const fileUploadService = {
 
     const calculationCodeToIdMap = await codeService.getAllCalculationCodesAndIds();
 
-    for (let calculatedAmount of calculatedAmounts) {
+    // Fetch all existing "calculated_data" records linked to this report
+    const existingCalculatedDatas = await tx.pay_transparency_calculated_data.findMany({
+      where: {
+        report_id: reportId
+      }
+    });
 
+    const updates: any[] = [];
+    const inserts: any[] = [];
+
+    for (let calculatedAmount of calculatedAmounts) {
 
       const calculationCodeId = calculationCodeToIdMap[calculatedAmount.calculationCode];
       if (!calculationCodeId) {
         throw new Error(`Unknown calculation code '${calculatedAmount.calculationCode}'`);
       }
 
-      const existing = await tx.pay_transparency_calculated_data.findFirst({
-        where: {
-          report_id: reportId,
-          calculation_code_id: calculationCodeId
-        }
-      });
+      const calculatedDatas = existingCalculatedDatas.filter(d => d.calculation_code_id == calculationCodeId);
+      const existing = calculatedDatas.length ? calculatedDatas[0] : null;
 
       // All calculated values are cast to strings before saving to the 
       // database
@@ -169,6 +174,7 @@ const fileUploadService = {
           null;
 
       if (existing) {
+        /*
         await tx.pay_transparency_calculated_data.update({
           where: {
             calculated_data_id: existing.calculated_data_id
@@ -178,8 +184,15 @@ const fileUploadService = {
             is_suppressed: calculatedAmount.isSuppressed
           }
         });
+        */
+        updates.push({
+          calculated_data_id: existing.calculated_data_id,
+          value: calculatedValueAsString,
+          is_suppressed: calculatedAmount.isSuppressed
+        })
       }
       else {
+        /*
         await tx.pay_transparency_calculated_data.create({
           data: {
             report_id: reportId,
@@ -188,9 +201,60 @@ const fileUploadService = {
             is_suppressed: calculatedAmount.isSuppressed
           }
         });
+        */
+        inserts.push({
+          report_id: reportId,
+          calculation_code_id: calculationCodeId,
+          value: calculatedValueAsString,
+          is_suppressed: calculatedAmount.isSuppressed
+        })
       }
-
     };
+
+    //bulk insert
+    if (inserts.length) {
+      console.log(`bulk inserting ${inserts.length} records`);
+      await tx.pay_transparency_calculated_data.createMany({
+        data: inserts
+      });
+    }
+    if (updates.length) {
+      await this.calculatedDataUpdateMany(tx, updates);
+    }
+  },
+
+  /*
+  Updates the values of a group of calculated_data records.
+  This function exists because prisma does not offer a way to bulk update
+  rows where each row is assigned a different value according its ID.
+  The underlying RDBMS used for this project (Postgres) does support 
+  this kind of bulk update, so this method builds a single Postgres
+  statement to update multiple rows, and runs that statement with
+  prisma's "raw query" functionality.
+  Inspired by the code in these post: 
+    - https://github.com/prisma/prisma/discussions/19765
+    - https://stackoverflow.com/a/26715934
+  */
+  async calculatedDataUpdateMany(tx, updates, tableName: string, primaryKeyCol: string) {
+    if (!updates.length) {
+      return;
+    }
+    const targetAlias = "t";
+    const srcAlias = "s";
+    const colNames = Object.keys(updates[0]);
+    const setColumnStmts = colNames.map(c => `${targetAlias}.${c} = ${srcAlias}.${c}`);
+    const valueTuples = updates.map(u => colNames.map(c => u[c])); //quote strings, not nums.  add parentheses
+    const sql = `
+    update ${tableName} as ${targetAlias} set
+    ${setColumnStmts.join(",")}
+    from (values
+      (1, 'hollis@weimann.biz', 'Hollis', 'Connell'),
+      (2, 'robert@duncan.info', 'Robert', 'Duncan')
+    ) as ${srcAlias}(${colNames.join(',')})
+    where ${targetAlias}.${primaryKeyCol} = ${srcAlias}.${primaryKeyCol};
+    `;
+
+    await tx.$executeRawUnsafe(sql);
   },
 
   /*
