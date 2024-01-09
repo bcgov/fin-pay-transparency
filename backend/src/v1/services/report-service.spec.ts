@@ -1,6 +1,6 @@
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
-import { GENDERS, GenderChartInfo, ReportAndCalculations, reportService, reportServicePrivate } from './report-service';
+import { CalcCodeGenderCode, GENDERS, GenderChartInfo, ReportAndCalculations, reportService, reportServicePrivate } from './report-service';
 import { utils } from './utils-service';
 
 jest.mock('./utils-service');
@@ -134,7 +134,7 @@ describe("getReportHtml", () => {
   describe("when a valid report id is provided", () => {
     it("returns an HTML string of the report", async () => {
       const mockReq = {
-        session:{
+        session: {
           correlationID: "mockCorrelationId"
         }
       };
@@ -193,6 +193,130 @@ describe("genderCodeToGenderChartInfo", () => {
     it("returns null", () => {
       const genderChartInfo: GenderChartInfo = reportServicePrivate.genderCodeToGenderChartInfo("NOT_A_GENDER_CODE");
       expect(genderChartInfo).toBeNull();
+    });
+  });
+});
+
+describe("getWageGapTextSummary", () => {
+  describe("when a valid chartDataRecords array is provided", () => {
+    it("returns an object containing info about how the gender category should be depicted on charts", () => {
+      const referenceGenderCode = GENDERS.MALE.code;
+
+      const mockCalcs = {};
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M] = { value: 0, isSuppressed: false }
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W] = { value: 10, isSuppressed: false }
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X] = { value: -5, isSuppressed: false }
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U] = { value: -2, isSuppressed: false }
+
+      const mockChartData = [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            mockCalcs,
+            d,
+            reportServicePrivate.payGapPercentToDollar,
+          ),
+        )
+        .filter((d) => d);
+
+      const text: string = reportServicePrivate.getWageGapTextSummary(referenceGenderCode,
+        mockChartData,
+        "median",
+        "bonus pay",
+        false
+      );
+
+      expect(text).not.toBeNull();
+      expect(text).toContain("median");
+      expect(text).toContain("bonus pay");
+      expect(text).toContain(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value + "% less");
+
+    });
+  });
+});
+
+describe("getHoursGapTextSummary", () => {
+  describe("when a valid chartDataRecords array is provided", () => {
+    it("returns an object containing info about how the gender category should be depicted on charts", () => {
+      const referenceGenderCode = GENDERS.MALE.code;
+
+      const mockCalcs = {};
+      mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M] = { value: 0, isSuppressed: false }
+      mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W] = { value: -5, isSuppressed: false }
+      mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X] = { value: 8, isSuppressed: false }
+      mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U] = { value: 10, isSuppressed: false }
+
+      const mockTableData = [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U,
+        } as CalcCodeGenderCode,
+      ]
+        .filter(
+          (d) =>
+            d.genderCode !=
+            referenceGenderCode,
+        )
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(mockCalcs, d, Math.round),
+        )
+        .filter((d) => d);
+
+      const text: string = reportServicePrivate.getHoursGapTextSummary(referenceGenderCode,
+        mockTableData,
+        "median",
+        "overtime hours"
+      );
+
+      expect(text).not.toBeNull();
+      expect(text).toContain("median");
+      expect(text).toContain("overtime hours");
+      expect(text).toContain(Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W].value) + " less");
+      expect(text).toContain(Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X].value) + " more");
+
+    });
+  });
+});
+
+describe("dollarsToText", () => {
+  describe("when a value less than 1 is specified", () => {
+    it("returns a value in cents", () => {
+      const text = reportServicePrivate.dollarsToText(0.95);
+      expect(text).toBe("95 cents");
+    });
+  });
+  describe("when a value greater than 1 is specified", () => {
+    it("returns a dollar string", () => {
+      const text = reportServicePrivate.dollarsToText(1.2);
+      expect(text).toBe("$1.20");
     });
   });
 });

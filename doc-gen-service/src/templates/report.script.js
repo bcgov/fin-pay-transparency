@@ -3,7 +3,14 @@
  Transparency Report. Depends on d3.js (i.e. must run from a page 
  with d3.js included).
  @data is an array of objects with this format 
-   {label: "MY_LABEL", value: NUMERIC_VAL_HERE, color: "HEX_COLOR"}
+  {
+    genderChartInfo: {
+      label: "MY_LABEL", 
+      color: "HEX_COLOR"
+    },
+    value: NUMERIC_VAL_HERE
+  }
+
 */
 function horizontalBarChart(data, numberFormat = '$0.2f') {
   const barHeight = 37;
@@ -27,9 +34,9 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
   const y = d3
     .scaleBand()
     //preserve the order of the bars
-    .domain(data.map((d) => d.label))
+    .domain(data.map((d) => d.genderChartInfo.label))
     //sort the bars from largest to smallest
-    //.domain(d3.sort(data, d => -d.value).map(d => d.label))
+    //.domain(d3.sort(data, d => -d.value).map(d => d.genderChartInfo.label))
     .rangeRound([marginTop, height - marginBottom])
     .padding(0.1);
 
@@ -55,9 +62,9 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
     .selectAll()
     .data(data)
     .join('rect')
-    .attr('fill', (d, i) => d.color)
+    .attr('fill', (d, i) => d.genderChartInfo.color)
     .attr('x', x(0))
-    .attr('y', (d) => y(d.label))
+    .attr('y', (d) => y(d.genderChartInfo.label))
     .attr('width', (d) => x(d.value) - x(0))
     .attr('height', y.bandwidth());
 
@@ -70,7 +77,7 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
     .data(data)
     .join('text')
     .attr('x', (d) => x(d.value))
-    .attr('y', (d) => y(d.label) + y.bandwidth() / 2)
+    .attr('y', (d) => y(d.genderChartInfo.label) + y.bandwidth() / 2)
     .attr('dy', '0.35em')
     .attr('dx', -4)
     .text((d) => format(d.value))
