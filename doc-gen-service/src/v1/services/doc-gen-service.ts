@@ -6,8 +6,6 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
-const REPORT_TEMPLATE = resolve(config.get('server:templatePath') || '', 'report.template.html');
-const REPORT_TEMPLATE_SCRIPT = resolve(config.get('server:templatePath') || '', 'report.script.js');
 
 type ReportData = {
   chartData: {
@@ -35,6 +33,11 @@ type ReportData = {
   };
 };
 
+const docGenServicePrivate = {
+  REPORT_TEMPLATE: resolve(config.get('server:templatePath') || '', 'report.template.html'),
+  REPORT_TEMPLATE_SCRIPT: resolve(config.get('server:templatePath') || '', 'report.script.js')
+}
+
 /**
  * Generates a report of the specified type, using the specified data
  * @param reportType The type of report to generate (e.g. 'pdf', 'html')
@@ -47,12 +50,12 @@ async function generateReport(reportType: string, reportData: ReportData) {
     logger.error(e);
 
   }
-  const ejsTemplate = await fs.readFile(REPORT_TEMPLATE, { encoding: 'utf8' });
+  const ejsTemplate = await fs.readFile(docGenServicePrivate.REPORT_TEMPLATE, { encoding: 'utf8' });
   const workingHtml: string = ejs.render(ejsTemplate, reportData);
   const browser: Browser = await getBrowser();
   const page: Page = await browser.newPage();
   await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' });
-  await page.addScriptTag({ path: REPORT_TEMPLATE_SCRIPT });
+  await page.addScriptTag({ path: docGenServicePrivate.REPORT_TEMPLATE_SCRIPT });
 
   await page.setContent(workingHtml, { waitUntil: 'networkidle0' });
 
@@ -93,5 +96,5 @@ async function generateReport(reportType: string, reportData: ReportData) {
   return renderedHtml;
 }
 
-export { generateReport };
+export { docGenServicePrivate, generateReport };
 

@@ -2,8 +2,6 @@
 <html lang="en">
 
 <head>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   <title>Pay Transparency Report</title>
 </head>
 <style>
@@ -61,6 +59,15 @@
     color: #000000;
   }
 
+  .pay-transparency-report table {
+    border-collapse: collapse;
+  }
+
+  .pay-transparency-report table td {
+    margin: 0px;
+    padding: 2px 4px 2px 4px;
+  }
+
   .pay-transparency-report .table-header {
     color: #003366 !important;
     font-size: 16px;
@@ -76,10 +83,7 @@
     width: 100%;
   }
 
-  .overtime-hours-tables .table td {
-    margin: 0px;
-    padding: 2px 4px 2px 4px;
-  }
+
 
   .pay-transparency-report .centered {
     text-align: center;
@@ -287,7 +291,7 @@
           </svg>
         </div>
         <div class="header-block-title flex-fill">
-          <h2 class="mb-0">Overtime pay</h2>
+          <h2 class="mb-0">Annual overtime pay</h2>
         </div>
       </div>
 
@@ -388,7 +392,7 @@
 
       <h4 class="mb-0">Percentage of employees in each gender category receiving overtime pay</h4>
 
-      <p>TODO: pie charts here</p>
+      <p>Todo: charts</p>
 
       <div class="explanatory-notes">
         <h4>Explanatory notes</h4>
@@ -433,7 +437,7 @@
 
         </div>
         <div class="header-block-title flex-fill">
-          <h2 class="mb-0">Bonus pay</h2>
+          <h2 class="mb-0">Annual bonus pay</h2>
         </div>
       </div>
 
@@ -474,19 +478,9 @@
 
       <hr />
 
-      <div class="header-block mb-4">
-        <div class="header-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor"
-            class="bi bi-clock text-primary" viewBox="0 0 16 16">
-          </svg>
+      <h4 class="mb-0">Percentage of employees in each gender category receiving overtime pay</h4>
 
-        </div>
-        <div class="header-block-title flex-fill">
-          <h2>Percentage of each gender in each pay quarter</h2><sup>
-            <%= explanatoryNotes.payQuartiles.num %>
-          </sup>
-        </div>
-      </div>
+      <p>TODO: charts</p>
 
       <div class="explanatory-notes">
         <h4>Explanatory notes</h4>
@@ -502,6 +496,30 @@
           </div>
           <div>&quot;Median bonus pay&quot; refers to the middle point of bonus pay for each group.</div>
         </div>
+      </div>
+
+    </div>
+
+    <div class="page">
+
+      <div class="header-block mb-4">
+        <div class="header-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor"
+            class="bi bi-clock text-primary" viewBox="0 0 16 16">
+          </svg>
+
+        </div>
+        <div class="header-block-title flex-fill">
+          <h2>Percentage of each gender in each pay quartile</h2><sup>
+            <%= explanatoryNotes.payQuartiles.num %>
+          </sup>
+        </div>
+      </div>
+
+      <p>TODO: charts</p>
+
+      <div class="explanatory-notes">
+        <h4>Explanatory notes</h4>
         <div class="footnote">
           <div class="footnote-number">
             <%= explanatoryNotes.payQuartiles.num %>.
