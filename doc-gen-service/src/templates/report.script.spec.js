@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { reportServicePrivate } from '../v1/services/report-service';
+import { docGenServicePrivate } from '../v1/services/doc-gen-service';
 
 describe('horizontalBarChart', () => {
   it('generates a horizontal bar chart with the expected visual elements.', async () => {
@@ -16,7 +16,7 @@ describe('horizontalBarChart', () => {
     // depends on)
     await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' });
     await page.addScriptTag({
-      path: reportServicePrivate.REPORT_TEMPLATE_SCRIPT,
+      path: docGenServicePrivate.REPORT_TEMPLATE_SCRIPT,
     });
 
     // Set the page content to be a very simple HTML document with one
@@ -33,10 +33,16 @@ describe('horizontalBarChart', () => {
     //Define the data and colors that we'll show in the bar chart
     const params = {
       chartData: [
-        { label: 'Male', value: 1.0, color: '#1c3664' },
-        { label: 'Feale', value: 0.92, color: '#1b75bb' },
-        { label: 'Non-binary', value: 0.97, color: '#00a54f' },
-        { label: 'Unknown', value: 1.01, color: '#444444' },
+        { value: 1.0, genderChartInfo: { label: 'Male', color: '#1c3664' } },
+        { value: 0.92, genderChartInfo: { label: 'Female', color: '#1b75bb' } },
+        {
+          value: 0.97,
+          genderChartInfo: { label: 'Non-binary', color: '#00a54f' },
+        },
+        {
+          value: 1.01,
+          genderChartInfo: { label: 'Unknown', color: '#444444' },
+        },
       ],
     };
 
@@ -69,8 +75,12 @@ describe('horizontalBarChart', () => {
 
     await browser.close();
 
-    expect(barColors).toEqual(params.chartData.map((d) => d.color));
-    expect(genderCategoryLabels).toEqual(params.chartData.map((d) => d.label));
+    expect(barColors).toEqual(
+      params.chartData.map((d) => d.genderChartInfo.color),
+    );
+    expect(genderCategoryLabels).toEqual(
+      params.chartData.map((d) => d.genderChartInfo.label),
+    );
     expect(payGapLabels.map((d) => parseFloat(d))).toEqual(
       params.chartData.map((d) => d.value),
     );
