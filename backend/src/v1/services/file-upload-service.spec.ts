@@ -27,6 +27,7 @@ jest.mock('./file-upload-service', () => {
     }
   }
 })
+const actualFileUploadService = jest.requireActual('./file-upload-service').fileUploadService;
 
 jest.mock('./validate-service');
 jest.mock('./utils-service');
@@ -224,6 +225,39 @@ describe("saveReportCalculations", () => {
     })
   })
 
+})
+
+describe("updateMany", () => {
+  describe("when requesting that multiple records in a given table be updated", () => {
+    it("creates and executes a bulk update statement against the database", () => {
+      const mockTx = {
+        $executeRawUnsafe: jest.fn()
+      }
+      const updates = [
+        { mock_table_id: "1", another_col: "aaa" },
+        { mock_table_id: "2", another_col: "bbb" }
+      ];
+      const mockTableName = "mock_table";
+      const primaryKeyCol = "mock_table_id";
+
+      actualFileUploadService.updateMany(mockTx, updates, mockTableName, primaryKeyCol);
+
+      expect(mockTx.$executeRawUnsafe).toHaveBeenCalledTimes(1);
+
+      // Get the SQL was was submitted to the database
+      const executedSql = mockTx.$executeRawUnsafe.mock.calls[0][0]
+
+      // Check that the submitted SQL several expected keywords
+      // (We stop short of checking the exact format of the SQL and that is
+      // it is valid according to the database engine.)
+      expect(executedSql.toLowerCase()).toContain(`update ${mockTableName}`)
+      expect(executedSql.toLowerCase()).toContain("set");
+      expect(executedSql.toLowerCase()).toContain("where");
+      Object.keys(updates[0]).forEach(k => {
+        expect(executedSql).toContain(k);
+      })
+    })
+  })
 })
 
 describe("validateSubmission", () => {
