@@ -243,7 +243,7 @@ const fileUploadService = {
     const srcAlias = "s";
     const colNames = Object.keys(updates[0]);
     const setColumnStmts = colNames.map(c => `${targetAlias}.${c} = ${srcAlias}.${c}`);
-    const valueTuples = updates.map(u => colNames.map(c => u[c])); //quote strings, not nums.  add parentheses
+    const valueTuples = updates.map(u => colNames.map(c => typeof u[c] == "number" ? u[c] : `'${u[c]}'`)); //quote strings, not nums.  add parentheses
     const sql = `
     update ${tableName} as ${targetAlias} set
     ${setColumnStmts.join(",")}
