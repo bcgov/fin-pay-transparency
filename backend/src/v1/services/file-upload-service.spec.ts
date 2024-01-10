@@ -11,6 +11,23 @@ const MOCK_CALCULATION_CODES = {
   "mock_calculation_code_2": "calculation_id_2"
 }
 
+//Mock only the updateMany method in file-upload-service (for all other methods
+//in this module keep the original implementation)
+jest.mock('./file-upload-service', () => {
+  const actual = jest.requireActual('./file-upload-service')
+  const mocked = (jest.genMockFromModule('./file-upload-service') as any);
+
+  return {
+    ...mocked,
+    ...actual,
+    fileUploadService: {
+      ...mocked.fileUploadService,
+      ...actual.fileUploadService,
+      updateMany: jest.fn().mockResolvedValue(null)
+    }
+  }
+})
+
 jest.mock('./validate-service');
 jest.mock('./utils-service');
 jest.mock('./code-service');
@@ -38,8 +55,8 @@ jest.mock('../prisma/prisma-client', () => {
       update: jest.fn(),
     },
     pay_transparency_calculated_data: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
+      findMany: jest.fn(),
+      createMany: jest.fn(),
       update: jest.fn(),
     },
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
@@ -154,54 +171,55 @@ describe("saveReportBody", () => {
 describe("saveReportCalculations", () => {
 
   describe("when the calculations aren't yet in the database", () => {
-    const existingCalculatedData = null;
+    const existingCalculatedData = [];
     const reportId = "mock_report_id";
     const mockCalculatedAmounts: CalculatedAmount[] = [];
     Object.keys(MOCK_CALCULATION_CODES).forEach(code => {
       mockCalculatedAmounts.push({ calculationCode: code, value: "1", isSuppressed: false })
     })
 
-    it("the saves the calculations to new records", async () => {
-      (prisma.pay_transparency_calculated_data.findFirst as jest.Mock).mockResolvedValue(existingCalculatedData);
-      (prisma.pay_transparency_calculated_data.update as jest.Mock).mockResolvedValue(null);
-      (prisma.pay_transparency_calculated_data.create as jest.Mock).mockResolvedValue(null);
+    it("saves the calculations to new records", async () => {
+      (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
+      (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateMany as jest.Mock).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)
       expect(codeService.getAllCalculationCodesAndIds).toHaveBeenCalled();
-      expect(prisma.pay_transparency_calculated_data.create).toHaveBeenCalledTimes(mockCalculatedAmounts.length);
-      expect(prisma.pay_transparency_calculated_data.update).toHaveBeenCalledTimes(0);
+      expect(fileUploadService.updateMany).toHaveBeenCalledTimes(0);
+      expect(prisma.pay_transparency_calculated_data.createMany).toHaveBeenCalledTimes(1);
     })
   })
 
   describe("when the calculations are already in the database", () => {
     const reportId = "mock_report_id";
-    const existingCalculatedData = {};
+    const existingCalculatedData = [];
     const mockCalculatedAmounts: CalculatedAmount[] = [];
-    Object.keys(MOCK_CALCULATION_CODES).forEach(code => {
+    Object.keys(MOCK_CALCULATION_CODES).forEach((code) => {
+      existingCalculatedData.push({ calculation_code_id: MOCK_CALCULATION_CODES[code] })
       mockCalculatedAmounts.push({ calculationCode: code, value: "1", isSuppressed: false })
     })
 
     it("updates the existing calculated data records", async () => {
-      (prisma.pay_transparency_calculated_data.findFirst as jest.Mock).mockResolvedValue(existingCalculatedData);
-      (prisma.pay_transparency_calculated_data.update as jest.Mock).mockResolvedValue(null);
-      (prisma.pay_transparency_calculated_data.create as jest.Mock).mockResolvedValue(null);
+      (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
+      (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateMany as jest.Mock).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)
       expect(codeService.getAllCalculationCodesAndIds).toHaveBeenCalled();
-      expect(prisma.pay_transparency_calculated_data.update).toHaveBeenCalledTimes(mockCalculatedAmounts.length);
-      expect(prisma.pay_transparency_calculated_data.create).toHaveBeenCalledTimes(0);
+      expect(prisma.pay_transparency_calculated_data.createMany).toHaveBeenCalledTimes(0);
+      expect(fileUploadService.updateMany).toHaveBeenCalledTimes(1);
     })
   })
 
   describe("when saving a calculation with an invalid calculation code", () => {
     const reportId = "mock_report_id";
-    const existingCalculatedData = {};
+    const existingCalculatedData = [{}];
     const mockCalculatedAmounts: CalculatedAmount[] = [
       { calculationCode: "invalid code", value: "1", isSuppressed: false }
     ];
 
     it("throws an error", async () => {
-      (prisma.pay_transparency_calculated_data.findFirst as jest.Mock).mockResolvedValue(existingCalculatedData);
-      (prisma.pay_transparency_calculated_data.update as jest.Mock).mockResolvedValue(null);
-      (prisma.pay_transparency_calculated_data.create as jest.Mock).mockResolvedValue(null);
+      (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
+      (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateMany as jest.Mock).mockResolvedValue(null);
       await expect(fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)).rejects.toThrow();
     })
   })
