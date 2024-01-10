@@ -206,7 +206,10 @@ const fileUploadService = {
 
     // Bulk update
     if (updates.length) {
-      await this.updateMany(tx, updates, "pay_transparency_calculated_data", "calculated_data_id");
+      // The data being updated here were derived on the backend so
+      // we can assume those data are clean and are not a risk for 
+      // SQL injection attacks.
+      await this.updateManyUnsafe(tx, updates, "pay_transparency_calculated_data", "calculated_data_id");
     }
   },
 
@@ -221,6 +224,13 @@ const fileUploadService = {
   Inspired by the code in these post: 
     - https://github.com/prisma/prisma/discussions/19765
     - https://stackoverflow.com/a/26715934
+
+  Safety warning: This function does not "clean" any of the data values that 
+  will be updated.  As such, this function should not be used to update any 
+  values that were submitted directly by users (because there is a risk of 
+  SQL injection attacks).  Instead, only use this function to update data 
+  that is known to be clean (such as data that was derived on the backend).
+  
   @param tx: a prisma transaction object
   @param updates: an array of objects of this format 
   {
@@ -233,7 +243,7 @@ const fileUploadService = {
   being updated (note: the primary key column must be one of the columns 
   specified in objects of the 'updates' array)
   */
-  async updateMany(tx, updates, tableName: string, primaryKeyCol: string) {
+  async updateManyUnsafe(tx, updates, tableName: string, primaryKeyCol: string) {
     if (!updates.length) {
       return;
     }

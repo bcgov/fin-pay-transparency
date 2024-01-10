@@ -11,7 +11,7 @@ const MOCK_CALCULATION_CODES = {
   "mock_calculation_code_2": "calculation_id_2"
 }
 
-//Mock only the updateMany method in file-upload-service (for all other methods
+//Mock only the updateManyUnsafe method in file-upload-service (for all other methods
 //in this module keep the original implementation)
 jest.mock('./file-upload-service', () => {
   const actual = jest.requireActual('./file-upload-service')
@@ -23,7 +23,7 @@ jest.mock('./file-upload-service', () => {
     fileUploadService: {
       ...mocked.fileUploadService,
       ...actual.fileUploadService,
-      updateMany: jest.fn().mockResolvedValue(null)
+      updateManyUnsafe: jest.fn().mockResolvedValue(null)
     }
   }
 })
@@ -182,10 +182,10 @@ describe("saveReportCalculations", () => {
     it("saves the calculations to new records", async () => {
       (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
       (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
-      (fileUploadService.updateMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)
       expect(codeService.getAllCalculationCodesAndIds).toHaveBeenCalled();
-      expect(fileUploadService.updateMany).toHaveBeenCalledTimes(0);
+      expect(fileUploadService.updateManyUnsafe).toHaveBeenCalledTimes(0);
       expect(prisma.pay_transparency_calculated_data.createMany).toHaveBeenCalledTimes(1);
     })
   })
@@ -202,11 +202,11 @@ describe("saveReportCalculations", () => {
     it("updates the existing calculated data records", async () => {
       (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
       (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
-      (fileUploadService.updateMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)
       expect(codeService.getAllCalculationCodesAndIds).toHaveBeenCalled();
       expect(prisma.pay_transparency_calculated_data.createMany).toHaveBeenCalledTimes(0);
-      expect(fileUploadService.updateMany).toHaveBeenCalledTimes(1);
+      expect(fileUploadService.updateManyUnsafe).toHaveBeenCalledTimes(1);
     })
   })
 
@@ -220,14 +220,14 @@ describe("saveReportCalculations", () => {
     it("throws an error", async () => {
       (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
       (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
-      (fileUploadService.updateMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
       await expect(fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)).rejects.toThrow();
     })
   })
 
 })
 
-describe("updateMany", () => {
+describe("updateManyUnsafe", () => {
   describe("when requesting that multiple records in a given table be updated", () => {
     it("creates and executes a bulk update statement against the database", () => {
       const mockTx = {
@@ -240,15 +240,15 @@ describe("updateMany", () => {
       const mockTableName = "mock_table";
       const primaryKeyCol = "mock_table_id";
 
-      actualFileUploadService.updateMany(mockTx, updates, mockTableName, primaryKeyCol);
+      actualFileUploadService.updateManyUnsafe(mockTx, updates, mockTableName, primaryKeyCol);
 
       expect(mockTx.$executeRawUnsafe).toHaveBeenCalledTimes(1);
 
       // Get the SQL was was submitted to the database
       const executedSql = mockTx.$executeRawUnsafe.mock.calls[0][0]
 
-      // Check that the submitted SQL several expected keywords
-      // (We stop short of checking the exact format of the SQL and that is
+      // Check that the submitted SQL includes several expected keywords
+      // (We stop short of checking the exact format of the SQL and that
       // it is valid according to the database engine.)
       expect(executedSql.toLowerCase()).toContain(`update ${mockTableName}`)
       expect(executedSql.toLowerCase()).toContain("set");
