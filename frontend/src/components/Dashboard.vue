@@ -7,7 +7,7 @@
         <v-card min-height="70%">
           <v-card-text>
             <p class="mb-2">
-              The tool will help you generate a pay transparency report for you company.
+              The tool will help you generate a pay transparency report for your organization.
             </p>
             <p class="mb-2">
               To begin, organize your pay transparency data into a comma-separated value (CSV) file as described
@@ -15,7 +15,7 @@
             </p>
             <p class="mb-4">
               Then click the button below to access a submission
-              form, where you'll be asked to enter information about your company and upload your CSV file.
+              form, where you'll be asked to enter information about your organization and upload your CSV file.
             </p>
             <v-btn color="primary" to="InputForm">Generate Pay Transparency Report</v-btn>
           </v-card-text>
