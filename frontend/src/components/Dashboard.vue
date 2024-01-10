@@ -7,7 +7,7 @@
         <v-card min-height="70%">
           <v-card-text>
             <p class="mb-2">
-              The tool will help you generate a pay transparency report for you organization.
+              The tool will help you generate a pay transparency report for your organization.
             </p>
             <p class="mb-2">
               To begin, organize your pay transparency data into a comma-separated value (CSV) file as described
