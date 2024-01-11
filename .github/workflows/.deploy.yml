@@ -102,7 +102,7 @@ jobs:
           #Package helm chart
           helm package --app-version="${{ inputs.tag }}" --version=${{ inputs.semver }} ./${{ inputs.directory }}
           
-          # If inputs.target starts with 'pr-', uninstall the helm chart first
+          # If inputs.target starts with 'pr-', uninstall the helm chart first to ensure a clean install
           if [[ "${{ inputs.target }}" == pr-* ]]; then
             helm uninstall ${{ env.deployment_name }}-${{ inputs.target }} || true
           fi
