@@ -33,8 +33,18 @@ interface ExplanatoryNote {
 }
 
 const GENDERS = {
-  MALE: { code: 'M', label: 'Men', extendedLabel: 'Men', color: '#1c3664' } as GenderChartInfo,
-  FEMALE: { code: 'F', label: 'Women', extendedLabel: 'Women', color: '#1b75bb' } as GenderChartInfo,
+  MALE: {
+    code: 'M',
+    label: 'Men',
+    extendedLabel: 'Men',
+    color: '#1c3664',
+  } as GenderChartInfo,
+  FEMALE: {
+    code: 'F',
+    label: 'Women',
+    extendedLabel: 'Women',
+    color: '#1b75bb',
+  } as GenderChartInfo,
   NON_BINARY: {
     code: 'X',
     label: 'Non-binary',
@@ -50,7 +60,6 @@ const GENDERS = {
 };
 
 const reportServicePrivate = {
-
   /*
   Converts a gender code (such as "M" or "U") into a GenderChartInfo
   object which includes information about how that gender category should
@@ -115,10 +124,9 @@ const reportServicePrivate = {
       genderChartInfo: genderChartInfo,
       value: valueMapFunction(
         parseFloat(calculations[calcCodeGenderCode.calculationCode].value),
-      )
+      ),
     };
   },
-
 
   /*
     This method converts the raw data that could be used to draw a bar chart
@@ -140,36 +148,47 @@ const reportServicePrivate = {
     'measureName' is written in plural. (i.e. whether it should be 
     followed by "is" or "are")
     */
-  getWageGapTextSummary(referenceGenderCode: string,
+  getWageGapTextSummary(
+    referenceGenderCode: string,
     chartDataRecords: ChartDataRecord[],
     statisticName: string,
     measureName: string,
-    measureNameIsPlural: boolean = true) {
-    const refChartDataRecord = chartDataRecords.filter(d => d.genderChartInfo.code == referenceGenderCode)[0];
+    measureNameIsPlural: boolean = true,
+  ) {
+    const refChartDataRecord = chartDataRecords.filter(
+      (d) => d.genderChartInfo.code == referenceGenderCode,
+    )[0];
 
     if (chartDataRecords.length < 2) {
       return null;
     }
 
-    const isOrAre = measureNameIsPlural ? "are" : "is";
+    const isOrAre = measureNameIsPlural ? 'are' : 'is';
 
     const typeASummaries: string[] = [];
     const typeBSummaries: string[] = [];
     chartDataRecords.forEach((d: ChartDataRecord) => {
-      if (d.genderChartInfo.code != referenceGenderCode && d.genderChartInfo.code != GENDERS.UNKNOWN.code) {
+      if (
+        d.genderChartInfo.code != referenceGenderCode &&
+        d.genderChartInfo.code != GENDERS.UNKNOWN.code
+      ) {
         const diffFromReference = d.value - refChartDataRecord.value;
-        const moreOrLess = diffFromReference > 0 ? "more" : "less";
+        const moreOrLess = diffFromReference > 0 ? 'more' : 'less';
         const diffPercent = Math.round(Math.abs(diffFromReference * 100));
         const moneyText = this.dollarsToText(d.value);
-        typeASummaries.push(`${d.genderChartInfo.extendedLabel.toLowerCase()}'s ${statisticName} ${measureName} ${isOrAre} ${diffPercent}% ${moreOrLess} than ${refChartDataRecord.genderChartInfo.extendedLabel.toLowerCase()}'s`);
-        typeBSummaries.push(`${d.genderChartInfo.extendedLabel.toLowerCase()} earn ${moneyText}`);
+        typeASummaries.push(
+          `${d.genderChartInfo.extendedLabel.toLowerCase()}'s ${statisticName} ${measureName} ${isOrAre} ${diffPercent}% ${moreOrLess} than ${refChartDataRecord.genderChartInfo.extendedLabel.toLowerCase()}'s`,
+        );
+        typeBSummaries.push(
+          `${d.genderChartInfo.extendedLabel.toLowerCase()} earn ${moneyText}`,
+        );
       }
-    })
+    });
 
     const result = `
-    In this organization ${typeASummaries.join(" and ")}.  
+    In this organization ${typeASummaries.join(' and ')}.  
     For every dollar ${refChartDataRecord.genderChartInfo.extendedLabel.toLowerCase()} earn in ${statisticName} ${measureName}, 
-    ${typeBSummaries.join(" and ")} in ${statisticName} ${measureName}.`
+    ${typeBSummaries.join(' and ')} in ${statisticName} ${measureName}.`;
     return result;
   },
 
@@ -189,11 +208,14 @@ const reportServicePrivate = {
     @param measureName: the name of the data category being summarized 
     (e.g. "overtime hours")
     */
-  getHoursGapTextSummary(referenceGenderCode: string,
+  getHoursGapTextSummary(
+    referenceGenderCode: string,
     chartDataRecords: ChartDataRecord[],
     statisticName: string,
-    measureName: string) {
-    const refGenderChartInfo: GenderChartInfo = reportServicePrivate.genderCodeToGenderChartInfo(referenceGenderCode);
+    measureName: string,
+  ) {
+    const refGenderChartInfo: GenderChartInfo =
+      reportServicePrivate.genderCodeToGenderChartInfo(referenceGenderCode);
 
     if (chartDataRecords.length < 2) {
       return null;
@@ -201,15 +223,20 @@ const reportServicePrivate = {
 
     const summaries: string[] = [];
     chartDataRecords.forEach((d: ChartDataRecord) => {
-      if (d.genderChartInfo.code != referenceGenderCode && d.genderChartInfo.code != GENDERS.UNKNOWN.code) {
+      if (
+        d.genderChartInfo.code != referenceGenderCode &&
+        d.genderChartInfo.code != GENDERS.UNKNOWN.code
+      ) {
         const diffFromReference = d.value;
-        const moreOrLess = diffFromReference > 0 ? "more" : "less";
+        const moreOrLess = diffFromReference > 0 ? 'more' : 'less';
         const diffHours = Math.round(Math.abs(diffFromReference));
-        summaries.push(`the ${statisticName} number of ${measureName} worked by ${d.genderChartInfo.extendedLabel.toLowerCase()} was ${diffHours} ${moreOrLess} than by ${refGenderChartInfo.extendedLabel.toLowerCase()}`);
+        summaries.push(
+          `the ${statisticName} number of ${measureName} worked by ${d.genderChartInfo.extendedLabel.toLowerCase()} was ${diffHours} ${moreOrLess} than by ${refGenderChartInfo.extendedLabel.toLowerCase()}`,
+        );
       }
-    })
+    });
 
-    const result = `In this organization ${summaries.join(" and ")}.`
+    const result = `In this organization ${summaries.join(' and ')}.`;
     return result;
   },
 
@@ -222,15 +249,16 @@ const reportServicePrivate = {
   */
   dollarsToText(amountDollars: number): string {
     if (amountDollars < 0) {
-      throw new Error("Expected a positive number representing am amount in dollars");
+      throw new Error(
+        'Expected a positive number representing am amount in dollars',
+      );
     }
-    amountDollars = (Math.round(amountDollars * 100) / 100)
+    amountDollars = Math.round(amountDollars * 100) / 100;
     if (amountDollars < 1) {
       return `${amountDollars * 100} cents`;
     }
     return `$${amountDollars.toFixed(2)}`;
   },
-
 };
 
 const reportService = {
@@ -356,7 +384,8 @@ const reportService = {
     );
     const report = reportAndCalculations.report;
     const calcs = reportAndCalculations.calculations;
-    const referenceGenderCode: string = calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value;
+    const referenceGenderCode: string =
+      calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE].value;
 
     // Organize specific calculations to show on specific charts
     const chartData = {
@@ -537,11 +566,7 @@ const reportService = {
           calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U,
         } as CalcCodeGenderCode,
       ]
-        .filter(
-          (d) =>
-            d.genderCode !=
-            referenceGenderCode,
-        )
+        .filter((d) => d.genderCode != referenceGenderCode)
         .map((d) =>
           reportServicePrivate.toChartDataRecord(calcs, d, Math.round),
         )
@@ -564,11 +589,7 @@ const reportService = {
           calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U,
         } as CalcCodeGenderCode,
       ]
-        .filter(
-          (d) =>
-            d.genderCode !=
-            referenceGenderCode,
-        )
+        .filter((d) => d.genderCode != referenceGenderCode)
         .map((d) =>
           reportServicePrivate.toChartDataRecord(calcs, d, Math.round),
         )
@@ -576,55 +597,61 @@ const reportService = {
     };
 
     const chartSummaryText = {
-      meanHourlyPayGap: reportServicePrivate.getWageGapTextSummary(referenceGenderCode,
+      meanHourlyPayGap: reportServicePrivate.getWageGapTextSummary(
+        referenceGenderCode,
         chartData.meanHourlyPayGap,
-        "average",
-        "hourly wages",
-        true
+        'average',
+        'hourly wages',
+        true,
       ),
-      medianHourlyPayGap: reportServicePrivate.getWageGapTextSummary(referenceGenderCode,
+      medianHourlyPayGap: reportServicePrivate.getWageGapTextSummary(
+        referenceGenderCode,
         chartData.medianHourlyPayGap,
-        "median",
-        "hourly wages",
-        true
+        'median',
+        'hourly wages',
+        true,
       ),
-      meanOvertimePayGap: reportServicePrivate.getWageGapTextSummary(referenceGenderCode,
+      meanOvertimePayGap: reportServicePrivate.getWageGapTextSummary(
+        referenceGenderCode,
         chartData.meanOvertimePayGap,
-        "average",
-        "overtime pay",
-        false
+        'average',
+        'overtime pay',
+        false,
       ),
-      medianOvertimePayGap: reportServicePrivate.getWageGapTextSummary(referenceGenderCode,
+      medianOvertimePayGap: reportServicePrivate.getWageGapTextSummary(
+        referenceGenderCode,
         chartData.meanOvertimePayGap,
-        "median",
-        "overtime pay",
-        false
+        'median',
+        'overtime pay',
+        false,
       ),
-      meanBonusPayGap: reportServicePrivate.getWageGapTextSummary(referenceGenderCode,
+      meanBonusPayGap: reportServicePrivate.getWageGapTextSummary(
+        referenceGenderCode,
         chartData.meanOvertimePayGap,
-        "average",
-        "bonus pay",
-        false
+        'average',
+        'bonus pay',
+        false,
       ),
-      medianBonusPayGap: reportServicePrivate.getWageGapTextSummary(referenceGenderCode,
+      medianBonusPayGap: reportServicePrivate.getWageGapTextSummary(
+        referenceGenderCode,
         chartData.meanOvertimePayGap,
-        "median",
-        "bonus pay",
-        false
+        'median',
+        'bonus pay',
+        false,
       ),
       meanOvertimeHoursGap: reportServicePrivate.getHoursGapTextSummary(
         referenceGenderCode,
         tableData.meanOvertimeHoursGap,
-        "average",
-        "overtime hours"
+        'average',
+        'overtime hours',
       ),
       medianOvertimeHoursGap: reportServicePrivate.getHoursGapTextSummary(
         referenceGenderCode,
         tableData.medianOvertimeHoursGap,
-        "median",
-        "overtime hours"
+        'median',
+        'overtime hours',
       ),
-    }
+    };
 
     const referenceGenderChartInfo =
       reportServicePrivate.genderCodeToGenderChartInfo(
@@ -675,9 +702,10 @@ const reportService = {
 };
 
 export {
-  CalcCodeGenderCode, GENDERS,
-  GenderChartInfo, ReportAndCalculations,
+  CalcCodeGenderCode,
+  GENDERS,
+  GenderChartInfo,
+  ReportAndCalculations,
   reportService,
-  reportServicePrivate
+  reportServicePrivate,
 };
-

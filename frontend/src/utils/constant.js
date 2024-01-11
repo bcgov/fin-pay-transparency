@@ -13,7 +13,7 @@ object = {
   REFRESH: authRoot + '/refresh',
   TOKEN: authRoot + '/token',
   SESSION_REMAINING_TIME: authRoot + '/user-session-remaining-time',
-  FILE_UPLOAD: baseRoot+'/file-upload',
+  FILE_UPLOAD: baseRoot + '/file-upload',
 };
 
 export const AuthRoutes = Object.freeze(object);
@@ -24,17 +24,17 @@ export const ApiRoutes = Object.freeze({
   fileUpload: {
     BASE_URL: fileUploadRoot,
   },
-  EMPLOYEE_COUNT_RANGES: baseRoot + "/v1/codes/employee-count-ranges",
-  NAICS_CODES: baseRoot + "/v1/codes/naics-codes",
-  POST_SUBMISSION: baseRoot + "/v1/file-upload",
+  EMPLOYEE_COUNT_RANGES: baseRoot + '/v1/codes/employee-count-ranges',
+  NAICS_CODES: baseRoot + '/v1/codes/naics-codes',
+  POST_SUBMISSION: baseRoot + '/v1/file-upload',
 });
 
 export const PAGE_TITLES = Object.freeze({
   ADMINISTRATION: 'Administration',
   DASHBOARD: 'Dashboard',
-  LOGIN:'Login',
+  LOGIN: 'Login',
   REPORT: 'Generated Report',
-  TOKEN_EXPIRED: 'Token Expired'
+  TOKEN_EXPIRED: 'Token Expired',
 });
 
 export const MINISTRY_NAME = 'Ministry of Finance';
