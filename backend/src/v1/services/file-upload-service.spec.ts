@@ -11,6 +11,24 @@ const MOCK_CALCULATION_CODES = {
   "mock_calculation_code_2": "calculation_id_2"
 }
 
+//Mock only the updateManyUnsafe method in file-upload-service (for all other methods
+//in this module keep the original implementation)
+jest.mock('./file-upload-service', () => {
+  const actual = jest.requireActual('./file-upload-service')
+  const mocked = (jest.genMockFromModule('./file-upload-service') as any);
+
+  return {
+    ...mocked,
+    ...actual,
+    fileUploadService: {
+      ...mocked.fileUploadService,
+      ...actual.fileUploadService,
+      updateManyUnsafe: jest.fn().mockResolvedValue(null)
+    }
+  }
+})
+const actualFileUploadService = jest.requireActual('./file-upload-service').fileUploadService;
+
 jest.mock('./validate-service');
 jest.mock('./utils-service');
 jest.mock('./code-service');
@@ -38,8 +56,8 @@ jest.mock('../prisma/prisma-client', () => {
       update: jest.fn(),
     },
     pay_transparency_calculated_data: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
+      findMany: jest.fn(),
+      createMany: jest.fn(),
       update: jest.fn(),
     },
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
@@ -154,58 +172,92 @@ describe("saveReportBody", () => {
 describe("saveReportCalculations", () => {
 
   describe("when the calculations aren't yet in the database", () => {
-    const existingCalculatedData = null;
+    const existingCalculatedData = [];
     const reportId = "mock_report_id";
     const mockCalculatedAmounts: CalculatedAmount[] = [];
     Object.keys(MOCK_CALCULATION_CODES).forEach(code => {
       mockCalculatedAmounts.push({ calculationCode: code, value: "1", isSuppressed: false })
     })
 
-    it("the saves the calculations to new records", async () => {
-      (prisma.pay_transparency_calculated_data.findFirst as jest.Mock).mockResolvedValue(existingCalculatedData);
-      (prisma.pay_transparency_calculated_data.update as jest.Mock).mockResolvedValue(null);
-      (prisma.pay_transparency_calculated_data.create as jest.Mock).mockResolvedValue(null);
+    it("saves the calculations to new records", async () => {
+      (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
+      (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)
       expect(codeService.getAllCalculationCodesAndIds).toHaveBeenCalled();
-      expect(prisma.pay_transparency_calculated_data.create).toHaveBeenCalledTimes(mockCalculatedAmounts.length);
-      expect(prisma.pay_transparency_calculated_data.update).toHaveBeenCalledTimes(0);
+      expect(fileUploadService.updateManyUnsafe).toHaveBeenCalledTimes(0);
+      expect(prisma.pay_transparency_calculated_data.createMany).toHaveBeenCalledTimes(1);
     })
   })
 
   describe("when the calculations are already in the database", () => {
     const reportId = "mock_report_id";
-    const existingCalculatedData = {};
+    const existingCalculatedData = [];
     const mockCalculatedAmounts: CalculatedAmount[] = [];
-    Object.keys(MOCK_CALCULATION_CODES).forEach(code => {
+    Object.keys(MOCK_CALCULATION_CODES).forEach((code) => {
+      existingCalculatedData.push({ calculation_code_id: MOCK_CALCULATION_CODES[code] })
       mockCalculatedAmounts.push({ calculationCode: code, value: "1", isSuppressed: false })
     })
 
     it("updates the existing calculated data records", async () => {
-      (prisma.pay_transparency_calculated_data.findFirst as jest.Mock).mockResolvedValue(existingCalculatedData);
-      (prisma.pay_transparency_calculated_data.update as jest.Mock).mockResolvedValue(null);
-      (prisma.pay_transparency_calculated_data.create as jest.Mock).mockResolvedValue(null);
+      (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
+      (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)
       expect(codeService.getAllCalculationCodesAndIds).toHaveBeenCalled();
-      expect(prisma.pay_transparency_calculated_data.update).toHaveBeenCalledTimes(mockCalculatedAmounts.length);
-      expect(prisma.pay_transparency_calculated_data.create).toHaveBeenCalledTimes(0);
+      expect(prisma.pay_transparency_calculated_data.createMany).toHaveBeenCalledTimes(0);
+      expect(fileUploadService.updateManyUnsafe).toHaveBeenCalledTimes(1);
     })
   })
 
   describe("when saving a calculation with an invalid calculation code", () => {
     const reportId = "mock_report_id";
-    const existingCalculatedData = {};
+    const existingCalculatedData = [{}];
     const mockCalculatedAmounts: CalculatedAmount[] = [
       { calculationCode: "invalid code", value: "1", isSuppressed: false }
     ];
 
     it("throws an error", async () => {
-      (prisma.pay_transparency_calculated_data.findFirst as jest.Mock).mockResolvedValue(existingCalculatedData);
-      (prisma.pay_transparency_calculated_data.update as jest.Mock).mockResolvedValue(null);
-      (prisma.pay_transparency_calculated_data.create as jest.Mock).mockResolvedValue(null);
+      (prisma.pay_transparency_calculated_data.findMany as jest.Mock).mockResolvedValue(existingCalculatedData);
+      (prisma.pay_transparency_calculated_data.createMany as jest.Mock).mockResolvedValue(null);
+      (fileUploadService.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
       await expect(fileUploadService.saveReportCalculations(mockCalculatedAmounts, reportId, prisma)).rejects.toThrow();
     })
   })
 
+})
+
+describe("updateManyUnsafe", () => {
+  describe("when requesting that multiple records in a given table be updated", () => {
+    it("creates and executes a bulk update statement against the database", () => {
+      const mockTx = {
+        $executeRawUnsafe: jest.fn()
+      }
+      const updates = [
+        { mock_table_id: "1", another_col: "aaa" },
+        { mock_table_id: "2", another_col: "bbb" }
+      ];
+      const mockTableName = "mock_table";
+      const primaryKeyCol = "mock_table_id";
+
+      actualFileUploadService.updateManyUnsafe(mockTx, updates, mockTableName, primaryKeyCol);
+
+      expect(mockTx.$executeRawUnsafe).toHaveBeenCalledTimes(1);
+
+      // Get the SQL was was submitted to the database
+      const executedSql = mockTx.$executeRawUnsafe.mock.calls[0][0]
+
+      // Check that the submitted SQL includes several expected keywords
+      // (We stop short of checking the exact format of the SQL and that
+      // it is valid according to the database engine.)
+      expect(executedSql.toLowerCase()).toContain(`update ${mockTableName}`)
+      expect(executedSql.toLowerCase()).toContain("set");
+      expect(executedSql.toLowerCase()).toContain("where");
+      Object.keys(updates[0]).forEach(k => {
+        expect(executedSql).toContain(k);
+      })
+    })
+  })
 })
 
 describe("validateSubmission", () => {
