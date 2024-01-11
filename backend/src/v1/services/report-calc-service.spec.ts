@@ -7,11 +7,14 @@ describe("ColumnStats", () => {
   // Initialize a ColumnStats object with a sample dataset that will
   // be used for most test on this class.
   let columnStats = null;
-  // Add enough Non-binary for Non-binary to be the reference category 
-  //and for Non-binary to be 
+  // Add enough an equal number of non-binary people and people of
+  // unknown gender.  In both cases the number should be at least
+  // enough for the gender category to be included in graphs and 
+  // to be considered as a candidate for the reference category.
   const numNonBinary = Math.max(
     reportCalcService.MIN_REQUIRED_PEOPLE_COUNT,
     reportCalcService.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY);
+  const numUnknown = numNonBinary;
   beforeEach(() => {
     columnStats = new ColumnStats();
     columnStats.push(10, GENDER_CODES.FEMALE[0]);
@@ -22,8 +25,10 @@ describe("ColumnStats", () => {
     for (var i = 0; i < numNonBinary; i++) {
       columnStats.push(50, GENDER_CODES.NON_BINARY[0]);
     }
+    for (var i = 0; i < numUnknown - 1; i++) {
+      columnStats.push(60, GENDER_CODES.UNKNOWN[0]);
+    }
     columnStats.push(0, GENDER_CODES.UNKNOWN[0]);
-    columnStats.push(1, GENDER_CODES.UNKNOWN[0]);
   })
 
   describe("getValues", () => {
@@ -40,7 +45,7 @@ describe("ColumnStats", () => {
       expect(columnStats.getCount(GENDER_CODES.FEMALE[0])).toBe(3);
       expect(columnStats.getCount(GENDER_CODES.MALE[0])).toBe(2);
       expect(columnStats.getCount(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
-      expect(columnStats.getCount(GENDER_CODES.UNKNOWN[0])).toBe(2);
+      expect(columnStats.getCount(GENDER_CODES.UNKNOWN[0])).toBe(numUnknown);
     })
   })
 
@@ -49,7 +54,7 @@ describe("ColumnStats", () => {
       expect(columnStats.getCountWithNonZeroData(GENDER_CODES.FEMALE[0])).toBe(3);
       expect(columnStats.getCountWithNonZeroData(GENDER_CODES.MALE[0])).toBe(2);
       expect(columnStats.getCountWithNonZeroData(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
-      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.UNKNOWN[0])).toBe(1);
+      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.UNKNOWN[0])).toBe(numUnknown - 1);
     })
   })
 
@@ -71,7 +76,7 @@ describe("ColumnStats", () => {
 
   describe("getReferenceGenderCode", () => {
     it("returns the expected reference category", () => {
-      expect(columnStats.getReferenceGenderCode()).toBe(GENDER_CODES.NON_BINARY[0]);
+      expect(columnStats.getReferenceGenderCode()).toBe(GENDER_CODES.UNKNOWN[0]);
     })
   })
 
