@@ -14,7 +14,8 @@ describe("ColumnStats", () => {
   const numNonBinary = Math.max(
     reportCalcService.MIN_REQUIRED_PEOPLE_COUNT,
     reportCalcService.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY);
-  const numUnknown = numNonBinary;
+  const numUnknownWithData = numNonBinary;
+  const numUnknownWithoutData = 100;
   beforeEach(() => {
     columnStats = new ColumnStats();
     columnStats.push(10, GENDER_CODES.FEMALE[0]);
@@ -25,10 +26,13 @@ describe("ColumnStats", () => {
     for (var i = 0; i < numNonBinary; i++) {
       columnStats.push(50, GENDER_CODES.NON_BINARY[0]);
     }
-    for (var i = 0; i < numUnknown - 1; i++) {
+    for (var i = 0; i < numUnknownWithData; i++) {
       columnStats.push(60, GENDER_CODES.UNKNOWN[0]);
     }
-    columnStats.push(0, GENDER_CODES.UNKNOWN[0]);
+    for (var i = 0; i < numUnknownWithoutData; i++) {
+      columnStats.push(0, GENDER_CODES.UNKNOWN[0]);
+    }
+
   })
 
   describe("getValues", () => {
@@ -45,7 +49,7 @@ describe("ColumnStats", () => {
       expect(columnStats.getCount(GENDER_CODES.FEMALE[0])).toBe(3);
       expect(columnStats.getCount(GENDER_CODES.MALE[0])).toBe(2);
       expect(columnStats.getCount(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
-      expect(columnStats.getCount(GENDER_CODES.UNKNOWN[0])).toBe(numUnknown);
+      expect(columnStats.getCount(GENDER_CODES.UNKNOWN[0])).toBe(numUnknownWithData + numUnknownWithoutData);
     })
   })
 
@@ -54,23 +58,45 @@ describe("ColumnStats", () => {
       expect(columnStats.getCountWithNonZeroData(GENDER_CODES.FEMALE[0])).toBe(3);
       expect(columnStats.getCountWithNonZeroData(GENDER_CODES.MALE[0])).toBe(2);
       expect(columnStats.getCountWithNonZeroData(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
-      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.UNKNOWN[0])).toBe(numUnknown - 1);
+      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.UNKNOWN[0])).toBe(numUnknownWithData);
     })
   })
 
   describe("getMean", () => {
-    it("returns the mean (average) of values in the given gender catetory", () => {
-      expect(columnStats.getMean(GENDER_CODES.FEMALE[0])).toBe(18);
-      expect(columnStats.getMean(GENDER_CODES.MALE[0])).toBe(35);
-      expect(columnStats.getMean(GENDER_CODES.NON_BINARY[0])).toBe(50);
+    describe("when zeros are included", () => {
+      it("returns the mean (average) of all values in the given gender catetory", () => {
+        expect(columnStats.getMean(GENDER_CODES.FEMALE[0])).toBe(18);
+        expect(columnStats.getMean(GENDER_CODES.MALE[0])).toBe(35);
+        expect(columnStats.getMean(GENDER_CODES.NON_BINARY[0])).toBe(50);
+        expect(columnStats.getMean(GENDER_CODES.UNKNOWN[0])).toBe(60 * numUnknownWithData / (numUnknownWithData + numUnknownWithoutData));
+      })
+    })
+    describe("when zeros are excluded", () => {
+      it("returns the mean (average) of non-zero values in the given gender catetory", () => {
+        expect(columnStats.getMean(GENDER_CODES.FEMALE[0], true)).toBe(18);
+        expect(columnStats.getMean(GENDER_CODES.MALE[0], true)).toBe(35);
+        expect(columnStats.getMean(GENDER_CODES.NON_BINARY[0], true)).toBe(50);
+        expect(columnStats.getMean(GENDER_CODES.UNKNOWN[0], true)).toBe(60);
+      })
     })
   })
 
   describe("getMedian", () => {
-    it("returns the median of values in the given gender catetory", () => {
-      expect(columnStats.getMedian(GENDER_CODES.FEMALE[0])).toBe(20);
-      expect(columnStats.getMedian(GENDER_CODES.MALE[0])).toBe(35);
-      expect(columnStats.getMedian(GENDER_CODES.NON_BINARY[0])).toBe(50);
+    describe("when zeros are included", () => {
+      it("returns the median of all values in the given gender catetory", () => {
+        expect(columnStats.getMedian(GENDER_CODES.FEMALE[0])).toBe(20);
+        expect(columnStats.getMedian(GENDER_CODES.MALE[0])).toBe(35);
+        expect(columnStats.getMedian(GENDER_CODES.NON_BINARY[0])).toBe(50);
+        expect(columnStats.getMedian(GENDER_CODES.UNKNOWN[0])).toBe(0);
+      })
+    })
+    describe("when zeros are excluded", () => {
+      it("returns the median of non-zero values in the given gender catetory", () => {
+        expect(columnStats.getMedian(GENDER_CODES.FEMALE[0], true)).toBe(20);
+        expect(columnStats.getMedian(GENDER_CODES.MALE[0], true)).toBe(35);
+        expect(columnStats.getMedian(GENDER_CODES.NON_BINARY[0], true)).toBe(50);
+        expect(columnStats.getMedian(GENDER_CODES.UNKNOWN[0], true)).toBe(60);
+      })
     })
   })
 
