@@ -173,13 +173,6 @@ app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200);// generally for route verification and health check.
 });
-app.use((req, _res, next) => {
-  const url = req.originalUrl;
-  const method = req.method;
-  const correlationId = req.session?.correlationID;
-  logger.info(`got request for ${method} ${url} with correlation id ${correlationId}`);
-  next();
-});
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/user', userRouter);
 apiRouter.use('/v1/file-upload', fileUploadRouter);

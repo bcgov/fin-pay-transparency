@@ -9,7 +9,16 @@ axios.interceptors.request.use(request => {
   }
   logger.info(`Starting Request for URL ${request.url}, with correlation ID, ${correlationId}`);
   return request;
-})
+});
+axios.interceptors.response.use(response => {
+  const headers = response.headers;
+  let correlationId = null;
+  if(headers && headers['x-correlation-id']) {
+    correlationId = headers['x-correlation-id'];
+  }
+  logger.info(`Received Response for URL ${response.config.url}, status code ${response.status}, with correlation ID, ${correlationId}`);
+  return response;
+});
 
 let discovery = null;
 
