@@ -118,10 +118,13 @@ export default {
   },
   async getPublishedReports() {
     try {
-      const response = await apiAxios.get(ApiRoutes.PUBLISHED_REPORTS);
-      return response;
+      const resp = await apiAxios.get(ApiRoutes.PUBLISHED_REPORTS);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch NAICS codes from API');
     } catch (e) {
-      console.log(`Failed to do get list of reports from API - ${e}`);
+      console.log(`Failed to get NAICS from API - ${e}`);
       throw e;
     }
   },

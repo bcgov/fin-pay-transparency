@@ -121,4 +121,59 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('getPublishedReports', () => {
+    describe('when the data are successfully retrieved from the backend', () => {
+      it('returns a list of objects in the expected format', async () => {
+        // Internally getPublishedReports() makes an API call to the backend.
+        // Mock the call and its response to remove dependency of this test
+        // on a remote service.
+        const mockBackendResponse = [
+          {
+            report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+            report_start_date: new Date(),
+            report_end_date: new Date(),
+            create_date: new Date(),
+            update_date: new Date(),
+            revision: 1,
+          },
+          {
+            report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
+            report_start_date: new Date(),
+            report_end_date: new Date(),
+            create_date: new Date(),
+            update_date: new Date(),
+            revision: 4,
+          },
+        ];
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.getPublishedReports();
+
+        // Expect getPublishedReports() to return the exact response that it
+        // received from the backend
+        expect(resp).toEqual(mockBackendResponse);
+      });
+    });
+
+    describe('when the data are not successfully retrieved from the backend', () => {
+      it('returns a rejected promise', async () => {
+        // Simulate an HTTP error response when getPublishedReports() tries to
+        // fetch data from the backend
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        expect(ApiService.getPublishedReports()).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
+    });
+  });
 });
