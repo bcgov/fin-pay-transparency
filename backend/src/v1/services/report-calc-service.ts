@@ -1,6 +1,7 @@
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
 import { CSV_COLUMNS, GENDER_CODES, NUMERIC_COLUMNS, validateService } from './validate-service';
+import { logger } from '../../logger';
 
 const CALCULATION_CODES = {
   REFERENCE_GENDER_CATEGORY_CODE: "REFERENCE_GENDER_CATEGORY_CODE",
@@ -211,6 +212,7 @@ const reportCalcService = {
     Returns an array of all the CalculatedAmounts.
   */
   async calculateAll(csvReadable: Readable): Promise<CalculatedAmount[]> {
+    logger.debug(`Calculating all amounts for report started.`);
     const calculatedAmounts: CalculatedAmount[] = [];
     const csvParser = csvReadable
       .pipe(parse({
@@ -263,7 +265,7 @@ const reportCalcService = {
       value: hourlyPayStats.getReferenceGenderCode(),
       isSuppressed: false
     });
-
+    logger.debug(`Calculating all amounts for report finished.`);
     return calculatedAmounts;
   },
 
