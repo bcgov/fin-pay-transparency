@@ -116,14 +116,13 @@ export default {
       throw e;
     }
   },
-};
-function getCodes(url) {
-  return async function getCodesHandler(query) {
+  async getPublishedReports() {
     try {
-      return await apiAxios.get(url, query);
+      const response = await apiAxios.get(ApiRoutes.PUBLISHED_REPORTS);
+      return response;
     } catch (e) {
-      console.log(`Failed to get from Nodejs API - ${e}`);
+      console.log(`Failed to do get list of reports from API - ${e}`);
       throw e;
     }
-  };
-}
+  },
+};

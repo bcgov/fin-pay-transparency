@@ -4,6 +4,7 @@ import { logger, logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, reportCalcService } from './report-calc-service';
 import { utils } from './utils-service';
+import { REPORT_STATUS } from './file-upload-service';
 
 interface ReportAndCalculations {
   report: any;
@@ -698,6 +699,30 @@ const reportService = {
     );
     logger.debug(`getReportHtml completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`);
     return responseHtml;
+  },
+
+  /**  Return all published reports created by a company */
+  async getPublishedReports(bceidBusinessGuid: string) {
+    const reports = await prisma.pay_transparency_company.findFirst({
+      select: {
+        pay_transparency_report: {
+          select: {
+            report_id: true,
+            report_start_date: true,
+            report_end_date: true,
+            revision: true,
+          },
+          where: {
+            report_status: { equals: REPORT_STATUS.PUBLISHED },
+          },
+        },
+      },
+      where: {
+        bceid_business_guid: bceidBusinessGuid,
+      },
+    });
+
+    return reports.pay_transparency_report;
   },
 };
 

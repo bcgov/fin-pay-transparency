@@ -392,3 +392,35 @@ describe('dollarsToText', () => {
     });
   });
 });
+
+describe('getPublishedReports', () => {
+  it('returns an array of Report data', async () => {
+    const mockReportResults = {
+      pay_transparency_report: [
+        {
+          report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+          report_start_date: new Date(),
+          report_end_date: new Date(),
+          create_date: new Date(),
+          update_date: new Date(),
+          revision: 1,
+        },
+        {
+          report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
+          report_start_date: new Date(),
+          report_end_date: new Date(),
+          create_date: new Date(),
+          update_date: new Date(),
+          revision: 4,
+        },
+      ],
+    };
+    (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
+      mockReportResults,
+    );
+    const ret = await reportService.getPublishedReports(
+      mockCompanyInDB.company_id,
+    );
+    expect(ret).toEqual(mockReportResults.pay_transparency_report);
+  });
+});
