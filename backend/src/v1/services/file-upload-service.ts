@@ -2,12 +2,12 @@ import moment from 'moment';
 import multer from 'multer';
 import { Readable } from 'stream';
 import { config } from "../../config";
-import { logger as log } from '../../logger';
+import { logger, logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
-import { codeService } from "../services/code-service";
+import { codeService } from './code-service';
 import { CalculatedAmount, reportCalcService } from "../services/report-calc-service";
-import { reportService } from "../services/report-service";
-import { FileErrors, validateService } from "../services/validate-service";
+import { reportService } from './report-service';
+import { FileErrors, validateService } from './validate-service';
 import { utils } from './utils-service';
 
 const REPORT_STATUS = {
@@ -51,6 +51,7 @@ const fileUploadService = {
 
   /* save the report body and the calculated amounts to the database */
   async saveDraftReport(req, calculatedAmounts: CalculatedAmount[]): Promise<string> {
+    logger.debug("Saving draft report for correlation id: " + req?.session?.correlationID);
     let reportId = null;
     try {
       await prisma.$transaction(async (tx) => {
@@ -66,6 +67,7 @@ const fileUploadService = {
         throw new Error('Error saving report');
       }
     }
+    logger.debug("Saved draft report for correlation id: " + req?.session?.correlationID);
     return reportId;
   },
 
@@ -303,8 +305,9 @@ const fileUploadService = {
   returns an draft report in HTML format.
   */
   async handleFileUpload(req, res, next) {
-
+    log.info("Handling file upload for correlation id: " + req?.session?.correlationID);
     parseMultipartFormData(req, res, async (err) => {
+
       if (err instanceof multer.MulterError) {
 
         // A default, general-purpose error message
@@ -315,7 +318,7 @@ const fileUploadService = {
         if (err?.code == "LIMIT_FILE_SIZE") {
           errorMessage = `The uploaded file exceeds the size limit (${MAX_FILE_SIZE_BYTES / 1000000}MB).`;
         }
-
+        log.error(`Error handling file upload for correlation_id: ${req.session?.correlationID} and error is ${err?.code}`);
         res.status(400).json({
           status: "error",
           errors: {

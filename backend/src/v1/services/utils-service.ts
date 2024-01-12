@@ -1,7 +1,15 @@
 import axios from 'axios';
 import { config } from '../../config';
-import { logger as log } from '../../logger';
+import { logger, logger as log } from '../../logger';
+axios.interceptors.request.use(request => {
+  logger.info(`Starting Request for URL ${request.url}, with correlation ID, ${request.headers['x-correlation-id']}`);
+  return request;
+})
 
+axios.interceptors.response.use(response => {
+  logger.info(`Got Response for URL ${response.request.url}, with correlation ID, ${response.request.headers['x-correlation-id']}`);
+  return response;
+})
 let discovery = null;
 
 async function getOidcDiscovery() {
