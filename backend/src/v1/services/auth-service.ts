@@ -1,54 +1,60 @@
 import axios from 'axios';
-import {config} from '../../config';
-import {logger as log} from '../../logger';
-import jsonwebtoken from 'jsonwebtoken';
+import { config } from '../../config';
+import { logger as log } from '../../logger';
+import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'querystring';
-import {utils} from './utils-service';
+import { utils } from './utils-service';
 import HttpStatus from 'http-status-codes';
-import prisma from "../prisma/prisma-client";
-import {getCompanyDetails} from "../../external/services/bceid-service";
+import prisma from '../prisma/prisma-client';
+import { getCompanyDetails } from '../../external/services/bceid-service';
+import { Request, NextFunction, Response } from 'express';
 
-let kcPublicKey;
+let kcPublicKey: string;
 const auth = {
   // Check if JWT Access Token has expired
-  isTokenExpired(token) {
+  isTokenExpired(token: string) {
     const now = Date.now().valueOf() / 1000;
     const payload = jsonwebtoken.decode(token);
 
-    return (!!payload['exp'] && payload['exp'] < (now + 30)); // Add 30 seconds to make sure , edge case is avoided and token is refreshed.
+    return !!payload['exp'] && payload['exp'] < now + 30; // Add 30 seconds to make sure , edge case is avoided and token is refreshed.
   },
 
   // Check if JWT Refresh Token has expired
-  isRenewable(token) {
+  isRenewable(token: string) {
     const now = Date.now().valueOf() / 1000;
-    const payload = jsonwebtoken.decode(token);
+    const payload: JwtPayload = jsonwebtoken.decode(token) as JwtPayload;
 
     // Check if expiration exists, or lacks expiration
-
-    return (typeof (payload.exp) !== 'undefined' && payload.exp !== null &&
-      payload.exp === 0 || payload.exp > now);
+    return (
+      (typeof payload.exp !== 'undefined' &&
+        payload.exp !== null &&
+        payload.exp === 0) ||
+      payload.exp > now
+    );
   },
 
   // Get new JWT and Refresh tokens
-  async renew(refreshToken) {
+  async renew(refreshToken: string) {
     let result: any = {};
 
     try {
       const discovery = await utils.getOidcDiscovery();
-      const response = await axios.post(discovery.token_endpoint,
+      const response = await axios.post(
+        discovery.token_endpoint,
         qs.stringify({
           client_id: config.get('oidc:clientId'),
           client_secret: config.get('oidc:clientSecret'),
           grant_type: 'refresh_token',
           refresh_token: refreshToken,
-          scope: 'bceidbusiness'
-        }), {
+          scope: 'bceidbusiness',
+        }),
+        {
           headers: {
             Accept: 'application/json',
             'Cache-Control': 'no-cache',
             'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        }
+          },
+        },
       );
 
       log.verbose('renew', utils.prettyStringify(response.data));
@@ -68,21 +74,23 @@ const auth = {
   },
 
   // Update or remove token based on JWT and user state
-  async refreshJWT(req, _res, next) {
+  async refreshJWT(req: Request, _res: Response, next: NextFunction) {
+    const user: any = req.user;
+    const session: any = req.session;
     try {
-      if (req.user?.jwt) {
+      if (user?.jwt) {
         log.verbose('refreshJWT', 'User & JWT exists');
 
-        if (auth.isTokenExpired(req.user.jwt)) {
+        if (auth.isTokenExpired(user.jwt)) {
           log.verbose('refreshJWT', 'JWT has expired');
 
-          if (!!req.user.refreshToken && auth.isRenewable(req.user.refreshToken)) {
+          if (!!user.refreshToken && auth.isRenewable(user.refreshToken)) {
             log.verbose('refreshJWT', 'Can refresh JWT token');
 
             // Get new JWT and Refresh Tokens and update the request
-            const result: any = await auth.renew(req.user.refreshToken);
-            req.user.jwt = result.jwt; // eslint-disable-line require-atomic-updates
-            req.user.refreshToken = result.refreshToken; // eslint-disable-line require-atomic-updates
+            const result: any = await auth.renew(user.refreshToken);
+            user.jwt = result.jwt; // eslint-disable-line require-atomic-updates
+            user.refreshToken = result.refreshToken; // eslint-disable-line require-atomic-updates
           } else {
             log.verbose('refreshJWT', 'Cannot refresh JWT token');
             delete req.user;
@@ -102,12 +110,12 @@ const auth = {
     const i = config.get('tokenGenerate:issuer');
     const s = 'user@finpaytransparency.ca';
     const a = config.get('server:frontend');
-    const signOptions = {
+    const signOptions: SignOptions = {
       issuer: i,
       subject: s,
       audience: a,
       expiresIn: '30m',
-      algorithm: 'RS256'
+      algorithm: 'RS256',
     };
 
     const privateKey = config.get('tokenGenerate:privateKey');
@@ -116,7 +124,6 @@ const auth = {
     return uiToken;
   },
 
-
   /**
    * check if the jwt contains valid claims.
    * The token should be issued by bceidbusiness and the audience should be the configured client id
@@ -124,18 +131,25 @@ const auth = {
    * https://github.com/bcgov/sso-keycloak/wiki/Using-Your-SSO-Client#do-validate-the-idp-in-the-jwt
    * @param jwt the token
    */
-  validateClaims: function (jwt) {
-    const payload = jsonwebtoken.decode(jwt);
+  validateClaims: function (jwt: any) {
+    const payload: JwtPayload = jsonwebtoken.decode(jwt) as JwtPayload;
     if (payload?.identity_provider !== 'bceidbusiness') {
-      throw new Error('backend token invalid, identity_provider is not bceidbusiness', jwt);
+      throw new Error(
+        'backend token invalid, identity_provider is not bceidbusiness',
+        jwt,
+      );
     }
     if (payload?.aud !== config.get('oidc:clientId')) {
-      throw new Error('backend token invalid, aud claim validation failed', jwt);
+      throw new Error(
+        'backend token invalid, aud claim validation failed',
+        jwt,
+      );
     }
     return true;
   },
   isValidBackendToken() {
-    return async function (req, res, next) {
+    return async function (req: Request, res: Response, next: NextFunction) {
+      const session: any = req.session;
       if (!kcPublicKey) {
         kcPublicKey = await utils.getKeycloakPublicKey();
         if (!kcPublicKey) {
@@ -143,8 +157,8 @@ const auth = {
           return res.status(HttpStatus.UNAUTHORIZED).json();
         }
       }
-      if (req?.session?.passport?.user?.jwt) {
-        const jwt = req.session.passport.user.jwt;
+      if (session?.passport?.user?.jwt) {
+        const jwt = session.passport.user.jwt;
         try {
           jsonwebtoken.verify(jwt, kcPublicKey);
           auth.validateClaims(jwt);
@@ -160,40 +174,48 @@ const auth = {
       }
     };
   },
-  async getUserInfo(req, res) {
-    const userInfo = req?.session?.passport?.user;
+  async getUserInfo(req: Request, res: Response) {
+    const session: any = req.session;
+    const userInfo = session?.passport?.user;
     if (!userInfo?.jwt || !userInfo?._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
-        message: 'No session data'
+        message: 'No session data',
       });
     }
     const userInfoFrontend = {
       displayName: userInfo._json.display_name,
-      ...req.session.companyDetails
+      ...session.companyDetails,
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);
   },
 
   createOrUpdatePayTransparencyCompany: async function (userInfo, req, tx) {
-    const existing_pay_transparency_company = await tx.pay_transparency_company.findFirst({
-      where: {
-        bceid_business_guid: userInfo._json.bceid_business_guid,
-      }
-    });
+    const existing_pay_transparency_company =
+      await tx.pay_transparency_company.findFirst({
+        where: {
+          bceid_business_guid: userInfo._json.bceid_business_guid,
+        },
+      });
     if (existing_pay_transparency_company) {
       existing_pay_transparency_company.update_date = new Date();
-      existing_pay_transparency_company.company_name = req.session.companyDetails.legalName;
-      existing_pay_transparency_company.address_line1 = req.session.companyDetails.addressLine1;
-      existing_pay_transparency_company.address_line2 = req.session.companyDetails.addressLine2;
+      existing_pay_transparency_company.company_name =
+        req.session.companyDetails.legalName;
+      existing_pay_transparency_company.address_line1 =
+        req.session.companyDetails.addressLine1;
+      existing_pay_transparency_company.address_line2 =
+        req.session.companyDetails.addressLine2;
       existing_pay_transparency_company.city = req.session.companyDetails.city;
-      existing_pay_transparency_company.province = req.session.companyDetails.province;
-      existing_pay_transparency_company.country = req.session.companyDetails.country;
-      existing_pay_transparency_company.postal_code = req.session.companyDetails.postal;
+      existing_pay_transparency_company.province =
+        req.session.companyDetails.province;
+      existing_pay_transparency_company.country =
+        req.session.companyDetails.country;
+      existing_pay_transparency_company.postal_code =
+        req.session.companyDetails.postal;
       await tx.pay_transparency_company.update({
         where: {
           company_id: existing_pay_transparency_company.company_id,
         },
-        data: existing_pay_transparency_company
+        data: existing_pay_transparency_company,
       });
     } else {
       await tx.pay_transparency_company.create({
@@ -207,18 +229,19 @@ const auth = {
           country: req.session.companyDetails.country,
           postal_code: req.session.companyDetails.postal,
           create_date: new Date(),
-          update_date: new Date()
-        }
+          update_date: new Date(),
+        },
       });
     }
   },
   createOrUpdatePayTransparencyUser: async function (userInfo, tx) {
-    const existingPayTransparencyUser = await tx.pay_transparency_user.findFirst({
-      where: {
-        bceid_user_guid: userInfo._json.bceid_user_guid,
-        bceid_business_guid: userInfo._json.bceid_business_guid
-      }
-    });
+    const existingPayTransparencyUser =
+      await tx.pay_transparency_user.findFirst({
+        where: {
+          bceid_user_guid: userInfo._json.bceid_user_guid,
+          bceid_business_guid: userInfo._json.bceid_business_guid,
+        },
+      });
     if (existingPayTransparencyUser) {
       existingPayTransparencyUser.update_date = new Date();
       existingPayTransparencyUser.display_name = userInfo._json.display_name;
@@ -226,7 +249,7 @@ const auth = {
         where: {
           user_id: existingPayTransparencyUser.user_id,
         },
-        data: existingPayTransparencyUser
+        data: existingPayTransparencyUser,
       });
     } else {
       await tx.pay_transparency_user.create({
@@ -235,12 +258,12 @@ const auth = {
           bceid_business_guid: userInfo._json.bceid_business_guid,
           display_name: userInfo._json.display_name,
           create_date: new Date(),
-          update_date: new Date()
-        }
+          update_date: new Date(),
+        },
       });
     }
   },
-  async storeUserInfo(req, userInfo) {
+  async storeUserInfo(req: Request, userInfo: any) {
     if (!userInfo?.jwt || !userInfo?._json) {
       throw new Error('No session data');
     }
@@ -254,30 +277,35 @@ const auth = {
       throw new Error('Error while storing user info');
     }
   },
-  async handleCallBackBusinessBceid(req, res){
+  async handleCallBackBusinessBceid(req: Request, res: Response) {
+    const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
-    const userGuid = jsonwebtoken.decode(userInfo.jwt)?.bceid_user_guid;
+    const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
+    const userGuid = jwtPayload?.bceid_user_guid;
     if (!userGuid) {
       log.error(`no bceid_user_guid found in the jwt token`, userInfo.jwt);
       res.redirect(config.get('server:frontend') + '/login-error');
     }
     try {
       auth.validateClaims(userInfo.jwt);
-      if(!req.session?.companyDetails){
-        try{
-          req.session.companyDetails = await getCompanyDetails(userGuid);
+      if (!session?.companyDetails) {
+        try {
+          session.companyDetails = await getCompanyDetails(userGuid);
           await auth.storeUserInfo(req, userInfo);
-        }catch (e) {
-          log.error(`Error happened while getting company details from BCEID for user ${userGuid}`, e);
+        } catch (e) {
+          log.error(
+            `Error happened while getting company details from BCEID for user ${userGuid}`,
+            e,
+          );
           res.redirect(config.get('server:frontend') + '/login-error');
         }
       }
       res.redirect(config.get('server:frontend'));
-    }catch (e) {
+    } catch (e) {
       log.error('invalid claims in token', e);
       res.redirect(config.get('server:frontend') + '/login-error');
     }
-  }
+  },
 };
 
-export {auth};
+export { auth };

@@ -15,7 +15,16 @@ import { config } from './config';
 import { logger } from './logger';
 import { rateLimit } from 'express-rate-limit';
 import docGenRoute from './v1/routes/doc-gen-route';
-
+import promBundle from 'express-prom-bundle';
+import prom from 'prom-client';
+const register = new prom.Registry();
+prom.collectDefaultMetrics({ register });
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  metricsPath: '/metrics',
+  promRegistry: register,
+});
 const app: Express = express();
 const apiRouter: Router = express.Router();
 
@@ -38,14 +47,17 @@ app.use(
 );
 
 app.use(
-  morgan('dev', {
-    stream: logStream,
-    skip: (req) => {
-      return (
-        req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
-      );
+  morgan(
+    ':method | :url | :status |  :response-time ms | :req[x-correlation-id] | :res[content-length]',
+    {
+      stream: logStream,
+      skip: (req) => {
+        return (
+          req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
+        );
+      },
     },
-  }),
+  ),
 );
 if (config.get('server:rateLimit:enabled')) {
   const limiter = rateLimit({
@@ -80,15 +92,13 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
       res.status(401).send({ message: 'Invalid API Key' });
     }
   } else {
-    logger.error(
-      'Correlation Id or API Key is missing in the request header',
-    );
+    logger.error('Correlation Id or API Key is missing in the request header');
     res.status(400).send({
       message: 'Correlation Id or API Key is missing in the request header',
     });
   }
 };
-
+app.use(metricsMiddleware);
 apiRouter.use(globalMiddleware);
 apiRouter.use('/doc-gen', docGenRoute);
 
@@ -104,7 +114,5 @@ app.use((err: Error, _req: Request, res: Response) => {
 app.use((_req: Request, res: Response) => {
   res.sendStatus(404);
 });
-
-
 
 export { app };

@@ -1,22 +1,23 @@
 import axios from 'axios';
 import { config } from '../../config';
 import { logger, logger as log } from '../../logger';
-axios.interceptors.request.use(request => {
-  const headers = request.headers;
-  let correlationId = null;
-  if(headers && headers['x-correlation-id']) {
-    correlationId = headers['x-correlation-id'];
-  }
-  logger.info(`Starting Request for URL ${request.url}, with correlation ID, ${correlationId}`);
-  return request;
-});
-axios.interceptors.response.use(response => {
+axios.interceptors.response.use((response) => {
   const headers = response.headers;
-  let correlationId = null;
-  if(headers && headers['x-correlation-id']) {
-    correlationId = headers['x-correlation-id'];
+  if (headers && headers['x-correlation-id']) {
+    const correlationId = headers['x-correlation-id'];
+    logger.info(
+      `${response.config.method.toUpperCase()} | ${response.config.url} | ${
+        response.status
+      } | ${correlationId}`,
+    );
+  } else {
+    logger.info(
+      `${response.config.method.toUpperCase()} | ${response.config.url} | ${
+        response.status
+      }`,
+    );
   }
-  logger.info(`Received Response for URL ${response.config.url}, status code ${response.status}, with correlation ID, ${correlationId}`);
+
   return response;
 });
 
