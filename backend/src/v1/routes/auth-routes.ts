@@ -15,10 +15,10 @@ router.get(
   passport.authenticate('oidcBusinessBceid', {
     failureMessage: true,
   }),
-  async (req, res) => {
+  utils.asyncHandler(async (req, res) => {
     log.debug(`Login flow callback business bceid is called.`);
     await auth.handleCallBackBusinessBceid(req, res);
-  },
+  }),
 );
 //a prettier way to handle errors
 router.get('/error', (req, res) => {
@@ -40,7 +40,7 @@ addBaseRouterGet('oidcBusinessBceid', '/login_bceid');
 //removes tokens and destroys session
 router.get(
   '/logout',
-  async (req: Request, res: Response, next: NextFunction) => {
+  utils.asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore, it is given by passport lib.
     const idToken: string = req['user']?.idToken;
     req.logout(async function (err) {
@@ -98,7 +98,7 @@ router.get(
         res.redirect(config.get('server:frontend') + '/api/auth/login_bceid');
       }
     });
-  },
+  }),
 );
 
 const UnauthorizedRsp = {
@@ -110,7 +110,7 @@ const UnauthorizedRsp = {
 router.post(
   '/refresh',
   [body('refreshToken').exists()],
-  async (req: Request, res: Response) => {
+  utils.asyncHandler(async (req: Request, res: Response) => {
     const user: any = req.user;
     const session: any = req.session;
     const errors = validationResult(req);
@@ -135,7 +135,7 @@ router.post(
       };
       return res.status(200).json(responseJson);
     }
-  },
+  }),
 );
 
 //provides a jwt to authenticated users

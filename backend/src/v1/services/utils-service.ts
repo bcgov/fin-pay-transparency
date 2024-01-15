@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { config } from '../../config';
 import { logger, logger as log } from '../../logger';
+import { Request, Response, NextFunction } from 'express';
 axios.interceptors.response.use((response) => {
   const headers = response.headers;
   if (headers && headers['x-correlation-id']) {
@@ -100,6 +101,9 @@ const utils = {
   getKeycloakPublicKey,
   postDataToDocGenService,
   postData,
+  asyncHandler: (fn) => (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  }
 };
 
 export { utils };

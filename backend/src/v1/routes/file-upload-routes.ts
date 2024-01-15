@@ -7,18 +7,18 @@ const fileUploadRouter = express.Router();
 fileUploadRouter.post(
   '/',
   passport.authenticate('jwt', { session: false }, undefined),
-  auth.isValidBackendToken(),
-  fileUploadService.handleFileUpload,
+  utils.asyncHandler(auth.isValidBackendToken()),
+  utils.asyncHandler(fileUploadService.handleFileUpload),
 );
 
 fileUploadRouter.get(
   '/',
   passport.authenticate('jwt', { session: false }, undefined),
-  auth.isValidBackendToken(),
-  async (_req: Request, res: Response) => {
+  utils.asyncHandler(auth.isValidBackendToken()),
+  utils.asyncHandler(async (_req: Request, res: Response) => {
     const companies = await fileUploadService.getCompanies();
     res.status(200).json(companies);
-  },
+  }),
 );
 
 export { fileUploadRouter };

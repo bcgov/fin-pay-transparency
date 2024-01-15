@@ -1,4 +1,4 @@
-import express from 'express';
+import express,{Request, Response} from 'express';
 
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -184,11 +184,11 @@ if (config.get('server:rateLimit:enabled')) {
   app.use(limiter);
 }
 app.use(metricsMiddleware);
-app.get('/metrics', async (_req, res) => {
+app.get('/metrics', utils.asyncHandler(async(_req: Request, res: Response) => {
   const prismaMetrics = await prisma.$metrics.prometheus();
   const appMetrics = await register.metrics();
   res.end(prismaMetrics + appMetrics);
-});
+}));
 
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {

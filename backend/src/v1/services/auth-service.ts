@@ -76,7 +76,6 @@ const auth = {
   // Update or remove token based on JWT and user state
   async refreshJWT(req: Request, _res: Response, next: NextFunction) {
     const user: any = req.user;
-    const session: any = req.session;
     try {
       if (user?.jwt) {
         log.verbose('refreshJWT', 'User & JWT exists');

@@ -9,21 +9,21 @@ const router = express.Router();
 router.get(
   '/employee-count-ranges',
   passport.authenticate('jwt', { session: false }),
-  isValidBackendToken,
-  async (_req: Request, res: Response) => {
+  utils.asyncHandler(isValidBackendToken),
+  utils.asyncHandler(async (_req: Request, res: Response) => {
     const body = await codeService.getAllEmployeeCountRanges();
     res.status(200).json(body);
-  },
+  }),
 );
 
 router.get(
   '/naics-codes',
   passport.authenticate('jwt', { session: false }),
-  isValidBackendToken,
-  async (_req: Request, res: Response) => {
+  utils.asyncHandler(isValidBackendToken),
+  utils.asyncHandler(async (_req: Request, res: Response) => {
     const body = await codeService.getAllNaicsCodes();
     res.status(200).json(body);
-  },
+  }),
 );
 
 export = router;
