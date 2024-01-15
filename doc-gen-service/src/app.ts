@@ -59,6 +59,7 @@ app.use(
     },
   ),
 );
+app.use(metricsMiddleware);
 if (config.get('server:rateLimit:enabled')) {
   const limiter = rateLimit({
     windowMs: config.get('server:rateLimit:windowMs'),
@@ -98,7 +99,6 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
     });
   }
 };
-app.use(metricsMiddleware);
 apiRouter.use(globalMiddleware);
 apiRouter.use('/doc-gen', docGenRoute);
 
