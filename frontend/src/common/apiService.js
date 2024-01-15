@@ -122,9 +122,9 @@ export default {
       if (resp?.data) {
         return resp.data;
       }
-      throw new Error('Unable to fetch NAICS codes from API');
+      throw new Error('Unable to fetch published reports from API');
     } catch (e) {
-      console.log(`Failed to get NAICS from API - ${e}`);
+      console.log(`Failed to get published reports from API - ${e}`);
       throw e;
     }
   },
