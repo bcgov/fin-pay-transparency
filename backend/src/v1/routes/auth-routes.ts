@@ -15,7 +15,7 @@ router.get(
   passport.authenticate('oidcBusinessBceid', {
     failureMessage: true,
   }),
-  utils.asyncHandler(async (req, res) => {
+  utils.asyncHandler(async (req: Request, res: Response) => {
     log.debug(`Login flow callback business bceid is called.`);
     await auth.handleCallBackBusinessBceid(req, res);
   }),
@@ -40,65 +40,68 @@ addBaseRouterGet('oidcBusinessBceid', '/login_bceid');
 //removes tokens and destroys session
 router.get(
   '/logout',
-  utils.asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore, it is given by passport lib.
-    const idToken: string = req['user']?.idToken;
-    req.logout(async function (err) {
-      if (err) {
-        return next(err);
-      }
-      req.session.destroy((err) => {
+  utils.asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      // @ts-ignore, it is given by passport lib.
+      const idToken: string = req['user']?.idToken;
+      const discovery = await utils.getOidcDiscovery();
+      req.logout(function (err) {
         if (err) {
-          log.error(`Logout failed - ${err.message}`);
           return next(err);
         }
-      });
-      const discovery = await utils.getOidcDiscovery();
-      let retUrl;
-      if (idToken) {
-        if (req.query?.sessionExpired) {
-          retUrl = encodeURIComponent(
-            discovery.end_session_endpoint +
-              '?post_logout_redirect_uri=' +
-              config.get('server:frontend') +
-              '/session-expired' +
-              '&id_token_hint=' +
-              idToken,
-          );
-        } else if (req.query?.loginError) {
-          retUrl = encodeURIComponent(
-            discovery.end_session_endpoint +
-              '?post_logout_redirect_uri=' +
-              config.get('server:frontend') +
-              '/login-error' +
-              '&id_token_hint=' +
-              idToken,
-          );
-        } else if (req.query?.loginBceid) {
-          retUrl = encodeURIComponent(
-            discovery.end_session_endpoint +
-              '?post_logout_redirect_uri=' +
-              config.get('server:frontend') +
-              '/api/auth/login_bceid' +
-              '&id_token_hint=' +
-              idToken,
-          );
+        req.session.destroy((err) => {
+          if (err) {
+            log.error(`Logout failed - ${err.message}`);
+            return next(err);
+          }
+        });
+
+        let retUrl;
+        if (idToken) {
+          if (req.query?.sessionExpired) {
+            retUrl = encodeURIComponent(
+              discovery.end_session_endpoint +
+                '?post_logout_redirect_uri=' +
+                config.get('server:frontend') +
+                '/session-expired' +
+                '&id_token_hint=' +
+                idToken,
+            );
+          } else if (req.query?.loginError) {
+            retUrl = encodeURIComponent(
+              discovery.end_session_endpoint +
+                '?post_logout_redirect_uri=' +
+                config.get('server:frontend') +
+                '/login-error' +
+                '&id_token_hint=' +
+                idToken,
+            );
+          } else if (req.query?.loginBceid) {
+            retUrl = encodeURIComponent(
+              discovery.end_session_endpoint +
+                '?post_logout_redirect_uri=' +
+                config.get('server:frontend') +
+                '/api/auth/login_bceid' +
+                '&id_token_hint=' +
+                idToken,
+            );
+          } else {
+            retUrl = encodeURIComponent(
+              discovery.end_session_endpoint +
+                '?post_logout_redirect_uri=' +
+                config.get('server:frontend') +
+                '/logout' +
+                '&id_token_hint=' +
+                idToken,
+            );
+          }
+          res.redirect(config.get('siteMinder_logout_endpoint') + retUrl);
         } else {
-          retUrl = encodeURIComponent(
-            discovery.end_session_endpoint +
-              '?post_logout_redirect_uri=' +
-              config.get('server:frontend') +
-              '/logout' +
-              '&id_token_hint=' +
-              idToken,
-          );
+          res.redirect(config.get('server:frontend') + '/api/auth/login_bceid');
         }
-        res.redirect(config.get('siteMinder_logout_endpoint') + retUrl);
-      } else {
-        res.redirect(config.get('server:frontend') + '/api/auth/login_bceid');
-      }
-    });
-  }),
+      });
+    },
+  ),
 );
 
 const UnauthorizedRsp = {
@@ -139,25 +142,29 @@ router.post(
 );
 
 //provides a jwt to authenticated users
-router.get('/token', auth.refreshJWT, (req: Request, res: Response) => {
-  const user: any = req.user;
-  const session: any = req.session;
-  if (user?.jwtFrontend && user?.refreshToken) {
-    if (session?.passport?.user?._json) {
-      req.session['correlationID'] = uuidv4();
-      log.info(
-        `created correlation id and stored in session for user guid: ${session?.passport?.user?._json?.bceid_user_guid}, user name: ${session?.passport?.user?._json?.bceid_username}, correlation_id:  ${session.correlationID}`,
-      );
+router.get(
+  '/token',
+  utils.asyncHandler(auth.refreshJWT),
+  (req: Request, res: Response) => {
+    const user: any = req.user;
+    const session: any = req.session;
+    if (user?.jwtFrontend && user?.refreshToken) {
+      if (session?.passport?.user?._json) {
+        req.session['correlationID'] = uuidv4();
+        log.info(
+          `created correlation id and stored in session for user guid: ${session?.passport?.user?._json?.bceid_user_guid}, user name: ${session?.passport?.user?._json?.bceid_username}, correlation_id:  ${session.correlationID}`,
+        );
+      }
+      const responseJson = {
+        jwtFrontend: user.jwtFrontend,
+        correlationID: session.correlationID,
+      };
+      res.status(200).json(responseJson);
+    } else {
+      res.status(401).json(UnauthorizedRsp);
     }
-    const responseJson = {
-      jwtFrontend: user.jwtFrontend,
-      correlationID: session.correlationID,
-    };
-    res.status(200).json(responseJson);
-  } else {
-    res.status(401).json(UnauthorizedRsp);
-  }
-});
+  },
+);
 
 async function generateTokens(req: Request, res: Response) {
   const user: any = req.user;
