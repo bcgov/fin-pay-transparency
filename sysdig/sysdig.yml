@@ -1,0 +1,15 @@
+# https://docs.developer.gov.bc.ca/sysdig-monitor-setup-team/
+apiVersion: ops.gov.bc.ca/v1alpha1
+kind: SysdigTeam
+metadata:
+  name: db4642-sysdigteam
+  namespace: db4642-tools
+spec:
+  team:
+    description: The Sysdig Team for the OpenShift Project Set Pay Transparency for Ministry of Finance/
+    users:
+      - name: sukanyarath1987@gmail.com
+        role: ROLE_TEAM_EDIT
+      - name: sukanya.rath@gov.bc.ca
+        role: ROLE_TEAM_EDIT
+      # more users below here

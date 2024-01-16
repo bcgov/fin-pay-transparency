@@ -2,6 +2,16 @@ name: Pull Request Closed
 
 on:
   pull_request:
+    paths-ignore:
+      - '*.md'
+      - 'docker-compose.yml'
+      - 'renovate.json'
+      - 'COMPLIANCE.yaml'
+      - '.gitignore'
+      - '.vscode/**'
+      - '.diagrams/**'
+      - '.graphics/**'
+      - 'sysdig/**'
     branches:
       - main
     types:

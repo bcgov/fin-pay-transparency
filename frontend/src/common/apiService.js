@@ -28,14 +28,22 @@ const intercept = apiAxios.interceptors.response.use(
     }
     axios.interceptors.response.eject(intercept);
     return new Promise((resolve, reject) => {
-      AuthService.refreshAuthToken(localStorage.getItem('jwtToken'))
+      AuthService.refreshAuthToken(
+        localStorage.getItem('jwtToken'),
+        localStorage.getItem('correlationID'),
+      )
         .then((response) => {
           if (response.jwtFrontend) {
             localStorage.setItem('jwtToken', response.jwtFrontend);
+            localStorage.setItem('correlationID', response.correlationID);
             apiAxios.defaults.headers.common['Authorization'] =
               `Bearer ${response.jwtFrontend}`;
             originalRequest.headers['Authorization'] =
               `Bearer ${response.jwtFrontend}`;
+            apiAxios.defaults.headers.common['x-correlation-id'] =
+              response.correlationID;
+            originalRequest.headers['x-correlation-id'] =
+              response.correlationID;
           }
           processQueue(null, response.jwtFrontend);
           resolve(axios(originalRequest));
@@ -61,6 +69,13 @@ export default {
       apiAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
       delete apiAxios.defaults.headers.common['Authorization'];
+    }
+  },
+  setCorrelationID(correlationID) {
+    if (correlationID) {
+      apiAxios.defaults.headers.common['x-correlation-id'] = correlationID;
+    } else {
+      delete apiAxios.defaults.headers.common['x-correlation-id'];
     }
   },
   async postSubmission(formData) {
