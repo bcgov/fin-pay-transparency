@@ -13,6 +13,7 @@ on:
       - '.vscode/**'
       - '.diagrams/**'
       - '.graphics/**'
+      - 'sysdig/**'
   workflow_dispatch:
     inputs:
       pr_no:
