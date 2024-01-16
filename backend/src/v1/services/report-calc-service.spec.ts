@@ -1,10 +1,10 @@
 import { Readable } from 'stream';
-import { CALCULATION_CODES, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate } from './report-calc-service';
+import { CALCULATION_CODES, CalculatedAmount, GroupedColumnStats, reportCalcService, reportCalcServicePrivate } from './report-calc-service';
 import { CSV_COLUMNS, GENDER_CODES, Row } from './validate-service';
 import { createSampleRow } from './validate-service.spec';
 
-describe("ColumnStats", () => {
-  // Initialize a ColumnStats object with a sample dataset that will
+describe("GroupedColumnStats", () => {
+  // Initialize a GroupedColumnStats object with a sample dataset that will
   // be used for most test on this class.
   let columnStats = null;
   // Add enough an equal number of non-binary people and people of
@@ -17,7 +17,7 @@ describe("ColumnStats", () => {
   const numUnknownWithData = numNonBinary;
   const numUnknownWithoutData = 100;
   beforeEach(() => {
-    columnStats = new ColumnStats();
+    columnStats = new GroupedColumnStats();
     columnStats.push(10, GENDER_CODES.FEMALE[0]);
     columnStats.push(24, GENDER_CODES.FEMALE[GENDER_CODES.FEMALE.length - 1]);
     columnStats.push(20, GENDER_CODES.FEMALE[0]);
@@ -111,7 +111,7 @@ describe("ColumnStats", () => {
 describe("meetsPeopleCountThreshold", () => {
   describe(`when a gender group meets the people count threshold for calculations to be performed`, () => {
     it(`returns true`, () => {
-      const columnStats = new ColumnStats();
+      const columnStats = new GroupedColumnStats();
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.FEMALE[0]);
       })
@@ -121,7 +121,7 @@ describe("meetsPeopleCountThreshold", () => {
   })
   describe(`when a gender group doesn't meet the people count threshold for calculations to be performed`, () => {
     it(`returns false`, () => {
-      const columnStats = new ColumnStats();
+      const columnStats = new GroupedColumnStats();
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT - 1).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.FEMALE[0]);
       })
@@ -134,7 +134,7 @@ describe("meetsPeopleCountThreshold", () => {
 describe("meetsPeopleWithDataCountThreshold", () => {
   describe(`when a gender group meets the threshold for number of people with data for calculations to be performed`, () => {
     it(`returns true`, () => {
-      const columnStats = new ColumnStats();
+      const columnStats = new GroupedColumnStats();
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
       })
@@ -144,7 +144,7 @@ describe("meetsPeopleWithDataCountThreshold", () => {
   })
   describe(`when a gender group doesn't meet the threshold for number of people with data for calculations to be performed`, () => {
     it(`returns false`, () => {
-      const columnStats = new ColumnStats();
+      const columnStats = new GroupedColumnStats();
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT - 1).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
       })
@@ -216,7 +216,7 @@ describe("calculateMeanHourlyPayGaps", () => {
       // - All non-binary people earn $98/hr
       // - All people whose gender is unknown earn $97/hr
       // Add 10 fake people in each gender category
-      const hourlyPayStats = new ColumnStats();
+      const hourlyPayStats = new GroupedColumnStats();
       Array(10).fill(100).forEach(v => {
         hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
         hourlyPayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
@@ -243,7 +243,7 @@ describe("calculateMedianHourlyPayGaps", () => {
       // - All non-binary people earn $98/hr
       // - All people whose gender is unknown earn $97/hr
       // Add 10 fake people in each gender category
-      const hourlyPayStats = new ColumnStats();
+      const hourlyPayStats = new GroupedColumnStats();
       Array(10).fill(100).forEach(v => {
         hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
         hourlyPayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
@@ -270,7 +270,7 @@ describe("calculateMeanOvertimePayGaps", () => {
       // - All non-binary people earn $98/hr
       // - All people whose gender is unknown earn $97/hr
       // Add 10 fake people in each gender category
-      const overtimePayStats = new ColumnStats();
+      const overtimePayStats = new GroupedColumnStats();
       Array(10).fill(100).forEach(v => {
         overtimePayStats.push(v, GENDER_CODES.MALE[0]);
         overtimePayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
@@ -297,7 +297,7 @@ describe("calculateMedianOvertimePayGaps", () => {
       // - All non-binary people earn $98/hr for overtime
       // - All people whose gender is unknown earn $97/hr for overtime
       // Add 10 fake people in each gender category
-      const overtimePayStats = new ColumnStats();
+      const overtimePayStats = new GroupedColumnStats();
       Array(10).fill(100).forEach(v => {
         overtimePayStats.push(v, GENDER_CODES.MALE[0]);
         overtimePayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
@@ -324,7 +324,7 @@ describe("calculateMeanOvertimeHoursGaps", () => {
       // - All non-binary people work 102 OT hours
       // - All people whose gender is unknown work 97 OT hours
       // Add 10 fake people in each gender category
-      const overtimeHoursStats = new ColumnStats();
+      const overtimeHoursStats = new GroupedColumnStats();
       Array(10).fill(100).forEach(v => {
         overtimeHoursStats.push(v, GENDER_CODES.MALE[0]);
         overtimeHoursStats.push(v - 1, GENDER_CODES.FEMALE[0]);
@@ -351,7 +351,7 @@ describe("calculateMedianOvertimeHoursGaps", () => {
       // - All non-binary people work 102 OT hours
       // - All people whose gender is unknown work 97 OT hours
       // Add 10 fake people in each gender category
-      const overtimeHoursStats = new ColumnStats();
+      const overtimeHoursStats = new GroupedColumnStats();
       Array(10).fill(100).forEach(v => {
         overtimeHoursStats.push(v, GENDER_CODES.MALE[0]);
         overtimeHoursStats.push(v - 1, GENDER_CODES.FEMALE[0]);
@@ -379,7 +379,7 @@ describe("calculateMeanBonusPayGaps", () => {
       // - All non-binary people earn $980 in annual bonus pay
       // - All people whose gender is unknown earn $970 in annual bonus pay
       // Add 10 fake people in each gender category
-      const hourlyPayStats = new ColumnStats();
+      const hourlyPayStats = new GroupedColumnStats();
       Array(10).fill(1000).forEach(v => {
         hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
         hourlyPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);
@@ -406,7 +406,7 @@ describe("calculateMedianBonusPayGaps", () => {
       // - All non-binary people earn $980 in annual bonus pay
       // - All people whose gender is unknown earn $970 in annual bonus pay
       // Add 10 fake people in each gender category
-      const hourlyPayStats = new ColumnStats();
+      const hourlyPayStats = new GroupedColumnStats();
       Array(10).fill(1000).forEach(v => {
         hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
         hourlyPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);

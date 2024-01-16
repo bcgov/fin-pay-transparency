@@ -1,7 +1,7 @@
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
-import { CSV_COLUMNS, GENDER_CODES, NUMERIC_COLUMNS, validateService } from './validate-service';
 import { logger } from '../../logger';
+import { CSV_COLUMNS, GENDER_CODES, NUMERIC_COLUMNS, validateService } from './validate-service';
 
 const CALCULATION_CODES = {
   REFERENCE_GENDER_CATEGORY_CODE: "REFERENCE_GENDER_CATEGORY_CODE",
@@ -67,7 +67,7 @@ accessed as follows:
   const medianBonusPayMale = bonusPayStats.getMedian("male");
   const medianBonusPayFemale = bonusPayStats.getMedian("female");
 */
-class ColumnStats {
+class GroupedColumnStats {
   static REF_CATEGORY_PREFERENCE = [GENDER_CODES.MALE, GENDER_CODES.UNKNOWN, GENDER_CODES.NON_BINARY];
 
 
@@ -114,7 +114,7 @@ class ColumnStats {
   */
   getReferenceGenderCode(): string {
     let referenceGenderCode: string = null;
-    const genderCategories = Object.values(ColumnStats.REF_CATEGORY_PREFERENCE);
+    const genderCategories = Object.values(GroupedColumnStats.REF_CATEGORY_PREFERENCE);
     for (let genderCodeSynonyms of genderCategories) {
 
       // Arbitrarily pick any one value from the list
@@ -138,7 +138,7 @@ class ColumnStats {
 
   /*
   Returns a count of people in the given gender category who have 
-  a non-zero data value for the measurement represented by this ColumnStats
+  a non-zero data value for the measurement represented by this GroupedColumnStats
   object
   */
   getCountWithNonZeroData(genderCode: string) {
@@ -225,10 +225,10 @@ const reportCalcService = {
       }));
 
     // Create objects to manage data and statistics for specific columns
-    const hourlyPayStats = new ColumnStats();
-    const overtimePayStats = new ColumnStats();
-    const overtimeHoursStats = new ColumnStats();
-    const bonusPayStats = new ColumnStats();
+    const hourlyPayStats = new GroupedColumnStats();
+    const overtimePayStats = new GroupedColumnStats();
+    const overtimeHoursStats = new GroupedColumnStats();
+    const bonusPayStats = new GroupedColumnStats();
 
     // Scan each row from the CSV file, and push the value of each column
     // into the objects that will be used to manage the column data and stats
@@ -273,17 +273,17 @@ const reportCalcService = {
 
 const reportCalcServicePrivate = {
 
-  meetsPeopleCountThreshold(columnStats: ColumnStats, genderCode: string) {
+  meetsPeopleCountThreshold(columnStats: GroupedColumnStats, genderCode: string) {
     const count = columnStats.getCount(genderCode);
     return count >= reportCalcService.MIN_REQUIRED_PEOPLE_COUNT;
   },
 
-  meetsPeopleWithDataCountThreshold(columnStats: ColumnStats, genderCode: string) {
+  meetsPeopleWithDataCountThreshold(columnStats: GroupedColumnStats, genderCode: string) {
     const count = columnStats.getCountWithNonZeroData(genderCode);
     return count >= reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT;
   },
 
-  calculateMeanHourlyPayGaps(hourlyPayStats: ColumnStats): CalculatedAmount[] {
+  calculateMeanHourlyPayGaps(hourlyPayStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = hourlyPayStats.getReferenceGenderCode();
 
     let meanHourlyPayDiffM = null;
@@ -341,7 +341,7 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMedianHourlyPayGaps(hourlyPayStats: ColumnStats): CalculatedAmount[] {
+  calculateMedianHourlyPayGaps(hourlyPayStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = hourlyPayStats.getReferenceGenderCode();
 
     let medianHourlyPayDiffM = null;
@@ -398,7 +398,7 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMeanOvertimePayGaps(overtimePayStats: ColumnStats): CalculatedAmount[] {
+  calculateMeanOvertimePayGaps(overtimePayStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = overtimePayStats.getReferenceGenderCode();
 
     let meanOvertimePayDiffM = null;
@@ -455,7 +455,7 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMedianOvertimePayGaps(overtimePayStats: ColumnStats): CalculatedAmount[] {
+  calculateMedianOvertimePayGaps(overtimePayStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = overtimePayStats.getReferenceGenderCode();
 
     let medianOvertimePayDiffM = null;
@@ -516,7 +516,7 @@ const reportCalcServicePrivate = {
   Calculated gaps are given as a difference in mean overtime hours between 
   each gender group and the reference group
   */
-  calculateMeanOvertimeHoursGaps(overtimeHoursStats: ColumnStats): CalculatedAmount[] {
+  calculateMeanOvertimeHoursGaps(overtimeHoursStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = overtimeHoursStats.getReferenceGenderCode();
 
     let meanOvertimeHoursDiffM = null;
@@ -573,7 +573,7 @@ const reportCalcServicePrivate = {
   Calculated gaps are given as a difference in median overtime hours between 
   each gender group and the reference group
   */
-  calculateMedianOvertimeHoursGaps(overtimeHoursStats: ColumnStats): CalculatedAmount[] {
+  calculateMedianOvertimeHoursGaps(overtimeHoursStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = overtimeHoursStats.getReferenceGenderCode();
 
     let medianOvertimeHoursDiffM = null;
@@ -626,7 +626,7 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMeanBonusPayGaps(bonusPayStats: ColumnStats): CalculatedAmount[] {
+  calculateMeanBonusPayGaps(bonusPayStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = bonusPayStats.getReferenceGenderCode();
 
     let meanBonusPayDiffM = null;
@@ -683,7 +683,7 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMedianBonusPayGaps(bonusPayStats: ColumnStats): CalculatedAmount[] {
+  calculateMedianBonusPayGaps(bonusPayStats: GroupedColumnStats): CalculatedAmount[] {
     const refGenderCode = bonusPayStats.getReferenceGenderCode();
 
     let medianBonusPayDiffM = null;
@@ -783,5 +783,5 @@ const reportCalcServicePrivate = {
   }
 }
 
-export { CALCULATION_CODES, CalculatedAmount, ColumnStats, reportCalcService, reportCalcServicePrivate };
+export { CALCULATION_CODES, CalculatedAmount, GroupedColumnStats, reportCalcService, reportCalcServicePrivate };
 
