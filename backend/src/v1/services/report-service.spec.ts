@@ -5,6 +5,7 @@ import {
   GENDERS,
   GenderChartInfo,
   ReportAndCalculations,
+  enumReportStatus,
   reportService,
   reportServicePrivate,
 } from './report-service';
@@ -393,7 +394,7 @@ describe('dollarsToText', () => {
   });
 });
 
-describe('getPublishedReports', () => {
+describe('getReportsByStatus', () => {
   it('returns an array of Report data', async () => {
     const mockReportResults = {
       pay_transparency_report: [
@@ -418,8 +419,9 @@ describe('getPublishedReports', () => {
     (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
       mockReportResults,
     );
-    const ret = await reportService.getPublishedReports(
+    const ret = await reportService.getReportsByStatus(
       mockCompanyInDB.company_id,
+      enumReportStatus.Draft,
     );
     expect(ret).toEqual(mockReportResults.pay_transparency_report);
   });

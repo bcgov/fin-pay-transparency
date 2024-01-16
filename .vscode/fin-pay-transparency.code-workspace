@@ -16,7 +16,7 @@
     }
   ],
   "settings": {
-    "jest.disabledWorkspaceFolders": ["fin-pay-transparency"],
+    "jest.disabledWorkspaceFolders": ["fin-pay-transparency", "frontend"],
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,

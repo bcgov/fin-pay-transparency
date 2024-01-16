@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ApiService from '../apiService';
+import { REPORT_STATUS } from '../../utils/constant';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -122,10 +123,10 @@ describe('ApiService', () => {
     });
   });
 
-  describe('getPublishedReports', () => {
+  describe('getReportsByStatus', () => {
     describe('when the data are successfully retrieved from the backend', () => {
       it('returns a list of objects in the expected format', async () => {
-        // Internally getPublishedReports() makes an API call to the backend.
+        // Internally getReportsByStatus() makes an API call to the backend.
         // Mock the call and its response to remove dependency of this test
         // on a remote service.
         const mockBackendResponse = [
@@ -153,9 +154,9 @@ describe('ApiService', () => {
           mockAxiosResponse,
         );
 
-        const resp = await ApiService.getPublishedReports();
+        const resp = await ApiService.getReportsByStatus(REPORT_STATUS.DRAFT);
 
-        // Expect getPublishedReports() to return the exact response that it
+        // Expect getReportsByStatus() to return the exact response that it
         // received from the backend
         expect(resp).toEqual(mockBackendResponse);
       });
@@ -163,16 +164,16 @@ describe('ApiService', () => {
 
     describe('when the data are not successfully retrieved from the backend', () => {
       it('returns a rejected promise', async () => {
-        // Simulate an HTTP error response when getPublishedReports() tries to
+        // Simulate an HTTP error response when getReportsByStatus() tries to
         // fetch data from the backend
         const mockAxiosError = new AxiosError();
         vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
           mockAxiosError,
         );
 
-        expect(ApiService.getPublishedReports()).rejects.toEqual(
-          mockAxiosError,
-        );
+        expect(
+          ApiService.getReportsByStatus(REPORT_STATUS.PUBLISHED),
+        ).rejects.toEqual(mockAxiosError);
       });
     });
   });

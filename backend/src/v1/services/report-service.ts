@@ -4,7 +4,11 @@ import { logger, logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, reportCalcService } from './report-calc-service';
 import { utils } from './utils-service';
-import { REPORT_STATUS } from './file-upload-service';
+
+enum enumReportStatus {
+  Draft = 'Draft',
+  Published = 'Published',
+}
 
 interface ReportAndCalculations {
   report: any;
@@ -378,7 +382,9 @@ const reportService = {
   },
 
   async getReportHtml(req, reportId: string): Promise<string> {
-    logger.debug(`getReportHtml called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`);
+    logger.debug(
+      `getReportHtml called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+    );
     const reportAndCalculations = await this.getReportAndCalculations(
       req,
       reportId,
@@ -692,17 +698,22 @@ const reportService = {
       explanatoryNotes: this.createExplanatoryNotes(report),
     };
 
-    const responseHtml= await utils.postDataToDocGenService(
+    const responseHtml = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
       req.session.correlationID,
     );
-    logger.debug(`getReportHtml completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`);
+    logger.debug(
+      `getReportHtml completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+    );
     return responseHtml;
   },
 
   /**  Return all published reports created by a company */
-  async getPublishedReports(bceidBusinessGuid: string) {
+  async getReportsByStatus(
+    bceidBusinessGuid: string,
+    status: enumReportStatus,
+  ) {
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -713,7 +724,7 @@ const reportService = {
             revision: true,
           },
           where: {
-            report_status: { equals: REPORT_STATUS.PUBLISHED },
+            report_status: status,
           },
         },
       },
@@ -722,7 +733,7 @@ const reportService = {
       },
     });
 
-    return reports.pay_transparency_report;
+    return reports?.pay_transparency_report;
   },
 };
 
@@ -733,4 +744,5 @@ export {
   ReportAndCalculations,
   reportService,
   reportServicePrivate,
+  enumReportStatus,
 };

@@ -116,9 +116,16 @@ export default {
       throw e;
     }
   },
-  async getPublishedReports() {
+  /**
+   * Returns all published or draft reports for the current employer.
+   * @param {string} status - 'Published' or 'Draft'
+   * @returns {Array.<{report_id: String, report_start_date: Date, report_end_date: Date, revision: Number}>}
+   */
+  async getReportsByStatus(status) {
     try {
-      const resp = await apiAxios.get(ApiRoutes.PUBLISHED_REPORTS);
+      const resp = await apiAxios.get(ApiRoutes.REPORTS, {
+        params: { status: status },
+      });
       if (resp?.data) {
         return resp.data;
       }
