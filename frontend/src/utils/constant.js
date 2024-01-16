@@ -12,7 +12,6 @@ object = {
   LOGIN_FAILED: authRoot + '/logout?loginError=true',
   REFRESH: authRoot + '/refresh',
   TOKEN: authRoot + '/token',
-  SESSION_REMAINING_TIME: authRoot + '/user-session-remaining-time',
   FILE_UPLOAD: baseRoot+'/file-upload',
 };
 
