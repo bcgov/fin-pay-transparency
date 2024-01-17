@@ -1,4 +1,117 @@
 <template>
+
+<v-container class="h-100">
+  <v-row class="w-100">
+    <v-col cols="12">
+      <v-container class="justify-center">
+        <v-row>
+          <v-col>
+            <p class="text-welcome mt-14 mb-8">
+              Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
+            </p>
+            <p class="text-subtitle-2 mb-10">
+              Introducing the Pay Transparency Reporting tool, onsectetur adipiscing elit. Ut fermentum tortor ut ultricies placerat. Nam eu leo lacus. Quisque id tempor arcu. Ut fermentum tortor ut ultricies placer, visit <u>Pay Transparency Laws in B.C.</u>
+            </p>
+            <v-btn
+              id="login-button"
+              color="primary"
+              class="mb-8"
+              @click="clearStorageAndRedirectToLogin"
+            >
+              Log In with Business BCeID<v-icon>mdi-login</v-icon>
+            </v-btn>  
+          </v-col>
+        </v-row>
+      </v-container>  
+    </v-col>
+  </v-row>
+  <v-row class="grey-div w-100">
+    <v-col >
+      <v-container class="unbastardized">
+        <v-row>
+          <v-col>
+            <p class="text-welcome mt-14 mb-8">
+              Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
+            </p>
+          </v-col>
+        </v-row>
+      </v-container>  
+    </v-col>
+  </v-row>  
+</v-container>
+
+<!--
+<div class="row">
+
+            <p class="text-welcome mt-14 mb-8">
+              Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
+            </p>
+            <p class="text-subtitle-2 mb-10">
+              Introducing the Pay Transparency Reporting tool, onsectetur adipiscing elit. Ut fermentum tortor ut ultricies placerat. Nam eu leo lacus. Quisque id tempor arcu. Ut fermentum tortor ut ultricies placer, visit <u>Pay Transparency Laws in B.C.</u>
+            </p>
+            <v-btn
+              id="login-button"
+              color="primary"
+              class="mb-8"
+              @click="clearStorageAndRedirectToLogin"
+            >
+              Log In with Business BCeID<v-icon>mdi-login</v-icon>
+            </v-btn>  
+
+</div>
+<div class="row">
+   <div class="grey-div">
+   
+   </div>
+</div>
+-->
+<!--
+<div class="w-100 h-100">
+  <v-row>
+    <v-col>
+      <v-container class="justify-center">
+        <v-row>
+          <v-col>
+            <p class="text-welcome mt-14 mb-8">
+              Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
+            </p>
+            <p class="text-subtitle-2 mb-10">
+              Introducing the Pay Transparency Reporting tool, onsectetur adipiscing elit. Ut fermentum tortor ut ultricies placerat. Nam eu leo lacus. Quisque id tempor arcu. Ut fermentum tortor ut ultricies placer, visit <u>Pay Transparency Laws in B.C.</u>
+            </p>
+            <v-btn
+              id="login-button"
+              color="primary"
+              class="mb-8"
+              @click="clearStorageAndRedirectToLogin"
+            >
+              Log In with Business BCeID<v-icon>mdi-login</v-icon>
+            </v-btn>  
+          </v-col>
+        </v-row>
+      </v-container>  
+    </v-col>
+  </v-row>
+  
+  <v-row class="grey-div">
+    <v-col>
+      <v-container class="justify-center">
+        <v-row>
+          <v-col>
+            <p class="text-welcome mt-14 mb-8">
+              Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
+            </p>
+          </v-col>
+        </v-row>
+      </v-container>  
+    </v-col>
+  </v-row>
+</div>
+-->
+
+
+
+
+<!--
   <v-container
     fluid
     class="full-height"
@@ -39,6 +152,7 @@
       </v-row>
     </article>
   </v-container>
+-->
 </template>
 
 <script>
@@ -75,9 +189,39 @@ export default {
     height: 100%;
   }
 
-  .login-card{
-    margin-top: 15rem;
-    background-color: #003366;
-    color: white;
+  .text-welcome {
+    font-size: 1.4em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: 500;
+  }
+
+  .grey-div {
+    background: #8080801c;
+  }
+
+  .unbastardized {
+    margin: 0;
+    padding: 0;
+  }
+
+
+
+.row {
+    width:100%;
+    height:50%;
+}
+.row div {
+    width:100%;
+    height:100%;
+    float:left;
+}
+
+  .no-padding-margin {
+    padding: 0;
+    margin-right: 0;
+    margin-left: 0;
   }
 </style>
