@@ -15,7 +15,10 @@ reportRouter.get(
   '/',
   passport.authenticate('jwt', { session: false }, undefined),
   auth.isValidBackendToken(),
-  async (req: Request, res: Response) => {
+  async (
+    req: Request<null, null, null, { status: enumReportStatus }>,
+    res: Response,
+  ) => {
     // verifiy business guid
     const businessGuid = utils.getSessionUser(req)?._json?.bceid_business_guid;
     if (!businessGuid)
