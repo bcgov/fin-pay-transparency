@@ -44,6 +44,12 @@ interface CalculatedAmount {
   value: string,
   isSuppressed: boolean
 }
+
+interface ValueGenderCodePair {
+  value: number;
+  genderCode: string;
+}
+
 /*
 This is a helper class which can be used to incrementally collect values
 representing separate measurements of a certain type. For example, it can 
@@ -197,6 +203,135 @@ class GroupedColumnStats {
     const index1 = index2 - 1;
     const avgOfTwo = (values[index1] + values[index2]) / 2;
     return avgOfTwo;
+  }
+
+}
+
+/*
+This class is designed to support efficient organization of data
+into quartiles (according to some metric like Hourly Pay), and counts
+of employees of each gender category within each quartile.  
+Internally the class stores data as key-value pairs in a list, 
+where key value pairs look like this:
+  <data value, gender code>
+*/
+class TaggedColumnStats {
+
+  private data: ValueGenderCodePair[];
+  private isSorted: boolean;
+
+  constructor() {
+    this.data = [];
+    this.isSorted = true;
+  }
+
+  public push(value: number, genderCode: string) {
+    this.data.push({ value: value, genderCode: genderCode });
+    this.isSorted = false;
+  }
+
+  /* sorts the internal data structure by value */
+  private sort() {
+    if (this.isSorted) {
+      return; //already sorted
+    }
+    this.data.sort((a: ValueGenderCodePair, b: ValueGenderCodePair) =>
+      a.value > b.value ? 1 : -1
+    );
+    this.isSorted = true;
+  }
+
+  /*  
+  Returns an object which includes counts of employees of each
+  gender within each quartile.  The return object has this form:
+  {
+    Q1: {
+      "M": 100
+      "W": 102
+      "X": 3
+      "U": 10
+    }, 
+    Q2: {...},
+    Q3: {...},
+    Q4: {...}
+  }
+  If any given quartile has no employees of a given gender category then
+  the gender code for that category isn't included in the quartile.
+  */
+  public getGenderCountsPerQuartile(): any {
+    const result = {};
+    const quartileBreaks = this.getQuartileBreaks();
+
+    // Initialize the loop variable 'endIndex'
+    // (the first quartile starts at 0, so if there was hypothetically
+    // a quartile before that it would need to have an endIndex of -1)
+    let endIndex = -1;
+
+    quartileBreaks.forEach((breakIndex: number, i: number) => {
+      const quartileName = `Q${i + 1}`;
+      const startIndex = endIndex + 1;
+      endIndex = breakIndex;
+      const countsByGenderCode = this.getGenderCountsInRange(startIndex, endIndex);
+      result[quartileName] = countsByGenderCode;
+    })
+    return result;
+  }
+
+  public getCount() {
+    return this.data.length;
+  }
+
+  /*
+  Returns a four element array containing the index of the last
+  item from each quartile.  The resulting array will look like this:
+  [
+    index of the last item in the first quartile,
+    index of the last item in the second quartile,
+    index of the last item in the third quartile,
+    index of the last item in the forth quartile,
+  ]
+  */
+  getQuartileBreaks(): number[] {
+    this.sort();
+    const numRecords = this.getCount();
+    if (numRecords == 0) {
+      throw new Error("Cannot get quartile breaks on an empty dataset");
+    }
+    const quartile1EndIndex = Math.floor(1 / 4 * numRecords - 1);
+    const quartile2EndIndex = Math.floor(1 / 2 * numRecords - 1);
+    const quartile3EndIndex = Math.floor(3 / 4 * numRecords - 1);
+    const quartile4EndIndex = numRecords - 1;
+    const breaks = [
+      quartile1EndIndex,
+      quartile2EndIndex,
+      quartile3EndIndex,
+      quartile4EndIndex];
+    return breaks;
+  }
+
+  /*
+  Scans all data items between the given start and end indexes, and
+  counts the number of employees of each gender category within 
+  those data.
+  Returns an object with genderCodes as keys, and employee counts as values.  
+  For example:
+  {
+    "M": 100
+    "W": 102
+    "X": 3
+    "U": 10
+  }
+  */
+  getGenderCountsInRange(startIndex: number, endIndex: number) {
+    const countsByGenderCode = {};
+    for (let i = startIndex; i <= endIndex; i++) {
+      const item = this.data[i];
+      if (!countsByGenderCode.hasOwnProperty(item.genderCode)) {
+        countsByGenderCode[item.genderCode] = 0;
+      }
+      countsByGenderCode[item.genderCode] += 1;
+    }
+    return countsByGenderCode;
   }
 
 }
@@ -783,5 +918,5 @@ const reportCalcServicePrivate = {
   }
 }
 
-export { CALCULATION_CODES, CalculatedAmount, GroupedColumnStats, reportCalcService, reportCalcServicePrivate };
+export { CALCULATION_CODES, CalculatedAmount, GroupedColumnStats, TaggedColumnStats, reportCalcService, reportCalcServicePrivate };
 

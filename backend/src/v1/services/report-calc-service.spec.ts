@@ -1,13 +1,13 @@
 import { Readable } from 'stream';
-import { CALCULATION_CODES, CalculatedAmount, GroupedColumnStats, reportCalcService, reportCalcServicePrivate } from './report-calc-service';
+import { CALCULATION_CODES, CalculatedAmount, GroupedColumnStats, TaggedColumnStats, reportCalcService, reportCalcServicePrivate } from './report-calc-service';
 import { CSV_COLUMNS, GENDER_CODES, Row } from './validate-service';
 import { createSampleRow } from './validate-service.spec';
 
 describe("GroupedColumnStats", () => {
   // Initialize a GroupedColumnStats object with a sample dataset that will
-  // be used for most test on this class.
+  // be used for most tests on this class.
   let columnStats = null;
-  // Add enough an equal number of non-binary people and people of
+  // Add an equal number of non-binary people and people of
   // unknown gender.  In both cases the number should be at least
   // enough for the gender category to be included in graphs and 
   // to be considered as a candidate for the reference category.
@@ -103,6 +103,108 @@ describe("GroupedColumnStats", () => {
   describe("getReferenceGenderCode", () => {
     it("returns the expected reference category", () => {
       expect(columnStats.getReferenceGenderCode()).toBe(GENDER_CODES.UNKNOWN[0]);
+    })
+  })
+
+});
+
+describe("TaggedColumnStats", () => {
+  // Initialize a TaggedColumnStats object with a sample dataset that will
+  // be used for most tests on this class.
+  let columnStats = null;
+
+  const numMale = 10;
+  const numFemale = 10;
+  const numNonBinary = 10;
+  const numUnknown = 10;
+  const numEmployees = numMale + numFemale + numNonBinary + numUnknown;
+
+  beforeEach(() => {
+    columnStats = new TaggedColumnStats();
+    for (var i = 0; i < numMale; i++) {
+      columnStats.push(130, GENDER_CODES.MALE[0]);
+    }
+    for (var i = 0; i < numFemale; i++) {
+      columnStats.push(120, GENDER_CODES.FEMALE[0]);
+    }
+    for (var i = 0; i < numNonBinary; i++) {
+      columnStats.push(110, GENDER_CODES.NON_BINARY[0]);
+    }
+    for (var i = 0; i < numUnknown; i++) {
+      columnStats.push(100, GENDER_CODES.UNKNOWN[0]);
+    }
+
+  })
+
+  describe("getCount()", () => {
+    it("returns the number of records that have been pushed", () => {
+      expect(columnStats.getCount()).toBe(numEmployees);
+    })
+  })
+
+  describe("getQuartileBreaks()", () => {
+    it("returns break points that define 4 approximately equal-width quartiles", () => {
+      const breaks = columnStats.getQuartileBreaks();
+      expect(breaks.length == 4);
+      const widths = [];
+
+      // Initialize the loop variable 'endIndex'
+      // (the first quartile starts at 0, so if there was hypothetically
+      // a quartile before that it would need to have an endIndex of -1)
+      let endIndex = -1;
+
+      breaks.forEach((b) => {
+        expect(Number.isInteger(b)).toBeTruthy();
+        const startIndex = endIndex + 1;
+        endIndex = b;
+        const width = endIndex - startIndex;
+        widths.push(width);
+      })
+      expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+    })
+  });
+
+  describe("getGenderCountsInRange()", () => {
+    it("returns the number of employees of each gender code within the given data range", () => {
+      const genderCounts = columnStats.getGenderCountsInRange(0, numEmployees - 1);
+      expect(genderCounts[GENDER_CODES.MALE[0]]).toBe(numMale);
+      expect(genderCounts[GENDER_CODES.FEMALE[0]]).toBe(numFemale);
+      expect(genderCounts[GENDER_CODES.NON_BINARY[0]]).toBe(numNonBinary);
+      expect(genderCounts[GENDER_CODES.UNKNOWN[0]]).toBe(numUnknown);
+    })
+  })
+
+  describe("getGenderCountsPerQuartile()", () => {
+    it("returns an object breaking down the number of employees of each gender code in each quartile", () => {
+      const quartiles = columnStats.getGenderCountsPerQuartile();
+
+      // Expect only males in the top quartile
+      expect(quartiles["Q4"][GENDER_CODES.MALE[0]]).toBe(numMale);
+      expect(quartiles["Q4"][GENDER_CODES.FEMALE[0]]).toBeUndefined();
+      expect(quartiles["Q4"][GENDER_CODES.NON_BINARY[0]]).toBeUndefined();
+      expect(quartiles["Q4"][GENDER_CODES.UNKNOWN[0]]).toBeUndefined();
+
+      // Expect only females in the migh-middle quartile
+      expect(quartiles["Q3"][GENDER_CODES.MALE[0]]).toBeUndefined();
+      expect(quartiles["Q3"][GENDER_CODES.FEMALE[0]]).toBe(numFemale);
+      expect(quartiles["Q3"][GENDER_CODES.NON_BINARY[0]]).toBeUndefined();
+      expect(quartiles["Q3"][GENDER_CODES.UNKNOWN[0]]).toBeUndefined();
+
+      // Expect only people of unknown gender in the low-middle quartile
+      expect(quartiles["Q2"][GENDER_CODES.MALE[0]]).toBeUndefined();
+      expect(quartiles["Q2"][GENDER_CODES.FEMALE[0]]).toBeUndefined();
+      expect(quartiles["Q2"][GENDER_CODES.NON_BINARY[0]]).toBe(numNonBinary);
+      expect(quartiles["Q2"][GENDER_CODES.UNKNOWN[0]]).toBeUndefined();
+
+      // Expect onlynon-binary people in the lowest quartile
+      expect(quartiles["Q1"][GENDER_CODES.MALE[0]]).toBeUndefined();
+      expect(quartiles["Q1"][GENDER_CODES.FEMALE[0]]).toBeUndefined();
+      expect(quartiles["Q1"][GENDER_CODES.NON_BINARY[0]]).toBeUndefined();
+      expect(quartiles["Q1"][GENDER_CODES.UNKNOWN[0]]).toBe(numUnknown);
+
+
+
+
     })
   })
 
