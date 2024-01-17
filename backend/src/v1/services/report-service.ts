@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { config } from '../../config';
-import { logger as log } from '../../logger';
+import { logger, logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, reportCalcService } from './report-calc-service';
 import { utils } from './utils-service';
@@ -349,6 +349,7 @@ const reportService = {
   },
 
   async getReportHtml(req, reportId: string): Promise<string> {
+    logger.debug(`getReportHtml called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`);
     const reportAndCalculations = await this.getReportAndCalculations(
       req,
       reportId,
@@ -663,11 +664,13 @@ const reportService = {
       explanatoryNotes: this.createExplanatoryNotes(report),
     };
 
-    return await utils.postDataToDocGenService(
+    const responseHtml= await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
       req.session.correlationID,
     );
+    logger.debug(`getReportHtml completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`);
+    return responseHtml;
   },
 };
 

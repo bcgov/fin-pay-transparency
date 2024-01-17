@@ -24,7 +24,7 @@
             </p>
             <p class="mb-6">
               Then click the button below to access a submission
-              form, where you'll be asked to enter information about your company and upload your CSV file.
+              form, where you'll be asked to enter information about your organization and upload your CSV file.
             </p>
             <v-btn class="mb-4" color="primary" to="InputForm">Generate Pay Transparency Report</v-btn>
           </v-card-text>

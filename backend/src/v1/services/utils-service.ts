@@ -1,6 +1,26 @@
 import axios from 'axios';
 import { config } from '../../config';
-import { logger as log } from '../../logger';
+import { logger, logger as log } from '../../logger';
+import { Request, Response, NextFunction } from 'express';
+axios.interceptors.response.use((response) => {
+  const headers = response.headers;
+  if (headers && headers['x-correlation-id']) {
+    const correlationId = headers['x-correlation-id'];
+    logger.info(
+      `${response.config.method.toUpperCase()} | ${response.config.url} | ${
+        response.status
+      } | ${correlationId}`,
+    );
+  } else {
+    logger.info(
+      `${response.config.method.toUpperCase()} | ${response.config.url} | ${
+        response.status
+      }`,
+    );
+  }
+
+  return response;
+});
 
 let discovery = null;
 
@@ -81,6 +101,9 @@ const utils = {
   getKeycloakPublicKey,
   postDataToDocGenService,
   postData,
+  asyncHandler: (fn) => (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  }
 };
 
 export { utils };

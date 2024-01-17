@@ -44,6 +44,9 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+            - name: metrics
+              containerPort: 3003
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /health

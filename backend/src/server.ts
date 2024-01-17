@@ -82,3 +82,9 @@ process.on('SIGTERM', () => {
       process.exit(1); // Handle the error and exit with a non-zero status code
     });
 });
+// Prevent unhandled promise errors from crashing application
+process.on('unhandledRejection', (err: Error) => {
+  if (err?.stack) {
+    logger.error(err);
+  }
+});

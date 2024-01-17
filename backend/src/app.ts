@@ -1,4 +1,4 @@
-import express from 'express';
+import express,{Request, Response} from 'express';
 
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -19,15 +19,27 @@ import prom from 'prom-client';
 import prisma from './v1/prisma/prisma-client';
 import { logger } from './logger';
 import { rateLimit } from 'express-rate-limit';
+import promBundle from 'express-prom-bundle';
+import passportJWT from 'passport-jwt';
+import fileSessionStore from 'session-file-store';
+import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
+
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  metricsPath: '/prom-metrics',
+  promRegistry: register
+});
 const app = express();
 const apiRouter = express.Router();
 
-const JWTStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
-const OidcStrategy = require('passport-openidconnect-keycloak-idp').Strategy;
-const fileSession = require('session-file-store')(session);
+const JWTStrategy = passportJWT.Strategy;
+const ExtractJwt = passportJWT.ExtractJwt;
+
+const OidcStrategy = passportOIDCKCIdp.Strategy;
+const fileSession = fileSessionStore(session);
 const logStream = {
   write: (message) => {
     logger.info(message);
@@ -41,7 +53,7 @@ app.use(noCache());
 
 
 //tells the app to use json as means of transporting data
-app.use(bodyParser.json({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({
   extended: true,
   limit: '50mb'
@@ -147,27 +159,36 @@ utils.getOidcDiscovery().then(discovery => {
 //functions for serializing/deserializing users
 passport.serializeUser((user, next) => next(null, user));
 passport.deserializeUser((obj, next) => next(null, obj));
-app.use(morgan('dev', {
-  stream: logStream,
-  skip: (req) => {
-    return req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health';
-  }
-}));
-if(config.get('server:rateLimit:enabled')) {
+app.use(
+  morgan(
+    ':method | :url | :status |  :response-time ms | :req[x-correlation-id] | :res[content-length]',
+    {
+      stream: logStream,
+      skip: (req) => {
+        return (
+          req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
+        );
+      }
+    }
+  )
+);
+
+if (config.get('server:rateLimit:enabled')) {
   const limiter = rateLimit({
     windowMs: config.get('server:rateLimit:windowMs'),
     limit: config.get('server:rateLimit:limit'),
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers,
-    skipSuccessfulRequests: true, // Do not count successful responses
+    skipSuccessfulRequests: true // Do not count successful responses
   });
   app.use(limiter);
 }
-app.get('/metrics', async (_req, res) => {
+app.use(metricsMiddleware);
+app.get('/metrics', utils.asyncHandler(async(_req: Request, res: Response) => {
   const prismaMetrics = await prisma.$metrics.prometheus();
   const appMetrics = await register.metrics();
   res.end(prismaMetrics + appMetrics);
-});
+}));
 
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
