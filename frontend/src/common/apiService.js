@@ -144,9 +144,9 @@ export default {
       if (resp?.data) {
         return resp.data;
       }
-      throw new Error('Unable to fetch published reports from API');
+      throw new Error('Unable to fetch reports from API');
     } catch (e) {
-      console.log(`Failed to get published reports from API - ${e}`);
+      console.log(`Failed to get reports from API - ${e}`);
       throw e;
     }
   },

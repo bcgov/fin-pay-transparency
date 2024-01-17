@@ -14,31 +14,34 @@ const reportRouter = express.Router();
 reportRouter.get(
   '/',
   passport.authenticate('jwt', { session: false }, undefined),
-  auth.isValidBackendToken(),
-  async (
-    req: Request<null, null, null, { status: enumReportStatus }>,
-    res: Response,
-  ) => {
-    // verifiy business guid
-    const businessGuid = utils.getSessionUser(req)?._json?.bceid_business_guid;
-    if (!businessGuid)
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+  utils.asyncHandler(auth.isValidBackendToken()),
+  utils.asyncHandler(
+    async (
+      req: Request<null, null, null, { status: enumReportStatus }>,
+      res: Response,
+    ) => {
+      // verifiy business guid
+      const businessGuid =
+        utils.getSessionUser(req)?._json?.bceid_business_guid;
+      if (!businessGuid)
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
 
-    // params
-    const status = req.query.status;
+      // params
+      const status = req.query.status;
 
-    // get reports by status if status param is provided
-    if (status in enumReportStatus) {
-      const reports = await reportService.getReportsByStatus(
-        businessGuid,
-        status,
-      );
-      return res.status(HttpStatus.OK).json(reports);
-    }
+      // get reports by status if status param is provided
+      if (status in enumReportStatus) {
+        const reports = await reportService.getReportsByStatus(
+          businessGuid,
+          status,
+        );
+        return res.status(HttpStatus.OK).json(reports);
+      }
 
-    // if not enough information provided, then it is a bad request
-    return res.status(HttpStatus.BAD_REQUEST).end();
-  },
+      // if not enough information provided, then it is a bad request
+      return res.status(HttpStatus.BAD_REQUEST).end();
+    },
+  ),
 );
 
 export { reportRouter };

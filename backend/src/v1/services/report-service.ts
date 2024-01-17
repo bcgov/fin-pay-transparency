@@ -726,6 +726,14 @@ const reportService = {
           where: {
             report_status: status,
           },
+          orderBy: [
+            {
+              report_start_date: 'desc',
+            },
+            {
+              update_date: 'desc',
+            },
+          ],
         },
       },
       where: {
