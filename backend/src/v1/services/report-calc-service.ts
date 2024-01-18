@@ -99,21 +99,31 @@ accessed as follows:
 class GroupedColumnStats {
   static REF_CATEGORY_PREFERENCE = [GENDER_CODES.MALE, GENDER_CODES.UNKNOWN, GENDER_CODES.NON_BINARY];
 
-
   dataByCategoryKey: any;
+  sumByCategoryKey: any;
   isSorted: boolean;
 
   constructor() {
     this.dataByCategoryKey = {};
+    this.sumByCategoryKey = {};
     this.isSorted = true;
   }
 
   push(value: number, genderCode: string) {
     const standardizedGenderCode = validateService.standardizeGenderCode(genderCode);
+
+    //data for each gender category is kept in a separate list
     if (!this.dataByCategoryKey.hasOwnProperty(standardizedGenderCode)) {
       this.dataByCategoryKey[standardizedGenderCode] = [];
     }
     this.dataByCategoryKey[standardizedGenderCode].push(value)
+
+    //keep a running sum of values for each gender category
+    if (!this.sumByCategoryKey.hasOwnProperty(standardizedGenderCode)) {
+      this.sumByCategoryKey[standardizedGenderCode] = 0;
+    }
+    this.sumByCategoryKey[standardizedGenderCode] += value;
+
     this.isSorted = false;
   }
 
@@ -165,16 +175,23 @@ class GroupedColumnStats {
     return values.length;
   }
 
+  getSum(genderCode: string) {
+    const standardizedGenderCode = validateService.standardizeGenderCode(genderCode);
+    return this.sumByCategoryKey.hasOwnProperty(standardizedGenderCode) ?
+      this.sumByCategoryKey[standardizedGenderCode] :
+      0;
+  }
+
   /*
   Returns a count of people in the given gender category who have 
   a non-zero data value for the measurement represented by this GroupedColumnStats
   object
   */
-  getCountWithNonZeroData(genderCode: string) {
-    const valuesWithData = this.getValues(genderCode)
-      .filter(d => !validateService.isZeroSynonym(d));
-    return valuesWithData.length;
-  }
+  //getCountWithNonZeroData(genderCode: string) {
+  //  const valuesWithData = this.getValues(genderCode)
+  //    .filter(d => !validateService.isZeroSynonym(d));
+  //  return valuesWithData.length;
+  //}
 
   /* 
     Calculate and return the mean (average) from the array of values
@@ -182,16 +199,9 @@ class GroupedColumnStats {
     @param omitZeros: flag to request that zeros are excluded from
     the calculation of the mean.  
     */
-  getMean(genderCode: string, omitZeros: boolean = false) {
-    let values = this.getValues(genderCode);
-    if (omitZeros) {
-      values = values.filter(v => v != 0);
-    }
-    const sum = values.reduce(
-      (accumulator, v) => accumulator + v,
-      0,
-    );
-    const count = values.length;
+  getMean(genderCode: string) {
+    const count = this.getCount(genderCode);
+    const sum = this.getSum(genderCode);
     const avg = count != 0 ?
       sum / count :
       0;
@@ -204,15 +214,12 @@ class GroupedColumnStats {
     @param omitZeros: flag to request that zeros are excluded from
     the calculation of the median.  
    */
-  getMedian(genderCode: string, omitZeros: boolean = false) {
+  getMedian(genderCode: string) {
     // The logic in this function relies on the array of values for
     // a given genderCode being sorted.  Sort now to be sure.
     this.sortEachGenderCategory();
 
     let values = this.getValues(genderCode);
-    if (omitZeros) {
-      values = values.filter(v => v != 0);
-    }
     if (!values?.length) {
       return 0;
     }
@@ -370,6 +377,7 @@ const reportCalcService = {
     Returns an array of all the CalculatedAmounts.
   */
   async calculateAll(csvReadable: Readable): Promise<CalculatedAmount[]> {
+    const startTime = new Date().getTime();
     const calculatedAmounts: CalculatedAmount[] = [];
     const csvParser = csvReadable
       .pipe(parse({
@@ -400,15 +408,24 @@ const reportCalcService = {
       const overtimePayDollarsPerHour = csvRecord[CSV_COLUMNS.OVERTIME_PAY];
       const overtimeHours = csvRecord[CSV_COLUMNS.OVERTIME_HOURS];
       const bonusPayDollars = csvRecord[CSV_COLUMNS.BONUS_PAY];
-      overtimePayStats.push(overtimePayDollarsPerHour, csvRecord[CSV_COLUMNS.GENDER_CODE]);
-      overtimeHoursStats.push(overtimeHours, csvRecord[CSV_COLUMNS.GENDER_CODE]);
-      bonusPayStats.push(bonusPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+
+      if (overtimePayDollarsPerHour) {
+        overtimePayStats.push(overtimePayDollarsPerHour, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      }
+      if (overtimeHours) {
+        overtimeHoursStats.push(overtimeHours, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      }
+      if (bonusPayDollars) {
+        bonusPayStats.push(bonusPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      }
 
       // Load the same hourlyPay value into two different data structures:
       // one to support efficient mean/median calculations, and the other
       //to support the quartile calculations
-      hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
-      hourlyPayQuartileStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      if (hourlyPayDollars) {
+        hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+        hourlyPayQuartileStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      }
 
     }
 
@@ -435,6 +452,9 @@ const reportCalcService = {
       isSuppressed: false
     });
     logger.debug(`Calculating all amounts for report finished.`);
+    const endTime = new Date().getTime();
+    const diff = endTime - startTime;
+    console.log("CALCULATION TIME: " + diff);
     return calculatedAmounts;
   },
 
@@ -463,7 +483,7 @@ const reportCalcServicePrivate = {
   },
 
   meetsPeopleWithDataCountThreshold(columnStats: GroupedColumnStats, genderCode: string) {
-    const count = columnStats.getCountWithNonZeroData(genderCode);
+    const count = columnStats.getCount(genderCode);
     return count >= reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT;
   },
 
@@ -477,25 +497,25 @@ const reportCalcServicePrivate = {
 
     //only 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(hourlyPayStats, refGenderCode)) {
-      const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode, true);
+      const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.MALE[0]))) {
         meanHourlyPayDiffM =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.MALE[0], true)) /
+          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.MALE[0])) /
           meanHourlyPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanHourlyPayDiffF =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.FEMALE[0], true)) /
+          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.FEMALE[0])) /
           meanHourlyPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanHourlyPayDiffX =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.NON_BINARY[0], true)) /
+          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.NON_BINARY[0])) /
           meanHourlyPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanHourlyPayDiffU =
-          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.UNKNOWN[0], true)) /
+          (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.UNKNOWN[0])) /
           meanHourlyPayRef * 100;
       }
     }
@@ -534,25 +554,25 @@ const reportCalcServicePrivate = {
     let medianHourlyPayDiffU = null;
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(hourlyPayStats, refGenderCode)) {
-      const medianHourlyPayRef = hourlyPayStats.getMedian(refGenderCode, true);
+      const medianHourlyPayRef = hourlyPayStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianHourlyPayDiffM =
-          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.MALE[0], true)) /
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.MALE[0])) /
           medianHourlyPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianHourlyPayDiffF =
-          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.FEMALE[0], true)) /
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.FEMALE[0])) /
           medianHourlyPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianHourlyPayDiffX =
-          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.NON_BINARY[0], true)) /
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.NON_BINARY[0])) /
           medianHourlyPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianHourlyPayDiffU =
-          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.UNKNOWN[0], true)) /
+          (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.UNKNOWN[0])) /
           medianHourlyPayRef * 100;
       }
     }
@@ -591,25 +611,25 @@ const reportCalcServicePrivate = {
     let meanOvertimePayDiffU = null;
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimePayStats, refGenderCode)) {
-      const meanOvertimePayRef = overtimePayStats.getMean(refGenderCode, true);
+      const meanOvertimePayRef = overtimePayStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanOvertimePayDiffM =
-          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.MALE[0], true)) /
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.MALE[0])) /
           meanOvertimePayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanOvertimePayDiffF =
-          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.FEMALE[0], true)) /
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.FEMALE[0])) /
           meanOvertimePayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanOvertimePayDiffX =
-          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.NON_BINARY[0], true)) /
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.NON_BINARY[0])) /
           meanOvertimePayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanOvertimePayDiffU =
-          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.UNKNOWN[0], true)) /
+          (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.UNKNOWN[0])) /
           meanOvertimePayRef * 100;
       }
     }
@@ -648,25 +668,25 @@ const reportCalcServicePrivate = {
     let medianOvertimePayDiffU = null;
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimePayStats, refGenderCode)) {
-      const medianOvertimePayRef = overtimePayStats.getMedian(refGenderCode, true);
+      const medianOvertimePayRef = overtimePayStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianOvertimePayDiffM =
-          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.MALE[0], true)) /
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.MALE[0])) /
           medianOvertimePayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianOvertimePayDiffF =
-          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.FEMALE[0], true)) /
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.FEMALE[0])) /
           medianOvertimePayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianOvertimePayDiffX =
-          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.NON_BINARY[0], true)) /
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.NON_BINARY[0])) /
           medianOvertimePayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianOvertimePayDiffU =
-          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.UNKNOWN[0], true)) /
+          (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.UNKNOWN[0])) /
           medianOvertimePayRef * 100;
       }
     }
@@ -709,22 +729,22 @@ const reportCalcServicePrivate = {
     let meanOvertimeHoursDiffU = null;
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimeHoursStats, refGenderCode)) {
-      const meanOvertimeHoursRef = overtimeHoursStats.getMean(refGenderCode, true);
+      const meanOvertimeHoursRef = overtimeHoursStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.MALE[0]))) {
         meanOvertimeHoursDiffM =
-          (overtimeHoursStats.getMean(GENDER_CODES.MALE[0], true) - meanOvertimeHoursRef);
+          (overtimeHoursStats.getMean(GENDER_CODES.MALE[0]) - meanOvertimeHoursRef);
       }
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanOvertimeHoursDiffF =
-          (overtimeHoursStats.getMean(GENDER_CODES.FEMALE[0], true) - meanOvertimeHoursRef);
+          (overtimeHoursStats.getMean(GENDER_CODES.FEMALE[0]) - meanOvertimeHoursRef);
       }
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanOvertimeHoursDiffX =
-          (overtimeHoursStats.getMean(GENDER_CODES.NON_BINARY[0], true) - meanOvertimeHoursRef);
+          (overtimeHoursStats.getMean(GENDER_CODES.NON_BINARY[0]) - meanOvertimeHoursRef);
       }
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanOvertimeHoursDiffU =
-          (overtimeHoursStats.getMean(GENDER_CODES.UNKNOWN[0], true) - meanOvertimeHoursRef);
+          (overtimeHoursStats.getMean(GENDER_CODES.UNKNOWN[0]) - meanOvertimeHoursRef);
       }
     }
 
@@ -766,22 +786,22 @@ const reportCalcServicePrivate = {
     let medianOvertimeHoursDiffU = null;
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimeHoursStats, refGenderCode)) {
-      const medianOvertimeHoursRef = overtimeHoursStats.getMedian(refGenderCode, true);
+      const medianOvertimeHoursRef = overtimeHoursStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.MALE[0]))) {
         medianOvertimeHoursDiffM =
-          (overtimeHoursStats.getMedian(GENDER_CODES.MALE[0], true) - medianOvertimeHoursRef);
+          (overtimeHoursStats.getMedian(GENDER_CODES.MALE[0]) - medianOvertimeHoursRef);
       }
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianOvertimeHoursDiffF =
-          (overtimeHoursStats.getMedian(GENDER_CODES.FEMALE[0], true) - medianOvertimeHoursRef);
+          (overtimeHoursStats.getMedian(GENDER_CODES.FEMALE[0]) - medianOvertimeHoursRef);
       }
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianOvertimeHoursDiffX =
-          (overtimeHoursStats.getMedian(GENDER_CODES.NON_BINARY[0], true) - medianOvertimeHoursRef);
+          (overtimeHoursStats.getMedian(GENDER_CODES.NON_BINARY[0]) - medianOvertimeHoursRef);
       }
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianOvertimeHoursDiffU =
-          (overtimeHoursStats.getMedian(GENDER_CODES.UNKNOWN[0], true) - medianOvertimeHoursRef);
+          (overtimeHoursStats.getMedian(GENDER_CODES.UNKNOWN[0]) - medianOvertimeHoursRef);
       }
     }
 
@@ -819,25 +839,25 @@ const reportCalcServicePrivate = {
     let meanBonusPayDiffU = null;
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(bonusPayStats, refGenderCode)) {
-      const meanBonusPayRef = bonusPayStats.getMean(refGenderCode, true);
+      const meanBonusPayRef = bonusPayStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.MALE[0]))) {
         meanBonusPayDiffM =
-          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.MALE[0], true)) /
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.MALE[0])) /
           meanBonusPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanBonusPayDiffF =
-          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.FEMALE[0], true)) /
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.FEMALE[0])) /
           meanBonusPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanBonusPayDiffX =
-          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.NON_BINARY[0], true)) /
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.NON_BINARY[0])) /
           meanBonusPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanBonusPayDiffU =
-          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.UNKNOWN[0], true)) /
+          (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.UNKNOWN[0])) /
           meanBonusPayRef * 100;
       }
     }
@@ -876,25 +896,25 @@ const reportCalcServicePrivate = {
     let medianBonusPayDiffU = null;
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(bonusPayStats, refGenderCode)) {
-      const medianBonusPayRef = bonusPayStats.getMedian(refGenderCode, true);
+      const medianBonusPayRef = bonusPayStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianBonusPayDiffM =
-          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.MALE[0], true)) /
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.MALE[0])) /
           medianBonusPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianBonusPayDiffF =
-          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.FEMALE[0], true)) /
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.FEMALE[0])) /
           medianBonusPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianBonusPayDiffX =
-          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.NON_BINARY[0], true)) /
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.NON_BINARY[0])) /
           medianBonusPayRef * 100;
       }
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianBonusPayDiffU =
-          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.UNKNOWN[0], true)) /
+          (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.UNKNOWN[0])) /
           medianBonusPayRef * 100;
       }
     }
