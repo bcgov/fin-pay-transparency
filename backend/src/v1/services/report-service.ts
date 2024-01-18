@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { config } from '../../config';
-import { logger, logger as log } from '../../logger';
+import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, reportCalcService } from './report-calc-service';
 import { utils } from './utils-service';
@@ -664,7 +664,7 @@ const reportService = {
       explanatoryNotes: this.createExplanatoryNotes(report),
     };
 
-    const responseHtml= await utils.postDataToDocGenService(
+    const responseHtml = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
       req.session.correlationID,

@@ -37,6 +37,29 @@ const CALCULATION_CODES = {
   MEDIAN_BONUS_PAY_DIFF_W: "MEDIAN_BONUS_PAY_DIFF_W",
   MEDIAN_BONUS_PAY_DIFF_X: "MEDIAN_BONUS_PAY_DIFF_X",
   MEDIAN_BONUS_PAY_DIFF_U: "MEDIAN_BONUS_PAY_DIFF_U",
+  HOURLY_PAY_PERCENT_QUARTILE_1_M: "HOURLY_PAY_PERCENT_QUARTILE_1_M",
+  HOURLY_PAY_PERCENT_QUARTILE_1_W: "HOURLY_PAY_PERCENT_QUARTILE_1_W",
+  HOURLY_PAY_PERCENT_QUARTILE_1_X: "HOURLY_PAY_PERCENT_QUARTILE_1_X",
+  HOURLY_PAY_PERCENT_QUARTILE_1_U: "HOURLY_PAY_PERCENT_QUARTILE_1_U",
+  HOURLY_PAY_PERCENT_QUARTILE_2_M: "HOURLY_PAY_PERCENT_QUARTILE_2_M",
+  HOURLY_PAY_PERCENT_QUARTILE_2_W: "HOURLY_PAY_PERCENT_QUARTILE_2_W",
+  HOURLY_PAY_PERCENT_QUARTILE_2_X: "HOURLY_PAY_PERCENT_QUARTILE_2_X",
+  HOURLY_PAY_PERCENT_QUARTILE_2_U: "HOURLY_PAY_PERCENT_QUARTILE_2_U",
+  HOURLY_PAY_PERCENT_QUARTILE_3_M: "HOURLY_PAY_PERCENT_QUARTILE_3_M",
+  HOURLY_PAY_PERCENT_QUARTILE_3_W: "HOURLY_PAY_PERCENT_QUARTILE_3_W",
+  HOURLY_PAY_PERCENT_QUARTILE_3_X: "HOURLY_PAY_PERCENT_QUARTILE_3_X",
+  HOURLY_PAY_PERCENT_QUARTILE_3_U: "HOURLY_PAY_PERCENT_QUARTILE_3_U",
+  HOURLY_PAY_PERCENT_QUARTILE_4_M: "HOURLY_PAY_PERCENT_QUARTILE_4_M",
+  HOURLY_PAY_PERCENT_QUARTILE_4_W: "HOURLY_PAY_PERCENT_QUARTILE_4_W",
+  HOURLY_PAY_PERCENT_QUARTILE_4_X: "HOURLY_PAY_PERCENT_QUARTILE_4_X",
+  HOURLY_PAY_PERCENT_QUARTILE_4_U: "HOURLY_PAY_PERCENT_QUARTILE_4_U",
+}
+
+const QUARTILES = {
+  Q1: "Q1",
+  Q2: "Q2",
+  Q3: "Q3",
+  Q4: "Q4",
 }
 
 interface CalculatedAmount {
@@ -268,7 +291,7 @@ class TaggedColumnStats {
     let endIndex = -1;
 
     quartileBreaks.forEach((breakIndex: number, i: number) => {
-      const quartileName = `Q${i + 1}`;
+      const quartileName = Object.keys(QUARTILES)[i];
       const startIndex = endIndex + 1;
       endIndex = breakIndex;
       const countsByGenderCode = this.getGenderCountsInRange(startIndex, endIndex);
@@ -347,7 +370,6 @@ const reportCalcService = {
     Returns an array of all the CalculatedAmounts.
   */
   async calculateAll(csvReadable: Readable): Promise<CalculatedAmount[]> {
-    logger.debug(`Calculating all amounts for report started.`);
     const calculatedAmounts: CalculatedAmount[] = [];
     const csvParser = csvReadable
       .pipe(parse({
@@ -359,11 +381,16 @@ const reportCalcService = {
         relax_column_count: true
       }));
 
-    // Create objects to manage data and statistics for specific columns
+    // Create data structures to support the mean and median
+    // calculations for specific columns
     const hourlyPayStats = new GroupedColumnStats();
     const overtimePayStats = new GroupedColumnStats();
     const overtimeHoursStats = new GroupedColumnStats();
     const bonusPayStats = new GroupedColumnStats();
+
+    // Create a data structure to support the hourly pay quartile
+    // calculations
+    const hourlyPayQuartileStats = new TaggedColumnStats();
 
     // Scan each row from the CSV file, and push the value of each column
     // into the objects that will be used to manage the column data and stats
@@ -373,10 +400,16 @@ const reportCalcService = {
       const overtimePayDollarsPerHour = csvRecord[CSV_COLUMNS.OVERTIME_PAY];
       const overtimeHours = csvRecord[CSV_COLUMNS.OVERTIME_HOURS];
       const bonusPayDollars = csvRecord[CSV_COLUMNS.BONUS_PAY];
-      hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
       overtimePayStats.push(overtimePayDollarsPerHour, csvRecord[CSV_COLUMNS.GENDER_CODE]);
       overtimeHoursStats.push(overtimeHours, csvRecord[CSV_COLUMNS.GENDER_CODE]);
       bonusPayStats.push(bonusPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+
+      // Load the same hourlyPay value into two different data structures:
+      // one to support efficient mean/median calculations, and the other
+      //to support the quartile calculations
+      hourlyPayStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      hourlyPayQuartileStats.push(hourlyPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+
     }
 
     // Perform calculations on the raw CSV data, and collect them
@@ -391,8 +424,9 @@ const reportCalcService = {
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanBonusPayGaps(bonusPayStats));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianBonusPayGaps(bonusPayStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateHourlyPayQuartiles(hourlyPayQuartileStats));
 
-    // Although not technically a calculation, include the reference gender category
+    // Although not technically a calculation, also include the reference gender category
     // code in the list of CalculatedAmounts.
     // Note: the reference gender category is never suppressed
     calculatedAmounts.push({
@@ -408,9 +442,24 @@ const reportCalcService = {
 
 const reportCalcServicePrivate = {
 
-  meetsPeopleCountThreshold(columnStats: GroupedColumnStats, genderCode: string) {
-    const count = columnStats.getCount(genderCode);
-    return count >= reportCalcService.MIN_REQUIRED_PEOPLE_COUNT;
+  /*
+  Gets the hourly pay quartile calculationCode for the given quartile and
+  genderCode.  Quartile should be one of ("Q1", "Q2", "Q3", "Q4").
+  */
+  getHourlyPayQuartileCalculationCode(quartile: string, genderCode: string) {
+    //
+    if (quartile.startsWith("Q")) {
+      quartile = quartile.substring(1);
+    }
+    const calculationCodeKey = `HOURLY_PAY_PERCENT_QUARTILE_${quartile}_${genderCode}`;
+    if (!CALCULATION_CODES.hasOwnProperty(calculationCodeKey)) {
+      throw new Error(`Unknown calculation code: ${calculationCodeKey}`);
+    }
+    return CALCULATION_CODES[calculationCodeKey];
+  },
+
+  meetsPeopleCountThreshold(peopleCount: number) {
+    return peopleCount >= reportCalcService.MIN_REQUIRED_PEOPLE_COUNT;
   },
 
   meetsPeopleWithDataCountThreshold(columnStats: GroupedColumnStats, genderCode: string) {
@@ -429,22 +478,22 @@ const reportCalcServicePrivate = {
     //only 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(hourlyPayStats, refGenderCode)) {
       const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.MALE[0]))) {
         meanHourlyPayDiffM =
           (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.MALE[0], true)) /
           meanHourlyPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanHourlyPayDiffF =
           (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.FEMALE[0], true)) /
           meanHourlyPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanHourlyPayDiffX =
           (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.NON_BINARY[0], true)) /
           meanHourlyPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanHourlyPayDiffU =
           (meanHourlyPayRef - hourlyPayStats.getMean(GENDER_CODES.UNKNOWN[0], true)) /
           meanHourlyPayRef * 100;
@@ -486,22 +535,22 @@ const reportCalcServicePrivate = {
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(hourlyPayStats, refGenderCode)) {
       const medianHourlyPayRef = hourlyPayStats.getMedian(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianHourlyPayDiffM =
           (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.MALE[0], true)) /
           medianHourlyPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianHourlyPayDiffF =
           (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.FEMALE[0], true)) /
           medianHourlyPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianHourlyPayDiffX =
           (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.NON_BINARY[0], true)) /
           medianHourlyPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(hourlyPayStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianHourlyPayDiffU =
           (medianHourlyPayRef - hourlyPayStats.getMedian(GENDER_CODES.UNKNOWN[0], true)) /
           medianHourlyPayRef * 100;
@@ -543,22 +592,22 @@ const reportCalcServicePrivate = {
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimePayStats, refGenderCode)) {
       const meanOvertimePayRef = overtimePayStats.getMean(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanOvertimePayDiffM =
           (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.MALE[0], true)) /
           meanOvertimePayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanOvertimePayDiffF =
           (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.FEMALE[0], true)) /
           meanOvertimePayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanOvertimePayDiffX =
           (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.NON_BINARY[0], true)) /
           meanOvertimePayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanOvertimePayDiffU =
           (meanOvertimePayRef - overtimePayStats.getMean(GENDER_CODES.UNKNOWN[0], true)) /
           meanOvertimePayRef * 100;
@@ -600,22 +649,22 @@ const reportCalcServicePrivate = {
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimePayStats, refGenderCode)) {
       const medianOvertimePayRef = overtimePayStats.getMedian(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianOvertimePayDiffM =
           (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.MALE[0], true)) /
           medianOvertimePayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianOvertimePayDiffF =
           (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.FEMALE[0], true)) /
           medianOvertimePayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianOvertimePayDiffX =
           (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.NON_BINARY[0], true)) /
           medianOvertimePayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(overtimePayStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianOvertimePayDiffU =
           (medianOvertimePayRef - overtimePayStats.getMedian(GENDER_CODES.UNKNOWN[0], true)) /
           medianOvertimePayRef * 100;
@@ -661,19 +710,19 @@ const reportCalcServicePrivate = {
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimeHoursStats, refGenderCode)) {
       const meanOvertimeHoursRef = overtimeHoursStats.getMean(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.MALE[0]))) {
         meanOvertimeHoursDiffM =
           (overtimeHoursStats.getMean(GENDER_CODES.MALE[0], true) - meanOvertimeHoursRef);
       }
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanOvertimeHoursDiffF =
           (overtimeHoursStats.getMean(GENDER_CODES.FEMALE[0], true) - meanOvertimeHoursRef);
       }
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanOvertimeHoursDiffX =
           (overtimeHoursStats.getMean(GENDER_CODES.NON_BINARY[0], true) - meanOvertimeHoursRef);
       }
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanOvertimeHoursDiffU =
           (overtimeHoursStats.getMean(GENDER_CODES.UNKNOWN[0], true) - meanOvertimeHoursRef);
       }
@@ -718,19 +767,19 @@ const reportCalcServicePrivate = {
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimeHoursStats, refGenderCode)) {
       const medianOvertimeHoursRef = overtimeHoursStats.getMedian(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.MALE[0]))) {
         medianOvertimeHoursDiffM =
           (overtimeHoursStats.getMedian(GENDER_CODES.MALE[0], true) - medianOvertimeHoursRef);
       }
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianOvertimeHoursDiffF =
           (overtimeHoursStats.getMedian(GENDER_CODES.FEMALE[0], true) - medianOvertimeHoursRef);
       }
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianOvertimeHoursDiffX =
           (overtimeHoursStats.getMedian(GENDER_CODES.NON_BINARY[0], true) - medianOvertimeHoursRef);
       }
-      if (this.meetsPeopleCountThreshold(overtimeHoursStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianOvertimeHoursDiffU =
           (overtimeHoursStats.getMedian(GENDER_CODES.UNKNOWN[0], true) - medianOvertimeHoursRef);
       }
@@ -771,22 +820,22 @@ const reportCalcServicePrivate = {
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(bonusPayStats, refGenderCode)) {
       const meanBonusPayRef = bonusPayStats.getMean(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.MALE[0]))) {
         meanBonusPayDiffM =
           (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.MALE[0], true)) /
           meanBonusPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         meanBonusPayDiffF =
           (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.FEMALE[0], true)) /
           meanBonusPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         meanBonusPayDiffX =
           (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.NON_BINARY[0], true)) /
           meanBonusPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanBonusPayDiffU =
           (meanBonusPayRef - bonusPayStats.getMean(GENDER_CODES.UNKNOWN[0], true)) /
           meanBonusPayRef * 100;
@@ -828,22 +877,22 @@ const reportCalcServicePrivate = {
 
     if (refGenderCode && this.meetsPeopleWithDataCountThreshold(bonusPayStats, refGenderCode)) {
       const medianBonusPayRef = bonusPayStats.getMedian(refGenderCode, true);
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.MALE[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianBonusPayDiffM =
           (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.MALE[0], true)) /
           medianBonusPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.FEMALE[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.FEMALE[0]))) {
         medianBonusPayDiffF =
           (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.FEMALE[0], true)) /
           medianBonusPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.NON_BINARY[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.NON_BINARY[0]))) {
         medianBonusPayDiffX =
           (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.NON_BINARY[0], true)) /
           medianBonusPayRef * 100;
       }
-      if (this.meetsPeopleCountThreshold(bonusPayStats, GENDER_CODES.UNKNOWN[0])) {
+      if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         medianBonusPayDiffU =
           (medianBonusPayRef - bonusPayStats.getMedian(GENDER_CODES.UNKNOWN[0], true)) /
           medianBonusPayRef * 100;
@@ -871,6 +920,67 @@ const reportCalcServicePrivate = {
       value: medianBonusPayDiffU,
       isSuppressed: medianBonusPayDiffU === null
     });
+
+    return calculatedAmounts;
+  },
+
+  /*
+  Returns an array with length 4 * <# of gender categories>.  Each
+  CalculatedAmount returned represents a percentage of employees
+  in a particular hourly pay quartile and gender group.  
+  */
+  calculateHourlyPayQuartiles(hourlyPayQuartileStats: TaggedColumnStats): CalculatedAmount[] {
+
+    const calculatedAmounts = [];
+
+    const genderCountsPerQuartile = hourlyPayQuartileStats.getGenderCountsPerQuartile();
+    const allGenderCodes = Object.keys(GENDER_CODES).map(g => GENDER_CODES[g][0]);
+    Object.keys(QUARTILES).forEach(quartile => {
+      const genderCounts = genderCountsPerQuartile[quartile];
+
+      const nonSuppressedGenderCounts = {};
+
+      // First iteration of employee counts for each gender to determine
+      // which gender groups meet the threshold for display in the report 
+      // (i.e. which are not suppressed)
+      allGenderCodes.forEach(genderCode => {
+        const genderCount = genderCounts.hasOwnProperty(genderCode) ?
+          genderCounts[genderCode] :
+          0;
+        const isSuppressed = !this.meetsPeopleCountThreshold(genderCount);
+        if (!isSuppressed) {
+          nonSuppressedGenderCounts[genderCode] = genderCount;
+        }
+      })
+
+      // Compute the total number of employees in gender categories that
+      // are not suppressed.
+      const nonSuppressedTotalCount: number = Object.values<number>(nonSuppressedGenderCounts).reduce(
+        (accumulator: number, currentValue: number) => accumulator + currentValue,
+        0
+      );
+
+      // Second iteration of employee counts to calculate a percentage
+      // of the gender group in the given quartile.
+      allGenderCodes.forEach(genderCode => {
+        const isSuppressed = !nonSuppressedGenderCounts.hasOwnProperty(genderCode);
+        let percent = null;
+        const calculationCode = reportCalcServicePrivate.getHourlyPayQuartileCalculationCode(quartile, genderCode);
+
+        if (!isSuppressed) {
+          const genderCount = nonSuppressedGenderCounts[genderCode];
+          percent = genderCount / nonSuppressedTotalCount * 100;
+        }
+
+        calculatedAmounts.push({
+          calculationCode: calculationCode,
+          value: percent,
+          isSuppressed: isSuppressed
+        });
+
+      })
+
+    })
 
     return calculatedAmounts;
   },
