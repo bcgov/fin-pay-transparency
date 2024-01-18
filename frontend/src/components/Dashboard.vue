@@ -41,6 +41,7 @@
           </v-toolbar>
           <v-card-text>
             No generated reports yet.
+            
           </v-card-text>
         </v-card>
 
@@ -89,8 +90,18 @@
 <script>
 import { mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
+import ApiService from '../common/apiService';
+
+enum enumReportStatus {
+  Draft = 'Draft',
+  Published = 'Published',
+}
 
 export default {
+  data: () => ({
+    reports: []
+    //await ApiService.getReportsByStatus(Published);
+  }),      
   computed: {
     ...mapState(authStore, ['userInfo']),
   },
