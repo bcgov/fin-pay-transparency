@@ -133,7 +133,9 @@ class GroupedColumnStats {
       return; //already sorted
     }
     Object.keys(this.dataByCategoryKey).forEach(k => {
-      this.dataByCategoryKey[k].sort();
+      // Avoid the default sort comparator (which sorts alphabetically)
+      // by specifying an alternative compatator that sorts numerically
+      this.dataByCategoryKey[k].sort((a: number, b: number) => a - b);
     });
   }
 
@@ -220,6 +222,7 @@ class GroupedColumnStats {
     this.sortEachGenderCategory();
 
     let values = this.getValues(genderCode);
+
     if (!values?.length) {
       return 0;
     }
@@ -377,7 +380,6 @@ const reportCalcService = {
     Returns an array of all the CalculatedAmounts.
   */
   async calculateAll(csvReadable: Readable): Promise<CalculatedAmount[]> {
-    const startTime = new Date().getTime();
     const calculatedAmounts: CalculatedAmount[] = [];
     const csvParser = csvReadable
       .pipe(parse({
@@ -454,10 +456,9 @@ const reportCalcService = {
       value: refGenderCode,
       isSuppressed: false
     });
+
     logger.debug(`Calculating all amounts for report finished.`);
-    const endTime = new Date().getTime();
-    const diff = endTime - startTime;
-    console.log("CALCULATION TIME: " + diff);
+
     return calculatedAmounts;
   },
 
