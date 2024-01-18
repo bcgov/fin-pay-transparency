@@ -1,0 +1,30 @@
+{
+  "folders": [
+    {
+      "path": ".."
+    },
+    {
+      "name": "frontend",
+      "path": "../frontend"
+    },
+    {
+      "name": "backend",
+      "path": "../backend"
+    },
+    {
+      "path": "../doc-gen-service"
+    }
+  ],
+  "settings": {
+    "jest.disabledWorkspaceFolders": ["fin-pay-transparency", "frontend"],
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "files.exclude": {
+      "backend": true,
+      "frontend": true,
+      "doc-gen-service": true,
+      "coverage": true
+    }
+  }
+}

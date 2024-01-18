@@ -131,14 +131,23 @@ export default {
       throw e;
     }
   },
-};
-function getCodes(url) {
-  return async function getCodesHandler(query) {
+  /**
+   * Returns all published or draft reports for the current employer.
+   * @param {string} status - 'Published' or 'Draft'
+   * @returns {Array.<{report_id: String, report_start_date: Date, report_end_date: Date, revision: Number}>}
+   */
+  async getReportsByStatus(status) {
     try {
-      return await apiAxios.get(url, query);
+      const resp = await apiAxios.get(ApiRoutes.REPORTS, {
+        params: { status: status },
+      });
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch reports from API');
     } catch (e) {
-      console.log(`Failed to get from Nodejs API - ${e}`);
+      console.log(`Failed to get reports from API - ${e}`);
       throw e;
     }
-  };
-}
+  },
+};
