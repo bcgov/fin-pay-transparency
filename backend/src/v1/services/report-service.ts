@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { config } from '../../config';
-import { logger, logger as log } from '../../logger';
+import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, reportCalcService } from './report-calc-service';
 import { utils } from './utils-service';
