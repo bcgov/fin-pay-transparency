@@ -74,7 +74,10 @@ backend:
       siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
       logLevel: info
 
-  podAnnotations: { }
+  podAnnotations: 
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '3000'
+    prometheus.io/path: '/metrics'
   podSecurityContext: { }
   securityContext: { }
   imagePullSecrets: [ ]
@@ -116,7 +119,10 @@ frontend:
     minReplicas: 3
     maxReplicas: 5
     targetCPUUtilizationPercentage: 80 # this percentage from request cpu
-  podAnnotations: { }
+  podAnnotations: 
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '3003'
+    prometheus.io/path: '/metrics'
   podSecurityContext: { }
   securityContext:
     capabilities:
@@ -133,6 +139,10 @@ crunchy:
   imagePullPolicy: IfNotPresent
   instances:
     name: db
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9187'
     replicas: 2
     dataVolumeClaimSpec:
       storage: 480Mi
@@ -247,7 +257,10 @@ doc-gen-service:
       cpu: 100m
       memory: 50Mi
 
-  podAnnotations: { }
+  podAnnotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '3000'
+    prometheus.io/path: '/metrics'
   podSecurityContext: { }
   securityContext: { }
   imagePullSecrets: [ ]
