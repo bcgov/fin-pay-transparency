@@ -4,7 +4,8 @@
     {
       "label": "database",
       "type": "shell",
-      "command": "podman compose up -d database-migrations"
+      "command": "podman-compose up -d database-migrations",
+      "problemMatcher": []
     }
   ]
 }
