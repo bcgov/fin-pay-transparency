@@ -222,7 +222,6 @@ class GroupedColumnStats {
     this.sortEachGenderCategory();
 
     let values = this.getValues(genderCode);
-
     if (!values?.length) {
       return 0;
     }
@@ -458,7 +457,6 @@ const reportCalcService = {
     });
 
     logger.debug(`Calculating all amounts for report finished.`);
-
     return calculatedAmounts;
   },
 
