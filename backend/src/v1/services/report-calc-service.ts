@@ -429,18 +429,21 @@ const reportCalcService = {
 
     }
 
+    // The same reference gender category is used for all calculations
+    const refGenderCode = hourlyPayStats.getReferenceGenderCode()
+
     // Perform calculations on the raw CSV data, and collect them
     // into an array of CalculatedAmount objects
     // (Each CalculatedAmount has a code indicating which calculation it
     // represents, and a value for that calculation)
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats));
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats));
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats));
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats));
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats));
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats));
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanBonusPayGaps(bonusPayStats));
-    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianBonusPayGaps(bonusPayStats));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats, refGenderCode));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats, refGenderCode));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats, refGenderCode));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats, refGenderCode));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats, refGenderCode));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats, refGenderCode));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMeanBonusPayGaps(bonusPayStats, refGenderCode));
+    calculatedAmounts.push(...reportCalcServicePrivate.calculateMedianBonusPayGaps(bonusPayStats, refGenderCode));
     calculatedAmounts.push(...reportCalcServicePrivate.calculateHourlyPayQuartiles(hourlyPayQuartileStats));
 
     // Although not technically a calculation, also include the reference gender category
@@ -448,7 +451,7 @@ const reportCalcService = {
     // Note: the reference gender category is never suppressed
     calculatedAmounts.push({
       calculationCode: CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE,
-      value: hourlyPayStats.getReferenceGenderCode(),
+      value: refGenderCode,
       isSuppressed: false
     });
     logger.debug(`Calculating all amounts for report finished.`);
@@ -482,21 +485,18 @@ const reportCalcServicePrivate = {
     return peopleCount >= reportCalcService.MIN_REQUIRED_PEOPLE_COUNT;
   },
 
-  meetsPeopleWithDataCountThreshold(columnStats: GroupedColumnStats, genderCode: string) {
-    const count = columnStats.getCount(genderCode);
-    return count >= reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT;
-  },
+  calculateMeanHourlyPayGaps(hourlyPayStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
 
-  calculateMeanHourlyPayGaps(hourlyPayStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = hourlyPayStats.getReferenceGenderCode();
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let meanHourlyPayDiffM = null;
     let meanHourlyPayDiffF = null;
     let meanHourlyPayDiffX = null;
     let meanHourlyPayDiffU = null;
 
-    //only 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(hourlyPayStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(refGenderCode))) {
       const meanHourlyPayRef = hourlyPayStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.MALE[0]))) {
         meanHourlyPayDiffM =
@@ -545,15 +545,18 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMedianHourlyPayGaps(hourlyPayStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = hourlyPayStats.getReferenceGenderCode();
+  calculateMedianHourlyPayGaps(hourlyPayStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
+
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let medianHourlyPayDiffM = null;
     let medianHourlyPayDiffF = null;
     let medianHourlyPayDiffX = null;
     let medianHourlyPayDiffU = null;
 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(hourlyPayStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(refGenderCode))) {
       const medianHourlyPayRef = hourlyPayStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(hourlyPayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianHourlyPayDiffM =
@@ -602,15 +605,18 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMeanOvertimePayGaps(overtimePayStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = overtimePayStats.getReferenceGenderCode();
+  calculateMeanOvertimePayGaps(overtimePayStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
+
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let meanOvertimePayDiffM = null;
     let meanOvertimePayDiffF = null;
     let meanOvertimePayDiffX = null;
     let meanOvertimePayDiffU = null;
 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimePayStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(refGenderCode))) {
       const meanOvertimePayRef = overtimePayStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.UNKNOWN[0]))) {
         meanOvertimePayDiffM =
@@ -659,15 +665,18 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMedianOvertimePayGaps(overtimePayStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = overtimePayStats.getReferenceGenderCode();
+  calculateMedianOvertimePayGaps(overtimePayStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
+
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let medianOvertimePayDiffM = null;
     let medianOvertimePayDiffF = null;
     let medianOvertimePayDiffX = null;
     let medianOvertimePayDiffU = null;
 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimePayStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(refGenderCode))) {
       const medianOvertimePayRef = overtimePayStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimePayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianOvertimePayDiffM =
@@ -720,15 +729,18 @@ const reportCalcServicePrivate = {
   Calculated gaps are given as a difference in mean overtime hours between 
   each gender group and the reference group
   */
-  calculateMeanOvertimeHoursGaps(overtimeHoursStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = overtimeHoursStats.getReferenceGenderCode();
+  calculateMeanOvertimeHoursGaps(overtimeHoursStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
+
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let meanOvertimeHoursDiffM = null;
     let meanOvertimeHoursDiffF = null;
     let meanOvertimeHoursDiffX = null;
     let meanOvertimeHoursDiffU = null;
 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimeHoursStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(refGenderCode))) {
       const meanOvertimeHoursRef = overtimeHoursStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.MALE[0]))) {
         meanOvertimeHoursDiffM =
@@ -777,15 +789,18 @@ const reportCalcServicePrivate = {
   Calculated gaps are given as a difference in median overtime hours between 
   each gender group and the reference group
   */
-  calculateMedianOvertimeHoursGaps(overtimeHoursStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = overtimeHoursStats.getReferenceGenderCode();
+  calculateMedianOvertimeHoursGaps(overtimeHoursStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
+
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let medianOvertimeHoursDiffM = null;
     let medianOvertimeHoursDiffF = null;
     let medianOvertimeHoursDiffX = null;
     let medianOvertimeHoursDiffU = null;
 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(overtimeHoursStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(refGenderCode))) {
       const medianOvertimeHoursRef = overtimeHoursStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(overtimeHoursStats.getCount(GENDER_CODES.MALE[0]))) {
         medianOvertimeHoursDiffM =
@@ -830,15 +845,18 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMeanBonusPayGaps(bonusPayStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = bonusPayStats.getReferenceGenderCode();
+  calculateMeanBonusPayGaps(bonusPayStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
+
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let meanBonusPayDiffM = null;
     let meanBonusPayDiffF = null;
     let meanBonusPayDiffX = null;
     let meanBonusPayDiffU = null;
 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(bonusPayStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(refGenderCode))) {
       const meanBonusPayRef = bonusPayStats.getMean(refGenderCode);
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.MALE[0]))) {
         meanBonusPayDiffM =
@@ -887,15 +905,18 @@ const reportCalcServicePrivate = {
     return calculatedAmounts;
   },
 
-  calculateMedianBonusPayGaps(bonusPayStats: GroupedColumnStats): CalculatedAmount[] {
-    const refGenderCode = bonusPayStats.getReferenceGenderCode();
+  calculateMedianBonusPayGaps(bonusPayStats: GroupedColumnStats, refGenderCode: string): CalculatedAmount[] {
+
+    if (!refGenderCode) {
+      throw new Error("Reference Gender Code is required");
+    }
 
     let medianBonusPayDiffM = null;
     let medianBonusPayDiffF = null;
     let medianBonusPayDiffX = null;
     let medianBonusPayDiffU = null;
 
-    if (refGenderCode && this.meetsPeopleWithDataCountThreshold(bonusPayStats, refGenderCode)) {
+    if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(refGenderCode))) {
       const medianBonusPayRef = bonusPayStats.getMedian(refGenderCode);
       if (this.meetsPeopleCountThreshold(bonusPayStats.getCount(GENDER_CODES.MALE[0]))) {
         medianBonusPayDiffM =

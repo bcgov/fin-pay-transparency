@@ -204,32 +204,6 @@ describe("meetsPeopleCountThreshold", () => {
   })
 })
 
-/*
-describe("meetsPeopleWithDataCountThreshold", () => {
-  describe(`when a gender group meets the threshold for number of people with data for calculations to be performed`, () => {
-    it(`returns true`, () => {
-      const columnStats = new GroupedColumnStats();
-      Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT).fill(100).forEach(v => {
-        columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
-      })
-      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCount(GENDER_CODES.NON_BINARY[0]));
-      expect(meetsThreshold).toBeTruthy();
-    })
-  })
-  describe(`when a gender group doesn't meet the threshold for number of people with data for calculations to be performed`, () => {
-    it(`returns false`, () => {
-      const columnStats = new GroupedColumnStats();
-      Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT - 1).fill(100).forEach(v => {
-        columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
-      })
-      columnStats.push(0, GENDER_CODES.NON_BINARY[0]);
-      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCount(GENDER_CODES.NON_BINARY[0]));
-      expect(meetsThreshold).toBeFalsy();
-    })
-  })
-})
-*/
-
 describe("cleanCsvRecord", () => {
   describe(`when numeric columns have values represented as strings`, () => {
     it(`those values are converted into proper numbers`, () => {
@@ -298,7 +272,8 @@ describe("calculateMeanHourlyPayGaps", () => {
         hourlyPayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
         hourlyPayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
-      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanHourlyPayGaps(hourlyPayStats, refGenderCode);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W)[0].value).toBe(1);
@@ -325,7 +300,8 @@ describe("calculateMedianHourlyPayGaps", () => {
         hourlyPayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
         hourlyPayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
-      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianHourlyPayGaps(hourlyPayStats, refGenderCode);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M)[0].value).toBe(0);
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W)[0].value).toBe(1);
@@ -352,7 +328,8 @@ describe("calculateMeanOvertimePayGaps", () => {
         overtimePayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
         overtimePayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
-      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimePayGaps(overtimePayStats, refGenderCode);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_M)[0].value).toBe(0);
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_W)[0].value).toBe(1);
@@ -379,7 +356,8 @@ describe("calculateMedianOvertimePayGaps", () => {
         overtimePayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
         overtimePayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
-      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimePayGaps(overtimePayStats, refGenderCode);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M)[0].value).toBe(0);
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W)[0].value).toBe(1);
@@ -406,7 +384,8 @@ describe("calculateMeanOvertimeHoursGaps", () => {
         overtimeHoursStats.push(v + 2, GENDER_CODES.NON_BINARY[0]);
         overtimeHoursStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
-      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(overtimeHoursStats, refGenderCode);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M)[0].value).toBe(0);
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W)[0].value).toBe(-1);
@@ -433,7 +412,8 @@ describe("calculateMedianOvertimeHoursGaps", () => {
         overtimeHoursStats.push(v + 2, GENDER_CODES.NON_BINARY[0]);
         overtimeHoursStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
-      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(overtimeHoursStats, refGenderCode);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M)[0].value).toBe(0);
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W)[0].value).toBe(-1);
@@ -461,7 +441,8 @@ describe("calculateMeanBonusPayGaps", () => {
         hourlyPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
         hourlyPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
       });
-      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanBonusPayGaps(hourlyPayStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanBonusPayGaps(hourlyPayStats, refGenderCode);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W)[0].value).toBe(1);
@@ -488,7 +469,8 @@ describe("calculateMedianBonusPayGaps", () => {
         hourlyPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
         hourlyPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
       });
-      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianBonusPayGaps(hourlyPayStats);
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianBonusPayGaps(hourlyPayStats, refGenderCode);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W)[0].value).toBe(1);
@@ -515,6 +497,7 @@ describe("calculateHourlyPayQuartiles", () => {
         hourlyPayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
         hourlyPayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
       });
+
       const calcs: CalculatedAmount[] = reportCalcServicePrivate.calculateHourlyPayQuartiles(hourlyPayStats);
 
       expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_M)[0].value).toBe(null);
