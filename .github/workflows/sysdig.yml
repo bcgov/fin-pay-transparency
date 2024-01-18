@@ -1,0 +1,19 @@
+# https://docs.developer.gov.bc.ca/sysdig-monitor-setup-team/
+name: Add Sysdig Team on a Schedule or Manually
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+    add-sysdig-team:
+      runs-on: ubuntu-22.04
+      environment: tools
+      steps:
+      - name: Add Sysdig Team
+        run: |
+          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+          oc project db4642-tools # Safeguard!
+          oc apply -f sysdig/sysdig.yml
+        
