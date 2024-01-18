@@ -1,10 +1,10 @@
 <template>
 
-<v-container class="h-100">
-  <v-row class="w-100">
+<v-container class="unbastardized">
+  <v-row no-gutters>
     <v-col cols="12">
       <v-container class="justify-center">
-        <v-row>
+        <v-row no-gutters>
           <v-col>
             <p class="text-welcome mt-14 mb-8">
               Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
@@ -25,10 +25,10 @@
       </v-container>  
     </v-col>
   </v-row>
-  <v-row class="grey-div w-100">
-    <v-col >
+  <v-row no-gutters class="grey-div">
+    <v-col>
       <v-container class="unbastardized">
-        <v-row>
+        <v-row no-gutters>
           <v-col>
             <p class="text-welcome mt-14 mb-8">
               Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
@@ -205,6 +205,8 @@ export default {
   .unbastardized {
     margin: 0;
     padding: 0;
+    min-width: 100%;
+    max-width: 100%;
   }
 
 
