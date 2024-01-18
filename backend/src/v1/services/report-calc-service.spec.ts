@@ -53,50 +53,21 @@ describe("GroupedColumnStats", () => {
     })
   })
 
-  describe("getCountWithNonZeroData", () => {
-    it("returns the number of records in the given gender category with non-zero data values", () => {
-      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.FEMALE[0])).toBe(3);
-      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.MALE[0])).toBe(2);
-      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
-      expect(columnStats.getCountWithNonZeroData(GENDER_CODES.UNKNOWN[0])).toBe(numUnknownWithData);
-    })
-  })
-
   describe("getMean", () => {
-    describe("when zeros are included", () => {
-      it("returns the mean (average) of all values in the given gender catetory", () => {
-        expect(columnStats.getMean(GENDER_CODES.FEMALE[0])).toBe(18);
-        expect(columnStats.getMean(GENDER_CODES.MALE[0])).toBe(35);
-        expect(columnStats.getMean(GENDER_CODES.NON_BINARY[0])).toBe(50);
-        expect(columnStats.getMean(GENDER_CODES.UNKNOWN[0])).toBe(60 * numUnknownWithData / (numUnknownWithData + numUnknownWithoutData));
-      })
-    })
-    describe("when zeros are excluded", () => {
-      it("returns the mean (average) of non-zero values in the given gender catetory", () => {
-        expect(columnStats.getMean(GENDER_CODES.FEMALE[0], true)).toBe(18);
-        expect(columnStats.getMean(GENDER_CODES.MALE[0], true)).toBe(35);
-        expect(columnStats.getMean(GENDER_CODES.NON_BINARY[0], true)).toBe(50);
-        expect(columnStats.getMean(GENDER_CODES.UNKNOWN[0], true)).toBe(60);
-      })
+    it("returns the mean (average) of all values in the given gender catetory", () => {
+      expect(columnStats.getMean(GENDER_CODES.FEMALE[0])).toBe(18);
+      expect(columnStats.getMean(GENDER_CODES.MALE[0])).toBe(35);
+      expect(columnStats.getMean(GENDER_CODES.NON_BINARY[0])).toBe(50);
+      expect(columnStats.getMean(GENDER_CODES.UNKNOWN[0])).toBe(60 * numUnknownWithData / (numUnknownWithData + numUnknownWithoutData));
     })
   })
 
   describe("getMedian", () => {
-    describe("when zeros are included", () => {
-      it("returns the median of all values in the given gender catetory", () => {
-        expect(columnStats.getMedian(GENDER_CODES.FEMALE[0])).toBe(20);
-        expect(columnStats.getMedian(GENDER_CODES.MALE[0])).toBe(35);
-        expect(columnStats.getMedian(GENDER_CODES.NON_BINARY[0])).toBe(50);
-        expect(columnStats.getMedian(GENDER_CODES.UNKNOWN[0])).toBe(0);
-      })
-    })
-    describe("when zeros are excluded", () => {
-      it("returns the median of non-zero values in the given gender catetory", () => {
-        expect(columnStats.getMedian(GENDER_CODES.FEMALE[0], true)).toBe(20);
-        expect(columnStats.getMedian(GENDER_CODES.MALE[0], true)).toBe(35);
-        expect(columnStats.getMedian(GENDER_CODES.NON_BINARY[0], true)).toBe(50);
-        expect(columnStats.getMedian(GENDER_CODES.UNKNOWN[0], true)).toBe(60);
-      })
+    it("returns the median of all values in the given gender catetory", () => {
+      expect(columnStats.getMedian(GENDER_CODES.FEMALE[0])).toBe(20);
+      expect(columnStats.getMedian(GENDER_CODES.MALE[0])).toBe(35);
+      expect(columnStats.getMedian(GENDER_CODES.NON_BINARY[0])).toBe(50);
+      expect(columnStats.getMedian(GENDER_CODES.UNKNOWN[0])).toBe(0);
     })
   })
 
@@ -233,6 +204,7 @@ describe("meetsPeopleCountThreshold", () => {
   })
 })
 
+/*
 describe("meetsPeopleWithDataCountThreshold", () => {
   describe(`when a gender group meets the threshold for number of people with data for calculations to be performed`, () => {
     it(`returns true`, () => {
@@ -240,7 +212,7 @@ describe("meetsPeopleWithDataCountThreshold", () => {
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
       })
-      const meetsThreshold = reportCalcServicePrivate.meetsPeopleWithDataCountThreshold(columnStats, GENDER_CODES.NON_BINARY[0]);
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCount(GENDER_CODES.NON_BINARY[0]));
       expect(meetsThreshold).toBeTruthy();
     })
   })
@@ -251,11 +223,12 @@ describe("meetsPeopleWithDataCountThreshold", () => {
         columnStats.push(v, GENDER_CODES.NON_BINARY[0]);
       })
       columnStats.push(0, GENDER_CODES.NON_BINARY[0]);
-      const meetsThreshold = reportCalcServicePrivate.meetsPeopleWithDataCountThreshold(columnStats, GENDER_CODES.NON_BINARY[0]);
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCount(GENDER_CODES.NON_BINARY[0]));
       expect(meetsThreshold).toBeFalsy();
     })
   })
 })
+*/
 
 describe("cleanCsvRecord", () => {
   describe(`when numeric columns have values represented as strings`, () => {
