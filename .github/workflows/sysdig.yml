@@ -15,5 +15,5 @@ jobs:
         run: |
           oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
           oc project db4642-tools # Safeguard!
-          oc apply -f sysdig/sysdig.yml
+          oc apply -f ./sysdig/sysdig.yml
         
