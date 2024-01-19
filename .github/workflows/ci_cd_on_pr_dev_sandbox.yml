@@ -11,7 +11,7 @@ on:
       - '.diagrams/**'
       - '.graphics/**'
       - 'sysdig/**'
-      - '.github/sysdig.yml'
+      - '.github/workflows/sysdig.yml'
     branches:
       - main
 
