@@ -14,6 +14,7 @@ on:
       - '.diagrams/**'
       - '.graphics/**'
       - 'sysdig/**'
+      - '.github/sysdig.yml'
   workflow_dispatch:
     inputs:
       pr_no:
