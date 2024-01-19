@@ -11,9 +11,10 @@ jobs:
       runs-on: ubuntu-22.04
       environment: tools
       steps:
+      - uses: actions/checkout@v4
       - name: Add Sysdig Team
         run: |
           oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
           oc project db4642-tools # Safeguard!
-          oc apply -f sysdig/sysdig.yml
+          oc apply -f ./sysdig/sysdig.yml
         

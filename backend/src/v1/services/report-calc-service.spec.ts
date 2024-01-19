@@ -35,6 +35,32 @@ describe("GroupedColumnStats", () => {
 
   })
 
+  describe("sortEachGenderCategory", () => {
+    it("sorts the data in each gender category list (in ascending order)", () => {
+      const columnStats = new GroupedColumnStats();
+
+      // Insert 3 mock values in unsorted order for the Male 
+      // gender category
+      columnStats.push(10, GENDER_CODES.MALE[0]);
+      columnStats.push(1, GENDER_CODES.MALE[0]);
+      columnStats.push(3, GENDER_CODES.MALE[0]);
+
+      columnStats.sortEachGenderCategory();
+
+      // Confirm that the values are now sorted.  
+      // Iterate over the values, and check that each is larger than the previous
+      const valuesM = columnStats.getValues(GENDER_CODES.MALE[0]);
+      let prev = null;
+      valuesM.forEach(v => {
+        if (prev != null) {
+          expect(v >= prev).toBeTruthy();
+        }
+        prev = v;
+      })
+
+    })
+  })
+
   describe("getValues", () => {
     it("returns a array of all values in the given gender category in the same order as input", () => {
       //Just check the lowest value in each gender category

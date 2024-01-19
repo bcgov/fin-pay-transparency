@@ -12,6 +12,7 @@ on:
       - '.diagrams/**'
       - '.graphics/**'
       - 'sysdig/**'
+      - '.github/workflows/sysdig.yml'
     branches:
       - main
     types:
