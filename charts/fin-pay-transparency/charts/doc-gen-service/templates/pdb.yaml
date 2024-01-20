@@ -5,12 +5,10 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ include "doc-gen-service.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "doc-gen-service.name" . }}
-    helm.sh/chart: {{ include "doc-gen-service.chart" . }}
+    {{- include "doc-gen-service.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "doc-gen-service.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ include "doc-gen-service.fullname" . }}
   minAvailable: 1
 {{- end }}
