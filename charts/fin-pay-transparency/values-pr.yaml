@@ -41,7 +41,8 @@ backend:
     enabled: true
     size: 50Mi
     accessMode: ReadWriteMany
-
+  pdb:
+    enabled: false
 frontend:
   deploymentStrategy: Recreate
   resources:
@@ -53,7 +54,8 @@ frontend:
       memory: 50Mi
   env:
     logLevel: info
-
+  pdb:
+    enabled: false
 database:
   enabled: true
   deploymentStrategy: Recreate
@@ -119,10 +121,10 @@ doc-gen-service:
       cpu: 30m
       memory: 50Mi
 
-  podAnnotations: { }
   podSecurityContext: { }
   securityContext: { }
   imagePullSecrets: [ ]
   nodeSelector: { }
   tolerations: [ ]
-  affinity: { }
+  pdb:
+    enabled: false

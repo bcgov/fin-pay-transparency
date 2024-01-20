@@ -1,0 +1,16 @@
+{{- if and (.Values.enabled and (.Values.pdb .Values.pdb.enabled )) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "doc-gen-service.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "doc-gen-service.name" . }}
+    helm.sh/chart: {{ include "doc-gen-service.chart" . }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "doc-gen-service.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  minAvailable: 1
+{{- end }}
