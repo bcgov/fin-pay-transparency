@@ -552,6 +552,106 @@ const reportService = {
           ),
         )
         .filter((d) => d),
+      hourlyPayQuartile4: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d),
+      hourlyPayQuartile1: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d),
+      hourlyPayQuartile2: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d),
+      hourlyPayQuartile3: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d),
     };
 
     const tableData = {
@@ -749,8 +849,7 @@ export {
   CalcCodeGenderCode,
   GENDERS,
   GenderChartInfo,
-  ReportAndCalculations,
-  reportService,
-  reportServicePrivate,
-  enumReportStatus,
+  ReportAndCalculations, enumReportStatus, reportService,
+  reportServicePrivate
 };
+
