@@ -83,8 +83,7 @@ backend:
   imagePullSecrets: [ ]
   nodeSelector: { }
   tolerations: [ ]
-  pdb:
-    enabled: true
+  pdb: true
 frontend:
   enabled: true
   deploymentStrategy: RollingUpdate
@@ -131,8 +130,7 @@ frontend:
   imagePullSecrets: [ ]
   nodeSelector: { }
   tolerations: [ ]
-  pdb:
-    enabled: true
+  pdb: true
 database:
   enabled: false
 crunchy:
@@ -268,6 +266,4 @@ doc-gen-service:
   imagePullSecrets: [ ]
   nodeSelector: { }
   tolerations: [ ]
-  pdb:
-    enabled: true
-
+  pdb: true

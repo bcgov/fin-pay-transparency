@@ -41,8 +41,8 @@ backend:
     enabled: true
     size: 50Mi
     accessMode: ReadWriteMany
-  pdb:
-    enabled: false
+  pdb: false
+
 frontend:
   deploymentStrategy: Recreate
   resources:
@@ -54,8 +54,8 @@ frontend:
       memory: 50Mi
   env:
     logLevel: info
-  pdb:
-    enabled: false
+  pdb: false
+    
 database:
   enabled: true
   deploymentStrategy: Recreate
@@ -126,5 +126,4 @@ doc-gen-service:
   imagePullSecrets: [ ]
   nodeSelector: { }
   tolerations: [ ]
-  pdb:
-    enabled: false
+  pdb: false

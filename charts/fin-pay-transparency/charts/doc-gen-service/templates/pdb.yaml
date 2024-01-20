@@ -1,4 +1,4 @@
-{{- if and (.Values.enabled and (.Values.pdb .Values.pdb.enabled )) }}
+{{- if .Values.pdb }}
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
