@@ -1,0 +1,14 @@
+{{- if .Values.pdb }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "doc-gen-service.fullname" . }}
+  labels:
+    {{- include "doc-gen-service.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "doc-gen-service.fullname" . }}
+  minAvailable: 1
+{{- end }}

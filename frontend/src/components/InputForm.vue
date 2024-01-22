@@ -537,7 +537,7 @@ export default {
         this.companyName = userInfo?.legalName;
         const address = `${
           userInfo?.addressLine1 ? userInfo?.addressLine1 : ''
-        } ${userInfo?.addressLine2 ? userInfo?.addressLine2 : ''}`.trim();
+        } ${userInfo?.addressLine2 ? userInfo?.addressLine2 : ''} ${userInfo?.city ? userInfo?.city : ''} ${userInfo?.province ? userInfo?.province : ''} ${userInfo?.postal ? userInfo?.postal : ''}`.trim();
         this.companyAddress = address;
       },
     },
