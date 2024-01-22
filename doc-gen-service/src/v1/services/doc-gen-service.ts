@@ -19,6 +19,7 @@ type ReportData = {
     hourlyPayQuartile2: unknown[]
     hourlyPayQuartile3: unknown[]
     hourlyPayQuartile4: unknown[]
+    hourlyPayQuartilesLegend: unknown[]
   };
   chartSuppressedError: string;
   reportType: string;
@@ -63,8 +64,6 @@ async function generateReport(reportType: string, reportData: ReportData) {
 
   await page.setContent(workingHtml, { waitUntil: 'networkidle0' });
 
-  console.log(reportData.chartData.hourlyPayQuartile4[0])
-
   // Generate charts as SVG, and inject the charts into the DOM of the
   // current page
   await page.evaluate((reportData) => {
@@ -108,6 +107,10 @@ async function generateReport(reportType: string, reportData: ReportData) {
     document.getElementById('hourly-pay-quartile-1-chart')?.appendChild(
       // @ts-ignore
       horizontalStackedBarChart(chartData.hourlyPayQuartile1)
+    );
+    document.getElementById('hourly-pay-quartiles-legend')?.appendChild(
+      // @ts-ignore
+      createLegend(chartData.hourlyPayQuartilesLegend)
     );
 
   }, reportData);

@@ -85,7 +85,7 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
     .attr('viewBox', [0, 0, width, height])
     .attr('style', 'max-width: 100%; height: auto;');
 
-  const barGroup = svg.append('g').selectAll().data(stacks);
+  const barGroup = svg.append('g').append('g').selectAll().data(stacks);
 
   const barGroupPart = barGroup
     .join('g')
@@ -112,15 +112,17 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
     .attr('style', `font: ${primaryFont}; font-weight: normal;`)
     .text((d) => {
       const barLabel = label(d.key);
-      if (barWidth(d) >= minBarWidthForLabel) {
+      const barLabelWidth = getTextSize(barLabel, primaryFont).width;
+      if (barLabelWidth <= barWidth(d) * 0.9) {
         return barLabel;
       }
       unrenderedLabels.push(barLabel);
       return '';
     });
 
-  const secondaryLabels = barGroup
-    .join('g')
+  const secondaryLabels = svg
+    .select('g')
+    .append('g')
     .attr('fill', 'black')
     .attr('text-anchor', 'end')
     .append('text')
@@ -239,6 +241,93 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
     .call(lineWrap, marginRight, labelFontSizePx);
 
   return svg.node();
+}
+
+/*
+Creates a legend for the items in the data array.
+The legend items are stacked vertically in a single column.
+data is an array of this format:
+data = [
+ {label:"item 1 label", color: "#ffdd33"},
+ {label:"item 2 label", color: "#ddcc33"},
+];
+*/
+function createLegend(data, options = {}) {
+  const defaultOptions = {
+    width: 150,
+    swatchSize: 10,
+    swatchPadding: 3,
+    font: '11px sans-serif',
+  };
+
+  options = { ...defaultOptions, ...options };
+
+  const height = data.length * (options.swatchSize + options.swatchPadding);
+
+  const svg = d3
+    .create('svg')
+    .attr('width', options.width)
+    .attr('height', height)
+    .attr('viewBox', [0, 0, options.width, height])
+    .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
+
+  svg
+    .append('g')
+    .attr('class', 'legend')
+    .selectAll('rect')
+    .data(data)
+    .enter()
+    .call((g) =>
+      g
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', function (d, i) {
+          return i * (options.swatchSize + options.swatchPadding);
+        })
+        .attr('width', options.swatchSize)
+        .attr('height', options.swatchSize)
+        .attr('fill', (d) => d.color),
+    )
+    .call((g) =>
+      g
+        .append('text')
+        .attr('x', options.swatchSize + options.swatchPadding)
+        .attr('y', function (d, i) {
+          return (
+            i * (options.swatchSize + options.swatchPadding) +
+            options.swatchSize / 2 +
+            1
+          );
+        })
+        .attr('alignment-baseline', 'middle')
+        .attr('text-anchor', 'start')
+        .style('font', options.font)
+        .text((d) => d.label),
+    );
+
+  return svg.node();
+}
+
+/*
+Determine the width and height of a given string rendered in the given font
+@param text is the text string to render.  
+@font is a CSS font string of this format: "<font-size><unit> <font-family>" e.g. "10px sans-serif"
+*/
+function getTextSize(text, font = '10px sans-serif') {
+  // Temporarily add a new svg element to the document.  Within
+  // it create a text element with the given value and font
+  const container = d3.select('body').append('svg');
+  container.append('text').style('font', font).text(text);
+
+  // Determine the width and height of the rendered text node
+  const textNode = container.selectAll('text').node();
+  const width = textNode.getComputedTextLength();
+  const height = textNode.getExtentOfChar(0).height;
+
+  // Remove the temporary svg element (and its children)
+  container.remove();
+
+  return { width: width, height: height };
 }
 
 /*
