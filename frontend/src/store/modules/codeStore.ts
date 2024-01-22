@@ -1,6 +1,7 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import ApiService from '../../common/apiService';
+import { REPORT_STATUS } from '../../utils/constant';
 import { authStore } from './auth.js';
 
 /*
@@ -15,6 +16,7 @@ export const useCodeStore = defineStore('code', () => {
 
   const employeeCountRanges = ref([]);
   const naicsCodes = ref([]);
+  const reports = ref([]);
 
   const setEmployeeCountRanges = (val) => {
     employeeCountRanges.value = val;
@@ -22,6 +24,9 @@ export const useCodeStore = defineStore('code', () => {
   const setNaicsCodes = (val) => {
     naicsCodes.value = val;
   }
+  const setReports = (val) => {
+    reports.value = val;
+  }  
 
   const fetchAllCodes = async () => {
     const employeeCountRanges = await ApiService.getEmployeeCountRanges()
@@ -30,6 +35,9 @@ export const useCodeStore = defineStore('code', () => {
 
     const naicsCodes = await ApiService.getNaicsCodes()
     setNaicsCodes(naicsCodes)
+
+    const reports = await ApiService.getReportsByStatus(REPORT_STATUS.DRAFT)
+    setReports(reports)
   }
 
   // Watch for changes to the isAuthenticated property in the AuthStore.  When set 
@@ -48,6 +56,7 @@ export const useCodeStore = defineStore('code', () => {
   // Return the public interface for the store
   return {
     employeeCountRanges,
-    naicsCodes
+    naicsCodes,
+    reports
   }
 })

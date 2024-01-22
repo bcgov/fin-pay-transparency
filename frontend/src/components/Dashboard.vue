@@ -41,7 +41,7 @@
           </v-toolbar>
           <v-card-text>
             No generated reports yet.
-            
+            {{ localreports.length }}
           </v-card-text>
         </v-card>
 
@@ -90,20 +90,25 @@
 <script>
 import { mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
+import { useCodeStore } from '../store/modules/codeStore';
 import ApiService from '../common/apiService';
-
-enum enumReportStatus {
-  Draft = 'Draft',
-  Published = 'Published',
-}
 
 export default {
   data: () => ({
-    reports: []
-    //await ApiService.getReportsByStatus(Published);
-  }),      
+    localreports: [],
+    naicsCodesTruncated: []
+  }),  
+  watch: {
+    reports(val) {
+      this.localreports = val;
+    },
+    naicsCodes(val) {
+      this.naicsCodesTruncated = val?.length > 25 ? val.slice(0, 25) : val;
+    },    
+  },      
   computed: {
     ...mapState(authStore, ['userInfo']),
+    ...mapState(useCodeStore, ['naicsCodes', 'reports']),
   },
 };
 </script>
