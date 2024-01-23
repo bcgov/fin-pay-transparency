@@ -45,16 +45,16 @@
             </div>     
             <div v-if="localreports.length">  
               <v-row>
-                <v-col>Start Date</v-col>
-                <v-col>End Date</v-col>
-                <v-col cols="2">Action</v-col>
+                <v-col class="font-weight-bold">Start Date</v-col>
+                <v-col class="font-weight-bold">End Date</v-col>
+                <v-col class="font-weight-bold" cols="3">Action</v-col>
               </v-row>
-              <hr class="mt-6 mb-6">
+              <hr class="mt-4 mb-4">
               <template v-for="report in localreports">
                 <v-row>
                   <v-col>{{ report.report_start_date }}</v-col>
                   <v-col>{{ report.report_end_date }}</v-col>
-                  <v-col cols="2">
+                  <v-col cols="3">
                     <a class="pr-4" href="#">
                       <v-icon
                         color="#1976d2"
@@ -69,7 +69,7 @@
                     </a>
                   </v-col>
                 </v-row>
-                <hr class="mt-6 mb-6">
+                <hr class="mt-4 mb-4">
               </template>              
             </div>
           </v-card-text>
@@ -130,7 +130,8 @@ export default {
   watch: {
     reports(val) {
       this.localreports = val;
-      //this.localreports.report.report_start_date.format('dddd MMMM D, YYYY');
+      //this.localreports.forEach(console.log(report.report_start_date));
+      //this.localreports.report.report_start_date = this.localreports.report.report_start_date.format('dddd MMMM D, YYYY');
     }, 
   },      
   computed: {
