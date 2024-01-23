@@ -45,27 +45,27 @@
             </div>     
             <div v-if="localreports.length">  
               <v-row>
-                <v-col cols="6">Filename</v-col>
-                <v-col>Generated On</v-col>
-                <v-col>Action</v-col>
+                <v-col>Start Date</v-col>
+                <v-col>End Date</v-col>
+                <v-col cols="2">Action</v-col>
               </v-row>
               <hr class="mt-6 mb-6">
               <template v-for="report in localreports">
                 <v-row>
-                  <v-col cols="6">Revision {{ report.revision }}</v-col>
                   <v-col>{{ report.report_start_date }}</v-col>
-                  <v-col>
-                    <a class="pr-6" href="">
+                  <v-col>{{ report.report_end_date }}</v-col>
+                  <v-col cols="2">
+                    <a class="pr-4" href="#">
                       <v-icon
                         color="#1976d2"
                         icon="mdi-eye-outline"
                       ></v-icon> View 
                     </a>
-                    <a href="">
+                    <a href="#">
                       <v-icon
                         color="#1976d2"
-                        icon="mdi-delete-forever"
-                      ></v-icon> Delete
+                        icon="mdi-table-edit"
+                      ></v-icon> Edit
                     </a>
                   </v-col>
                 </v-row>
@@ -130,7 +130,7 @@ export default {
   watch: {
     reports(val) {
       this.localreports = val;
-      //date(report.report_start_date).format('dddd MMMM D, YYYY')
+      //this.localreports.report.report_start_date.format('dddd MMMM D, YYYY');
     }, 
   },      
   computed: {
