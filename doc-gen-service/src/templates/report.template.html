@@ -9,6 +9,11 @@
     -webkit-print-color-adjust: exact;
   }
 
+  svg {
+    /*Prevent unexpected whitespace below SVG elements*/
+    display: block;
+  }
+
   a {
     /* overwrite the bootstrap value to prevent the page header from being modified */
     text-decoration: none !important;
@@ -516,7 +521,41 @@
         </div>
       </div>
 
-      <p>TODO: charts</p>
+      <table role="presentation">
+        <tr>
+          <td class="pe-2" style="width: 80%">
+            <div>
+              <div id="hourly-pay-quartile-4">
+                <div class="text-normal">Upper hourly pay quartile (highest paid)</div>
+                <% if (chartData.hourlyPayQuartile4.length) { %>
+                  <div id="hourly-pay-quartile-4-chart"></div>
+                  <% } %>
+              </div>
+              <div id="hourly-pay-quartile-3">
+                <div class="text-normal">Upper middle hourly pay quartile</div>
+                <% if (chartData.hourlyPayQuartile3.length) { %>
+                  <div id="hourly-pay-quartile-3-chart"></div>
+                  <% } %>
+              </div>
+              <div id="hourly-pay-quartile-2">
+                <div class="text-normal">Lower middle hourly pay quartile</div>
+                <% if (chartData.hourlyPayQuartile2.length) { %>
+                  <div id="hourly-pay-quartile-2-chart"></div>
+                  <% } %>
+              </div>
+              <div id="hourly-pay-quartile-1">
+                <div class="text-normal">Lowest hourly pay quartile (lowest paid)</div>
+                <% if (chartData.hourlyPayQuartile1.length) { %>
+                  <div id="hourly-pay-quartile-1-chart"></div>
+                  <% } %>
+              </div>
+            </div>
+          </td>
+          <td class="pe-2" style="width: 20%">
+            <div id="hourly-pay-quartiles-legend"></div>
+          </td>
+        </tr>
+      </table>
 
       <div class="explanatory-notes">
         <h4>Explanatory notes</h4>
