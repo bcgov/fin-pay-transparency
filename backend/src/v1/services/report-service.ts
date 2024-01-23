@@ -246,6 +246,50 @@ const reportServicePrivate = {
   },
 
   /*
+  Creates a text summary of the 4th and 1st hourly pay quartiles
+  in a form similar to:
+  "In this organization, women occupy 30% of the highest paid 
+  jobs and 56% of the lowest paid jobs. Non-binary people occupy 
+  1% of the highest paid jobs and 2% of the lowest paid jobs."
+  */
+  getHourlyPayQuartilesTextSummary(
+    referenceGenderCode: string,
+    hourlyPayQuartile4: ChartDataRecord[],
+    hourlyPayQuartile1: ChartDataRecord[]): string {
+    const genderCodesToSkip = [referenceGenderCode, GENDERS.UNKNOWN.code];
+    const genderCodesToSummarize = Object.values(GENDERS).filter(d => genderCodesToSkip.indexOf(d.code) == -1);
+
+    const genderSummaries = [];
+    genderCodesToSummarize.forEach((g, i) => {
+      const genderLabel = i == 0 ? g.extendedLabel.toLocaleLowerCase() : g.extendedLabel;
+      const q4 = hourlyPayQuartile4.filter(c => c.genderChartInfo.code == g.code);
+      const q1 = hourlyPayQuartile1.filter(c => c.genderChartInfo.code == g.code);
+      const quartileSummaries = [];
+      if (q4.length) {
+        const q4Percent = Math.round(q4[0].value);
+        quartileSummaries.push(`${q4Percent}% of the highest paid jobs`);
+      }
+      if (q1.length) {
+        const q1Percent = Math.round(q1[0].value);
+        quartileSummaries.push(`${q1Percent}% of the lowest paid jobs`);
+      }
+      if (quartileSummaries.length) {
+        genderSummaries.push(`${genderLabel} occupy ${quartileSummaries.join(' and ')}`);
+      }
+    });
+
+    let text = null;
+    if (genderSummaries.length) {
+      text = `In this organization, ${genderSummaries[0]}.`;
+    }
+    for (let i = 1; i < genderSummaries.length; i++) {
+      text += ` ${genderSummaries[i]}.`
+    }
+
+    return text;
+  },
+
+  /*
   converts a number representing an amount in dollars (such as 1.20 or 0.95)
   into a string according to the following rules:
   - if the given number is less than 1, return "x cents" (e.g. 0.95 => "95 cents")
@@ -770,6 +814,11 @@ const reportService = {
         tableData.medianOvertimeHoursGap,
         'median',
         'overtime hours',
+      ),
+      hourlyPayQuartiles: reportServicePrivate.getHourlyPayQuartilesTextSummary(
+        referenceGenderCode,
+        chartData.hourlyPayQuartile4,
+        chartData.hourlyPayQuartile1,
       ),
     };
 
