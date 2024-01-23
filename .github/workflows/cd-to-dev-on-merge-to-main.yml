@@ -107,5 +107,6 @@ jobs:
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
+      params: --set doc-gen-service.pdb=false
 
 
