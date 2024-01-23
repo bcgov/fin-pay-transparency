@@ -13,8 +13,6 @@ const reportRouter = express.Router();
  */
 reportRouter.get(
   '/',
-  passport.authenticate('jwt', { session: false }, undefined),
-  utils.asyncHandler(auth.isValidBackendToken()),
   utils.asyncHandler(
     async (
       req: Request<null, null, null, { status: enumReportStatus }>,

@@ -236,6 +236,14 @@ apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
 });
 apiRouter.use('/auth', authRouter);
+
+// check for valid passport session and backend token for all routes below.
+apiRouter.use(
+  passport.authenticate('jwt', { session: false }),
+  (req: Request, res: Response, next: NextFunction) => {
+    auth.isValidBackendToken()(req, res, next);
+  },
+);
 apiRouter.use('/user', userRouter);
 apiRouter.use('/v1/file-upload', fileUploadRouter);
 apiRouter.use('/v1/codes', codeRouter);

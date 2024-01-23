@@ -6,8 +6,6 @@ const isValidBackendToken = auth.isValidBackendToken();
 const router = express.Router();
 router.get(
   '/',
-  passport.authenticate('jwt', { session: false }),
-  utils.asyncHandler(isValidBackendToken),
   utils.asyncHandler(auth.getUserInfo),
 );
 export = router;
