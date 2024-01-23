@@ -129,7 +129,7 @@ export default {
   }),  
   watch: {
     reports(val) {
-      //this.localreports = val;
+      this.localreports = val;
       //date(report.report_start_date).format('dddd MMMM D, YYYY')
     }, 
   },      

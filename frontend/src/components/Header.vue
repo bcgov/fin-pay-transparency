@@ -44,7 +44,7 @@
             icon="mdi-account"
           ></v-btn>
         </template>
-        <v-card min-width="250">
+        <v-card min-width="250">git
           <template v-slot:prepend>
             <v-list>
               <v-list-item>
