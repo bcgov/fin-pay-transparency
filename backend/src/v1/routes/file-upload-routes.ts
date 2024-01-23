@@ -1,6 +1,4 @@
 import express, { Request, Response } from 'express';
-import passport from 'passport';
-import { auth } from '../services/auth-service';
 import { fileUploadService } from '../services/file-upload-service';
 import { utils } from '../services/utils-service';
 

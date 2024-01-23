@@ -1,6 +1,4 @@
 import express, { Request, Response } from 'express';
-import passport from 'passport';
-import { auth } from '../services/auth-service';
 import { reportService, enumReportStatus } from '../services/report-service';
 import HttpStatus from 'http-status-codes';
 import { utils } from '../services/utils-service';
@@ -18,7 +16,7 @@ reportRouter.get(
       req: Request<null, null, null, { status: enumReportStatus }>,
       res: Response,
     ) => {
-      // verifiy business guid
+      // verify business guid
       const businessGuid =
         utils.getSessionUser(req)?._json?.bceid_business_guid;
       if (!businessGuid)
