@@ -36,7 +36,7 @@ export const useCodeStore = defineStore('code', () => {
     const naicsCodes = await ApiService.getNaicsCodes()
     setNaicsCodes(naicsCodes)
 
-    const reports = await ApiService.getReportsByStatus(REPORT_STATUS.DRAFT)
+    const reports = await ApiService.getReportsByStatus(REPORT_STATUS.PUBLISHED)
     setReports(reports)
   }
 
