@@ -105,9 +105,11 @@
                 </v-col>
                 <v-col class="d-flex justify-center aligned-right no-padding">
                   <img
+                      class="image-monitor"
                       width="400px"
                       tabindex="-1"
-                      src="../assets/images/upload.png"
+                      :src="imageSource"
+                      @click="changeSource"
                       alt="Monitor"
                   >                  
                 </v-col>
@@ -137,7 +139,8 @@ export default {
     return {
       appTitle: 'Pay Transparency Reporting',
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
-      stage: "UPLOAD"
+      stage: "UPLOAD",
+      imageSource: "../assets/images/upload_screen.png"
     };
   },
   computed: {
@@ -147,12 +150,33 @@ export default {
     clearStorageAndRedirectToLogin() {
       authStore().setJwtToken();
       window.location.href = this.authRoutesLogin;
+    },
+    changeSource() {
+      switch(stage) {
+        case 'GENERATE':
+          imageSource = "../assets/images/generate_screen.png";
+          break;
+        case 'REVIEW':
+          imageSource = "../assets/images/review_screen.png";
+          break;
+        case 'UPLOAD':
+          imageSource = "../assets/images/upload_screen.png";
+          break;
+        default:
+          imageSource = "../assets/images/generate_screen.png";
+          break;
+      }
     }
   }
 };
 </script>
 
 <style scoped>
+  .image-monitor {
+    border-style: none;
+    margin-left: auto;   
+  }
+
   .full-height{
     height: 100%;
   }
