@@ -369,12 +369,40 @@ describe('getHoursGapTextSummary', () => {
       expect(text).toContain('overtime hours');
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W].value) +
-          ' less',
+        ' less',
       );
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X].value) +
-          ' more',
+        ' more',
       );
+    });
+  });
+});
+
+describe('getHourlyPayQuartilesTextSummary', () => {
+  describe('given the ref gender category and hourly pay Q1 and Q4 data', () => {
+    it('returns a text summary of the upper and lower quartiles', () => {
+      const referenceGenderCode = GENDERS.MALE.code;
+      const mockHourlyPayQuartile4 = [
+        { genderChartInfo: GENDERS.MALE, value: 45 },
+        { genderChartInfo: GENDERS.FEMALE, value: 45 },
+        { genderChartInfo: GENDERS.NON_BINARY, value: 1 },
+        { genderChartInfo: GENDERS.UNKNOWN, value: 9 },
+      ];
+      const mockHourlyPayQuartile1 = [
+        { genderChartInfo: GENDERS.MALE, value: 55 },
+        { genderChartInfo: GENDERS.FEMALE, value: 35 },
+        { genderChartInfo: GENDERS.UNKNOWN, value: 10 },
+      ];
+      const text: string = reportServicePrivate.getHourlyPayQuartilesTextSummary(
+        referenceGenderCode,
+        mockHourlyPayQuartile4,
+        mockHourlyPayQuartile1
+      );
+      console.log(text);
+      expect(text.toLowerCase()).toContain(`${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase());
+      expect(text.toLowerCase()).toContain(`${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase());
+
     });
   });
 });
