@@ -39,13 +39,13 @@
 
               <v-row>
                 <v-col class="d-flex justify-center align-center">                                    
-                  <div class="circle" :class="{ active: stage == 'UPLOAD', disabled: stage != 'UPLOAD'  }" v-on:click="stage = 'UPLOAD'">1</div>
+                  <div class="circle" :class="{ active: stage == 'UPLOAD', disabled: stage != 'UPLOAD'  }" v-on:click="changeStage('UPLOAD')">1</div>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <div class="circle" :class="{ active: stage == 'REVIEW', disabled: stage != 'REVIEW' }" v-on:click="stage = 'REVIEW'">2</div>
+                  <div class="circle" :class="{ active: stage == 'REVIEW', disabled: stage != 'REVIEW' }" v-on:click="changeStage('REVIEW')">2</div>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <div class="circle" :class="{ active: stage == 'GENERATE', disabled: stage != 'GENERATE' }" v-on:click="stage = 'GENERATE'">3</div>
+                  <div class="circle" :class="{ active: stage == 'GENERATE', disabled: stage != 'GENERATE' }" v-on:click="changeStage('GENERATE')">3</div>
                 </v-col>
               </v-row>
 
@@ -85,8 +85,8 @@
                 </v-col>
               </v-row>
 
-              <v-row class="mt-16 mb-8">
-                <v-col class="d-flex justify-center no-padding">
+              <v-row class="mt-8 mb-8">
+                <v-col class="d-flex justify-center pt-14">
                   
                   <div v-show="stage == 'UPLOAD'">
                     <h3 class="mb-4">Upload your company's data</h3>
@@ -106,12 +106,11 @@
                 <v-col class="d-flex justify-center aligned-right no-padding">
                   <img
                       class="image-monitor"
-                      width="400px"
+                      width="600px"
                       tabindex="-1"
                       :src="imageSource"
-                      @click="changeSource"
                       alt="Monitor"
-                  >                  
+                  >  
                 </v-col>
               </v-row>               
 
@@ -140,7 +139,7 @@ export default {
       appTitle: 'Pay Transparency Reporting',
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
       stage: "UPLOAD",
-      imageSource: "../assets/images/upload_screen.png"
+      imageSource: "/src/assets/images/upload_screen.png"
     };
   },
   computed: {
@@ -151,19 +150,19 @@ export default {
       authStore().setJwtToken();
       window.location.href = this.authRoutesLogin;
     },
-    changeSource() {
-      switch(stage) {
+    changeStage: function(newstage) {
+      switch(newstage) {
         case 'GENERATE':
-          imageSource = "../assets/images/generate_screen.png";
+          this.stage = 'GENERATE';
+          this.imageSource = "/src/assets/images/generate_screen.png";
           break;
         case 'REVIEW':
-          imageSource = "../assets/images/review_screen.png";
+          this.stage = 'REVIEW';
+          this.imageSource = "/src/assets/images/review_screen.png";
           break;
         case 'UPLOAD':
-          imageSource = "../assets/images/upload_screen.png";
-          break;
-        default:
-          imageSource = "../assets/images/generate_screen.png";
+          this.stage = 'UPLOAD';
+          this.imageSource = "/src/assets/images/upload_screen.png";
           break;
       }
     }
