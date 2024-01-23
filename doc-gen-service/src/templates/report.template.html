@@ -521,38 +521,59 @@
         </div>
       </div>
 
-      <table role="presentation">
+      <table role="presentation" class="mb-2">
         <tr>
-          <td class="pe-2" style="width: 80%">
-            <div>
+          <td class="pe-2" style="width:600px">
+            <div id=" hourly-pay-quartiles">
               <div id="hourly-pay-quartile-4">
-                <div class="text-normal">Upper hourly pay quartile (highest paid)</div>
-                <% if (chartData.hourlyPayQuartile4.length) { %>
-                  <div id="hourly-pay-quartile-4-chart"></div>
-                  <% } %>
+                <% var q4HasSuppressed=chartData.hourlyPayQuartile4.length < 4; %>
+                  <div class="text-normal">Upper hourly pay quartile (highest paid)<% if (q4HasSuppressed) { %>*<% } %>
+                  </div>
+                  <% if (chartData.hourlyPayQuartile4.length) { %>
+                    <div id="hourly-pay-quartile-4-chart"></div>
+                    <% } %>
               </div>
               <div id="hourly-pay-quartile-3">
-                <div class="text-normal">Upper middle hourly pay quartile</div>
-                <% if (chartData.hourlyPayQuartile3.length) { %>
-                  <div id="hourly-pay-quartile-3-chart"></div>
-                  <% } %>
+                <% var q3HasSuppressed=chartData.hourlyPayQuartile3.length < 4; %>
+                  <div class="text-normal">Upper middle hourly pay quartile<% if (q3HasSuppressed) { %>*<% } %>
+                  </div>
+                  <% if (chartData.hourlyPayQuartile3.length) { %>
+                    <div id="hourly-pay-quartile-3-chart"></div>
+                    <% } %>
               </div>
               <div id="hourly-pay-quartile-2">
-                <div class="text-normal">Lower middle hourly pay quartile</div>
-                <% if (chartData.hourlyPayQuartile2.length) { %>
-                  <div id="hourly-pay-quartile-2-chart"></div>
-                  <% } %>
+                <% var q2HasSuppressed=chartData.hourlyPayQuartile2.length < 4; %>
+                  <div class="text-normal">Lower middle hourly pay quartile<% if (q2HasSuppressed) { %>*<% } %>
+                  </div>
+                  <% if (chartData.hourlyPayQuartile2.length) { %>
+                    <div id="hourly-pay-quartile-2-chart"></div>
+                    <% } %>
               </div>
               <div id="hourly-pay-quartile-1">
-                <div class="text-normal">Lowest hourly pay quartile (lowest paid)</div>
-                <% if (chartData.hourlyPayQuartile1.length) { %>
-                  <div id="hourly-pay-quartile-1-chart"></div>
-                  <% } %>
+                <% var q1HasSuppressed=chartData.hourlyPayQuartile1.length < 4; %>
+                  <div class="text-normal">Lowest hourly pay quartile (lowest paid)<% if (q1HasSuppressed) { %>*<% } %>
+                  </div>
+                  <% if (chartData.hourlyPayQuartile1.length) { %>
+                    <div id="hourly-pay-quartile-1-chart"></div>
+                    <% } %>
               </div>
             </div>
           </td>
-          <td class="pe-2" style="width: 20%">
-            <div id="hourly-pay-quartiles-legend"></div>
+          <td class="pe-2">
+            <div id="hourly-pay-quartiles-legend" class="ml-6"></div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <div class="text-normal mt-2 mb-2">
+              <p>
+                <%= chartSummaryText.hourlyPayQuartiles %>
+              </p>
+              <% if (q1HasSuppressed || q2HasSuppressed || q3HasSuppressed || q4HasSuppressed) { %>
+                <p>* This pay quartile was reduced to suppress gender categories consisting of less than ten (10)
+                  employees.</p>
+                <% } %>
+            </div>
           </td>
         </tr>
       </table>
@@ -563,7 +584,8 @@
           <div class="footnote-number">
             <%= explanatoryNotes.payQuartiles.num %>.
           </div>
-          <div></div>
+          <div>&quot;Pay quartile&quot; refers to the percentage of each gender within four equal sized groups based on
+            their hourly pay.</div>
         </div>
       </div>
 
