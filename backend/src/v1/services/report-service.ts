@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { config } from '../../config';
-import { logger, logger as log } from '../../logger';
+import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, reportCalcService } from './report-calc-service';
 import { utils } from './utils-service';
@@ -552,7 +552,120 @@ const reportService = {
           ),
         )
         .filter((d) => d),
+      hourlyPayQuartile1: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d),
+      hourlyPayQuartile2: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d),
+      hourlyPayQuartile3: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d),
+      hourlyPayQuartile4: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d
+          ),
+        )
+        .filter((d) => d)
     };
+
+    chartData["hourlyPayQuartilesLegend"] = [
+      GENDERS.MALE, GENDERS.FEMALE, GENDERS.NON_BINARY, GENDERS.UNKNOWN
+    ].filter(d =>
+      // Only include Gender categories that appear in at least on
+      // hourly pay quartile
+      [
+        ...chartData.hourlyPayQuartile1,
+        ...chartData.hourlyPayQuartile2,
+        ...chartData.hourlyPayQuartile3,
+        ...chartData.hourlyPayQuartile4
+      ].filter(v => v.genderChartInfo.code == d.code).length
+    )
 
     const tableData = {
       meanOvertimeHoursGap: [
@@ -749,8 +862,7 @@ export {
   CalcCodeGenderCode,
   GENDERS,
   GenderChartInfo,
-  ReportAndCalculations,
-  reportService,
-  reportServicePrivate,
-  enumReportStatus,
+  ReportAndCalculations, enumReportStatus, reportService,
+  reportServicePrivate
 };
+

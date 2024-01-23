@@ -18,25 +18,16 @@
     ":semanticCommitScope(deps)"
   ],
   "automerge": false,
-  "prConcurrentLimit": 1,
+  "prConcurrentLimit": 2,
   "dependencyDashboard": true,
-  "onboardingConfig": {
-    "extends": [
-      "config:base"
-    ]
-  },
   "packageRules": [
     {
       "description": "One week stability period for npm packages",
-      "matchDatasources": [
-        "npm"
-      ],
+      "matchDatasources": ["npm"],
       "minimumReleaseAge": "7 days"
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
+      "matchManagers": ["github-actions"],
       "groupName": "github actions all dependencies",
       "groupSlug": "github actions all",
       "minimumReleaseAge": "3 days"
@@ -44,27 +35,16 @@
     {
       "description": "JS - group vite",
       "groupName": "vite",
-      "matchPackagePatterns": [
-        "^vite$",
-        "^@vitejs\\/"
-      ],
+      "matchPackagePatterns": ["^vite$", "^@vitejs\\/"],
       "minimumReleaseAge": "3 days"
     },
     {
       "description": "JS - group linters",
       "groupName": "linters",
-      "matchPackagePatterns": [
-        "eslint",
-        "^@prettier\\/",
-        "^prettier-plugin-"
-      ]
+      "matchPackagePatterns": ["eslint", "^@prettier\\/", "^prettier-plugin-"]
     }
   ],
-  "lockFileMaintenance": {
-    "enabled": true
-  },
-  "autodiscover": true,
-  "autodiscoverFilter": "bcgov/fin-pay-transparency",
+  "lockFileMaintenance": { "enabled": true },
   "rebaseWhen": "behind-base-branch",
   "schedule": [
     "after 10pm every weekday",

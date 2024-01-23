@@ -11,6 +11,7 @@ on:
       - '.diagrams/**'
       - '.graphics/**'
       - 'sysdig/**'
+      - '.github/workflows/sysdig.yml'
     branches:
       - main
 
@@ -119,12 +120,16 @@ jobs:
                   QUOTA=${QUOTA::-1}
               fi
               echo "USED QUOTA: $QUOTA"
+              TOTAL_QUOTA=$(oc get quota compute-long-running-quota -o json | jq -r '.status.hard."limits.cpu"')
+              if [[ $TOTAL_QUOTA != *"m" ]]; then
+                TOTAL_QUOTA=$((TOTAL_QUOTA * 1000))
+              fi
               
               # find available quota by subtracting from the total quota
-              AVL_QUOTA=$((4000-$QUOTA))
+              AVL_QUOTA=$(($TOTAL_QUOTA-$QUOTA))
               echo "AVL_QUOTA: $AVL_QUOTA"
-              #Total quota required for PR to deploy is backend + database + frontend = 480 milli cores.
-              if [[ $AVL_QUOTA -lt 500 ]]; then
+              #Total quota(CPU LIMIT) required for PR to deploy is backend + doc-gen + database + frontend = 580 milli cores.
+              if [[ $AVL_QUOTA -lt 600 ]]; then
                 echo "Not Enough Resource(CPU Limits) Quota not available to deploy PR"
                 exit 1
               else 
@@ -146,6 +151,5 @@ jobs:
       penetration-test: false
       target: pr-${{ github.event.number }}
       tag: ${{ github.sha }}
-      values: 'values-pr.yaml'
+      values: "values-pr.yaml"
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
-

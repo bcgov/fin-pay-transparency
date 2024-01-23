@@ -28,7 +28,7 @@ const NUMERIC_COLUMNS = [...HOURS_COLUMNS, ...DOLLARS_COLUMNS];
 const INVALID_COLUMN_ERROR = `Invalid CSV format. Please ensure the uploaded file contains the following columns: ${EXPECTED_COLUMNS.join(", ")}`
 const GENDER_CODES = {
   MALE: ["M"],
-  FEMALE: ["F", "W"],
+  FEMALE: ["W", "F"],
   NON_BINARY: ["X"],
   UNKNOWN: ["U"]
 }

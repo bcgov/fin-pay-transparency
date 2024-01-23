@@ -15,6 +15,11 @@ type ReportData = {
     medianOvertimePayGap: unknown[];
     meanBonusPayGap: unknown[];
     medianBonusPayGap: unknown[];
+    hourlyPayQuartile1: unknown[]
+    hourlyPayQuartile2: unknown[]
+    hourlyPayQuartile3: unknown[]
+    hourlyPayQuartile4: unknown[]
+    hourlyPayQuartilesLegend: unknown[]
   };
   chartSuppressedError: string;
   reportType: string;
@@ -86,6 +91,26 @@ async function generateReport(reportType: string, reportData: ReportData) {
     document.getElementById('median-bonus-pay-gap-chart')?.appendChild(
       // @ts-ignore
       horizontalBarChart(chartData.medianBonusPayGap)
+    );
+    document.getElementById('hourly-pay-quartile-4-chart')?.appendChild(
+      // @ts-ignore
+      horizontalStackedBarChart(chartData.hourlyPayQuartile4)
+    );
+    document.getElementById('hourly-pay-quartile-3-chart')?.appendChild(
+      // @ts-ignore
+      horizontalStackedBarChart(chartData.hourlyPayQuartile3)
+    );
+    document.getElementById('hourly-pay-quartile-2-chart')?.appendChild(
+      // @ts-ignore
+      horizontalStackedBarChart(chartData.hourlyPayQuartile2)
+    );
+    document.getElementById('hourly-pay-quartile-1-chart')?.appendChild(
+      // @ts-ignore
+      horizontalStackedBarChart(chartData.hourlyPayQuartile1)
+    );
+    document.getElementById('hourly-pay-quartiles-legend')?.appendChild(
+      // @ts-ignore
+      createLegend(chartData.hourlyPayQuartilesLegend)
     );
 
   }, reportData);
