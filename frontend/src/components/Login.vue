@@ -132,6 +132,10 @@ import { mapState } from 'pinia';
 import { AuthRoutes } from '../utils/constant';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
+import uploadpng from "../assets/images/upload_screen.png"
+import generatepng from "../assets/images/generate_screen.png"
+import reviewpng from "../assets/images/review_screen.png"
+
 export default {
   name: 'Login',
   components: {
@@ -142,7 +146,7 @@ export default {
       appTitle: 'Pay Transparency Reporting',
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
       stage: "UPLOAD",
-      imageSource: "/assets/upload_screen.png"
+      imageSource: uploadpng
     };
   },
   computed: {
@@ -157,15 +161,15 @@ export default {
       switch(newstage) {
         case 'GENERATE':
           this.stage = 'GENERATE';
-          this.imageSource = "/assets/generate_screen.png";
+          this.imageSource = generatepng;
           break;
         case 'REVIEW':
           this.stage = 'REVIEW';
-          this.imageSource = "/assets/review_screen.png";
+          this.imageSource = reviewpng;
           break;
         case 'UPLOAD':
           this.stage = 'UPLOAD';
-          this.imageSource = "/assets/upload_screen.png";
+          this.imageSource = uploadpng;
           break;
       }
     }
