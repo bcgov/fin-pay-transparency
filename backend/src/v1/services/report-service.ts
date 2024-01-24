@@ -260,7 +260,7 @@ const reportServicePrivate = {
     }
     amountDollars = Math.round(amountDollars * 100) / 100;
     if (amountDollars < 1) {
-      return `${amountDollars * 100} cents`;
+      return `${Math.round(amountDollars * 100)} cents`;
     }
     return `$${amountDollars.toFixed(2)}`;
   },
@@ -740,21 +740,21 @@ const reportService = {
       ),
       medianOvertimePayGap: reportServicePrivate.getWageGapTextSummary(
         referenceGenderCode,
-        chartData.meanOvertimePayGap,
+        chartData.medianOvertimePayGap,
         'median',
         'overtime pay',
         false,
       ),
       meanBonusPayGap: reportServicePrivate.getWageGapTextSummary(
         referenceGenderCode,
-        chartData.meanOvertimePayGap,
+        chartData.meanBonusPayGap,
         'average',
         'bonus pay',
         false,
       ),
       medianBonusPayGap: reportServicePrivate.getWageGapTextSummary(
         referenceGenderCode,
-        chartData.meanOvertimePayGap,
+        chartData.medianBonusPayGap,
         'median',
         'bonus pay',
         false,

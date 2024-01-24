@@ -253,7 +253,7 @@ describe('getWageGapTextSummary', () => {
         isSuppressed: false,
       };
       mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W] = {
-        value: 10,
+        value: 10.2,
         isSuppressed: false,
       };
       mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X] = {
@@ -304,7 +304,7 @@ describe('getWageGapTextSummary', () => {
       expect(text).toContain('median');
       expect(text).toContain('bonus pay');
       expect(text).toContain(
-        mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value + '% less',
+        Math.round(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value) + '% less',
       );
     });
   });
