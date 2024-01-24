@@ -111,7 +111,7 @@
                       class="image-monitor"
                       width="600px"
                       tabindex="-1"
-                      v-bind:src="imageSource"
+                      :src="imageSource"
                       alt="Monitor"
                   >  
                 </v-col>
@@ -142,7 +142,7 @@ export default {
       appTitle: 'Pay Transparency Reporting',
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
       stage: "UPLOAD",
-      imageSource: "./src/assets/images/upload_screen.png"
+      imageSource: "/assets/upload_screen.png"
     };
   },
   computed: {
@@ -157,15 +157,15 @@ export default {
       switch(newstage) {
         case 'GENERATE':
           this.stage = 'GENERATE';
-          this.imageSource = "./src/assets/images/generate_screen.png";
+          this.imageSource = "/assets/generate_screen.png";
           break;
         case 'REVIEW':
           this.stage = 'REVIEW';
-          this.imageSource = "./src/assets/images/review_screen.png";
+          this.imageSource = "/assets/review_screen.png";
           break;
         case 'UPLOAD':
           this.stage = 'UPLOAD';
-          this.imageSource = "./src/assets/images/upload_screen.png";
+          this.imageSource = "/assets/upload_screen.png";
           break;
       }
     }
