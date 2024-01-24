@@ -142,7 +142,7 @@ export default {
       appTitle: 'Pay Transparency Reporting',
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
       stage: "UPLOAD",
-      imageSource: "../assets/images/upload_screen.png"
+      imageSource: "./src/assets/images/upload_screen.png"
     };
   },
   computed: {
@@ -157,15 +157,15 @@ export default {
       switch(newstage) {
         case 'GENERATE':
           this.stage = 'GENERATE';
-          this.imageSource = "../assets/images/generate_screen.png";
+          this.imageSource = "./src/assets/images/generate_screen.png";
           break;
         case 'REVIEW':
           this.stage = 'REVIEW';
-          this.imageSource = "../assets/images/review_screen.png";
+          this.imageSource = "./src/assets/images/review_screen.png";
           break;
         case 'UPLOAD':
           this.stage = 'UPLOAD';
-          this.imageSource = "../assets/images/upload_screen.png";
+          this.imageSource = "./src/assets/images/upload_screen.png";
           break;
       }
     }
