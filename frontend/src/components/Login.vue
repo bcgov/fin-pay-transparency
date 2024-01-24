@@ -111,7 +111,7 @@
                       class="image-monitor"
                       width="600px"
                       tabindex="-1"
-                      :src="imageSource"
+                      v-bind:src="imageSource"
                       alt="Monitor"
                   >  
                 </v-col>
