@@ -11,6 +11,7 @@
               <p class="text-subtitle-2 mb-10">
                 Introducing the Pay Transparency Reporting tool, onsectetur adipiscing elit. Ut fermentum tortor ut ultricies placerat. Nam eu leo lacus. Quisque id tempor arcu. Ut fermentum tortor ut ultricies placer, visit <u>Pay Transparency Laws in B.C.</u>
               </p>
+              <p class="text-caption">This application does not collect, record or publish personal information.</p>
               <v-btn
                 id="login-button"
                 color="primary"
@@ -19,7 +20,7 @@
               >
                 Log In with Business BCeID<v-icon>mdi-login</v-icon>
               </v-btn>  
-              <p class="text-caption">This application does not collect, record or publish personal information.</p>
+              
             </v-col>
           </v-row>
         </v-container>  
