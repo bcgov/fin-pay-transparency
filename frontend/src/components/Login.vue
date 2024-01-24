@@ -1,5 +1,5 @@
 <template>
-  <v-container class="unbastardized">
+  <v-container class="undized">
     <v-row no-gutters>
       <v-col cols="12">
         <v-container class="justify-center">
@@ -19,6 +19,7 @@
               >
                 Log In with Business BCeID<v-icon>mdi-login</v-icon>
               </v-btn>  
+              <p class="text-caption">This application does not collect, record or publish personal information.</p>
             </v-col>
           </v-row>
         </v-container>  
@@ -85,7 +86,7 @@
                 </v-col>
               </v-row>
 
-              <v-row class="mt-8 mb-8">
+              <v-row class="mt-8 mb-2">
                 <v-col class="d-flex justify-center pt-14">
                   
                   <div v-show="stage == 'UPLOAD'">
@@ -237,7 +238,7 @@ export default {
     height: 100%;
   }
 
-  .unbastardized {
+  .undized {
     margin: 0;
     padding: 0;
     min-width: 100%;
