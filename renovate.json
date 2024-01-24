@@ -45,6 +45,8 @@
     }
   ],
   "lockFileMaintenance": { "enabled": true },
+  "autodiscover": true,
+  "autodiscoverFilter": "bcgov/fin-pay-transparency",
   "rebaseWhen": "behind-base-branch",
   "schedule": [
     "after 10pm every weekday",

@@ -155,7 +155,7 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
   const marginBottom = 10;
   const marginLeft = 0;
   const width = 400;
-  const valueFont = '18px	sans-serif';
+  const valueFont = 'bold 18px sans-serif';
   const labelFontSizePx = 14;
   const labelFont = `${labelFontSizePx}px sans-serif`;
   const height =
@@ -185,10 +185,7 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
     .attr('width', width)
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
-    .attr(
-      'style',
-      `max-width: 100%; height: auto; font: ${valueFont}; font-weight: bold;`,
-    );
+    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`);
 
   const color = (i) => colors[i];
 
@@ -219,7 +216,13 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
     .text((d) => format(d.value))
     .call((text) =>
       text
-        .filter((d) => x(d.value) - x(0) < 20) // short bars
+        //if the bar is too small for the label, move the label to the right-hand side of the bar
+        .filter((d) => {
+          return (
+            getTextSize(format(d.value), valueFont).width >
+            (x(d.value) - x(0)) * 0.9
+          );
+        })
         .attr('dx', +4)
         .attr('fill', 'black')
         .attr('text-anchor', 'start'),
