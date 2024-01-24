@@ -5,6 +5,7 @@
         <v-container class="justify-center">
           <v-row no-gutters>
             <v-col>
+
               <p class="text-welcome mt-14 mb-8">
                 Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
               </p>
@@ -20,7 +21,7 @@
               >
                 Log In with Business BCeID<v-icon>mdi-login</v-icon>
               </v-btn>  
-              
+
             </v-col>
           </v-row>
         </v-container>  
@@ -141,7 +142,7 @@ export default {
       appTitle: 'Pay Transparency Reporting',
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
       stage: "UPLOAD",
-      imageSource: "/src/assets/images/upload_screen.png"
+      imageSource: "../src/assets/images/upload_screen.png"
     };
   },
   computed: {
@@ -156,15 +157,15 @@ export default {
       switch(newstage) {
         case 'GENERATE':
           this.stage = 'GENERATE';
-          this.imageSource = "/src/assets/images/generate_screen.png";
+          this.imageSource = "../src/assets/images/generate_screen.png";
           break;
         case 'REVIEW':
           this.stage = 'REVIEW';
-          this.imageSource = "/src/assets/images/review_screen.png";
+          this.imageSource = "../src/assets/images/review_screen.png";
           break;
         case 'UPLOAD':
           this.stage = 'UPLOAD';
-          this.imageSource = "/src/assets/images/upload_screen.png";
+          this.imageSource = "../src/assets/images/upload_screen.png";
           break;
       }
     }
