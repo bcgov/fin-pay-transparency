@@ -2,12 +2,34 @@ name: Unit Tests and Analysis
 
 on:
   pull_request:
+    paths-ignore:
+      - '*.md'
+      - 'docker-compose.yml'
+      - 'renovate.json'
+      - 'COMPLIANCE.yaml'
+      - '.gitignore'
+      - '.vscode/**'
+      - '.diagrams/**'
+      - '.graphics/**'
+      - 'sysdig/**'
+      - '.github/workflows/sysdig.yml'
     types:
       - opened
       - reopened
       - synchronize
       - ready_for_review
   push:
+    paths-ignore:
+      - '*.md'
+      - 'docker-compose.yml'
+      - 'renovate.json'
+      - 'COMPLIANCE.yaml'
+      - '.gitignore'
+      - '.vscode/**'
+      - '.diagrams/**'
+      - '.graphics/**'
+      - 'sysdig/**'
+      - '.github/workflows/sysdig.yml'
     branches:
       - main
   workflow_dispatch:
