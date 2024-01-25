@@ -140,24 +140,113 @@ describe("TaggedColumnStats", () => {
   })
 
   describe("getQuartileBreaks()", () => {
-    it("returns break points that define 4 approximately equal-width quartiles", () => {
-      const breaks = columnStats.getQuartileBreaks();
-      expect(breaks.length == 4);
-      const widths = [];
+    describe("when the number of records is evenly divisible by 4", () => {
+      it("returns break points that define 4 equal-width quartiles", () => {
+        const breaks = columnStats.getQuartileBreaks();
+        expect(breaks.length == 4);
+        const widths = [];
 
-      // Initialize the loop variable 'endIndex'
-      // (the first quartile starts at 0, so if there was hypothetically
-      // a quartile before that it would need to have an endIndex of -1)
-      let endIndex = -1;
+        // Initialize the loop variable 'endIndex'
+        // (the first quartile starts at 0, so if there was hypothetically
+        // a quartile before that it would need to have an endIndex of -1)
+        let endIndex = -1;
 
-      breaks.forEach((b) => {
-        expect(Number.isInteger(b)).toBeTruthy();
-        const startIndex = endIndex + 1;
-        endIndex = b;
-        const width = endIndex - startIndex;
-        widths.push(width);
+        breaks.forEach((b) => {
+          expect(Number.isInteger(b)).toBeTruthy();
+          const startIndex = endIndex + 1;
+          endIndex = b;
+          const width = endIndex - startIndex;
+          widths.push(width);
+        })
+        expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
       })
-      expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+    })
+    describe("when the number of records is evenly divisible by 2, but not by 4", () => {
+      it("returns break points defining Q1 and Q4 each containing one more record than Q2 and Q3", () => {
+
+        // 174 employees in total. This number is not divisible by 4, so not all
+        // quartiles will have the same width.
+        const numMale = 70;
+        const numFemale = 70;
+        const numNonBinary = 4;
+        const numUnknown = 30;
+
+        columnStats = new TaggedColumnStats();
+        for (var i = 0; i < numMale; i++) {
+          columnStats.push(130, GENDER_CODES.MALE[0]);
+        }
+        for (var i = 0; i < numFemale; i++) {
+          columnStats.push(120, GENDER_CODES.FEMALE[0]);
+        }
+        for (var i = 0; i < numNonBinary; i++) {
+          columnStats.push(110, GENDER_CODES.NON_BINARY[0]);
+        }
+        for (var i = 0; i < numUnknown; i++) {
+          columnStats.push(100, GENDER_CODES.UNKNOWN[0]);
+        }
+
+        const breaks = columnStats.getQuartileBreaks();
+        expect(breaks.length == 4);
+
+        const q1Width = breaks[0] + 1;
+        const q2Width = breaks[1] - breaks[0];
+        const q3Width = breaks[2] - breaks[1];
+        const q4Width = breaks[3] - breaks[2];
+        console.log(breaks, [q1Width, q2Width, q3Width, q4Width])
+
+        // Expect Q1 and Q4 to have equal width and to be
+        // exactly one record wider than Q2 and Q3
+        expect(q1Width).toBe(q4Width);
+        expect(q2Width).toBe(q3Width);
+        expect(q2Width).toBe(q1Width - 1);
+      })
+    })
+    describe("when the number of records % 4 == 1", () => {
+      it("returns break points in which Q1 has one more record than each of the other quartiles", () => {
+
+        const numEmployees = 173;
+        columnStats = new TaggedColumnStats();
+        for (var i = 0; i < numEmployees; i++) {
+          columnStats.push(130, GENDER_CODES.MALE[0]);
+        }
+
+        const breaks = columnStats.getQuartileBreaks();
+        expect(breaks.length == 4);
+
+        const q1Width = breaks[0] + 1;
+        const q2Width = breaks[1] - breaks[0];
+        const q3Width = breaks[2] - breaks[1];
+        const q4Width = breaks[3] - breaks[2];
+        console.log(breaks, [q1Width, q2Width, q3Width, q4Width])
+
+        expect(q1Width).toBe(q2Width + 1);
+        expect(q2Width).toBe(q3Width);
+        expect(q2Width).toBe(q4Width);
+      })
+    })
+    describe("when the number of records % 4 == 3", () => {
+      it("returns break points in which Q1 has one more record than each of the other quartiles", () => {
+
+        const numEmployees = 171;
+        columnStats = new TaggedColumnStats();
+        for (var i = 0; i < numEmployees; i++) {
+          columnStats.push(130, GENDER_CODES.MALE[0]);
+        }
+
+        const breaks = columnStats.getQuartileBreaks();
+        expect(breaks.length == 4);
+
+        const q1Width = breaks[0] + 1;
+        const q2Width = breaks[1] - breaks[0];
+        const q3Width = breaks[2] - breaks[1];
+        const q4Width = breaks[3] - breaks[2];
+        console.log(breaks, [q1Width, q2Width, q3Width, q4Width])
+
+        //Expect Q1, Q4 and Q2 are all equal width, and Q3 is one smaller
+        expect(q1Width).toBe(q4Width);
+        expect(q1Width).toBe(q2Width);
+        expect(q3Width).toBe(q4Width - 1);
+      })
     })
   });
 
