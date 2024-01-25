@@ -84,6 +84,10 @@ async function generateReport(reportType: string, reportData: ReportData) {
       // @ts-ignore
       horizontalBarChart(chartData.medianOvertimePayGap)
     );
+    document.getElementById('percent-receiving-overtime-pay-chart')?.appendChild(
+      // @ts-ignore
+      percentFilledHorizBarChart(chartData.percentReceivingOvertimePay)
+    );
     document.getElementById('mean-bonus-pay-gap-chart')?.appendChild(
       // @ts-ignore
       horizontalBarChart(chartData.meanBonusPayGap)
@@ -91,6 +95,10 @@ async function generateReport(reportType: string, reportData: ReportData) {
     document.getElementById('median-bonus-pay-gap-chart')?.appendChild(
       // @ts-ignore
       horizontalBarChart(chartData.medianBonusPayGap)
+    );
+    document.getElementById('percent-receiving-bonus-pay-chart')?.appendChild(
+      // @ts-ignore
+      percentFilledHorizBarChart(chartData.percentReceivingBonusPay)
     );
     document.getElementById('hourly-pay-quartile-4-chart')?.appendChild(
       // @ts-ignore
