@@ -1,4 +1,137 @@
 /*
+Creates a chart of horizontal bars, in which each
+bar is depicted in two parts: a colored portion which shows the 
+"filled" portion, and a grey area which shows the "unfilled"
+portion.  For example, a data value of 10 will show
+as a colored bar covering 10% of the range, and a gray
+bar showing the remaining 90%.
+@param data:  is an array of objects of this form:
+    {
+    genderChartInfo: {
+      label: "MY_LABEL", 
+      color: "HEX_COLOR"
+    },
+    value: NUMERIC_VAL_HERE, //0-1
+*/
+function percentFilledHorizBarChart(data, options = {}) {
+  const defaultOptions = {
+    numberFormat: '1.0f',
+    maxX: 100,
+    unfilledColor: '#eeeeee',
+  };
+  options = { ...defaultOptions, ...options };
+
+  const barHeight = 37;
+  const marginTop = 0;
+  const marginRight = 110;
+  const marginBottom = 10;
+  const marginLeft = 0;
+  const width = 600;
+  const valueFont = 'bold 18px sans-serif';
+  const labelFontSizePx = 14;
+  const labelFont = `${labelFontSizePx}px sans-serif`;
+  const height =
+    Math.ceil((data.length + 0.1) * barHeight) + marginTop + marginBottom;
+
+  // Create the scales.
+  const x = d3
+    .scaleLinear()
+    .domain([0, options.maxX])
+    .range([marginLeft, width - marginRight]);
+
+  const y = d3
+    .scaleBand()
+    //preserve the order of the bars
+    .domain(data.map((d) => d.genderChartInfo.label))
+    //sort the bars from largest to smallest
+    //.domain(d3.sort(data, d => -d.value).map(d => d.genderChartInfo.label))
+    .rangeRound([marginTop, height - marginBottom])
+    .padding(0.1);
+
+  // Create a value format.
+  const format = (d) => `${x.tickFormat(1, options.numberFormat)(d)}%`;
+
+  // Create the SVG container.
+  const svg = d3
+    .create('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('viewBox', [0, 0, width, height])
+    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`);
+
+  const color = (i) => colors[i];
+
+  // Append two bars for each data element:
+  //  one on the left to represent the primary data value
+  // another on the right to represent the difference between the
+  // maxX and the data value (the unfilled portion)
+  const bars = svg.append('g').selectAll().data(data).enter().append('g');
+
+  //a rect representing the "filled" portion
+  bars
+    .append('rect')
+    .attr('fill', (d, i) => d.genderChartInfo.color)
+    .attr('x', x(0))
+    .attr('y', (d) => y(d.genderChartInfo.label))
+    .attr('width', (d) => x(d.value) - x(0))
+    .attr('height', y.bandwidth());
+
+  //a second rect representing the remaining "unfilled" portion
+  bars
+    .append('rect')
+    .attr('fill', options.unfilledColor)
+    .attr('x', (d) => x(d.value))
+    .attr('y', (d) => y(d.genderChartInfo.label))
+    .attr('width', (d) => x(options.maxX) - x(d.value))
+    .attr('height', y.bandwidth());
+
+  // Append a label for each category.
+  svg
+    .append('g')
+    .attr('fill', 'white')
+    .attr('text-anchor', 'end')
+    .selectAll()
+    .data(data)
+    .join('text')
+    .attr('x', (d) => x(d.value))
+    .attr('y', (d) => y(d.genderChartInfo.label) + y.bandwidth() / 2)
+    .attr('dy', '0.35em')
+    .attr('dx', -4)
+    .text((d) => format(d.value))
+    .call((text) =>
+      text
+        //if the bar is too small for the label, move the label to the right-hand side of the bar
+        .filter((d) => {
+          return (
+            getTextSize(format(d.value), valueFont).width >
+            (x(d.value) - x(0)) * 0.9
+          );
+        })
+        .attr('dx', +4)
+        .attr('fill', 'black')
+        .attr('text-anchor', 'start')
+        .attr('style', `font: ${valueFont}`),
+    );
+
+  // Create the vertical axis
+  svg
+    .append('g')
+    .attr('text-anchor', 'center')
+    //right-align
+    .attr('transform', `translate(${width - marginRight},0)`)
+    //remove tick marks
+    .call(d3.axisRight(y).tickSizeOuter(0).tickSize(0))
+    //remove vertical axis line
+    .call((g) => g.select('.domain').remove())
+    //font
+    .attr('style', `font: ${labelFont};`)
+    .selectAll('.tick text');
+  //.call(lineWrap, marginRight, labelFontSizePx);
+
+  return svg.node();
+}
+
+/*
  Creates a horizontal stacked bar chart in the format needed for the 
  Hourly Pay Quartiles section of the Pay Transparency Report. 
  Depends on d3.js (i.e. must run from a page with d3.js included).
