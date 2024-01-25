@@ -52,10 +52,10 @@
               <hr class="mt-4 mb-4">
               <template v-for="report in localreports">
                 <v-row>
-                  <v-col>{{ report.report_start_date }}</v-col>
-                  <v-col>{{ report.report_end_date }}</v-col>
+                  <v-col>{{ formatDate(report.report_start_date) }}</v-col>
+                  <v-col>{{ formatDate(report.report_end_date) }}</v-col>
                   <v-col cols="3">
-                    <a class="pr-4" href="#">
+                    <a class="pr-5" href="#">
                       <v-icon
                         color="#1976d2"
                         icon="mdi-eye-outline"
@@ -122,6 +122,7 @@ import { mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
 import { useCodeStore } from '../store/modules/codeStore';
 import ApiService from '../common/apiService';
+import moment from 'moment';
 
 export default {
   data: () => ({
@@ -130,14 +131,17 @@ export default {
   watch: {
     reports(val) {
       this.localreports = val;
-      //this.localreports.forEach(console.log(report.report_start_date));
-      //this.localreports.report.report_start_date = this.localreports.report.report_start_date.format('dddd MMMM D, YYYY');
     }, 
   },      
   computed: {
     ...mapState(authStore, ['userInfo']),
     ...mapState(useCodeStore, ['naicsCodes', 'reports']),
   },
+  methods: {
+    formatDate(value) {
+      return moment(value).format('MMMM D, YYYY');
+    }
+  }
 };
 </script>
 
