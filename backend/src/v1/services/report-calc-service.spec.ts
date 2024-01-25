@@ -49,7 +49,7 @@ describe("GroupedColumnStats", () => {
 
       // Confirm that the values are now sorted.  
       // Iterate over the values, and check that each is larger than the previous
-      const valuesM = columnStats.getValues(GENDER_CODES.MALE[0]);
+      const valuesM = columnStats.getNonZeroValues(GENDER_CODES.MALE[0]);
       let prev = null;
       valuesM.forEach(v => {
         if (prev != null) {
@@ -61,39 +61,39 @@ describe("GroupedColumnStats", () => {
     })
   })
 
-  describe("getValues", () => {
+  describe("getNonZeroValues", () => {
     it("returns a array of all values in the given gender category in the same order as input", () => {
       //Just check the lowest value in each gender category
-      expect(columnStats.getValues(GENDER_CODES.FEMALE[0])[0]).toBe(10);
-      expect(columnStats.getValues(GENDER_CODES.MALE[0])[0]).toBe(40);
-      expect(columnStats.getValues(GENDER_CODES.NON_BINARY[0])[0]).toBe(50);
+      expect(columnStats.getNonZeroValues(GENDER_CODES.FEMALE[0])[0]).toBe(10);
+      expect(columnStats.getNonZeroValues(GENDER_CODES.MALE[0])[0]).toBe(40);
+      expect(columnStats.getNonZeroValues(GENDER_CODES.NON_BINARY[0])[0]).toBe(50);
     })
   })
 
-  describe("getCount", () => {
+  describe("getCountAll", () => {
     it("returns the number of values in the given gender category", () => {
-      expect(columnStats.getCount(GENDER_CODES.FEMALE[0])).toBe(3);
-      expect(columnStats.getCount(GENDER_CODES.MALE[0])).toBe(2);
-      expect(columnStats.getCount(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
-      expect(columnStats.getCount(GENDER_CODES.UNKNOWN[0])).toBe(numUnknownWithData + numUnknownWithoutData);
+      expect(columnStats.getCountAll(GENDER_CODES.FEMALE[0])).toBe(3);
+      expect(columnStats.getCountAll(GENDER_CODES.MALE[0])).toBe(2);
+      expect(columnStats.getCountAll(GENDER_CODES.NON_BINARY[0])).toBe(numNonBinary);
+      expect(columnStats.getCountAll(GENDER_CODES.UNKNOWN[0])).toBe(numUnknownWithData + numUnknownWithoutData);
     })
   })
 
-  describe("getMean", () => {
+  describe("getMeanOfNonZeros", () => {
     it("returns the mean (average) of all values in the given gender catetory", () => {
-      expect(columnStats.getMean(GENDER_CODES.FEMALE[0])).toBe(18);
-      expect(columnStats.getMean(GENDER_CODES.MALE[0])).toBe(35);
-      expect(columnStats.getMean(GENDER_CODES.NON_BINARY[0])).toBe(50);
-      expect(columnStats.getMean(GENDER_CODES.UNKNOWN[0])).toBe(60 * numUnknownWithData / (numUnknownWithData + numUnknownWithoutData));
+      expect(columnStats.getMeanOfNonZeros(GENDER_CODES.FEMALE[0])).toBe(18);
+      expect(columnStats.getMeanOfNonZeros(GENDER_CODES.MALE[0])).toBe(35);
+      expect(columnStats.getMeanOfNonZeros(GENDER_CODES.NON_BINARY[0])).toBe(50);
+      expect(columnStats.getMeanOfNonZeros(GENDER_CODES.UNKNOWN[0])).toBe(60);
     })
   })
 
-  describe("getMedian", () => {
-    it("returns the median of all values in the given gender catetory", () => {
-      expect(columnStats.getMedian(GENDER_CODES.FEMALE[0])).toBe(20);
-      expect(columnStats.getMedian(GENDER_CODES.MALE[0])).toBe(35);
-      expect(columnStats.getMedian(GENDER_CODES.NON_BINARY[0])).toBe(50);
-      expect(columnStats.getMedian(GENDER_CODES.UNKNOWN[0])).toBe(0);
+  describe("getMedianOfNonZeros", () => {
+    it("returns the median of non-zero values in the given gender catetory", () => {
+      expect(columnStats.getMedianOfNonZeros(GENDER_CODES.FEMALE[0])).toBe(20);
+      expect(columnStats.getMedianOfNonZeros(GENDER_CODES.MALE[0])).toBe(35);
+      expect(columnStats.getMedianOfNonZeros(GENDER_CODES.NON_BINARY[0])).toBe(50);
+      expect(columnStats.getMedianOfNonZeros(GENDER_CODES.UNKNOWN[0])).toBe(60);
     })
   })
 
@@ -214,7 +214,7 @@ describe("meetsPeopleCountThreshold", () => {
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.FEMALE[0]);
       })
-      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCount(GENDER_CODES.FEMALE[0]));
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCountNonZeros(GENDER_CODES.FEMALE[0]));
       expect(meetsThreshold).toBeTruthy();
     })
   })
@@ -224,7 +224,7 @@ describe("meetsPeopleCountThreshold", () => {
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT - 1).fill(100).forEach(v => {
         columnStats.push(v, GENDER_CODES.FEMALE[0]);
       })
-      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCount(GENDER_CODES.FEMALE[0]));
+      const meetsThreshold = reportCalcServicePrivate.meetsPeopleCountThreshold(columnStats.getCountNonZeros(GENDER_CODES.FEMALE[0]));
       expect(meetsThreshold).toBeFalsy();
     })
   })
@@ -460,15 +460,15 @@ describe("calculateMeanBonusPayGaps", () => {
       // - All non-binary people earn $980 in annual bonus pay
       // - All people whose gender is unknown earn $970 in annual bonus pay
       // Add 10 fake people in each gender category
-      const hourlyPayStats = new GroupedColumnStats();
+      const bonusPayStats = new GroupedColumnStats();
       Array(10).fill(1000).forEach(v => {
-        hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
-        hourlyPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);
-        hourlyPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
-        hourlyPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
+        bonusPayStats.push(v, GENDER_CODES.MALE[0]);
+        bonusPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);
+        bonusPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
+        bonusPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
       });
       const refGenderCode = GENDER_CODES.MALE[0];
-      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanBonusPayGaps(hourlyPayStats, refGenderCode);
+      const means: CalculatedAmount[] = reportCalcServicePrivate.calculateMeanBonusPayGaps(bonusPayStats, refGenderCode);
 
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
       expect(means.filter(d => d.calculationCode == CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W)[0].value).toBe(1);
@@ -488,15 +488,15 @@ describe("calculateMedianBonusPayGaps", () => {
       // - All non-binary people earn $980 in annual bonus pay
       // - All people whose gender is unknown earn $970 in annual bonus pay
       // Add 10 fake people in each gender category
-      const hourlyPayStats = new GroupedColumnStats();
+      const bonusPayStats = new GroupedColumnStats();
       Array(10).fill(1000).forEach(v => {
-        hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
-        hourlyPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);
-        hourlyPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
-        hourlyPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
+        bonusPayStats.push(v, GENDER_CODES.MALE[0]);
+        bonusPayStats.push(v - 10, GENDER_CODES.FEMALE[0]);
+        bonusPayStats.push(v - 20, GENDER_CODES.NON_BINARY[0]);
+        bonusPayStats.push(v - 30, GENDER_CODES.UNKNOWN[0]);
       });
       const refGenderCode = GENDER_CODES.MALE[0];
-      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianBonusPayGaps(hourlyPayStats, refGenderCode);
+      const medians: CalculatedAmount[] = reportCalcServicePrivate.calculateMedianBonusPayGaps(bonusPayStats, refGenderCode);
 
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M)[0].value).toBe(0);
       expect(medians.filter(d => d.calculationCode == CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W)[0].value).toBe(1);
@@ -591,6 +591,82 @@ describe("calculateHourlyPayQuartiles", () => {
       expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_X)[0].value).toBe(25);
       expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_U)[0].value).toBe(25);
 
+    })
+  })
+})
+
+describe("calculatePercentReceivingOvertimePay", () => {
+  describe(`given a simulated list of people with gender codes and overtime pay data`, () => {
+    it(`calculates the % of people in each gender category who received overtime pay`, () => {
+
+      // For these mock overtime pay data, assume:
+      // - there are 100 males.  50 of them earned 1000 (each) in OT pay, and the other 50 earned no OT pay
+      // - there are 40 females.  10 of them earned 1500 (each) in OT pay, and the other 30 earned no OT pay
+      // - there are zero non-binary people.
+      // - there are 10 people of unknown gender.  9 of them earned 1200 (each) in OT pay, and the other 1 earned no OT pay
+      const overtimePayStats = new GroupedColumnStats();
+      //Male
+      for (let i = 0; i < 50; i++) {
+        overtimePayStats.push(1000, GENDER_CODES.MALE[0]);
+        overtimePayStats.push(0, GENDER_CODES.MALE[0]);
+      };
+      //Female
+      for (let i = 0; i < 10; i++) {
+        overtimePayStats.push(1500, GENDER_CODES.FEMALE[0]);
+      };
+      for (let i = 0; i < 30; i++) {
+        overtimePayStats.push(0, GENDER_CODES.FEMALE[0]);
+      };
+      //Unknown
+      for (let i = 0; i < 9; i++) {
+        overtimePayStats.push(1200, GENDER_CODES.UNKNOWN[0]);
+      };
+      overtimePayStats.push(0, GENDER_CODES.UNKNOWN[0]);
+
+      const calcs: CalculatedAmount[] = reportCalcServicePrivate.calculatePercentReceivingOvertimePay(overtimePayStats);
+
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_M)[0].value).toBe(50);
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_W)[0].value).toBe(25);
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_X)[0].value).toBeNull();
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_U)[0].value).toBeNull();
+    })
+  })
+})
+
+describe("calculatePercentReceivingBonusPay", () => {
+  describe(`given a simulated list of people with gender codes and bonus pay data`, () => {
+    it(`calculates the % of people in each gender category who received bonus pay`, () => {
+
+      // For these mock bonus pay data, assume:
+      // - there are 100 males.  50 of them earned 1000 (each) in bonus pay, and the other 50 earned no bonus pay
+      // - there are 40 females.  10 of them earned 1500 (each) in bonus pay, and the other 30 earned no bonus pay
+      // - there are zero non-binary people.
+      // - there are 10 people of unknown gender.  9 of them earned 1200 (each) in bonus pay, and the other 1 earned no bonus pay
+      const bonusPayStats = new GroupedColumnStats();
+      //Male
+      for (let i = 0; i < 50; i++) {
+        bonusPayStats.push(1000, GENDER_CODES.MALE[0]);
+        bonusPayStats.push(0, GENDER_CODES.MALE[0]);
+      };
+      //Female
+      for (let i = 0; i < 10; i++) {
+        bonusPayStats.push(1500, GENDER_CODES.FEMALE[0]);
+      };
+      for (let i = 0; i < 30; i++) {
+        bonusPayStats.push(0, GENDER_CODES.FEMALE[0]);
+      };
+      //Unknown
+      for (let i = 0; i < 9; i++) {
+        bonusPayStats.push(1200, GENDER_CODES.UNKNOWN[0]);
+      };
+      bonusPayStats.push(0, GENDER_CODES.UNKNOWN[0]);
+
+      const calcs: CalculatedAmount[] = reportCalcServicePrivate.calculatePercentReceivingBonusPay(bonusPayStats);
+
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_M)[0].value).toBe(50);
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_W)[0].value).toBe(25);
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_X)[0].value).toBeNull();
+      expect(calcs.filter(d => d.calculationCode == CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_U)[0].value).toBeNull();
     })
   })
 })
