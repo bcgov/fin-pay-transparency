@@ -544,6 +544,31 @@ const reportService = {
           ),
         )
         .filter((d) => d),
+      percentReceivingOvertimePay: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d,
+          ),
+        )
+        .filter((d) => d),
       meanBonusPayGap: [
         {
           genderCode: GENDERS.MALE.code,
@@ -593,6 +618,31 @@ const reportService = {
             calcs,
             d,
             reportServicePrivate.payGapPercentToDollar,
+          ),
+        )
+        .filter((d) => d),
+      percentReceivingBonusPay: [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            calcs,
+            d,
           ),
         )
         .filter((d) => d),
