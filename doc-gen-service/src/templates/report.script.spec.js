@@ -29,6 +29,75 @@ const setupPage = async () => {
   return page;
 };
 
+describe('percentFilledHorizBarChart', () => {
+  it('generates a horizontal bar chart with the expected visual elements.', async () => {
+    const page = await setupPage();
+    // Set the page content to be a very simple HTML document with one
+    // <div></div> tag.  (In one of the steps below we inject a chart into
+    // this tag.)
+    await page.setContent(
+      `<!doctype html>
+      <html>    
+      <body><div id="chart"></div></body >
+      </html>`,
+      { waitUntil: 'networkidle0' },
+    );
+
+    //Define the data and colors that we'll show in the bar chart
+    const params = {
+      chartData: [
+        { value: 50, genderChartInfo: { label: 'Male', color: '#1c3664' } },
+        { value: 40, genderChartInfo: { label: 'Female', color: '#1b75bb' } },
+        {
+          value: 5,
+          genderChartInfo: { label: 'Non-binary', color: '#00a54f' },
+        },
+        {
+          value: 20,
+          genderChartInfo: { label: 'Unknown', color: '#444444' },
+        },
+      ],
+    };
+
+    // Draw a bar chart in the page.
+    await page.evaluate((params) => {
+      document.getElementById('chart').appendChild(
+        // @ts-ignore
+        percentFilledHorizBarChart(params.chartData),
+      );
+    }, params);
+
+    // Inspect the DOM of the page, and fetch some elements
+    // of the SVG chart so we can verify they are as expected.
+
+    // Fetch the color of each 'rect' element (the rect elements
+    // represent the horizontal bars in the bar chart)
+    const barColors = await page.$$eval(
+      '#chart svg > g > g > rect:first-child',
+      (el) => el.map((x) => x.getAttribute('fill')),
+    );
+    // Fetch the text labels for the gender categetories
+    const genderCategoryLabels = await page.$$eval(
+      '#chart svg > g > g text',
+      (el) => el.map((x) => x.textContent),
+    );
+    // Fetch the text labels showing the percentages
+    const percentLabels = await page.$$eval('#chart svg > g > text', (el) =>
+      el.map((x) => x.textContent),
+    );
+
+    expect(barColors).toEqual(
+      params.chartData.map((d) => d.genderChartInfo.color),
+    );
+    expect(genderCategoryLabels).toEqual(
+      params.chartData.map((d) => d.genderChartInfo.label),
+    );
+    expect(percentLabels).toEqual(
+      params.chartData.map((d) => `${Math.round(d.value)}%`),
+    );
+  });
+});
+
 describe('horizontalBarChart', () => {
   it('generates a horizontal bar chart with the expected visual elements.', async () => {
     const page = await setupPage();
