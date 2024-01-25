@@ -6,11 +6,17 @@
           <v-row no-gutters>
             <v-col>
 
-              <p class="text-welcome mt-14 mb-8">
-                Pay Transparency Reporting tool consectetur adipiscing elit. Etiam dictum ultrices purus, ac malesuada leo congue vel.
+              <p class="text-welcome mt-14 mb-8 centered-text">
+                Welcome to the Pay Transparency Reporting Tool
               </p>
               <p class="text-subtitle-2 mb-10">
-                Introducing the Pay Transparency Reporting tool, onsectetur adipiscing elit. Ut fermentum tortor ut ultricies placerat. Nam eu leo lacus. Quisque id tempor arcu. Ut fermentum tortor ut ultricies placer, visit <u>Pay Transparency Laws in B.C.</u>
+                In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report on all your B.C. employees by November 1st of each year.  This portal enables you to easily create a pay transparency report as required under the Pay Transparency Act and Regulation. 
+                <ul>
+                  <li>2024: all employers with 1,000 employees or more will be required to begin posting annual pay transparency reports</li>
+                  <li>2025: all employers with 300 employees or more will be required to begin posting annual pay transparency reports</li>
+                  <li>2026: all employers with 50 employees or more will be required to begin posting annual pay transparency reports</li>
+                </ul>
+                Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit Pay Transparency Laws in B.C.
               </p>
               <p class="text-caption">This application does not collect, record or publish personal information.</p>
               <v-btn
