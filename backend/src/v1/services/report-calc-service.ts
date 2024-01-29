@@ -350,15 +350,44 @@ class TaggedColumnStats {
     if (numRecords == 0) {
       throw new Error("Cannot get quartile breaks on an empty dataset");
     }
-    const quartile1EndIndex = Math.floor(1 / 4 * numRecords - 1);
-    const quartile2EndIndex = Math.floor(1 / 2 * numRecords - 1);
-    const quartile3EndIndex = Math.floor(3 / 4 * numRecords - 1);
-    const quartile4EndIndex = numRecords - 1;
+
+    let quartile1EndIndex = 0;
+    let quartile2EndIndex = 0;
+    let quartile3EndIndex = 0;
+    let quartile4EndIndex = 0;
+
+    //Compute the breaks differently depending on how many records there are.
+    //If the number of records is not evenly divisible by 4, then some quartiles
+    //will need to be one larger than others.  If any quartiles need to be larger, 
+    //make larger according to the following priority: [Q1, Q4, Q2, Q3]
+    if (numRecords % 2 == 0) {
+      //either all quartiles are equal size, or
+      //Q1 and Q4 are one larger than each of Q2 and Q3
+      quartile1EndIndex = Math.ceil(1 / 4 * numRecords - 1);
+      quartile2EndIndex = Math.round(1 / 2 * numRecords - 1);
+      quartile3EndIndex = Math.floor(3 / 4 * numRecords - 1);
+      quartile4EndIndex = numRecords - 1;
+    }
+    else if (numRecords % 4 == 1) {
+      //ensure Q1 is one larger than all the others
+      quartile1EndIndex = Math.ceil(1 / 4 * numRecords - 1);
+      quartile2EndIndex = Math.round(1 / 2 * numRecords - 1);
+      quartile3EndIndex = Math.round(3 / 4 * numRecords - 1);
+      quartile4EndIndex = numRecords - 1;
+    }
+    else {
+      //ensure Q1, Q4 and Q2 are all equal width, and Q3 is one smaller
+      quartile1EndIndex = Math.ceil(1 / 4 * numRecords - 1);
+      quartile2EndIndex = Math.ceil(1 / 2 * numRecords - 1);
+      quartile3EndIndex = Math.floor(3 / 4 * numRecords - 1);
+      quartile4EndIndex = numRecords - 1;
+    }
     const breaks = [
       quartile1EndIndex,
       quartile2EndIndex,
       quartile3EndIndex,
       quartile4EndIndex];
+
     return breaks;
   }
 
@@ -991,6 +1020,7 @@ const reportCalcServicePrivate = {
     const calculatedAmounts = [];
 
     const genderCountsPerQuartile = hourlyPayQuartileStats.getGenderCountsPerQuartile();
+    console.log(genderCountsPerQuartile)
     const allGenderCodes = Object.keys(GENDER_CODES).map(g => GENDER_CODES[g][0]);
     Object.keys(QUARTILES).forEach(quartile => {
       const genderCounts = genderCountsPerQuartile[quartile];
