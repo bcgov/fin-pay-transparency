@@ -288,8 +288,12 @@
                         <v-table density="compact">
                           <thead>
                             <tr>
-                              <th class="text-left">Line</th>
-                              <th class="text-left">Problem(s)</th>
+                              <th id="line-num-header" class="text-left">
+                                Line
+                              </th>
+                              <th id="problem-desc-header" class="text-left">
+                                Problem(s)
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
