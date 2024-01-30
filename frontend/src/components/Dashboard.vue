@@ -121,6 +121,7 @@
 import { mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
 import { useCodeStore } from '../store/modules/codeStore';
+import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
 import moment from 'moment';
 
@@ -129,19 +130,22 @@ export default {
     localreports: []
   }),  
   watch: {
-    reports(val) {
-      this.localreports = val;
-    }, 
   },      
   computed: {
     ...mapState(authStore, ['userInfo']),
-    ...mapState(useCodeStore, ['naicsCodes', 'reports']),
+    ...mapState(useCodeStore, ['naicsCodes']),
   },
   methods: {
     formatDate(value) {
       return moment(value).format('MMMM D, YYYY');
-    }
-  }
+    },
+    async getReports() {
+      this.localreports = await ApiService.getReportsByStatus(REPORT_STATUS.PUBLISHED);
+    },
+  },
+  beforeMount() {
+    this.localreports = this.getReports();
+  },
 };
 </script>
 
