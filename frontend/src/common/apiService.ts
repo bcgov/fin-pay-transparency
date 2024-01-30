@@ -6,7 +6,7 @@ import AuthService from './authService';
 let failedQueue = [];
 
 function processQueue(error, token = null) {
-  failedQueue.forEach((prom) => {
+  failedQueue.forEach((prom: any) => {
     if (error) {
       prom.reject(error);
     } else {
@@ -51,7 +51,7 @@ const intercept = apiAxios.interceptors.response.use(
         .catch((e) => {
           processQueue(e, null);
           localStorage.removeItem('jwtToken');
-          window.location = '/token-expired';
+          window.location.href = '/token-expired';
           reject(e);
         });
     });
@@ -133,13 +133,18 @@ export default {
   },
   /**
    * Returns all published or draft reports for the current employer.
-   * @param {string} status - 'Published' or 'Draft'
+   * @param {object} filters an object of this form:
+   * { 
+   *   report_status?: string, //Optional.  If specified must be one of: 'Published' or 'Draft'
+   *   report_start_date?: string, //Optional.  If specified must be YYYY-MM format
+   *   report_end_date?: string //Optional.  If specified must be YYYY-MM format
+   * }
    * @returns {Array.<{report_id: String, report_start_date: Date, report_end_date: Date, revision: Number}>}
    */
-  async getReportsByStatus(status) {
+  async getReports(filters?: { report_status?: string, report_start_date?: string, report_end_date?: string }) {
     try {
       const resp = await apiAxios.get(ApiRoutes.REPORTS, {
-        params: { status: status },
+        params: filters,
       });
       if (resp?.data) {
         return resp.data;

@@ -125,7 +125,7 @@
                     id="startDate"
                     ref="startDate"
                     v-model="startDate"
-                    model-type="yyyy-MM"
+                    model-type="yyyy-MM-dd"
                     month-picker
                     auto-apply
                     format="MMMM yyyy"
@@ -154,7 +154,7 @@
                     id="endDate"
                     ref="endDate"
                     v-model="endDate"
-                    model-type="yyyy-MM"
+                    model-type="yyyy-MM-dd"
                     month-picker
                     auto-apply
                     format="MMMM yyyy"
@@ -399,11 +399,20 @@ interface SubmissionErrors {
   generalErrors: string[];
 }
 
+const REPORT_DATE_FORMAT = "yyyy-MM-DD";
+
 export default {
   components: {
     PrimaryButton,
     VueDatePicker,
     Spinner,
+  },
+  async mounted() {
+    const reports = await ApiService.getReports();
+    if (reports?.length) {
+      const r = reports[0];
+      await ApiService.getReports({ report_status: 'Draft', report_start_date: r.report_start_date, report_end_date: r.report_end_date})
+    }
   },
   data: () => ({
     validForm: null,
@@ -423,8 +432,8 @@ export default {
       .startOf('month')
       .toDate(),
     maxEndDate: moment().subtract(1, 'month').endOf('month').toDate(),
-    startDate: moment().subtract(1, 'years').format('yyyy-MM'),
-    endDate: moment().subtract(1, 'month').format('yyyy-MM'),
+    startDate: moment().subtract(1, 'years').endOf('month').format(REPORT_DATE_FORMAT),
+    endDate: moment().subtract(1, 'month').endOf('month').format(REPORT_DATE_FORMAT),
     dataConstraints: null,
     comments: null,
     fileAccept: '.csv',
@@ -517,7 +526,7 @@ export default {
       if (newVal) {
         const startDate = moment(newVal);
         const endDate = moment(newVal).add(1, 'years').subtract(1, 'months');
-        this.endDate = endDate.format('yyyy-MM');
+        this.endDate = endDate.format(REPORT_DATE_FORMAT);
       }
     },
     endDate(newVal) {
@@ -526,7 +535,7 @@ export default {
       if (newVal) {
         const endDate = moment(newVal);
         const startDate = moment(newVal).subtract(1, 'years').add(1, 'months');
-        this.startDate = startDate.format('yyyy-MM');
+        this.startDate = startDate.format(REPORT_DATE_FORMAT);
       }
     },
     userInfo: {

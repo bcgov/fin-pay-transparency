@@ -1,13 +1,15 @@
+import moment from 'moment';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
   GENDERS,
   GenderChartInfo,
+  REPORT_DATE_FORMAT,
   ReportAndCalculations,
   enumReportStatus,
   reportService,
-  reportServicePrivate,
+  reportServicePrivate
 } from './report-service';
 import { utils } from './utils-service';
 
@@ -422,22 +424,22 @@ describe('dollarsToText', () => {
   });
 });
 
-describe('getReportsByStatus', () => {
+describe('getReports', () => {
   it('returns an array of Report data', async () => {
     const mockReportResults = {
       pay_transparency_report: [
         {
           report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-          report_start_date: new Date(),
-          report_end_date: new Date(),
+          report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
+          report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
           create_date: new Date(),
           update_date: new Date(),
           revision: 1,
         },
         {
           report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
-          report_start_date: new Date(),
-          report_end_date: new Date(),
+          report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
+          report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
           create_date: new Date(),
           update_date: new Date(),
           revision: 4,
@@ -447,9 +449,9 @@ describe('getReportsByStatus', () => {
     (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
       mockReportResults,
     );
-    const ret = await reportService.getReportsByStatus(
+    const ret = await reportService.getReports(
       mockCompanyInDB.company_id,
-      enumReportStatus.Draft,
+      { report_status: enumReportStatus.Draft },
     );
     expect(ret).toEqual(mockReportResults.pay_transparency_report);
   });

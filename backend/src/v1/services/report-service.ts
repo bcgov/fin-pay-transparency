@@ -64,6 +64,8 @@ const GENDERS = {
   } as GenderChartInfo,
 };
 
+const REPORT_DATE_FORMAT = "YYYY-MM-DD";
+
 const reportServicePrivate = {
   /*
   Converts a gender code (such as "M" or "U") into a GenderChartInfo
@@ -921,11 +923,28 @@ const reportService = {
     return responseHtml;
   },
 
-  /**  Return all published reports created by a company */
-  async getReportsByStatus(
+  /**  
+   * Return a list of reports associated with the current user's
+   * business BCeID.  Allow filtering by report status and start/end date.
+   * If the filter object is provided, the report_start_date and 
+   * report_end_date params must be given as "YYYY-MM-DD" strings.
+  */
+  async getReports(
     bceidBusinessGuid: string,
-    status: enumReportStatus,
+    filters?: { report_status?: enumReportStatus, report_start_date?: string, report_end_date?: string },
   ) {
+
+    // Prisma queries require dates used in the 'where' clause to be specified
+    // in ISO-8601 format (i.e. date + time + timezone).  If datestrings
+    // were included in the filters parameter, convert those into the
+    // required format.
+    if (filters?.report_start_date) {
+      filters.report_start_date = moment.utc(filters.report_start_date, REPORT_DATE_FORMAT).toISOString();
+    }
+    if (filters?.report_end_date) {
+      filters.report_end_date = moment.utc(filters.report_end_date, REPORT_DATE_FORMAT).toISOString();
+    }
+
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -933,11 +952,10 @@ const reportService = {
             report_id: true,
             report_start_date: true,
             report_end_date: true,
+            report_status: true,
             revision: true,
           },
-          where: {
-            report_status: status,
-          },
+          where: filters,
           orderBy: [
             {
               report_start_date: 'desc',
@@ -953,6 +971,17 @@ const reportService = {
       },
     });
 
+    // Convert the data type for report_start_date and report_end_date from
+    // a Date object into a date string formatted with REPORT_DATE_FORMAT
+    const reportsAdjusted = reports?.pay_transparency_report.map(r => {
+      const report = {
+        ...r
+      } as any;
+      report.report_start_date = moment.utc(r.report_start_date).format(REPORT_DATE_FORMAT);
+      report.report_end_date = moment.utc(r.report_end_date).format(REPORT_DATE_FORMAT);
+      return report;
+    })
+
     return reports?.pay_transparency_report;
   },
 };
@@ -960,8 +989,7 @@ const reportService = {
 export {
   CalcCodeGenderCode,
   GENDERS,
-  GenderChartInfo,
-  ReportAndCalculations, enumReportStatus, reportService,
+  GenderChartInfo, REPORT_DATE_FORMAT, ReportAndCalculations, enumReportStatus, reportService,
   reportServicePrivate
 };
 

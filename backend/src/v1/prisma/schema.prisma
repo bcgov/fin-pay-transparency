@@ -102,8 +102,8 @@ model pay_transparency_report {
   user_comment                                              String?                            @db.VarChar(4000)
   employee_count_range_id                                   String                             @db.Uuid
   naics_code                                                String                             @db.VarChar(5)
-  report_start_date                                         DateTime                           @default(now()) @db.Timestamp(6)
-  report_end_date                                           DateTime                           @default(now()) @db.Timestamp(6)
+  report_start_date                                         DateTime                           @default(now()) @db.Date
+  report_end_date                                           DateTime                           @default(now()) @db.Date
   create_date                                               DateTime                           @default(now()) @db.Timestamp(6)
   update_date                                               DateTime                           @default(now()) @db.Timestamp(6)
   create_user                                               String                             @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
