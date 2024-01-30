@@ -40,17 +40,17 @@
             <v-toolbar-title>View Generated Reports</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <div v-if="!localreports.length">
+            <div v-if="!reports.length">
               No generated reports yet.
             </div>     
-            <div v-if="localreports.length">  
+            <div v-if="reports.length">  
               <v-row>
                 <v-col class="font-weight-bold">Start Date</v-col>
                 <v-col class="font-weight-bold">End Date</v-col>
                 <v-col class="font-weight-bold" cols="3">Action</v-col>
               </v-row>
               <hr class="mt-4 mb-4">
-              <template v-for="report in localreports">
+              <template v-for="report in reports">
                 <v-row>
                   <v-col>{{ formatDate(report.report_start_date) }}</v-col>
                   <v-col>{{ formatDate(report.report_end_date) }}</v-col>
@@ -127,7 +127,7 @@ import moment from 'moment';
 
 export default {
   data: () => ({
-    localreports: []
+    reports: []
   }),  
   watch: {
   },      
@@ -140,11 +140,11 @@ export default {
       return moment(value).format('MMMM D, YYYY');
     },
     async getReports() {
-      this.localreports = await ApiService.getReportsByStatus(REPORT_STATUS.PUBLISHED);
+      this.reports = await ApiService.getReports(REPORT_STATUS.PUBLISHED);
     },
   },
   beforeMount() {
-    this.localreports = this.getReports();
+    this.reports = this.getReports();
   },
 };
 </script>
