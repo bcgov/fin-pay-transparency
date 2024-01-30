@@ -124,8 +124,8 @@ describe("InputForm", () => {
     const startDateComponent = wrapper.findComponent({ ref: 'startDate' })
     const endDateComponent = wrapper.findComponent({ ref: 'endDate' })
 
-    const startDate = moment().subtract(1, "years").format("yyyy-MM");
-    const expectedEndDate = moment().subtract(1, "months").format("yyyy-MM");
+    const startDate = moment().subtract(1, "years").format("yyyy-MM-DD");
+    const expectedEndDate = moment().subtract(1, "months").format("yyyy-MM-DD");
     await startDateComponent.setValue(startDate);
 
     expect(wrapper.vm.$data.startDate).toBe(startDate)
@@ -143,7 +143,7 @@ describe("InputForm", () => {
     //Latest allowable start month is 11 months before the latest allowable end month
     expect(moment(wrapper.vm.maxStartDate).format("YYYY-MM")).toBe(moment(wrapper.vm.maxEndDate).subtract(11, "months").format("YYYY-MM"));
     //Earliest allowable end month is 11 months after earliest allowable start month
-    expect(moment(wrapper.vm.minEndDate).format("YYYY-MM")).toBe(moment(wrapper.vm.minStartDate).add(11, "months").format("YYYY-MM"));    
+    expect(moment(wrapper.vm.minEndDate).format("YYYY-MM")).toBe(moment(wrapper.vm.minStartDate).add(11, "months").format("YYYY-MM"));
 
   })
 

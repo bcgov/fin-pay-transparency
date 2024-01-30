@@ -6,7 +6,7 @@ import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CalculatedAmount, reportCalcService } from "../services/report-calc-service";
 import { codeService } from './code-service';
-import { reportService } from './report-service';
+import { REPORT_DATE_FORMAT, reportService } from './report-service';
 import { utils } from './utils-service';
 import { FileErrors, validateService } from './validate-service';
 
@@ -78,8 +78,10 @@ const fileUploadService = {
   async saveReportBody(req, tx): Promise<string> {
     const body = req.body;
     const userInfo = utils.getSessionUser(req);
-    const startDate = moment(body.startDate, "YYYY-MM").startOf("month");
-    const endDate = moment(body.endDate, "YYYY-MM").endOf("month");
+
+    // Use UTC so moment doesn't offset the timezone based on locale
+    const startDate = moment.utc(body.startDate, REPORT_DATE_FORMAT).startOf("month");
+    const endDate = moment.utc(body.endDate, REPORT_DATE_FORMAT).endOf("month");
 
     const payTransparencyUser = await tx.pay_transparency_user.findFirst({
       where: {
@@ -93,6 +95,7 @@ const fileUploadService = {
         bceid_business_guid: userInfo._json.bceid_business_guid,
       }
     });
+
     const existingReport = await tx.pay_transparency_report.findFirst({
       where: {
         company_id: payTransparencyCompany.company_id,
