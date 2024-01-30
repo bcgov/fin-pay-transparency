@@ -451,7 +451,11 @@ describe('getReports', () => {
     );
     const ret = await reportService.getReports(
       mockCompanyInDB.company_id,
-      { report_status: enumReportStatus.Draft },
+      {
+        report_status: enumReportStatus.Draft,
+        report_start_date: mockReportResults.pay_transparency_report[0].report_start_date,
+        report_end_date: mockReportResults.pay_transparency_report[0].report_end_date
+      },
     );
     expect(ret).toEqual(mockReportResults.pay_transparency_report);
   });

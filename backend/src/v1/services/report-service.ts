@@ -982,7 +982,7 @@ const reportService = {
       return report;
     })
 
-    return reports?.pay_transparency_report;
+    return reportsAdjusted;
   },
 };
 

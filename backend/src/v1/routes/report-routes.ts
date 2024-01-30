@@ -29,7 +29,6 @@ reportRouter.get(
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
 
       // params
-      const status = req.query.report_status;
       const filters = req.query;
 
       // get reports by status if status param is provided
