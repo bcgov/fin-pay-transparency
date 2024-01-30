@@ -9,7 +9,7 @@ import {
   ReportAndCalculations,
   enumReportStatus,
   reportService,
-  reportServicePrivate
+  reportServicePrivate,
 } from './report-service';
 import { utils } from './utils-service';
 
@@ -95,6 +95,27 @@ const mockCalculatedDatasInDB = [
   },
 ];
 
+const mockReportsInDB = {
+  pay_transparency_report: [
+    {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      report_start_date: new Date(),
+      report_end_date: new Date(),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 1,
+    },
+    {
+      report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
+      report_start_date: new Date(),
+      report_end_date: new Date(),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 4,
+    },
+  ],
+};
+
 describe('getReportAndCalculations', () => {
   describe('when a valid report id is provided', () => {
     it('returns an object containing both the report and the values of its calculations', async () => {
@@ -167,6 +188,60 @@ describe('getReportAndCalculations', () => {
   });
 });
 
+describe('getReportData', () => {
+  describe('when a valid report id is provided', () => {
+    it('returns an HTML string of the report', async () => {
+      const mockReq = {
+        session: {
+          correlationID: 'mockCorrelationId',
+        },
+      };
+      const mockReportId = mockReportInDB.report_id;
+      const mockReportAndCalculations: ReportAndCalculations = {
+        report: {
+          pay_transparency_company: {
+            company_name: 'Mock company',
+            address_line1: '123 main st.',
+          },
+          report_start_date: new Date(),
+          report_end_date: new Date(),
+          naics_code_pay_transparency_report_naics_codeTonaics_code: {
+            naics_code: '1',
+            naics_label: 'NAICS label',
+          },
+          employee_count_range: {
+            employee_count_range: '100-399',
+          },
+          data_constraints: null,
+          user_comments: null,
+        },
+        calculations: {},
+      };
+      mockReportAndCalculations.calculations[
+        CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
+      ] = { value: GENDERS.MALE.code };
+
+      jest
+        .spyOn(reportService, 'getReportAndCalculations')
+        .mockResolvedValueOnce(mockReportAndCalculations);
+
+      const reportData = await reportService.getReportData(
+        mockReq,
+        mockReportId,
+      );
+
+      // Although it isn't the final value returned from reportService.getReportHtml,
+      // it's useful to verify that its intermediate processing step produces
+      // a partial HTML report
+
+      // It's hard to test the rendering of the final report HTML when we're
+      // using a mock puppeteer, but we can at least verify that
+      // some of the puppeteer functions have been called.
+      expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+    });
+  });
+});
+
 describe('getReportHtml', () => {
   describe('when a valid report id is provided', () => {
     it('returns an HTML string of the report', async () => {
@@ -204,7 +279,61 @@ describe('getReportHtml', () => {
         .spyOn(reportService, 'getReportAndCalculations')
         .mockResolvedValueOnce(mockReportAndCalculations);
 
-      const reportHtml = await reportService.getReportHtml(
+      const reportData = await reportService.getReportData(
+        mockReq,
+        mockReportId,
+      );
+
+      // Although it isn't the final value returned from reportService.getReportHtml,
+      // it's useful to verify that its intermediate processing step produces
+      // a partial HTML report
+
+      // It's hard to test the rendering of the final report HTML when we're
+      // using a mock puppeteer, but we can at least verify that
+      // some of the puppeteer functions have been called.
+      expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+    });
+  });
+});
+
+describe('getReportPdf', () => {
+  describe('when a valid report id is provided', () => {
+    it('returns an Buffer of the report', async () => {
+      const mockReq = {
+        session: {
+          correlationID: 'mockCorrelationId',
+        },
+      };
+      const mockReportId = mockReportInDB.report_id;
+      const mockReportAndCalculations: ReportAndCalculations = {
+        report: {
+          pay_transparency_company: {
+            company_name: 'Mock company',
+            address_line1: '123 main st.',
+          },
+          report_start_date: new Date(),
+          report_end_date: new Date(),
+          naics_code_pay_transparency_report_naics_codeTonaics_code: {
+            naics_code: '1',
+            naics_label: 'NAICS label',
+          },
+          employee_count_range: {
+            employee_count_range: '100-399',
+          },
+          data_constraints: null,
+          user_comments: null,
+        },
+        calculations: {},
+      };
+      mockReportAndCalculations.calculations[
+        CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
+      ] = { value: GENDERS.MALE.code };
+
+      jest
+        .spyOn(reportService, 'getReportAndCalculations')
+        .mockResolvedValueOnce(mockReportAndCalculations);
+
+      const reportData = await reportService.getReportData(
         mockReq,
         mockReportId,
       );
@@ -306,7 +435,8 @@ describe('getWageGapTextSummary', () => {
       expect(text).toContain('median');
       expect(text).toContain('bonus pay');
       expect(text).toContain(
-        Math.round(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value) + '% less',
+        Math.round(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value) +
+          '% less',
       );
     });
   });
@@ -371,11 +501,11 @@ describe('getHoursGapTextSummary', () => {
       expect(text).toContain('overtime hours');
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W].value) +
-        ' less',
+          ' less',
       );
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X].value) +
-        ' more',
+          ' more',
       );
     });
   });
@@ -396,15 +526,19 @@ describe('getHourlyPayQuartilesTextSummary', () => {
         { genderChartInfo: GENDERS.FEMALE, value: 35 },
         { genderChartInfo: GENDERS.UNKNOWN, value: 10 },
       ];
-      const text: string = reportServicePrivate.getHourlyPayQuartilesTextSummary(
-        referenceGenderCode,
-        mockHourlyPayQuartile4,
-        mockHourlyPayQuartile1
-      );
+      const text: string =
+        reportServicePrivate.getHourlyPayQuartilesTextSummary(
+          referenceGenderCode,
+          mockHourlyPayQuartile4,
+          mockHourlyPayQuartile1,
+        );
       console.log(text);
-      expect(text.toLowerCase()).toContain(`${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase());
-      expect(text.toLowerCase()).toContain(`${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase());
-
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase(),
+      );
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase(),
+      );
     });
   });
 });
@@ -449,14 +583,13 @@ describe('getReports', () => {
     (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
       mockReportResults,
     );
-    const ret = await reportService.getReports(
-      mockCompanyInDB.company_id,
-      {
-        report_status: enumReportStatus.Draft,
-        report_start_date: mockReportResults.pay_transparency_report[0].report_start_date,
-        report_end_date: mockReportResults.pay_transparency_report[0].report_end_date
-      },
-    );
+    const ret = await reportService.getReports(mockCompanyInDB.company_id, {
+      report_status: enumReportStatus.Draft,
+      report_start_date:
+        mockReportResults.pay_transparency_report[0].report_start_date,
+      report_end_date:
+        mockReportResults.pay_transparency_report[0].report_end_date,
+    });
     expect(ret).toEqual(mockReportResults.pay_transparency_report);
   });
 });
