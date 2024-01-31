@@ -46,5 +46,52 @@ reportRouter.get(
   ),
 );
 
+/**
+ * /api/v1/report/<report_id>
+ *   Changes the status of the report with the given report_id 
+ *   from Draft to Published.  Does not allow any other properties 
+ *   of the report to be updated.  Only the user that created
+ *   the report is allowed to change its status.
+ */
+reportRouter.put(
+  '/:reportId',
+  utils.asyncHandler(
+    async (
+      req: Request<{ reportId: string }, null, null, null>,
+      res: Response,
+    ) => {
+      // verify business guid
+      const bceidBusinessGuid =
+        utils.getSessionUser(req)?._json?.bceid_business_guid;
+      if (!bceidBusinessGuid)
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+
+      const reportId: string = req.params.reportId;
+      const report_to_publish = await reportService.getReportById(
+        bceidBusinessGuid,
+        reportId,
+      );
+
+      if (!report_to_publish) {
+        return res.status(HttpStatus.NOT_FOUND).end();
+      }
+
+      if (report_to_publish.report_status != enumReportStatus.Draft) {
+        return res.status(HttpStatus.NOT_FOUND).end();
+      }
+
+      try {
+        await reportService.publishReport(report_to_publish);
+        const reportHtml = reportService.getReportHtml(bceidBusinessGuid, reportId);
+        res.type('html').status(200).send(reportHtml);
+      }
+      catch (e) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+      }
+
+    },
+  ),
+);
+
 export { reportRouter };
 

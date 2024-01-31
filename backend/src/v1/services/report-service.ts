@@ -1,3 +1,4 @@
+import type { pay_transparency_report } from '@prisma/client';
 import moment from 'moment';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
@@ -310,6 +311,33 @@ const reportServicePrivate = {
     }
     return `$${amountDollars.toFixed(2)}`;
   },
+
+  async movePublishedReportToHistory(tx, report: pay_transparency_report) {
+
+    if (report.report_status != enumReportStatus.Published) {
+      throw new Error(`Only a ${enumReportStatus.Published} report can be moved to history.`);
+    }
+
+    // Delete the calculated datas (they don't need to be moved to 
+    // a history table)
+    await tx.pay_transparency_calculated_data_history.delete({
+      where: {
+        report_id: report.report_id
+      }
+    });
+
+    // Copy the report into report_history
+    await tx.pay_transparency_report_history.insert({
+      data: { ...report }
+    })
+
+    // Delete the original report
+    await tx.pay_transparency_report_history.delete({
+      where: {
+        report_id: report.report_id
+      }
+    })
+  }
 };
 
 const reportService = {
@@ -984,7 +1012,49 @@ const reportService = {
 
     return reportsAdjusted;
   },
+
+  async publishReport(report_to_publish: pay_transparency_report) {
+
+    // Check preconditions
+    if (report_to_publish.report_status != enumReportStatus.Draft) {
+      throw new Error("Only draft reports can be published");
+    }
+
+    await prisma.$transaction(async (tx) => {
+
+      // Check if there is an existing published report that
+      // corresponds to the same company_id and date range as 
+      // the draft "report_to_publish".  (Should be 1 published at most.)
+      const existing_published_report = await tx.pay_transparency_report.findFirst({
+        where: {
+          company_id: report_to_publish.company_id,
+          report_start_date: report_to_publish.report_start_date,
+          report_end_date: report_to_publish.report_end_date,
+          report_status: enumReportStatus.Published
+        },
+      });
+
+      // If there is an existing Published report, move it into 
+      // report_history
+      if (existing_published_report) {
+        reportServicePrivate.movePublishedReportToHistory(tx, existing_published_report);
+      }
+
+      // Change report's status to Published
+      tx.pay_transparency_report.update({
+        where: {
+          report_id: report_to_publish.report_id
+        },
+        data: {
+          report_status: enumReportStatus.Published
+        },
+      });
+    });
+  }
+
 };
+
+
 
 export {
   CalcCodeGenderCode,
