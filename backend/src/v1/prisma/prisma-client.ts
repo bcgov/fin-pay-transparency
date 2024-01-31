@@ -13,14 +13,19 @@ if (!prisma) {
   const datasourceUrl = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=5`;
   logger.silly(`Connecting to ${datasourceUrl}`);
   prisma = new PrismaClient({
-    log: ['query', 'info', "error", "warn"],
+    log: [
+      { emit: 'event', level: 'query' },
+      { emit: 'stdout', level: 'info' },
+      { emit: 'stdout', level: 'warn' },
+      { emit: 'stdout', level: 'error' }
+    ],
     errorFormat: 'pretty',
-    datasourceUrl: datasourceUrl
+    datasourceUrl: datasourceUrl,
   });
   // @ts-expect-error, this is a prisma thing.
   prisma.$on('query', (e) => {
     // @ts-expect-error, this is a prisma thing.
-    logger.info(`Params: ${e.params} \n Duration: ${e.duration}ms`);
+    logger.debug(`Query: ${e.query}- Params: ${e.params} - Duration: ${e.duration}ms`);
   });
 }
 
