@@ -251,47 +251,21 @@ describe('getReportHtml', () => {
         },
       };
       const mockReportId = mockReportInDB.report_id;
-      const mockReportAndCalculations: ReportAndCalculations = {
-        report: {
-          pay_transparency_company: {
-            company_name: 'Mock company',
-            address_line1: '123 main st.',
-          },
-          report_start_date: new Date(),
-          report_end_date: new Date(),
-          naics_code_pay_transparency_report_naics_codeTonaics_code: {
-            naics_code: '1',
-            naics_label: 'NAICS label',
-          },
-          employee_count_range: {
-            employee_count_range: '100-399',
-          },
-          data_constraints: null,
-          user_comments: null,
-        },
-        calculations: {},
-      };
-      mockReportAndCalculations.calculations[
-        CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
-      ] = { value: GENDERS.MALE.code };
+      const mockReportData = {};
 
       jest
-        .spyOn(reportService, 'getReportAndCalculations')
-        .mockResolvedValueOnce(mockReportAndCalculations);
+        .spyOn(reportService, 'getReportData')
+        .mockResolvedValueOnce(mockReportData);
+      jest
+        .spyOn(utils, 'postDataToDocGenService')
+        .mockResolvedValueOnce('<html></html>');
 
-      const reportData = await reportService.getReportData(
+      const html: string = await reportService.getReportHtml(
         mockReq,
         mockReportId,
       );
 
-      // Although it isn't the final value returned from reportService.getReportHtml,
-      // it's useful to verify that its intermediate processing step produces
-      // a partial HTML report
-
-      // It's hard to test the rendering of the final report HTML when we're
-      // using a mock puppeteer, but we can at least verify that
-      // some of the puppeteer functions have been called.
-      expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+      expect(html).toBe('<html></html>');
     });
   });
 });
@@ -305,47 +279,21 @@ describe('getReportPdf', () => {
         },
       };
       const mockReportId = mockReportInDB.report_id;
-      const mockReportAndCalculations: ReportAndCalculations = {
-        report: {
-          pay_transparency_company: {
-            company_name: 'Mock company',
-            address_line1: '123 main st.',
-          },
-          report_start_date: new Date(),
-          report_end_date: new Date(),
-          naics_code_pay_transparency_report_naics_codeTonaics_code: {
-            naics_code: '1',
-            naics_label: 'NAICS label',
-          },
-          employee_count_range: {
-            employee_count_range: '100-399',
-          },
-          data_constraints: null,
-          user_comments: null,
-        },
-        calculations: {},
-      };
-      mockReportAndCalculations.calculations[
-        CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
-      ] = { value: GENDERS.MALE.code };
+      const mockReportData = {};
 
       jest
-        .spyOn(reportService, 'getReportAndCalculations')
-        .mockResolvedValueOnce(mockReportAndCalculations);
+        .spyOn(reportService, 'getReportData')
+        .mockResolvedValueOnce(mockReportData);
+      jest
+        .spyOn(utils, 'postDataToDocGenService')
+        .mockResolvedValueOnce(Buffer.from('testpdf'));
 
-      const reportData = await reportService.getReportData(
+      const result: Buffer = await reportService.getReportPdf(
         mockReq,
         mockReportId,
       );
 
-      // Although it isn't the final value returned from reportService.getReportHtml,
-      // it's useful to verify that its intermediate processing step produces
-      // a partial HTML report
-
-      // It's hard to test the rendering of the final report HTML when we're
-      // using a mock puppeteer, but we can at least verify that
-      // some of the puppeteer functions have been called.
-      expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+      expect(result).toBeInstanceOf(Buffer);
     });
   });
 });

@@ -901,7 +901,7 @@ const reportService = {
 
   async getReportHtml(req, reportId: string): Promise<string> {
     const reportData = this.getReportData(req, reportId);
-    const responseHtml = await utils.postDataToDocGenService(
+    const responseHtml: string = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
       req.session.correlationID,

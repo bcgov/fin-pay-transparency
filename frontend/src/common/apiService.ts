@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
+import { saveAs } from 'file-saver';
 
 // Buffer concurrent requests while refresh token is being acquired
 let failedQueue = [];
@@ -195,9 +196,9 @@ export default {
       if (resp?.data) {
         return resp.data;
       }
-      throw new Error('Unable to fetch report from API');
+      throw new Error('Unable to fetch html report from API');
     } catch (e) {
-      console.log(`Failed to get report from API - ${e}`);
+      console.log(`Failed to get html report from API - ${e}`);
       throw e;
     }
   },
@@ -213,31 +214,28 @@ export default {
         responseType: 'blob',
       });
 
-      //filename
-      const startFileNameIndex =
-        resp.headers['content-disposition'].indexOf('filename=') + 9;
-      const endFileNameIndex =
-        resp.headers['content-disposition'].lastIndexOf('.pdf') + 4;
-      let fileName = resp.headers['content-disposition'].substring(
-        startFileNameIndex,
-        endFileNameIndex,
-      );
-      if (!fileName) fileName = 'pay_transparency_report';
-
-      //make the browser save the file
       if (resp?.data) {
-        var url = window.URL.createObjectURL(resp?.data);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        a.remove();
-        setTimeout(() => window.URL.revokeObjectURL(url), 100);
-      }
+        //get/create filename
+        let fileName = '';
+        if (resp?.headers['content-disposition']) {
+          const startFileNameIndex =
+            resp.headers['content-disposition'].indexOf('filename=') + 9;
+          const endFileNameIndex =
+            resp.headers['content-disposition'].lastIndexOf('.pdf') + 4;
+          fileName = resp.headers['content-disposition'].substring(
+            startFileNameIndex,
+            endFileNameIndex,
+          );
+        }
+        if (!fileName) fileName = 'pay_transparency_report.pdf';
 
-      throw new Error('Unable to fetch report from API');
+        //make the browser save the file
+        saveAs(resp.data, fileName, { type: 'application/pdf' });
+      } else {
+        throw new Error('Unable to fetch pdf report from API');
+      }
     } catch (e) {
-      console.log(`Failed to get report from API - ${e}`);
+      console.log(`Failed to get pdf report from API - ${e}`);
       throw e;
     }
   },
