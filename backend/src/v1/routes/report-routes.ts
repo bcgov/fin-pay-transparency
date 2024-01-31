@@ -52,24 +52,25 @@ reportRouter.get(
  *   from Draft to Published.  Does not allow any other properties 
  *   of the report to be updated.  Only the user that created
  *   the report is allowed to change its status.
- *   If there is an existing Published report, it is replaced
- *   by the new Published report.
- *   
  */
 reportRouter.put(
   '/:reportId',
   utils.asyncHandler(
     async (
-      req: Request<null, null, null, null>,
+      req: Request<{ reportId: string }, null, null, null>,
       res: Response,
     ) => {
       // verify business guid
-      const businessGuid =
+      const bceidBusinessGuid =
         utils.getSessionUser(req)?._json?.bceid_business_guid;
-      if (!businessGuid)
+      if (!bceidBusinessGuid)
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
 
-      const report_to_publish = reportService.getReport(req?.params?.reportId);
+      const reportId: string = req.params.reportId;
+      const report_to_publish = await reportService.getReportById(
+        bceidBusinessGuid,
+        reportId,
+      );
 
       if (!report_to_publish) {
         return res.status(HttpStatus.NOT_FOUND).end();
@@ -79,24 +80,15 @@ reportRouter.put(
         return res.status(HttpStatus.NOT_FOUND).end();
       }
 
-      // Check if there is an existing published report for the same time period
-      const existing_published_reports = await reportService.getReports(
-        businessGuid,
-        {
-          report_status: enumReportStatus.Published,
-          report_start_date: report_to_publish.report_start_date,
-          report_end_date: report_to_publish.report_end_date,
-        },
-      );
-
-      if (existing_published_reports.length) {
-        // TODO: Move the existing report to History table (and delete it from the reports table)
+      try {
+        await reportService.publishReport(report_to_publish);
+        const reportHtml = reportService.getReportHtml(bceidBusinessGuid, reportId);
+        res.type('html').status(200).send(reportHtml);
+      }
+      catch (e) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
       }
 
-      // TODO: Change the status of the report_to_publish from Draft to Published
-
-      // if not enough information provided, then it is a bad request
-      return res.status(HttpStatus.BAD_REQUEST).end();
     },
   ),
 );
