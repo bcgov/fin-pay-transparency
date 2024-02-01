@@ -1,5 +1,6 @@
 import moment from 'moment';
 import prisma from '../prisma/prisma-client';
+import { Prisma } from '@prisma/client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
@@ -539,5 +540,57 @@ describe('getReports', () => {
         mockReportResults.pay_transparency_report[0].report_end_date,
     });
     expect(ret).toEqual(mockReportResults.pay_transparency_report);
+  });
+});
+
+describe('getReportById', () => {
+  it('returns an single report', async () => {
+    const report = {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
+      report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 1,
+    };
+    const mockReportResults = {
+      pay_transparency_report: [report],
+    };
+    (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
+      mockReportResults,
+    );
+    const ret = await reportService.getReportById(
+      mockCompanyInDB.company_id,
+      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+    );
+    expect(ret).toEqual(report);
+  });
+});
+
+describe('getReportFileName', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+  it('returns a filename', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
+    const report = {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      user_comment: '',
+      employee_count_range_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      naics_code: '11',
+      report_start_date: moment.utc().subtract(11, 'months').toDate(),
+      report_end_date: moment.utc().toDate(),
+      report_status: 'Published',
+      revision: new Prisma.Decimal(1),
+      data_constraints: '',
+    };
+
+    jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);
+
+    const ret = await reportService.getReportFileName(
+      mockCompanyInDB.company_id,
+      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+    );
+    expect(ret).toBe('pay_transparency_report_2023-01_2023-12.pdf');
   });
 });
