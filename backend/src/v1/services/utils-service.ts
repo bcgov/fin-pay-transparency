@@ -75,17 +75,15 @@ function getSessionUser(req) {
   return req.session?.passport?.user;
 }
 
-async function postDataToDocGenService(
-  body,
-  url,
-  correlationId,
-  axiosConfig = {},
-) {
-  axiosConfig['headers']['x-correlation-id'] = correlationId;
-  axiosConfig['headers']['x-api-key'] = config.get('docGenService:apiKey');
+async function postDataToDocGenService(body, url, correlationId) {
+  const axiosConfig = {
+    headers: {
+      'x-correlation-id': correlationId,
+      'x-api-key': config.get('docGenService:apiKey'),
+    },
+  };
   return await postData(url, body, axiosConfig);
 }
-
 async function postData(url, body, axiosConfig) {
   try {
     const response = await axios.post(url, body, axiosConfig);
@@ -105,7 +103,8 @@ const utils = {
   postData,
   asyncHandler: (fn) => (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
-  },
+  }
 };
 
 export { utils };
+

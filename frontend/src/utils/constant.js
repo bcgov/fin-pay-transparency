@@ -26,7 +26,7 @@ export const ApiRoutes = Object.freeze({
   EMPLOYEE_COUNT_RANGES: baseRoot + '/v1/codes/employee-count-ranges',
   NAICS_CODES: baseRoot + '/v1/codes/naics-codes',
   POST_SUBMISSION: baseRoot + '/v1/file-upload',
-  REPORT: baseRoot + '/v1/report/',
+  REPORTS: baseRoot + '/v1/report/',
 });
 
 export const PAGE_TITLES = Object.freeze({
