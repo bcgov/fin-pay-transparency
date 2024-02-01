@@ -5,7 +5,7 @@
         <v-container class="justify-center">
           <v-row no-gutters>
             <v-col>
-
+              <!-- begin -->  
               <p class="text-welcome mt-14 mb-8 centered-text">
                 Welcome to the Pay Transparency Reporting Tool
               </p>
