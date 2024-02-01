@@ -230,6 +230,15 @@ app.get(
     res.end(prismaMetrics + appMetrics);
   }),
 );
+app.get('/health', utils.asyncHandler(async (_req: Request, res: Response) => {
+  try{
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).send('Health check passed');
+  }catch (e) {
+    logger.error(`Health check failed: ${e}`);
+    res.status(500).send('Health check failed');
+  }
+}));
 
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {

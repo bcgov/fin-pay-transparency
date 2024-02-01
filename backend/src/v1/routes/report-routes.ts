@@ -103,4 +103,65 @@ reportRouter.put(
   ),
 );
 
+/**
+ * /api/v1/report/:report_id
+ *    accepts 'json':
+ *      Get the input form data for a report in the users business
+ *
+ *    accepts 'html':
+ *      Get an html preview of the report for the users business
+ *
+ *    accepts 'pdf':
+ *      Download pdf of the report for the users business
+ */
+reportRouter.get(
+  '/:report_id',
+  utils.asyncHandler(
+    async (
+      req: Request<{ report_id: string }, null, null, null>,
+      res: Response,
+    ) => {
+      // verifiy business guid
+      const businessGuid =
+        utils.getSessionUser(req)?._json?.bceid_business_guid;
+      if (!businessGuid)
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+
+      // params
+      const reportId = req.params.report_id;
+
+      //accepts 'json'
+      if (req.accepts('application/json')) {
+        // get reports by status if status param is provided
+        const report = await reportService.getReportById(
+          businessGuid,
+          reportId,
+        );
+        if (report) return res.status(HttpStatus.OK).json(report);
+      }
+      //accepts 'html'
+      else if (req.accepts('text/html')) {
+        const html = await reportService.getReportHtml(req, reportId);
+        if (html) return res.set('Content-Type', 'text/html').send(html);
+      }
+      //accepts 'pdf'
+      else if (req.accepts('application/pdf')) {
+        const pdf: Buffer = await reportService.getReportPdf(req, reportId);
+        const filename: string = await reportService.getReportFileName(
+          businessGuid,
+          reportId,
+        );
+        if (pdf && filename) {
+          res.set('Content-Type', 'application/pdf');
+          res.set('Content-Disposition', `attachment; filename=${filename}`);
+          res.send(pdf);
+        }
+      }
+
+      // if not enough information provided, then it is a bad request
+      else return res.status(HttpStatus.BAD_REQUEST).end();
+    },
+  ),
+);
+
 export { reportRouter };

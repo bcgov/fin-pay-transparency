@@ -134,7 +134,7 @@ spec:
               protocol: TCP
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
               scheme: HTTP
             initialDelaySeconds: 10
@@ -145,11 +145,11 @@ spec:
             successThreshold: 1
             failureThreshold: 3
             httpGet:
-              path: /
+              path: /health
               port: http
               scheme: HTTP
             initialDelaySeconds: 60
-            periodSeconds: 60
+            periodSeconds: 20
             timeoutSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

@@ -466,7 +466,7 @@ const reportService = {
     return explanatoryNotes;
   },
 
-  async getReportHtml(req, reportId: string): Promise<string> {
+  async getReportData(req, reportId: string): Promise<object> {
     logger.debug(
       `getReportHtml called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
@@ -925,7 +925,12 @@ const reportService = {
       explanatoryNotes: this.createExplanatoryNotes(report),
     };
 
-    const responseHtml = await utils.postDataToDocGenService(
+    return reportData;
+  },
+
+  async getReportHtml(req, reportId: string): Promise<string> {
+    const reportData = this.getReportData(req, reportId);
+    const responseHtml: string = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
       req.session.correlationID,
@@ -934,6 +939,25 @@ const reportService = {
       `getReportHtml completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
     return responseHtml;
+  },
+
+  async getReportPdf(req, reportId: string): Promise<Buffer> {
+    const reportData = this.getReportData(req, reportId);
+    const responsePdf = await utils.postDataToDocGenService(
+      reportData,
+      `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
+      req.session.correlationID,
+      {
+        headers: {
+          Accept: 'application/pdf',
+        },
+        responseType: 'stream',
+      },
+    );
+    logger.debug(
+      `getReportPdf completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+    );
+    return responsePdf;
   },
 
   /**
@@ -1048,6 +1072,61 @@ const reportService = {
         },
       });
     });
+  },
+
+  /**
+   *
+   * @param bceidBusinessGuid
+   * @param reportId
+   * @returns
+   *    - object for a single report or
+   *    - null or undefined if report couldn't be found
+   */
+  async getReportById(
+    bceidBusinessGuid: string,
+    reportId: string,
+  ): Promise<pay_transparency_report> {
+    const reports = await prisma.pay_transparency_company.findFirst({
+      select: {
+        pay_transparency_report: {
+          select: {
+            report_id: true,
+            user_comment: true,
+            employee_count_range_id: true,
+            naics_code: true,
+            report_start_date: true,
+            report_end_date: true,
+            report_status: true,
+            revision: true,
+            data_constraints: true,
+          },
+          where: {
+            report_id: reportId,
+          },
+          take: 1,
+        },
+      },
+      where: {
+        bceid_business_guid: bceidBusinessGuid,
+      },
+    });
+    if (!reports) return null;
+    const [first] =
+      reports.pay_transparency_report as pay_transparency_report[];
+    return first;
+  },
+
+  async getReportFileName(
+    bceidBusinessGuid: string,
+    reportId: string,
+  ): Promise<string> {
+    const report = await this.getReportById(bceidBusinessGuid, reportId);
+    if (report) {
+      const start = moment(report.report_start_date).format('YYYY-MM');
+      const end = moment(report.report_end_date).format('YYYY-MM');
+      const filename = `pay_transparency_report_${start}_${end}.pdf`;
+      return filename;
+    }
   },
 };
 

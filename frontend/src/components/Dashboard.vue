@@ -16,15 +16,13 @@
         <v-card min-height="70%" class="no-box-shadow">
           <v-card-text class="justify-center generate-report">
             <p class="mt-4 mb-2">
-              The tool will help you generate a pay transparency report for you company.
-            </p>
-            <p class="mb-2">
-              To begin, organize your pay transparency data into a comma-separated value (CSV) file as described
-              <u>here</u>.
+              This tool will help you generate a Pay Transparency report in compliance with the <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018">Pay Transparency Act (gov.bc.ca)</a> and the <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023">Pay Transparency Regulation (gov.bc.ca)</a>. The report can be saved for posting on your webpage or in your workplace. For more information on Pay Transparency reporting, please visit <a target="_blank" rel="noopener noreferrer" href="https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports">Guidance for preparing pay transparency reports - Province of British Columbia (gov.bc.ca)</a>.
             </p>
             <p class="mb-6">
-              Then click the button below to access a submission
-              form, where you'll be asked to enter information about your organization and upload your CSV file.
+              Once your CSV file is ready, click on the button below to upload the file and generate a report.
+            </p>
+            <p class="text-caption">
+              This application does not collect, record or publish personal information.
             </p>
             <v-btn class="mb-4" color="primary" to="InputForm">Generate Pay Transparency Report</v-btn>
           </v-card-text>
