@@ -2,6 +2,12 @@ import axios from 'axios';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
+export enum REPORT_FORMATS {
+  HTML = 'html',
+  PDF = 'pdf',
+  JSON = 'json',
+}
+
 // Buffer concurrent requests while refresh token is being acquired
 let failedQueue = [];
 
@@ -134,14 +140,18 @@ export default {
   /**
    * Returns all published or draft reports for the current employer.
    * @param {object} filters an object of this form:
-   * { 
+   * {
    *   report_status?: string, //Optional.  If specified must be one of: 'Published' or 'Draft'
    *   report_start_date?: string, //Optional.  If specified must be YYYY-MM format
    *   report_end_date?: string //Optional.  If specified must be YYYY-MM format
    * }
    * @returns {Array.<{report_id: String, report_start_date: Date, report_end_date: Date, revision: Number}>}
    */
-  async getReports(filters?: { report_status?: string, report_start_date?: string, report_end_date?: string }) {
+  async getReports(filters?: {
+    report_status?: string;
+    report_start_date?: string;
+    report_end_date?: string;
+  }) {
     try {
       const resp = await apiAxios.get(ApiRoutes.REPORTS, {
         params: filters,
@@ -150,6 +160,15 @@ export default {
         return resp.data;
       }
       throw new Error('Unable to fetch reports from API');
+    } catch (e) {
+      console.log(`Failed to get reports from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async publishReport(reportId: string) {
+    try {
+      await apiAxios.put(`ApiRoutes.REPORTS/${reportId}`);
     } catch (e) {
       console.log(`Failed to get reports from API - ${e}`);
       throw e;

@@ -11,7 +11,7 @@
   </v-container>
 </template>
 
-<script >
+<script>
 import { authStore } from '../store/modules/auth';
 import { mapState } from 'pinia';
 import { AuthRoutes } from '../utils/constant';
@@ -19,13 +19,11 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 
 export default {
   name: 'TokenExpired',
-  components: {
-
-  },
+  components: {},
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
-      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID)
+      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
     };
   },
   computed: {
@@ -35,8 +33,8 @@ export default {
     redirectToLogin() {
       authStore().setJwtToken();
       window.location.href = this.authRoutesLogin;
-    }
-  }
+    },
+  },
 };
 </script>
 

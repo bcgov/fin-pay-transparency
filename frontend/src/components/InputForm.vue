@@ -391,7 +391,67 @@
               </v-col>
             </v-row>
           </div>
-          <div v-if="stage == 'REVIEW'" v-html="draftReport"></div>
+          <div v-if="stage == 'REVIEW'" class="mb-8">
+            <div v-html="draftReportHtml"></div>
+
+            <hr class="mt-8 mb-8" />
+
+            <div>
+              <v-checkbox
+                v-model="isReadyToGenerate"
+                label="I am ready to create a final report that will be shared with the B.C. Government and can be shared publicly by my employer. Please note, this draft report will not be saved after closing this window or logging out of the system"
+              ></v-checkbox>
+
+              <div class="d-flex justify-center w-100 mt-4">
+                <v-btn id="backButton" text="Back" color="primary" class="mr-2">
+                  Back
+                  <v-dialog
+                    v-model="confirmBackDialogVisible"
+                    activator="parent"
+                    width="auto"
+                    max-width="400"
+                  >
+                    <v-card>
+                      <v-card-text>
+                        Do you want to go back to the form screen? Note that
+                        this draft report will not be saved after navigating
+                        back or logging out of the system.
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="red-darken-1"
+                          @click="confirmBackDialogVisible = false"
+                        >
+                          No
+                        </v-btn>
+                        <v-btn
+                          color="primary"
+                          @click="
+                            confirmBackDialogVisible = false;
+                            goToInputForm();
+                          "
+                        >
+                          Yes
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-btn>
+
+                <v-btn
+                  id="generateReportButton"
+                  text="Generate Report"
+                  color="primary"
+                  :disabled="!isReadyToGenerate"
+                  @click="tryGenerateReport()"
+                >
+                  Generate Report
+                </v-btn>
+              </div>
+            </div>
+          </div>
         </v-col>
       </v-row>
       <v-overlay
@@ -402,6 +462,40 @@
         <spinner />
       </v-overlay>
     </v-form>
+
+    <!-- dialogs -->
+
+    <v-dialog
+      v-model="confirmOverrideReportDialogVisible"
+      width="auto"
+      max-width="400"
+    >
+      <v-card>
+        <v-card-text>
+          There is an existing report for the same time period. Do you want to
+          replace it?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="red-darken-1"
+            @click="confirmOverrideReportDialogVisible = false"
+          >
+            No
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="
+              confirmOverrideReportDialogVisible = false;
+              generateReport();
+            "
+          >
+            Yes
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 <script lang="ts">
@@ -475,7 +569,11 @@ export default {
     alertType: null,
     submissionErrors: null as SubmissionErrors | null,
     draftReport: null,
+    draftReportHtml: null,
+    isReadyToGenerate: false,
     stage: 'UPLOAD',
+    confirmBackDialogVisible: false,
+    confirmOverrideReportDialogVisible: false,
   }),
   methods: {
     setSuccessAlert(alertMessage) {
@@ -486,6 +584,37 @@ export default {
       this.submissionErrors = submissionErrors;
       if (submissionErrors) {
         this.uploadFileValue = null;
+      }
+    },
+    goToInputForm() {
+      this.stage = 'UPLOAD';
+      this.setSuccessAlert(null);
+    },
+    async fetchReportHtml(reportId: string) {
+      const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
+      this.draftReportHtml = sanitizeUrl(unsanitisedHtml);
+    },
+    async tryGenerateReport() {
+      const existingPublished = await ApiService.getReports({
+        report_start_date: this.draftReport.report_start_date,
+        report_end_date: this.draftReport.report_end_date,
+        report_status: 'Published',
+      });
+      const reportAlreadyExists = existingPublished.length;
+      if (reportAlreadyExists) {
+        //show a dialog to confirm override
+        this.confirmOverrideReportDialogVisible = true;
+      } else {
+        this.generateReport();
+      }
+    },
+    async generateReport() {
+      this.isProcessing = true;
+      try {
+        await ApiService.publishReport(this.report.reportId);
+        this.isProcessing = false;
+      } catch (e) {
+        this.isProcessing = false;
       }
     },
     async submit() {
@@ -510,8 +639,8 @@ export default {
           employeeCount: this.employeeCount,
           file: this.uploadFileValue[0],
         };
-        const response = await ApiService.postSubmission(formData);
-        this.draftReport = sanitizeUrl(response);
+        this.draftReport = await ApiService.postSubmission(formData);
+        await this.fetchReportHtml(this.draftReport.reportId);
         this.stage = 'REVIEW';
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
@@ -553,6 +682,9 @@ export default {
     },
   },
   watch: {
+    confirmBackDialogVisible(val) {
+      console.log('confirmBackDialogVisible:' + val);
+    },
     naicsCodes(val) {
       this.naicsCodesTruncated = val?.length > 25 ? val.slice(0, 25) : val;
     },
