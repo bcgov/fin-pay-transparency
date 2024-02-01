@@ -81,6 +81,7 @@ async function postDataToDocGenService(
   correlationId,
   axiosConfig = {},
 ) {
+  if (!axiosConfig['headers']) axiosConfig['headers'] = {};
   axiosConfig['headers']['x-correlation-id'] = correlationId;
   axiosConfig['headers']['x-api-key'] = config.get('docGenService:apiKey');
   return await postData(url, body, axiosConfig);
