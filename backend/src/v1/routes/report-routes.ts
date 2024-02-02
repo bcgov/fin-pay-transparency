@@ -102,12 +102,12 @@ reportRouter.get(
         if (pdf && filename) {
           res.set('Content-Type', 'application/pdf');
           res.set('Content-Disposition', `attachment; filename=${filename}`);
-          res.send(pdf);
+          return res.send(pdf);
         }
       }
 
       // if not enough information provided, then it is a bad request
-      else return res.status(HttpStatus.BAD_REQUEST).end();
+      return res.status(HttpStatus.BAD_REQUEST).end();
     },
   ),
 );
