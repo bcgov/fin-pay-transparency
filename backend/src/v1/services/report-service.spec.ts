@@ -1,5 +1,6 @@
 import moment from 'moment';
 import prisma from '../prisma/prisma-client';
+import { Prisma } from '@prisma/client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
@@ -9,7 +10,7 @@ import {
   ReportAndCalculations,
   enumReportStatus,
   reportService,
-  reportServicePrivate
+  reportServicePrivate,
 } from './report-service';
 import { utils } from './utils-service';
 
@@ -95,6 +96,27 @@ const mockCalculatedDatasInDB = [
   },
 ];
 
+const mockReportsInDB = {
+  pay_transparency_report: [
+    {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      report_start_date: new Date(),
+      report_end_date: new Date(),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 1,
+    },
+    {
+      report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
+      report_start_date: new Date(),
+      report_end_date: new Date(),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 4,
+    },
+  ],
+};
+
 describe('getReportAndCalculations', () => {
   describe('when a valid report id is provided', () => {
     it('returns an object containing both the report and the values of its calculations', async () => {
@@ -167,7 +189,7 @@ describe('getReportAndCalculations', () => {
   });
 });
 
-describe('getReportHtml', () => {
+describe('getReportData', () => {
   describe('when a valid report id is provided', () => {
     it('returns an HTML string of the report', async () => {
       const mockReq = {
@@ -204,7 +226,7 @@ describe('getReportHtml', () => {
         .spyOn(reportService, 'getReportAndCalculations')
         .mockResolvedValueOnce(mockReportAndCalculations);
 
-      const reportHtml = await reportService.getReportHtml(
+      const reportData = await reportService.getReportData(
         mockReq,
         mockReportId,
       );
@@ -217,6 +239,62 @@ describe('getReportHtml', () => {
       // using a mock puppeteer, but we can at least verify that
       // some of the puppeteer functions have been called.
       expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+    });
+  });
+});
+
+describe('getReportHtml', () => {
+  describe('when a valid report id is provided', () => {
+    it('returns an HTML string of the report', async () => {
+      const mockReq = {
+        session: {
+          correlationID: 'mockCorrelationId',
+        },
+      };
+      const mockReportId = mockReportInDB.report_id;
+      const mockReportData = {};
+
+      jest
+        .spyOn(reportService, 'getReportData')
+        .mockResolvedValueOnce(mockReportData);
+      jest
+        .spyOn(utils, 'postDataToDocGenService')
+        .mockResolvedValueOnce('<html></html>');
+
+      const html: string = await reportService.getReportHtml(
+        mockReq,
+        mockReportId,
+      );
+
+      expect(html).toBe('<html></html>');
+    });
+  });
+});
+
+describe('getReportPdf', () => {
+  describe('when a valid report id is provided', () => {
+    it('returns an Buffer of the report', async () => {
+      const mockReq = {
+        session: {
+          correlationID: 'mockCorrelationId',
+        },
+      };
+      const mockReportId = mockReportInDB.report_id;
+      const mockReportData = {};
+
+      jest
+        .spyOn(reportService, 'getReportData')
+        .mockResolvedValueOnce(mockReportData);
+      jest
+        .spyOn(utils, 'postDataToDocGenService')
+        .mockResolvedValueOnce(Buffer.from('testpdf'));
+
+      const result: Buffer = await reportService.getReportPdf(
+        mockReq,
+        mockReportId,
+      );
+
+      expect(result).toBeInstanceOf(Buffer);
     });
   });
 });
@@ -306,7 +384,8 @@ describe('getWageGapTextSummary', () => {
       expect(text).toContain('median');
       expect(text).toContain('bonus pay');
       expect(text).toContain(
-        Math.round(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value) + '% less',
+        Math.round(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value) +
+          '% less',
       );
     });
   });
@@ -371,11 +450,11 @@ describe('getHoursGapTextSummary', () => {
       expect(text).toContain('overtime hours');
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W].value) +
-        ' less',
+          ' less',
       );
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X].value) +
-        ' more',
+          ' more',
       );
     });
   });
@@ -396,15 +475,19 @@ describe('getHourlyPayQuartilesTextSummary', () => {
         { genderChartInfo: GENDERS.FEMALE, value: 35 },
         { genderChartInfo: GENDERS.UNKNOWN, value: 10 },
       ];
-      const text: string = reportServicePrivate.getHourlyPayQuartilesTextSummary(
-        referenceGenderCode,
-        mockHourlyPayQuartile4,
-        mockHourlyPayQuartile1
-      );
+      const text: string =
+        reportServicePrivate.getHourlyPayQuartilesTextSummary(
+          referenceGenderCode,
+          mockHourlyPayQuartile4,
+          mockHourlyPayQuartile1,
+        );
       console.log(text);
-      expect(text.toLowerCase()).toContain(`${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase());
-      expect(text.toLowerCase()).toContain(`${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase());
-
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase(),
+      );
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase(),
+      );
     });
   });
 });
@@ -449,14 +532,65 @@ describe('getReports', () => {
     (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
       mockReportResults,
     );
-    const ret = await reportService.getReports(
-      mockCompanyInDB.company_id,
-      {
-        report_status: enumReportStatus.Draft,
-        report_start_date: mockReportResults.pay_transparency_report[0].report_start_date,
-        report_end_date: mockReportResults.pay_transparency_report[0].report_end_date
-      },
-    );
+    const ret = await reportService.getReports(mockCompanyInDB.company_id, {
+      report_status: enumReportStatus.Draft,
+      report_start_date:
+        mockReportResults.pay_transparency_report[0].report_start_date,
+      report_end_date:
+        mockReportResults.pay_transparency_report[0].report_end_date,
+    });
     expect(ret).toEqual(mockReportResults.pay_transparency_report);
+  });
+});
+
+describe('getReportById', () => {
+  it('returns an single report', async () => {
+    const report = {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
+      report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 1,
+    };
+    const mockReportResults = {
+      pay_transparency_report: [report],
+    };
+    (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
+      mockReportResults,
+    );
+    const ret = await reportService.getReportById(
+      mockCompanyInDB.company_id,
+      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+    );
+    expect(ret).toEqual(report);
+  });
+});
+
+describe('getReportFileName', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+  it('returns a filename', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
+    const report = {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      user_comment: '',
+      employee_count_range_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      naics_code: '11',
+      report_start_date: moment.utc().subtract(11, 'months').toDate(),
+      report_end_date: moment.utc().toDate(),
+      report_status: 'Published',
+      revision: new Prisma.Decimal(1),
+      data_constraints: '',
+    };
+
+    jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);
+
+    const ret = await reportService.getReportFileName(
+      mockCompanyInDB.company_id,
+      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+    );
+    expect(ret).toBe('pay_transparency_report_2023-01_2023-12.pdf');
   });
 });
