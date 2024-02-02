@@ -140,3 +140,5 @@ charts/fin-pay-transparency/values-local.yaml
 # folders created by jest
 backend/session-path
 backend/test-report.xml
+doc-gen-service/test-report.xml
+.DS_Store
