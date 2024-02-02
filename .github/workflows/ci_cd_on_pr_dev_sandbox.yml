@@ -148,7 +148,6 @@ jobs:
     secrets: inherit
     with:
       autoscaling: false
-      penetration-test: false
       target: pr-${{ github.event.number }}
       tag: ${{ github.sha }}
       values: "values-pr.yaml"
