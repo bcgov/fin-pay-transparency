@@ -40,7 +40,7 @@ jobs:
 
   builds:
     if: '!github.event.pull_request.head.repo.fork'
-    name: Build Containers for OpenShift Deployment
+    name: Builds
     runs-on: ubuntu-22.04
     permissions:
       packages: write
