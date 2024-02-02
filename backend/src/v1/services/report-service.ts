@@ -900,7 +900,7 @@ const reportService = {
   },
 
   async getReportHtml(req, reportId: string): Promise<string> {
-    const reportData = this.getReportData(req, reportId);
+    const reportData = await this.getReportData(req, reportId);
     const responseHtml: string = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
@@ -913,7 +913,7 @@ const reportService = {
   },
 
   async getReportPdf(req, reportId: string): Promise<Buffer> {
-    const reportData = this.getReportData(req, reportId);
+    const reportData = await this.getReportData(req, reportId);
     const responsePdf = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
