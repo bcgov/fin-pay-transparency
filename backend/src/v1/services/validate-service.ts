@@ -85,7 +85,7 @@ const validateService = {
 
     // Parse the CSV content and check that the column names as
     // expected (and in the expected order)
-    var rows: Row[] = [];
+    let rows: Row[] = [];
     try {
       rows = this.parseCsv(csvContent);
     } catch (e) {
@@ -137,7 +137,7 @@ const validateService = {
 
   */
   parseCsv(csvContent: string): Row[] {
-    var rows = [];
+    let rows = [];
     try {
       rows = parse(csvContent, {
         columns: true,
@@ -187,7 +187,7 @@ const validateService = {
   */
   validateRows(rows: Row[]): LineErrors[] {
     const allRowErrors: LineErrors[] = [];
-    for (var rowNum = 0; rowNum < rows.length; rowNum++) {
+    for (let rowNum = 0; rowNum < rows.length; rowNum++) {
       //+1 because the line numbers are not zero-indexed, and
       //+1 again because the first data line is actually the second line of the file(after the header line)
       const lineNum = rowNum + 2;
@@ -201,6 +201,32 @@ const validateService = {
     return allRowErrors;
   },
 
+  /**
+   * Helper function for validateRow() to decrease complexity
+   * @param record - the record to inspect
+   * @param columns - the columns in the record to inspect
+   * @param max - the max allowed value
+   * @returns
+   */
+  numberValidation(record, columns: string[], max: number): string[] {
+    const errorMessages: string[] = [];
+
+    columns.forEach((colName) => {
+      const value = record[colName];
+      if (!this.isZeroSynonym(value) && !this.isValidNumber(value)) {
+        errorMessages.push(`Invalid number '${value}' in ${colName}.`);
+      }
+      // Range check.  Only do this check if the above check passes
+      else if (value < 0 || value > max) {
+        errorMessages.push(
+          `${colName} must specify a positive number no larger than ${max}. Found '${value}'.`,
+        );
+      }
+    });
+
+    return errorMessages;
+  },
+
   /*
   Scans the given row. Check that all columns have valid values.  
   Return a LineErrors object if any errors are found, or returns null 
@@ -211,32 +237,14 @@ const validateService = {
     const errorMessages: string[] = [];
 
     // Validation checks common to all columns with data in units of 'hours'
-    HOURS_COLUMNS.forEach((colName) => {
-      const value = record[colName];
-      if (!this.isZeroSynonym(value) && !this.isValidNumber(value)) {
-        errorMessages.push(`Invalid number '${value}' in ${colName}.`);
-      }
-      // Range check.  Only do this check if the above check passes
-      else if (value < 0 || value > MAX_HOURS) {
-        errorMessages.push(
-          `${colName} must specify a positive number no larger than ${MAX_HOURS}. Found '${value}'.`,
-        );
-      }
-    });
+    errorMessages.push(
+      ...this.numberValidation(record, HOURS_COLUMNS, MAX_HOURS),
+    );
 
     // Validation checks common to all columns with data in units of 'dollars'
-    DOLLARS_COLUMNS.forEach((colName) => {
-      const value = record[colName];
-      if (!this.isZeroSynonym(value) && !this.isValidNumber(value)) {
-        errorMessages.push(`Invalid number '${value}' in ${colName}.`);
-      }
-      // Range check.  Only do this check if the above check passes
-      else if (value < 0 || value > MAX_DOLLARS) {
-        errorMessages.push(
-          `${colName} must specify a positive number no larger than ${MAX_DOLLARS}.  Found '${value}'.`,
-        );
-      }
-    });
+    errorMessages.push(
+      ...this.numberValidation(record, DOLLARS_COLUMNS, MAX_DOLLARS),
+    );
 
     // Other column-specific validation checks
     if (ALL_VALID_GENDER_CODES.indexOf(record[CSV_COLUMNS.GENDER_CODE]) == -1) {
@@ -353,9 +361,8 @@ const validateService = {
 
     // Check that the value is either a number or a string that parses
     // to a number. Integer and float are both allowed.
-    var num: number;
     try {
-      num = parseFloat(val);
+      parseFloat(val);
     } catch (e) {
       console.log(e);
       return false;
