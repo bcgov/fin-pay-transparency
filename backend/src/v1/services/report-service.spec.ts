@@ -1,18 +1,22 @@
+import type { pay_transparency_report } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import moment from 'moment';
 import prisma from '../prisma/prisma-client';
-import { Prisma } from '@prisma/client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
-  GENDERS,
+  enumReportStatus,
   GenderChartInfo,
+  GENDERS,
   REPORT_DATE_FORMAT,
   ReportAndCalculations,
-  enumReportStatus,
   reportService,
   reportServicePrivate,
 } from './report-service';
 import { utils } from './utils-service';
+
+const actualMovePublishedReportToHistory =
+  reportServicePrivate.movePublishedReportToHistory;
 
 jest.mock('./utils-service');
 jest.mock('../prisma/prisma-client', () => {
@@ -26,11 +30,16 @@ jest.mock('../prisma/prisma-client', () => {
       findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
+    },
+    report_history: {
+      create: jest.fn(),
     },
     pay_transparency_calculated_data: {
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      deleteMany: jest.fn(),
     },
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
   };
@@ -95,6 +104,31 @@ const mockCalculatedDatasInDB = [
     },
   },
 ];
+
+const mockPublishedReport: pay_transparency_report = {
+  report_id: '456768',
+  company_id: '255677',
+  user_id: '1232344',
+  user_comment: null,
+  employee_count_range_id: '67856345',
+  naics_code: '234234',
+  report_start_date: moment.utc().toDate(),
+  report_end_date: moment.utc().add(1, 'year').toDate(),
+  create_date: new Date(),
+  update_date: new Date(),
+  create_user: 'User',
+  update_user: 'User',
+  report_status: enumReportStatus.Published,
+  revision: new Prisma.Decimal(1),
+  data_constraints: null,
+};
+
+const mockDraftReport: pay_transparency_report = {
+  ...mockPublishedReport,
+  report_id: '2489554',
+  user_id: '5265928',
+  report_status: enumReportStatus.Draft,
+};
 
 const mockReportsInDB = {
   pay_transparency_report: [
@@ -543,6 +577,133 @@ describe('getReports', () => {
   });
 });
 
+describe('publishReport', () => {
+  describe("if the given report doesn't have status=Draft", () => {
+    it('throws an error', async () => {
+      await expect(
+        reportService.publishReport(mockPublishedReport),
+      ).rejects.toThrow();
+    });
+  });
+  describe('if the given report has status=Draft, and there is no existing Published report', () => {
+    it('changes the status from Draft to Published', async () => {
+      (prisma.pay_transparency_report.findFirst as jest.Mock).mockResolvedValue(
+        null,
+      );
+      jest
+        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .mockReturnValueOnce(null);
+
+      await reportService.publishReport(mockDraftReport);
+
+      // Expect no attempt to move a pre-existing published report to
+      // history (because there is no pre-existing published report)
+      expect(
+        reportServicePrivate.movePublishedReportToHistory,
+      ).toHaveBeenCalledTimes(0);
+
+      // Expect one call to update a DB record in the pay_transparency_report
+      // table
+      expect(prisma.pay_transparency_report.update).toHaveBeenCalledTimes(1);
+
+      // Fetch the parameter passed to the update statement so we can
+      // verify if performed the correct action
+      const updateStatement = (
+        prisma.pay_transparency_report.update as jest.Mock
+      ).mock.calls[0][0];
+
+      // Expect only one record to be updated (the report that was passed to
+      // publishReport(...)
+      expect(updateStatement.where.report_id).toBe(mockDraftReport.report_id);
+
+      // Expect only one column to be updated (the report status_column)
+      expect(updateStatement.data).toStrictEqual({
+        report_status: enumReportStatus.Published,
+      });
+    });
+  });
+  describe('if the given report has status=Draft, and there is an existing Published report', () => {
+    it('archives the existing published report in history, and changes the status of the Draft to Published', async () => {
+      (prisma.pay_transparency_report.findFirst as jest.Mock).mockResolvedValue(
+        mockPublishedReport,
+      );
+      jest
+        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .mockReturnValueOnce(null);
+
+      await reportService.publishReport(mockDraftReport);
+
+      // Expect an attempt to move the pre-existing published report to
+      // history
+      expect(
+        reportServicePrivate.movePublishedReportToHistory,
+      ).toHaveBeenCalledTimes(1);
+
+      // Expect one call to update a DB record in the pay_transparency_report
+      // table
+      expect(prisma.pay_transparency_report.update).toHaveBeenCalledTimes(1);
+
+      // Fetch the parameter passed to the update statement so we can
+      // verify if performed the correct action
+      const updateStatement = (
+        prisma.pay_transparency_report.update as jest.Mock
+      ).mock.calls[0][0];
+
+      // Expect only one record to be updated (the report that was passed to
+      // publishReport(...)
+      expect(updateStatement.where.report_id).toBe(mockDraftReport.report_id);
+
+      // Expect only one column to be updated (the report status_column)
+      expect(updateStatement.data).toStrictEqual({
+        report_status: enumReportStatus.Published,
+      });
+    });
+  });
+});
+
+describe('movePublishedReportToHistory', () => {
+  describe("if the given report isn't Published", () => {
+    it('throws an error', async () => {
+      const tx = jest.fn();
+      await expect(
+        actualMovePublishedReportToHistory(tx, mockDraftReport),
+      ).rejects.toThrow();
+    });
+  });
+  describe('if the given report is Published', () => {
+    it("copy it to history, delete it's calculated data, and delete the original record from reports", async () => {
+      const tx = await prisma.$transaction(async (tx) => {
+        await actualMovePublishedReportToHistory(tx, mockPublishedReport);
+      });
+
+      // Confirm that the calculated datas were deleted
+      expect(
+        prisma.pay_transparency_calculated_data.deleteMany,
+      ).toHaveBeenCalledTimes(1);
+      const deleteCalcData = (
+        prisma.pay_transparency_calculated_data.deleteMany as jest.Mock
+      ).mock.calls[0][0];
+      expect(deleteCalcData.where.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the report was copied to the history table
+      expect(prisma.report_history.create).toHaveBeenCalledTimes(1);
+      const createReportHistory = (prisma.report_history.create as jest.Mock)
+        .mock.calls[0][0];
+      expect(createReportHistory.data.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the original report was deleted from the reports table
+      expect(prisma.pay_transparency_report.delete).toHaveBeenCalledTimes(1);
+      const deleteReport = (prisma.pay_transparency_report.delete as jest.Mock)
+        .mock.calls[0][0];
+      expect(deleteReport.where.report_id).toBe(mockPublishedReport.report_id);
+    });
+  });
+});
+
 describe('getReportById', () => {
   it('returns an single report', async () => {
     const report = {
@@ -575,6 +736,8 @@ describe('getReportFileName', () => {
     jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
     const report = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      company_id: mockCompanyInDB.company_id,
+      user_id: '1232344',
       user_comment: '',
       employee_count_range_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
       naics_code: '11',
@@ -583,6 +746,10 @@ describe('getReportFileName', () => {
       report_status: 'Published',
       revision: new Prisma.Decimal(1),
       data_constraints: '',
+      create_date: new Date(),
+      update_date: new Date(),
+      create_user: 'User',
+      update_user: 'User',
     };
 
     jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);
