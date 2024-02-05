@@ -91,10 +91,7 @@ reportRouter.put(
 
       try {
         await reportService.publishReport(report_to_publish);
-        const reportHtml = reportService.getReportHtml(
-          bceidBusinessGuid,
-          reportId,
-        );
+        const reportHtml = await reportService.getReportHtml(req, reportId);
         res.type('html').status(200).send(reportHtml);
       } catch (e) {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
