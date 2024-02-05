@@ -52,6 +52,55 @@ reportRouter.get(
 );
 
 /**
+ * /api/v1/report/<report_id>
+ *   Changes the status of the report with the given report_id
+ *   from Draft to Published.  Does not allow any other properties
+ *   of the report to be updated.  Only the user that created
+ *   the report is allowed to change its status.  An organization can
+ *   only have one published report (for a given time period). If
+ *   an organization has an existing published report for the same
+ *   time period as the given draft report, the existing published
+ *   report will be overridden.
+ */
+reportRouter.put(
+  '/:reportId',
+  utils.asyncHandler(
+    async (
+      req: Request<{ reportId: string }, null, null, null>,
+      res: Response,
+    ) => {
+      // verify business guid
+      const bceidBusinessGuid =
+        utils.getSessionUser(req)?._json?.bceid_business_guid;
+      if (!bceidBusinessGuid)
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+
+      const reportId: string = req.params.reportId;
+      const report_to_publish = await reportService.getReportById(
+        bceidBusinessGuid,
+        reportId,
+      );
+
+      if (!report_to_publish) {
+        return res.status(HttpStatus.NOT_FOUND).end();
+      }
+
+      if (report_to_publish.report_status != enumReportStatus.Draft) {
+        return res.status(HttpStatus.NOT_FOUND).end();
+      }
+
+      try {
+        await reportService.publishReport(report_to_publish);
+        const reportHtml = await reportService.getReportHtml(req, reportId);
+        res.type('html').status(200).send(reportHtml);
+      } catch (e) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+      }
+    },
+  ),
+);
+
+/**
  * /api/v1/report/:report_id
  *    accepts 'json':
  *      Get the input form data for a report in the users business

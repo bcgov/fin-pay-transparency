@@ -1,8 +1,8 @@
 import { AxiosError } from 'axios';
+import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { REPORT_STATUS } from '../../utils/constant';
 import ApiService from '../apiService';
-import { saveAs } from 'file-saver';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
