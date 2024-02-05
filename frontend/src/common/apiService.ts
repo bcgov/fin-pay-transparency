@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { saveAs } from 'file-saver';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
@@ -153,7 +154,7 @@ export default {
     report_end_date?: string;
   }) {
     try {
-      const resp = await apiAxios.get(ApiRoutes.REPORTS, {
+      const resp = await apiAxios.get(ApiRoutes.REPORT, {
         params: filters,
       });
       if (resp?.data) {
@@ -166,9 +167,14 @@ export default {
     }
   },
 
-  async getHtmlReport(reportId: string) {
+  /**
+   * Get the form details of an existing report
+   * @param {string} reportId
+   * @returns {report_id, user_comment, employee_count_range_id, naics_code, report_start_date, report_end_date, report_status, revision, data_constraints}
+   */
+  async getReport(reportId) {
     try {
-      const resp = await apiAxios.get(`${ApiRoutes.REPORTS}/${reportId}`);
+      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId);
       if (resp?.data) {
         return resp.data;
       }
@@ -179,9 +185,71 @@ export default {
     }
   },
 
+  /**
+   * Get the report as HTML
+   * @param {string} reportId
+   * @returns {string} HTML version of the report
+   */
+  async getHtmlReport(reportId) {
+    try {
+      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId, {
+        headers: { accept: 'text/html' },
+        responseType: 'text',
+      });
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch html report from API');
+    } catch (e) {
+      console.log(`Failed to get html report from API - ${e}`);
+      throw e;
+    }
+  },
+
+  /**
+   * Download the report in a PDF format.
+   * @param {string} reportId
+   */
+  async getPdfReport(reportId) {
+    try {
+      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId, {
+        headers: { accept: 'application/pdf' },
+        responseType: 'blob',
+      });
+
+      if (resp?.data) {
+        //get/create filename
+        let fileName = '';
+        if (resp?.headers['content-disposition']) {
+          const startFileNameIndex =
+            resp.headers['content-disposition'].indexOf('filename=') + 9;
+          const endFileNameIndex =
+            resp.headers['content-disposition'].lastIndexOf('.pdf') + 4;
+          fileName = resp.headers['content-disposition'].substring(
+            startFileNameIndex,
+            endFileNameIndex,
+          );
+        }
+        if (!fileName) fileName = 'pay_transparency_report.pdf';
+
+        //make the browser save the file
+        saveAs(resp.data, fileName, { type: 'application/pdf' } as any);
+      } else {
+        throw new Error('Unable to fetch pdf report from API');
+      }
+    } catch (e) {
+      console.log(`Failed to get pdf report from API - ${e}`);
+      throw e;
+    }
+  },
+
+  /**
+   * Change the status of an existing report from Draft to Published.
+   * @param {string} reportId  The id of a Draft report that should be Published
+   */
   async publishReport(reportId: string) {
     try {
-      await apiAxios.put(`ApiRoutes.REPORTS/${reportId}`);
+      await apiAxios.put(`ApiRoutes.REPORT/${reportId}`);
     } catch (e) {
       console.log(`Failed to get reports from API - ${e}`);
       throw e;

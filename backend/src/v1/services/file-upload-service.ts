@@ -112,11 +112,12 @@ const fileUploadService = {
       },
     });
 
-    const existingReport = await tx.pay_transparency_report.findFirst({
+    const existingDraftReport = await tx.pay_transparency_report.findFirst({
       where: {
         company_id: payTransparencyCompany.company_id,
         report_start_date: startDate,
         report_end_date: endDate,
+        report_status: REPORT_STATUS.DRAFT,
       },
     });
 
@@ -133,23 +134,17 @@ const fileUploadService = {
       report_end_date: endDate.toDate(),
     };
 
-    if (existingReport) {
-      if (existingReport.report_status != REPORT_STATUS.DRAFT) {
-        throw new PayTransparencyUserError(
-          `Cannot update a ${REPORT_STATUS.PUBLISHED} report.`,
-        );
-      }
-
+    if (existingDraftReport) {
       await tx.pay_transparency_report.update({
         where: {
-          report_id: existingReport.report_id,
+          report_id: existingDraftReport.report_id,
         },
         data: {
           ...reportData,
-          revision: parseInt(existingReport.revision) + 1,
+          revision: parseInt(existingDraftReport.revision) + 1,
         },
       });
-      return existingReport.report_id;
+      return existingDraftReport.report_id;
     } else {
       const report = await tx.pay_transparency_report.create({
         data: reportData,
@@ -346,6 +341,10 @@ const fileUploadService = {
     log.info(
       'Handling file upload for correlation id: ' + req?.session?.correlationID,
     );
+
+    const bceidBusinessGuid =
+      utils.getSessionUser(req)?._json?.bceid_business_guid;
+
     parseMultipartFormData(req, res, async (err) => {
       if (err instanceof multer.MulterError) {
         // A default, general-purpose error message
@@ -390,7 +389,10 @@ const fileUploadService = {
             req,
             calculatedAmounts,
           );
-          const report = reportService.getReport(reportId);
+          const report = reportService.getReportById(
+            bceidBusinessGuid,
+            reportId,
+          );
           res.status(200).json(report);
         } catch (err) {
           if (err instanceof PayTransparencyUserError) {

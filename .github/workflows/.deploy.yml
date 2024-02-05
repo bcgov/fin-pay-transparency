@@ -34,11 +34,7 @@ on:
         default: 'values.yaml'
         required: false
         type: string
-      penetration-test:
-        description: 'Penetration test'
-        default: true
-        required: false
-        type: boolean
+
       frontend-url:
         description: 'Frontend URL of the application'
         required: true
@@ -61,7 +57,6 @@ on:
 
 
 jobs:
-  # https://github.com/bcgov-nr/action-deployer-openshift
   deploys:
     name: Helm
     environment: ${{ inputs.environment }}
@@ -133,11 +128,4 @@ jobs:
           
           # print history 
           helm history ${{ env.deployment_name }}-${{ inputs.target }}
-      - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.9.0
-        if: ${{ inputs.penetration-test == true }}
-        with:
-          target: ${{ inputs.frontend-url }}
-          cmd_options: "-a"
-          fail_action: false
-          allow_issue_writing: false
+

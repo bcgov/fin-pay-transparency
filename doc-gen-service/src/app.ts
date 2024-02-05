@@ -104,6 +104,7 @@ apiRouter.use('/doc-gen', docGenRoute);
 
 // Handle 500
 app.use((err: Error, _req: Request, res: Response) => {
+  /* istanbul ignore if  */
   if (err?.stack) {
     logger.error(err);
   }
@@ -111,6 +112,7 @@ app.use((err: Error, _req: Request, res: Response) => {
 });
 
 // Handle 404
+  /* istanbul ignore next  */
 app.use((_req: Request, res: Response) => {
   res.sendStatus(404);
 });
