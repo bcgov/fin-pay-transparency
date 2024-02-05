@@ -1063,7 +1063,7 @@ const reportService = {
       }
 
       // Change report's status to Published
-      tx.pay_transparency_report.update({
+      await tx.pay_transparency_report.update({
         where: {
           report_id: report_to_publish.report_id,
         },
