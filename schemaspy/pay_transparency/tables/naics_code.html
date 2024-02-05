@@ -122,6 +122,11 @@
                                                 <td class="constraint detail">pay_transparency_report_naics_code_fk</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
+                                            <tr>
+                                                <td title="report_history.naics_code references naics_code.naics_code via report_history_naics_code_fkey"><a href='report_history.html'>report_history</a><span class='relatedKey'>.naics_code</span></td>
+                                                <td class="constraint detail">report_history_naics_code_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -321,26 +326,49 @@
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
                                     <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
 <area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="337,5,616,240">
-<area shape="rect" id="node2" href="naics_code.html" target="_top" title="naics_code" alt="" coords="5,120,293,453">
+<area shape="rect" id="node2" href="naics_code.html" target="_top" title="naics_code" alt="" coords="5,260,293,593">
+<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="350,257,603,521">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/naics_code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="673,147,1027,235">
-<area shape="rect" id="node2" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,115,629,349">
-<area shape="rect" id="node3" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,307,93">
-<area shape="rect" id="node4" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,216,287,304">
-<area shape="rect" id="node5" href="naics_code.html" target="_top" title="naics_code" alt="" coords="12,321,300,655">
-<area shape="rect" id="node6" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,111,287,199">
-<area shape="rect" id="node7" href="report_history.html" target="_top" title="report_history" alt="" coords="753,41,947,129">
+<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="673,8,1027,96">
+<area shape="rect" id="node2" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,5,629,240">
+<area shape="rect" id="node3" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,61,307,149">
+<area shape="rect" id="node4" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,280,287,368">
+<area shape="rect" id="node5" href="naics_code.html" target="_top" title="naics_code" alt="" coords="12,397,300,731">
+<area shape="rect" id="node6" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,169,287,257">
+<area shape="rect" id="node7" href="report_history.html" target="_top" title="report_history" alt="" coords="363,257,617,521">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/naics_code.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="337,5,616,240">
+<area shape="rect" id="node2" href="naics_code.html" target="_top" title="naics_code" alt="" coords="5,168,293,501">
+<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="660,24,913,288">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/naics_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="673,420,1027,508">
+<area shape="rect" id="node2" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,413,629,501">
+<area shape="rect" id="node3" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,461,307,549">
+<area shape="rect" id="node4" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,5,287,93">
+<area shape="rect" id="node5" href="naics_code.html" target="_top" title="naics_code" alt="" coords="12,111,300,444">
+<area shape="rect" id="node6" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,567,287,655">
+<area shape="rect" id="node7" href="report_history.html" target="_top" title="report_history" alt="" coords="753,315,947,403">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/naics_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

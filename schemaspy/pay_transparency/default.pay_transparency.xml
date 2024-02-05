@@ -69,6 +69,7 @@
       <table name="naics_code" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="naics_code" nullable="false" remarks="" size="5" type="varchar" typeCode="12">
             <child column="naics_code" foreignKey="pay_transparency_report_naics_code_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+            <child column="naics_code" foreignKey="report_history_naics_code_fkey" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="naics_label" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_DATE" digits="0" id="2" name="effective_date" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
@@ -133,7 +134,7 @@
       <table name="pay_transparency_report" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
-            <child column="report_id" foreignKey="report_history_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+            <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="company_id" foreignKey="report_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
@@ -148,8 +149,8 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="naics_code" nullable="false" remarks="" size="5" type="varchar" typeCode="12">
             <parent column="naics_code" foreignKey="pay_transparency_report_naics_code_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="naics_code"/>
          </column>
-         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="report_start_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="7" name="report_end_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="0" id="6" name="report_start_date" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="0" id="7" name="report_end_date" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="9" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_USER" digits="0" id="10" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
@@ -181,7 +182,7 @@
       <table name="report_history" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="report_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
-            <parent column="report_id" foreignKey="report_history_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+            <parent column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="company_id" foreignKey="report_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
@@ -192,15 +193,19 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="employee_count_range_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="employee_count_range_id" foreignKey="report_history_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="employee_count_range"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="user_comment" nullable="false" remarks="" size="4000" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="report_data" nullable="false" remarks="" size="2147483647" type="bytea" typeCode="-2"/>
-         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="7" name="report_start_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="report_end_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="9" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="10" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="create_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="update_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="'Draft'::character varying" digits="0" id="13" name="report_status" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="user_comment" nullable="true" remarks="" size="4000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="0" id="6" name="report_start_date" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="0" id="7" name="report_end_date" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="9" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'Draft'::character varying" digits="0" id="12" name="report_status" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="naics_code" nullable="false" remarks="" size="5" type="varchar" typeCode="12">
+            <parent column="naics_code" foreignKey="report_history_naics_code_fkey" implied="false" onDeleteCascade="false" schema="pay_transparency" table="naics_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="data_constraints" nullable="true" remarks="" size="5" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="revision" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
          <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
          <index name="report_history_pk" unique="true">
             <column ascending="true" name="report_history_id"/>

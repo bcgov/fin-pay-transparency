@@ -3,8 +3,8 @@ report_history
 pay_transparency_calculated_data
 company_history
 pay_transparency_report
-naics_code
 calculation_code
 pay_transparency_user
+naics_code
 employee_count_range
 pay_transparency_company

@@ -139,8 +139,8 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="report_history.report_id references pay_transparency_report.report_id via report_history_report_id_fk"><a href='pay_transparency_report.html'>pay_transparency_report</a><span class='relatedKey'>.report_id</span></td>
-                                                <td class="constraint detail">report_history_report_id_fk</td>
+                                                <td title="report_history.report_id&#39;s name implies that it&#39;s a child of pay_transparency_report.report_id, but it doesn&#39;t reference that column."><a href='pay_transparency_report.html'>pay_transparency_report</a><span class='relatedKey'>.report_id</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
@@ -217,24 +217,7 @@
                                     <td><span id="user_comment">user_comment</span></td>
                                     <td>varchar</td>
                                     <td>4000</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="report_data">report_data</span></td>
-                                    <td>bytea</td>
-                                    <td>2147483647</td>
-                                    <td title=''></td>
+                                    <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -249,8 +232,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="report_start_date">report_start_date</span></td>
-                                    <td>timestamp</td>
-                                    <td>29,6</td>
+                                    <td>date</td>
+                                    <td>13</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>CURRENT_TIMESTAMP</td>
@@ -266,8 +249,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="report_end_date">report_end_date</span></td>
-                                    <td>timestamp</td>
-                                    <td>29,6</td>
+                                    <td>date</td>
+                                    <td>13</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>CURRENT_TIMESTAMP</td>
@@ -319,7 +302,7 @@
                                     <td><span id="create_user">create_user</span></td>
                                     <td>varchar</td>
                                     <td>255</td>
-                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -336,7 +319,7 @@
                                     <td><span id="update_user">update_user</span></td>
                                     <td>varchar</td>
                                     <td>255</td>
-                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -356,6 +339,62 @@
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>&#39;Draft&#39;::character varying</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="naics_code">naics_code</span></td>
+                                    <td>varchar</td>
+                                    <td>5</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="report_history.naics_code references naics_code.naics_code via report_history_naics_code_fkey"><a href='naics_code.html'>naics_code</a><span class='relatedKey'>.naics_code</span></td>
+                                                <td class="constraint detail">report_history_naics_code_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="data_constraints">data_constraints</span></td>
+                                    <td>varchar</td>
+                                    <td>5</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="revision">revision</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -453,30 +492,55 @@
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
                                     <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,77,629,312">
+<area shape="rect" id="node1" href="report_history.html" target="_top" title="report_history" alt="" coords="351,79,739,617">
 <area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,307,152">
-<area shape="rect" id="node3" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,313,287,431">
-<area shape="rect" id="node4" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,172,287,289">
-<area shape="rect" id="node5" href="report_history.html" target="_top" title="report_history" alt="" coords="673,123,1068,603">
+<area shape="rect" id="node3" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,304,287,421">
+<area shape="rect" id="node4" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,463,239,580">
+<area shape="rect" id="node5" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,169,287,287">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/report_history.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="382,5,598,93">
-<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,8,307,96">
-<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="694,17,1047,105">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,147,629,235">
-<area shape="rect" id="node5" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,324,287,412">
-<area shape="rect" id="node6" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,113,239,201">
-<area shape="rect" id="node7" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,219,287,307">
-<area shape="rect" id="node8" href="report_history.html" target="_top" title="report_history" alt="" coords="673,123,1068,603">
+<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="437,5,653,93">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,172,307,319">
+<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="405,667,684,755">
+<area shape="rect" id="node4" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,492,287,609">
+<area shape="rect" id="node5" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,656,239,773">
+<area shape="rect" id="node6" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,343,287,460">
+<area shape="rect" id="node7" href="report_history.html" target="_top" title="report_history" alt="" coords="351,111,739,649">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/report_history.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,81,629,316">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,307,152">
+<area shape="rect" id="node3" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,304,287,421">
+<area shape="rect" id="node4" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,439,239,556">
+<area shape="rect" id="node5" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,169,287,287">
+<area shape="rect" id="node6" href="report_history.html" target="_top" title="report_history" alt="" coords="673,55,1061,593">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/report_history.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="382,5,598,93">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,43,307,131">
+<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="691,9,1044,97">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,147,629,235">
+<area shape="rect" id="node5" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,253,287,341">
+<area shape="rect" id="node6" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,393,239,481">
+<area shape="rect" id="node7" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,148,287,236">
+<area shape="rect" id="node8" href="report_history.html" target="_top" title="report_history" alt="" coords="673,115,1061,653">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/report_history.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>
