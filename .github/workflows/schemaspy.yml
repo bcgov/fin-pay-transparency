@@ -5,7 +5,7 @@ on:
     branches:   
       - main
     paths: 
-      - './backend/src/db/**'
+      - 'backend/db/**'
   workflow_dispatch:
 
 concurrency:
