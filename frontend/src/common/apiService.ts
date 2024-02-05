@@ -166,6 +166,19 @@ export default {
     }
   },
 
+  async getHtmlReport(reportId: string) {
+    try {
+      const resp = await apiAxios.get(`${ApiRoutes.REPORTS}/${reportId}`);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch report from API');
+    } catch (e) {
+      console.log(`Failed to get report from API - ${e}`);
+      throw e;
+    }
+  },
+
   async publishReport(reportId: string) {
     try {
       await apiAxios.put(`ApiRoutes.REPORTS/${reportId}`);

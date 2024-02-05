@@ -373,6 +373,11 @@
                   text="Submit"
                   :click-action="submit"
                 />
+                <primary-button
+                  id="publishTestButton"
+                  text="Publish Test"
+                  :click-action="publishReport"
+                />
               </v-col>
             </v-row>
 
@@ -576,6 +581,10 @@ export default {
     confirmOverrideReportDialogVisible: false,
   }),
   methods: {
+    async publishReport() {
+      console.log('publish report');
+      await ApiService.publishReport('f1c342ee-c813-442d-b11e-a49e7c71c267');
+    },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
