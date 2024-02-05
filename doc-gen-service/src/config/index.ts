@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import config from 'nconf';
 
 dotenv.config();
+/* istanbul ignore next  */
 const env = process.env.NODE_ENV || 'local';
 
 config.defaults({

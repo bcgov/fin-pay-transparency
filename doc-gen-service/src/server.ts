@@ -1,13 +1,10 @@
 import http from 'http';
 import { config } from './config/index';
-
 import { logger } from './logger';
-
 import { app } from './app';
 import { browser, initBrowser } from './v1/services/puppeteer-service';
 
 // run inside `async` function
-
 const port = config.get('server:port');
 const server = http.createServer(app);
 const env = config.get('environment');
@@ -22,8 +19,8 @@ if (env === 'local') {
   initBrowser()
     .then(() => {
       browser
-        .disconnect()
-        .then(() => {
+      .disconnect()
+      .then(() => {
           app.set('port', port);
           server.listen(port);
           server.on('error', onError);
@@ -49,6 +46,7 @@ function onError(error: { syscall: string; code: any }) {
     throw error;
   }
 
+  /* istanbul ignore next */
   const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
@@ -69,23 +67,37 @@ function onError(error: { syscall: string; code: any }) {
  */
 function onListening() {
   const addr = server.address();
+  /* istanbul ignore next */
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   logger.info('Listening on ' + bind);
 }
 
-process.on('SIGINT', () => {
-  server.close();
-  logger.info('process terminated by SIGINT');
-  process.exit(0);
-});
-process.on('SIGTERM', () => {
-  server.close();
-  logger.info('process terminated by SIGTERM');
-  process.exit(0);
-});
+process.on(
+  'SIGINT',
+  /* istanbul ignore next */
+  () => {
+    server.close();
+    logger.info('process terminated by SIGINT');
+    process.exit(0);
+  },
+);
+
+process.on(
+  'SIGTERM',
+  /* istanbul ignore next */
+  () => {
+    server.close();
+    logger.info('process terminated by SIGTERM');
+    process.exit(0);
+  },
+);
 // Prevent unhandled promise errors from crashing application
-process.on('unhandledRejection', (err: Error) => {
-  if (err?.stack) {
-    logger.error(err);
-  }
-});
+process.on(
+  'unhandledRejection',
+  /* istanbul ignore next */ 
+  (err: Error) => {
+    if (err?.stack) {
+      logger.error(err);
+    }
+  },
+);
