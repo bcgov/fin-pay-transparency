@@ -504,12 +504,6 @@ export default {
         );
         formData.append('comments', this.comments ? this.comments : '');
         formData.append('file', this.uploadFileValue[0]);
-        const oldBody = {
-          companyName: this.companyName,
-          companyAddress: this.companyAddress,
-          employeeCount: this.employeeCount,
-          file: this.uploadFileValue[0],
-        };
         const response = await ApiService.postSubmission(formData);
         this.draftReport = sanitizeUrl(response);
         this.stage = 'REVIEW';
@@ -525,29 +519,24 @@ export default {
     },
     submitRequest() {
       if (this.dataReady) {
-        try {
-          if (
-            this.uploadFileValue[0].name &&
-            this.uploadFileValue[0].name.match(
-              '^[\\u0080-\\uFFFF\\w,\\s-_]+\\.[A-Za-z]{3,4}$',
-            )
-          ) {
-            this.active = true;
-            const reader = new FileReader();
-            reader.onload = this.uploadFile;
-            reader.onabort = this.handleFileReadErr;
-            reader.onerror = this.handleFileReadErr;
-            reader.readAsBinaryString(this.uploadFileValue[0]);
-          } else {
-            this.active = false;
-            this.setErrorAlert({
-              general_errors: [
-                'Please remove spaces and special characters from file name and try uploading again.',
-              ],
-            });
-          }
-        } catch (e) {
-          throw e;
+        if (
+          this.uploadFileValue[0].name?.match(
+            '^[\\u0080-\\uFFFF\\w,\\s-_]+\\.[A-Za-z]{3,4}$',
+          )
+        ) {
+          this.active = true;
+          const reader = new FileReader();
+          reader.onload = this.uploadFile;
+          reader.onabort = this.handleFileReadErr;
+          reader.onerror = this.handleFileReadErr;
+          reader.readAsBinaryString(this.uploadFileValue[0]);
+        } else {
+          this.active = false;
+          this.setErrorAlert({
+            general_errors: [
+              'Please remove spaces and special characters from file name and try uploading again.',
+            ],
+          });
         }
       }
     },
@@ -560,7 +549,6 @@ export default {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later
       if (newVal) {
-        const startDate = moment(newVal);
         const endDate = moment(newVal).add(1, 'years').subtract(1, 'months');
         this.endDate = endDate.format(REPORT_DATE_FORMAT);
       }
@@ -569,7 +557,6 @@ export default {
       // When the endDate changes, automatically adjust the startDate to be
       // 12 months earlier
       if (newVal) {
-        const endDate = moment(newVal);
         const startDate = moment(newVal).subtract(1, 'years').add(1, 'months');
         this.startDate = startDate.format(REPORT_DATE_FORMAT);
       }

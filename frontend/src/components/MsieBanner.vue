@@ -10,8 +10,6 @@
 #banner {
   color: #81692c;
   background-color: #fef4dd !important;
-  /* display: flex;
-  justify-content: center; */
 }
 
 #banner /deep/ .v-icon {
