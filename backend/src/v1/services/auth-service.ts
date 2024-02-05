@@ -296,7 +296,13 @@ const auth = {
             `Error happened while getting company details from BCEID for user ${userGuid}`,
             e,
           );
-          res.redirect(config.get('server:frontend') + '/login-error');
+          return req.logOut((error) => {
+            log.error(
+              `Error happened while terminating session created before getting company details for user ${userGuid}`,
+              error,
+            );
+            return res.redirect(config.get('server:frontend') + '/login-error');
+          });
         }
       }
       res.redirect(config.get('server:frontend'));

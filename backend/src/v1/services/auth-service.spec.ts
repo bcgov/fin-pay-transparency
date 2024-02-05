@@ -470,6 +470,7 @@ const userInfo = {
     display_name: 'Test User',
   },
 };
+const mock_reqLogout = jest.fn();
 const req: any = {
   session: {
     companyDetails: {
@@ -480,6 +481,10 @@ const req: any = {
         ...userInfo,
       },
     },
+  },
+  logOut: (callback) => {
+    callback();
+    mock_reqLogout();
   },
 };
 
@@ -565,6 +570,7 @@ describe('handleCallBackBusinessBceid', () => {
       aud: 'clientId',
       identity_provider: 'bceidbusiness',
     });
+    jest.clearAllMocks();
   });
   it('should handle the callback successfully', async () => {
     // Mock any dependencies and set up the expected behavior
@@ -626,5 +632,18 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
+  });
+  it('should terminate current session and redirect when it fails to get Company details', async () => {
+    jest.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
+      return Promise.reject(mockCompanyInSession);
+    });
+    
+    const modifiedReq = {
+      ...req,
+    };
+    modifiedReq.session.companyDetails = undefined;
+    await auth.handleCallBackBusinessBceid(modifiedReq, res);
+    expect(mock_reqLogout).toHaveBeenCalled();
+    expect(res.redirect).toHaveBeenCalled();
   });
 });
