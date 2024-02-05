@@ -12,4 +12,5 @@ alter table report_history add column naics_code varchar(5) not null references 
 alter table report_history add column data_constraints varchar(5);
 alter table report_history add column revision numeric not null;
 alter table report_history drop column report_data;
+alter table report_history drop constraint report_history_report_id_fk;
 
