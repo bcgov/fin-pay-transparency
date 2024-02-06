@@ -1,7 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 
 import bodyParser from 'body-parser';
-import cors from 'cors';
 import session from 'express-session';
 import helmet from 'helmet';
 import morgan from 'morgan';
