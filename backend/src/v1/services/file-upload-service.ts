@@ -389,7 +389,7 @@ const fileUploadService = {
             req,
             calculatedAmounts,
           );
-          const report = reportService.getReportById(
+          const report = await reportService.getReportById(
             bceidBusinessGuid,
             reportId,
           );
