@@ -20,7 +20,7 @@
                       active: stage == 'UPLOAD',
                       available: stage != 'UPLOAD',
                     }"
-                    v-on:click="stage = 'UPLOAD'"
+                    v-on:click="showStage('UPLOAD')"
                   >
                     1
                   </div>
@@ -33,9 +33,9 @@
                     class="circle"
                     :class="{
                       active: stage == 'REVIEW',
-                      available: stage == 'GENERATE',
-                      disabled: stage == 'UPLOAD',
+                      disabled: stage != 'REVIEW',
                     }"
+                    v-on:click="showStage('REVIEW')"
                   >
                     2
                   </div>
@@ -45,8 +45,11 @@
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
                   <div
-                    class="circle disabled"
-                    :class="{ disabled: stage != 'GENERATE' }"
+                    class="circle"
+                    :class="{
+                      active: stage == 'FINAL',
+                      disabled: stage != 'FINAL',
+                    }"
                   >
                     3
                   </div>
@@ -63,7 +66,7 @@
                 </v-col>
                 <v-col class="d-flex justify-center align-center"> </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <h5>Generate</h5>
+                  <h5>Report</h5>
                 </v-col>
               </v-row>
             </v-col>
@@ -373,11 +376,6 @@
                   text="Submit"
                   :click-action="submit"
                 />
-                <primary-button
-                  id="publishTestButton"
-                  text="Publish Test"
-                  :click-action="publishReport"
-                />
               </v-col>
             </v-row>
 
@@ -434,7 +432,7 @@
                           color="primary"
                           @click="
                             confirmBackDialogVisible = false;
-                            goToInputForm();
+                            showStage('UPLOAD');
                           "
                         >
                           Yes
@@ -456,6 +454,9 @@
                 </v-btn>
               </div>
             </div>
+          </div>
+          <div v-if="stage == 'FINAL'" class="mb-8">
+            <div v-html="finalReportHtml"></div>
           </div>
         </v-col>
       </v-row>
@@ -575,16 +576,13 @@ export default {
     submissionErrors: null as SubmissionErrors | null,
     draftReport: null,
     draftReportHtml: null,
+    finalReportHtml: null,
     isReadyToGenerate: false,
-    stage: 'UPLOAD',
+    stage: 'UPLOAD', //one of [UPLOAD, REVIEW, FINAL]
     confirmBackDialogVisible: false,
     confirmOverrideReportDialogVisible: false,
   }),
   methods: {
-    async publishReport() {
-      console.log('publish report');
-      await ApiService.publishReport('f1c342ee-c813-442d-b11e-a49e7c71c267');
-    },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -595,9 +593,15 @@ export default {
         this.uploadFileValue = null;
       }
     },
-    goToInputForm() {
-      this.stage = 'UPLOAD';
+    showStage(stageName: string) {
+      this.stage = stageName;
       this.setSuccessAlert(null);
+
+      // Wait a short time for the stage's HTML to render, then
+      // scroll to the top of the screen
+      setTimeout(() => {
+        window.scrollTo(0, 0); //scroll to top of screen
+      }, 100);
     },
     async fetchReportHtml(reportId: string) {
       const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
@@ -620,11 +624,16 @@ export default {
     async generateReport() {
       this.isProcessing = true;
       try {
-        await ApiService.publishReport(this.report.reportId);
-        this.isProcessing = false;
+        const unsanitisedHtml = await ApiService.publishReport(
+          this.draftReport?.report_id,
+        );
+        this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
+        this.showStage('FINAL');
       } catch (e) {
-        this.isProcessing = false;
+        console.log(e);
+        //Todo: show error to user via the notification service.
       }
+      this.isProcessing = false;
     },
     async submit() {
       this.isProcessing = true;
@@ -649,8 +658,8 @@ export default {
           file: this.uploadFileValue[0],
         };
         this.draftReport = await ApiService.postSubmission(formData);
-        await this.fetchReportHtml(this.draftReport.reportId);
-        this.stage = 'REVIEW';
+        await this.fetchReportHtml(this.draftReport.report_id);
+        this.showStage('REVIEW');
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
         this.isProcessing = false;
