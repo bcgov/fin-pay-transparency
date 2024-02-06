@@ -118,6 +118,10 @@ router.post(
     const session: any = req.session;
     const errors = validationResult(req);
 
+    if (!session?.companyDetails) {
+      return res.status(401).json({error: 'Missing company details'});
+    }
+
     if (!errors.isEmpty()) {
       return res.status(400).json({
         errors: errors.array(),
@@ -148,6 +152,9 @@ router.get(
   (req: Request, res: Response) => {
     const user: any = req.user;
     const session: any = req.session;
+    if (!session?.companyDetails) {
+      return res.status(401).json({ error: 'Missing company details' });
+    }
     if (user?.jwtFrontend && user?.refreshToken) {
       if (session?.passport?.user?._json) {
         req.session['correlationID'] = uuidv4();
