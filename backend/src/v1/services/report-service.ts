@@ -375,6 +375,9 @@ const reportService = {
             bceid_business_guid: userInfo._json.bceid_business_guid,
           },
         });
+      if (!payTransparencyCompany) {
+        throw new Error('Cannot find company');
+      }
 
       let report = null;
       try {
@@ -390,7 +393,9 @@ const reportService = {
           },
         });
       } catch (e) {
-        console.log(e);
+        // Fail silently. We assume any exception is because the
+        // companyId or reportId was invalid.  (Prisma checks that these values
+        // are valid UUIDs, and if they aren't it throws an error.)
       }
 
       if (!report) {

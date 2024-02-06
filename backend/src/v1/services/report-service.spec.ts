@@ -201,7 +201,7 @@ describe('getReportAndCalculations', () => {
     });
   });
   describe('when an invalid report id is provided', () => {
-    it('throws an error', async () => {
+    it('returns null', async () => {
       const mockReq = {};
       const mockReportId = 'invalid_report_id';
       (utils.getSessionUser as jest.Mock).mockReturnValue(mockUserInfo);
@@ -212,9 +212,11 @@ describe('getReportAndCalculations', () => {
         null,
       );
 
-      await expect(
-        reportService.getReportAndCalculations(mockReq, mockReportId),
-      ).rejects.toThrow();
+      const reportAndCalcs = await reportService.getReportAndCalculations(
+        mockReq,
+        mockReportId,
+      );
+      await expect(reportAndCalcs).toBeNull();
       expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalledTimes(
         1,
       );
