@@ -364,7 +364,7 @@ const reportService = {
     let reportAndCalculations: ReportAndCalculations | null = null;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo) {
-      log.error('Unable to look user info');
+      log.error('Unable to look up user info');
       throw new Error('Something went wrong');
     }
 
