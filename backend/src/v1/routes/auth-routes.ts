@@ -118,6 +118,10 @@ router.post(
     const session: any = req.session;
     const errors = validationResult(req);
 
+    if (!user.companyDetails) {
+      return res.status(401).json({error: 'Missing company details'});
+    }
+
     if (!errors.isEmpty()) {
       return res.status(400).json({
         errors: errors.array(),

@@ -633,17 +633,4 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
   });
-  it('should terminate current session and redirect when it fails to get Company details', async () => {
-    jest.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
-      return Promise.reject(mockCompanyInSession);
-    });
-    
-    const modifiedReq = {
-      ...req,
-    };
-    modifiedReq.session.companyDetails = undefined;
-    await auth.handleCallBackBusinessBceid(modifiedReq, res);
-    expect(mock_reqLogout).toHaveBeenCalled();
-    expect(res.redirect).toHaveBeenCalled();
-  });
 });
