@@ -596,6 +596,7 @@ export default {
     showStage(stageName: string) {
       this.stage = stageName;
       this.setSuccessAlert(null);
+      this.isReadyToGenerate = false;
 
       // Wait a short time for the stage's HTML to render, then
       // scroll to the top of the screen
@@ -700,9 +701,6 @@ export default {
     },
   },
   watch: {
-    confirmBackDialogVisible(val) {
-      console.log('confirmBackDialogVisible:' + val);
-    },
     naicsCodes(val) {
       this.naicsCodesTruncated = val?.length > 25 ? val.slice(0, 25) : val;
     },
