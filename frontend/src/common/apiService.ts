@@ -247,9 +247,13 @@ export default {
    * Change the status of an existing report from Draft to Published.
    * @param {string} reportId  The id of a Draft report that should be Published
    */
-  async publishReport(reportId: string) {
+  async publishReport(reportId: string): Promise<string> {
     try {
-      await apiAxios.put(`ApiRoutes.REPORT/${reportId}`);
+      const resp = await apiAxios.put(`${ApiRoutes.REPORT}/${reportId}`);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unexpected response from publishReport API');
     } catch (e) {
       console.log(`Failed to get reports from API - ${e}`);
       throw e;
