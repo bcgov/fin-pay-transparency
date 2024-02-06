@@ -152,6 +152,18 @@ const mockReportsInDB = {
 };
 
 describe('getReportAndCalculations', () => {
+  describe('wwhere there is no user in the session', () => {
+    it('throws an error', async () => {
+      const mockReq = {};
+      const mockReportId = null;
+      (utils.getSessionUser as jest.Mock).mockReturnValue(null);
+
+      await expect(
+        reportService.getReportAndCalculations(mockReq, mockReportId),
+      ).rejects.toThrow();
+      expect(utils.getSessionUser).toHaveBeenCalledTimes(1);
+    });
+  });
   describe('when a valid report id is provided', () => {
     it('returns an object containing both the report and the values of its calculations', async () => {
       const mockReq = {};
@@ -275,6 +287,23 @@ describe('getReportData', () => {
       // using a mock puppeteer, but we can at least verify that
       // some of the puppeteer functions have been called.
       expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('when the report data cannot be fetched', () => {
+    it('returns a promise with null', async () => {
+      const mockReq = {};
+      const mockReportId = mockReportInDB.report_id;
+
+      jest
+        .spyOn(reportService, 'getReportAndCalculations')
+        .mockResolvedValueOnce(null);
+
+      const reportData = await reportService.getReportData(
+        mockReq,
+        mockReportId,
+      );
+
+      expect(reportData).toBeNull();
     });
   });
 });
