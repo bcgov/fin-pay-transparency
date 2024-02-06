@@ -151,6 +151,9 @@ router.get(
   utils.asyncHandler(auth.refreshJWT),
   (req: Request, res: Response) => {
     const user: any = req.user;
+    if (!user.companyDetails) {
+      return res.status(401).json({ error: 'Missing company details' });
+    }
     const session: any = req.session;
     if (user?.jwtFrontend && user?.refreshToken) {
       if (session?.passport?.user?._json) {
