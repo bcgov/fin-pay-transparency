@@ -1338,7 +1338,6 @@ const reportCalcServicePrivate = {
 
     const genderCountsPerQuartile =
       hourlyPayQuartileStats.getGenderCountsPerQuartile();
-    console.log(genderCountsPerQuartile);
     const allGenderCodes = Object.keys(GENDER_CODES).map(
       (g) => GENDER_CODES[g][0],
     );

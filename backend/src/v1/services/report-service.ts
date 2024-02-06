@@ -1,3 +1,4 @@
+import type { pay_transparency_report } from '@prisma/client';
 import moment from 'moment';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
@@ -319,6 +320,34 @@ const reportServicePrivate = {
       return `${Math.round(amountDollars * 100)} cents`;
     }
     return `$${amountDollars.toFixed(2)}`;
+  },
+
+  async movePublishedReportToHistory(tx, report: pay_transparency_report) {
+    if (report.report_status != enumReportStatus.Published) {
+      throw new Error(
+        `Only a ${enumReportStatus.Published} report can be moved to history.`,
+      );
+    }
+
+    // Delete the calculated datas (they don't need to be moved to
+    // a history table)
+    await tx.pay_transparency_calculated_data.deleteMany({
+      where: {
+        report_id: report.report_id,
+      },
+    });
+
+    // Copy the report into report_history
+    await tx.report_history.create({
+      data: { ...report },
+    });
+
+    // Delete the original report
+    await tx.pay_transparency_report.delete({
+      where: {
+        report_id: report.report_id,
+      },
+    });
   },
 };
 
@@ -864,9 +893,9 @@ const reportService = {
       );
     if (!referenceGenderChartInfo) {
       throw new Error(
-        `Cannot find chart info for the reference category '${
-          calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]?.value
-        }'`,
+        `Cannot find chart info for the reference category '${calcs[
+          CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
+        ]?.value}'`,
       );
     }
 
@@ -1004,6 +1033,47 @@ const reportService = {
     return reportsAdjusted;
   },
 
+  async publishReport(report_to_publish: pay_transparency_report) {
+    // Check preconditions
+    if (report_to_publish.report_status != enumReportStatus.Draft) {
+      throw new Error('Only draft reports can be published');
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // Check if there is an existing published report that
+      // corresponds to the same company_id and date range as
+      // the draft "report_to_publish".  (Should be 1 published at most.)
+      const existing_published_report =
+        await tx.pay_transparency_report.findFirst({
+          where: {
+            company_id: report_to_publish.company_id,
+            report_start_date: report_to_publish.report_start_date,
+            report_end_date: report_to_publish.report_end_date,
+            report_status: enumReportStatus.Published,
+          },
+        });
+
+      // If there is an existing Published report, move it into
+      // report_history
+      if (existing_published_report) {
+        await reportServicePrivate.movePublishedReportToHistory(
+          tx,
+          existing_published_report,
+        );
+      }
+
+      // Change report's status to Published
+      await tx.pay_transparency_report.update({
+        where: {
+          report_id: report_to_publish.report_id,
+        },
+        data: {
+          report_status: enumReportStatus.Published,
+        },
+      });
+    });
+  },
+
   /**
    *
    * @param bceidBusinessGuid
@@ -1012,7 +1082,10 @@ const reportService = {
    *    - object for a single report or
    *    - null or undefined if report couldn't be found
    */
-  async getReportById(bceidBusinessGuid: string, reportId: string) {
+  async getReportById(
+    bceidBusinessGuid: string,
+    reportId: string,
+  ): Promise<pay_transparency_report> {
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -1038,7 +1111,8 @@ const reportService = {
       },
     });
     if (!reports) return null;
-    const [first] = reports.pay_transparency_report;
+    const [first] =
+      reports.pay_transparency_report as pay_transparency_report[];
     return first;
   },
 

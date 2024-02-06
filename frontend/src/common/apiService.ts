@@ -1,7 +1,7 @@
 import axios from 'axios';
+import { saveAs } from 'file-saver';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
-import { saveAs } from 'file-saver';
 
 // Buffer concurrent requests while refresh token is being acquired
 let failedQueue = [];
@@ -230,7 +230,7 @@ export default {
         if (!fileName) fileName = 'pay_transparency_report.pdf';
 
         //make the browser save the file
-        saveAs(resp.data, fileName, { type: 'application/pdf' });
+        saveAs(resp.data, fileName, { type: 'application/pdf' } as any);
       } else {
         throw new Error('Unable to fetch pdf report from API');
       }
