@@ -479,8 +479,8 @@ const req: any = {
       user: {
         ...userInfo,
       },
-    }
-  }
+    },
+  },
 };
 
 describe('storeUserInfo', () => {
