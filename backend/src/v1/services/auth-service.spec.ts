@@ -479,7 +479,7 @@ const req: any = {
       user: {
         ...userInfo,
       },
-    },
+    }
   }
 };
 
@@ -565,7 +565,6 @@ describe('handleCallBackBusinessBceid', () => {
       aud: 'clientId',
       identity_provider: 'bceidbusiness',
     });
-    jest.clearAllMocks();
   });
   it('should handle the callback successfully', async () => {
     // Mock any dependencies and set up the expected behavior
