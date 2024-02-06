@@ -3,6 +3,12 @@ import { saveAs } from 'file-saver';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
+export enum REPORT_FORMATS {
+  HTML = 'html',
+  PDF = 'pdf',
+  JSON = 'json',
+}
+
 // Buffer concurrent requests while refresh token is being acquired
 let failedQueue = [];
 
@@ -168,10 +174,7 @@ export default {
    */
   async getReport(reportId) {
     try {
-      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId, {
-        headers: { accept: 'application/json' },
-        responseType: 'json',
-      });
+      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId);
       if (resp?.data) {
         return resp.data;
       }
@@ -236,6 +239,23 @@ export default {
       }
     } catch (e) {
       console.log(`Failed to get pdf report from API - ${e}`);
+      throw e;
+    }
+  },
+
+  /**
+   * Change the status of an existing report from Draft to Published.
+   * @param {string} reportId  The id of a Draft report that should be Published
+   */
+  async publishReport(reportId: string): Promise<string> {
+    try {
+      const resp = await apiAxios.put(`${ApiRoutes.REPORT}/${reportId}`);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unexpected response from publishReport API');
+    } catch (e) {
+      console.log(`Failed to get reports from API - ${e}`);
       throw e;
     }
   },

@@ -354,16 +354,17 @@ const reportServicePrivate = {
 const reportService = {
   /*
   Fetches a report identified by the given reportId from the database,
-  along with the calculated data associated with that report
+  along with the calculated data associated with that report.
+  If no report with the given id is found, returns null.
   */
   async getReportAndCalculations(
     req,
     reportId: string,
-  ): Promise<ReportAndCalculations> {
+  ): Promise<ReportAndCalculations | null> {
     let reportAndCalculations: ReportAndCalculations | null = null;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo) {
-      log.error('Unable to look user info');
+      log.error('Unable to look up user info');
       throw new Error('Something went wrong');
     }
 
@@ -374,21 +375,31 @@ const reportService = {
             bceid_business_guid: userInfo._json.bceid_business_guid,
           },
         });
+      if (!payTransparencyCompany) {
+        throw new Error('Cannot find company');
+      }
 
-      const report = await tx.pay_transparency_report.findFirst({
-        where: {
-          company_id: payTransparencyCompany.company_id,
-          report_id: reportId,
-        },
-        include: {
-          pay_transparency_company: true,
-          naics_code_pay_transparency_report_naics_codeTonaics_code: true,
-          employee_count_range: true,
-        },
-      });
+      let report = null;
+      try {
+        report = await tx.pay_transparency_report.findFirst({
+          where: {
+            company_id: payTransparencyCompany.company_id,
+            report_id: reportId,
+          },
+          include: {
+            pay_transparency_company: true,
+            naics_code_pay_transparency_report_naics_codeTonaics_code: true,
+            employee_count_range: true,
+          },
+        });
+      } catch (e) {
+        // Fail silently. We assume any exception is because the
+        // companyId or reportId was invalid.  (Prisma checks that these values
+        // are valid UUIDs, and if they aren't it throws an error.)
+      }
 
       if (!report) {
-        throw new Error('Not found');
+        return null;
       }
 
       const calculatedDatas =
@@ -466,14 +477,19 @@ const reportService = {
     return explanatoryNotes;
   },
 
-  async getReportData(req, reportId: string): Promise<object> {
+  async getReportData(req, reportId: string): Promise<object | null> {
     logger.debug(
-      `getReportHtml called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+      `getReportData called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
     const reportAndCalculations = await this.getReportAndCalculations(
       req,
       reportId,
     );
+
+    if (!reportAndCalculations) {
+      return null;
+    }
+
     const report = reportAndCalculations.report;
     const calcs = reportAndCalculations.calculations;
     const referenceGenderCode: string =
@@ -893,9 +909,9 @@ const reportService = {
       );
     if (!referenceGenderChartInfo) {
       throw new Error(
-        `Cannot find chart info for the reference category '${calcs[
-          CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
-        ]?.value}'`,
+        `Cannot find chart info for the reference category '${
+          calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]?.value
+        }'`,
       );
     }
 

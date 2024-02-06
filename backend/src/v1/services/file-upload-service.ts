@@ -341,6 +341,10 @@ const fileUploadService = {
     log.info(
       'Handling file upload for correlation id: ' + req?.session?.correlationID,
     );
+
+    const bceidBusinessGuid =
+      utils.getSessionUser(req)?._json?.bceid_business_guid;
+
     parseMultipartFormData(req, res, async (err) => {
       if (err instanceof multer.MulterError) {
         // A default, general-purpose error message
@@ -349,7 +353,9 @@ const fileUploadService = {
         // In some cases, replace the default error message with something more
         // specific.
         if (err?.code == 'LIMIT_FILE_SIZE') {
-          errorMessage = `The uploaded file exceeds the size limit (${MAX_FILE_SIZE_BYTES / 1000000}MB).`;
+          errorMessage = `The uploaded file exceeds the size limit (${
+            MAX_FILE_SIZE_BYTES / 1000000
+          }MB).`;
         }
         log.error(
           `Error handling file upload for correlation_id: ${req.session?.correlationID} and error is ${err?.code}`,
@@ -383,11 +389,11 @@ const fileUploadService = {
             req,
             calculatedAmounts,
           );
-          const draftReportHtml = await reportService.getReportHtml(
-            req,
+          const report = await reportService.getReportById(
+            bceidBusinessGuid,
             reportId,
           );
-          res.type('html').status(200).send(draftReportHtml);
+          res.status(200).json(report);
         } catch (err) {
           if (err instanceof PayTransparencyUserError) {
             // The request was somehow invalid.  Try to show the user a helpful
