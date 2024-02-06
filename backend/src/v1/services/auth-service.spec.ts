@@ -470,7 +470,6 @@ const userInfo = {
     display_name: 'Test User',
   },
 };
-const mock_reqLogout = jest.fn();
 const req: any = {
   session: {
     companyDetails: {
@@ -481,11 +480,7 @@ const req: any = {
         ...userInfo,
       },
     },
-  },
-  logOut: (callback) => {
-    callback();
-    mock_reqLogout();
-  },
+  }
 };
 
 describe('storeUserInfo', () => {
