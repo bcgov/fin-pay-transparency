@@ -118,7 +118,7 @@ router.post(
     const session: any = req.session;
     const errors = validationResult(req);
 
-    if (!user.companyDetails) {
+    if (!user?.companyDetails) {
       return res.status(401).json({error: 'Missing company details'});
     }
 
@@ -151,7 +151,7 @@ router.get(
   utils.asyncHandler(auth.refreshJWT),
   (req: Request, res: Response) => {
     const user: any = req.user;
-    if (!user.companyDetails) {
+    if (!user?.companyDetails) {
       return res.status(401).json({ error: 'Missing company details' });
     }
     const session: any = req.session;
