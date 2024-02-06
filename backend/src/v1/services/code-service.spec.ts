@@ -9,6 +9,9 @@ jest.mock('../prisma/prisma-client', () => {
     naics_code: {
       findMany: jest.fn(),
     },
+    calculation_code: {
+      findMany: jest.fn(),
+    },
   };
 });
 
@@ -42,8 +45,8 @@ describe('getAllEmployeeCountRanges', () => {
     //response contains the expected data)
     const resp1 = await codeService.getAllEmployeeCountRanges();
     const values1 = resp1.map((d: any) => d.employee_count_range);
-    expect(prisma.employee_count_range.findMany).toBeCalledTimes(1);
-    expect(resp1.length).toBe(3);
+    expect(prisma.employee_count_range.findMany).toHaveBeenCalledTimes(1);
+    expect(resp1).toHaveLength(3);
     expect(values1).toContain(mockDBResp[0].employee_count_range);
     expect(values1).toContain(mockDBResp[1].employee_count_range);
     expect(values1).toContain(mockDBResp[2].employee_count_range);
@@ -53,8 +56,8 @@ describe('getAllEmployeeCountRanges', () => {
     //response contains the expected data)
     const resp2 = await codeService.getAllEmployeeCountRanges();
     const values2 = resp2.map((d: any) => d.employee_count_range);
-    expect(prisma.employee_count_range.findMany).toBeCalledTimes(1);
-    expect(resp2.length).toBe(3);
+    expect(prisma.employee_count_range.findMany).toHaveBeenCalledTimes(1);
+    expect(resp2).toHaveLength(3);
     expect(values2).toContain(mockDBResp[0].employee_count_range);
     expect(values2).toContain(mockDBResp[1].employee_count_range);
     expect(values2).toContain(mockDBResp[2].employee_count_range);
@@ -85,8 +88,8 @@ describe('getAllNaicsCodes', () => {
     //response contains the expected data)
     const resp1 = await codeService.getAllNaicsCodes();
     const values1 = resp1.map((d: any) => d.naics_code);
-    expect(prisma.naics_code.findMany).toBeCalledTimes(1);
-    expect(resp1.length).toBe(3);
+    expect(prisma.naics_code.findMany).toHaveBeenCalledTimes(1);
+    expect(resp1).toHaveLength(3);
     expect(values1).toContain(mockDBResp[0].naics_code);
     expect(values1).toContain(mockDBResp[1].naics_code);
     expect(values1).toContain(mockDBResp[2].naics_code);
@@ -96,10 +99,52 @@ describe('getAllNaicsCodes', () => {
     //response contains the expected data)
     const resp2 = await codeService.getAllNaicsCodes();
     const values2 = resp2.map((d: any) => d.naics_code);
-    expect(prisma.naics_code.findMany).toBeCalledTimes(1);
-    expect(resp2.length).toBe(3);
+    expect(prisma.naics_code.findMany).toHaveBeenCalledTimes(1);
+    expect(resp2).toHaveLength(3);
     expect(values2).toContain(mockDBResp[0].naics_code);
     expect(values2).toContain(mockDBResp[1].naics_code);
     expect(values2).toContain(mockDBResp[2].naics_code);
+  });
+});
+
+describe('getAllCalculationCodesAndIds', () => {
+  it('returns an array of code values', async () => {
+    const mockDBResp = [
+      {
+        calculation_code_id: '50da3659-fe7c-4d2d-9fcf-58b653a2bd00',
+        calculation_code: 'MEAN_HOURLY_PAY_DIFF_M',
+      },
+      {
+        calculation_code_id: '59ad14f8-6d9a-41c4-a9a9-288150e0e69b',
+        calculation_code: 'MEDIAN_HOURLY_PAY_DIFF_W',
+      },
+      {
+        calculation_code_id: '1f689572-8d55-456f-ac91-3fe86e059398',
+        calculation_code: 'MEAN_OT_PAY_DIFF_X',
+      },
+    ];
+    const expectedResult = {
+      MEAN_HOURLY_PAY_DIFF_M: '50da3659-fe7c-4d2d-9fcf-58b653a2bd00',
+      MEDIAN_HOURLY_PAY_DIFF_W: '59ad14f8-6d9a-41c4-a9a9-288150e0e69b',
+      MEAN_OT_PAY_DIFF_X: '1f689572-8d55-456f-ac91-3fe86e059398',
+    };
+
+    (prisma.calculation_code.findMany as jest.Mock).mockResolvedValue(
+      mockDBResp,
+    );
+
+    // Expect the first call to the function to cause the implementation
+    // provide a response by fetching data from a database (also confirm the
+    //response contains the expected data)
+    const resp1 = await codeService.getAllCalculationCodesAndIds();
+    expect(prisma.calculation_code.findMany).toHaveBeenCalledTimes(1);
+    expect(resp1).toStrictEqual(expectedResult);
+
+    // Repeat the call to confirm that only one first call caused a DB
+    // query, and the second call returned cached data  (also confirm the
+    //response contains the expected data)
+    const resp2 = await codeService.getAllCalculationCodesAndIds();
+    expect(prisma.calculation_code.findMany).toHaveBeenCalledTimes(1);
+    expect(resp2).toStrictEqual(expectedResult);
   });
 });

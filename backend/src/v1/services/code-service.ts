@@ -123,7 +123,7 @@ const codeService = {
   the full list of all values. */
   async getAllCalculationCodesAndIds() {
     //No cached values, so fetch from database
-    if (!calculationCodeAndIdCache?.length) {
+    if (!Object.keys(calculationCodeAndIdCache ?? {}).length) {
       const calculationCodes = await prisma.calculation_code.findMany({
         select: {
           calculation_code_id: true,
