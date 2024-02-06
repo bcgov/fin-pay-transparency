@@ -110,7 +110,7 @@ accessed as follows:
   const medianBonusPayFemale = bonusPayStats.getMedian("female");
 */
 class GroupedColumnStats {
-  static REF_CATEGORY_PREFERENCE = [
+  static readonly REF_CATEGORY_PREFERENCE = [
     GENDER_CODES.MALE,
     GENDER_CODES.UNKNOWN,
     GENDER_CODES.NON_BINARY,

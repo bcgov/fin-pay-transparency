@@ -1,7 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 
 import bodyParser from 'body-parser';
-import cors from 'cors';
 import session from 'express-session';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -47,8 +46,6 @@ const logStream = {
   },
 };
 
-// NOSONAR
-app.use(cors());
 app.use(helmet());
 app.use(noCache());
 
@@ -123,12 +120,7 @@ function addLoginPassportUse(
         logger.debug(
           `Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`,
         );
-        if (
-          typeof accessToken === 'undefined' ||
-          accessToken === null ||
-          typeof refreshToken === 'undefined' ||
-          refreshToken === null
-        ) {
+        if (accessToken == null || refreshToken == null) {
           return done('No access token', null);
         }
 
@@ -230,15 +222,18 @@ app.get(
     res.end(prismaMetrics + appMetrics);
   }),
 );
-app.get('/health', utils.asyncHandler(async (_req: Request, res: Response) => {
-  try{
-    await prisma.$queryRaw`SELECT 1`;
-    res.status(200).send('Health check passed');
-  }catch (e) {
-    logger.error(`Health check failed: ${e}`);
-    res.status(500).send('Health check failed');
-  }
-}));
+app.get(
+  '/health',
+  utils.asyncHandler(async (_req: Request, res: Response) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.status(200).send('Health check passed');
+    } catch (e) {
+      logger.error(`Health check failed: ${e}`);
+      res.status(500).send('Health check failed');
+    }
+  }),
+);
 
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {

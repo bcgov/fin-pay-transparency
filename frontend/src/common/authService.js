@@ -28,7 +28,7 @@ export default {
         },
       );
 
-      if (response && response.data && response.data.error) {
+      if (response?.data?.error) {
         return { error: response.data.error_description };
       }
 

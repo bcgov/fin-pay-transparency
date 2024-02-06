@@ -270,7 +270,7 @@ describe('ApiService', () => {
         // Internally getPdfReport() makes an API call to the backend.
         // Mock the call and its response to remove dependency of this test
         // on a remote service.
-        const mockBackendResponse = Buffer.from('test');
+        const mockBackendResponse = 'test';
         const mockAxiosResponse = {
           headers: {
             'content-disposition':
@@ -299,7 +299,7 @@ describe('ApiService', () => {
         // Internally getPdfReport() makes an API call to the backend.
         // Mock the call and its response to remove dependency of this test
         // on a remote service.
-        const mockBackendResponse = Buffer.from('test');
+        const mockBackendResponse = 'test';
         const mockAxiosResponse = {
           headers: {},
           data: mockBackendResponse,

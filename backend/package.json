@@ -8,7 +8,6 @@
     "@prisma/client": "^5.7.0",
     "axios": "^1.6.2",
     "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
     "cron": "^3.1.6",
     "csv-parse": "^5.5.3",
     "dotenv": "^16.3.1",
@@ -41,7 +40,6 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.17.10",
     "@types/jest": "^29.5.11",
