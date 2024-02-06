@@ -337,4 +337,28 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('publishReport', () => {
+    describe('when the operation is successful', () => {
+      it('returns the expected response', async () => {
+        const mockAxiosResp = { data: '<html></html>' };
+        const mockReportId = '1';
+        vi.spyOn(ApiService.apiAxios, 'put').mockResolvedValue(mockAxiosResp);
+        const resp = await ApiService.publishReport(mockReportId);
+        expect(resp).toEqual(mockAxiosResp.data);
+      });
+    });
+    describe('when the operation is not successful', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        const mockReportId = '1';
+        vi.spyOn(ApiService.apiAxios, 'put').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+        expect(ApiService.publishReport(mockReportId)).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
+    });
+  });
 });
