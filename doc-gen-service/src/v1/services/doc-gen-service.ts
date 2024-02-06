@@ -55,6 +55,7 @@ const docGenServicePrivate = {
  * @param reportData The data to use when generating the report
  */
 async function generateReport(reportType: string, reportData: ReportData) {
+  //TODO: reportType
   try {
     const ejsTemplate = await fs.readFile(
       docGenServicePrivate.REPORT_TEMPLATE,
