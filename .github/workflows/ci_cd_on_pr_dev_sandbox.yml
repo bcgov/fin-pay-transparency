@@ -40,7 +40,7 @@ jobs:
 
   builds:
     if: '!github.event.pull_request.head.repo.fork'
-    name: Build Containers for OpenShift Deployment
+    name: Builds
     runs-on: ubuntu-22.04
     permissions:
       packages: write
@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: bcgov-nr/action-builder-ghcr@v2.0.1
+      - uses: bcgov-nr/action-builder-ghcr@v2.0.2
         with:
           package: ${{ matrix.package }}
           tag: ${{ github.event.number }}
@@ -148,7 +148,6 @@ jobs:
     secrets: inherit
     with:
       autoscaling: false
-      penetration-test: false
       target: pr-${{ github.event.number }}
       tag: ${{ github.sha }}
       values: "values-pr.yaml"

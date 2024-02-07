@@ -60,7 +60,7 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dir: [backend, frontend]
+        dir: [backend, frontend, doc-gen-service]
         include:
           - dir: backend
             sonar_projectKey: fin-pay-transparency_backend
@@ -70,6 +70,10 @@ jobs:
             sonar_projectKey: fin-pay-transparency_frontend
             token: SONAR_TOKEN_FRONTEND
             triggers: ('frontend/')
+          - dir: doc-gen-service
+            sonar_projectKey: fin-pay-transparency_doc-gen-service
+            token: SONAR_TOKEN_DOC_GEN_SERVICE
+            triggers: ('doc-gen-service/')
     steps:
       - name: expose private and public key as env var
         shell: bash
@@ -112,7 +116,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.16.1
+        uses: aquasecurity/trivy-action@0.17.0
         with:
           format: "sarif"
           output: "trivy-results.sarif"

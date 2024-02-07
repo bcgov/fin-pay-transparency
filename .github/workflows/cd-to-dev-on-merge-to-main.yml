@@ -108,5 +108,15 @@ jobs:
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
       params: --set doc-gen-service.pdb=false
-
-
+  zap:
+    name: ZAP Scan
+    needs: [deploys]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Penetration Test
+        uses: zaproxy/action-full-scan@v0.9.0
+        with:
+          target: https://dev.paytransparency.fin.gov.bc.ca
+          cmd_options: "-a"
+          fail_action: false
+          allow_issue_writing: false

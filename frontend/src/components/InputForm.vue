@@ -20,7 +20,7 @@
                       active: stage == 'UPLOAD',
                       available: stage != 'UPLOAD',
                     }"
-                    v-on:click="stage = 'UPLOAD'"
+                    v-on:click="showStage('UPLOAD')"
                   >
                     1
                   </div>
@@ -33,9 +33,9 @@
                     class="circle"
                     :class="{
                       active: stage == 'REVIEW',
-                      available: stage == 'GENERATE',
-                      disabled: stage == 'UPLOAD',
+                      disabled: stage != 'REVIEW',
                     }"
+                    v-on:click="showStage('REVIEW')"
                   >
                     2
                   </div>
@@ -45,8 +45,11 @@
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
                   <div
-                    class="circle disabled"
-                    :class="{ disabled: stage != 'GENERATE' }"
+                    class="circle"
+                    :class="{
+                      active: stage == 'FINAL',
+                      disabled: stage != 'FINAL',
+                    }"
                   >
                     3
                   </div>
@@ -63,7 +66,7 @@
                 </v-col>
                 <v-col class="d-flex justify-center align-center"> </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <h5>Generate</h5>
+                  <h5>Report</h5>
                 </v-col>
               </v-row>
             </v-col>
@@ -391,7 +394,70 @@
               </v-col>
             </v-row>
           </div>
-          <div v-if="stage == 'REVIEW'" v-html="draftReport"></div>
+          <div v-if="stage == 'REVIEW'" class="mb-8">
+            <div v-html="draftReportHtml"></div>
+
+            <hr class="mt-8 mb-8" />
+
+            <div>
+              <v-checkbox
+                v-model="isReadyToGenerate"
+                label="I am ready to create a final report that will be shared with the B.C. Government and can be shared publicly by my employer. Please note, this draft report will not be saved after closing this window or logging out of the system"
+              ></v-checkbox>
+
+              <div class="d-flex justify-center w-100 mt-4">
+                <v-btn id="backButton" text="Back" color="primary" class="mr-2">
+                  Back
+                  <v-dialog
+                    v-model="confirmBackDialogVisible"
+                    activator="parent"
+                    width="auto"
+                    max-width="400"
+                  >
+                    <v-card>
+                      <v-card-text>
+                        Do you want to go back to the form screen? Note that
+                        this draft report will not be saved after navigating
+                        back or logging out of the system.
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="red-darken-1"
+                          @click="confirmBackDialogVisible = false"
+                        >
+                          No
+                        </v-btn>
+                        <v-btn
+                          color="primary"
+                          @click="
+                            confirmBackDialogVisible = false;
+                            showStage('UPLOAD');
+                          "
+                        >
+                          Yes
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-btn>
+
+                <v-btn
+                  id="generateReportButton"
+                  text="Generate Report"
+                  color="primary"
+                  :disabled="!isReadyToGenerate"
+                  @click="tryGenerateReport()"
+                >
+                  Generate Report
+                </v-btn>
+              </div>
+            </div>
+          </div>
+          <div v-if="stage == 'FINAL'" class="mb-8">
+            <div v-html="finalReportHtml"></div>
+          </div>
         </v-col>
       </v-row>
       <v-overlay
@@ -402,6 +468,40 @@
         <spinner />
       </v-overlay>
     </v-form>
+
+    <!-- dialogs -->
+
+    <v-dialog
+      v-model="confirmOverrideReportDialogVisible"
+      width="auto"
+      max-width="400"
+    >
+      <v-card>
+        <v-card-text>
+          There is an existing report for the same time period. Do you want to
+          replace it?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="red-darken-1"
+            @click="confirmOverrideReportDialogVisible = false"
+          >
+            No
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="
+              confirmOverrideReportDialogVisible = false;
+              generateReport();
+            "
+          >
+            Yes
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 <script lang="ts">
@@ -475,7 +575,12 @@ export default {
     alertType: null,
     submissionErrors: null as SubmissionErrors | null,
     draftReport: null,
-    stage: 'UPLOAD',
+    draftReportHtml: null,
+    finalReportHtml: null,
+    isReadyToGenerate: false,
+    stage: 'UPLOAD', //one of [UPLOAD, REVIEW, FINAL]
+    confirmBackDialogVisible: false,
+    confirmOverrideReportDialogVisible: false,
   }),
   methods: {
     setSuccessAlert(alertMessage) {
@@ -487,6 +592,49 @@ export default {
       if (submissionErrors) {
         this.uploadFileValue = null;
       }
+    },
+    showStage(stageName: string) {
+      this.stage = stageName;
+      this.setSuccessAlert(null);
+      this.isReadyToGenerate = false;
+
+      // Wait a short time for the stage's HTML to render, then
+      // scroll to the top of the screen
+      setTimeout(() => {
+        window.scrollTo(0, 0); //scroll to top of screen
+      }, 100);
+    },
+    async fetchReportHtml(reportId: string) {
+      const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
+      this.draftReportHtml = sanitizeUrl(unsanitisedHtml);
+    },
+    async tryGenerateReport() {
+      const existingPublished = await ApiService.getReports({
+        report_start_date: this.draftReport.report_start_date,
+        report_end_date: this.draftReport.report_end_date,
+        report_status: 'Published',
+      });
+      const reportAlreadyExists = existingPublished.length;
+      if (reportAlreadyExists) {
+        //show a dialog to confirm override
+        this.confirmOverrideReportDialogVisible = true;
+      } else {
+        this.generateReport();
+      }
+    },
+    async generateReport() {
+      this.isProcessing = true;
+      try {
+        const unsanitisedHtml = await ApiService.publishReport(
+          this.draftReport?.report_id,
+        );
+        this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
+        this.showStage('FINAL');
+      } catch (e) {
+        console.log(e);
+        //Todo: show error to user via the notification service.
+      }
+      this.isProcessing = false;
     },
     async submit() {
       this.isProcessing = true;
@@ -504,15 +652,9 @@ export default {
         );
         formData.append('comments', this.comments ? this.comments : '');
         formData.append('file', this.uploadFileValue[0]);
-        const oldBody = {
-          companyName: this.companyName,
-          companyAddress: this.companyAddress,
-          employeeCount: this.employeeCount,
-          file: this.uploadFileValue[0],
-        };
-        const response = await ApiService.postSubmission(formData);
-        this.draftReport = sanitizeUrl(response);
-        this.stage = 'REVIEW';
+        this.draftReport = await ApiService.postSubmission(formData);
+        await this.fetchReportHtml(this.draftReport.report_id);
+        this.showStage('REVIEW');
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
         this.isProcessing = false;
@@ -525,29 +667,24 @@ export default {
     },
     submitRequest() {
       if (this.dataReady) {
-        try {
-          if (
-            this.uploadFileValue[0].name &&
-            this.uploadFileValue[0].name.match(
-              '^[\\u0080-\\uFFFF\\w,\\s-_]+\\.[A-Za-z]{3,4}$',
-            )
-          ) {
-            this.active = true;
-            const reader = new FileReader();
-            reader.onload = this.uploadFile;
-            reader.onabort = this.handleFileReadErr;
-            reader.onerror = this.handleFileReadErr;
-            reader.readAsBinaryString(this.uploadFileValue[0]);
-          } else {
-            this.active = false;
-            this.setErrorAlert({
-              general_errors: [
-                'Please remove spaces and special characters from file name and try uploading again.',
-              ],
-            });
-          }
-        } catch (e) {
-          throw e;
+        if (
+          this.uploadFileValue[0].name?.match(
+            '^[\\u0080-\\uFFFF\\w,\\s-_]+\\.[A-Za-z]{3,4}$',
+          )
+        ) {
+          this.active = true;
+          const reader = new FileReader();
+          reader.onload = this.uploadFile;
+          reader.onabort = this.handleFileReadErr;
+          reader.onerror = this.handleFileReadErr;
+          reader.readAsBinaryString(this.uploadFileValue[0]);
+        } else {
+          this.active = false;
+          this.setErrorAlert({
+            general_errors: [
+              'Please remove spaces and special characters from file name and try uploading again.',
+            ],
+          });
         }
       }
     },
@@ -560,7 +697,6 @@ export default {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later
       if (newVal) {
-        const startDate = moment(newVal);
         const endDate = moment(newVal).add(1, 'years').subtract(1, 'months');
         this.endDate = endDate.format(REPORT_DATE_FORMAT);
       }
@@ -569,7 +705,6 @@ export default {
       // When the endDate changes, automatically adjust the startDate to be
       // 12 months earlier
       if (newVal) {
-        const endDate = moment(newVal);
         const startDate = moment(newVal).subtract(1, 'years').add(1, 'months');
         this.startDate = startDate.format(REPORT_DATE_FORMAT);
       }

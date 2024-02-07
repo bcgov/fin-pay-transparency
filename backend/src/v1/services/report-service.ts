@@ -1,3 +1,4 @@
+import type { pay_transparency_report } from '@prisma/client';
 import moment from 'moment';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
@@ -64,7 +65,7 @@ const GENDERS = {
   } as GenderChartInfo,
 };
 
-const REPORT_DATE_FORMAT = "YYYY-MM-DD";
+const REPORT_DATE_FORMAT = 'YYYY-MM-DD';
 
 const reportServicePrivate = {
   /*
@@ -257,15 +258,23 @@ const reportServicePrivate = {
   getHourlyPayQuartilesTextSummary(
     referenceGenderCode: string,
     hourlyPayQuartile4: ChartDataRecord[],
-    hourlyPayQuartile1: ChartDataRecord[]): string {
+    hourlyPayQuartile1: ChartDataRecord[],
+  ): string {
     const genderCodesToSkip = [referenceGenderCode, GENDERS.UNKNOWN.code];
-    const genderCodesToSummarize = Object.values(GENDERS).filter(d => genderCodesToSkip.indexOf(d.code) == -1);
+    const genderCodesToSummarize = Object.values(GENDERS).filter(
+      (d) => genderCodesToSkip.indexOf(d.code) == -1,
+    );
 
     const genderSummaries = [];
     genderCodesToSummarize.forEach((g, i) => {
-      const genderLabel = i == 0 ? g.extendedLabel.toLocaleLowerCase() : g.extendedLabel;
-      const q4 = hourlyPayQuartile4.filter(c => c.genderChartInfo.code == g.code);
-      const q1 = hourlyPayQuartile1.filter(c => c.genderChartInfo.code == g.code);
+      const genderLabel =
+        i == 0 ? g.extendedLabel.toLocaleLowerCase() : g.extendedLabel;
+      const q4 = hourlyPayQuartile4.filter(
+        (c) => c.genderChartInfo.code == g.code,
+      );
+      const q1 = hourlyPayQuartile1.filter(
+        (c) => c.genderChartInfo.code == g.code,
+      );
       const quartileSummaries = [];
       if (q4.length) {
         const q4Percent = Math.round(q4[0].value);
@@ -276,7 +285,9 @@ const reportServicePrivate = {
         quartileSummaries.push(`${q1Percent}% of the lowest paid jobs`);
       }
       if (quartileSummaries.length) {
-        genderSummaries.push(`${genderLabel} occupy ${quartileSummaries.join(' and ')}`);
+        genderSummaries.push(
+          `${genderLabel} occupy ${quartileSummaries.join(' and ')}`,
+        );
       }
     });
 
@@ -285,7 +296,7 @@ const reportServicePrivate = {
       text = `In this organization, ${genderSummaries[0]}.`;
     }
     for (let i = 1; i < genderSummaries.length; i++) {
-      text += ` ${genderSummaries[i]}.`
+      text += ` ${genderSummaries[i]}.`;
     }
 
     return text;
@@ -310,21 +321,50 @@ const reportServicePrivate = {
     }
     return `$${amountDollars.toFixed(2)}`;
   },
+
+  async movePublishedReportToHistory(tx, report: pay_transparency_report) {
+    if (report.report_status != enumReportStatus.Published) {
+      throw new Error(
+        `Only a ${enumReportStatus.Published} report can be moved to history.`,
+      );
+    }
+
+    // Delete the calculated datas (they don't need to be moved to
+    // a history table)
+    await tx.pay_transparency_calculated_data.deleteMany({
+      where: {
+        report_id: report.report_id,
+      },
+    });
+
+    // Copy the report into report_history
+    await tx.report_history.create({
+      data: { ...report },
+    });
+
+    // Delete the original report
+    await tx.pay_transparency_report.delete({
+      where: {
+        report_id: report.report_id,
+      },
+    });
+  },
 };
 
 const reportService = {
   /*
   Fetches a report identified by the given reportId from the database,
-  along with the calculated data associated with that report
+  along with the calculated data associated with that report.
+  If no report with the given id is found, returns null.
   */
   async getReportAndCalculations(
     req,
     reportId: string,
-  ): Promise<ReportAndCalculations> {
+  ): Promise<ReportAndCalculations | null> {
     let reportAndCalculations: ReportAndCalculations | null = null;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo) {
-      log.error('Unable to look user info');
+      log.error('Unable to look up user info');
       throw new Error('Something went wrong');
     }
 
@@ -335,21 +375,31 @@ const reportService = {
             bceid_business_guid: userInfo._json.bceid_business_guid,
           },
         });
+      if (!payTransparencyCompany) {
+        throw new Error('Cannot find company');
+      }
 
-      const report = await tx.pay_transparency_report.findFirst({
-        where: {
-          company_id: payTransparencyCompany.company_id,
-          report_id: reportId,
-        },
-        include: {
-          pay_transparency_company: true,
-          naics_code_pay_transparency_report_naics_codeTonaics_code: true,
-          employee_count_range: true,
-        },
-      });
+      let report = null;
+      try {
+        report = await tx.pay_transparency_report.findFirst({
+          where: {
+            company_id: payTransparencyCompany.company_id,
+            report_id: reportId,
+          },
+          include: {
+            pay_transparency_company: true,
+            naics_code_pay_transparency_report_naics_codeTonaics_code: true,
+            employee_count_range: true,
+          },
+        });
+      } catch (e) {
+        // Fail silently. We assume any exception is because the
+        // companyId or reportId was invalid.  (Prisma checks that these values
+        // are valid UUIDs, and if they aren't it throws an error.)
+      }
 
       if (!report) {
-        throw new Error('Not found');
+        return null;
       }
 
       const calculatedDatas =
@@ -427,14 +477,19 @@ const reportService = {
     return explanatoryNotes;
   },
 
-  async getReportHtml(req, reportId: string): Promise<string> {
+  async getReportData(req, reportId: string): Promise<object | null> {
     logger.debug(
-      `getReportHtml called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+      `getReportData called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
     const reportAndCalculations = await this.getReportAndCalculations(
       req,
       reportId,
     );
+
+    if (!reportAndCalculations) {
+      return null;
+    }
+
     const report = reportAndCalculations.report;
     const calcs = reportAndCalculations.calculations;
     const referenceGenderCode: string =
@@ -564,12 +619,7 @@ const reportService = {
           calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_U,
         } as CalcCodeGenderCode,
       ]
-        .map((d) =>
-          reportServicePrivate.toChartDataRecord(
-            calcs,
-            d,
-          ),
-        )
+        .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
         .filter((d) => d),
       meanBonusPayGap: [
         {
@@ -641,12 +691,7 @@ const reportService = {
           calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_U,
         } as CalcCodeGenderCode,
       ]
-        .map((d) =>
-          reportServicePrivate.toChartDataRecord(
-            calcs,
-            d,
-          ),
-        )
+        .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
         .filter((d) => d),
       hourlyPayQuartile1: [
         {
@@ -666,12 +711,7 @@ const reportService = {
           calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_U,
         } as CalcCodeGenderCode,
       ]
-        .map((d) =>
-          reportServicePrivate.toChartDataRecord(
-            calcs,
-            d
-          ),
-        )
+        .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
         .filter((d) => d),
       hourlyPayQuartile2: [
         {
@@ -691,12 +731,7 @@ const reportService = {
           calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_U,
         } as CalcCodeGenderCode,
       ]
-        .map((d) =>
-          reportServicePrivate.toChartDataRecord(
-            calcs,
-            d
-          ),
-        )
+        .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
         .filter((d) => d),
       hourlyPayQuartile3: [
         {
@@ -716,12 +751,7 @@ const reportService = {
           calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_U,
         } as CalcCodeGenderCode,
       ]
-        .map((d) =>
-          reportServicePrivate.toChartDataRecord(
-            calcs,
-            d
-          ),
-        )
+        .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
         .filter((d) => d),
       hourlyPayQuartile4: [
         {
@@ -741,27 +771,26 @@ const reportService = {
           calculationCode: CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_U,
         } as CalcCodeGenderCode,
       ]
-        .map((d) =>
-          reportServicePrivate.toChartDataRecord(
-            calcs,
-            d
-          ),
-        )
-        .filter((d) => d)
+        .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
+        .filter((d) => d),
     };
 
-    chartData["hourlyPayQuartilesLegend"] = [
-      GENDERS.MALE, GENDERS.FEMALE, GENDERS.NON_BINARY, GENDERS.UNKNOWN
-    ].filter(d =>
-      // Only include Gender categories that appear in at least on
-      // hourly pay quartile
-      [
-        ...chartData.hourlyPayQuartile1,
-        ...chartData.hourlyPayQuartile2,
-        ...chartData.hourlyPayQuartile3,
-        ...chartData.hourlyPayQuartile4
-      ].filter(v => v.genderChartInfo.code == d.code).length
-    )
+    chartData['hourlyPayQuartilesLegend'] = [
+      GENDERS.MALE,
+      GENDERS.FEMALE,
+      GENDERS.NON_BINARY,
+      GENDERS.UNKNOWN,
+    ].filter(
+      (d) =>
+        // Only include Gender categories that appear in at least on
+        // hourly pay quartile
+        [
+          ...chartData.hourlyPayQuartile1,
+          ...chartData.hourlyPayQuartile2,
+          ...chartData.hourlyPayQuartile3,
+          ...chartData.hourlyPayQuartile4,
+        ].filter((v) => v.genderChartInfo.code == d.code).length,
+    );
 
     const tableData = {
       meanOvertimeHoursGap: [
@@ -880,9 +909,9 @@ const reportService = {
       );
     if (!referenceGenderChartInfo) {
       throw new Error(
-        `Cannot find chart info for the reference category '${calcs[
-          CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
-        ]?.value}'`,
+        `Cannot find chart info for the reference category '${
+          calcs[CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE]?.value
+        }'`,
       );
     }
 
@@ -912,7 +941,12 @@ const reportService = {
       explanatoryNotes: this.createExplanatoryNotes(report),
     };
 
-    const responseHtml = await utils.postDataToDocGenService(
+    return reportData;
+  },
+
+  async getReportHtml(req, reportId: string): Promise<string> {
+    const reportData = await this.getReportData(req, reportId);
+    const responseHtml: string = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
       req.session.correlationID,
@@ -923,26 +957,52 @@ const reportService = {
     return responseHtml;
   },
 
-  /**  
+  async getReportPdf(req, reportId: string): Promise<Buffer> {
+    const reportData = await this.getReportData(req, reportId);
+    const responsePdf = await utils.postDataToDocGenService(
+      reportData,
+      `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
+      req.session.correlationID,
+      {
+        headers: {
+          Accept: 'application/pdf',
+        },
+        responseType: 'stream',
+      },
+    );
+    logger.debug(
+      `getReportPdf completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+    );
+    return responsePdf;
+  },
+
+  /**
    * Return a list of reports associated with the current user's
    * business BCeID.  Allow filtering by report status and start/end date.
-   * If the filter object is provided, the report_start_date and 
+   * If the filter object is provided, the report_start_date and
    * report_end_date params must be given as "YYYY-MM-DD" strings.
-  */
+   */
   async getReports(
     bceidBusinessGuid: string,
-    filters?: { report_status?: enumReportStatus, report_start_date?: string, report_end_date?: string },
+    filters?: {
+      report_status?: enumReportStatus;
+      report_start_date?: string;
+      report_end_date?: string;
+    },
   ) {
-
     // Prisma queries require dates used in the 'where' clause to be specified
     // in ISO-8601 format (i.e. date + time + timezone).  If datestrings
     // were included in the filters parameter, convert those into the
     // required format.
     if (filters?.report_start_date) {
-      filters.report_start_date = moment.utc(filters.report_start_date, REPORT_DATE_FORMAT).toISOString();
+      filters.report_start_date = moment
+        .utc(filters.report_start_date, REPORT_DATE_FORMAT)
+        .toISOString();
     }
     if (filters?.report_end_date) {
-      filters.report_end_date = moment.utc(filters.report_end_date, REPORT_DATE_FORMAT).toISOString();
+      filters.report_end_date = moment
+        .utc(filters.report_end_date, REPORT_DATE_FORMAT)
+        .toISOString();
     }
 
     const reports = await prisma.pay_transparency_company.findFirst({
@@ -973,23 +1033,126 @@ const reportService = {
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
-    const reportsAdjusted = reports?.pay_transparency_report.map(r => {
+    const reportsAdjusted = reports?.pay_transparency_report.map((r) => {
       const report = {
-        ...r
+        ...r,
       } as any;
-      report.report_start_date = moment.utc(r.report_start_date).format(REPORT_DATE_FORMAT);
-      report.report_end_date = moment.utc(r.report_end_date).format(REPORT_DATE_FORMAT);
+      report.report_start_date = moment
+        .utc(r.report_start_date)
+        .format(REPORT_DATE_FORMAT);
+      report.report_end_date = moment
+        .utc(r.report_end_date)
+        .format(REPORT_DATE_FORMAT);
       return report;
-    })
+    });
 
     return reportsAdjusted;
+  },
+
+  async publishReport(report_to_publish: pay_transparency_report) {
+    // Check preconditions
+    if (report_to_publish.report_status != enumReportStatus.Draft) {
+      throw new Error('Only draft reports can be published');
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // Check if there is an existing published report that
+      // corresponds to the same company_id and date range as
+      // the draft "report_to_publish".  (Should be 1 published at most.)
+      const existing_published_report =
+        await tx.pay_transparency_report.findFirst({
+          where: {
+            company_id: report_to_publish.company_id,
+            report_start_date: report_to_publish.report_start_date,
+            report_end_date: report_to_publish.report_end_date,
+            report_status: enumReportStatus.Published,
+          },
+        });
+
+      // If there is an existing Published report, move it into
+      // report_history
+      if (existing_published_report) {
+        await reportServicePrivate.movePublishedReportToHistory(
+          tx,
+          existing_published_report,
+        );
+      }
+
+      // Change report's status to Published
+      await tx.pay_transparency_report.update({
+        where: {
+          report_id: report_to_publish.report_id,
+        },
+        data: {
+          report_status: enumReportStatus.Published,
+        },
+      });
+    });
+  },
+
+  /**
+   *
+   * @param bceidBusinessGuid
+   * @param reportId
+   * @returns
+   *    - object for a single report or
+   *    - null or undefined if report couldn't be found
+   */
+  async getReportById(
+    bceidBusinessGuid: string,
+    reportId: string,
+  ): Promise<pay_transparency_report> {
+    const reports = await prisma.pay_transparency_company.findFirst({
+      select: {
+        pay_transparency_report: {
+          select: {
+            report_id: true,
+            user_comment: true,
+            employee_count_range_id: true,
+            naics_code: true,
+            report_start_date: true,
+            report_end_date: true,
+            report_status: true,
+            revision: true,
+            data_constraints: true,
+          },
+          where: {
+            report_id: reportId,
+          },
+          take: 1,
+        },
+      },
+      where: {
+        bceid_business_guid: bceidBusinessGuid,
+      },
+    });
+    if (!reports) return null;
+    const [first] =
+      reports.pay_transparency_report as pay_transparency_report[];
+    return first;
+  },
+
+  async getReportFileName(
+    bceidBusinessGuid: string,
+    reportId: string,
+  ): Promise<string> {
+    const report = await this.getReportById(bceidBusinessGuid, reportId);
+    if (report) {
+      const start = moment(report.report_start_date).format('YYYY-MM');
+      const end = moment(report.report_end_date).format('YYYY-MM');
+      const filename = `pay_transparency_report_${start}_${end}.pdf`;
+      return filename;
+    }
   },
 };
 
 export {
   CalcCodeGenderCode,
   GENDERS,
-  GenderChartInfo, REPORT_DATE_FORMAT, ReportAndCalculations, enumReportStatus, reportService,
-  reportServicePrivate
+  GenderChartInfo,
+  REPORT_DATE_FORMAT,
+  ReportAndCalculations,
+  enumReportStatus,
+  reportService,
+  reportServicePrivate,
 };
-

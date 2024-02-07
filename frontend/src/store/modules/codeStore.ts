@@ -9,31 +9,29 @@ lists of options in the UI.  It is responsible for fetching
 those data from the backend and sharing them via a reactive interface.
 */
 export const useCodeStore = defineStore('code', () => {
-
   const auth = authStore();
-  const { isAuthenticated } = storeToRefs(auth)
+  const { isAuthenticated } = storeToRefs(auth);
 
   const employeeCountRanges = ref([]);
   const naicsCodes = ref([]);
 
   const setEmployeeCountRanges = (val) => {
     employeeCountRanges.value = val;
-  }
+  };
   const setNaicsCodes = (val) => {
     naicsCodes.value = val;
-  }
+  };
 
   const fetchAllCodes = async () => {
-    const employeeCountRanges = await ApiService.getEmployeeCountRanges()
-    setEmployeeCountRanges(employeeCountRanges)
+    const employeeCountRanges = await ApiService.getEmployeeCountRanges();
+    setEmployeeCountRanges(employeeCountRanges);
 
+    const naicsCodes = await ApiService.getNaicsCodes();
+    setNaicsCodes(naicsCodes);
+  };
 
-    const naicsCodes = await ApiService.getNaicsCodes()
-    setNaicsCodes(naicsCodes)
-  }
-
-  // Watch for changes to the isAuthenticated property in the AuthStore.  When set 
-  // to true initiate API calls to fetch static data from the backend. (The API 
+  // Watch for changes to the isAuthenticated property in the AuthStore.  When set
+  // to true initiate API calls to fetch static data from the backend. (The API
   // calls require a token showing the user is authenticated.)
   watch(
     isAuthenticated,
@@ -42,12 +40,12 @@ export const useCodeStore = defineStore('code', () => {
         fetchAllCodes();
       }
     },
-    { immediate: true }
-  )
+    { immediate: true },
+  );
 
   // Return the public interface for the store
   return {
     employeeCountRanges,
-    naicsCodes
-  }
-})
+    naicsCodes,
+  };
+});

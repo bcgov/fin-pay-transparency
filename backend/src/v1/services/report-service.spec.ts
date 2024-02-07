@@ -1,17 +1,22 @@
+import type { pay_transparency_report } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import moment from 'moment';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
-  GENDERS,
+  enumReportStatus,
   GenderChartInfo,
+  GENDERS,
   REPORT_DATE_FORMAT,
   ReportAndCalculations,
-  enumReportStatus,
   reportService,
-  reportServicePrivate
+  reportServicePrivate,
 } from './report-service';
 import { utils } from './utils-service';
+
+const actualMovePublishedReportToHistory =
+  reportServicePrivate.movePublishedReportToHistory;
 
 jest.mock('./utils-service');
 jest.mock('../prisma/prisma-client', () => {
@@ -25,11 +30,16 @@ jest.mock('../prisma/prisma-client', () => {
       findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
+    },
+    report_history: {
+      create: jest.fn(),
     },
     pay_transparency_calculated_data: {
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      deleteMany: jest.fn(),
     },
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
   };
@@ -95,7 +105,65 @@ const mockCalculatedDatasInDB = [
   },
 ];
 
+const mockPublishedReport: pay_transparency_report = {
+  report_id: '456768',
+  company_id: '255677',
+  user_id: '1232344',
+  user_comment: null,
+  employee_count_range_id: '67856345',
+  naics_code: '234234',
+  report_start_date: moment.utc().toDate(),
+  report_end_date: moment.utc().add(1, 'year').toDate(),
+  create_date: new Date(),
+  update_date: new Date(),
+  create_user: 'User',
+  update_user: 'User',
+  report_status: enumReportStatus.Published,
+  revision: new Prisma.Decimal(1),
+  data_constraints: null,
+};
+
+const mockDraftReport: pay_transparency_report = {
+  ...mockPublishedReport,
+  report_id: '2489554',
+  user_id: '5265928',
+  report_status: enumReportStatus.Draft,
+};
+
+const mockReportsInDB = {
+  pay_transparency_report: [
+    {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      report_start_date: new Date(),
+      report_end_date: new Date(),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 1,
+    },
+    {
+      report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
+      report_start_date: new Date(),
+      report_end_date: new Date(),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 4,
+    },
+  ],
+};
+
 describe('getReportAndCalculations', () => {
+  describe('wwhere there is no user in the session', () => {
+    it('throws an error', async () => {
+      const mockReq = {};
+      const mockReportId = null;
+      (utils.getSessionUser as jest.Mock).mockReturnValue(null);
+
+      await expect(
+        reportService.getReportAndCalculations(mockReq, mockReportId),
+      ).rejects.toThrow();
+      expect(utils.getSessionUser).toHaveBeenCalledTimes(1);
+    });
+  });
   describe('when a valid report id is provided', () => {
     it('returns an object containing both the report and the values of its calculations', async () => {
       const mockReq = {};
@@ -145,7 +213,7 @@ describe('getReportAndCalculations', () => {
     });
   });
   describe('when an invalid report id is provided', () => {
-    it('throws an error', async () => {
+    it('returns null', async () => {
       const mockReq = {};
       const mockReportId = 'invalid_report_id';
       (utils.getSessionUser as jest.Mock).mockReturnValue(mockUserInfo);
@@ -156,9 +224,11 @@ describe('getReportAndCalculations', () => {
         null,
       );
 
-      await expect(
-        reportService.getReportAndCalculations(mockReq, mockReportId),
-      ).rejects.toThrow();
+      const reportAndCalcs = await reportService.getReportAndCalculations(
+        mockReq,
+        mockReportId,
+      );
+      await expect(reportAndCalcs).toBeNull();
       expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalledTimes(
         1,
       );
@@ -167,7 +237,7 @@ describe('getReportAndCalculations', () => {
   });
 });
 
-describe('getReportHtml', () => {
+describe('getReportData', () => {
   describe('when a valid report id is provided', () => {
     it('returns an HTML string of the report', async () => {
       const mockReq = {
@@ -204,7 +274,7 @@ describe('getReportHtml', () => {
         .spyOn(reportService, 'getReportAndCalculations')
         .mockResolvedValueOnce(mockReportAndCalculations);
 
-      const reportHtml = await reportService.getReportHtml(
+      const reportData = await reportService.getReportData(
         mockReq,
         mockReportId,
       );
@@ -217,6 +287,79 @@ describe('getReportHtml', () => {
       // using a mock puppeteer, but we can at least verify that
       // some of the puppeteer functions have been called.
       expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('when the report data cannot be fetched', () => {
+    it('returns a promise with null', async () => {
+      const mockReq = {};
+      const mockReportId = mockReportInDB.report_id;
+
+      jest
+        .spyOn(reportService, 'getReportAndCalculations')
+        .mockResolvedValueOnce(null);
+
+      const reportData = await reportService.getReportData(
+        mockReq,
+        mockReportId,
+      );
+
+      expect(reportData).toBeNull();
+    });
+  });
+});
+
+describe('getReportHtml', () => {
+  describe('when a valid report id is provided', () => {
+    it('returns an HTML string of the report', async () => {
+      const mockReq = {
+        session: {
+          correlationID: 'mockCorrelationId',
+        },
+      };
+      const mockReportId = mockReportInDB.report_id;
+      const mockReportData = {};
+
+      jest
+        .spyOn(reportService, 'getReportData')
+        .mockResolvedValueOnce(mockReportData);
+      jest
+        .spyOn(utils, 'postDataToDocGenService')
+        .mockResolvedValueOnce('<html></html>');
+
+      const html: string = await reportService.getReportHtml(
+        mockReq,
+        mockReportId,
+      );
+
+      expect(html).toBe('<html></html>');
+    });
+  });
+});
+
+describe('getReportPdf', () => {
+  describe('when a valid report id is provided', () => {
+    it('returns an Buffer of the report', async () => {
+      const mockReq = {
+        session: {
+          correlationID: 'mockCorrelationId',
+        },
+      };
+      const mockReportId = mockReportInDB.report_id;
+      const mockReportData = {};
+
+      jest
+        .spyOn(reportService, 'getReportData')
+        .mockResolvedValueOnce(mockReportData);
+      jest
+        .spyOn(utils, 'postDataToDocGenService')
+        .mockResolvedValueOnce(Buffer.from('testpdf'));
+
+      const result: Buffer = await reportService.getReportPdf(
+        mockReq,
+        mockReportId,
+      );
+
+      expect(result).toBeInstanceOf(Buffer);
     });
   });
 });
@@ -306,7 +449,8 @@ describe('getWageGapTextSummary', () => {
       expect(text).toContain('median');
       expect(text).toContain('bonus pay');
       expect(text).toContain(
-        Math.round(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value) + '% less',
+        Math.round(mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W].value) +
+          '% less',
       );
     });
   });
@@ -371,11 +515,11 @@ describe('getHoursGapTextSummary', () => {
       expect(text).toContain('overtime hours');
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W].value) +
-        ' less',
+          ' less',
       );
       expect(text).toContain(
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X].value) +
-        ' more',
+          ' more',
       );
     });
   });
@@ -396,15 +540,19 @@ describe('getHourlyPayQuartilesTextSummary', () => {
         { genderChartInfo: GENDERS.FEMALE, value: 35 },
         { genderChartInfo: GENDERS.UNKNOWN, value: 10 },
       ];
-      const text: string = reportServicePrivate.getHourlyPayQuartilesTextSummary(
-        referenceGenderCode,
-        mockHourlyPayQuartile4,
-        mockHourlyPayQuartile1
-      );
+      const text: string =
+        reportServicePrivate.getHourlyPayQuartilesTextSummary(
+          referenceGenderCode,
+          mockHourlyPayQuartile4,
+          mockHourlyPayQuartile1,
+        );
       console.log(text);
-      expect(text.toLowerCase()).toContain(`${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase());
-      expect(text.toLowerCase()).toContain(`${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase());
-
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase(),
+      );
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase(),
+      );
     });
   });
 });
@@ -449,14 +597,198 @@ describe('getReports', () => {
     (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
       mockReportResults,
     );
-    const ret = await reportService.getReports(
-      mockCompanyInDB.company_id,
-      {
-        report_status: enumReportStatus.Draft,
-        report_start_date: mockReportResults.pay_transparency_report[0].report_start_date,
-        report_end_date: mockReportResults.pay_transparency_report[0].report_end_date
-      },
-    );
+    const ret = await reportService.getReports(mockCompanyInDB.company_id, {
+      report_status: enumReportStatus.Draft,
+      report_start_date:
+        mockReportResults.pay_transparency_report[0].report_start_date,
+      report_end_date:
+        mockReportResults.pay_transparency_report[0].report_end_date,
+    });
     expect(ret).toEqual(mockReportResults.pay_transparency_report);
+  });
+});
+
+describe('publishReport', () => {
+  describe("if the given report doesn't have status=Draft", () => {
+    it('throws an error', async () => {
+      await expect(
+        reportService.publishReport(mockPublishedReport),
+      ).rejects.toThrow();
+    });
+  });
+  describe('if the given report has status=Draft, and there is no existing Published report', () => {
+    it('changes the status from Draft to Published', async () => {
+      (prisma.pay_transparency_report.findFirst as jest.Mock).mockResolvedValue(
+        null,
+      );
+      jest
+        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .mockReturnValueOnce(null);
+
+      await reportService.publishReport(mockDraftReport);
+
+      // Expect no attempt to move a pre-existing published report to
+      // history (because there is no pre-existing published report)
+      expect(
+        reportServicePrivate.movePublishedReportToHistory,
+      ).toHaveBeenCalledTimes(0);
+
+      // Expect one call to update a DB record in the pay_transparency_report
+      // table
+      expect(prisma.pay_transparency_report.update).toHaveBeenCalledTimes(1);
+
+      // Fetch the parameter passed to the update statement so we can
+      // verify if performed the correct action
+      const updateStatement = (
+        prisma.pay_transparency_report.update as jest.Mock
+      ).mock.calls[0][0];
+
+      // Expect only one record to be updated (the report that was passed to
+      // publishReport(...)
+      expect(updateStatement.where.report_id).toBe(mockDraftReport.report_id);
+
+      // Expect only one column to be updated (the report status_column)
+      expect(updateStatement.data).toStrictEqual({
+        report_status: enumReportStatus.Published,
+      });
+    });
+  });
+  describe('if the given report has status=Draft, and there is an existing Published report', () => {
+    it('archives the existing published report in history, and changes the status of the Draft to Published', async () => {
+      (prisma.pay_transparency_report.findFirst as jest.Mock).mockResolvedValue(
+        mockPublishedReport,
+      );
+      jest
+        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .mockReturnValueOnce(null);
+
+      await reportService.publishReport(mockDraftReport);
+
+      // Expect an attempt to move the pre-existing published report to
+      // history
+      expect(
+        reportServicePrivate.movePublishedReportToHistory,
+      ).toHaveBeenCalledTimes(1);
+
+      // Expect one call to update a DB record in the pay_transparency_report
+      // table
+      expect(prisma.pay_transparency_report.update).toHaveBeenCalledTimes(1);
+
+      // Fetch the parameter passed to the update statement so we can
+      // verify if performed the correct action
+      const updateStatement = (
+        prisma.pay_transparency_report.update as jest.Mock
+      ).mock.calls[0][0];
+
+      // Expect only one record to be updated (the report that was passed to
+      // publishReport(...)
+      expect(updateStatement.where.report_id).toBe(mockDraftReport.report_id);
+
+      // Expect only one column to be updated (the report status_column)
+      expect(updateStatement.data).toStrictEqual({
+        report_status: enumReportStatus.Published,
+      });
+    });
+  });
+});
+
+describe('movePublishedReportToHistory', () => {
+  describe("if the given report isn't Published", () => {
+    it('throws an error', async () => {
+      const tx = jest.fn();
+      await expect(
+        actualMovePublishedReportToHistory(tx, mockDraftReport),
+      ).rejects.toThrow();
+    });
+  });
+  describe('if the given report is Published', () => {
+    it("copy it to history, delete it's calculated data, and delete the original record from reports", async () => {
+      const tx = await prisma.$transaction(async (tx) => {
+        await actualMovePublishedReportToHistory(tx, mockPublishedReport);
+      });
+
+      // Confirm that the calculated datas were deleted
+      expect(
+        prisma.pay_transparency_calculated_data.deleteMany,
+      ).toHaveBeenCalledTimes(1);
+      const deleteCalcData = (
+        prisma.pay_transparency_calculated_data.deleteMany as jest.Mock
+      ).mock.calls[0][0];
+      expect(deleteCalcData.where.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the report was copied to the history table
+      expect(prisma.report_history.create).toHaveBeenCalledTimes(1);
+      const createReportHistory = (prisma.report_history.create as jest.Mock)
+        .mock.calls[0][0];
+      expect(createReportHistory.data.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the original report was deleted from the reports table
+      expect(prisma.pay_transparency_report.delete).toHaveBeenCalledTimes(1);
+      const deleteReport = (prisma.pay_transparency_report.delete as jest.Mock)
+        .mock.calls[0][0];
+      expect(deleteReport.where.report_id).toBe(mockPublishedReport.report_id);
+    });
+  });
+});
+
+describe('getReportById', () => {
+  it('returns an single report', async () => {
+    const report = {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
+      report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
+      create_date: new Date(),
+      update_date: new Date(),
+      revision: 1,
+    };
+    const mockReportResults = {
+      pay_transparency_report: [report],
+    };
+    (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
+      mockReportResults,
+    );
+    const ret = await reportService.getReportById(
+      mockCompanyInDB.company_id,
+      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+    );
+    expect(ret).toEqual(report);
+  });
+});
+
+describe('getReportFileName', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+  it('returns a filename', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
+    const report = {
+      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      company_id: mockCompanyInDB.company_id,
+      user_id: '1232344',
+      user_comment: '',
+      employee_count_range_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      naics_code: '11',
+      report_start_date: moment.utc().subtract(11, 'months').toDate(),
+      report_end_date: moment.utc().toDate(),
+      report_status: 'Published',
+      revision: new Prisma.Decimal(1),
+      data_constraints: '',
+      create_date: new Date(),
+      update_date: new Date(),
+      create_user: 'User',
+      update_user: 'User',
+    };
+
+    jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);
+
+    const ret = await reportService.getReportFileName(
+      mockCompanyInDB.company_id,
+      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+    );
+    expect(ret).toBe('pay_transparency_report_2023-01_2023-12.pdf');
   });
 });

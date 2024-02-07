@@ -67,7 +67,7 @@ const auth = {
       }
     } catch (error) {
       log.error('renew', error.message);
-      result = error.response && error.response.data;
+      result = error.response?.data;
     }
 
     return result;
@@ -296,7 +296,7 @@ const auth = {
             `Error happened while getting company details from BCEID for user ${userGuid}`,
             e,
           );
-          res.redirect(config.get('server:frontend') + '/login-error');
+          return res.redirect(config.get('server:frontend') + '/login-error');
         }
       }
       res.redirect(config.get('server:frontend'));
