@@ -19,7 +19,7 @@ describe('GroupedColumnStats', () => {
   // enough for the gender category to be included in graphs and
   // to be considered as a candidate for the reference category.
   const numNonBinary = Math.max(
-    reportCalcService.MIN_REQUIRED_PEOPLE_COUNT,
+    reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER,
     reportCalcService.MIN_REQUIRED_COUNT_FOR_REF_CATEGORY,
   );
   const numUnknownWithData = numNonBinary;
@@ -310,7 +310,7 @@ describe('meetsPeopleCountThreshold', () => {
   describe(`when a gender group meets the people count threshold for calculations to be performed`, () => {
     it(`returns true`, () => {
       const columnStats = new GroupedColumnStats();
-      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT)
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER)
         .fill(100)
         .forEach((v) => {
           columnStats.push(v, GENDER_CODES.FEMALE[0]);
@@ -324,7 +324,7 @@ describe('meetsPeopleCountThreshold', () => {
   describe(`when a gender group doesn't meet the people count threshold for calculations to be performed`, () => {
     it(`returns false`, () => {
       const columnStats = new GroupedColumnStats();
-      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT - 1)
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER - 1)
         .fill(100)
         .forEach((v) => {
           columnStats.push(v, GENDER_CODES.FEMALE[0]);
@@ -1207,6 +1207,27 @@ describe('calculatePercentReceivingBonusPay', () => {
 });
 
 describe('calculateAll', () => {
+  describe(`when only one gender category has at least ${reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER} employees`, () => {
+    it(`returns all applicable calculated amounts, but each is suppressed`, async () => {
+      const csvReadable = new Readable();
+      csvReadable.push(
+        `Gender Code,Hours Worked,Ordinary Pay,Special Salary,Overtime Hours,Overtime Pay,Bonus Pay\n`,
+      );
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_FOR_REPORT).forEach((v) => {
+        csvReadable.push(`${GENDER_CODES.MALE[0]},1,100,0,0,0,0\n`);
+      });
+      csvReadable.push(null);
+      const allCalculatedAmounts: CalculatedAmount[] =
+        await reportCalcService.calculateAll(csvReadable);
+      allCalculatedAmounts.forEach((c) => {
+        if (c.isSuppressed == false) {
+          console.log(c);
+        }
+        expect(c.isSuppressed).toBeTruthy();
+        expect(c.value).toBeNull();
+      });
+    });
+  });
   describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
     it(`all calculations are performed`, async () => {
       // Create a mock pay transparency CSV.
