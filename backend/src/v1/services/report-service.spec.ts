@@ -591,7 +591,6 @@ describe('getHourlyPayQuartilesTextSummary', () => {
           mockHourlyPayQuartile4,
           mockHourlyPayQuartile1,
         );
-      console.log(text);
       expect(text.toLowerCase()).toContain(
         `${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase(),
       );

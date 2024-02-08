@@ -499,9 +499,6 @@ const reportService = {
     const isAllCalculatedDataSuppressed =
       Object.values(calcs).filter((c: CalculatedAmount) => !c.isSuppressed)
         .length == 0;
-    console.log(
-      `# calcs: ${Object.values(calcs).length}, isAllCalculatedDataSuppressed: ${isAllCalculatedDataSuppressed}`,
-    );
 
     let chartData = null;
     let tableData = null;

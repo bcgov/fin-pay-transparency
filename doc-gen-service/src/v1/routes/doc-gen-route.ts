@@ -13,7 +13,6 @@ docGenRoute.post('', async (req: Request, res: Response) => {
   const reportData = req.body;
   const reportTypeQs = req.query.reportType;
   try {
-    console.log(reportData);
     const report = await generateReport(reportTypeQs?.toString(), reportData);
     res.setHeader('Content-Type', 'application/html');
     res.setHeader('x-correlation-id', req.header('x-correlation-id'));

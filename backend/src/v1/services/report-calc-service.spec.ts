@@ -1220,9 +1220,6 @@ describe('calculateAll', () => {
       const allCalculatedAmounts: CalculatedAmount[] =
         await reportCalcService.calculateAll(csvReadable);
       allCalculatedAmounts.forEach((c) => {
-        if (c.isSuppressed == false) {
-          console.log(c);
-        }
         expect(c.isSuppressed).toBeTruthy();
         expect(c.value).toBeNull();
       });
