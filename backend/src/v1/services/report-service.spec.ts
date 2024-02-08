@@ -289,6 +289,51 @@ describe('getReportData', () => {
       expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
     });
   });
+  describe('when all of the calculations are suppressed', () => {
+    it('returns a report data object with null values for all calculated properties', async () => {
+      const mockReq = {};
+      const mockReportId = mockReportInDB.report_id;
+      const mockReportAndCalculations: ReportAndCalculations = {
+        report: {
+          pay_transparency_company: {
+            company_name: 'Mock company',
+            address_line1: '123 main st.',
+          },
+          report_start_date: new Date(),
+          report_end_date: new Date(),
+          naics_code_pay_transparency_report_naics_codeTonaics_code: {
+            naics_code: '1',
+            naics_label: 'NAICS label',
+          },
+          employee_count_range: {
+            employee_count_range: '100-399',
+          },
+          data_constraints: null,
+          user_comments: null,
+        },
+        calculations: {},
+      };
+      mockReportAndCalculations.calculations[
+        CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
+      ] = { value: null, isSuppressed: true };
+
+      jest
+        .spyOn(reportService, 'getReportAndCalculations')
+        .mockResolvedValueOnce(mockReportAndCalculations);
+
+      const reportData: any = await reportService.getReportData(
+        mockReq,
+        mockReportId,
+      );
+
+      expect(reportData.tableData).toBeNull();
+      expect(reportData.chartData).toBeNull();
+      expect(reportData.explanatoryNotes).toBeNull();
+      expect(reportData.chartSuppressedError).toBeNull();
+      expect(reportData.referenceGenderCategory).toBeNull();
+      expect(reportData.isAllCalculatedDataSuppressed).toBeTruthy();
+    });
+  });
   describe('when the report data cannot be fetched', () => {
     it('returns a promise with null', async () => {
       const mockReq = {};
@@ -546,7 +591,6 @@ describe('getHourlyPayQuartilesTextSummary', () => {
           mockHourlyPayQuartile4,
           mockHourlyPayQuartile1,
         );
-      console.log(text);
       expect(text.toLowerCase()).toContain(
         `${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs and 35% of the lowest`.toLowerCase(),
       );

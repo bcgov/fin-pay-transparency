@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Pay Transparency Report</title>
+</head>
+<style>
+  html {
+    -webkit-print-color-adjust: exact;
+  }
+
+  svg {
+    /*Prevent unexpected whitespace below SVG elements*/
+    display: block;
+  }
+
+  a {
+    /* overwrite the bootstrap value to prevent the page header from being modified */
+    text-decoration: none !important;
+  }
+
+  .pay-transparency-report .block {
+    margin-bottom: 20px;
+  }
+
+  .pay-transparency-report h1 {
+    font-size: 40px;
+    font-weight: bold;
+  }
+
+  .pay-transparency-report h2 {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .pay-transparency-report h3 {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .pay-transparency-report h4 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000000;
+  }
+
+  .pay-transparency-report h5 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000000;
+  }
+
+  .pay-transparency-report h6 {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    color: #000000;
+  }
+
+  .pay-transparency-report .text-primary {
+    color: #003366 !important;
+  }
+
+  .pay-transparency-report .bg-primary-1 {
+    background-color: #003366 !important;
+  }
+
+  .pay-transparency-report .normal {
+    color: #000000;
+  }
+
+  .pay-transparency-report table {
+    border-collapse: collapse;
+  }
+
+  .pay-transparency-report table td {
+    margin: 0px;
+    padding: 2px 4px 2px 4px;
+  }
+
+  .pay-transparency-report .table-header {
+    color: #003366 !important;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .employer-details .table {
+    border: 2px solid #003366;
+  }
+
+  .overtime-hours-tables .table {
+    padding: 0px;
+    width: 100%;
+  }
+
+  .pay-transparency-report .centered {
+    text-align: center;
+  }
+
+  .pay-transparency-report td .center-content {
+    display: flex;
+    justify-content: center;
+  }
+
+  .pay-transparency-report .table td {
+    border: 1px solid #999999;
+  }
+
+  .pay-transparency-report .header-circle {
+    position: absolute;
+    height: 80px;
+    width: 80px;
+    background-color: #ffffff;
+    color: #003366;
+    border-radius: 50%;
+    border: 5px solid #003366;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pay-transparency-report .header-block {
+    height: 100px;
+    display: flex;
+    align-items: center;
+  }
+
+  .pay-transparency-report .header-block-title {
+    background-color: #003366;
+    color: #ffffff;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin-left: 30px;
+    padding-left: 60px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    height: 50px;
+  }
+
+  .pay-transparency-report .page {
+    page-break-after: always;
+  }
+
+  .pay-transparency-report .text-normal {
+    font-size: 14px;
+  }
+
+  .pay-transparency-report .footnote {
+    display: flex;
+    font-size: 12px;
+  }
+
+  .explanatory-notes {
+    background-color: #dff6fc;
+    font-size: 14px;
+    padding: 20px 30px 20px 30px;
+  }
+
+  .footnote-number {
+    margin-right: 10px;
+  }
+
+  hr {
+    margin-bottom: 14px;
+    margin-top: 14px;
+  }
+</style>
+
+<body>
+  <div class="pay-transparency-report">
+    <div id="block-title" class="block">
+      <h1 class="text-primary mb-4">Pay Transparency Report</h1>
+    </div>
+    <div id="block-user-comments" class="block">
+      <% if (comments) { %>
+        <p class="text-tertiary mb-4">
+          <%= comments %>
+        </p>
+        <% } %>
+    </div>
+    <div id="block-employer-details" class="block">
+      <h2 class="text-primary mb-4">Employer details</h3>
+
+        <table class="employer-details table" role="presentation" style="width:100%">
+          <tr>
+            <td class="table-header">Employer:</td>
+            <td>
+              <%= companyName %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">Address:</td>
+            <td>
+              <%= companyAddress %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">Time Period:</td>
+            <td>
+              <%= reportStartDate %> - <%= reportEndDate %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">NAICS Code:</td>
+            <td>
+              <%= naicsCode %> - <%= naicsLabel %>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-header">Number of Employees:</td>
+            <td>
+              <%= employeeCountRange %>
+            </td>
+          </tr>
+        </table>
+    </div>

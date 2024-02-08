@@ -7,6 +7,16 @@ import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
 export type ReportData = {
+  companyName: string;
+  companyAddress: string;
+  reportStartDate: string;
+  reportEndDate: string;
+  naicsCode: string;
+  naicsLabel: string;
+  employeeCountRange: string;
+  comments: string;
+  referenceGenderCategory: string;
+  explanatoryNotes: unknown;
   chartData: {
     meanHourlyPayGap: unknown[];
     medianHourlyPayGap: unknown[];
@@ -18,35 +28,89 @@ export type ReportData = {
     hourlyPayQuartile2: unknown[];
     hourlyPayQuartile3: unknown[];
     hourlyPayQuartile4: unknown[];
+    percentReceivingOvertimePay: unknown[];
+    percentReceivingBonusPay: unknown[];
     hourlyPayQuartilesLegend: unknown[];
   };
-  chartSuppressedError: string;
-  reportType: string;
-  reportData: {
-    companyName: string;
-    companyAddress: string;
-    reportStartDate: string;
-    reportEndDate: string;
-    naicsCode: string;
-    naicsLabel: string;
-    employeeCountRange: string;
-    comments: string;
-    referenceGenderCategory: string;
-    explanatoryNotes: string;
+  tableData: {
+    meanOvertimeHoursGap: unknown;
+    medianOvertimeHoursGap: unknown;
   };
+  chartSummaryText: unknown;
+  chartSuppressedError: string;
+  isAllCalculatedDataSuppressed: boolean;
 };
 
 const docGenServicePrivate = {
-  REPORT_TEMPLATE: resolve(
+  REPORT_TEMPLATE_HEADER: resolve(
     /* istanbul ignore next */
     config.get('server:templatePath') || '',
-    'report.template.html',
+    'report-template-header.html',
+  ),
+  REPORT_TEMPLATE_EMPLOYEE_DATA_SUMMARY: resolve(
+    /* istanbul ignore next */
+    config.get('server:templatePath') || '',
+    'report-template-emp-data-summary.html',
+  ),
+  REPORT_TEMPLATE_INSUFFICIENT_DATA: resolve(
+    /* istanbul ignore next */
+    config.get('server:templatePath') || '',
+    'report-template-insufficient-data.html',
+  ),
+  REPORT_TEMPLATE_FOOTER: resolve(
+    /* istanbul ignore next */
+    config.get('server:templatePath') || '',
+    'report-template-footer.html',
   ),
   REPORT_TEMPLATE_SCRIPT: resolve(
     /* istanbul ignore next */
     config.get('server:templatePath') || '',
     'report.script.js',
   ),
+
+  /**
+   * Builds an ejs template suitable for creating a report from
+   * the given report data.
+   * Not all reports will use the same template.  For example, a report
+   * in which all calculations are suppressed will use a template
+   * that excludes the charts.
+   */
+  async buildEjsTemplate(reportData: ReportData): Promise<string> {
+    // Build a template by combining multiple ejs template fragments
+    // (each defined in a separate file).
+
+    const header = await fs.readFile(
+      docGenServicePrivate.REPORT_TEMPLATE_HEADER,
+      { encoding: 'utf8' },
+    );
+    const fragments = [header];
+
+    // The template should include an area for the main body of the content.
+    // This section will look different depending on whether
+    // *all* calculations have been suppressed or whether at least
+    // some calculations weren't suppressed.
+    if (reportData.isAllCalculatedDataSuppressed) {
+      const insufficientData = await fs.readFile(
+        docGenServicePrivate.REPORT_TEMPLATE_INSUFFICIENT_DATA,
+        { encoding: 'utf8' },
+      );
+      fragments.push(insufficientData);
+    } else {
+      const employeeDataSummary = await fs.readFile(
+        docGenServicePrivate.REPORT_TEMPLATE_EMPLOYEE_DATA_SUMMARY,
+        { encoding: 'utf8' },
+      );
+      fragments.push(employeeDataSummary);
+    }
+
+    const footer = await fs.readFile(
+      docGenServicePrivate.REPORT_TEMPLATE_FOOTER,
+      { encoding: 'utf8' },
+    );
+    fragments.push(footer);
+
+    return fragments.join('\n');
+  },
 };
 
 /**
@@ -56,10 +120,7 @@ const docGenServicePrivate = {
  */
 async function generateReport(reportType: string, reportData: ReportData) {
   try {
-    const ejsTemplate = await fs.readFile(
-      docGenServicePrivate.REPORT_TEMPLATE,
-      { encoding: 'utf8' },
-    );
+    const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
     const workingHtml: string = ejs.render(ejsTemplate, reportData);
     const browser: Browser = await getBrowser();
     const page: Page = await browser.newPage();
