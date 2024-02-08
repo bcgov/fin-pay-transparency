@@ -1,93 +1,97 @@
-import { generateReport } from './doc-gen-service';
+import {
+  docGenServicePrivate,
+  generateReport,
+  ReportData,
+} from './doc-gen-service';
 
-const reportData = {
+const reportData: ReportData = {
+  companyName: 'Test company',
+  companyAddress: 'Test',
+  reportStartDate: 'January 1, 2023',
+  reportEndDate: 'January 31, 2024',
+  naicsCode: '11',
+  naicsLabel: 'Agriculture, forestry, fishing and hunting',
+  employeeCountRange: '50-299',
+  comments: '',
+  referenceGenderCategory: 'Men',
+  chartSuppressedError: '',
+  tableData: {
+    meanOvertimeHoursGap: [],
+    medianOvertimeHoursGap: [],
+  },
   chartData: {
     meanHourlyPayGap: [],
     medianHourlyPayGap: [],
     meanOvertimePayGap: [],
     medianOvertimePayGap: [],
+    percentReceivingOvertimePay: [],
     meanBonusPayGap: [],
     medianBonusPayGap: [],
+    percentReceivingBonusPay: [],
     hourlyPayQuartile1: [],
     hourlyPayQuartile2: [],
     hourlyPayQuartile3: [],
     hourlyPayQuartile4: [],
-    percentReceivingOvertimePay: [],
-    percentReceivingBonusPay: [],
-    hourlyPayQuartilesLegend: [
-      {
-        code: 'M',
-        label: 'Men',
-        extendedLabel: 'Men',
-        color: '#1c3664',
-      },
-    ],
-  },
-  chartSuppressedError: 'Suppressed error',
-  reportType: 'html',
-  companyName: 'Test company',
-  companyAddress: 'Test company address',
-  reportStartDate: 'Feb 1, 2024',
-  reportEndDate: 'Feb 1, 2024',
-  naicsCode: '1234',
-  naicsLabel: 'Test label',
-  employeeCountRange: '0 - 500',
-  comments: 'Small company',
-  referenceGenderCategory: 'Test category',
-  explanatoryNotes: {
-    dataConstraints: {
-      num: 1000,
-      text: 'dataConstraints test',
-    },
-    meanHourlyPayDiff: {
-      num: 1000,
-    },
-    medianHourlyPayDiff: {
-      num: 1000,
-    },
-    meanOvertimePayDiff: {
-      num: 1000,
-    },
-    medianOvertimePayDiff: {
-      num: 1000,
-    },
-    meanOvertimeHoursDiff: { num: 1000 },
-    medianOvertimeHoursDiff: { num: 1000 },
-    meanBonusPayDiff: { num: 1000 },
-    medianBonusPayDiff: { num: 1000 },
-    payQuartiles: { num: 1000 },
-  },
-  tableData: {
-    meanHourlyPayDiff: {
-      num: 1000,
-    },
-    medianHourlyPayDiff: {
-      num: 1000,
-    },
-    meanOvertimePayDiff: {
-      num: 1000,
-    },
-    medianOvertimePayDiff: {
-      num: 1000,
-    },
-    meanOvertimeHoursDiff: {
-      num: 1000,
-    },
-    meanOvertimeHoursGap: [],
-    medianOvertimeHoursGap: [],
+    hourlyPayQuartilesLegend: [],
   },
   chartSummaryText: {
-    meanHourlyPayGap: 'meanHourlyPayGap text',
+    meanHourlyPayGap: '',
+    medianHourlyPayGap: '',
+    meanOvertimePayGap: '',
+    medianOvertimePayGap: '',
+    meanBonusPayGap: null,
+    medianBonusPayGap: null,
+    meanOvertimeHoursGap: '',
+    medianOvertimeHoursGap: '',
+    hourlyPayQuartiles: '',
   },
+  explanatoryNotes: {
+    meanHourlyPayDiff: { num: 1 },
+    medianHourlyPayDiff: { num: 2 },
+    meanOvertimePayDiff: { num: 3 },
+    medianOvertimePayDiff: { num: 4 },
+    meanOvertimeHoursDiff: { num: 5 },
+    medianOvertimeHoursDiff: { num: 6 },
+    meanBonusPayDiff: { num: 7 },
+    medianBonusPayDiff: { num: 8 },
+    payQuartiles: { num: 9 },
+  },
+  isAllCalculatedDataSuppressed: false,
 };
 
-describe.only('doc-get-service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
+describe('generateReport', () => {
   it('should generate a report', async () => {
     const report = await generateReport('html', reportData as any);
     expect(report).toBeDefined();
+  });
+});
+
+describe('buildEjsTemplate', () => {
+  describe('when the report data indicate that all calculations have been suppressed', () => {
+    it('returns a template with a simplified report', async () => {
+      const reportDataAllCalcsSuppressed = {
+        ...reportData,
+        isAllCalculatedDataSuppressed: true,
+      };
+      const template = await docGenServicePrivate.buildEjsTemplate(
+        reportDataAllCalcsSuppressed,
+      );
+      expect(template).toContain('block-insufficient-data');
+      expect(template).not.toContain('block-hourly-pay');
+    });
+  });
+  describe("when the report data indicate that some calculations weren't suppressed", () => {
+    it('returns a template that includes all the chart content blocks', async () => {
+      const template = await docGenServicePrivate.buildEjsTemplate(reportData);
+      expect(template).toContain('block-hourly-pay');
+      expect(template).toContain('block-overtime');
+      expect(template).toContain('block-bonus-pay');
+      expect(template).toContain('block-hourly-pay-quartiles');
+      expect(template).not.toContain('block-insufficient-data');
+    });
   });
 });
