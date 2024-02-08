@@ -204,7 +204,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="naics_code" nullable="false" remarks="" size="5" type="varchar" typeCode="12">
             <parent column="naics_code" foreignKey="report_history_naics_code_fkey" implied="false" onDeleteCascade="false" schema="pay_transparency" table="naics_code"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="data_constraints" nullable="true" remarks="" size="5" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="data_constraints" nullable="true" remarks="" size="3000" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="revision" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
          <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
          <index name="report_history_pk" unique="true">
