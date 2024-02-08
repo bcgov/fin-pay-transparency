@@ -538,7 +538,7 @@ export default {
   components: {
     PrimaryButton,
     VueDatePicker,
-    Spinner
+    Spinner,
   },
   data: () => ({
     validForm: null,
