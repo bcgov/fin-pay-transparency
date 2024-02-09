@@ -5,6 +5,7 @@
       :value="item.value"
       :label="item.label"
       :index="index"
+      :disabled="item.isDisabled(stage)"
     />
   </v-row>
   <v-row>
@@ -26,6 +27,8 @@
 import ReportStep from './ReportStep.vue';
 import {
   REPORT_STAGES,
+  useReportStepperStore,
 } from '../../store/modules/reportStepper';
+import { storeToRefs } from 'pinia';
+const { stage } = storeToRefs(useReportStepperStore());
 </script>
-

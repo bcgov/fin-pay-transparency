@@ -34,6 +34,7 @@ export const PAGE_TITLES = Object.freeze({
   DASHBOARD: 'Dashboard',
   LOGIN: 'Login',
   REPORT: 'Generated Report',
+  PUBLISHED_REPORT: 'Published Report',
   DRAFT_REPORT: 'Draft Report',
   TOKEN_EXPIRED: 'Token Expired',
 });

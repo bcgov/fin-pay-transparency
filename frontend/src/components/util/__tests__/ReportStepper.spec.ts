@@ -2,7 +2,10 @@ import ReportStepper from '../ReportStepper.vue';
 import { describe, it, beforeEach, expect } from 'vitest';
 import { render, waitFor, fireEvent } from '@testing-library/vue';
 import { createTestingPinia } from '@pinia/testing';
-import { useReportStepperStore } from '../../../store/modules/reportStepper';
+import {
+  ReportStage,
+  useReportStepperStore,
+} from '../../../store/modules/reportStepper';
 
 const pinia = createTestingPinia();
 const wrappedRender = () => {
@@ -19,7 +22,7 @@ describe('ReportStepper', () => {
   beforeEach(() => {
     store.$patch({
       stage: 'UPLOAD',
-      reportId: undefined
+      reportId: undefined,
     });
   });
   describe('defaults', () => {
@@ -30,20 +33,6 @@ describe('ReportStepper', () => {
       expect(getByTestId('report-step-UPLOAD')).toHaveClass('active');
     });
   });
-
-  describe('actions', () => {
-    it('should set new stage on click', async () => {
-      const { getByTestId } = wrappedRender();
-
-      expect(getByTestId('report-step-UPLOAD')).toBeInTheDocument();
-      expect(getByTestId('report-step-UPLOAD')).toHaveClass('active');
-      await fireEvent.click(getByTestId('report-step-REVIEW'));
-      await waitFor(() => {
-        expect(getByTestId('report-step-REVIEW')).toHaveClass('active');
-        expect(getByTestId('report-step-UPLOAD')).not.toHaveClass('active');
-      })
-    });
-  })
 
   describe('labels', () => {
     it('should correct label for each step', () => {
@@ -65,5 +54,76 @@ describe('ReportStepper', () => {
     });
     expect(getByTestId('report-step-UPLOAD')).not.toHaveClass('active');
     expect(getByTestId('report-step-REVIEW')).toHaveClass('active');
+  });
+
+  describe('clicks', () => {
+    describe('from upload stage', () => {
+      it('should not navigate to review step', async () => {
+        const { getByTestId } = wrappedRender();
+        expect(getByTestId('report-step-UPLOAD')).toBeInTheDocument();
+        expect(getByTestId('report-step-UPLOAD')).toHaveClass('active');
+        const reviewButton = getByTestId('report-step-REVIEW');
+        expect(reviewButton).toHaveClass('disabled');
+        await fireEvent.click(reviewButton);
+        expect(store.stage).toBe<ReportStage>('UPLOAD');
+      });
+      it('should not navigate to final step', async () => {
+        const { getByTestId } = wrappedRender();
+        expect(getByTestId('report-step-UPLOAD')).toBeInTheDocument();
+        expect(getByTestId('report-step-UPLOAD')).toHaveClass('active');
+        const finalButton = getByTestId('report-step-FINAL');
+        expect(finalButton).toHaveClass('disabled');
+        await fireEvent.click(finalButton);
+        expect(store.stage).toBe<ReportStage>('UPLOAD');
+      });
+    });
+    describe('from review stage', () => {
+      it('should allow navigate to upload step', async () => {
+        store.$patch({ stage: 'REVIEW' });
+        await waitFor(() => {
+          expect(store.stage).toBe<ReportStage>('REVIEW');
+        });
+        const { getByTestId } = wrappedRender();
+        expect(getByTestId('report-step-REVIEW')).toBeInTheDocument();
+        expect(getByTestId('report-step-REVIEW')).toHaveClass('active');
+        const uploadButton = getByTestId('report-step-UPLOAD');
+        expect(uploadButton).not.toHaveClass('disabled');
+        await fireEvent.click(uploadButton);
+        expect(store.stage).toBe<ReportStage>('UPLOAD');
+      });
+      it('should not navigate to final step', async () => {
+        store.$patch({ stage: 'REVIEW' });
+        const { getByTestId } = wrappedRender();
+        expect(getByTestId('report-step-REVIEW')).toBeInTheDocument();
+        expect(getByTestId('report-step-REVIEW')).toHaveClass('active');
+        const finalButton = getByTestId('report-step-FINAL');
+        expect(finalButton).toHaveClass('disabled');
+        await fireEvent.click(finalButton);
+        expect(store.stage).toBe<ReportStage>('REVIEW');
+      });
+    });
+
+    describe('from final stage', () => {
+      it('should not navigate to review step', async () => {
+        store.$patch({ stage: 'FINAL' });
+        const { getByTestId } = wrappedRender();
+        expect(getByTestId('report-step-FINAL')).toBeInTheDocument();
+        expect(getByTestId('report-step-FINAL')).toHaveClass('active');
+        const reviewButton = getByTestId('report-step-REVIEW');
+        expect(reviewButton).toHaveClass('disabled');
+        await fireEvent.click(reviewButton);
+        expect(store.stage).toBe<ReportStage>('FINAL');
+      });
+      it('should not navigate to upload step', async () => {
+        store.$patch({ stage: 'FINAL' });
+        const { getByTestId } = wrappedRender();
+        expect(getByTestId('report-step-FINAL')).toBeInTheDocument();
+        expect(getByTestId('report-step-FINAL')).toHaveClass('active');
+        const uploadButton = getByTestId('report-step-UPLOAD');
+        expect(uploadButton).toHaveClass('disabled');
+        await fireEvent.click(uploadButton);
+        expect(store.stage).toBe<ReportStage>('FINAL');
+      });
+    });
   });
 });

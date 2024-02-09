@@ -5,9 +5,11 @@
       :class="{
         active: value == stage,
         available: value != stage,
+        disabled: disabled,
       }"
-      @click="$patch({ stage: value })"
+      @click="handleClick"
       :data-testid="'report-step-' + value"
+      :disabled="disabled"
     >
       {{ index + 1 }}
     </div>
@@ -23,9 +25,13 @@ import { useReportStepperStore } from '../../store/modules/reportStepper';
 
 const { stage } = storeToRefs(useReportStepperStore());
 const { $patch } = useReportStepperStore();
-defineProps(['value', 'label', 'index']);
-</script>
+const props = defineProps(['value', 'label', 'index', 'disabled']);
 
+const handleClick = () => {
+  if (props.disabled) return;
+  $patch({ stage: props.value });
+};
+</script>
 
 <style scoped>
 .circle {

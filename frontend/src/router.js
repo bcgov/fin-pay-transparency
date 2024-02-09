@@ -59,7 +59,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
+        {
       path: '/token-expired',
       name: 'TokenExpired',
       component: TokenExpired,
@@ -85,10 +85,7 @@ router.beforeEach((to, _from, next) => {
           aStore
             .getUserInfo()
             .then(() => {
-              if (true) {
-                //something to check if user is authorized to view this page
-                next();
-              }
+              next();
             })
             .catch(() => {
               next('error');
