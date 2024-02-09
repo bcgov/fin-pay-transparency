@@ -119,6 +119,7 @@ const docGenServicePrivate = {
  * @param reportData The data to use when generating the report
  */
 async function generateReport(reportType: string, reportData: ReportData) {
+  logger.info('Begin generate report')
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
     const workingHtml: string = ejs.render(ejsTemplate, reportData);
@@ -200,6 +201,7 @@ async function generateReport(reportType: string, reportData: ReportData) {
     // Extract the HTML of the active DOM, which includes the injected charts
     const renderedHtml = await page.content();
     await page.close();
+    logger.info('Report generation complete');
     return renderedHtml;
   } catch (e) {
     /* istanbul ignore next */
