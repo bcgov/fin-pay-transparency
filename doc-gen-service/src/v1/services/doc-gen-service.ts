@@ -6,7 +6,16 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
-export type ReportData = {
+const DEFAULT_FOOTNOTE_SYMBOLS = {
+  genderCategorySuppressed: '*',
+  quartileGenderCategorySuppressed: '†',
+};
+
+/*
+Defines properties that must be submitted with any 
+request to generate a report.
+*/
+export type SubmittedReportData = {
   companyName: string;
   companyAddress: string;
   reportStartDate: string;
@@ -39,7 +48,25 @@ export type ReportData = {
   chartSummaryText: unknown;
   chartSuppressedError: string;
   isAllCalculatedDataSuppressed: boolean;
+  genderCodes: string[];
 };
+
+/*
+Defines properties that are not explicitly
+inlcuded in SubmittedReportData, but which are also needed
+to generate a report.  For example: properties
+derived from those in SubmittedReportData.
+*/
+type SupplementaryReportData = {
+  footnoteSymbols: {
+    genderCategorySuppressed: string;
+    quartileGenderCategorySuppressed: string;
+  };
+  isGeneralSuppressedDataFootnoteVisible: boolean;
+};
+
+/* Includes everything from SubmittedReportData and SupplementaryReportData */
+export type ReportData = SubmittedReportData & SupplementaryReportData;
 
 const docGenServicePrivate = {
   REPORT_TEMPLATE_HEADER: resolve(
@@ -111,6 +138,63 @@ const docGenServicePrivate = {
 
     return fragments.join('\n');
   },
+
+  /**
+   * Determines whether any of the included charts or tables in the given
+   * SubmittedReportData had one or more gender categories suppressed.
+   */
+  isGeneralSuppressedDataFootnoteVisible(
+    submittedReportData: SubmittedReportData,
+  ) {
+    const chartsToConsider = [
+      'meanHourlyPayGap',
+      'medianHourlyPayGap',
+      'meanOvertimePayGap',
+      'medianOvertimePayGap',
+      'meanBonusPayGap',
+      'medianBonusPayGap',
+    ];
+    const tablesToConsider = ['meanOvertimeHoursGap', 'medianOvertimeHoursGap'];
+    const numGenderCategories = submittedReportData.genderCodes.length;
+    const hasAtLeastOneIncludedChartWithSuppression =
+      chartsToConsider
+        .map((chartName) => submittedReportData.chartData[chartName])
+        .filter((c) => c.length && c.length < numGenderCategories).length > 0;
+    const hasAtLeastOneIncludedTableWithSuppression =
+      tablesToConsider
+        .map((tableName) => submittedReportData.tableData[tableName])
+        .filter((c) => c.length && c.length < numGenderCategories).length > 0;
+    return (
+      hasAtLeastOneIncludedChartWithSuppression ||
+      hasAtLeastOneIncludedTableWithSuppression
+    );
+  },
+
+  /**
+   * Creates a new ReportData object which includes
+   * everything from the given SubmittedReportData, plus
+   * some additional derived or default properties needed
+   * to generate the report.
+   */
+  addSupplementaryReportData(
+    submittedReportData: SubmittedReportData,
+  ): ReportData {
+    const numGenders = submittedReportData.genderCodes.length;
+    const chartData = submittedReportData.chartData;
+
+    const supplementaryReportData: SupplementaryReportData = {
+      footnoteSymbols: DEFAULT_FOOTNOTE_SYMBOLS,
+      isGeneralSuppressedDataFootnoteVisible:
+        docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
+          submittedReportData,
+        ),
+    };
+    const reportData: ReportData = {
+      ...submittedReportData,
+      ...supplementaryReportData,
+    };
+    return reportData;
+  },
 };
 
 /**
@@ -118,7 +202,13 @@ const docGenServicePrivate = {
  * @param reportType The type of report to generate (e.g. 'pdf', 'html')
  * @param reportData The data to use when generating the report
  */
-async function generateReport(reportType: string, reportData: ReportData) {
+async function generateReport(
+  reportType: string,
+  submittedReportData: SubmittedReportData,
+) {
+  const reportData =
+    docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
     const workingHtml: string = ejs.render(ejsTemplate, reportData);
