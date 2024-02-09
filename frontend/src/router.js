@@ -1,15 +1,14 @@
-import {createRouter, createWebHistory} from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
-import {appStore} from './store/modules/app';
-import {PAGE_TITLES} from './utils/constant';
+import { appStore } from './store/modules/app';
+import { PAGE_TITLES } from './utils/constant';
 import Login from './components/Login.vue';
-import {authStore} from './store/modules/auth';
+import { authStore } from './store/modules/auth';
 import Logout from './components/Logout.vue';
-
 
 // a comment for commit.
 const router = createRouter({
@@ -22,35 +21,34 @@ const router = createRouter({
       component: Home,
       meta: {
         pageTitle: PAGE_TITLES.DASHBOARD,
-        requiresAuth: true
+        requiresAuth: true,
       },
-
     },
     {
       //A route to show a general error for unrecoverable system failures
       path: '/error',
       name: 'error',
-      component: ErrorPage
+      component: ErrorPage,
     },
     {
       //A route to show an error specifically related to failed logins
       path: '/login-error',
       name: 'login-error',
-      component: LoginError
-    },    
+      component: LoginError,
+    },
     {
       path: '/login',
       name: 'login',
       component: Login,
       meta: {
         pageTitle: PAGE_TITLES.LOGIN,
-        requiresAuth: false
-      }
+        requiresAuth: false,
+      },
     },
     {
       path: '/logout',
       name: 'logout',
-      component: Logout
+      component: Logout,
     },
     {
       path: '/inputForm',
@@ -58,19 +56,19 @@ const router = createRouter({
       component: InputForm,
       meta: {
         pageTitle: PAGE_TITLES.REPORT,
-        requiresAuth: true
-      }
+        requiresAuth: true,
+      },
     },
-    {
+        {
       path: '/token-expired',
       name: 'TokenExpired',
       component: TokenExpired,
       meta: {
         pageTitle: PAGE_TITLES.TOKEN_EXPIRED,
-        requiresAuth: false
-      }
-    },       
-  ]
+        requiresAuth: false,
+      },
+    },
+  ],
 });
 
 router.beforeEach((to, _from, next) => {
@@ -78,33 +76,36 @@ router.beforeEach((to, _from, next) => {
   const apStore = appStore();
   // this section is to set page title in vue store
   if (to.meta.requiresAuth) {
-    aStore.getJwtToken().then(() => {
-      if (!aStore.isAuthenticated) {
-        next('/token-expired');
-      } else {
-        aStore.getUserInfo().then(() => {
-            if (true) {//something to check if user is authorized to view this page
+    aStore
+      .getJwtToken()
+      .then(() => {
+        if (!aStore.isAuthenticated) {
+          next('/token-expired');
+        } else {
+          aStore
+            .getUserInfo()
+            .then(() => {
               next();
-            }
-        }).catch(() => {
-          next('error');
-        });
-      }
-    }).catch(() => {
-      if (!aStore.userInfo) {
-        next('/login');
-      }else{
-        next('/token-expired');
-      }
-    });
-  }
-  else {
+            })
+            .catch(() => {
+              next('error');
+            });
+        }
+      })
+      .catch(() => {
+        if (!aStore.userInfo) {
+          next('/login');
+        } else {
+          next('/token-expired');
+        }
+      });
+  } else {
     if (to && to.meta) {
       apStore.setPageTitle(to.meta.pageTitle);
     } else {
       apStore.setPageTitle('');
     }
-    //Proceed normally to the requested route 
+    //Proceed normally to the requested route
     next();
   }
 });
