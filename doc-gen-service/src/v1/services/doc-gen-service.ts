@@ -160,10 +160,14 @@ const docGenServicePrivate = {
       chartsToConsider
         .map((chartName) => submittedReportData.chartData[chartName])
         .filter((c) => c.length && c.length < numGenderCategories).length > 0;
+
+    // Note: (numGenderCategories - 1) because because the reference gender
+    // category isn't displayed in the tables
     const hasAtLeastOneIncludedTableWithSuppression =
       tablesToConsider
         .map((tableName) => submittedReportData.tableData[tableName])
-        .filter((c) => c.length && c.length < numGenderCategories).length > 0;
+        .filter((c) => c.length && c.length < numGenderCategories - 1).length >
+      0;
     return (
       hasAtLeastOneIncludedChartWithSuppression ||
       hasAtLeastOneIncludedTableWithSuppression

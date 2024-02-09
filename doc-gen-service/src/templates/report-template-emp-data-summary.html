@@ -158,7 +158,7 @@
           </table>
           <div class="text-normal mt-2 mb-2">
             <%= chartSummaryText.meanOvertimeHoursGap %>
-              <% if (chartData.meanOvertimeHoursGap.length < genderCodes.length) { %>
+              <% if (tableData.meanOvertimeHoursGap.length < genderCodes.length - 1) { %>
                 <%= footnoteSymbols.genderCategorySuppressed %>
                   <% } %>
           </div>
@@ -186,7 +186,7 @@
           </table>
           <div class="text-normal mt-2 mb-2">
             <%= chartSummaryText.medianOvertimeHoursGap %>
-              <% if (chartData.medianOvertimeHoursGap.length < genderCodes.length) { %>
+              <% if (tableData.medianOvertimeHoursGap.length < genderCodes.length - 1) { %>
                 <%= footnoteSymbols.genderCategorySuppressed %>
                   <% } %>
           </div>
