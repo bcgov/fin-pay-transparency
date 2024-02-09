@@ -50,7 +50,7 @@ const handleClick = () => {
 
   &.active {
     background-color: #003366;
-    cursor: arrow;
+    cursor: pointer;
   }
 
   &.disabled {
