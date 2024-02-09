@@ -962,6 +962,7 @@ const reportService = {
         ? this.createExplanatoryNotes(report)
         : null,
       isAllCalculatedDataSuppressed: isAllCalculatedDataSuppressed,
+      genderCodes: Object.values(GENDERS).map((g) => g.code),
     };
 
     return reportData;
