@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 
 export type ReportStage = 'UPLOAD' | 'REVIEW' | 'FINAL';
@@ -28,19 +28,17 @@ export const useReportStepperStore = defineStore(
     const setStage = (value: ReportStage) => {
       stage.value = value;
     };
-    const setReportId = (value: string) => {
-      reportId.value = value;
-    };
-    const clearReportId = () => {
+
+    const reset = () => {
+      stage.value = 'UPLOAD';
       reportId.value = undefined;
-    };
+    }
 
     return {
       stage,
       reportId,
-      setReportId,
       setStage,
-      clearReportId,
+      reset
     };
   },
 );

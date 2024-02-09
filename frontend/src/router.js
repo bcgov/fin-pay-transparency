@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
-import DraftReportPage from './components/DraftReportPage.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
@@ -58,20 +57,8 @@ const router = createRouter({
     {
       path: '/inputForm',
       redirect: 'InputForm',
-    },
-    {
-      path: '/generate-report-form',
       name: 'InputForm',
       component: InputForm,
-      meta: {
-        pageTitle: PAGE_TITLES.REPORT,
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/draft-report',
-      name: 'DraftReportPage',
-      component: DraftReportPage,
       meta: {
         pageTitle: PAGE_TITLES.REPORT,
         requiresAuth: true,

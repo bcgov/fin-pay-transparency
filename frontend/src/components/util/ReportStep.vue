@@ -6,8 +6,9 @@
         active: value == stage,
         available: value != stage,
       }"
+      :data-testid="'report-step-' + value"
     >
-      {{ index }}
+      {{ index + 1 }}
     </div>
   </v-col>
   <v-col v-if="index !== 2" class="d-flex justify-center align-center">
