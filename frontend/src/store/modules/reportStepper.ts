@@ -19,31 +19,28 @@ interface IReportStepperState {
   reportId?: string;
 }
 
-export const useReportStepperStore = defineStore<
+export const useReportStepperStore = defineStore(
   'reportStepper',
-  IReportStepperState,
-  {},
-  {
-    setStage: (value: ReportStage) => void;
-    setReportId: (value: string) => void;
-    clearReportId: () => void;
-  }
->('reportStepper', {
-  state: () => {
+  () => {
+    const stage = ref<ReportStage>('UPLOAD');
+    const reportId = ref<string | undefined>();
+
+    const setStage = (value: ReportStage) => {
+      stage.value = value;
+    };
+    const setReportId = (value: string) => {
+      reportId.value = value;
+    };
+    const clearReportId = () => {
+      reportId.value = undefined;
+    };
+
     return {
-      stage: 'UPLOAD',
-      reportId: undefined,
+      stage,
+      reportId,
+      setReportId,
+      setStage,
+      clearReportId,
     };
   },
-  actions: {
-    setStage(value: ReportStage) {
-      this.stage = value;
-    },
-    setReportId(id: string) {
-      this.reportId = id;
-    },
-    clearReportId() {
-      this.reportId = undefined;
-    },
-  },
-});
+);
