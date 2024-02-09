@@ -544,9 +544,6 @@ export default {
     },
     showStage(stageName: ReportStage) {
       this.setStage(stageName);
-      // this.stage = stageName;
-      // update Timeline component
-      // this.$refs.showStageTimeline.showStage(stageName);
       this.setSuccessAlert(null);
       this.isReadyToGenerate = false;
 
@@ -639,9 +636,6 @@ export default {
           });
         }
       }
-    },
-    onClickTimeline(value) {
-      this.showStage(value);
     },
   },
   watch: {

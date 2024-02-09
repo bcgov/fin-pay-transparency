@@ -17,11 +17,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: 'dashboard',
-    },
-    {
-      path: '/dashboard',
-      name: 'dashboard',
+      name: 'home',
       component: Home,
       meta: {
         pageTitle: PAGE_TITLES.DASHBOARD,
@@ -56,7 +52,6 @@ const router = createRouter({
     },
     {
       path: '/inputForm',
-      redirect: 'InputForm',
       name: 'InputForm',
       component: InputForm,
       meta: {

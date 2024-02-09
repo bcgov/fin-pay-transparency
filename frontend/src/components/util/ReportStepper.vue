@@ -8,7 +8,7 @@
     />
   </v-row>
   <v-row>
-    <v-col class="d-flex-col justify-center align-center">
+    <v-col class="d-flex d-flex-col justify-center align-center">
       <h5>Upload</h5>
     </v-col>
     <v-col class="d-flex justify-center align-center"> </v-col>
