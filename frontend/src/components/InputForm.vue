@@ -11,7 +11,7 @@
 
           <v-row class="pt-7 mb-4 d-flex justify-center w-100">
             <v-col cols="10" class="w-100">
-              <timeline ref="showStageTimeline" @timelineStage="onClickTimeline" />
+              <ReportStepper />
             </v-col>
           </v-row>
 
@@ -452,13 +452,16 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import PrimaryButton from './util/PrimaryButton.vue';
 import Spinner from './Spinner.vue';
-import Timeline from './Timeline.vue';
+import ReportStepper from './util/ReportStepper.vue';
 import ApiService from '../common/apiService';
 import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
-import { mapState } from 'pinia';
+import { mapActions, mapWritableState, mapState } from 'pinia';
+import {
+  useReportStepperStore,
+  ReportStage,
+} from '../store/modules/reportStepper';
 import moment from 'moment';
-import { ref } from 'vue';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 interface LineErrors {
@@ -484,7 +487,7 @@ export default {
     PrimaryButton,
     VueDatePicker,
     Spinner,
-    Timeline,
+    ReportStepper,
   },
   data: () => ({
     validForm: null,
@@ -526,9 +529,9 @@ export default {
     isReadyToGenerate: false,
     confirmBackDialogVisible: false,
     confirmOverrideReportDialogVisible: false,
-    stage: 'UPLOAD', //one of [UPLOAD, REVIEW, FINAL]
   }),
   methods: {
+    ...mapActions(useReportStepperStore, ['setStage']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -539,10 +542,11 @@ export default {
         this.uploadFileValue = null;
       }
     },
-    showStage(stageName: string) {
-      this.stage = stageName;
+    showStage(stageName: ReportStage) {
+      this.setStage(stageName);
+      // this.stage = stageName;
       // update Timeline component
-      this.$refs.showStageTimeline.showStage(stageName);
+      // this.$refs.showStageTimeline.showStage(stageName);
       this.setSuccessAlert(null);
       this.isReadyToGenerate = false;
 
@@ -638,7 +642,7 @@ export default {
     },
     onClickTimeline(value) {
       this.showStage(value);
-    },  
+    },
   },
   watch: {
     naicsCodes(val) {
@@ -676,6 +680,7 @@ export default {
   computed: {
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
+    ...mapWritableState(useReportStepperStore, ['stage']),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },
