@@ -43,7 +43,6 @@
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.0.4",
     "@vue/test-utils": "^2.4.3",
-    "@vue/tsconfig": "^0.5.1",
     "axios-mock-adapter": "^1.22.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
