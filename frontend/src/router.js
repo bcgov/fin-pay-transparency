@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
+import PublishedReportPage from './components/PublishedReportPage.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
 import { appStore } from './store/modules/app';
@@ -51,6 +52,15 @@ const router = createRouter({
       component: Logout,
     },
     {
+      path: '/published-report',
+      name: 'PublishedReportPage',
+      component: PublishedReportPage,
+      meta: {
+        pageTitle: PAGE_TITLES.REPORT,
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/inputForm',
       name: 'InputForm',
       component: InputForm,
@@ -59,7 +69,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-        {
+    {
       path: '/token-expired',
       name: 'TokenExpired',
       component: TokenExpired,
