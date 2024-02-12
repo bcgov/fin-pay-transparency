@@ -400,6 +400,7 @@ const reportService = {
         // Fail silently. We assume any exception is because the
         // companyId or reportId was invalid.  (Prisma checks that these values
         // are valid UUIDs, and if they aren't it throws an error.)
+        logger.error(e);
       }
 
       if (!report) {

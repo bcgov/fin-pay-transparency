@@ -7,6 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { utils } from '../services/utils-service';
 
 import { body, validationResult } from 'express-validator';
+import {
+  MISSING_COMPANY_DETAILS_ERROR,
+  MISSING_TOKENS_ERROR,
+} from '../../constants';
 
 const router = express.Router();
 
@@ -119,15 +123,20 @@ router.post(
     const errors = validationResult(req);
 
     if (!session?.companyDetails) {
-      return res.status(401).json({error: 'Missing company details'});
+      log.error(
+        `${MISSING_COMPANY_DETAILS_ERROR} for user: ${session?.correlationID}`,
+      );
+      return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
     }
 
     if (!errors.isEmpty()) {
+      log.error(JSON.stringify(errors));
       return res.status(400).json({
         errors: errors.array(),
       });
     }
     if (!user?.refreshToken || !user?.jwt) {
+      log.error(MISSING_TOKENS_ERROR);
       res.status(401).json(UnauthorizedRsp);
     } else if (auth.isTokenExpired(user.jwt)) {
       if (user?.refreshToken && auth.isRenewable(user.refreshToken)) {
@@ -153,7 +162,10 @@ router.get(
     const user: any = req.user;
     const session: any = req.session;
     if (!session?.companyDetails) {
-      return res.status(401).json({ error: 'Missing company details' });
+      log.error(
+        `${MISSING_COMPANY_DETAILS_ERROR} for user: ${session?.correlationID}`,
+      );
+      return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
     }
     if (user?.jwtFrontend && user?.refreshToken) {
       if (session?.passport?.user?._json) {
@@ -168,6 +180,7 @@ router.get(
       };
       res.status(200).json(responseJson);
     } else {
+      log.error(JSON.stringify(UnauthorizedRsp));
       res.status(401).json(UnauthorizedRsp);
     }
   },

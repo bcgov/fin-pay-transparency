@@ -210,6 +210,8 @@ async function generateReport(
   reportType: string,
   submittedReportData: SubmittedReportData,
 ) {
+  logger.info('Begin generate report');
+
   const reportData =
     docGenServicePrivate.addSupplementaryReportData(submittedReportData);
 
@@ -294,6 +296,7 @@ async function generateReport(
     // Extract the HTML of the active DOM, which includes the injected charts
     const renderedHtml = await page.content();
     await page.close();
+    logger.info('Report generation complete');
     return renderedHtml;
   } catch (e) {
     /* istanbul ignore next */
