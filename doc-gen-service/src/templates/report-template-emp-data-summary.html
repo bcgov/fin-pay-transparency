@@ -27,90 +27,73 @@
         <h4>Mean hourly pay gap<sup>1</sup></h4>
         <div id="mean-hourly-pay-gap">
           <% if (chartData.meanHourlyPayGap.length) { %>
-            <<<<<<< HEAD <div id="mean-hourly-pay-gap-chart">
+            <div id="mean-hourly-pay-gap-chart">
+            </div>
+            <div class="text-normal mt-2 mb-2">
+              <%= chartSummaryText.meanHourlyPayGap %>
+                <% if (chartData.meanHourlyPayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
+            </div>
+            <% } else { %>
+              <%= chartSuppressedError %>
+                <% } %>
+
         </div>
-        <div class="text-normal mt-2 mb-2">
-          <%= chartSummaryText.meanHourlyPayGap %>
-            <% if (chartData.meanHourlyPayGap.length < genderCodes.length) { %>
-              <%= footnoteSymbols.genderCategorySuppressed %>
+      </td>
+      <td>
+        <h4>Median hourly pay gap<sup>2</sup></h4>
+        <div id="median-hourly-pay-gap">
+          <% if (chartData.medianHourlyPayGap.length) { %>
+            <div id="median-hourly-pay-gap-chart">
+            </div>
+            <div class="text-normal mt-2 mb-2">
+              <%= chartSummaryText.medianHourlyPayGap %>
+                <% if (chartData.medianHourlyPayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
+            </div>
+            <% } else { %>
+              <%= chartSuppressedError %>
                 <% } %>
         </div>
-        <% } else { %>
-          <%= chartSuppressedError %>
-            <% } %>
-              =======
-              <div id="mean-hourly-pay-gap-chart"></div>
-              <div class="text-normal mt-2 mb-2">
-                <%= chartSummaryText.meanHourlyPayGap %>
-              </div>
-              <% } else { %>
-                <%= chartSuppressedError %>
-                  <% } %>
-                    >>>>>>> main
-</div>
-</td>
-<td>
-  <h4>Median hourly pay gap<sup>2</sup></h4>
-  <div id="mean-hourly-pay-gap">
-    <% if (chartData.medianHourlyPayGap.length) { %>
-      <<<<<<< HEAD <div id="median-hourly-pay-gap-chart">
-  </div>
-  <div class="text-normal mt-2 mb-2">
-    <%= chartSummaryText.medianHourlyPayGap %>
-      <% if (chartData.medianHourlyPayGap.length < genderCodes.length) { %>
-        <%= footnoteSymbols.genderCategorySuppressed %>
-          <% } %>
-  </div>
-  <% } else { %>
-    <%= chartSuppressedError %>
-      <% } %>
-        =======
-        <div id="median-hourly-pay-gap-chart"></div>
-        <div class="text-normal mt-2 mb-2">
-          <%= chartSummaryText.medianHourlyPayGap %>
-        </div>
-        <% } else { %>
-          <%= chartSuppressedError %>
-            <% } %>
-              >>>>>>> main
-              </div>
-</td>
-</tr>
-</table>
+      </td>
+    </tr>
+  </table>
 
-<div class="explanatory-notes">
-  <h4>Explanatory notes</h4>
-  <% if (explanatoryNotes.dataConstraints) { %>
-    <div class="footnote">
-      <div class="footnote-number">
-        <%= explanatoryNotes.dataConstraints.num %>.
-      </div>
-      <div>
-        <%= explanatoryNotes.dataConstraints.text %>
-      </div>
-    </div>
-    <% } %>
+  <div class="explanatory-notes">
+    <h4>Explanatory notes</h4>
+    <% if (explanatoryNotes.dataConstraints) { %>
       <div class="footnote">
         <div class="footnote-number">
-          <%= explanatoryNotes.meanHourlyPayDiff.num %>.
+          <%= explanatoryNotes.dataConstraints.num %>.
         </div>
         <div>
-          &quot;Mean hourly pay gap&quot; refers to the differences in pay between
-          gender groups calculated by average pay. Hourly pay does not include
-          bonuses and overtime.
+          <%= explanatoryNotes.dataConstraints.text %>
         </div>
       </div>
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.medianHourlyPayDiff.num %>.
+      <% } %>
+        <div class="footnote">
+          <div class="footnote-number">
+            <%= explanatoryNotes.meanHourlyPayDiff.num %>.
+          </div>
+          <div>
+            &quot;Mean hourly pay gap&quot; refers to the differences in pay between
+            gender groups calculated by average pay. Hourly pay does not include
+            bonuses and overtime.
+          </div>
         </div>
-        <div>
-          &quot;Median hourly pay gap&quot; refers to the differences in pay
-          between gender groups calculated by the mid range of pay for each group.
-          Hourly pay does not include bonuses and overtime.
+        <div class="footnote">
+          <div class="footnote-number">
+            <%= explanatoryNotes.medianHourlyPayDiff.num %>.
+          </div>
+          <div>
+            &quot;Median hourly pay gap&quot; refers to the differences in pay
+            between gender groups calculated by the mid range of pay for each group.
+            Hourly pay does not include bonuses and overtime.
+          </div>
         </div>
-      </div>
-</div>
+  </div>
 </div>
 
 <div id="block-overtime" class="block">
