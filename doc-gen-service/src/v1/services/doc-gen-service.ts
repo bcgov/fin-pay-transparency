@@ -217,7 +217,9 @@ async function generateReport(
 
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
-    const workingHtml: string = ejs.render(ejsTemplate, reportData);
+    const workingHtml: string = ejs.render(ejsTemplate, reportData, {
+      rmWhitespace: true,
+    });
     const browser: Browser = await getBrowser();
     const page: Page = await browser.newPage();
     await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' });
