@@ -110,7 +110,7 @@ describe('addSupplementaryReportData', () => {
 
     //Newly added properties
     expect(reportData).toHaveProperty('footnoteSymbols');
-    expect(reportData).toHaveProperty('isAnyCalculatedDataSuppressed');
+    expect(reportData).toHaveProperty('isGeneralSuppressedDataFootnoteVisible');
   });
 });
 
