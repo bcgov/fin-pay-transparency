@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { NextFunction, Request, Response } from 'express';
 import { config } from '../../config';
-import { logger, logger as log } from '../../logger';
-import { Request, Response, NextFunction } from 'express';
+import { logger as log, logger } from '../../logger';
+const fs = require('fs');
 axios.interceptors.response.use((response) => {
   const headers = response.headers;
   if (headers && headers['x-correlation-id']) {

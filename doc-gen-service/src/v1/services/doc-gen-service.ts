@@ -6,6 +6,23 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
+export const REPORT_FORMAT = {
+  HTML: 'HTML' as string,
+  PDF: 'PDF' as string,
+};
+
+const PDF_PPI = 96; //Pixels per inch. (Puppeteer uses this value internally.)
+const PDF_PAGE_SIZE_INCHES = {
+  width: 8.5,
+  height: 11,
+  margin: 1,
+};
+const PDF_PAGE_SIZE_PIXELS = {
+  width: PDF_PAGE_SIZE_INCHES.width * PDF_PPI,
+  height: PDF_PAGE_SIZE_INCHES.height * PDF_PPI,
+  margin: PDF_PAGE_SIZE_INCHES.margin * PDF_PPI,
+};
+
 export type ReportData = {
   companyName: string;
   companyAddress: string;
@@ -115,16 +132,17 @@ const docGenServicePrivate = {
 
 /**
  * Generates a report of the specified type, using the specified data
- * @param reportType The type of report to generate (e.g. 'pdf', 'html')
+ * @param reportFormat The type of report to generate (e.g. 'pdf', 'html')
  * @param reportData The data to use when generating the report
  */
-async function generateReport(reportType: string, reportData: ReportData) {
-  logger.info('Begin generate report')
+async function generateReport(reportFormat: string, reportData: ReportData) {
+  logger.info(`Begin generate report (${reportFormat})`);
+  let page: Page = null;
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
     const workingHtml: string = ejs.render(ejsTemplate, reportData);
     const browser: Browser = await getBrowser();
-    const page: Page = await browser.newPage();
+    page = await browser.newPage();
     await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' });
     await page.addScriptTag({
       path: docGenServicePrivate.REPORT_TEMPLATE_SCRIPT,
@@ -198,14 +216,38 @@ async function generateReport(reportType: string, reportData: ReportData) {
       reportData,
     );
 
-    // Extract the HTML of the active DOM, which includes the injected charts
-    const renderedHtml = await page.content();
-    await page.close();
-    logger.info('Report generation complete');
-    return renderedHtml;
+    let result = null;
+    if (reportFormat == REPORT_FORMAT.HTML) {
+      const renderedHtml = await page.content();
+      result = renderedHtml;
+    } else if (reportFormat == REPORT_FORMAT.PDF) {
+      const pdf = await page.pdf({
+        margin: {
+          top: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
+          right: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
+          bottom: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
+          left: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
+        },
+        printBackground: false,
+        width: `${PDF_PAGE_SIZE_PIXELS.width}px`,
+        height: `${PDF_PAGE_SIZE_PIXELS.height}px`,
+      });
+      result = pdf;
+    }
+
+    if (!result) {
+      throw new Error(`Unable to generate report in format: '${reportFormat}'`);
+    }
+
+    logger.info(`Report generation complete (${reportFormat})`);
+    return result;
   } catch (e) {
     /* istanbul ignore next */
     logger.error(e);
+  } finally {
+    if (page) {
+      await page.close();
+    }
   }
 }
 

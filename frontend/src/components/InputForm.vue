@@ -387,9 +387,20 @@
                 </v-btn>
 
                 <v-btn
+                  id="gdownloadPdfButton"
+                  text="Download PDF"
+                  color="primary"
+                  class="mr-2"
+                  @click="downloadPdf(draftReport.report_id)"
+                >
+                  Download PDF
+                </v-btn>
+
+                <v-btn
                   id="generateReportButton"
                   text="Generate Report"
                   color="primary"
+                  class="mr-2"
                   :disabled="!isReadyToGenerate"
                   @click="tryGenerateReport()"
                 >
@@ -523,7 +534,7 @@ export default {
     alertMessage: null,
     alertType: null,
     submissionErrors: null as SubmissionErrors | null,
-    draftReport: null,
+    draftReport: null as any,
     draftReportHtml: null,
     finalReportHtml: null,
     isReadyToGenerate: false,
@@ -554,8 +565,12 @@ export default {
       }, 100);
     },
     async fetchReportHtml(reportId: string) {
+      console.log(`fetch report ${reportId}`);
       const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
       this.draftReportHtml = sanitizeUrl(unsanitisedHtml);
+    },
+    async downloadPdf(reportId: string) {
+      await ApiService.getPdfReport(reportId);
     },
     async tryGenerateReport() {
       const existingPublished = await ApiService.getReports({

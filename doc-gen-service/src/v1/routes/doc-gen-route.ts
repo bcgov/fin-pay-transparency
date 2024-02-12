@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import { logger } from '../../logger';
-import { generateReport } from '../services/doc-gen-service';
+import { REPORT_FORMAT, generateReport } from '../services/doc-gen-service';
 
 const docGenRoute: Router = express.Router();
 
@@ -12,9 +12,17 @@ docGenRoute.post('', async (req: Request, res: Response) => {
   );
   const reportData = req.body;
   const reportTypeQs = req.query.reportType;
+  const reportFormat = reportTypeQs?.toString().toUpperCase();
+
   try {
-    const report = await generateReport(reportTypeQs?.toString(), reportData);
-    res.setHeader('Content-Type', 'application/html');
+    const report = await generateReport(reportFormat, reportData);
+    if (reportFormat == REPORT_FORMAT.HTML) {
+      res.setHeader('Content-Type', 'application/html');
+    } else if (reportFormat == REPORT_FORMAT.PDF) {
+      res.setHeader('Content-Type', 'application/pdf');
+    } else {
+      throw new Error('Unsupported report format');
+    }
     res.setHeader('x-correlation-id', req.header('x-correlation-id'));
     res.send(report);
   } catch (e) {
