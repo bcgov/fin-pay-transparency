@@ -398,9 +398,7 @@
               </div>
             </div>
           </div>
-          <div v-if="stage == 'FINAL'" class="mb-8">
-            <div v-html="finalReportHtml"></div>
-          </div>
+          <FinalReport v-if="stage == 'FINAL'"/>
         </v-col>
       </v-row>
       <v-overlay
@@ -463,6 +461,7 @@ import {
 } from '../store/modules/reportStepper';
 import moment from 'moment';
 import { sanitizeUrl } from '@braintree/sanitize-url';
+import FinalReport from './FinalReport.vue';
 
 interface LineErrors {
   lineNum: number;
@@ -488,7 +487,8 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
-  },
+    FinalReport
+},
   data: () => ({
     validForm: null,
     requiredRules: [(v) => !!v || 'Required'],
@@ -531,7 +531,7 @@ export default {
     confirmOverrideReportDialogVisible: false,
   }),
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage']),
+    ...mapActions(useReportStepperStore, ['setStage', 'setReportId']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -577,6 +577,7 @@ export default {
         const unsanitisedHtml = await ApiService.publishReport(
           this.draftReport?.report_id,
         );
+        await this.setReportId(this.draftReport?.report_id);
         this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
         this.showStage('FINAL');
       } catch (e) {

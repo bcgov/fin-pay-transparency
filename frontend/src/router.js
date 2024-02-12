@@ -18,7 +18,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
+      redirect: 'dashboard'
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
       component: Home,
       meta: {
         pageTitle: PAGE_TITLES.DASHBOARD,
@@ -61,8 +65,8 @@ const router = createRouter({
       },
     },
     {
-      path: '/inputForm',
-      name: 'InputForm',
+      path: '/generate-report',
+      name: 'GenerateReport',
       component: InputForm,
       meta: {
         pageTitle: PAGE_TITLES.REPORT,
