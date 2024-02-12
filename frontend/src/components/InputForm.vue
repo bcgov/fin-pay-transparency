@@ -9,66 +9,9 @@
             </v-col>
           </v-row>
 
-          <!-- timeline -->
           <v-row class="pt-7 mb-4 d-flex justify-center w-100">
             <v-col cols="10" class="w-100">
-              <v-row>
-                <v-col class="d-flex-col justify-center align-center">
-                  <div
-                    class="circle"
-                    :class="{
-                      active: stage == 'UPLOAD',
-                      available: stage != 'UPLOAD',
-                    }"
-                    v-on:click="showStage('UPLOAD')"
-                  >
-                    1
-                  </div>
-                </v-col>
-                <v-col class="d-flex justify-center align-center">
-                  <div class="dash disabled"></div>
-                </v-col>
-                <v-col class="d-flex justify-center align-center">
-                  <div
-                    class="circle"
-                    :class="{
-                      active: stage == 'REVIEW',
-                      disabled: stage != 'REVIEW',
-                    }"
-                    v-on:click="showStage('REVIEW')"
-                  >
-                    2
-                  </div>
-                </v-col>
-                <v-col class="d-flex justify-center align-center">
-                  <div class="dash disabled"></div>
-                </v-col>
-                <v-col class="d-flex justify-center align-center">
-                  <div
-                    class="circle"
-                    :class="{
-                      active: stage == 'FINAL',
-                      disabled: stage != 'FINAL',
-                    }"
-                  >
-                    3
-                  </div>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col class="d-flex-col justify-center align-center">
-                  <h5>Upload</h5>
-                </v-col>
-                <v-col class="d-flex justify-center align-center"> </v-col>
-                <v-col class="d-flex justify-center align-center">
-                  <h5>Review</h5>
-                </v-col>
-                <v-col class="d-flex justify-center align-center"> </v-col>
-                <v-col class="d-flex justify-center align-center">
-                  <h5>Report</h5>
-                </v-col>
-              </v-row>
+              <ReportStepper />
             </v-col>
           </v-row>
 
@@ -509,10 +452,15 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import PrimaryButton from './util/PrimaryButton.vue';
 import Spinner from './Spinner.vue';
+import ReportStepper from './util/ReportStepper.vue';
 import ApiService from '../common/apiService';
 import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
-import { mapState } from 'pinia';
+import { mapActions, mapWritableState, mapState } from 'pinia';
+import {
+  useReportStepperStore,
+  ReportStage,
+} from '../store/modules/reportStepper';
 import moment from 'moment';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
@@ -539,6 +487,7 @@ export default {
     PrimaryButton,
     VueDatePicker,
     Spinner,
+    ReportStepper,
   },
   data: () => ({
     validForm: null,
@@ -578,11 +527,11 @@ export default {
     draftReportHtml: null,
     finalReportHtml: null,
     isReadyToGenerate: false,
-    stage: 'UPLOAD', //one of [UPLOAD, REVIEW, FINAL]
     confirmBackDialogVisible: false,
     confirmOverrideReportDialogVisible: false,
   }),
   methods: {
+    ...mapActions(useReportStepperStore, ['setStage']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -593,8 +542,8 @@ export default {
         this.uploadFileValue = null;
       }
     },
-    showStage(stageName: string) {
-      this.stage = stageName;
+    showStage(stageName: ReportStage) {
+      this.setStage(stageName);
       this.setSuccessAlert(null);
       this.isReadyToGenerate = false;
 
@@ -724,6 +673,7 @@ export default {
   computed: {
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
+    ...mapWritableState(useReportStepperStore, ['stage']),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },
@@ -759,42 +709,5 @@ export default {
   border-bottom-right-radius: 0px;
   background-color: #f6f6f6 !important;
   padding: 15px 5px 15px 35px;
-}
-
-.circle {
-  height: 60px;
-  width: 60px;
-  color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  &.available {
-    background-color: #00336633;
-    cursor: pointer;
-  }
-
-  &.active {
-    background-color: #003366;
-    cursor: arrow;
-  }
-
-  &.disabled {
-    background-color: #aaaaaa;
-    cursor: not-allowed;
-  }
-}
-
-.dash {
-  height: 1px;
-  width: 100%;
-  background-color: #003366;
-  padding-left: 5px;
-  padding-right: 5px;
-
-  &.disabled {
-    background-color: #aaaaaa;
-  }
 }
 </style>

@@ -103,10 +103,9 @@ router.beforeEach((to, _from, next) => {
     .catch(() => {
       if (!aStore.userInfo) {
         next('/login');
-        return;
+      } else {
+        next('/token-expired');
       }
-
-      next('/token-expired');
     });
 });
 
