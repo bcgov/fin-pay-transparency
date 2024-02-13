@@ -99,7 +99,7 @@ export const authStore = defineStore('auth', {
           ApiService.setAuthHeader(response.jwtFrontend);
           ApiService.setCorrelationID(response.correlationID);
         } else {
-          throw 'No jwtFrontend';
+          throw new Error('No jwtFrontend');
         }
       } else {
         //inital login and redirect
@@ -111,7 +111,7 @@ export const authStore = defineStore('auth', {
           ApiService.setAuthHeader(response.jwtFrontend);
           ApiService.setCorrelationID(response.correlationID);
         } else {
-          throw 'No jwtFrontend';
+          throw new Error('No jwtFrontend');
         }
       }
     },

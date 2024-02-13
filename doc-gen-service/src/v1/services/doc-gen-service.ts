@@ -23,7 +23,16 @@ const PDF_PAGE_SIZE_PIXELS = {
   margin: PDF_PAGE_SIZE_INCHES.margin * PDF_PPI,
 };
 
-export type ReportData = {
+const DEFAULT_FOOTNOTE_SYMBOLS = {
+  genderCategorySuppressed: '*',
+  quartileGenderCategorySuppressed: '†',
+};
+
+/*
+Defines properties that must be submitted with any 
+request to generate a report.
+*/
+export type SubmittedReportData = {
   companyName: string;
   companyAddress: string;
   reportStartDate: string;
@@ -56,7 +65,25 @@ export type ReportData = {
   chartSummaryText: unknown;
   chartSuppressedError: string;
   isAllCalculatedDataSuppressed: boolean;
+  genderCodes: string[];
 };
+
+/*
+Defines properties that are not explicitly
+inlcuded in SubmittedReportData, but which are also needed
+to generate a report.  For example: properties
+derived from those in SubmittedReportData.
+*/
+type SupplementaryReportData = {
+  footnoteSymbols: {
+    genderCategorySuppressed: string;
+    quartileGenderCategorySuppressed: string;
+  };
+  isGeneralSuppressedDataFootnoteVisible: boolean;
+};
+
+/* Includes everything from SubmittedReportData and SupplementaryReportData */
+export type ReportData = SubmittedReportData & SupplementaryReportData;
 
 const docGenServicePrivate = {
   REPORT_TEMPLATE_HEADER: resolve(
@@ -140,6 +167,64 @@ const docGenServicePrivate = {
       console.log(id, bbox);
     });
   },
+
+  /**
+   * Determines whether any of the included charts or tables in the given
+   * SubmittedReportData had one or more gender categories suppressed.
+   */
+  isGeneralSuppressedDataFootnoteVisible(
+    submittedReportData: SubmittedReportData,
+  ) {
+    const chartsToConsider = [
+      'meanHourlyPayGap',
+      'medianHourlyPayGap',
+      'meanOvertimePayGap',
+      'medianOvertimePayGap',
+      'meanBonusPayGap',
+      'medianBonusPayGap',
+    ];
+    const tablesToConsider = ['meanOvertimeHoursGap', 'medianOvertimeHoursGap'];
+    const numGenderCategories = submittedReportData.genderCodes.length;
+    const hasAtLeastOneIncludedChartWithSuppression =
+      chartsToConsider
+        .map((chartName) => submittedReportData.chartData[chartName])
+        .filter((c) => c.length && c.length < numGenderCategories).length > 0;
+
+    // Note: (numGenderCategories - 1) because because the reference gender
+    // category isn't displayed in the tables
+    const hasAtLeastOneIncludedTableWithSuppression =
+      tablesToConsider
+        .map((tableName) => submittedReportData.tableData[tableName])
+        .filter((c) => c.length && c.length < numGenderCategories - 1).length >
+      0;
+    return (
+      hasAtLeastOneIncludedChartWithSuppression ||
+      hasAtLeastOneIncludedTableWithSuppression
+    );
+  },
+
+  /**
+   * Creates a new ReportData object which includes
+   * everything from the given SubmittedReportData, plus
+   * some additional derived or default properties needed
+   * to generate the report.
+   */
+  addSupplementaryReportData(
+    submittedReportData: SubmittedReportData,
+  ): ReportData {
+    const supplementaryReportData: SupplementaryReportData = {
+      footnoteSymbols: DEFAULT_FOOTNOTE_SYMBOLS,
+      isGeneralSuppressedDataFootnoteVisible:
+        docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
+          submittedReportData,
+        ),
+    };
+    const reportData: ReportData = {
+      ...submittedReportData,
+      ...supplementaryReportData,
+    };
+    return reportData;
+  },
 };
 
 /**
@@ -147,12 +232,20 @@ const docGenServicePrivate = {
  * @param reportFormat The type of report to generate (e.g. 'pdf', 'html')
  * @param reportData The data to use when generating the report
  */
-async function generateReport(reportFormat: string, reportData: ReportData) {
-  logger.info(`Begin generate report (${reportFormat})`);
+async function generateReport(
+  reportFormat: string,
+  submittedReportData: SubmittedReportData,
+) {
+  logger.info('Begin generate report');
   let puppeteerPage: Page = null;
+  const reportData =
+    docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
-    const workingHtml: string = ejs.render(ejsTemplate, reportData);
+    const workingHtml: string = ejs.render(ejsTemplate, reportData, {
+      rmWhitespace: true,
+    });
     const browser: Browser = await getBrowser();
     puppeteerPage = await browser.newPage();
     await puppeteerPage.addScriptTag({
