@@ -1,6 +1,6 @@
 <template>
   <div class="mb-8">
-    <div v-html="sanitizeUrl(finalReportHtml)"></div>
+    <div v-html="finalReportHtml"></div>
   </div>
   <v-overlay
     :persistent="true"
@@ -11,38 +11,41 @@
   </v-overlay>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import Spinner from './Spinner.vue';
 
 import { storeToRefs } from 'pinia';
 import { useReportStepperStore } from '../store/modules/reportStepper';
-import { ref, onBeforeMount } from 'vue';
 import ApiService from '../common/apiService';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { useRouter } from 'vue-router';
 
-const { reportId } = storeToRefs(useReportStepperStore());
-let finalReportHtml = '';
-const loading = ref<boolean>(true);
-const router = useRouter();
+export default {
+  components: {
+    Spinner,
+  },
+  data: () => ({
+    reportId: storeToRefs(useReportStepperStore()).reportId,
+    finalReportHtml: null,
+    loading: true,
+    router: useRouter(),
+  }),
 
-const loadReport = async () => {
-  try {
-    loading.value = true;
-    finalReportHtml = await ApiService.getHtmlReport(reportId.value!);
-  } catch (error) {
-    router.replace('/');
-  } finally {
-    loading.value = false;
-  }
+  async beforeMount() {
+    if (!this.reportId) {
+      this.router.replace('/');
+      return;
+    }
+
+    try {
+      this.loading = true;
+      const unsanitisedHtml = await ApiService.getHtmlReport(this.reportId!);
+      this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
+    } catch (error) {
+      this.router.replace('/');
+    } finally {
+      this.loading = false;
+    }
+  },
 };
-
-onBeforeMount(async () => {
-  if (!reportId.value) {
-    router.replace('/');
-    return;
-  }
-
-  await loadReport();
-});
 </script>
