@@ -183,9 +183,6 @@ const docGenServicePrivate = {
   addSupplementaryReportData(
     submittedReportData: SubmittedReportData,
   ): ReportData {
-    const numGenders = submittedReportData.genderCodes.length;
-    const chartData = submittedReportData.chartData;
-
     const supplementaryReportData: SupplementaryReportData = {
       footnoteSymbols: DEFAULT_FOOTNOTE_SYMBOLS,
       isGeneralSuppressedDataFootnoteVisible:
