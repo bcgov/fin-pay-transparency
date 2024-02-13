@@ -1,11 +1,7 @@
 import {
-<<<<<<< HEAD
   REPORT_FORMAT,
   ReportData,
-=======
-  ReportData,
   SubmittedReportData,
->>>>>>> main
   docGenServicePrivate,
   generateReport,
 } from './doc-gen-service';
@@ -74,11 +70,10 @@ beforeEach(() => {
 
 describe('generateReport', () => {
   it('should generate a report', async () => {
-<<<<<<< HEAD
-    const report = await generateReport(REPORT_FORMAT.HTML, reportData as any);
-=======
-    const report = await generateReport('html', submittedReportData as any);
->>>>>>> main
+    const report = await generateReport(
+      REPORT_FORMAT.HTML,
+      submittedReportData as any,
+    );
     expect(report).toBeDefined();
   });
 });
