@@ -196,7 +196,12 @@
           <p class="mb-2">
             Difference as compared to reference group (<%= referenceGenderCategory %>)
           </p>
-          <table id="median-overtime-hours-table" class="table" role="table">
+          <table id="median-overtime-hours-table" class="table" role="table"
+            aria-describedby="Median difference in overtime hours">
+            <tr style="display: none" aria-hidden="true">
+              <th scope="col">Gender Category</th>
+              <th scope="col">Difference (hours)</th>
+            </tr>
             <% for(var i=0; i < tableData.medianOvertimeHoursGap.length; i++) { %>
               <tr>
                 <td>
