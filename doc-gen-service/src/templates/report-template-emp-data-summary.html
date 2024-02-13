@@ -30,6 +30,9 @@
             <div id="mean-hourly-pay-gap-chart"></div>
             <div class="text-normal mt-2 mb-2">
               <%= chartSummaryText.meanHourlyPayGap %>
+                <% if (chartData.meanHourlyPayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
             </div>
             <% } else { %>
               <%= chartSuppressedError %>
@@ -43,6 +46,10 @@
             <div id="median-hourly-pay-gap-chart"></div>
             <div class="text-normal mt-2 mb-2">
               <%= chartSummaryText.medianHourlyPayGap %>
+                <% if (chartData.meanHourlyPayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
+
             </div>
             <% } else { %>
               <%= chartSuppressedError %>
@@ -94,6 +101,9 @@
             <div id="mean-overtime-pay-gap-chart"></div>
             <div class="text-normal mt-2 mb-2">
               <%= chartSummaryText.meanOvertimePayGap %>
+                <% if (chartData.meanOvertimePayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
             </div>
             <% } else { %>
               <%= chartSuppressedError %>
@@ -111,6 +121,9 @@
             <div id="median-overtime-pay-gap-chart"></div>
             <div class="text-normal mt-2 mb-2">
               <%= chartSummaryText.medianOvertimePayGap %>
+                <% if (chartData.medianOvertimePayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
             </div>
             <% } else { %>
               <%= chartSuppressedError %>
@@ -148,6 +161,9 @@
           </table>
           <div class="text-normal mt-2 mb-2">
             <%= chartSummaryText.meanOvertimeHoursGap %>
+              <% if (tableData.meanOvertimeHoursGap.length < genderCodes.length - 1) { %>
+                <%= footnoteSymbols.genderCategorySuppressed %>
+                  <% } %>
           </div>
           <%} else { %>
             <%= chartSuppressedError %>
@@ -182,6 +198,9 @@
           </table>
           <div class="text-normal mt-2 mb-2">
             <%= chartSummaryText.medianOvertimeHoursGap %>
+              <% if (tableData.medianOvertimeHoursGap.length < genderCodes.length - 1) { %>
+                <%= footnoteSymbols.genderCategorySuppressed %>
+                  <% } %>
           </div>
           <%} else { %>
             <%= chartSuppressedError %>
@@ -240,6 +259,9 @@
             <div id="mean-bonus-pay-gap-chart"></div>
             <div class="text-normal mt-2 mb-2">
               <%= chartSummaryText.meanBonusPayGap %>
+                <% if (chartData.meanBonusPayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
             </div>
             <% } else { %>
               <%= chartSuppressedError %>
@@ -257,6 +279,9 @@
             <div id="median-bonus-pay-gap-chart"></div>
             <div class="text-normal mt-2 mb-2">
               <%= chartSummaryText.medianBonusPayGap %>
+                <% if (chartData.medianBonusPayGap.length < genderCodes.length) { %>
+                  <%= footnoteSymbols.genderCategorySuppressed %>
+                    <% } %>
             </div>
             <% } else { %>
               <%= chartSuppressedError %>
@@ -309,7 +334,9 @@
           <div id="hourly-pay-quartile-4">
             <% var q4HasSuppressed=chartData.hourlyPayQuartile4.length < 4; %>
               <div class="text-normal">
-                Upper hourly pay quartile (highest paid)<% if (q4HasSuppressed) { %>*<% } %>
+                Upper hourly pay quartile (highest paid)<% if (q4HasSuppressed) { %>
+                  <%= footnoteSymbols.quartileGenderCategorySuppressed %>
+                    <% } %>
               </div>
               <% if (chartData.hourlyPayQuartile4.length) { %>
                 <div id="hourly-pay-quartile-4-chart"></div>
@@ -318,7 +345,9 @@
           <div id="hourly-pay-quartile-3">
             <% var q3HasSuppressed=chartData.hourlyPayQuartile3.length < 4; %>
               <div class="text-normal">
-                Upper middle hourly pay quartile<% if (q3HasSuppressed) { %>*<% } %>
+                Upper middle hourly pay quartile<% if (q3HasSuppressed) { %>
+                  <%= footnoteSymbols.quartileGenderCategorySuppressed %>
+                    <% } %>
               </div>
               <% if (chartData.hourlyPayQuartile3.length) { %>
                 <div id="hourly-pay-quartile-3-chart"></div>
@@ -327,7 +356,9 @@
           <div id="hourly-pay-quartile-2">
             <% var q2HasSuppressed=chartData.hourlyPayQuartile2.length < 4; %>
               <div class="text-normal">
-                Lower middle hourly pay quartile<% if (q2HasSuppressed) { %>*<% } %>
+                Lower middle hourly pay quartile<% if (q2HasSuppressed) { %>
+                  <%= footnoteSymbols.quartileGenderCategorySuppressed %>
+                    <% } %>
               </div>
               <% if (chartData.hourlyPayQuartile2.length) { %>
                 <div id="hourly-pay-quartile-2-chart"></div>
@@ -336,7 +367,9 @@
           <div id="hourly-pay-quartile-1">
             <% var q1HasSuppressed=chartData.hourlyPayQuartile1.length < 4; %>
               <div class="text-normal">
-                Lowest hourly pay quartile (lowest paid)<% if (q1HasSuppressed) { %>*<% } %>
+                Lowest hourly pay quartile (lowest paid)<% if (q1HasSuppressed) { %>
+                  <%= footnoteSymbols.quartileGenderCategorySuppressed %>
+                    <% } %>
               </div>
               <% if (chartData.hourlyPayQuartile1.length) { %>
                 <div id="hourly-pay-quartile-1-chart"></div>
@@ -355,10 +388,14 @@
             <%= chartSummaryText.hourlyPayQuartiles %>
           </p>
           <% if (q1HasSuppressed || q2HasSuppressed || q3HasSuppressed || q4HasSuppressed) { %>
-            <p>
-              * This pay quartile was reduced to suppress gender categories
-              consisting of less than ten (10) employees.
-            </p>
+            <div class="footnote mt-2">
+              <div class="footnote-number">
+                <%= footnoteSymbols.quartileGenderCategorySuppressed %>
+              </div>
+              <div>
+                This pay quartile was reduced to suppress gender categories consisting of less than ten (10) employees.
+              </div>
+            </div>
             <% } %>
         </div>
       </td>
@@ -468,3 +505,16 @@
         </div>
       </div>
 </div>
+
+<% if (isGeneralSuppressedDataFootnoteVisible) { %>
+  <div class="footnote mt-4">
+    <div class="footnote-number">
+      <%= footnoteSymbols.genderCategorySuppressed %>
+    </div>
+    <div>
+      In accordance with the Pay Transparency Act and reporting rules designed to protect the anonymity and privacy of
+      respondents, one or more gender categories has been excluded due to insufficient numbers to meet disclosure
+      requirements.
+    </div>
+  </div>
+  <% } %>
