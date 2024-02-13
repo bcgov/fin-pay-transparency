@@ -215,7 +215,7 @@ async function generateReport(
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
     const workingHtml: string = ejs.render(ejsTemplate, reportData, {
-      rmWhitespace: true,
+      rmWhitespace: false,
     });
     const browser: Browser = await getBrowser();
     const page: Page = await browser.newPage();
