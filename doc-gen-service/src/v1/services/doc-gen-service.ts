@@ -240,9 +240,10 @@ async function generateReport(
   let puppeteerPage: Page = null;
   const reportData =
     docGenServicePrivate.addSupplementaryReportData(submittedReportData);
-
+  console.log(reportData);
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
+
     const workingHtml: string = ejs.render(ejsTemplate, reportData, {
       rmWhitespace: true,
     });
