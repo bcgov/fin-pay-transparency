@@ -128,6 +128,18 @@ const docGenServicePrivate = {
 
     return fragments.join('\n');
   },
+
+  async organizeContentIntoPages(puppeteerPage: Page, pdfOptions: any) {
+    //const blocks = await puppeteerPage.$('.block'); //await puppeteerPage.waitForSelector('.block');
+    const blocks = await puppeteerPage.$$('.block');
+    //console.log(blocks);
+    console.log(pdfOptions);
+    blocks.forEach(async (block) => {
+      const bbox = await block.boundingBox();
+      const id = await (await block.getProperty('id')).jsonValue();
+      console.log(id, bbox);
+    });
+  },
 };
 
 /**
@@ -137,22 +149,24 @@ const docGenServicePrivate = {
  */
 async function generateReport(reportFormat: string, reportData: ReportData) {
   logger.info(`Begin generate report (${reportFormat})`);
-  let page: Page = null;
+  let puppeteerPage: Page = null;
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
     const workingHtml: string = ejs.render(ejsTemplate, reportData);
     const browser: Browser = await getBrowser();
-    page = await browser.newPage();
-    await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' });
-    await page.addScriptTag({
+    puppeteerPage = await browser.newPage();
+    await puppeteerPage.addScriptTag({
+      path: './node_modules/d3/dist/d3.min.js',
+    });
+    await puppeteerPage.addScriptTag({
       path: docGenServicePrivate.REPORT_TEMPLATE_SCRIPT,
     });
 
-    await page.setContent(workingHtml, { waitUntil: 'networkidle0' });
+    await puppeteerPage.setContent(workingHtml, { waitUntil: 'networkidle0' });
 
     // Generate charts as SVG, and inject the charts into the DOM of the
-    // current page
-    await page.evaluate(
+    // current puppeteerPage
+    await puppeteerPage.evaluate(
       /* istanbul ignore next */
       (reportData) => {
         const chartData = reportData.chartData;
@@ -218,10 +232,10 @@ async function generateReport(reportFormat: string, reportData: ReportData) {
 
     let result = null;
     if (reportFormat == REPORT_FORMAT.HTML) {
-      const renderedHtml = await page.content();
+      const renderedHtml = await puppeteerPage.content();
       result = renderedHtml;
     } else if (reportFormat == REPORT_FORMAT.PDF) {
-      const pdf = await page.pdf({
+      const pdfOptions = {
         margin: {
           top: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
           right: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
@@ -231,7 +245,12 @@ async function generateReport(reportFormat: string, reportData: ReportData) {
         printBackground: false,
         width: `${PDF_PAGE_SIZE_PIXELS.width}px`,
         height: `${PDF_PAGE_SIZE_PIXELS.height}px`,
-      });
+      };
+      await docGenServicePrivate.organizeContentIntoPages(
+        puppeteerPage,
+        pdfOptions,
+      );
+      const pdf = await puppeteerPage.pdf(pdfOptions);
       result = pdf;
     }
 
@@ -245,8 +264,8 @@ async function generateReport(reportFormat: string, reportData: ReportData) {
     /* istanbul ignore next */
     logger.error(e);
   } finally {
-    if (page) {
-      await page.close();
+    if (puppeteerPage) {
+      await puppeteerPage.close();
     }
   }
 }
