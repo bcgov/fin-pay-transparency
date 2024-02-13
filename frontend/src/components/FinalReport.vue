@@ -22,14 +22,14 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import { useRouter } from 'vue-router';
 
 const { reportId } = storeToRefs(useReportStepperStore());
-const finalReportHtml = ref();
+let finalReportHtml = '';
 const loading = ref<boolean>(true);
 const router = useRouter();
 
 const loadReport = async () => {
   try {
     loading.value = true;
-    finalReportHtml.value = await ApiService.getHtmlReport(reportId.value!);
+    finalReportHtml = await ApiService.getHtmlReport(reportId.value!);
   } catch (error) {
     router.replace('/');
   } finally {
