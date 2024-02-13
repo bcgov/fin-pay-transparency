@@ -582,7 +582,6 @@ export default {
         this.showStage('FINAL');
       } catch (e) {
         console.log(e);
-        //Todo: show error to user via the notification service.
       }
       this.isProcessing = false;
     },

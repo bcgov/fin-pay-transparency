@@ -86,41 +86,41 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  const aStore = authStore();
-  const apStore = appStore();
   // this section is to set page title in vue store
-  if (to.meta.requiresAuth) {
-    aStore
-      .getJwtToken()
-      .then(() => {
-        if (!aStore.isAuthenticated) {
-          next('/token-expired');
-        } else {
-          aStore
-            .getUserInfo()
-            .then(() => {
-              next();
-            })
-            .catch(() => {
-              next('error');
-            });
-        }
-      })
-      .catch(() => {
-        if (!aStore.userInfo) {
-          next('/login');
-        } else {
-          next('/token-expired');
-        }
-      });
-  } else {
-    if (to && to.meta) {
-      apStore.setPageTitle(to.meta.pageTitle);
-    } else {
-      apStore.setPageTitle('');
-    }
+  if (!to.meta.requiresAuth) {
     //Proceed normally to the requested route
+    const apStore = appStore();
+    apStore.setPageTitle(to?.meta?.pageTitle ?? '');
     next();
+    return;
   }
+
+  // requires authentication
+  const aStore = authStore();
+  aStore
+    .getJwtToken()
+    .then(() => {
+      if (!aStore.isAuthenticated) {
+        next('/token-expired');
+        return;
+      }
+
+      aStore
+        .getUserInfo()
+        .then(() => {
+          next();
+        })
+        .catch(() => {
+          next('error');
+        });
+    })
+    .catch(() => {
+      if (!aStore.userInfo) {
+        next('/login');
+      } else {
+        next('/token-expired');
+      }
+    });
 });
+
 export default router;
