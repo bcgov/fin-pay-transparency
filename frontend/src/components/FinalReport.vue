@@ -29,7 +29,7 @@ const router = useRouter();
 const loadReport = async () => {
   try {
     loading.value = true;
-    const unsanitisedHtml = await ApiService.getHtmlReport(reportId.value!);
+    const unsanitisedHtml = await ApiService.getHtmlReport(reportId.value);
     finalReportHtml.value = sanitizeUrl(unsanitisedHtml);
   } catch (error) {
     router.replace('/');
