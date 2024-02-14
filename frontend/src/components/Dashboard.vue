@@ -1,4 +1,5 @@
 <template>
+  <ReportSelectionManager />
   <v-container class="d-flex justify-center fill-height" fluid>
     <v-row class="mt-3">
       <v-col>
@@ -126,24 +127,29 @@
   </v-container>
 </template>
 
-<script>
-import { mapState } from 'pinia';
+<script lang="ts">
+import ReportSelectionManager from './util/DasboardReportManager.vue';
+import { mapActions, mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
 import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
 import moment from 'moment';
+import { useReportStepperStore } from '../store/modules/reportStepper';
 
 export default {
+  components: { ReportSelectionManager },
   data: () => ({
     reports: [],
   }),
   watch: {},
   computed: {
+    ...mapState(useReportStepperStore, ['reportId']),
     ...mapState(authStore, ['userInfo']),
     ...mapState(useCodeStore, ['naicsCodes']),
   },
   methods: {
+    ...mapActions(useReportStepperStore, ['setReportId', 'reset']),
     formatDate(value) {
       return moment(value).format('MMMM D, YYYY');
     },
@@ -152,8 +158,12 @@ export default {
         report_status: REPORT_STATUS.PUBLISHED,
       });
     },
+    viewReport(report) {
+      this.setReportId(report.report_id);
+    },
   },
   beforeMount() {
+    this.reset();
     this.reports = this.getReports();
   },
 };
