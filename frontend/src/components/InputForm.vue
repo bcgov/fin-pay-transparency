@@ -18,7 +18,7 @@
           <div v-if="stage == 'UPLOAD'">
             <v-row class="d-flex justify-start mt-6" dense>
               <v-col cols="12">
-                <h2 class="text-center mb-4">Employer Details</h2>
+                <h2 class="notblack text-center mb-4">Employer Details</h2>
               </v-col>
 
               <v-col cols="12">
@@ -148,7 +148,7 @@
               </v-col>
 
               <v-col cols="12">
-                <h3 class="mt-4 mb-2">
+                <h3 class="notblack mt-4 mb-2">
                   Contextual Info/Comments
                 </h3>
                 <p class="mb-4">
@@ -164,7 +164,7 @@
               </v-col>              
 
               <v-col cols="12">
-                <h3 class="mb-2">
+                <h3 class="notblack mb-2">
                   Data Constraints
                 </h3>
                 <p class="mb-4">
@@ -182,7 +182,7 @@
               </v-col>
 
               <v-col cols="12">
-                <h3 class="mb-2">File Upload</h3>
+                <h3 class="notblack mb-2">File Upload</h3>
                 <p class="mb-4">
                   To proceed, upload your employee data in comma-separated value
                   (CSV) format. Ensure the CSV file follows the provided CSV
@@ -714,6 +714,7 @@ export default {
  look and feel doesn't match the other vuetify components used here.  
  The following css class is used to style the vue-datepicker components to closely 
  match the Vuetify components. */
+
 .datepicker-input {
   border-top: none;
   border-left: none;
@@ -728,5 +729,22 @@ export default {
 textarea::placeholder {
   text-align: right;
   transform: translateY(95px);
+}
+
+input {
+  color: #606060 !important;
+}
+
+h3.notblack {
+  color: #313132 !important;
+  size: 16px;
+}
+
+p {
+  color: #606060 !important;
+}
+
+.v-messages__message, .text-error, .v-input-error {
+  color: #D8292F !important;
 }
 </style>
