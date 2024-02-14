@@ -1,6 +1,6 @@
 <!--suppress ALL -->
 <template>
-  <v-container fluid class="d-flex justify-center fill-height">
+  <v-container fluid class="d-flex justify-center fill-height w-75">
     <dashboard></dashboard>
   </v-container>
 </template>
