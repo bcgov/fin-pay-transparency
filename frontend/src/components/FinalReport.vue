@@ -1,6 +1,6 @@
 <template>
   <div class="mb-8">
-    <div v-html="finalReportHtml"></div>
+    <div v-dompurify-html="finalReportHtml"></div>
   </div>
   <v-overlay
     :persistent="true"
