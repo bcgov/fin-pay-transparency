@@ -28,11 +28,6 @@ export const REPORT_STAGES: IStageOption[] = [
   },
 ];
 
-interface IReportStepperState {
-  stage: ReportStage;
-  reportId?: string;
-}
-
 export const useReportStepperStore = defineStore('reportStepper', () => {
   const stage = ref<ReportStage>('UPLOAD');
   const reportId = ref<string | undefined>();
@@ -46,10 +41,15 @@ export const useReportStepperStore = defineStore('reportStepper', () => {
     reportId.value = undefined;
   };
 
+  const setReportId = (id: string) => {
+    reportId.value = id;
+  };
+
   return {
     stage,
     reportId,
     setStage,
     reset,
+    setReportId,
   };
 });
