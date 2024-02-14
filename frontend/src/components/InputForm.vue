@@ -338,7 +338,7 @@
             </v-row>
           </div>
           <div v-if="stage == 'REVIEW'" class="mb-8">
-            <div v-html="draftReportHtml"></div>
+            <div v-dompurify-html="draftReportHtml"></div>
 
             <hr class="mt-8 mb-8" />
 
@@ -398,7 +398,7 @@
               </div>
             </div>
           </div>
-          <FinalReport v-if="stage == 'FINAL'"/>
+          <FinalReport v-if="stage == 'FINAL'" />
         </v-col>
       </v-row>
       <v-overlay
@@ -445,6 +445,7 @@
     </v-dialog>
   </v-container>
 </template>
+
 <script lang="ts">
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -487,8 +488,8 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
-    FinalReport
-},
+    FinalReport,
+  },
   data: () => ({
     validForm: null,
     requiredRules: [(v) => !!v || 'Required'],
@@ -554,8 +555,7 @@ export default {
       }, 100);
     },
     async fetchReportHtml(reportId: string) {
-      const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
-      this.draftReportHtml = sanitizeUrl(unsanitisedHtml);
+      this.draftReportHtml = await ApiService.getHtmlReport(reportId);
     },
     async tryGenerateReport() {
       const existingPublished = await ApiService.getReports({
