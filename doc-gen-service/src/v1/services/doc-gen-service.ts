@@ -15,12 +15,14 @@ const PDF_PPI = 96; //Pixels per inch. (Puppeteer uses this value internally.)
 const PDF_PAGE_SIZE_INCHES = {
   width: 8.5,
   height: 11,
-  margin: 1,
+  marginX: 1,
+  marginY: 0.5,
 };
 const PDF_PAGE_SIZE_PIXELS = {
   width: PDF_PAGE_SIZE_INCHES.width * PDF_PPI,
   height: PDF_PAGE_SIZE_INCHES.height * PDF_PPI,
-  margin: PDF_PAGE_SIZE_INCHES.margin * PDF_PPI,
+  marginX: PDF_PAGE_SIZE_INCHES.marginX * PDF_PPI,
+  marginY: PDF_PAGE_SIZE_INCHES.marginY * PDF_PPI,
 };
 
 const DEFAULT_FOOTNOTE_SYMBOLS = {
@@ -156,16 +158,98 @@ const docGenServicePrivate = {
     return fragments.join('\n');
   },
 
-  async organizeContentIntoPages(puppeteerPage: Page, pdfOptions: any) {
-    //const blocks = await puppeteerPage.$('.block'); //await puppeteerPage.waitForSelector('.block');
-    const blocks = await puppeteerPage.$$('.block');
-    //console.log(blocks);
-    console.log(pdfOptions);
-    blocks.forEach(async (block) => {
-      const bbox = await block.boundingBox();
-      const id = await (await block.getProperty('id')).jsonValue();
-      console.log(id, bbox);
-    });
+  /* 
+  This function is meant to run within the context of a "puppeteer page"
+  to create a new DOM element representing a "report page".
+   */
+  async addReportPage(parent: any) {
+    await parent.evaluate((parent) => {
+      const page = document.createElement('div');
+      page.className = 'page';
+      parent.appendChild(page);
+    }, parent);
+    const allReportPages = await parent.$$('.page');
+    const newestReportPage = allReportPages[allReportPages.length - 1];
+    return newestReportPage;
+  },
+
+  /*
+  Moves the given Element 'elemToMove' in the DOM so it becomes a 
+  child of 'elemToBeParent'
+  */
+  async moveElementInto(elemToMove, elemToBeParent) {
+    await elemToBeParent.evaluate(
+      (e, p) => {
+        const currentParent = e.parentElement;
+        if (currentParent) {
+          currentParent.removeChild(e);
+        }
+        if (p) {
+          p.appendChild(e);
+        }
+      },
+      elemToMove,
+      elemToBeParent,
+    );
+  },
+
+  /*
+  Modifies the DOM in the given puppeteerPage.  All content blocks  
+  not currently assigned to a "report page" are placed into 
+  a report page in order. Takes into account block height and the 
+  availability of space on the "report pages".
+  */
+  async organizeContentIntoPages(puppeteerPage: Page, reportPageOptions: any) {
+    const payTransparencyReport = await puppeteerPage.$(
+      '.pay-transparency-report',
+    );
+    const blocks = await payTransparencyReport.$$('.block');
+    const totalPageHeightPx =
+      reportPageOptions.height -
+      reportPageOptions.margin.top -
+      reportPageOptions.margin.bottom;
+    console.log(`totalPageHeightPx: ${totalPageHeightPx}`);
+
+    let currentReportPage = null;
+    let currentPageHeightCommittedPx = 0;
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      const blockHeightPx = (await block.boundingBox()).height;
+      const blockId = await (await block.getProperty('id')).jsonValue();
+      console.log('processing block', blockId, blockHeightPx);
+
+      if (blockHeightPx > totalPageHeightPx) {
+        throw new Error(
+          `Block with id='${blockId}' is larger than the available page height.`,
+        );
+      }
+
+      let enoughRoomForBlock = true;
+      if (currentReportPage) {
+        const pageHeightAvailablePx =
+          totalPageHeightPx - currentPageHeightCommittedPx;
+        enoughRoomForBlock = blockHeightPx <= pageHeightAvailablePx;
+        console.log(
+          `pageHeightCommittedPx: ${currentPageHeightCommittedPx}, pageHeightAvailablePx: ${pageHeightAvailablePx}, enoughRoomForBlock: ${enoughRoomForBlock}`,
+        );
+      }
+      if (currentReportPage == null || !enoughRoomForBlock) {
+        // Start a new page to the report
+        currentReportPage = await docGenServicePrivate.addReportPage(
+          payTransparencyReport,
+        );
+        currentPageHeightCommittedPx = 0;
+        console.log('Started a new page');
+      }
+
+      // Move the block to currentReportPage
+      await docGenServicePrivate.moveElementInto(block, currentReportPage);
+      currentPageHeightCommittedPx += blockHeightPx;
+      console.log(
+        `placed block id='${blockId}' onto page.  currentPageHeightCommittedPx=${currentPageHeightCommittedPx}`,
+      );
+    }
+    await payTransparencyReport.dispose();
   },
 
   /**
@@ -240,7 +324,7 @@ async function generateReport(
   let puppeteerPage: Page = null;
   const reportData =
     docGenServicePrivate.addSupplementaryReportData(submittedReportData);
-  console.log(reportData);
+
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
 
@@ -331,19 +415,22 @@ async function generateReport(
     } else if (reportFormat == REPORT_FORMAT.PDF) {
       const pdfOptions = {
         margin: {
-          top: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
-          right: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
-          bottom: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
-          left: `${PDF_PAGE_SIZE_PIXELS.margin}px`,
+          top: `${PDF_PAGE_SIZE_PIXELS.marginY}px`,
+          right: `${PDF_PAGE_SIZE_PIXELS.marginX}px`,
+          bottom: `${PDF_PAGE_SIZE_PIXELS.marginY}px`,
+          left: `${PDF_PAGE_SIZE_PIXELS.marginX}px`,
         },
         printBackground: false,
         width: `${PDF_PAGE_SIZE_PIXELS.width}px`,
         height: `${PDF_PAGE_SIZE_PIXELS.height}px`,
       };
-      await docGenServicePrivate.organizeContentIntoPages(
-        puppeteerPage,
-        pdfOptions,
-      );
+      await docGenServicePrivate.organizeContentIntoPages(puppeteerPage, {
+        margin: {
+          top: PDF_PAGE_SIZE_PIXELS.marginY,
+          bottom: PDF_PAGE_SIZE_PIXELS.marginY,
+        },
+        height: PDF_PAGE_SIZE_PIXELS.height,
+      });
       const pdf = await puppeteerPage.pdf(pdfOptions);
       result = pdf;
     }
