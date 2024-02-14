@@ -11,41 +11,39 @@
   </v-overlay>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Spinner from './Spinner.vue';
 
 import { storeToRefs } from 'pinia';
 import { useReportStepperStore } from '../store/modules/reportStepper';
+import { ref, onBeforeMount } from 'vue';
 import ApiService from '../common/apiService';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { useRouter } from 'vue-router';
 
-export default {
-  components: {
-    Spinner,
-  },
-  data: () => ({
-    reportId: storeToRefs(useReportStepperStore()).reportId,
-    finalReportHtml: null,
-    loading: true,
-    router: useRouter(),
-  }),
+const { reportId } = storeToRefs(useReportStepperStore());
+const finalReportHtml = ref();
+const loading = ref<boolean>(true);
+const router = useRouter();
 
-  async beforeMount() {
-    if (!this.reportId) {
-      this.router.replace('/');
-      return;
-    }
-
-    try {
-      this.loading = true;
-      const unsanitisedHtml = await ApiService.getHtmlReport(this.reportId!);
-      this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
-    } catch (error) {
-      this.router.replace('/');
-    } finally {
-      this.loading = false;
-    }
-  },
+const loadReport = async () => {
+  try {
+    loading.value = true;
+    const unsanitisedHtml = await ApiService.getHtmlReport(reportId.value!);
+    finalReportHtml.value = sanitizeUrl(unsanitisedHtml);
+  } catch (error) {
+    router.replace('/');
+  } finally {
+    loading.value = false;
+  }
 };
+
+onBeforeMount(async () => {
+  if (!reportId.value) {
+    router.replace('/');
+    return;
+  }
+
+  await loadReport();
+});
 </script>
