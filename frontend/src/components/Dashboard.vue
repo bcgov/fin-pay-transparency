@@ -1,4 +1,5 @@
 <template>
+  <ReportSelectionManager />
   <v-container class="d-flex justify-center fill-height" fluid>
     <v-row class="mt-3 w-100">
       <v-col>
@@ -44,7 +45,7 @@
               This application does not collect, record or publish personal
               information.
             </p>
-            <v-btn class="mb-4" color="primary" to="InputForm"
+            <v-btn class="mb-4" color="primary" to="generate-report"
               >Generate Pay Transparency Report</v-btn
             >
           </v-card-text>
@@ -71,7 +72,7 @@
                   <v-col>{{ formatDate(report.report_start_date) }}</v-col>
                   <v-col>{{ formatDate(report.report_end_date) }}</v-col>
                   <v-col cols="3">
-                    <a class="pr-5" href="#">
+                    <a class="pr-5" href="#" @click="viewReport(report)">
                       <v-icon color="#1976d2" icon="mdi-eye-outline"></v-icon>
                       View
                     </a>
@@ -121,24 +122,29 @@
   </v-container>
 </template>
 
-<script>
-import { mapState } from 'pinia';
+<script lang="ts">
+import ReportSelectionManager from './util/DasboardReportManager.vue';
+import { mapActions, mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
 import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
 import moment from 'moment';
+import { useReportStepperStore } from '../store/modules/reportStepper';
 
 export default {
+  components: { ReportSelectionManager },
   data: () => ({
     reports: [],
   }),
   watch: {},
   computed: {
+    ...mapState(useReportStepperStore, ['reportId']),
     ...mapState(authStore, ['userInfo']),
     ...mapState(useCodeStore, ['naicsCodes']),
   },
   methods: {
+    ...mapActions(useReportStepperStore, ['setReportId', 'reset']),
     formatDate(value) {
       return moment(value).format('MMMM D, YYYY');
     },
@@ -147,8 +153,12 @@ export default {
         report_status: REPORT_STATUS.PUBLISHED,
       });
     },
+    viewReport(report) {
+      this.setReportId(report.report_id);
+    },
   },
   beforeMount() {
+    this.reset();
     this.reports = this.getReports();
   },
 };

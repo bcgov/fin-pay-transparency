@@ -338,7 +338,7 @@
             </v-row>
           </div>
           <div v-if="stage == 'REVIEW'" class="mb-8">
-            <div v-html="draftReportHtml"></div>
+            <div v-dompurify-html="draftReportHtml"></div>
 
             <hr class="mt-8 mb-8" />
 
@@ -409,9 +409,7 @@
               </div>
             </div>
           </div>
-          <div v-if="stage == 'FINAL'" class="mb-8">
-            <div v-html="finalReportHtml"></div>
-          </div>
+          <FinalReport v-if="stage == 'FINAL'" />
         </v-col>
       </v-row>
       <v-overlay
@@ -458,6 +456,7 @@
     </v-dialog>
   </v-container>
 </template>
+
 <script lang="ts">
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -474,6 +473,7 @@ import {
 } from '../store/modules/reportStepper';
 import moment from 'moment';
 import { sanitizeUrl } from '@braintree/sanitize-url';
+import FinalReport from './FinalReport.vue';
 
 interface LineErrors {
   lineNum: number;
@@ -499,6 +499,7 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
+    FinalReport,
   },
   data: () => ({
     validForm: null,
@@ -542,7 +543,7 @@ export default {
     confirmOverrideReportDialogVisible: false,
   }),
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage']),
+    ...mapActions(useReportStepperStore, ['setStage', 'setReportId']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -565,9 +566,13 @@ export default {
       }, 100);
     },
     async fetchReportHtml(reportId: string) {
+<<<<<<< HEAD
       console.log(`fetch report ${reportId}`);
       const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
       this.draftReportHtml = sanitizeUrl(unsanitisedHtml);
+=======
+      this.draftReportHtml = await ApiService.getHtmlReport(reportId);
+>>>>>>> main
     },
     async downloadPdf(reportId: string) {
       await ApiService.getPdfReport(reportId);
@@ -592,6 +597,7 @@ export default {
         const unsanitisedHtml = await ApiService.publishReport(
           this.draftReport?.report_id,
         );
+        await this.setReportId(this.draftReport?.report_id);
         this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
         this.showStage('FINAL');
       } catch (e) {
