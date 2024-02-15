@@ -1,6 +1,6 @@
 <!--suppress ALL -->
 <template>
-  <v-container fluid class="d-flex justify-center fill-height">
+  <v-container fluid class="d-flex justify-center fill-height w-85">
     <dashboard></dashboard>
   </v-container>
 </template>
@@ -42,6 +42,10 @@ export default {
 
 .margin-initial {
   margin: initial;
+}
+
+.w-85 {
+  width: 85%;
 }
 </style>
 
