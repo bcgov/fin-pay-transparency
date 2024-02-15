@@ -148,3 +148,27 @@ describe('isGeneralSuppressedDataFootnoteVisible', () => {
     });
   });
 });
+
+describe('moveElementInto', () => {
+  it('modifies the DOM', async () => {
+    const id1 = 'one';
+    const id2 = 'two';
+    const id3 = 'three';
+    const mockHtml = `<html><body><div id='${id1}'><div id='${id3}'></div></div><div id='${id2}'></div></body></html>`;
+    const browser: Browser = await getBrowser();
+    const puppeteerPage = await browser.newPage();
+    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+
+    // Move id3 from a child of id1 to be a child of id2
+    const elemToMove = await puppeteerPage.$(`#${id3}`);
+    const elemToBeParent = await puppeteerPage.$(`#${id2}`);
+    docGenServicePrivate.moveElementInto(
+      puppeteerPage,
+      elemToMove,
+      elemToBeParent,
+    );
+
+    const childrenOf1: any[] = await puppeteerPage.$$(`#${id1} > *`);
+    expect(childrenOf1.length).toBe(0);
+  });
+});

@@ -6,6 +6,15 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
+const STYLE_CLASSES = {
+  REPORT: 'pay-transparency-report',
+  PAGE: 'page',
+  BLOCK_GROUP: 'block-group',
+  BLOCK: 'block',
+  EXPLANATORY_NOTES: 'explanatory-notes',
+  EXPLANATORY_NOTE: 'explanatory-note',
+};
+
 export const REPORT_FORMAT = {
   HTML: 'HTML' as string,
   PDF: 'PDF' as string,
@@ -160,25 +169,44 @@ const docGenServicePrivate = {
 
   /* 
   This function is meant to run within the context of a "puppeteer page"
-  to create a new DOM element representing a "report page".
+  to create a new DOM element representing a "report page" with two child
+  elements:  
+    <div class='page'>
+      <div class='block-group'></div>
+      <div class='explanatory-notes'></div>
+    </div>
    */
   async addReportPage(parent: any) {
+    //Implementation note (banders): classNames are inline strings here because
+    //I cannot find a way to pass the STYLE_CLASSES values into Puppeteer's z
+    //evaluate function
     await parent.evaluate((parent) => {
       const page = document.createElement('div');
       page.className = 'page';
+      const blockGroup = document.createElement('div');
+      blockGroup.className = 'block-group';
+      const explanatoryNotes = document.createElement('div');
+      explanatoryNotes.className = 'explanatory-notes';
+      page.appendChild(blockGroup);
+      page.appendChild(explanatoryNotes);
       parent.appendChild(page);
     }, parent);
-    const allReportPages = await parent.$$('.page');
+    const allReportPages = await parent.$$(`.${STYLE_CLASSES.PAGE}`);
     const newestReportPage = allReportPages[allReportPages.length - 1];
+    if (!newestReportPage) {
+      throw new Error('post condition failed: page not properly created');
+    }
     return newestReportPage;
   },
 
   /*
   Moves the given Element 'elemToMove' in the DOM so it becomes a 
-  child of 'elemToBeParent'
+  child of 'elemToBeParent'.
   */
-  async moveElementInto(elemToMove, elemToBeParent) {
-    await elemToBeParent.evaluate(
+  async moveElementInto(puppeteerPage: Page, elemToMove, elemToBeParent) {
+    console.log(await elemToMove.getProperties());
+    console.log(await elemToBeParent.getProperties());
+    await puppeteerPage.evaluate(
       (e, p) => {
         const currentParent = e.parentElement;
         if (currentParent) {
@@ -201,9 +229,12 @@ const docGenServicePrivate = {
   */
   async organizeContentIntoPages(puppeteerPage: Page, reportPageOptions: any) {
     const payTransparencyReport = await puppeteerPage.$(
-      '.pay-transparency-report',
+      `.${STYLE_CLASSES.REPORT}`,
     );
-    const blocks = await payTransparencyReport.$$('.block');
+    const blocksToOrganize = await payTransparencyReport.$$(
+      `.${STYLE_CLASSES.BLOCK}`,
+    );
+
     const totalPageHeightPx =
       reportPageOptions.height -
       reportPageOptions.margin.top -
@@ -212,8 +243,8 @@ const docGenServicePrivate = {
 
     let currentReportPage = null;
     let currentPageHeightCommittedPx = 0;
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i];
+    for (let i = 0; i < blocksToOrganize.length; i++) {
+      const block = blocksToOrganize[i];
       const blockHeightPx = (await block.boundingBox()).height;
       const blockId = await (await block.getProperty('id')).jsonValue();
       console.log('processing block', blockId, blockHeightPx);
@@ -224,17 +255,8 @@ const docGenServicePrivate = {
         );
       }
 
-      let enoughRoomForBlock = true;
-      if (currentReportPage) {
-        const pageHeightAvailablePx =
-          totalPageHeightPx - currentPageHeightCommittedPx;
-        enoughRoomForBlock = blockHeightPx <= pageHeightAvailablePx;
-        console.log(
-          `pageHeightCommittedPx: ${currentPageHeightCommittedPx}, pageHeightAvailablePx: ${pageHeightAvailablePx}, enoughRoomForBlock: ${enoughRoomForBlock}`,
-        );
-      }
-      if (currentReportPage == null || !enoughRoomForBlock) {
-        // Start a new page to the report
+      if (currentReportPage == null) {
+        // Start a new page
         currentReportPage = await docGenServicePrivate.addReportPage(
           payTransparencyReport,
         );
@@ -242,14 +264,61 @@ const docGenServicePrivate = {
         console.log('Started a new page');
       }
 
-      // Move the block to currentReportPage
-      await docGenServicePrivate.moveElementInto(block, currentReportPage);
-      currentPageHeightCommittedPx += blockHeightPx;
-      console.log(
-        `placed block id='${blockId}' onto page.  currentPageHeightCommittedPx=${currentPageHeightCommittedPx}`,
-      );
+      const success: boolean =
+        await docGenServicePrivate.attemptToMoveBlockToPage(
+          puppeteerPage,
+          block,
+          currentReportPage,
+        );
     }
     await payTransparencyReport.dispose();
+  },
+
+  async getContentHeight(elem): Promise<number> {
+    const heightPx = (await elem.boundingBox()).height;
+    return heightPx;
+  },
+
+  async attemptToMoveBlockToPage(
+    puppeteerPage: Page,
+    block,
+    reportPage,
+  ): Promise<boolean> {
+    if (!block) {
+      throw new Error('block must be specified');
+    }
+    if (!reportPage) {
+      throw new Error('reportPage must be specified');
+    }
+
+    const pageBlocksSection = await reportPage.$(
+      `.${STYLE_CLASSES.BLOCK_GROUP}`,
+    );
+    const pageExplanatoryNotesSection = await reportPage.$(
+      `.${STYLE_CLASSES.EXPLANATORY_NOTES}`,
+    );
+    console.log('--');
+    console.log(pageBlocksSection);
+    console.log(pageExplanatoryNotesSection);
+
+    // Move the block to 'blocks' section of currentReportPage
+    await docGenServicePrivate.moveElementInto(
+      puppeteerPage,
+      block,
+      pageBlocksSection,
+    );
+    //currentPageHeightCommittedPx += blockHeightPx;
+    //console.log(
+    //  `placed block id='${blockId}' onto page.  currentPageHeightCommittedPx=${currentPageHeightCommittedPx}`,
+    //);
+
+    const currentPageHeightCommittedPx =
+      await docGenServicePrivate.getContentHeight(reportPage);
+    console.log(
+      `currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
+    );
+
+    return true;
   },
 
   /**
@@ -431,6 +500,8 @@ async function generateReport(
         },
         height: PDF_PAGE_SIZE_PIXELS.height,
       });
+      //const renderedHtml = await puppeteerPage.content();
+      //console.log(renderedHtml);
       const pdf = await puppeteerPage.pdf(pdfOptions);
       result = pdf;
     }
