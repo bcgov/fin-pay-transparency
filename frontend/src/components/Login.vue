@@ -216,6 +216,43 @@ export default {
     text-align: right;
   }
 
+  .circle {
+    height: 60px;
+    width: 60px;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.available {
+      background-color: #00336633;
+      cursor: pointer;
+    }
+
+    &.active {
+      background-color: #003366;
+      cursor: pointer;
+    }
+
+    &.disabled {
+      background-color: #aaaaaa;
+      cursor: not-allowed;
+    }
+  }
+
+  .dash {
+    height: 1px;
+    width: 100%;
+    background-color: #003366;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    &.disabled {
+      background-color: #aaaaaa;
+    }
+  }
+
   .progress-dash {
     height: 3px;
     width: 100%;

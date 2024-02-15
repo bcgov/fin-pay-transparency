@@ -10,8 +10,8 @@
     <v-row>
       <v-col>
         <p class="mt-4 mb-4">
-          This tool will help you generate a Pay Transparency report in
-          compliance with the
+          This tool will help you generate a Pay Transparency report in compliance with the
+          <br />
           <a
             target="_blank"
             rel="noopener noreferrer"
@@ -42,7 +42,9 @@
       <v-col cols="4">
         <v-card min-height="70%" class="no-box-shadow">
           <v-card-text class="text-left generate-report pl-8 pr-8 pt-8 pb-8">
-            <strong>For more information on Pay Transparency reporting,
+            <strong>For more information on
+            <br />
+            Pay Transparency reporting,
             please visit
             <a
               target="_blank"
@@ -57,7 +59,7 @@
     </v-row>
     <v-row class="mt-8">
       <v-col>
-        <v-card min-height="100%">
+        <v-card  class="rounded-lg" min-height="100%">
           <v-toolbar color="primary">
             <v-toolbar-title>View Generated Reports</v-toolbar-title>
           </v-toolbar>
@@ -96,7 +98,7 @@
       <v-col cols="4">
         <v-row>
           <v-col>
-            <v-card>
+            <v-card class="rounded-lg">
               <v-toolbar color="primary">
                 <v-toolbar-title>Sample CSV</v-toolbar-title>
               </v-toolbar>
@@ -112,7 +114,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-card>
+            <v-card class="rounded-lg">
               <v-toolbar color="primary">
                 <v-toolbar-title>Updates</v-toolbar-title>
               </v-toolbar>
