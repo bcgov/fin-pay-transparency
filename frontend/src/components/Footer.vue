@@ -1,5 +1,5 @@
 <template>
-  <v-footer  class="mt-8" color="#003366" dark absolute>
+  <v-footer color="#003366" dark absolute>
     <v-row no-gutters>
       <v-col class="justify-center">
         For questions or assistance with creating a report please contact the Pay Transparency Unit - <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">PayTransparency@gov.bc.ca</a>

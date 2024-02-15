@@ -34,13 +34,13 @@
           This application does not collect, record or publish personal
           information.
         </p>
-        <v-btn class="mb-4" color="primary" to="InputForm"
+        <v-btn class="mb-4" color="primary" to="generate-report"
           >Generate Pay Transparency Report</v-btn
         >
       </v-col>
       <v-col cols="4">
         <v-card min-height="70%" class="no-box-shadow">
-          <v-card-text class="generate-report pl-8 pr-8 pt-8 pb-8">
+          <v-card-text class="generate-report pl-8 pr-8 pt-12 pb-12">
             <div class="text-left bluebox-width">
               <strong>For more information on
               Pay Transparency reporting,
@@ -57,7 +57,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row class="mt-8">
+    <v-row class="mt-8 mb-8">
       <v-col>
         <v-card  class="rounded-lg" min-height="100%">
           <v-toolbar color="primary">
