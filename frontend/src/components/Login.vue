@@ -102,7 +102,9 @@
                     <p class="mb-8">
                       Please review the <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting-nov-03-2023.pdf">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
                     </p>
-                    <v-btn>Download sample CSV</v-btn>
+                    <v-btn color="tertiary" href="SampleCsv.csv" download>
+                      Download sample CSV
+                    </v-btn>
                   </div>
                   <p v-show="stage == 'REVIEW'">
                     <h3 class="mb-4">Review and validate</h3>
@@ -115,7 +117,9 @@
                     <p class="mb-8">
                       You will now be able to download and review a draft version of your report. Draft reports are not saved in the system. Once your report is finalized, it will be available in the system in your employer profile for retrieval and distribution.
                     </p>
-                    <v-btn>View sample report</v-btn>
+                    <v-btn color="tertiary" href="SampleReport.pdf" download>
+                      View sample report
+                    </v-btn>
                   </p>                                    
                 </v-col>
                 <v-col class="d-flex justify-center aligned-right no-padding">
@@ -214,6 +218,43 @@ export default {
 
   .aligned-right {
     text-align: right;
+  }
+
+  .circle {
+    height: 60px;
+    width: 60px;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.available {
+      background-color: #00336633;
+      cursor: pointer;
+    }
+
+    &.active {
+      background-color: #003366;
+      cursor: pointer;
+    }
+
+    &.disabled {
+      background-color: #aaaaaa;
+      cursor: not-allowed;
+    }
+  }
+
+  .dash {
+    height: 1px;
+    width: 100%;
+    background-color: #003366;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    &.disabled {
+      background-color: #aaaaaa;
+    }
   }
 
   .progress-dash {

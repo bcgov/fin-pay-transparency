@@ -1,93 +1,146 @@
-import { generateReport } from './doc-gen-service';
+import {
+  ReportData,
+  SubmittedReportData,
+  docGenServicePrivate,
+  generateReport,
+} from './doc-gen-service';
 
-const reportData = {
+const submittedReportData: SubmittedReportData = {
+  companyName: 'Test company',
+  companyAddress: 'Test',
+  reportStartDate: 'January 1, 2023',
+  reportEndDate: 'January 31, 2024',
+  naicsCode: '11',
+  naicsLabel: 'Agriculture, forestry, fishing and hunting',
+  employeeCountRange: '50-299',
+  comments: '',
+  referenceGenderCategory: 'Men',
+  chartSuppressedError: '',
+  tableData: {
+    meanOvertimeHoursGap: [],
+    medianOvertimeHoursGap: [],
+  },
   chartData: {
     meanHourlyPayGap: [],
     medianHourlyPayGap: [],
     meanOvertimePayGap: [],
     medianOvertimePayGap: [],
+    percentReceivingOvertimePay: [],
     meanBonusPayGap: [],
     medianBonusPayGap: [],
+    percentReceivingBonusPay: [],
     hourlyPayQuartile1: [],
     hourlyPayQuartile2: [],
     hourlyPayQuartile3: [],
     hourlyPayQuartile4: [],
-    percentReceivingOvertimePay: [],
-    percentReceivingBonusPay: [],
-    hourlyPayQuartilesLegend: [
-      {
-        code: 'M',
-        label: 'Men',
-        extendedLabel: 'Men',
-        color: '#1c3664',
-      },
-    ],
-  },
-  chartSuppressedError: 'Suppressed error',
-  reportType: 'html',
-  companyName: 'Test company',
-  companyAddress: 'Test company address',
-  reportStartDate: 'Feb 1, 2024',
-  reportEndDate: 'Feb 1, 2024',
-  naicsCode: '1234',
-  naicsLabel: 'Test label',
-  employeeCountRange: '0 - 500',
-  comments: 'Small company',
-  referenceGenderCategory: 'Test category',
-  explanatoryNotes: {
-    dataConstraints: {
-      num: 1000,
-      text: 'dataConstraints test',
-    },
-    meanHourlyPayDiff: {
-      num: 1000,
-    },
-    medianHourlyPayDiff: {
-      num: 1000,
-    },
-    meanOvertimePayDiff: {
-      num: 1000,
-    },
-    medianOvertimePayDiff: {
-      num: 1000,
-    },
-    meanOvertimeHoursDiff: { num: 1000 },
-    medianOvertimeHoursDiff: { num: 1000 },
-    meanBonusPayDiff: { num: 1000 },
-    medianBonusPayDiff: { num: 1000 },
-    payQuartiles: { num: 1000 },
-  },
-  tableData: {
-    meanHourlyPayDiff: {
-      num: 1000,
-    },
-    medianHourlyPayDiff: {
-      num: 1000,
-    },
-    meanOvertimePayDiff: {
-      num: 1000,
-    },
-    medianOvertimePayDiff: {
-      num: 1000,
-    },
-    meanOvertimeHoursDiff: {
-      num: 1000,
-    },
-    meanOvertimeHoursGap: [],
-    medianOvertimeHoursGap: [],
+    hourlyPayQuartilesLegend: [],
   },
   chartSummaryText: {
-    meanHourlyPayGap: 'meanHourlyPayGap text',
+    meanHourlyPayGap: '',
+    medianHourlyPayGap: '',
+    meanOvertimePayGap: '',
+    medianOvertimePayGap: '',
+    meanBonusPayGap: null,
+    medianBonusPayGap: null,
+    meanOvertimeHoursGap: '',
+    medianOvertimeHoursGap: '',
+    hourlyPayQuartiles: '',
   },
+  explanatoryNotes: {
+    meanHourlyPayDiff: { num: 1 },
+    medianHourlyPayDiff: { num: 2 },
+    meanOvertimePayDiff: { num: 3 },
+    medianOvertimePayDiff: { num: 4 },
+    meanOvertimeHoursDiff: { num: 5 },
+    medianOvertimeHoursDiff: { num: 6 },
+    meanBonusPayDiff: { num: 7 },
+    medianBonusPayDiff: { num: 8 },
+    payQuartiles: { num: 9 },
+  },
+  isAllCalculatedDataSuppressed: false,
+  genderCodes: ['M', 'W', 'X', 'U'],
 };
+const reportData =
+  docGenServicePrivate.addSupplementaryReportData(submittedReportData);
 
-describe.only('doc-get-service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
+describe('generateReport', () => {
   it('should generate a report', async () => {
-    const report = await generateReport('html', reportData as any);
+    const report = await generateReport('html', submittedReportData as any);
     expect(report).toBeDefined();
+  });
+});
+
+describe('buildEjsTemplate', () => {
+  describe('when the report data indicate that all calculations have been suppressed', () => {
+    it('returns a template with a simplified report', async () => {
+      const reportDataAllCalcsSuppressed = {
+        ...reportData,
+        isAllCalculatedDataSuppressed: true,
+      };
+      const template = await docGenServicePrivate.buildEjsTemplate(
+        reportDataAllCalcsSuppressed,
+      );
+      expect(template).toContain('block-insufficient-data');
+      expect(template).not.toContain('block-hourly-pay');
+    });
+  });
+  describe("when the report data indicate that some calculations weren't suppressed", () => {
+    it('returns a template that includes all the chart content blocks', async () => {
+      const template = await docGenServicePrivate.buildEjsTemplate(reportData);
+      expect(template).toContain('block-hourly-pay');
+      expect(template).toContain('block-overtime');
+      expect(template).toContain('block-bonus-pay');
+      expect(template).toContain('block-hourly-pay-quartiles');
+      expect(template).not.toContain('block-insufficient-data');
+    });
+  });
+});
+
+describe('addSupplementaryReportData', () => {
+  it('returns a new object with props from the input object, plus some additional props', () => {
+    const reportData: ReportData =
+      docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+
+    //Properties copied from the input object
+    expect(reportData.companyName).toBe(submittedReportData.companyName);
+
+    //Newly added properties
+    expect(reportData).toHaveProperty('footnoteSymbols');
+    expect(reportData).toHaveProperty('isGeneralSuppressedDataFootnoteVisible');
+  });
+});
+
+describe('isGeneralSuppressedDataFootnoteVisible', () => {
+  describe('when there is only one visible chart and it has no suppressed gender categories', () => {
+    it('returns false', () => {
+      const data = {
+        ...submittedReportData,
+        chartData: {
+          ...submittedReportData.chartData,
+          meanHourlyPayGap: submittedReportData.genderCodes.map((c) => {}),
+        },
+      };
+      const result: boolean =
+        docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(data);
+      expect(result).toBeFalsy();
+    });
+  });
+  describe('when there is only one visible chart and it has no suppressed gender categories', () => {
+    it('returns true', () => {
+      const data = {
+        ...submittedReportData,
+        chartData: {
+          ...submittedReportData.chartData,
+          meanHourlyPayGap: [{}], //fewer elements here than genderCodes means suppression
+        },
+      };
+      const result: boolean =
+        docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(data);
+      expect(result).toBeTruthy();
+    });
   });
 });

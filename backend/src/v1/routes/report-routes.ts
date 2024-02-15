@@ -2,6 +2,13 @@ import express, { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import { enumReportStatus, reportService } from '../services/report-service';
 import { utils } from '../services/utils-service';
+import { logger } from '../../logger';
+import {
+  BAD_REQUEST,
+  MISSING_BUSINESS_GUID_ERROR,
+  REPORT_NOT_FOUND_ERROR,
+  REPORT_STATUS_NOT_VALID_ERROR,
+} from '../../constants';
 
 const reportRouter = express.Router();
 
@@ -34,8 +41,10 @@ reportRouter.get(
       // verify business guid
       const businessGuid =
         utils.getSessionUser(req)?._json?.bceid_business_guid;
-      if (!businessGuid)
+      if (!businessGuid) {
+        logger.error(MISSING_BUSINESS_GUID_ERROR);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+      }
 
       // params
       const filters = req.query;
@@ -45,6 +54,7 @@ reportRouter.get(
         const reports = await reportService.getReports(businessGuid, filters);
         return res.status(HttpStatus.OK).json(reports);
       } catch (e) {
+        logger.error(e);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
       }
     },
@@ -72,8 +82,10 @@ reportRouter.put(
       // verify business guid
       const bceidBusinessGuid =
         utils.getSessionUser(req)?._json?.bceid_business_guid;
-      if (!bceidBusinessGuid)
+      if (!bceidBusinessGuid) {
+        logger.error(MISSING_BUSINESS_GUID_ERROR);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+      }
 
       const reportId: string = req.params.reportId;
       const report_to_publish = await reportService.getReportById(
@@ -82,10 +94,14 @@ reportRouter.put(
       );
 
       if (!report_to_publish) {
+        logger.error(`${REPORT_NOT_FOUND_ERROR}, Report ID: ${reportId}`);
         return res.status(HttpStatus.NOT_FOUND).end();
       }
 
       if (report_to_publish.report_status != enumReportStatus.Draft) {
+        logger.error(
+          `${REPORT_STATUS_NOT_VALID_ERROR}, Report ID: ${reportId} - ${report_to_publish.report_status}`,
+        );
         return res.status(HttpStatus.NOT_FOUND).end();
       }
 
@@ -94,6 +110,7 @@ reportRouter.put(
         const reportHtml = await reportService.getReportHtml(req, reportId);
         res.type('html').status(200).send(reportHtml);
       } catch (e) {
+        logger.error(e);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
       }
     },
@@ -121,8 +138,10 @@ reportRouter.get(
       // verifiy business guid
       const businessGuid =
         utils.getSessionUser(req)?._json?.bceid_business_guid;
-      if (!businessGuid)
+      if (!businessGuid) {
+        logger.error(MISSING_BUSINESS_GUID_ERROR);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+      }
 
       // params
       const reportId = req.params.report_id;
@@ -156,6 +175,7 @@ reportRouter.get(
       }
 
       // if not enough information provided, then it is a bad request
+      logger.error(BAD_REQUEST);
       return res.status(HttpStatus.BAD_REQUEST).end();
     },
   ),

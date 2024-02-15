@@ -18,9 +18,11 @@ if (env === 'local') {
   logger.info(`Running in ${env} environment`);
   initBrowser()
     .then(() => {
+      logger.info('Browser initialized')
       browser
       .disconnect()
       .then(() => {
+          logger.info('Browser disconnected')
           app.set('port', port);
           server.listen(port);
           server.on('error', onError);

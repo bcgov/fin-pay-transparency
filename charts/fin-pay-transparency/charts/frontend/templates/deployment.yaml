@@ -33,7 +33,11 @@ spec:
         - name: {{ include "frontend.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.global.isEnabled }}
           image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "frontend.fullname" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/fin-pay-transparency/frontend:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: BACKEND_URL

@@ -6,7 +6,26 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
-export type ReportData = {
+const DEFAULT_FOOTNOTE_SYMBOLS = {
+  genderCategorySuppressed: '*',
+  quartileGenderCategorySuppressed: '†',
+};
+
+/*
+Defines properties that must be submitted with any 
+request to generate a report.
+*/
+export type SubmittedReportData = {
+  companyName: string;
+  companyAddress: string;
+  reportStartDate: string;
+  reportEndDate: string;
+  naicsCode: string;
+  naicsLabel: string;
+  employeeCountRange: string;
+  comments: string;
+  referenceGenderCategory: string;
+  explanatoryNotes: unknown;
   chartData: {
     meanHourlyPayGap: unknown[];
     medianHourlyPayGap: unknown[];
@@ -18,35 +37,165 @@ export type ReportData = {
     hourlyPayQuartile2: unknown[];
     hourlyPayQuartile3: unknown[];
     hourlyPayQuartile4: unknown[];
+    percentReceivingOvertimePay: unknown[];
+    percentReceivingBonusPay: unknown[];
     hourlyPayQuartilesLegend: unknown[];
   };
-  chartSuppressedError: string;
-  reportType: string;
-  reportData: {
-    companyName: string;
-    companyAddress: string;
-    reportStartDate: string;
-    reportEndDate: string;
-    naicsCode: string;
-    naicsLabel: string;
-    employeeCountRange: string;
-    comments: string;
-    referenceGenderCategory: string;
-    explanatoryNotes: string;
+  tableData: {
+    meanOvertimeHoursGap: unknown;
+    medianOvertimeHoursGap: unknown;
   };
+  chartSummaryText: unknown;
+  chartSuppressedError: string;
+  isAllCalculatedDataSuppressed: boolean;
+  genderCodes: string[];
 };
 
+/*
+Defines properties that are not explicitly
+inlcuded in SubmittedReportData, but which are also needed
+to generate a report.  For example: properties
+derived from those in SubmittedReportData.
+*/
+type SupplementaryReportData = {
+  footnoteSymbols: {
+    genderCategorySuppressed: string;
+    quartileGenderCategorySuppressed: string;
+  };
+  isGeneralSuppressedDataFootnoteVisible: boolean;
+};
+
+/* Includes everything from SubmittedReportData and SupplementaryReportData */
+export type ReportData = SubmittedReportData & SupplementaryReportData;
+
 const docGenServicePrivate = {
-  REPORT_TEMPLATE: resolve(
+  REPORT_TEMPLATE_HEADER: resolve(
     /* istanbul ignore next */
     config.get('server:templatePath') || '',
-    'report.template.html',
+    'report-template-header.html',
+  ),
+  REPORT_TEMPLATE_EMPLOYEE_DATA_SUMMARY: resolve(
+    /* istanbul ignore next */
+    config.get('server:templatePath') || '',
+    'report-template-emp-data-summary.html',
+  ),
+  REPORT_TEMPLATE_INSUFFICIENT_DATA: resolve(
+    /* istanbul ignore next */
+    config.get('server:templatePath') || '',
+    'report-template-insufficient-data.html',
+  ),
+  REPORT_TEMPLATE_FOOTER: resolve(
+    /* istanbul ignore next */
+    config.get('server:templatePath') || '',
+    'report-template-footer.html',
   ),
   REPORT_TEMPLATE_SCRIPT: resolve(
     /* istanbul ignore next */
     config.get('server:templatePath') || '',
     'report.script.js',
   ),
+
+  /**
+   * Builds an ejs template suitable for creating a report from
+   * the given report data.
+   * Not all reports will use the same template.  For example, a report
+   * in which all calculations are suppressed will use a template
+   * that excludes the charts.
+   */
+  async buildEjsTemplate(reportData: ReportData): Promise<string> {
+    // Build a template by combining multiple ejs template fragments
+    // (each defined in a separate file).
+
+    const header = await fs.readFile(
+      docGenServicePrivate.REPORT_TEMPLATE_HEADER,
+      { encoding: 'utf8' },
+    );
+    const fragments = [header];
+
+    // The template should include an area for the main body of the content.
+    // This section will look different depending on whether
+    // *all* calculations have been suppressed or whether at least
+    // some calculations weren't suppressed.
+    if (reportData.isAllCalculatedDataSuppressed) {
+      const insufficientData = await fs.readFile(
+        docGenServicePrivate.REPORT_TEMPLATE_INSUFFICIENT_DATA,
+        { encoding: 'utf8' },
+      );
+      fragments.push(insufficientData);
+    } else {
+      const employeeDataSummary = await fs.readFile(
+        docGenServicePrivate.REPORT_TEMPLATE_EMPLOYEE_DATA_SUMMARY,
+        { encoding: 'utf8' },
+      );
+      fragments.push(employeeDataSummary);
+    }
+
+    const footer = await fs.readFile(
+      docGenServicePrivate.REPORT_TEMPLATE_FOOTER,
+      { encoding: 'utf8' },
+    );
+    fragments.push(footer);
+
+    return fragments.join('\n');
+  },
+
+  /**
+   * Determines whether any of the included charts or tables in the given
+   * SubmittedReportData had one or more gender categories suppressed.
+   */
+  isGeneralSuppressedDataFootnoteVisible(
+    submittedReportData: SubmittedReportData,
+  ) {
+    const chartsToConsider = [
+      'meanHourlyPayGap',
+      'medianHourlyPayGap',
+      'meanOvertimePayGap',
+      'medianOvertimePayGap',
+      'meanBonusPayGap',
+      'medianBonusPayGap',
+    ];
+    const tablesToConsider = ['meanOvertimeHoursGap', 'medianOvertimeHoursGap'];
+    const numGenderCategories = submittedReportData.genderCodes.length;
+    const hasAtLeastOneIncludedChartWithSuppression =
+      chartsToConsider
+        .map((chartName) => submittedReportData.chartData[chartName])
+        .filter((c) => c.length && c.length < numGenderCategories).length > 0;
+
+    // Note: (numGenderCategories - 1) because because the reference gender
+    // category isn't displayed in the tables
+    const hasAtLeastOneIncludedTableWithSuppression =
+      tablesToConsider
+        .map((tableName) => submittedReportData.tableData[tableName])
+        .filter((c) => c.length && c.length < numGenderCategories - 1).length >
+      0;
+    return (
+      hasAtLeastOneIncludedChartWithSuppression ||
+      hasAtLeastOneIncludedTableWithSuppression
+    );
+  },
+
+  /**
+   * Creates a new ReportData object which includes
+   * everything from the given SubmittedReportData, plus
+   * some additional derived or default properties needed
+   * to generate the report.
+   */
+  addSupplementaryReportData(
+    submittedReportData: SubmittedReportData,
+  ): ReportData {
+    const supplementaryReportData: SupplementaryReportData = {
+      footnoteSymbols: DEFAULT_FOOTNOTE_SYMBOLS,
+      isGeneralSuppressedDataFootnoteVisible:
+        docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
+          submittedReportData,
+        ),
+    };
+    const reportData: ReportData = {
+      ...submittedReportData,
+      ...supplementaryReportData,
+    };
+    return reportData;
+  },
 };
 
 /**
@@ -54,13 +203,20 @@ const docGenServicePrivate = {
  * @param reportType The type of report to generate (e.g. 'pdf', 'html')
  * @param reportData The data to use when generating the report
  */
-async function generateReport(reportType: string, reportData: ReportData) {
+async function generateReport(
+  reportType: string,
+  submittedReportData: SubmittedReportData,
+) {
+  logger.info('Begin generate report');
+
+  const reportData =
+    docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+
   try {
-    const ejsTemplate = await fs.readFile(
-      docGenServicePrivate.REPORT_TEMPLATE,
-      { encoding: 'utf8' },
-    );
-    const workingHtml: string = ejs.render(ejsTemplate, reportData);
+    const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
+    const workingHtml: string = ejs.render(ejsTemplate, reportData, {
+      rmWhitespace: false,
+    });
     const browser: Browser = await getBrowser();
     const page: Page = await browser.newPage();
     await page.addScriptTag({ path: './node_modules/d3/dist/d3.min.js' });
@@ -139,6 +295,7 @@ async function generateReport(reportType: string, reportData: ReportData) {
     // Extract the HTML of the active DOM, which includes the injected charts
     const renderedHtml = await page.content();
     await page.close();
+    logger.info('Report generation complete');
     return renderedHtml;
   } catch (e) {
     /* istanbul ignore next */
