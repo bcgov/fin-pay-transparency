@@ -566,13 +566,7 @@ export default {
       }, 100);
     },
     async fetchReportHtml(reportId: string) {
-<<<<<<< HEAD
-      console.log(`fetch report ${reportId}`);
-      const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
-      this.draftReportHtml = sanitizeUrl(unsanitisedHtml);
-=======
       this.draftReportHtml = await ApiService.getHtmlReport(reportId);
->>>>>>> main
     },
     async downloadPdf(reportId: string) {
       await ApiService.getPdfReport(reportId);
