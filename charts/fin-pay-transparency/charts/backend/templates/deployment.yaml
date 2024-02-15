@@ -34,7 +34,7 @@ spec:
           {{- if .Values.global.isEnabled }}
           image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "backend.fullname" . }}-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
           {{- else }}
-          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/bcgov/fin-pay-transparency/database-migrations:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/fin-pay-transparency/database-migrations:{{ .Values.image.tag | default .Chart.AppVersion }}"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
