@@ -31,7 +31,11 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: {{ include "backend.fullname" . }}-init
+          {{- if .Values.global.isEnabled }}
           image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "backend.fullname" . }}-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/bcgov/fin-pay-transparency/database-migrations:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.initResources | nindent 12 }}
@@ -65,7 +69,11 @@ spec:
         - name: {{ include "backend.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.global.isEnabled }}
           image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "backend.fullname" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/bcgov/fin-pay-transparency/backend:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - secretRef:

@@ -37,7 +37,11 @@ spec:
         - name: {{ include "database.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.global.isEnabled }}
           image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "database.fullname" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/bcgov/fin-pay-transparency/database:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

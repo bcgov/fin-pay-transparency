@@ -27,7 +27,11 @@ spec:
         - name: {{ include "doc-gen-service.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.global.isEnabled }}
           image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "doc-gen-service.fullname" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/bcgov/fin-pay-transparency/doc-gen-service:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: NODE_ENV
