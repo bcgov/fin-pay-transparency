@@ -1,4 +1,4 @@
-{{- if .Values.enabled }}
+{{- if and .Values.global.isEnabled .Values.enabled }}
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
