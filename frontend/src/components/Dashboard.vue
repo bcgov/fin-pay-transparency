@@ -11,7 +11,6 @@
       <v-col>
         <p class="mt-4 mb-4">
           This tool will help you generate a Pay Transparency report in compliance with the
-          <br />
           <a
             target="_blank"
             rel="noopener noreferrer"
@@ -41,18 +40,19 @@
       </v-col>
       <v-col cols="4">
         <v-card min-height="70%" class="no-box-shadow">
-          <v-card-text class="text-left generate-report pl-8 pr-8 pt-8 pb-8">
-            <strong>For more information on
-            <br />
-            Pay Transparency reporting,
-            please visit
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports"
-              >Guidance for preparing pay transparency reports - Province of
-              British Columbia (gov.bc.ca)</a
-            >.</strong>
+          <v-card-text class="generate-report pl-8 pr-8 pt-8 pb-8">
+            <div class="text-left bluebox-width">
+              <strong>For more information on
+              Pay Transparency reporting,
+              please visit
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports"
+                >Guidance for preparing pay transparency reports - Province of
+                British Columbia (gov.bc.ca)</a
+              >.</strong>            
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -107,7 +107,9 @@
                   View a sample comma-separated value (CSV) file showing the
                   required format for pay transparency data uploads.
                 </p>
-                <v-btn color="tertiary">Download sample CSV</v-btn>
+                <v-btn color="tertiary" href="SampleCsv.csv" download>
+                  Download sample CSV
+                </v-btn>
               </v-card-text>
             </v-card>
           </v-col>
@@ -173,7 +175,9 @@ export default {
 
 <style>
 .v-card-text.generate-report {
-  text-align: center;
+  display:flex;
+  justify-content: center;
+  align-items: center;
   background: aliceblue;
 }
 
@@ -181,7 +185,13 @@ export default {
   box-shadow: none;
 }
 
+.bluebox-width {
+  max-width: 260px;
+}
+
 .text-left {
   text-align: left;
 }
+
+
 </style>
