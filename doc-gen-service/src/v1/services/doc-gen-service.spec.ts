@@ -1,3 +1,4 @@
+import { Browser } from 'puppeteer';
 import {
   REPORT_FORMAT,
   ReportData,
@@ -5,6 +6,7 @@ import {
   docGenServicePrivate,
   generateReport,
 } from './doc-gen-service';
+import { getBrowser } from './puppeteer-service';
 
 const submittedReportData: SubmittedReportData = {
   companyName: 'Test company',
@@ -154,7 +156,13 @@ describe('moveElementInto', () => {
     const id1 = 'one';
     const id2 = 'two';
     const id3 = 'three';
-    const mockHtml = `<html><body><div id='${id1}'><div id='${id3}'></div></div><div id='${id2}'></div></body></html>`;
+    const mockHtml = `
+    <html><body>
+      <div id='${id1}'>
+        <div id='${id3}'></div>
+      </div>
+      <div id='${id2}'></div>
+    </body></html>`;
     const browser: Browser = await getBrowser();
     const puppeteerPage = await browser.newPage();
     await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
@@ -162,13 +170,22 @@ describe('moveElementInto', () => {
     // Move id3 from a child of id1 to be a child of id2
     const elemToMove = await puppeteerPage.$(`#${id3}`);
     const elemToBeParent = await puppeteerPage.$(`#${id2}`);
-    docGenServicePrivate.moveElementInto(
+
+    let renderedHtml = await puppeteerPage.content();
+    console.log(renderedHtml);
+
+    await docGenServicePrivate.moveElementInto(
       puppeteerPage,
       elemToMove,
       elemToBeParent,
     );
 
     const childrenOf1: any[] = await puppeteerPage.$$(`#${id1} > *`);
+    const childrenOf2: any[] = await puppeteerPage.$$(`#${id2} > *`);
+
+    renderedHtml = await puppeteerPage.content();
+    console.log(renderedHtml);
     expect(childrenOf1.length).toBe(0);
+    expect(childrenOf2.length).toBe(1);
   });
 });

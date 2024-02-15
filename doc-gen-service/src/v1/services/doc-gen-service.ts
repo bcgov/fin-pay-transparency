@@ -9,15 +9,17 @@ import { getBrowser } from './puppeteer-service';
 const STYLE_CLASSES = {
   REPORT: 'pay-transparency-report',
   PAGE: 'page',
+  PAGE_CONTENT: 'page-content',
   BLOCK_GROUP: 'block-group',
   BLOCK: 'block',
   EXPLANATORY_NOTES: 'explanatory-notes',
   EXPLANATORY_NOTE: 'explanatory-note',
+  FOOTNOTES: 'footnotes',
 };
 
 export const REPORT_FORMAT = {
-  HTML: 'HTML' as string,
-  PDF: 'PDF' as string,
+  HTML: 'html' as string,
+  PDF: 'pdf' as string,
 };
 
 const PDF_PPI = 96; //Pixels per inch. (Puppeteer uses this value internally.)
@@ -86,6 +88,13 @@ to generate a report.  For example: properties
 derived from those in SubmittedReportData.
 */
 type SupplementaryReportData = {
+  pageSize: {
+    margin: {
+      top: number;
+      bottom: number;
+    };
+    height: number;
+  };
   footnoteSymbols: {
     genderCategorySuppressed: string;
     quartileGenderCategorySuppressed: string;
@@ -183,12 +192,15 @@ const docGenServicePrivate = {
     await parent.evaluate((parent) => {
       const page = document.createElement('div');
       page.className = 'page';
+      const pageContent = document.createElement('div');
+      pageContent.className = 'page-content';
       const blockGroup = document.createElement('div');
       blockGroup.className = 'block-group';
       const explanatoryNotes = document.createElement('div');
       explanatoryNotes.className = 'explanatory-notes';
-      page.appendChild(blockGroup);
-      page.appendChild(explanatoryNotes);
+      pageContent.appendChild(blockGroup);
+      pageContent.appendChild(explanatoryNotes);
+      page.appendChild(pageContent);
       parent.appendChild(page);
     }, parent);
     const allReportPages = await parent.$$(`.${STYLE_CLASSES.PAGE}`);
@@ -204,21 +216,27 @@ const docGenServicePrivate = {
   child of 'elemToBeParent'.
   */
   async moveElementInto(puppeteerPage: Page, elemToMove, elemToBeParent) {
-    console.log(await elemToMove.getProperties());
-    console.log(await elemToBeParent.getProperties());
+    /* istanbul ignore next */
     await puppeteerPage.evaluate(
       (e, p) => {
-        const currentParent = e.parentElement;
-        if (currentParent) {
-          currentParent.removeChild(e);
-        }
-        if (p) {
-          p.appendChild(e);
-        }
+        p.appendChild(e);
+        return e;
       },
       elemToMove,
       elemToBeParent,
     );
+  },
+
+  /*
+  Deletes the given element from the DOM
+  */
+  async removeFromDom(puppeteerPage, elemToDelete) {
+    /* istanbul ignore next */
+    await puppeteerPage.evaluate((e) => {
+      if (e?.parentNode) {
+        e.parentNode.removeChild(e);
+      }
+    }, elemToDelete);
   },
 
   /*
@@ -228,6 +246,7 @@ const docGenServicePrivate = {
   availability of space on the "report pages".
   */
   async organizeContentIntoPages(puppeteerPage: Page, reportPageOptions: any) {
+    const MAX_ATTEMPTS = 2;
     const payTransparencyReport = await puppeteerPage.$(
       `.${STYLE_CLASSES.REPORT}`,
     );
@@ -235,41 +254,44 @@ const docGenServicePrivate = {
       `.${STYLE_CLASSES.BLOCK}`,
     );
 
-    const totalPageHeightPx =
-      reportPageOptions.height -
-      reportPageOptions.margin.top -
-      reportPageOptions.margin.bottom;
-    console.log(`totalPageHeightPx: ${totalPageHeightPx}`);
-
-    let currentReportPage = null;
-    let currentPageHeightCommittedPx = 0;
+    let currentReportPage = await docGenServicePrivate.addReportPage(
+      payTransparencyReport,
+    );
     for (let i = 0; i < blocksToOrganize.length; i++) {
       const block = blocksToOrganize[i];
       const blockHeightPx = (await block.boundingBox()).height;
       const blockId = await (await block.getProperty('id')).jsonValue();
-      console.log('processing block', blockId, blockHeightPx);
+      console.log(
+        `processing block '${blockId}' with height ${blockHeightPx}px`,
+      );
 
-      if (blockHeightPx > totalPageHeightPx) {
-        throw new Error(
-          `Block with id='${blockId}' is larger than the available page height.`,
+      let blockAddedToPage = false;
+      let numAttempts = 0;
+      while (numAttempts < MAX_ATTEMPTS) {
+        console.log(
+          `attempting to place block '${blockId}' on the current page`,
         );
-      }
-
-      if (currentReportPage == null) {
-        // Start a new page
-        currentReportPage = await docGenServicePrivate.addReportPage(
-          payTransparencyReport,
-        );
-        currentPageHeightCommittedPx = 0;
-        console.log('Started a new page');
-      }
-
-      const success: boolean =
-        await docGenServicePrivate.attemptToMoveBlockToPage(
+        blockAddedToPage = await docGenServicePrivate.attemptToMoveBlockToPage(
           puppeteerPage,
           block,
           currentReportPage,
+          reportPageOptions,
         );
+        if (blockAddedToPage) {
+          break;
+        } else {
+          console.log('adding new page');
+          currentReportPage = await docGenServicePrivate.addReportPage(
+            payTransparencyReport,
+          );
+        }
+        numAttempts++;
+      }
+      if (!blockAddedToPage) {
+        logger.warn(
+          `Omitted block '${blockId}' (with its associated footnotes).  It is too large for page`,
+        );
+      }
     }
     await payTransparencyReport.dispose();
   },
@@ -283,6 +305,7 @@ const docGenServicePrivate = {
     puppeteerPage: Page,
     block,
     reportPage,
+    reportPageOptions: any,
   ): Promise<boolean> {
     if (!block) {
       throw new Error('block must be specified');
@@ -291,34 +314,74 @@ const docGenServicePrivate = {
       throw new Error('reportPage must be specified');
     }
 
-    const pageBlocksSection = await reportPage.$(
+    const pageContentSection = await reportPage.$(
+      `.${STYLE_CLASSES.PAGE_CONTENT}`,
+    );
+    const pageBlocksSection = await pageContentSection.$(
       `.${STYLE_CLASSES.BLOCK_GROUP}`,
     );
-    const pageExplanatoryNotesSection = await reportPage.$(
+    const pageExplanatoryNotesSection = await pageContentSection.$(
       `.${STYLE_CLASSES.EXPLANATORY_NOTES}`,
     );
-    console.log('--');
-    console.log(pageBlocksSection);
-    console.log(pageExplanatoryNotesSection);
 
-    // Move the block to 'blocks' section of currentReportPage
+    let currentPageHeightCommittedPx =
+      await docGenServicePrivate.getContentHeight(pageContentSection);
+    console.log(
+      ` before try adding: currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
+    );
+
+    // Move the .block into .page > .blocks
     await docGenServicePrivate.moveElementInto(
       puppeteerPage,
       block,
       pageBlocksSection,
     );
-    //currentPageHeightCommittedPx += blockHeightPx;
-    //console.log(
-    //  `placed block id='${blockId}' onto page.  currentPageHeightCommittedPx=${currentPageHeightCommittedPx}`,
-    //);
 
-    const currentPageHeightCommittedPx =
-      await docGenServicePrivate.getContentHeight(reportPage);
+    //Move .block > .footnotes into .page > .explanatory-notes
+    const blockFootnotesSection = await block.$(`.${STYLE_CLASSES.FOOTNOTES}`);
+    if (blockFootnotesSection) {
+      await docGenServicePrivate.moveElementInto(
+        puppeteerPage,
+        blockFootnotesSection,
+        pageExplanatoryNotesSection,
+      );
+    }
+
+    currentPageHeightCommittedPx =
+      await docGenServicePrivate.getContentHeight(pageContentSection);
     console.log(
-      `currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
+      ` after try adding: currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
     );
 
-    return true;
+    const totalPageHeightPx =
+      reportPageOptions.height -
+      reportPageOptions.margin.top -
+      reportPageOptions.margin.bottom;
+
+    const fitsOnPage = currentPageHeightCommittedPx < totalPageHeightPx;
+    if (!fitsOnPage) {
+      console.log('rollback.');
+      //Rollback
+      //Move .page > .explanatory-notes > .footnotes (last child) back into .block
+      if (blockFootnotesSection) {
+        const allFootnotesSectionsOnPage =
+          await pageExplanatoryNotesSection.$$(`.footnotes`);
+        if (allFootnotesSectionsOnPage.length) {
+          const lastFootnotesSectionsOnPage =
+            allFootnotesSectionsOnPage[allFootnotesSectionsOnPage.length - 1];
+          await docGenServicePrivate.moveElementInto(
+            puppeteerPage,
+            lastFootnotesSectionsOnPage,
+            block,
+          );
+        }
+      }
+      //Removes the .block from .page > .blocks
+      console.log('removing block from page');
+      await docGenServicePrivate.removeFromDom(puppeteerPage, block);
+    }
+
+    return fitsOnPage;
   },
 
   /**
@@ -366,6 +429,13 @@ const docGenServicePrivate = {
     submittedReportData: SubmittedReportData,
   ): ReportData {
     const supplementaryReportData: SupplementaryReportData = {
+      pageSize: {
+        margin: {
+          top: PDF_PAGE_SIZE_PIXELS.marginY,
+          bottom: PDF_PAGE_SIZE_PIXELS.marginY,
+        },
+        height: PDF_PAGE_SIZE_PIXELS.height,
+      },
       footnoteSymbols: DEFAULT_FOOTNOTE_SYMBOLS,
       isGeneralSuppressedDataFootnoteVisible:
         docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
@@ -477,6 +547,13 @@ async function generateReport(
       reportData,
     );
 
+    //Reorganize the content in the DOM so it is grouped into <div>
+    //elements with the .page class.
+    await docGenServicePrivate.organizeContentIntoPages(
+      puppeteerPage,
+      reportData.pageSize,
+    );
+
     let result = null;
     if (reportFormat == REPORT_FORMAT.HTML) {
       const renderedHtml = await puppeteerPage.content();
@@ -493,15 +570,6 @@ async function generateReport(
         width: `${PDF_PAGE_SIZE_PIXELS.width}px`,
         height: `${PDF_PAGE_SIZE_PIXELS.height}px`,
       };
-      await docGenServicePrivate.organizeContentIntoPages(puppeteerPage, {
-        margin: {
-          top: PDF_PAGE_SIZE_PIXELS.marginY,
-          bottom: PDF_PAGE_SIZE_PIXELS.marginY,
-        },
-        height: PDF_PAGE_SIZE_PIXELS.height,
-      });
-      //const renderedHtml = await puppeteerPage.content();
-      //console.log(renderedHtml);
       const pdf = await puppeteerPage.pdf(pdfOptions);
       result = pdf;
     }

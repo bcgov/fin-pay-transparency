@@ -59,9 +59,43 @@
     </tr>
   </table>
 
+  <div class="footnotes">
+    <% if (explanatoryNotes.dataConstraints) { %>
+      <div class="footnote">
+        <div class="footnote-number">
+          <%= explanatoryNotes.dataConstraints.num %>.
+        </div>
+        <div>
+          <%= explanatoryNotes.dataConstraints.text %>
+        </div>
+      </div>
+      <% } %>
+
+        <div class="footnote">
+          <div class="footnote-number">
+            <%= explanatoryNotes.meanHourlyPayDiff.num %>.
+          </div>
+          <div>
+            &quot;Mean hourly pay gap&quot; refers to the differences in pay between
+            gender groups calculated by average pay. Hourly pay does not include
+            bonuses and overtime.
+          </div>
+        </div>
+        <div class="footnote">
+          <div class="footnote-number">
+            <%= explanatoryNotes.medianHourlyPayDiff.num %>.
+          </div>
+          <div>
+            &quot;Median hourly pay gap&quot; refers to the differences in pay
+            between gender groups calculated by the mid range of pay for each group.
+            Hourly pay does not include bonuses and overtime.
+          </div>
+        </div>
+  </div>
+
 </div>
 
-<div id="block-overtime" class="block">
+<div id="block-overtime-1" class="block">
   <div class="header-block mb-4">
     <div class="header-circle">
       <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 250 250">
@@ -209,8 +243,48 @@
     </tr>
   </table>
 
-  <hr />
+  <div class="footnotes">
+    <div class="footnote">
+      <div class="footnote-number">
+        <%= explanatoryNotes.meanOvertimePayDiff.num %>.
+      </div>
+      <div>
+        &quot;Mean overtime pay&quot; refers to overtime pay when averaged for
+        each group.
+      </div>
+    </div>
+    <div class="footnote">
+      <div class="footnote-number">
+        <%= explanatoryNotes.medianOvertimePayDiff.num %>.
+      </div>
+      <div>
+        &quot;Median overtime pay&quot; refers to the middle point of overtime
+        pay for each group.
+      </div>
+    </div>
+    <div class="footnote">
+      <div class="footnote-number">
+        <%= explanatoryNotes.meanOvertimeHoursDiff.num %>.
+      </div>
+      <div>
+        &quot;Mean overtime paid hours&quot; refers to the average number of
+        hours of overtime worked for each group.
+      </div>
+    </div>
+    <div class="footnote">
+      <div class="footnote-number">
+        <%= explanatoryNotes.medianOvertimeHoursDiff.num %>.
+      </div>
+      <div>
+        &quot;Median overtime paid hours&quot; refers to the middle point of
+        number of overtime hours worked for each group.
+      </div>
+    </div>
+  </div>
 
+</div>
+
+<div id="block-overtime-2" class="block">
   <h4 class="mb-0">
     Percentage of employees in each gender category receiving overtime pay
   </h4>
@@ -218,7 +292,6 @@
   <div id="percent-receiving-overtime-pay">
     <div id="percent-receiving-overtime-pay-chart"></div>
   </div>
-
 </div>
 
 <div id="block-bonus-pay" class="block">
@@ -301,6 +374,27 @@
     <div id="percent-receiving-bonus-pay-chart"></div>
   </div>
 
+  <div class="footnotes">
+    <div class="footnote">
+      <div class="footnote-number">
+        <%= explanatoryNotes.meanBonusPayDiff.num %>.
+      </div>
+      <div>
+        &quot;Mean bonus pay&quot; refers to bonus pay when averaged for each
+        group.
+      </div>
+    </div>
+    <div class="footnote">
+      <div class="footnote-number">
+        <%= explanatoryNotes.medianBonusPayDiff.num %>.
+      </div>
+      <div>
+        &quot;Median bonus pay&quot; refers to the middle point of bonus pay for
+        each group.
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div id="block-hourly-pay-quartiles" class="block">
@@ -325,6 +419,22 @@
         <%= explanatoryNotes.payQuartiles.num %>
       </sup>
     </div>
+  </div>
+
+  <div class="block" id="block-final-footnotes">
+    <% if (isGeneralSuppressedDataFootnoteVisible) { %>
+      <div class="footnote mt-4">
+        <div class="footnote-number">
+          <%= footnoteSymbols.genderCategorySuppressed %>
+        </div>
+        <div>
+          In accordance with the Pay Transparency Act and reporting rules designed to protect the anonymity and privacy
+          of
+          respondents, one or more gender categories has been excluded due to insufficient numbers to meet disclosure
+          requirements.
+        </div>
+      </div>
+      <% } %>
   </div>
 
   <table role="presentation" class="mb-2">
@@ -402,119 +512,16 @@
     </tr>
   </table>
 
-</div>
-
-<div class="explanatory-notes">
-  <h4>Explanatory notes</h4>
-
-  <% if (explanatoryNotes.dataConstraints) { %>
+  <div class="footnotes">
     <div class="footnote">
       <div class="footnote-number">
-        <%= explanatoryNotes.dataConstraints.num %>.
+        <%= explanatoryNotes.payQuartiles.num %>.
       </div>
       <div>
-        <%= explanatoryNotes.dataConstraints.text %>
+        &quot;Pay quartile&quot; refers to the percentage of each gender within
+        four equal sized groups based on their hourly pay.
       </div>
-    </div>
-    <% } %>
-
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.meanHourlyPayDiff.num %>.
-        </div>
-        <div>
-          &quot;Mean hourly pay gap&quot; refers to the differences in pay between
-          gender groups calculated by average pay. Hourly pay does not include
-          bonuses and overtime.
-        </div>
-      </div>
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.medianHourlyPayDiff.num %>.
-        </div>
-        <div>
-          &quot;Median hourly pay gap&quot; refers to the differences in pay
-          between gender groups calculated by the mid range of pay for each group.
-          Hourly pay does not include bonuses and overtime.
-        </div>
-      </div>
-
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.meanOvertimePayDiff.num %>.
-        </div>
-        <div>
-          &quot;Mean overtime pay&quot; refers to overtime pay when averaged for
-          each group.
-        </div>
-      </div>
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.medianOvertimePayDiff.num %>.
-        </div>
-        <div>
-          &quot;Median overtime pay&quot; refers to the middle point of overtime
-          pay for each group.
-        </div>
-      </div>
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.meanOvertimeHoursDiff.num %>.
-        </div>
-        <div>
-          &quot;Mean overtime paid hours&quot; refers to the average number of
-          hours of overtime worked for each group.
-        </div>
-      </div>
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.medianOvertimeHoursDiff.num %>.
-        </div>
-        <div>
-          &quot;Median overtime paid hours&quot; refers to the middle point of
-          number of overtime hours worked for each group.
-        </div>
-      </div>
-
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.meanBonusPayDiff.num %>.
-        </div>
-        <div>
-          &quot;Mean bonus pay&quot; refers to bonus pay when averaged for each
-          group.
-        </div>
-      </div>
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.medianBonusPayDiff.num %>.
-        </div>
-        <div>
-          &quot;Median bonus pay&quot; refers to the middle point of bonus pay for
-          each group.
-        </div>
-      </div>
-
-      <div class="footnote">
-        <div class="footnote-number">
-          <%= explanatoryNotes.payQuartiles.num %>.
-        </div>
-        <div>
-          &quot;Pay quartile&quot; refers to the percentage of each gender within
-          four equal sized groups based on their hourly pay.
-        </div>
-      </div>
-</div>
-
-<% if (isGeneralSuppressedDataFootnoteVisible) { %>
-  <div class="footnote mt-4">
-    <div class="footnote-number">
-      <%= footnoteSymbols.genderCategorySuppressed %>
-    </div>
-    <div>
-      In accordance with the Pay Transparency Act and reporting rules designed to protect the anonymity and privacy of
-      respondents, one or more gender categories has been excluded due to insufficient numbers to meet disclosure
-      requirements.
     </div>
   </div>
-  <% } %>
+
+</div>

@@ -143,6 +143,19 @@
     page-break-after: always;
   }
 
+  @media screen {
+    .pay-transparency-report .page {
+      border: 1px solid #eeeeee;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+      height: <%=pageSize.height - pageSize.margin.top - pageSize.margin.bottom %>px;
+    }
+  }
+
 
   .pay-transparency-report .text-normal {
     font-size: 14px;
