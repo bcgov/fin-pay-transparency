@@ -45,8 +45,10 @@ export const useReportStepperStore = defineStore('reportStepper', () => {
   };
 
   const reset = () => {
+    mode.value = ReportMode.New;
     stage.value = 'UPLOAD';
     reportId.value = undefined;
+    reportData.value = undefined;
   };
 
   const setReportId = async (id: string) => {
