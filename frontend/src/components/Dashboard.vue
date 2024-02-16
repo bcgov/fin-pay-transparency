@@ -10,7 +10,8 @@
     <v-row>
       <v-col>
         <p class="mt-4 mb-4">
-          This tool will help you generate a Pay Transparency report in compliance with the
+          This tool will help you generate a Pay Transparency report in
+          compliance with the
           <a
             target="_blank"
             rel="noopener noreferrer"
@@ -24,11 +25,11 @@
             href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023"
             >Pay Transparency Regulation (gov.bc.ca)</a
           >. The report can be saved for posting on your webpage or in your
-          workplace. 
+          workplace.
         </p>
         <p class="mb-6">
-          Once your CSV file is ready, click on the button below to upload
-          the file and generate a report.
+          Once your CSV file is ready, click on the button below to upload the
+          file and generate a report.
         </p>
         <p class="text-caption mb-2">
           This application does not collect, record or publish personal
@@ -42,16 +43,17 @@
         <v-card min-height="70%" class="no-box-shadow">
           <v-card-text class="generate-report pl-8 pr-8 pt-12 pb-12">
             <div class="text-left bluebox-width">
-              <strong>For more information on
-              Pay Transparency reporting,
-              please visit
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports"
-                >Guidance for preparing pay transparency reports - Province of
-                British Columbia (gov.bc.ca)</a
-              >.</strong>            
+              <strong
+                >For more information on Pay Transparency reporting, please
+                visit
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports"
+                  >Guidance for preparing pay transparency reports - Province of
+                  British Columbia (gov.bc.ca)</a
+                >.</strong
+              >
             </div>
           </v-card-text>
         </v-card>
@@ -59,14 +61,12 @@
     </v-row>
     <v-row class="mt-8 mb-8">
       <v-col>
-        <v-card  class="rounded-lg" min-height="100%">
+        <v-card class="rounded-lg" min-height="100%">
           <v-toolbar color="primary">
             <v-toolbar-title>View Generated Reports</v-toolbar-title>
           </v-toolbar>
           <v-card-text class="mt-4 mb-4">
-            <div v-if="!reports.length">
-              No generated reports yet.
-            </div>
+            <div v-if="!reports.length">No generated reports yet.</div>
             <div v-if="reports.length">
               <v-row>
                 <v-col class="font-weight-bold">Start Date</v-col>
@@ -79,7 +79,7 @@
                   <v-col>{{ formatDate(report.report_start_date) }}</v-col>
                   <v-col>{{ formatDate(report.report_end_date) }}</v-col>
                   <v-col cols="4">
-                    <a class="pr-5" href="#">
+                    <a class="pr-5" href="#" @click="viewReport(report)">
                       <v-icon color="#1976d2" icon="mdi-eye-outline"></v-icon>
                       View
                     </a>
@@ -175,7 +175,7 @@ export default {
 
 <style>
 .v-card-text.generate-report {
-  display:flex;
+  display: flex;
   justify-content: center;
   align-items: center;
   background: aliceblue;
@@ -192,6 +192,4 @@ export default {
 .text-left {
   text-align: left;
 }
-
-
 </style>
