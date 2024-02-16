@@ -179,7 +179,7 @@
 
   <table role="presentation" width="100%" class="overtime-hours-tables">
     <tr>
-      <td class="pe-4" width="50%">
+      <td class="pe-4" style="width: 50%">
         <h4 class="mb-0">
           Mean overtime paid hours<sup>
             <%= explanatoryNotes.meanOvertimeHoursDiff.num %>
@@ -195,7 +195,7 @@
                 <td class="text-normal">
                   <%= tableData.meanOvertimeHoursGap[i].genderChartInfo.label %>
                 </td>
-                <td width="30%" class="centered text-normal">
+                <td style="width: 30%" class="centered text-normal">
                   <%= tableData.meanOvertimeHoursGap[i].value %>
                 </td>
               </tr>
@@ -213,7 +213,7 @@
             </div>
             <% } %>
       </td>
-      <td class="ps-2" width="50%">
+      <td class="ps-2" style="width: 50%">
         <h4 class="mb-0">
           Median overtime paid hours<sup>
             <%= explanatoryNotes.medianOvertimeHoursDiff.num %>
@@ -234,7 +234,7 @@
                 <td class="text-normal">
                   <%= tableData.medianOvertimeHoursGap[i].genderChartInfo.label %>
                 </td>
-                <td width="30%" class="centered text-normal">
+                <td style="width: 30%" class="centered text-normal">
                   <%= tableData.medianOvertimeHoursGap[i].value %>
                 </td>
               </tr>
@@ -545,22 +545,23 @@
 
 </div>
 
-</div> <!-- class='block-group' -->
-
-<div class="footnote-group">
-  <% if (isGeneralSuppressedDataFootnoteVisible) { %>
-    <div class="note mt-4">
-      <div class="note-number">
-        <%= footnoteSymbols.genderCategorySuppressed %>
-      </div>
-      <div>
-        In accordance with the Pay Transparency Act and reporting rules designed to protect the anonymity and
-        privacy
-        of
-        respondents, one or more gender categories has been excluded due to insufficient numbers to meet
-        disclosure
-        requirements.
-      </div>
-    </div>
-    <% } %>
 </div>
+<%# end of class='block-group' %>
+
+  <div class="footnote-group">
+    <% if (isGeneralSuppressedDataFootnoteVisible) { %>
+      <div class="note mt-4">
+        <div class="note-number">
+          <%= footnoteSymbols.genderCategorySuppressed %>
+        </div>
+        <div>
+          In accordance with the Pay Transparency Act and reporting rules designed to protect the anonymity and
+          privacy
+          of
+          respondents, one or more gender categories has been excluded due to insufficient numbers to meet
+          disclosure
+          requirements.
+        </div>
+      </div>
+      <% } %>
+  </div>

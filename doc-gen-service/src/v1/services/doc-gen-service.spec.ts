@@ -242,7 +242,7 @@ describe('getContentHeight', () => {
 
 describe('attemptToPlaceElementOnPage', () => {
   describe('when the page has room for the element', () => {
-    it(`is added to the DOM as a child of the page`, async () => {
+    it(`the element is added to the DOM as a child of the page`, async () => {
       const reportPageOptions = {
         margin: {
           top: 0,
@@ -250,7 +250,6 @@ describe('attemptToPlaceElementOnPage', () => {
         },
         height: 100,
       };
-      const id1 = 'one';
       const mockHtml = `
         <html><body>
           <div class="${docGenServicePrivate.STYLE_CLASSES.BLOCK}" style='height: ${reportPageOptions.height / 10}px'></div>    
@@ -292,6 +291,167 @@ describe('attemptToPlaceElementOnPage', () => {
 
       expect(wasSuccessful).toBeTruthy();
       expect(blockOnPage).not.toBeNull();
+    });
+  });
+  describe("when the page doesn't have room for the element", () => {
+    it(`the element is not added to the page`, async () => {
+      const reportPageOptions = {
+        margin: {
+          top: 0,
+          bottom: 0,
+        },
+        height: 100,
+      };
+      const mockHtml = `
+        <html><body>
+          <div class="${docGenServicePrivate.STYLE_CLASSES.BLOCK}" style='height: ${reportPageOptions.height + 1}px'></div>    
+          <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
+            <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+              <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'></div>
+            </div> 
+          </div>      
+        </body></html>`;
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+
+      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+
+      const blockOutsidePage = await puppeteerPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
+      );
+
+      const reportPage = await puppeteerPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
+      );
+
+      const wasSuccessful =
+        await docGenServicePrivate.attemptToPlaceElementOnPage(
+          puppeteerPage,
+          blockOutsidePage,
+          `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}`,
+          reportPage,
+          reportPageOptions,
+        );
+
+      const blockOnPage = await reportPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
+      );
+
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
+
+      expect(wasSuccessful).not.toBeTruthy();
+      expect(blockOnPage).toBeNull();
+    });
+  });
+});
+
+describe('placeFootnotes', () => {
+  describe('when the current page has room for the footnotes', () => {
+    it(`the footnotes are added to the current page`, async () => {
+      const reportPageOptions = {
+        margin: {
+          top: 0,
+          bottom: 0,
+        },
+        height: 100,
+      };
+      const mockHtml = `
+        <html><body>
+          <div class="${docGenServicePrivate.STYLE_CLASSES.REPORT}">
+            <div class="${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}" style='height: ${reportPageOptions.height / 10}px'></div>    
+            <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
+              <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+                <div class='${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}'></div>
+              </div> 
+            </div>
+          </div>     
+        </body></html>`;
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'networkidle0',
+      });
+
+      const payTransparencyReport = await puppeteerPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.REPORT}`,
+      );
+      const footnoteGroupOutsidePage = await payTransparencyReport.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}`,
+      );
+
+      const wasSuccessfullyAdded = await docGenServicePrivate.placeFootnotes(
+        puppeteerPage,
+        footnoteGroupOutsidePage,
+        payTransparencyReport,
+        reportPageOptions,
+      );
+
+      const footnoteGroupOnPage = await payTransparencyReport.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} .${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}`,
+      );
+
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
+
+      expect(wasSuccessfullyAdded).toBeTruthy();
+      expect(footnoteGroupOnPage).not.toBeNull();
+    });
+  });
+  describe("when the current page doesn't have room for the footnotes", () => {
+    it(`the footnotes are not added`, async () => {
+      const reportPageOptions = {
+        margin: {
+          top: 0,
+          bottom: 0,
+        },
+        height: 100,
+      };
+      const mockHtml = `
+        <html><body>
+          <div class="${docGenServicePrivate.STYLE_CLASSES.REPORT}">
+            <div class="${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}" style='height: ${reportPageOptions.height + 1}px'></div>    
+            <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
+              <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+                <div class='${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}'></div>
+              </div> 
+            </div>
+          </div>     
+        </body></html>`;
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'networkidle0',
+      });
+
+      const payTransparencyReport = await puppeteerPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.REPORT}`,
+      );
+      const footnoteGroupOutsidePage = await payTransparencyReport.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}`,
+      );
+
+      const wasSuccessfullyAdded = await docGenServicePrivate.placeFootnotes(
+        puppeteerPage,
+        footnoteGroupOutsidePage,
+        payTransparencyReport,
+        reportPageOptions,
+      );
+
+      const footnoteGroupOnPage = await payTransparencyReport.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} .${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}`,
+      );
+
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
+
+      expect(wasSuccessfullyAdded).toBeFalsy();
+      expect(footnoteGroupOnPage).toBeNull();
     });
   });
 });

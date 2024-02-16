@@ -269,10 +269,7 @@ const docGenServicePrivate = {
   */
   async isElementEmpty(puppeteerPage, elem): Promise<boolean> {
     /* istanbul ignore next */
-    return await puppeteerPage.evaluate(
-      (e) => !e || !e.childNodes.length,
-      elem,
-    );
+    return await puppeteerPage.evaluate((e) => !e?.childNodes?.length, elem);
   },
 
   /*
@@ -296,8 +293,7 @@ const docGenServicePrivate = {
 
     // Organize all 'blocks' and their corresponding 'explanatory-notes'
     // into 'page' elements
-    for (let i = 0; i < blocksToOrganize.length; i++) {
-      const block = blocksToOrganize[i];
+    for (let block of blocksToOrganize) {
       const isBlockEmpty = await docGenServicePrivate.isElementEmpty(
         puppeteerPage,
         block,
@@ -350,6 +346,13 @@ const docGenServicePrivate = {
     await payTransparencyReport.dispose();
   },
 
+  /*
+  Adds the given footnoteGroup to last page of the given payTransparencyReport.
+  If the footnoteGroup won't fit onto the last page, creates a new page, and
+  adds it to that.
+  Returns true if the footnoteGroup was successfully added (either to the existing 
+  last page, or to a newly-created last page).  Returns false if anything fails.
+  */
   async placeFootnotes(
     puppeteerPage,
     footnoteGroup,
@@ -357,13 +360,13 @@ const docGenServicePrivate = {
     reportPageOptions,
   ) {
     if (!footnoteGroup) {
-      return;
+      return false;
     }
 
     const allReportPages = await puppeteerPage.$$(
       `.${docGenServicePrivate.STYLE_CLASSES.REPORT} .${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
     );
-    if (!allReportPages || !allReportPages.length) {
+    if (!allReportPages?.length) {
       throw new Error(
         'Report must have at least one existing page to place footnotes',
       );
@@ -394,6 +397,7 @@ const docGenServicePrivate = {
     if (!wasAddedToPage) {
       logger.warn(`Unable to add footnotes to page`);
     }
+    return wasAddedToPage;
   },
 
   /**
@@ -439,6 +443,13 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}`,
     );
     const targetPageSection = await pageContentSection.$(pageTargetSelector);
+
+    if (!targetPageSection) {
+      throw new Error(
+        `Precondition failed: cannot find ${pageTargetSelector} within the page's .${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} section`,
+      );
+    }
+
     const pageExplanatoryNotesSection = await pageContentSection.$(
       `.${docGenServicePrivate.STYLE_CLASSES.EXPLANATORY_NOTES}`,
     );
