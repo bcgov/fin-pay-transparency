@@ -171,8 +171,6 @@ describe('moveElementInto', () => {
     const elemToMove = await puppeteerPage.$(`#${id3}`);
     const elemToBeParent = await puppeteerPage.$(`#${id2}`);
 
-    let renderedHtml = await puppeteerPage.content();
-
     await docGenServicePrivate.moveElementInto(
       puppeteerPage,
       elemToMove,
@@ -182,8 +180,102 @@ describe('moveElementInto', () => {
     const childrenOf1: any[] = await puppeteerPage.$$(`#${id1} > *`);
     const childrenOf2: any[] = await puppeteerPage.$$(`#${id2} > *`);
 
-    renderedHtml = await puppeteerPage.content();
     expect(childrenOf1.length).toBe(0);
     expect(childrenOf2.length).toBe(1);
+  });
+});
+
+describe('addReportPage', () => {
+  it(`injects a new DOM element representing a 'page' as a child of the given parent`, async () => {
+    const parent = 'parent';
+    const mockHtml = `
+    <html><body>
+      <div id='${parent}'></div>      
+    </body></html>`;
+    const browser: Browser = await getBrowser();
+    const puppeteerPage = await browser.newPage();
+    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+    const elemToBeParent = await puppeteerPage.$(`#${parent}`);
+
+    await docGenServicePrivate.addReportPage(elemToBeParent);
+
+    const pageChild = await puppeteerPage.$(
+      `#${parent} > .${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
+    );
+
+    expect(pageChild).not.toBeNull();
+  });
+});
+
+describe('getContentHeight', () => {
+  it(`gets the rendered height of the element in the dom`, async () => {
+    const id1 = 'one';
+    const mockHtml = `
+    <html><body>
+      <div id='${id1}' style='height: 100px'></div>      
+    </body></html>`;
+    const browser: Browser = await getBrowser();
+    const puppeteerPage = await browser.newPage();
+    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+    const elemToTest = await puppeteerPage.$(`#${id1}`);
+
+    const heightPx = await docGenServicePrivate.getContentHeight(
+      puppeteerPage,
+      elemToTest,
+    );
+
+    expect(heightPx).toBe(100);
+  });
+});
+
+describe('attemptToPlaceElementOnPage', () => {
+  describe('when the page has room for the element', () => {
+    it(`is added to the DOM as a child of the page`, async () => {
+      const reportPageOptions = {
+        margin: {
+          top: 0,
+          bottom: 0,
+        },
+        height: 100,
+      };
+      const id1 = 'one';
+      const mockHtml = `
+        <html><body>
+          <div class="${docGenServicePrivate.STYLE_CLASSES.BLOCK}" style='height: ${reportPageOptions.height / 10}px'></div>    
+          <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
+            <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+              <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'></div>
+            </div> 
+          </div>      
+        </body></html>`;
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+
+      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+
+      const blockOutsidePage = await puppeteerPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
+      );
+
+      const reportPage = await puppeteerPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
+      );
+
+      const wasSuccessful =
+        await docGenServicePrivate.attemptToPlaceElementOnPage(
+          puppeteerPage,
+          blockOutsidePage,
+          `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}`,
+          reportPage,
+          reportPageOptions,
+        );
+
+      const blockOnPage = await reportPage.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
+      );
+
+      expect(wasSuccessful).toBeTruthy();
+      expect(blockOnPage).not.toBeNull();
+    });
   });
 });

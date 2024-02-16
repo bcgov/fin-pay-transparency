@@ -6,20 +6,6 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
-const STYLE_CLASSES = {
-  REPORT: 'pay-transparency-report',
-  NO_PAGE: 'no-page',
-  PAGE: 'page',
-  PAGE_CONTENT: 'page-content',
-  BLOCK_GROUP: 'block-group',
-  BLOCK: 'block',
-  BLOCK_EXPLANATORY_NOTES: 'block-explanatory-notes',
-  EXPLANATORY_NOTES: 'explanatory-notes',
-  NOTE: 'note',
-  FOOTNOTE_GROUP: 'footnote-group',
-  FOOTNOTES: 'footnotes',
-};
-
 const CONTENT_HEIGHT_UNCERTAINTY_PX = 4;
 
 export const REPORT_FORMAT = {
@@ -111,6 +97,20 @@ type SupplementaryReportData = {
 export type ReportData = SubmittedReportData & SupplementaryReportData;
 
 const docGenServicePrivate = {
+  STYLE_CLASSES: {
+    REPORT: 'pay-transparency-report',
+    NO_PAGE: 'no-page',
+    PAGE: 'page',
+    PAGE_CONTENT: 'page-content',
+    BLOCK_GROUP: 'block-group',
+    BLOCK: 'block',
+    BLOCK_EXPLANATORY_NOTES: 'block-explanatory-notes',
+    EXPLANATORY_NOTES: 'explanatory-notes',
+    NOTE: 'note',
+    FOOTNOTE_GROUP: 'footnote-group',
+    FOOTNOTES: 'footnotes',
+  },
+
   REPORT_TEMPLATE_HEADER: resolve(
     /* istanbul ignore next */
     config.get('server:templatePath') || '',
@@ -220,7 +220,9 @@ const docGenServicePrivate = {
       page.appendChild(pageContent);
       parent.appendChild(page);
     }, parent);
-    const allReportPages = await parent.$$(`.${STYLE_CLASSES.PAGE}`);
+    const allReportPages = await parent.$$(
+      `.${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
+    );
     const newestReportPage = allReportPages[allReportPages.length - 1];
     if (!newestReportPage) {
       throw new Error('post condition failed: page not properly created');
@@ -282,10 +284,10 @@ const docGenServicePrivate = {
   async organizeContentIntoPages(puppeteerPage: Page, reportPageOptions: any) {
     const MAX_ATTEMPTS = 2;
     const payTransparencyReport = await puppeteerPage.$(
-      `.${STYLE_CLASSES.REPORT}`,
+      `.${docGenServicePrivate.STYLE_CLASSES.REPORT}`,
     );
     const blocksToOrganize = await payTransparencyReport.$$(
-      `.${STYLE_CLASSES.NO_PAGE} > .${STYLE_CLASSES.BLOCK_GROUP} > .${STYLE_CLASSES.BLOCK}`,
+      `.${docGenServicePrivate.STYLE_CLASSES.NO_PAGE} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
     );
 
     let currentReportPage = await docGenServicePrivate.addReportPage(
@@ -313,7 +315,7 @@ const docGenServicePrivate = {
           await docGenServicePrivate.attemptToPlaceElementOnPage(
             puppeteerPage,
             block,
-            `.${STYLE_CLASSES.BLOCK_GROUP}`,
+            `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}`,
             currentReportPage,
             reportPageOptions,
           );
@@ -336,7 +338,7 @@ const docGenServicePrivate = {
 
     // Move the footnotes to the end of the report
     const footnoteGroup = await payTransparencyReport.$(
-      `.${STYLE_CLASSES.NO_PAGE} > .${STYLE_CLASSES.FOOTNOTE_GROUP}`,
+      `.${docGenServicePrivate.STYLE_CLASSES.NO_PAGE} > .${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}`,
     );
     await docGenServicePrivate.placeFootnotes(
       puppeteerPage,
@@ -359,7 +361,7 @@ const docGenServicePrivate = {
     }
 
     const allReportPages = await puppeteerPage.$$(
-      `.${STYLE_CLASSES.REPORT} .${STYLE_CLASSES.PAGE}`,
+      `.${docGenServicePrivate.STYLE_CLASSES.REPORT} .${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
     );
     if (!allReportPages || !allReportPages.length) {
       throw new Error(
@@ -376,7 +378,7 @@ const docGenServicePrivate = {
       wasAddedToPage = await docGenServicePrivate.attemptToPlaceElementOnPage(
         puppeteerPage,
         footnoteGroup,
-        `.${STYLE_CLASSES.FOOTNOTES}`,
+        `.${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}`,
         lastReportPage,
         reportPageOptions,
       );
@@ -422,14 +424,14 @@ const docGenServicePrivate = {
     }
 
     const pageContentSection = await reportPage.$(
-      `.${STYLE_CLASSES.PAGE_CONTENT}`,
+      `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}`,
     );
     const targetPageSection = await pageContentSection.$(pageTargetSelector);
     const pageExplanatoryNotesSection = await pageContentSection.$(
-      `.${STYLE_CLASSES.EXPLANATORY_NOTES}`,
+      `.${docGenServicePrivate.STYLE_CLASSES.EXPLANATORY_NOTES}`,
     );
 
-    // Move the elementToPlace into .page > [pageTargetSelector]
+    // Move the elementToPlace into .page > .page-content > [pageTargetSelector]
     await docGenServicePrivate.moveElementInto(
       puppeteerPage,
       elementToPlace,
@@ -439,7 +441,7 @@ const docGenServicePrivate = {
     //If the elementToPlace is a block with a .block-explanatory-notes child:
     //Move elementToPlace > .block-explanatory-notes into .page > .explanatory-notes
     const blockExplanatoryNotesSection = await elementToPlace.$(
-      `.${STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
+      `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
     );
     if (blockExplanatoryNotesSection) {
       await docGenServicePrivate.moveElementInto(
@@ -481,7 +483,7 @@ const docGenServicePrivate = {
       // elemToPlace.
       if (blockExplanatoryNotesSection) {
         const allFootnotesSectionsOnPage = await pageExplanatoryNotesSection.$$(
-          `.${STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
+          `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
         );
         if (allFootnotesSectionsOnPage.length) {
           const lastFootnotesSectionsOnPage =
