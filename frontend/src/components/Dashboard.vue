@@ -45,7 +45,7 @@
               This application does not collect, record or publish personal
               information.
             </p>
-            <v-btn class="mb-4" color="primary" to="generate-report"
+            <v-btn class="mb-4" color="primary" to="generate-report-form"
               >Generate Pay Transparency Report</v-btn
             >
           </v-card-text>

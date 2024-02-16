@@ -3,6 +3,7 @@ import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import PublishedReportPage from './components/PublishedReportPage.vue';
+import DraftReportPage from './components/DraftReportPage.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
 import { appStore } from './store/modules/app';
@@ -18,7 +19,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: 'dashboard'
+      redirect: 'dashboard',
     },
     {
       path: '/dashboard',
@@ -56,17 +57,17 @@ const router = createRouter({
       component: Logout,
     },
     {
-      path: '/published-report',
-      name: 'PublishedReportPage',
-      component: PublishedReportPage,
+      path: '/token-expired',
+      name: 'TokenExpired',
+      component: TokenExpired,
       meta: {
-        pageTitle: PAGE_TITLES.REPORT,
-        requiresAuth: true,
+        pageTitle: PAGE_TITLES.TOKEN_EXPIRED,
+        requiresAuth: false,
       },
     },
     {
-      path: '/generate-report',
-      name: 'GenerateReport',
+      path: '/generate-report-form',
+      name: 'GenerateReportForm',
       component: InputForm,
       meta: {
         pageTitle: PAGE_TITLES.REPORT,
@@ -74,12 +75,21 @@ const router = createRouter({
       },
     },
     {
-      path: '/token-expired',
-      name: 'TokenExpired',
-      component: TokenExpired,
+      path: '/draft-report',
+      name: 'DraftReportPage',
+      component: DraftReportPage,
       meta: {
-        pageTitle: PAGE_TITLES.TOKEN_EXPIRED,
-        requiresAuth: false,
+        pageTitle: PAGE_TITLES.REPORT,
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/published-report',
+      name: 'PublishedReportPage',
+      component: PublishedReportPage,
+      meta: {
+        pageTitle: PAGE_TITLES.REPORT,
+        requiresAuth: true,
       },
     },
   ],

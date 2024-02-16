@@ -15,7 +15,7 @@
             </v-col>
           </v-row>
 
-          <div v-if="stage == 'UPLOAD'">
+          <div>
             <v-row class="d-flex justify-start mt-12" dense>
               <v-col cols="12">
                 <h2 class="text-center">Employer Details</h2>
@@ -313,7 +313,7 @@
                 Please complete all required fields
               </v-col>
               <v-col cols="12" class="d-flex justify-center">
-                <primary-button
+                <PrimaryButton
                   id="submitButton"
                   :disabled="!areRequiredFieldsComplete"
                   text="Submit"
@@ -337,68 +337,6 @@
               </v-col>
             </v-row>
           </div>
-          <div v-if="stage == 'REVIEW'" class="mb-8">
-            <div v-dompurify-html="draftReportHtml"></div>
-
-            <hr class="mt-8 mb-8" />
-
-            <div>
-              <v-checkbox
-                v-model="isReadyToGenerate"
-                label="I am ready to create a final report that will be shared with the B.C. Government and can be shared publicly by my employer. Please note, this draft report will not be saved after closing this window or logging out of the system"
-              ></v-checkbox>
-
-              <div class="d-flex justify-center w-100 mt-4">
-                <v-btn id="backButton" text="Back" color="primary" class="mr-2">
-                  Back
-                  <v-dialog
-                    v-model="confirmBackDialogVisible"
-                    activator="parent"
-                    width="auto"
-                    max-width="400"
-                  >
-                    <v-card>
-                      <v-card-text>
-                        Do you want to go back to the form screen? Note that
-                        this draft report will not be saved after navigating
-                        back or logging out of the system.
-                      </v-card-text>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                          color="red-darken-1"
-                          @click="confirmBackDialogVisible = false"
-                        >
-                          No
-                        </v-btn>
-                        <v-btn
-                          color="primary"
-                          @click="
-                            confirmBackDialogVisible = false;
-                            showStage('UPLOAD');
-                          "
-                        >
-                          Yes
-                        </v-btn>
-                        <v-spacer></v-spacer>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                </v-btn>
-
-                <v-btn
-                  id="generateReportButton"
-                  text="Generate Report"
-                  color="primary"
-                  :disabled="!isReadyToGenerate"
-                  @click="tryGenerateReport()"
-                >
-                  Generate Report
-                </v-btn>
-              </div>
-            </div>
-          </div>
-          <FinalReport v-if="stage == 'FINAL'" />
         </v-col>
       </v-row>
       <v-overlay
@@ -409,40 +347,6 @@
         <spinner />
       </v-overlay>
     </v-form>
-
-    <!-- dialogs -->
-
-    <v-dialog
-      v-model="confirmOverrideReportDialogVisible"
-      width="auto"
-      max-width="400"
-    >
-      <v-card>
-        <v-card-text>
-          There is an existing report for the same time period. Do you want to
-          replace it?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="red-darken-1"
-            @click="confirmOverrideReportDialogVisible = false"
-          >
-            No
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="
-              confirmOverrideReportDialogVisible = false;
-              generateReport();
-            "
-          >
-            Yes
-          </v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -455,14 +359,9 @@ import ReportStepper from './util/ReportStepper.vue';
 import ApiService from '../common/apiService';
 import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
-import { mapActions, mapWritableState, mapState } from 'pinia';
-import {
-  useReportStepperStore,
-  ReportStage,
-} from '../store/modules/reportStepper';
+import { mapActions, mapState } from 'pinia';
+import { useReportStepperStore } from '../store/modules/reportStepper';
 import moment from 'moment';
-import { sanitizeUrl } from '@braintree/sanitize-url';
-import FinalReport from './FinalReport.vue';
 
 interface LineErrors {
   lineNum: number;
@@ -488,7 +387,6 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
-    FinalReport,
   },
   data: () => ({
     validForm: null,
@@ -532,7 +430,11 @@ export default {
     confirmOverrideReportDialogVisible: false,
   }),
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage', 'setReportId']),
+    ...mapActions(useReportStepperStore, [
+      'setStage',
+      'setReportId',
+      'setReportDates',
+    ]),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -543,8 +445,9 @@ export default {
         this.uploadFileValue = null;
       }
     },
-    showStage(stageName: ReportStage) {
-      this.setStage(stageName);
+    nextStage() {
+      this.setStage('REVIEW');
+      this.$router.push({ path: '/draft-report' });
       this.setSuccessAlert(null);
       this.isReadyToGenerate = false;
 
@@ -553,37 +456,6 @@ export default {
       setTimeout(() => {
         window.scrollTo(0, 0); //scroll to top of screen
       }, 100);
-    },
-    async fetchReportHtml(reportId: string) {
-      this.draftReportHtml = await ApiService.getHtmlReport(reportId);
-    },
-    async tryGenerateReport() {
-      const existingPublished = await ApiService.getReports({
-        report_start_date: this.draftReport.report_start_date,
-        report_end_date: this.draftReport.report_end_date,
-        report_status: 'Published',
-      });
-      const reportAlreadyExists = existingPublished.length;
-      if (reportAlreadyExists) {
-        //show a dialog to confirm override
-        this.confirmOverrideReportDialogVisible = true;
-      } else {
-        this.generateReport();
-      }
-    },
-    async generateReport() {
-      this.isProcessing = true;
-      try {
-        const unsanitisedHtml = await ApiService.publishReport(
-          this.draftReport?.report_id,
-        );
-        await this.setReportId(this.draftReport?.report_id);
-        this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
-        this.showStage('FINAL');
-      } catch (e) {
-        console.log(e);
-      }
-      this.isProcessing = false;
     },
     async submit() {
       this.isProcessing = true;
@@ -602,8 +474,12 @@ export default {
         formData.append('comments', this.comments ? this.comments : '');
         formData.append('file', this.uploadFileValue[0]);
         this.draftReport = await ApiService.postSubmission(formData);
-        await this.fetchReportHtml(this.draftReport.report_id);
-        this.showStage('REVIEW');
+        this.setReportId(this.draftReport.report_id);
+        this.setReportDates(
+          this.draftReport.report_start_date,
+          this.draftReport.report_end_date,
+        );
+        this.nextStage();
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
         this.isProcessing = false;
@@ -612,29 +488,6 @@ export default {
         this.isProcessing = false;
         this.setSuccessAlert(null);
         this.setErrorAlert(error.response.data?.errors);
-      }
-    },
-    submitRequest() {
-      if (this.dataReady) {
-        if (
-          this.uploadFileValue[0].name?.match(
-            '^[\\u0080-\\uFFFF\\w,\\s-_]+\\.[A-Za-z]{3,4}$',
-          )
-        ) {
-          this.active = true;
-          const reader = new FileReader();
-          reader.onload = this.uploadFile;
-          reader.onabort = this.handleFileReadErr;
-          reader.onerror = this.handleFileReadErr;
-          reader.readAsBinaryString(this.uploadFileValue[0]);
-        } else {
-          this.active = false;
-          this.setErrorAlert({
-            general_errors: [
-              'Please remove spaces and special characters from file name and try uploading again.',
-            ],
-          });
-        }
       }
     },
   },
@@ -674,7 +527,6 @@ export default {
   computed: {
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
-    ...mapWritableState(useReportStepperStore, ['stage']),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },

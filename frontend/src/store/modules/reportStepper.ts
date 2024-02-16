@@ -31,6 +31,8 @@ export const REPORT_STAGES: IStageOption[] = [
 export const useReportStepperStore = defineStore('reportStepper', () => {
   const stage = ref<ReportStage>('UPLOAD');
   const reportId = ref<string | undefined>();
+  const reportStartDate = ref<string | undefined>();
+  const reportEndDate = ref<string | undefined>();
 
   const setStage = (value: ReportStage) => {
     stage.value = value;
@@ -45,11 +47,19 @@ export const useReportStepperStore = defineStore('reportStepper', () => {
     reportId.value = id;
   };
 
+  const setReportDates = (start: string, end: string) => {
+    reportStartDate.value = start;
+    reportEndDate.value = end;
+  };
+
   return {
     stage,
     reportId,
+    reportStartDate,
+    reportEndDate,
     setStage,
     reset,
     setReportId,
+    setReportDates,
   };
 });

@@ -18,7 +18,6 @@ import { storeToRefs } from 'pinia';
 import { useReportStepperStore } from '../store/modules/reportStepper';
 import { ref, onBeforeMount } from 'vue';
 import ApiService from '../common/apiService';
-import { sanitizeUrl } from '@braintree/sanitize-url';
 import { useRouter } from 'vue-router';
 
 const { reportId } = storeToRefs(useReportStepperStore());
@@ -29,8 +28,7 @@ const router = useRouter();
 const loadReport = async () => {
   try {
     loading.value = true;
-    const unsanitisedHtml = await ApiService.getHtmlReport(reportId.value);
-    finalReportHtml.value = sanitizeUrl(unsanitisedHtml);
+    finalReportHtml.value = await ApiService.getHtmlReport(reportId.value);
   } catch (error) {
     router.replace('/');
   } finally {
