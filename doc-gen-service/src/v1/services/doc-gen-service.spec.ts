@@ -180,6 +180,10 @@ describe('moveElementInto', () => {
     const childrenOf1: any[] = await puppeteerPage.$$(`#${id1} > *`);
     const childrenOf2: any[] = await puppeteerPage.$$(`#${id2} > *`);
 
+    if (puppeteerPage) {
+      await puppeteerPage.close();
+    }
+
     expect(childrenOf1.length).toBe(0);
     expect(childrenOf2.length).toBe(1);
   });
@@ -203,6 +207,10 @@ describe('addReportPage', () => {
       `#${parent} > .${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
     );
 
+    if (puppeteerPage) {
+      await puppeteerPage.close();
+    }
+
     expect(pageChild).not.toBeNull();
   });
 });
@@ -223,6 +231,10 @@ describe('getContentHeight', () => {
       puppeteerPage,
       elemToTest,
     );
+
+    if (puppeteerPage) {
+      await puppeteerPage.close();
+    }
 
     expect(heightPx).toBe(100);
   });
@@ -273,6 +285,10 @@ describe('attemptToPlaceElementOnPage', () => {
       const blockOnPage = await reportPage.$(
         `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP} > .${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
       );
+
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
 
       expect(wasSuccessful).toBeTruthy();
       expect(blockOnPage).not.toBeNull();

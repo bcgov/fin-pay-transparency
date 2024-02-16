@@ -409,6 +409,18 @@ const docGenServicePrivate = {
     return heightPx;
   },
 
+  /*
+  Moves the given elementToPlace onto the given reportPage (under the child element 
+  identified by pageTargetSelector).  After the element is moved, checks the
+  total content height of the page against the maximum page height.  If adding
+  the element caused the page content to exceed the page height, then the element is
+  removed and the method returns false.  Otherwise the moved element kept in its new 
+  position and the method returns true.
+  There is also some special logic to handle the case of elementToPlace having class 
+  'block'.  In that situation, it is assumed that the block may have a 
+  'block-explanatory-notes' child, and that child is moved into the 'explanatory-notes'
+  section of the page.
+  */
   async attemptToPlaceElementOnPage(
     puppeteerPage: Page,
     elementToPlace,
