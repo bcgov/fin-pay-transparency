@@ -192,8 +192,10 @@ const docGenServicePrivate = {
    */
   async addReportPage(parent: any) {
     //Implementation note (banders): classNames are inline strings here because
-    //I cannot find a way to pass the STYLE_CLASSES values into Puppeteer's z
+    //I cannot find a way to pass the STYLE_CLASSES values into Puppeteer's
     //evaluate function
+
+    /* istanbul ignore next */
     await parent.evaluate((parent) => {
       const page = document.createElement('div');
       page.className = 'page';
@@ -302,19 +304,12 @@ const docGenServicePrivate = {
         await docGenServicePrivate.removeFromDom(puppeteerPage, block);
         continue;
       }
-      const blockHeightPx = (await block.boundingBox()).height;
       const blockId = await (await block.getProperty('id')).jsonValue();
-      console.log(
-        `processing block '${blockId}' with height ${blockHeightPx}px`,
-      );
 
-      let blockAddedToPage = false;
+      let wasBlockAddedToPage = false;
       let numAttempts = 0;
       while (numAttempts < MAX_ATTEMPTS) {
-        console.log(
-          `attempting to place block '${blockId}' on the current page`,
-        );
-        blockAddedToPage =
+        wasBlockAddedToPage =
           await docGenServicePrivate.attemptToPlaceElementOnPage(
             puppeteerPage,
             block,
@@ -322,25 +317,24 @@ const docGenServicePrivate = {
             currentReportPage,
             reportPageOptions,
           );
-        if (blockAddedToPage) {
+        if (wasBlockAddedToPage) {
           break;
         } else {
-          console.log('adding new page');
+          // Add a new page to the report
           currentReportPage = await docGenServicePrivate.addReportPage(
             payTransparencyReport,
           );
         }
         numAttempts++;
       }
-      if (!blockAddedToPage) {
+      if (!wasBlockAddedToPage) {
         logger.warn(
-          `Omitted block '${blockId}' (with its associated footnotes).  It is too large for page`,
+          `Omitted block '${blockId}' (with its associated notes).  It is too large for the page.`,
         );
       }
     }
 
     // Move the footnotes to the end of the report
-    console.log('placing footnotes');
     const footnoteGroup = await payTransparencyReport.$(
       `.${STYLE_CLASSES.NO_PAGE} > .${STYLE_CLASSES.FOOTNOTE_GROUP}`,
     );
@@ -363,7 +357,7 @@ const docGenServicePrivate = {
     if (!footnoteGroup) {
       return;
     }
-    console.log('placeFootnotes 1');
+
     const allReportPages = await puppeteerPage.$$(
       `.${STYLE_CLASSES.REPORT} .${STYLE_CLASSES.PAGE}`,
     );
@@ -374,7 +368,7 @@ const docGenServicePrivate = {
     }
 
     let lastReportPage = allReportPages[allReportPages.length - 1];
-    console.log('placeFootnotes 2');
+
     const MAX_ATTEMPTS = 2;
     let numAttempts = 0;
     let wasAddedToPage = false;
@@ -389,7 +383,6 @@ const docGenServicePrivate = {
       if (wasAddedToPage) {
         break;
       } else {
-        console.log('adding new page');
         lastReportPage = await docGenServicePrivate.addReportPage(
           payTransparencyReport,
         );
@@ -401,30 +394,17 @@ const docGenServicePrivate = {
     }
   },
 
+  /**
+   * Get the height of the element and all its content
+   * Note: this method can slightly underestimate the true height
+   * (by a few pixels at most).  Recommend that any
+   * comparisons of height returned by this function allow
+   * some tolerance for the uncertainty, such as by using:
+   * CONTENT_HEIGHT_UNCERTAINTY_PX
+   */
   async getContentHeight(puppeteerPage, elem): Promise<number> {
-    //Get the height of the element and all its content
-    //Note: this method can slightly underestimate the true height
-    //(by a few pixels at most)
     const heightPx = (await elem.boundingBox()).height;
-
-    //We don't have a good method to accurately determine how much
-    //the above heightPx measurement underestimates the true
-    //height, but by experimentation it seems that
-    //we can approximate the underestimate by
-    //summing the difference between 'offsetHeight'
-    //and 'clientHeight' of all children.
-    const extra = await puppeteerPage.evaluate((e) => {
-      let excess = 0;
-      if (e) {
-        e.childNodes.forEach((child) => {
-          const diff = child.offsetHeight - child.clientHeight;
-          excess += diff;
-        });
-      }
-      return excess;
-    }, elem);
-    console.log(`heightPx: ${heightPx}, extra: ${extra}`);
-    return heightPx + extra;
+    return heightPx;
   },
 
   async attemptToPlaceElementOnPage(
@@ -449,15 +429,6 @@ const docGenServicePrivate = {
       `.${STYLE_CLASSES.EXPLANATORY_NOTES}`,
     );
 
-    let currentPageHeightCommittedPx =
-      await docGenServicePrivate.getContentHeight(
-        puppeteerPage,
-        pageContentSection,
-      );
-    console.log(
-      ` before try adding: currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
-    );
-
     // Move the elementToPlace into .page > [pageTargetSelector]
     await docGenServicePrivate.moveElementInto(
       puppeteerPage,
@@ -478,13 +449,11 @@ const docGenServicePrivate = {
       );
     }
 
-    currentPageHeightCommittedPx = await docGenServicePrivate.getContentHeight(
-      puppeteerPage,
-      pageContentSection,
-    );
-    console.log(
-      ` after try adding: currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
-    );
+    const currentPageHeightCommittedPx =
+      await docGenServicePrivate.getContentHeight(
+        puppeteerPage,
+        pageContentSection,
+      );
 
     const totalPageHeightPx =
       reportPageOptions.height -
@@ -495,9 +464,21 @@ const docGenServicePrivate = {
       currentPageHeightCommittedPx + CONTENT_HEIGHT_UNCERTAINTY_PX <
       totalPageHeightPx;
     if (!fitsOnPage) {
-      console.log('rollback.');
-      //Rollback
-      //Move .page > .explanatory-notes > .block-explanatory-notes (last child) back into .block
+      // Rollback.  elemToPlace was placed on the current page, but it was too large.
+      // We need to remove it from the current page.
+
+      // Removes elementToPlace from its new position in the DOM.  For simplicity,
+      // this element isn't moved back to its
+      // original position in the DOM (the function that calls this one is
+      // expected to retain a reference to it, and to try to position it on a
+      // new page)
+      await docGenServicePrivate.removeFromDom(puppeteerPage, elementToPlace);
+
+      // If elemToPlace was a .block and had a .block-explanatory-notes child which
+      // was also copied onto the current page, move the explanatory notes
+      // back into the .block.
+      // i.e. Move page > .explanatory-notes > .block-explanatory-notes (last child) back into
+      // elemToPlace.
       if (blockExplanatoryNotesSection) {
         const allFootnotesSectionsOnPage = await pageExplanatoryNotesSection.$$(
           `.${STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
@@ -512,9 +493,6 @@ const docGenServicePrivate = {
           );
         }
       }
-      //Removes the .block from .page > .blocks
-      console.log('removing elementToPlace from page');
-      await docGenServicePrivate.removeFromDom(puppeteerPage, elementToPlace);
     }
 
     return fitsOnPage;
@@ -779,8 +757,6 @@ async function generateReport(
         height: `${PDF_PAGE_SIZE_PIXELS.height}px`,
       };
       const pdf = await puppeteerPage.pdf(pdfOptions);
-      //const renderedHtml = await puppeteerPage.content();
-      //console.log(renderedHtml);
       result = pdf;
     }
 

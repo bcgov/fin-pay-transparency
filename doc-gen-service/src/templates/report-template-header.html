@@ -38,6 +38,7 @@
     font-size: 36px;
     font-weight: bold;
     margin: 0px;
+    line-height: 1.1;
   }
 
   .pay-transparency-report h2 {
@@ -235,6 +236,10 @@
     margin-right: 10px;
   }
 
+  .pay-transparency-report .user-comments {
+    color: #888888;
+  }
+
   hr {
     margin-bottom: 14px;
     margin-top: 14px;
@@ -246,13 +251,16 @@
     <div class="no-page">
       <div class='block-group'>
         <div id="block-title" class="block">
-          <h1 class="text-primary mb-0">Pay Transparency Report</h1>
+          <h1 class="text-primary mb-0">
+            <%= companyName %>
+          </h1>
+          <h1 class="text-primary mb-0">Pay transparency report</h1>
         </div>
         <%_ if (comments) { _%>
           <div id="block-user-comments" class="block">
-            <p class="text-tertiary mb-4">
+            <div class="user-comments text-normal">
               <%= comments %>
-            </p>
+            </div>
           </div>
           <%_ } _%>
             <div id="block-employer-details" class="block">
