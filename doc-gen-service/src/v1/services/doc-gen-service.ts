@@ -8,14 +8,19 @@ import { getBrowser } from './puppeteer-service';
 
 const STYLE_CLASSES = {
   REPORT: 'pay-transparency-report',
+  NO_PAGE: 'no-page',
   PAGE: 'page',
   PAGE_CONTENT: 'page-content',
   BLOCK_GROUP: 'block-group',
   BLOCK: 'block',
+  BLOCK_EXPLANATORY_NOTES: 'block-explanatory-notes',
   EXPLANATORY_NOTES: 'explanatory-notes',
-  EXPLANATORY_NOTE: 'explanatory-note',
+  NOTE: 'note',
+  FOOTNOTE_GROUP: 'footnote-group',
   FOOTNOTES: 'footnotes',
 };
+
+const CONTENT_HEIGHT_UNCERTAINTY_PX = 4;
 
 export const REPORT_FORMAT = {
   HTML: 'html' as string,
@@ -26,8 +31,8 @@ const PDF_PPI = 96; //Pixels per inch. (Puppeteer uses this value internally.)
 const PDF_PAGE_SIZE_INCHES = {
   width: 8.5,
   height: 11,
-  marginX: 1,
-  marginY: 0.5,
+  marginX: 0.6,
+  marginY: 0.4,
 };
 const PDF_PAGE_SIZE_PIXELS = {
   width: PDF_PAGE_SIZE_INCHES.width * PDF_PPI,
@@ -198,8 +203,18 @@ const docGenServicePrivate = {
       blockGroup.className = 'block-group';
       const explanatoryNotes = document.createElement('div');
       explanatoryNotes.className = 'explanatory-notes';
+      const explanatoryNotesTitle = document.createElement('h5');
+      explanatoryNotesTitle.className = 'mb-2';
+      const explanatoryNotesTitleText =
+        document.createTextNode('Explanatory notes');
+
+      const footnotes = document.createElement('div');
+      footnotes.className = 'footnotes';
+      explanatoryNotesTitle.appendChild(explanatoryNotesTitleText);
+      explanatoryNotes.appendChild(explanatoryNotesTitle);
       pageContent.appendChild(blockGroup);
       pageContent.appendChild(explanatoryNotes);
+      pageContent.appendChild(footnotes);
       page.appendChild(pageContent);
       parent.appendChild(page);
     }, parent);
@@ -216,6 +231,12 @@ const docGenServicePrivate = {
   child of 'elemToBeParent'.
   */
   async moveElementInto(puppeteerPage: Page, elemToMove, elemToBeParent) {
+    if (!elemToMove) {
+      throw new Error('elemToMove must not be null');
+    }
+    if (!elemToBeParent) {
+      throw new Error('elemToBeParent must not be null');
+    }
     /* istanbul ignore next */
     await puppeteerPage.evaluate(
       (e, p) => {
@@ -240,6 +261,17 @@ const docGenServicePrivate = {
   },
 
   /*
+  Checks if the given element is empty (i.e. has no children in the DOM)
+  */
+  async isElementEmpty(puppeteerPage, elem): Promise<boolean> {
+    /* istanbul ignore next */
+    return await puppeteerPage.evaluate(
+      (e) => !e || !e.childNodes.length,
+      elem,
+    );
+  },
+
+  /*
   Modifies the DOM in the given puppeteerPage.  All content blocks  
   not currently assigned to a "report page" are placed into 
   a report page in order. Takes into account block height and the 
@@ -251,14 +283,25 @@ const docGenServicePrivate = {
       `.${STYLE_CLASSES.REPORT}`,
     );
     const blocksToOrganize = await payTransparencyReport.$$(
-      `.${STYLE_CLASSES.BLOCK}`,
+      `.${STYLE_CLASSES.NO_PAGE} > .${STYLE_CLASSES.BLOCK_GROUP} > .${STYLE_CLASSES.BLOCK}`,
     );
 
     let currentReportPage = await docGenServicePrivate.addReportPage(
       payTransparencyReport,
     );
+
+    // Organize all 'blocks' and their corresponding 'explanatory-notes'
+    // into 'page' elements
     for (let i = 0; i < blocksToOrganize.length; i++) {
       const block = blocksToOrganize[i];
+      const isBlockEmpty = await docGenServicePrivate.isElementEmpty(
+        puppeteerPage,
+        block,
+      );
+      if (isBlockEmpty) {
+        await docGenServicePrivate.removeFromDom(puppeteerPage, block);
+        continue;
+      }
       const blockHeightPx = (await block.boundingBox()).height;
       const blockId = await (await block.getProperty('id')).jsonValue();
       console.log(
@@ -271,12 +314,14 @@ const docGenServicePrivate = {
         console.log(
           `attempting to place block '${blockId}' on the current page`,
         );
-        blockAddedToPage = await docGenServicePrivate.attemptToMoveBlockToPage(
-          puppeteerPage,
-          block,
-          currentReportPage,
-          reportPageOptions,
-        );
+        blockAddedToPage =
+          await docGenServicePrivate.attemptToPlaceElementOnPage(
+            puppeteerPage,
+            block,
+            `.${STYLE_CLASSES.BLOCK_GROUP}`,
+            currentReportPage,
+            reportPageOptions,
+          );
         if (blockAddedToPage) {
           break;
         } else {
@@ -293,22 +338,104 @@ const docGenServicePrivate = {
         );
       }
     }
+
+    // Move the footnotes to the end of the report
+    console.log('placing footnotes');
+    const footnoteGroup = await payTransparencyReport.$(
+      `.${STYLE_CLASSES.NO_PAGE} > .${STYLE_CLASSES.FOOTNOTE_GROUP}`,
+    );
+    await docGenServicePrivate.placeFootnotes(
+      puppeteerPage,
+      footnoteGroup,
+      payTransparencyReport,
+      reportPageOptions,
+    );
+
     await payTransparencyReport.dispose();
   },
 
-  async getContentHeight(elem): Promise<number> {
-    const heightPx = (await elem.boundingBox()).height;
-    return heightPx;
+  async placeFootnotes(
+    puppeteerPage,
+    footnoteGroup,
+    payTransparencyReport,
+    reportPageOptions,
+  ) {
+    if (!footnoteGroup) {
+      return;
+    }
+    console.log('placeFootnotes 1');
+    const allReportPages = await puppeteerPage.$$(
+      `.${STYLE_CLASSES.REPORT} .${STYLE_CLASSES.PAGE}`,
+    );
+    if (!allReportPages || !allReportPages.length) {
+      throw new Error(
+        'Report must have at least one existing page to place footnotes',
+      );
+    }
+
+    let lastReportPage = allReportPages[allReportPages.length - 1];
+    console.log('placeFootnotes 2');
+    const MAX_ATTEMPTS = 2;
+    let numAttempts = 0;
+    let wasAddedToPage = false;
+    while (numAttempts < MAX_ATTEMPTS) {
+      wasAddedToPage = await docGenServicePrivate.attemptToPlaceElementOnPage(
+        puppeteerPage,
+        footnoteGroup,
+        `.${STYLE_CLASSES.FOOTNOTES}`,
+        lastReportPage,
+        reportPageOptions,
+      );
+      if (wasAddedToPage) {
+        break;
+      } else {
+        console.log('adding new page');
+        lastReportPage = await docGenServicePrivate.addReportPage(
+          payTransparencyReport,
+        );
+      }
+      numAttempts++;
+    }
+    if (!wasAddedToPage) {
+      logger.warn(`Unable to add footnotes to page`);
+    }
   },
 
-  async attemptToMoveBlockToPage(
+  async getContentHeight(puppeteerPage, elem): Promise<number> {
+    //Get the height of the element and all its content
+    //Note: this method can slightly underestimate the true height
+    //(by a few pixels at most)
+    const heightPx = (await elem.boundingBox()).height;
+
+    //We don't have a good method to accurately determine how much
+    //the above heightPx measurement underestimates the true
+    //height, but by experimentation it seems that
+    //we can approximate the underestimate by
+    //summing the difference between 'offsetHeight'
+    //and 'clientHeight' of all children.
+    const extra = await puppeteerPage.evaluate((e) => {
+      let excess = 0;
+      if (e) {
+        e.childNodes.forEach((child) => {
+          const diff = child.offsetHeight - child.clientHeight;
+          excess += diff;
+        });
+      }
+      return excess;
+    }, elem);
+    console.log(`heightPx: ${heightPx}, extra: ${extra}`);
+    return heightPx + extra;
+  },
+
+  async attemptToPlaceElementOnPage(
     puppeteerPage: Page,
-    block,
+    elementToPlace,
+    pageTargetSelector,
     reportPage,
     reportPageOptions: any,
   ): Promise<boolean> {
-    if (!block) {
-      throw new Error('block must be specified');
+    if (!elementToPlace) {
+      throw new Error('elementToPlace must be specified');
     }
     if (!reportPage) {
       throw new Error('reportPage must be specified');
@@ -317,38 +444,44 @@ const docGenServicePrivate = {
     const pageContentSection = await reportPage.$(
       `.${STYLE_CLASSES.PAGE_CONTENT}`,
     );
-    const pageBlocksSection = await pageContentSection.$(
-      `.${STYLE_CLASSES.BLOCK_GROUP}`,
-    );
+    const targetPageSection = await pageContentSection.$(pageTargetSelector);
     const pageExplanatoryNotesSection = await pageContentSection.$(
       `.${STYLE_CLASSES.EXPLANATORY_NOTES}`,
     );
 
     let currentPageHeightCommittedPx =
-      await docGenServicePrivate.getContentHeight(pageContentSection);
+      await docGenServicePrivate.getContentHeight(
+        puppeteerPage,
+        pageContentSection,
+      );
     console.log(
       ` before try adding: currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
     );
 
-    // Move the .block into .page > .blocks
+    // Move the elementToPlace into .page > [pageTargetSelector]
     await docGenServicePrivate.moveElementInto(
       puppeteerPage,
-      block,
-      pageBlocksSection,
+      elementToPlace,
+      targetPageSection,
     );
 
-    //Move .block > .footnotes into .page > .explanatory-notes
-    const blockFootnotesSection = await block.$(`.${STYLE_CLASSES.FOOTNOTES}`);
-    if (blockFootnotesSection) {
+    //If the elementToPlace is a block with a .block-explanatory-notes child:
+    //Move elementToPlace > .block-explanatory-notes into .page > .explanatory-notes
+    const blockExplanatoryNotesSection = await elementToPlace.$(
+      `.${STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
+    );
+    if (blockExplanatoryNotesSection) {
       await docGenServicePrivate.moveElementInto(
         puppeteerPage,
-        blockFootnotesSection,
+        blockExplanatoryNotesSection,
         pageExplanatoryNotesSection,
       );
     }
 
-    currentPageHeightCommittedPx =
-      await docGenServicePrivate.getContentHeight(pageContentSection);
+    currentPageHeightCommittedPx = await docGenServicePrivate.getContentHeight(
+      puppeteerPage,
+      pageContentSection,
+    );
     console.log(
       ` after try adding: currentPageHeightCommittedPx: ${currentPageHeightCommittedPx}`,
     );
@@ -358,27 +491,30 @@ const docGenServicePrivate = {
       reportPageOptions.margin.top -
       reportPageOptions.margin.bottom;
 
-    const fitsOnPage = currentPageHeightCommittedPx < totalPageHeightPx;
+    const fitsOnPage =
+      currentPageHeightCommittedPx + CONTENT_HEIGHT_UNCERTAINTY_PX <
+      totalPageHeightPx;
     if (!fitsOnPage) {
       console.log('rollback.');
       //Rollback
-      //Move .page > .explanatory-notes > .footnotes (last child) back into .block
-      if (blockFootnotesSection) {
-        const allFootnotesSectionsOnPage =
-          await pageExplanatoryNotesSection.$$(`.footnotes`);
+      //Move .page > .explanatory-notes > .block-explanatory-notes (last child) back into .block
+      if (blockExplanatoryNotesSection) {
+        const allFootnotesSectionsOnPage = await pageExplanatoryNotesSection.$$(
+          `.${STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
+        );
         if (allFootnotesSectionsOnPage.length) {
           const lastFootnotesSectionsOnPage =
             allFootnotesSectionsOnPage[allFootnotesSectionsOnPage.length - 1];
           await docGenServicePrivate.moveElementInto(
             puppeteerPage,
             lastFootnotesSectionsOnPage,
-            block,
+            elementToPlace,
           );
         }
       }
       //Removes the .block from .page > .blocks
-      console.log('removing block from page');
-      await docGenServicePrivate.removeFromDom(puppeteerPage, block);
+      console.log('removing elementToPlace from page');
+      await docGenServicePrivate.removeFromDom(puppeteerPage, elementToPlace);
     }
 
     return fitsOnPage;
@@ -451,9 +587,82 @@ const docGenServicePrivate = {
 };
 
 /**
- * Generates a report of the specified type, using the specified data
+ * Generates a reportin the specified format, using the specified data.
  * @param reportFormat The type of report to generate (e.g. 'pdf', 'html')
  * @param reportData The data to use when generating the report
+ * Implementation notes:
+ *  This method uses the the puppeteer headless web browser internally
+ *  to build the report as an HTML page.  The final HTML can be either returned
+ *  "as is", or puppeteer can export it as a PDF.
+ *  The HTML report is build in two stages:
+ *    1. Generate all charts. Inject the charts and other dynamic content
+ *       into the DOM.  All content is grouped into "blocks", (i.e. <div> tags
+ *       with class="block").  Blocks are sections that should never be split
+ *       across multiple pages.
+ *    2. Blocks are organized into "pages" (i.e. <div> tags with clas="page")
+ *       by comparing the rendered height of the block to the amount of
+ *       space still available on a given page.  Each "page" has a height
+ *       corresponding to the pixel-equivalent of an 8.5"x11" piece of paper
+ *       at 96 PPI.  The amount of available space on a page decreases
+ *       when a "block" is assigned to it.  A new page is started when the
+ *       next block won't fit on the current page.
+ *       An important detail here is that each "block" may have corresponding
+ *       "explanatory-notes", but explanatory notes are ordered differently than
+ *       the blocks.  Explanatory notes may or may not occur immediately below
+ *       a given block, but they must always appear on the bottom of the same
+ *       page as the corresponding block.  The second phase of processing
+ *       handles the placement of "explanatory notes" too.
+ *
+ * After stage 1, the DOM of the HTML report looks like this:
+ *
+ * <div class="pay-transparency-report">
+ *   <div class="no-page">
+ *     <div class="blocks">
+ *       <div class="block">
+ *         <!-- main block content here -->
+ *         <div class="explanatory-notes">
+ *           <!-- if there are any explanatory notes corresponding to the
+ *                block, they go here -->
+ *         </div> *
+ *       </div>
+ *       ... <!-- more 'block' elements -->
+ *     </div>
+ *     <div class="all-footnotes">
+ *        <!-- footnotes are like explanatory notes, except
+ *             footnotes are ultimately moved the the bottom of the last
+ *             page (not to the bottom of the current page) -->
+ *     </div>
+ *   </div>
+ * </div>
+ *
+ * After stage 2, the DOM of the HTML report has been transformed
+ * to look like this:
+ *
+ * <div class="pay-transparency-report">
+ *   <div class="no-page">
+ *     <!-- empty -->
+ *   </div>
+ *   <div class="pages"> <!-- this section is newly created -->
+ *     <div class="page">
+ *       <div class="blocks">
+ *         <div class="block">
+ *           <!-- the main block content from stage 1 remains here,
+ *                but the explanatory notes and footnotes children
+ *                were removed as children of the block, and are now
+ *                children of the page.
+ *         </div>
+ *         ...
+ *       </div>
+ *       <div class="explanatory-notes">
+ *         ...
+ *       </div>
+ *       <div class="footnotes">
+ *         ...
+ *       </div>
+ *     </div>
+ *     ...
+ *   </div>
+ * </div>
  */
 async function generateReport(
   reportFormat: string,
@@ -478,7 +687,6 @@ async function generateReport(
     await puppeteerPage.addScriptTag({
       path: docGenServicePrivate.REPORT_TEMPLATE_SCRIPT,
     });
-
     await puppeteerPage.setContent(workingHtml, { waitUntil: 'networkidle0' });
 
     // Generate charts as SVG, and inject the charts into the DOM of the
@@ -571,6 +779,8 @@ async function generateReport(
         height: `${PDF_PAGE_SIZE_PIXELS.height}px`,
       };
       const pdf = await puppeteerPage.pdf(pdfOptions);
+      //const renderedHtml = await puppeteerPage.content();
+      //console.log(renderedHtml);
       result = pdf;
     }
 
