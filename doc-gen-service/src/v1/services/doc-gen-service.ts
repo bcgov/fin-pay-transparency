@@ -358,7 +358,7 @@ const docGenServicePrivate = {
     footnoteGroup,
     payTransparencyReport,
     reportPageOptions,
-  ) {
+  ): Promise<boolean> {
     if (!footnoteGroup) {
       return false;
     }
