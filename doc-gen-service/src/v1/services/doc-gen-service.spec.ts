@@ -67,6 +67,10 @@ const reportData =
   docGenServicePrivate.addSupplementaryReportData(submittedReportData);
 
 beforeEach(() => {
+  //extend from the default 5000 because many tests use puppeteer, which can
+  //be slow if the host container isn't allocated sufficient resources
+  jest.setTimeout(10000);
+
   jest.clearAllMocks();
 });
 
