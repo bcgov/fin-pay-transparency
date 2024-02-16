@@ -163,8 +163,8 @@ function prevStage() {
 
 async function tryGenerateReport() {
   const existingPublished = await ApiService.getReports({
-    report_start_date: ReportStepperStore.reportStartDate,
-    report_end_date: ReportStepperStore.reportEndDate,
+    report_start_date: ReportStepperStore.reportData.report_start_date,
+    report_end_date: ReportStepperStore.reportData.report_end_date,
     report_status: 'Published',
   });
   const reportAlreadyExists = existingPublished.length;

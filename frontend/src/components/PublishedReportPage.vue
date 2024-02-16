@@ -9,7 +9,10 @@
             </v-col>
           </v-row>
 
-          <v-row class="pt-7 mb-4 d-flex justify-center w-100">
+          <v-row
+            v-if="reportStepperStore.mode != ReportMode.View"
+            class="pt-7 mb-4 d-flex justify-center w-100"
+          >
             <v-col cols="10" class="w-100">
               <ReportStepper />
             </v-col>
@@ -33,9 +36,12 @@
 import '@vuepic/vue-datepicker/dist/main.css';
 import Spinner from './Spinner.vue';
 import ReportStepper from './util/ReportStepper.vue';
-import { useReportStepperStore } from '../store/modules/reportStepper';
+import {
+  useReportStepperStore,
+  ReportMode,
+} from '../store/modules/reportStepper';
 import FinalReport from './FinalReport.vue';
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 
 const isProcessing = ref(false);
 const reportStepperStore = useReportStepperStore();

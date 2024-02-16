@@ -429,12 +429,18 @@ export default {
     confirmBackDialogVisible: false,
     confirmOverrideReportDialogVisible: false,
   }),
+  async beforeMount() {
+    if (this.reportId) {
+      this.comments = this.reportData.user_comment;
+      this.employeeCountRange = this.reportData.employee_count_range_id;
+      this.naicsCode = this.reportData.naics_code;
+      this.startDate = this.reportData.report_start_date;
+      this.endDate = this.reportData.report_end_date;
+      this.dataConstraints = this.reportData.data_constraints;
+    }
+  },
   methods: {
-    ...mapActions(useReportStepperStore, [
-      'setStage',
-      'setReportId',
-      'setReportDates',
-    ]),
+    ...mapActions(useReportStepperStore, ['setStage', 'setReportId']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -474,11 +480,7 @@ export default {
         formData.append('comments', this.comments ? this.comments : '');
         formData.append('file', this.uploadFileValue[0]);
         this.draftReport = await ApiService.postSubmission(formData);
-        this.setReportId(this.draftReport.report_id);
-        this.setReportDates(
-          this.draftReport.report_start_date,
-          this.draftReport.report_end_date,
-        );
+        await this.setReportId(this.draftReport.report_id);
         this.nextStage();
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
@@ -527,6 +529,7 @@ export default {
   computed: {
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
+    ...mapState(useReportStepperStore, ['reportId', 'reportData']),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },
