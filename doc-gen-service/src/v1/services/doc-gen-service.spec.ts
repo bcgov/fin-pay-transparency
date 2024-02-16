@@ -172,7 +172,6 @@ describe('moveElementInto', () => {
     const elemToBeParent = await puppeteerPage.$(`#${id2}`);
 
     let renderedHtml = await puppeteerPage.content();
-    console.log(renderedHtml);
 
     await docGenServicePrivate.moveElementInto(
       puppeteerPage,
@@ -184,7 +183,6 @@ describe('moveElementInto', () => {
     const childrenOf2: any[] = await puppeteerPage.$$(`#${id2} > *`);
 
     renderedHtml = await puppeteerPage.content();
-    console.log(renderedHtml);
     expect(childrenOf1.length).toBe(0);
     expect(childrenOf2.length).toBe(1);
   });
