@@ -9,25 +9,24 @@
               <p class="text-welcome mt-14 mb-8 centered-text">
                 Welcome to the Pay Transparency Reporting Tool
               </p>
-              <p class="text-subtitle-2 mb-10">
-                In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report on all your B.C. employees by November 1st of each year.  This portal enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018">Pay Transparency Act</a> and <a target="_blank" rel="noopener" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023">Regulation</a>. 
+              <p class="text-subtitle-2">
+                In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report on all your B.C. employees by November 1st of each year through a phased approach: 
                 <ul class="ml-8 mt-4 mb-4">
-                  <li>2024: all employers with 1,000 employees or more will be required to begin posting annual pay transparency reports</li>
-                  <li>2025: all employers with 300 employees or more will be required to begin posting annual pay transparency reports</li>
-                  <li>2026: all employers with 50 employees or more will be required to begin posting annual pay transparency reports</li>
+                  <li>2024: all employers with 1,000 employees or more</li>
+                  <li>2025: all employers with 300 employees or more</li>
+                  <li>2026: all employers with 50 employees or more</li>
                 </ul>
-                Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-laws-in-bc">Pay Transparency Laws in B.C.</a>
               </p>
-              <p class="text-caption">This application does not collect, record or publish personal information.</p>
+              <p class="text-subtitle-2 mb-2">This portal enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018">Pay Transparency Act</a> and <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023">Regulation</a>.</p>
+              <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" href="https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-laws-in-bc">Pay Transparency Laws in B.C.</a></p>
               <v-btn
                 id="login-button"
                 color="primary"
-                class="mb-8"
                 @click="clearStorageAndRedirectToLogin"
               >
                 Log In with Business BCeID<v-icon>mdi-login</v-icon>
               </v-btn>  
-
+              <p class="text-caption mt-2 mb-8">This tool does not collect, record or publish personal information.</p>
             </v-col>
           </v-row>
         </v-container>  
