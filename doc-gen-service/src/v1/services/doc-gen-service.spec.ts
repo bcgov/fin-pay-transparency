@@ -156,40 +156,62 @@ describe('isGeneralSuppressedDataFootnoteVisible', () => {
 });
 
 describe('moveElementInto', () => {
-  it('modifies the DOM', async () => {
-    const id1 = 'one';
-    const id2 = 'two';
-    const id3 = 'three';
-    const mockHtml = `
+  describe("when 'elemToMove' is null", () => {
+    it('throws an error', async () => {
+      const elemToMove = null;
+      await expect(
+        docGenServicePrivate.moveElementInto({} as any, elemToMove, {} as any),
+      ).rejects.toThrow();
+    });
+  });
+  describe("when 'elemToBeParent' is null", () => {
+    it('throws an error', async () => {
+      const elemToBeParent = null;
+      await expect(
+        docGenServicePrivate.moveElementInto(
+          {} as any,
+          {} as any,
+          elemToBeParent,
+        ),
+      ).rejects.toThrow();
+    });
+  });
+  describe('when valid params are passed', () => {
+    it('modifies the DOM', async () => {
+      const id1 = 'one';
+      const id2 = 'two';
+      const id3 = 'three';
+      const mockHtml = `
     <html><body>
       <div id='${id1}'>
         <div id='${id3}'></div>
       </div>
       <div id='${id2}'></div>
     </body></html>`;
-    const browser: Browser = await getBrowser();
-    const puppeteerPage = await browser.newPage();
-    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
 
-    // Move id3 from a child of id1 to be a child of id2
-    const elemToMove = await puppeteerPage.$(`#${id3}`);
-    const elemToBeParent = await puppeteerPage.$(`#${id2}`);
+      // Move id3 from a child of id1 to be a child of id2
+      const elemToMove = await puppeteerPage.$(`#${id3}`);
+      const elemToBeParent = await puppeteerPage.$(`#${id2}`);
 
-    await docGenServicePrivate.moveElementInto(
-      puppeteerPage,
-      elemToMove,
-      elemToBeParent,
-    );
+      await docGenServicePrivate.moveElementInto(
+        puppeteerPage,
+        elemToMove,
+        elemToBeParent,
+      );
 
-    const childrenOf1: any[] = await puppeteerPage.$$(`#${id1} > *`);
-    const childrenOf2: any[] = await puppeteerPage.$$(`#${id2} > *`);
+      const childrenOf1: any[] = await puppeteerPage.$$(`#${id1} > *`);
+      const childrenOf2: any[] = await puppeteerPage.$$(`#${id2} > *`);
 
-    if (puppeteerPage) {
-      await puppeteerPage.close();
-    }
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
 
-    expect(childrenOf1.length).toBe(0);
-    expect(childrenOf2.length).toBe(1);
+      expect(childrenOf1.length).toBe(0);
+      expect(childrenOf2.length).toBe(1);
+    });
   });
 });
 
@@ -245,6 +267,34 @@ describe('getContentHeight', () => {
 });
 
 describe('attemptToPlaceElementOnPage', () => {
+  describe("when 'elementToPlace' is null", () => {
+    it('throws an error', async () => {
+      const elementToPlace = null;
+      await expect(
+        docGenServicePrivate.attemptToPlaceElementOnPage(
+          {} as any,
+          elementToPlace,
+          {} as any,
+          {} as any,
+          {} as any,
+        ),
+      ).rejects.toThrow();
+    });
+  });
+  describe("when 'reportPage' is null", () => {
+    it('throws an error', async () => {
+      const reportPage = null;
+      await expect(
+        docGenServicePrivate.attemptToPlaceElementOnPage(
+          {} as any,
+          {} as any,
+          {} as any,
+          reportPage,
+          {} as any,
+        ),
+      ).rejects.toThrow();
+    });
+  });
   describe('when the page has room for the element', () => {
     it(`the element is added to the DOM as a child of the page`, async () => {
       const reportPageOptions = {
@@ -255,14 +305,14 @@ describe('attemptToPlaceElementOnPage', () => {
         height: 100,
       };
       const mockHtml = `
-        <html><body>
-          <div class="${docGenServicePrivate.STYLE_CLASSES.BLOCK}" style='height: ${reportPageOptions.height / 10}px'></div>    
-          <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
-            <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
-              <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'></div>
-            </div> 
-          </div>      
-        </body></html>`;
+      <html><body>
+        <div class="${docGenServicePrivate.STYLE_CLASSES.BLOCK}" style='height: ${reportPageOptions.height / 10}px'></div>    
+        <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+            <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'></div>
+          </div> 
+        </div>      
+      </body></html>`;
       const browser: Browser = await getBrowser();
       const puppeteerPage = await browser.newPage();
 
@@ -352,6 +402,19 @@ describe('attemptToPlaceElementOnPage', () => {
 });
 
 describe('placeFootnotes', () => {
+  describe('when the footnoteGroup is null', () => {
+    it('return false', async () => {
+      const footnoteGroup = null;
+      const success = await docGenServicePrivate.placeFootnotes(
+        {} as any,
+        footnoteGroup,
+        {} as any,
+        {} as any,
+      );
+      expect(success).toBeFalsy();
+    });
+  });
+
   describe('when the current page has room for the footnotes', () => {
     it(`the footnotes are added to the current page`, async () => {
       const reportPageOptions = {
