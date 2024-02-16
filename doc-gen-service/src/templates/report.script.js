@@ -21,12 +21,12 @@ function percentFilledHorizBarChart(data, options = {}) {
   };
   options = { ...defaultOptions, ...options };
 
-  const barHeight = 37;
+  const barHeight = 23;
   const marginTop = 0;
   const marginRight = 110;
   const marginBottom = 10;
   const marginLeft = 0;
-  const width = 600;
+  const width = 400;
   const valueFont = 'bold 18px sans-serif';
   const labelFontSizePx = 14;
   const labelFont = `${labelFontSizePx}px sans-serif`;
