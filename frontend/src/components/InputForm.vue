@@ -387,10 +387,12 @@
                 </v-btn>
 
                 <v-btn
-                  id="gdownloadPdfButton"
+                  id="downloadDraftPdfButton"
                   text="Download PDF"
                   color="primary"
                   class="mr-2"
+                  :loading="isDownloadingPdf"
+                  :disabled="isDownloadingPdf"
                   @click="downloadPdf(draftReport.report_id)"
                 >
                   Download PDF
@@ -539,6 +541,7 @@ export default {
     draftReportHtml: null,
     finalReportHtml: null,
     isReadyToGenerate: false,
+    isDownloadingPdf: false,
     confirmBackDialogVisible: false,
     confirmOverrideReportDialogVisible: false,
   }),
@@ -569,7 +572,9 @@ export default {
       this.draftReportHtml = await ApiService.getHtmlReport(reportId);
     },
     async downloadPdf(reportId: string) {
+      this.isDownloadingPdf = true;
       await ApiService.getPdfReport(reportId);
+      this.isDownloadingPdf = false;
     },
     async tryGenerateReport() {
       const existingPublished = await ApiService.getReports({
