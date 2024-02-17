@@ -12,6 +12,7 @@ export enum ReportMode {
 interface IStageOption {
   label: string;
   value: ReportStage;
+  url: string;
   isDisabled: (current: ReportStage) => boolean;
 }
 
@@ -19,16 +20,19 @@ export const REPORT_STAGES: IStageOption[] = [
   {
     label: 'Upload',
     value: 'UPLOAD',
+    url: '/generate-report-form',
     isDisabled: (stage) => stage === 'FINAL',
   },
   {
     label: 'Review',
     value: 'REVIEW',
+    url: '/draft-report',
     isDisabled: (stage) => stage === 'FINAL' || stage === 'UPLOAD',
   },
   {
     label: 'Report',
     value: 'FINAL',
+    url: '/published-report',
     isDisabled: (stage) =>
       (['REVIEW', 'UPLOAD'] as ReportStage[]).includes(stage),
   },
