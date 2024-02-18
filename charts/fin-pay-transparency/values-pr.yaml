@@ -62,11 +62,6 @@ database:
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
-  image:
-    repository: artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-containers/postgres
-    pullPolicy: Always
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: "15.6"
   podAnnotations: { }
   podSecurityContext: { }
   securityContext: { }
@@ -90,8 +85,8 @@ database:
   persistence:
     enabled: true
     size: 60Mi
-    accessMode: ReadWriteMany
-    storageClass: netapp-file-standard
+    accessMode: ReadWriteOnce
+    storageClass: netapp-block-standard
 
 crunchy:
   enabled: false
