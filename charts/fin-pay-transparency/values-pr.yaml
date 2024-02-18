@@ -63,10 +63,10 @@ database:
   nameOverride: ""
   fullnameOverride: ""
   image:
-    repository: ghcr.io/bcgov/fin-pay-transparency/database
+    repository: artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-containers/postgres
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: ~
+    tag: "15.6"
   podAnnotations: { }
   podSecurityContext: { }
   securityContext: { }
