@@ -46,16 +46,12 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [backend, database, database-migrations, frontend, doc-gen-service]
+        package: [backend, database-migrations, frontend, doc-gen-service]
         include:
           - package: backend
             triggers: ('backend/')
             build_file: ./backend/Dockerfile
             build_context: ./backend
-          - package: database
-            triggers: ('database/')
-            build_file: ./database/Dockerfile
-            build_context: ./database
           - package: frontend
             triggers: ('frontend/')
             build_file: ./frontend/Dockerfile
