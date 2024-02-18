@@ -62,11 +62,6 @@ database:
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
-  image:
-    repository: ghcr.io/bcgov/fin-pay-transparency/database
-    pullPolicy: Always
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: ~
   podAnnotations: { }
   podSecurityContext: { }
   securityContext: { }
@@ -90,8 +85,8 @@ database:
   persistence:
     enabled: true
     size: 60Mi
-    accessMode: ReadWriteMany
-    storageClass: netapp-file-standard
+    accessMode: ReadWriteOnce
+    storageClass: netapp-block-standard
 
 crunchy:
   enabled: false

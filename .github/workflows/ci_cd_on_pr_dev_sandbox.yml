@@ -28,7 +28,7 @@ jobs:
       pull-requests: write
     timeout-minutes: 1
     steps:
-      - uses: bcgov-nr/action-pr-description-add@v1.1.0
+      - uses: bcgov-nr/action-pr-description-add@v1.1.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           add_markdown: |
@@ -46,16 +46,12 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [backend, database, database-migrations, frontend, doc-gen-service]
+        package: [backend, database-migrations, frontend, doc-gen-service]
         include:
           - package: backend
             triggers: ('backend/')
             build_file: ./backend/Dockerfile
             build_context: ./backend
-          - package: database
-            triggers: ('database/')
-            build_file: ./database/Dockerfile
-            build_context: ./database
           - package: frontend
             triggers: ('frontend/')
             build_file: ./frontend/Dockerfile
@@ -78,15 +74,7 @@ jobs:
           tag_fallback: test
           build_context: ${{ matrix.build_context }}
 
-      - uses: shrink/actions-docker-registry-tag@v4
-        with:
-          registry: ghcr.io
-          repository: ${{ github.repository }}/${{ matrix.package }}
-          target: ${{ github.event.number }}
-          tags: |
-            pr-${{ github.event.number }}
-            ${{ github.sha }}
-            ${{ github.event.number }}
+
 
   check-quota:
     name: Check Quota
@@ -149,6 +137,6 @@ jobs:
     with:
       autoscaling: false
       target: pr-${{ github.event.number }}
-      tag: ${{ github.sha }}
+      tag: ${{ github.event.number }}
       values: "values-pr.yaml"
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
