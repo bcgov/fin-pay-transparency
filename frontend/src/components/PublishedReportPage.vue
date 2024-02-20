@@ -3,7 +3,7 @@
     <v-form ref="inputForm" class="w-100 h-100">
       <v-row class="d-flex justify-center w-100">
         <v-col xs="12" sm="10" md="8" class="w-100">
-          <v-row class="pt-7">
+          <v-row v-if="reportStepperStore.mode != ReportMode.View" class="pt-7">
             <v-col cols="12">
               <v-btn to="/">Back</v-btn>
             </v-col>
@@ -41,7 +41,7 @@ import {
   ReportMode,
 } from '../store/modules/reportStepper';
 import FinalReport from './FinalReport.vue';
-import { onBeforeMount, ref } from 'vue';
+import { ref } from 'vue';
 
 const isProcessing = ref(false);
 const reportStepperStore = useReportStepperStore();
