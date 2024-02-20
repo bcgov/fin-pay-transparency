@@ -5,7 +5,7 @@
         <v-col xs="12" sm="10" md="8" class="w-100">
           <v-row class="pt-7">
             <v-col cols="12">
-              <v-btn to="/">Back</v-btn>
+              <v-btn class="BC-Gov-SecondaryButton" to="/">Cancel</v-btn>
             </v-col>
           </v-row>
 
@@ -18,7 +18,7 @@
           <div v-if="stage == 'UPLOAD'">
             <v-row class="d-flex justify-start mt-6" dense>
               <v-col cols="12">
-                <h2 class="notblack text-center mb-4">Employer Details</h2>
+                <h2 class="heading text-center mb-4">Employer Details</h2>
               </v-col>
 
               <v-col cols="12">
@@ -148,10 +148,10 @@
               </v-col>
 
               <v-col cols="12">
-                <h3 class="notblack mt-4 mb-2">
+                <h3 class="heading mt-4 mb-2">
                   Contextual Info/Comments
                 </h3>
-                <p class="mb-4">
+                <p class="description mb-4">
                   Please share any general information about your employer which will appear at the top of your pay transparency report. This section is optional and you can return to this page to complete it after viewing your draft report.                
                 </p>
                 <v-textarea
@@ -164,10 +164,10 @@
               </v-col>              
 
               <v-col cols="12">
-                <h3 class="notblack mb-2">
+                <h3 class="heading mb-2">
                   Data Constraints
                 </h3>
-                <p class="mb-4">
+                <p class="description mb-4">
                   Please share any information (i.e., limitations, constraints, or dependencies) that may be helpful to explain your payroll data (i.e “Bonus pay not offered by [employer name]”). This will appear at the bottom of your pay transparency report. This section is optional and you can return to this page to complete it after viewing your draft report.
                 </p>
                 <v-textarea
@@ -182,8 +182,8 @@
               </v-col>
 
               <v-col cols="12">
-                <h3 class="notblack mb-2">File Upload</h3>
-                <p class="mb-4">
+                <h3 class="heading mb-2">File Upload</h3>
+                <p class="warning mb-4">
                   To proceed, upload your employee data in comma-separated value
                   (CSV) format. Ensure the CSV file follows the provided CSV
                   template (<u>bc-pay-transparency-tool-data-template.csv</u>)
@@ -752,19 +752,63 @@ textarea::placeholder {
 }
 
 input {
+  font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
   color: #606060 !important;
+  background-color: #F2F2F2 !important;
+  size: 16px;
 }
 
-h3.notblack {
+h3.heading {
+  font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
   color: #313132 !important;
   size: 16px;
 }
 
-p {
+p.description {
+  font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
   color: #606060 !important;
+  size: 12px;
+}
+
+p.warning {
+  font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
+  color: #D8292F !important;
+  size: 12px;
 }
 
 .v-messages__message, .text-error, .v-input-error {
   color: #D8292F !important;
+}
+
+.BC-Gov-SecondaryButton {
+  background: none;
+  border-radius: 4px;
+  border: 2px solid #003366;
+  padding: 10px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 18px;
+  font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  color: #003366;
+}
+
+.BC-Gov-SecondaryButton:hover {
+  opacity: 0.80;
+  text-decoration: underline;
+  background-color: #003366;
+  color: #FFFFFF;
+}
+
+.BC-Gov-SecondaryButton:focus {
+  outline-offset: 1px;
+  outline: 4px solid #3B99FC;
+}
+
+.BC-Gov-SecondaryButton:active {
+  opacity: 1;
 }
 </style>
