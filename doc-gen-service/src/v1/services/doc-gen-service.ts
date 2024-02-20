@@ -192,7 +192,7 @@ const docGenServicePrivate = {
       <div class='explanatory-notes'></div>
     </div>
    */
-  async addReportPage(parent: any, isDraft: boolean = false) {
+  async addReportPage(parent: any, isDraft: boolean) {
     //Implementation note (banders): classNames are inline strings here because
     //I cannot find a way to pass the STYLE_CLASSES values into Puppeteer's
     //evaluate function
@@ -215,7 +215,7 @@ const docGenServicePrivate = {
         const footnotes = document.createElement('div');
         footnotes.className = 'footnotes';
 
-        if (isDraft == true) {
+        if (isDraft) {
           const watermark = document.createElement('div');
           watermark.className = 'watermark';
           const watermarkBody = document.createElement('div');
