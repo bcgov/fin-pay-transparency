@@ -16,9 +16,9 @@
           </v-row>
 
           <div v-if="stage == 'UPLOAD'">
-            <v-row class="d-flex justify-start mt-12" dense>
+            <v-row class="d-flex justify-start mt-6" dense>
               <v-col cols="12">
-                <h2 class="text-center">Employer Details</h2>
+                <h2 class="notblack text-center mb-4">Employer Details</h2>
               </v-col>
 
               <v-col cols="12">
@@ -58,7 +58,7 @@
                   required
                 ></v-autocomplete>
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!naicsCode"
@@ -78,11 +78,15 @@
                   required
                 ></v-select>
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!employeeCountRange"
                 ></v-icon>
+              </v-col>
+
+              <v-col cols="12" class="d-flex">
+                Select your 12 month report range
               </v-col>
 
               <v-col cols="6" class="d-flex">
@@ -107,7 +111,7 @@
                   }"
                 />
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!startDate"
@@ -136,22 +140,40 @@
                   }"
                 />
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!endDate"
                 ></v-icon>
               </v-col>
 
-              <v-col cols="12" class="mt-6">
-                <p class="text-subtitle-2">
-                  Please note any limitations, dependencies, or constraints with
-                  the payroll data which will appear at the bottom of the report
+              <v-col cols="12">
+                <h3 class="notblack mt-4 mb-2">
+                  Contextual Info/Comments
+                </h3>
+                <p class="mb-4">
+                  Please share any general information about your employer which will appear at the top of your pay transparency report. This section is optional and you can return to this page to complete it after viewing your draft report.                
+                </p>
+                <v-textarea
+                  id="comments"
+                  v-model="comments"
+                  placeholder="Contextual Info field - Maximum 4,000 characters"
+                  clearable
+                >
+                </v-textarea>
+              </v-col>              
+
+              <v-col cols="12">
+                <h3 class="notblack mb-2">
+                  Data Constraints
+                </h3>
+                <p class="mb-4">
+                  Please share any information (i.e., limitations, constraints, or dependencies) that may be helpful to explain your payroll data (i.e “Bonus pay not offered by [employer name]”). This will appear at the bottom of your pay transparency report. This section is optional and you can return to this page to complete it after viewing your draft report.
                 </p>
                 <v-textarea
                   id="dataConstraints"
                   v-model="dataConstraints"
-                  label="Data Constraints"
+                  placeholder="Data Constraints field - Maximum 3,000 characters"
                   maxlength="3000"
                   clearable
                 >
@@ -159,19 +181,8 @@
                 </v-textarea>
               </v-col>
 
-              <v-col cols="12" class="">
-                <p class="text-subtitle-2">Other comments</p>
-                <v-textarea
-                  id="comments"
-                  v-model="comments"
-                  label="Contextual Info/Comments"
-                  clearable
-                >
-                </v-textarea>
-              </v-col>
-
               <v-col cols="12">
-                <h3 class="mb-2">File Upload</h3>
+                <h3 class="notblack mb-2">File Upload</h3>
                 <p class="mb-4">
                   To proceed, upload your employee data in comma-separated value
                   (CSV) format. Ensure the CSV file follows the provided CSV
@@ -285,7 +296,7 @@
                       :rules="requiredRules"
                     />
                     <v-icon
-                      color="error"
+                      color="#D8292F"
                       icon="mdi-asterisk"
                       size="x-small"
                       v-if="!uploadFileValue"
@@ -302,16 +313,19 @@
             <v-row class="mt-6">
               <v-col
                 cols="12"
-                class="d-flex justify-center"
+                class="text-subtitle-2 d-flex justify-center"
                 v-if="!areRequiredFieldsComplete"
               >
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                 ></v-icon>
                 Please complete all required fields
               </v-col>
+              <p class="text-subtitle-2">
+                Disclaimer:  This tool relies on the Employer supplying accurate and complete payroll data in order to calculate pay gaps.
+              </p>
               <v-col cols="12" class="d-flex justify-center">
                 <primary-button
                   id="submitButton"
@@ -720,6 +734,7 @@ export default {
  look and feel doesn't match the other vuetify components used here.  
  The following css class is used to style the vue-datepicker components to closely 
  match the Vuetify components. */
+
 .datepicker-input {
   border-top: none;
   border-left: none;
@@ -729,5 +744,27 @@ export default {
   border-bottom-right-radius: 0px;
   background-color: #f6f6f6 !important;
   padding: 15px 5px 15px 35px;
+}
+
+textarea::placeholder {
+  text-align: right;
+  transform: translateY(95px);
+}
+
+input {
+  color: #606060 !important;
+}
+
+h3.notblack {
+  color: #313132 !important;
+  size: 16px;
+}
+
+p {
+  color: #606060 !important;
+}
+
+.v-messages__message, .text-error, .v-input-error {
+  color: #D8292F !important;
 }
 </style>
