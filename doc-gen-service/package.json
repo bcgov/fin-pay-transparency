@@ -13,6 +13,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
+    "@bcgov/bc-sans": "^2.1.0",
     "compression": "^1.7.4",
     "d3": "^7.8.5",
     "dotenv": "^16.3.1",

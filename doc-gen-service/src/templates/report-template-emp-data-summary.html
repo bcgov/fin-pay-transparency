@@ -23,8 +23,8 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-2">
-        <h4>Mean hourly pay gap<sup>1</sup></h4>
+      <td class="pe-4">
+        <h4 class="mb-2">Mean hourly pay gap<sup>1</sup></h4>
         <div id="mean-hourly-pay-gap">
           <% if (chartData.meanHourlyPayGap.length) { %>
             <div id="mean-hourly-pay-gap-chart"></div>
@@ -35,12 +35,14 @@
                     <% } %>
             </div>
             <% } else { %>
-              <%= chartSuppressedError %>
-                <% } %>
+              <div class="text-normal">
+                <%= chartSuppressedError %>
+              </div>
+              <% } %>
         </div>
       </td>
       <td>
-        <h4>Median hourly pay gap<sup>2</sup></h4>
+        <h4 class="mb-2">Median hourly pay gap<sup>2</sup></h4>
         <div id="mean-hourly-pay-gap">
           <% if (chartData.medianHourlyPayGap.length) { %>
             <div id="median-hourly-pay-gap-chart"></div>
@@ -52,18 +54,19 @@
 
             </div>
             <% } else { %>
-              <%= chartSuppressedError %>
-                <% } %>
+              <div class="text-normal">
+                <%= chartSuppressedError %>
+              </div>
+              <% } %>
         </div>
       </td>
     </tr>
   </table>
 
-  <div class="explanatory-notes">
-    <h4>Explanatory notes</h4>
+  <div class="block-explanatory-notes">
     <% if (explanatoryNotes.dataConstraints) { %>
-      <div class="footnote">
-        <div class="footnote-number">
+      <div class="note">
+        <div class="note-number">
           <%= explanatoryNotes.dataConstraints.num %>.
         </div>
         <div>
@@ -71,8 +74,9 @@
         </div>
       </div>
       <% } %>
-        <div class="footnote">
-          <div class="footnote-number">
+
+        <div class="note">
+          <div class="note-number">
             <%= explanatoryNotes.meanHourlyPayDiff.num %>.
           </div>
           <div>
@@ -81,8 +85,8 @@
             bonuses and overtime.
           </div>
         </div>
-        <div class="footnote">
-          <div class="footnote-number">
+        <div class="note">
+          <div class="note-number">
             <%= explanatoryNotes.medianHourlyPayDiff.num %>.
           </div>
           <div>
@@ -92,9 +96,10 @@
           </div>
         </div>
   </div>
+
 </div>
 
-<div id="block-overtime" class="block">
+<div id="block-overtime-1" class="block">
   <div class="header-block mb-4">
     <div class="header-circle">
       <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 250 250">
@@ -123,8 +128,8 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-2">
-        <h4>
+      <td class="pe-4">
+        <h4 class="mb-2">
           Mean overtime pay<sup>
             <%= explanatoryNotes.meanOvertimePayDiff.num %>
           </sup>
@@ -139,12 +144,14 @@
                     <% } %>
             </div>
             <% } else { %>
-              <%= chartSuppressedError %>
-                <% } %>
+              <div class="text-normal">
+                <%= chartSuppressedError %>
+              </div>
+              <% } %>
         </div>
       </td>
       <td>
-        <h4>
+        <h4 class="mb-2">
           Median overtime pay<sup>
             <%= explanatoryNotes.medianOvertimePayDiff.num %>
           </sup>
@@ -159,8 +166,10 @@
                     <% } %>
             </div>
             <% } else { %>
-              <%= chartSuppressedError %>
-                <% } %>
+              <div class="text-normal">
+                <%= chartSuppressedError %>
+              </div>
+              <% } %>
         </div>
       </td>
     </tr>
@@ -170,48 +179,50 @@
 
   <table role="presentation" width="100%" class="overtime-hours-tables">
     <tr>
-      <td class="pe-2" width="50%">
+      <td class="pe-4" style="width: 50%">
         <h4 class="mb-0">
           Mean overtime paid hours<sup>
             <%= explanatoryNotes.meanOvertimeHoursDiff.num %>
           </sup>
         </h4>
         <% if (tableData.meanOvertimeHoursGap.length) { %>
-          <p class="mb-2">
+          <div class="mb-2 text-normal">
             Difference as compared to reference group (<%= referenceGenderCategory %>)
-          </p>
+          </div>
           <table id="mean-overtime-hours-table" class="table" role="presentation">
             <% for(var i=0; i < tableData.meanOvertimeHoursGap.length; i++) { %>
               <tr>
-                <td>
+                <td class="text-normal">
                   <%= tableData.meanOvertimeHoursGap[i].genderChartInfo.label %>
                 </td>
-                <td width="30%" class="centered">
+                <td style="width: 30%" class="centered text-normal">
                   <%= tableData.meanOvertimeHoursGap[i].value %>
                 </td>
               </tr>
               <% } %>
           </table>
-          <div class="text-normal mt-2 mb-2">
+          <div class=" text-normal mt-2 mb-2">
             <%= chartSummaryText.meanOvertimeHoursGap %>
               <% if (tableData.meanOvertimeHoursGap.length < genderCodes.length - 1) { %>
                 <%= footnoteSymbols.genderCategorySuppressed %>
                   <% } %>
           </div>
           <%} else { %>
-            <%= chartSuppressedError %>
-              <% } %>
+            <div class="text-normal">
+              <%= chartSuppressedError %>
+            </div>
+            <% } %>
       </td>
-      <td class="ps-2" width="50%">
+      <td class="ps-2" style="width: 50%">
         <h4 class="mb-0">
           Median overtime paid hours<sup>
             <%= explanatoryNotes.medianOvertimeHoursDiff.num %>
           </sup>
         </h4>
         <% if (tableData.medianOvertimeHoursGap.length) { %>
-          <p class="mb-2">
+          <div class="mb-2 text-normal">
             Difference as compared to reference group (<%= referenceGenderCategory %>)
-          </p>
+          </div>
           <table id="median-overtime-hours-table" class="table" role="table"
             aria-describedby="Median difference in overtime hours">
             <tr style="display: none" aria-hidden="true">
@@ -220,10 +231,10 @@
             </tr>
             <% for(var i=0; i < tableData.medianOvertimeHoursGap.length; i++) { %>
               <tr>
-                <td>
+                <td class="text-normal">
                   <%= tableData.medianOvertimeHoursGap[i].genderChartInfo.label %>
                 </td>
-                <td width="30%" class="centered">
+                <td style="width: 30%" class="centered text-normal">
                   <%= tableData.medianOvertimeHoursGap[i].value %>
                 </td>
               </tr>
@@ -236,26 +247,17 @@
                   <% } %>
           </div>
           <%} else { %>
-            <%= chartSuppressedError %>
-              <% } %>
+            <div class="text-normal">
+              <%= chartSuppressedError %>
+            </div>
+            <% } %>
       </td>
     </tr>
   </table>
 
-  <hr />
-
-  <h4 class="mb-0">
-    Percentage of employees in each gender category receiving overtime pay
-  </h4>
-
-  <div id="percent-receiving-overtime-pay">
-    <div id="percent-receiving-overtime-pay-chart"></div>
-  </div>
-
-  <div class="explanatory-notes">
-    <h4>Explanatory notes</h4>
-    <div class="footnote">
-      <div class="footnote-number">
+  <div class="block-explanatory-notes">
+    <div class="note">
+      <div class="note-number">
         <%= explanatoryNotes.meanOvertimePayDiff.num %>.
       </div>
       <div>
@@ -263,8 +265,8 @@
         each group.
       </div>
     </div>
-    <div class="footnote">
-      <div class="footnote-number">
+    <div class="note">
+      <div class="note-number">
         <%= explanatoryNotes.medianOvertimePayDiff.num %>.
       </div>
       <div>
@@ -272,8 +274,8 @@
         pay for each group.
       </div>
     </div>
-    <div class="footnote">
-      <div class="footnote-number">
+    <div class="note">
+      <div class="note-number">
         <%= explanatoryNotes.meanOvertimeHoursDiff.num %>.
       </div>
       <div>
@@ -281,8 +283,8 @@
         hours of overtime worked for each group.
       </div>
     </div>
-    <div class="footnote">
-      <div class="footnote-number">
+    <div class="note">
+      <div class="note-number">
         <%= explanatoryNotes.medianOvertimeHoursDiff.num %>.
       </div>
       <div>
@@ -291,6 +293,29 @@
       </div>
     </div>
   </div>
+
+</div>
+
+<div id="block-overtime-2" class="block">
+  <h4 class="mb-2">
+    Percentage of employees in each gender category receiving overtime pay
+  </h4>
+
+  <div id="percent-receiving-overtime-pay">
+    <div id="percent-receiving-overtime-pay-chart"></div>
+  </div>
+
+  <% if (chartData.percentReceivingOvertimePay.length) { %>
+    <div id="percent-receiving-overtime-pay">
+      <div id="percent-receiving-overtime-pay-chart"></div>
+    </div>
+    <% } else { %>
+      <div class="text-normal">
+        <%= chartSuppressedError %>
+      </div>
+      <% } %>
+
+
 </div>
 
 <div id="block-bonus-pay" class="block">
@@ -320,8 +345,8 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-2">
-        <h4>
+      <td class="pe-4">
+        <h4 class="mb-2">
           Mean bonus pay<sup>
             <%= explanatoryNotes.meanBonusPayDiff.num %>
           </sup>
@@ -336,12 +361,14 @@
                     <% } %>
             </div>
             <% } else { %>
-              <%= chartSuppressedError %>
-                <% } %>
+              <div class="text-normal">
+                <%= chartSuppressedError %>
+              </div>
+              <% } %>
         </div>
       </td>
       <td>
-        <h4>
+        <h4 class="mb-2">
           Median bonus pay<sup>
             <%= explanatoryNotes.medianBonusPayDiff.num %>
           </sup>
@@ -356,8 +383,10 @@
                     <% } %>
             </div>
             <% } else { %>
-              <%= chartSuppressedError %>
-                <% } %>
+              <div class="text-normal">
+                <%= chartSuppressedError %>
+              </div>
+              <% } %>
         </div>
       </td>
     </tr>
@@ -365,35 +394,41 @@
 
   <hr />
 
-  <h4 class="mb-0">
+  <h4 class="mb-2">
     Percentage of employees in each gender category receiving bonus pay
   </h4>
 
-  <div id="percent-receiving-bonus-pay">
-    <div id="percent-receiving-bonus-pay-chart"></div>
-  </div>
+  <% if (chartData.percentReceivingBonusPay.length) { %>
+    <div id="percent-receiving-bonus-pay">
+      <div id="percent-receiving-bonus-pay-chart"></div>
+    </div>
+    <% } else { %>
+      <div class="text-normal">
+        <%= chartSuppressedError %>
+      </div>
+      <% } %>
 
-  <div class="explanatory-notes">
-    <h4>Explanatory notes</h4>
-    <div class="footnote">
-      <div class="footnote-number">
-        <%= explanatoryNotes.meanBonusPayDiff.num %>.
-      </div>
-      <div>
-        &quot;Mean bonus pay&quot; refers to bonus pay when averaged for each
-        group.
-      </div>
-    </div>
-    <div class="footnote">
-      <div class="footnote-number">
-        <%= explanatoryNotes.medianBonusPayDiff.num %>.
-      </div>
-      <div>
-        &quot;Median bonus pay&quot; refers to the middle point of bonus pay for
-        each group.
-      </div>
-    </div>
-  </div>
+        <div class="block-explanatory-notes">
+          <div class="note">
+            <div class="note-number">
+              <%= explanatoryNotes.meanBonusPayDiff.num %>.
+            </div>
+            <div>
+              &quot;Mean bonus pay&quot; refers to bonus pay when averaged for each
+              group.
+            </div>
+          </div>
+          <div class="note">
+            <div class="note-number">
+              <%= explanatoryNotes.medianBonusPayDiff.num %>.
+            </div>
+            <div>
+              &quot;Median bonus pay&quot; refers to the middle point of bonus pay for
+              each group.
+            </div>
+          </div>
+        </div>
+
 </div>
 
 <div id="block-hourly-pay-quartiles" class="block">
@@ -481,12 +516,13 @@
             <%= chartSummaryText.hourlyPayQuartiles %>
           </p>
           <% if (q1HasSuppressed || q2HasSuppressed || q3HasSuppressed || q4HasSuppressed) { %>
-            <div class="footnote mt-2">
-              <div class="footnote-number">
+            <div class="note mt-2">
+              <div class="note-number">
                 <%= footnoteSymbols.quartileGenderCategorySuppressed %>
               </div>
               <div>
-                This pay quartile was reduced to suppress gender categories consisting of less than ten (10) employees.
+                This pay quartile was reduced to suppress gender categories consisting of less than ten (10)
+                employees.
               </div>
             </div>
             <% } %>
@@ -495,10 +531,9 @@
     </tr>
   </table>
 
-  <div class="explanatory-notes">
-    <h4>Explanatory notes</h4>
-    <div class="footnote">
-      <div class="footnote-number">
+  <div class="block-explanatory-notes">
+    <div class="note">
+      <div class="note-number">
         <%= explanatoryNotes.payQuartiles.num %>.
       </div>
       <div>
@@ -508,17 +543,25 @@
     </div>
   </div>
 
-  <% if (isGeneralSuppressedDataFootnoteVisible) { %>
-    <div class="footnote mt-4">
-      <div class="footnote-number">
-        <%= footnoteSymbols.genderCategorySuppressed %>
-      </div>
-      <div>
-        In accordance with the Pay Transparency Act and reporting rules designed to protect the anonymity and privacy of
-        respondents, one or more gender categories has been excluded due to insufficient numbers to meet disclosure
-        requirements.
-      </div>
-    </div>
-    <% } %>
+</div>
 
 </div>
+<%# end of class='block-group' %>
+
+  <div class="footnote-group">
+    <% if (isGeneralSuppressedDataFootnoteVisible) { %>
+      <div class="note mt-4">
+        <div class="note-number">
+          <%= footnoteSymbols.genderCategorySuppressed %>
+        </div>
+        <div>
+          In accordance with the Pay Transparency Act and reporting rules designed to protect the anonymity and
+          privacy
+          of
+          respondents, one or more gender categories has been excluded due to insufficient numbers to meet
+          disclosure
+          requirements.
+        </div>
+      </div>
+      <% } %>
+  </div>

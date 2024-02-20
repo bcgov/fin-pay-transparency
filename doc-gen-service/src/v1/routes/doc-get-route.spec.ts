@@ -1,7 +1,7 @@
-import express, { Application } from 'express';
-import docGenRoute from './doc-gen-route';
-import request from 'supertest';
 import bodyParser from 'body-parser';
+import express, { Application } from 'express';
+import request from 'supertest';
+import docGenRoute from './doc-gen-route';
 
 const mock_generateReport = jest.fn();
 jest.mock('../services/doc-gen-service', () => ({
@@ -46,7 +46,7 @@ describe('doc-gen-route', () => {
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .set('x-correlation-id', '100')
-        .expect(500)
+        .expect(500);
     });
   });
 });

@@ -1,14 +1,14 @@
 import express, { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
-import { enumReportStatus, reportService } from '../services/report-service';
-import { utils } from '../services/utils-service';
-import { logger } from '../../logger';
 import {
   BAD_REQUEST,
   MISSING_BUSINESS_GUID_ERROR,
   REPORT_NOT_FOUND_ERROR,
   REPORT_STATUS_NOT_VALID_ERROR,
 } from '../../constants';
+import { logger } from '../../logger';
+import { enumReportStatus, reportService } from '../services/report-service';
+import { utils } from '../services/utils-service';
 
 const reportRouter = express.Router();
 
@@ -167,6 +167,7 @@ reportRouter.get(
           businessGuid,
           reportId,
         );
+
         if (pdf && filename) {
           res.set('Content-Type', 'application/pdf');
           res.set('Content-Disposition', `attachment; filename=${filename}`);
