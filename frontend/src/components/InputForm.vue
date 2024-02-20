@@ -5,7 +5,7 @@
         <v-col xs="12" sm="10" md="8" class="w-100">
           <v-row class="pt-7">
             <v-col cols="12">
-              <v-btn class="BC-Gov-SecondaryButton" to="/">Back</v-btn>
+              <v-btn class="BC-Gov-SecondaryButton" to="/">Back </v-btn>
             </v-col>
           </v-row>
 
