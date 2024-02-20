@@ -62,6 +62,7 @@ const submittedReportData: SubmittedReportData = {
   },
   isAllCalculatedDataSuppressed: false,
   genderCodes: ['M', 'W', 'X', 'U'],
+  isDraft: true,
 };
 const reportData =
   docGenServicePrivate.addSupplementaryReportData(submittedReportData);
@@ -216,28 +217,65 @@ describe('moveElementInto', () => {
 });
 
 describe('addReportPage', () => {
-  it(`injects a new DOM element representing a 'page' as a child of the given parent`, async () => {
-    const parent = 'parent';
-    const mockHtml = `
+  describe('when the report is not a draft', () => {
+    it(`injects a new DOM element representing a 'page' as a child of the given parent`, async () => {
+      const isDraft = false;
+      const parent = 'parent';
+      const mockHtml = `
     <html><body>
       <div id='${parent}'></div>      
     </body></html>`;
-    const browser: Browser = await getBrowser();
-    const puppeteerPage = await browser.newPage();
-    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
-    const elemToBeParent = await puppeteerPage.$(`#${parent}`);
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      const elemToBeParent = await puppeteerPage.$(`#${parent}`);
 
-    await docGenServicePrivate.addReportPage(elemToBeParent);
+      await docGenServicePrivate.addReportPage(elemToBeParent, isDraft);
 
-    const pageChild = await puppeteerPage.$(
-      `#${parent} > .${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
-    );
+      const pageChild = await puppeteerPage.$(
+        `#${parent} > .${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
+      );
+      const watermark = await pageChild.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.WATERMARK}`,
+      );
 
-    if (puppeteerPage) {
-      await puppeteerPage.close();
-    }
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
 
-    expect(pageChild).not.toBeNull();
+      expect(pageChild).not.toBeNull();
+      expect(watermark).toBeNull();
+    });
+  });
+  describe('when the report is a draft', () => {
+    it(`injects a new DOM element representing a 'page' as a child of the given parent`, async () => {
+      const isDraft = true;
+      const parent = 'parent';
+      const mockHtml = `
+    <html><body>
+      <div id='${parent}'></div>      
+    </body></html>`;
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      const elemToBeParent = await puppeteerPage.$(`#${parent}`);
+
+      await docGenServicePrivate.addReportPage(elemToBeParent, isDraft);
+
+      const pageChild = await puppeteerPage.$(
+        `#${parent} > .${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
+      );
+      const watermark = await pageChild.$(
+        `.${docGenServicePrivate.STYLE_CLASSES.WATERMARK}`,
+      );
+
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
+
+      expect(pageChild).not.toBeNull();
+      expect(watermark).not.toBeNull();
+    });
   });
 });
 
@@ -417,17 +455,21 @@ describe('placeFootnotes', () => {
 
   describe('when the current page has room for the footnotes', () => {
     it(`the footnotes are added to the current page`, async () => {
-      const reportPageOptions = {
-        margin: {
-          top: 0,
-          bottom: 0,
+      const mockReportData = {
+        ...reportData,
+        pageSize: {
+          margin: {
+            top: 0,
+            bottom: 0,
+          },
+          height: 100,
         },
-        height: 100,
       };
+
       const mockHtml = `
         <html><body>
           <div class="${docGenServicePrivate.STYLE_CLASSES.REPORT}">
-            <div class="${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}" style='height: ${reportPageOptions.height / 10}px'></div>    
+            <div class="${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}" style='height: ${mockReportData.pageSize.height / 10}px'></div>    
             <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
               <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
                 <div class='${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}'></div>
@@ -453,7 +495,7 @@ describe('placeFootnotes', () => {
         puppeteerPage,
         footnoteGroupOutsidePage,
         payTransparencyReport,
-        reportPageOptions,
+        mockReportData,
       );
 
       const footnoteGroupOnPage = await payTransparencyReport.$(
@@ -470,17 +512,21 @@ describe('placeFootnotes', () => {
   });
   describe("when the current page doesn't have room for the footnotes", () => {
     it(`the footnotes are not added`, async () => {
-      const reportPageOptions = {
-        margin: {
-          top: 0,
-          bottom: 0,
+      const mockReportData = {
+        ...reportData,
+        pageSize: {
+          margin: {
+            top: 0,
+            bottom: 0,
+          },
+          height: 100,
         },
-        height: 100,
       };
+
       const mockHtml = `
         <html><body>
           <div class="${docGenServicePrivate.STYLE_CLASSES.REPORT}">
-            <div class="${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}" style='height: ${reportPageOptions.height + 1}px'></div>    
+            <div class="${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}" style='height: ${mockReportData.pageSize.height + 1}px'></div>    
             <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE}'>
               <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
                 <div class='${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}'></div>
@@ -506,7 +552,7 @@ describe('placeFootnotes', () => {
         puppeteerPage,
         footnoteGroupOutsidePage,
         payTransparencyReport,
-        reportPageOptions,
+        mockReportData,
       );
 
       const footnoteGroupOnPage = await payTransparencyReport.$(
