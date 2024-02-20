@@ -73,6 +73,15 @@ jobs:
           tag: ${{ github.event.number }}
           tag_fallback: test
           build_context: ${{ matrix.build_context }}
+      - uses: shrink/actions-docker-registry-tag@v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ github.event.number }}
+          tags: |
+            pr-${{ github.event.number }}
+            ${{ github.sha }}
+            ${{ github.event.number }}
 
 
 
@@ -137,6 +146,6 @@ jobs:
     with:
       autoscaling: false
       target: pr-${{ github.event.number }}
-      tag: ${{ github.event.number }}
+      tag: ${{ github.sha }}
       values: "values-pr.yaml"
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
