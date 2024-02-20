@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
+import PublishedReportPage from './components/PublishedReportPage.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
 import { appStore } from './store/modules/app';
@@ -17,7 +18,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
+      redirect: 'dashboard'
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
       component: Home,
       meta: {
         pageTitle: PAGE_TITLES.DASHBOARD,
@@ -51,8 +56,17 @@ const router = createRouter({
       component: Logout,
     },
     {
-      path: '/inputForm',
-      name: 'InputForm',
+      path: '/published-report',
+      name: 'PublishedReportPage',
+      component: PublishedReportPage,
+      meta: {
+        pageTitle: PAGE_TITLES.REPORT,
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/generate-report',
+      name: 'GenerateReport',
       component: InputForm,
       meta: {
         pageTitle: PAGE_TITLES.REPORT,

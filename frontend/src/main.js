@@ -4,7 +4,7 @@ import { createMetaManager } from 'vue-meta';
 import App from './App.vue';
 import router from './router';
 import 'regenerator-runtime/runtime';
-import {createPinia} from 'pinia';
+import { createPinia } from 'pinia';
 import moment from 'moment';
 import * as colors from 'vuetify/lib/util/colors';
 import styles from 'vuetify/styles';
@@ -17,6 +17,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi';
 import '@mdi/font/css/materialdesignicons.css';
 import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
+import VueDOMPurifyHTML from 'vue-dompurify-html';
 
 const myCustomLightTheme = {
   dark: false,
@@ -26,12 +27,12 @@ const myCustomLightTheme = {
     error: '#712024',
     warning: '#81692c',
     success: '#234720',
-  }
+  },
 };
 
 const vuetify = createVuetify({
   options: {
-    customProperties: true
+    customProperties: true,
   },
   icons: {
     defaultSet: 'mdi',
@@ -45,14 +46,14 @@ const vuetify = createVuetify({
     defaultTheme: 'myCustomLightTheme',
     themes: {
       myCustomLightTheme,
-    }
+    },
   },
   components: {
     ...labs,
     ...components,
     ...directives,
     ...styles,
-    ...colors
+    ...colors,
   },
 });
 const pinia = createPinia();
@@ -60,4 +61,17 @@ const pinia = createPinia();
 const newApp = createApp(App);
 
 newApp.provide('$moment', moment);
-newApp.use(router).use(createMetaManager()).use(pinia).use(vuetify).use(component).mount('#app');
+newApp
+  .use(router)
+  .use(createMetaManager())
+  .use(pinia)
+  .use(vuetify)
+  .use(component)
+  .use(VueDOMPurifyHTML, {
+    default: {
+      FORCE_BODY: true,
+      ADD_TAGS: ['style'], // Allow style tags
+      ADD_ATTR: ['style'], // Allow style attributes
+    },
+  })
+  .mount('#app');

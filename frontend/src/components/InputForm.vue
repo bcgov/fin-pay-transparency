@@ -58,7 +58,7 @@
                   required
                 ></v-autocomplete>
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!naicsCode"
@@ -78,7 +78,7 @@
                   required
                 ></v-select>
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!employeeCountRange"
@@ -111,7 +111,7 @@
                   }"
                 />
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!startDate"
@@ -140,7 +140,7 @@
                   }"
                 />
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                   v-if="!endDate"
@@ -296,7 +296,7 @@
                       :rules="requiredRules"
                     />
                     <v-icon
-                      color="error"
+                      color="#D8292F"
                       icon="mdi-asterisk"
                       size="x-small"
                       v-if="!uploadFileValue"
@@ -317,7 +317,7 @@
                 v-if="!areRequiredFieldsComplete"
               >
                 <v-icon
-                  color="error"
+                  color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
                 ></v-icon>
@@ -352,7 +352,7 @@
             </v-row>
           </div>
           <div v-if="stage == 'REVIEW'" class="mb-8">
-            <div v-html="draftReportHtml"></div>
+            <div v-dompurify-html="draftReportHtml"></div>
 
             <hr class="mt-8 mb-8" />
 
@@ -412,9 +412,7 @@
               </div>
             </div>
           </div>
-          <div v-if="stage == 'FINAL'" class="mb-8">
-            <div v-html="finalReportHtml"></div>
-          </div>
+          <FinalReport v-if="stage == 'FINAL'" />
         </v-col>
       </v-row>
       <v-overlay
@@ -461,6 +459,7 @@
     </v-dialog>
   </v-container>
 </template>
+
 <script lang="ts">
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -477,6 +476,7 @@ import {
 } from '../store/modules/reportStepper';
 import moment from 'moment';
 import { sanitizeUrl } from '@braintree/sanitize-url';
+import FinalReport from './FinalReport.vue';
 
 interface LineErrors {
   lineNum: number;
@@ -502,6 +502,7 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
+    FinalReport,
   },
   data: () => ({
     validForm: null,
@@ -545,7 +546,7 @@ export default {
     confirmOverrideReportDialogVisible: false,
   }),
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage']),
+    ...mapActions(useReportStepperStore, ['setStage', 'setReportId']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -568,8 +569,7 @@ export default {
       }, 100);
     },
     async fetchReportHtml(reportId: string) {
-      const unsanitisedHtml = await ApiService.getHtmlReport(reportId);
-      this.draftReportHtml = sanitizeUrl(unsanitisedHtml);
+      this.draftReportHtml = await ApiService.getHtmlReport(reportId);
     },
     async tryGenerateReport() {
       const existingPublished = await ApiService.getReports({
@@ -591,6 +591,7 @@ export default {
         const unsanitisedHtml = await ApiService.publishReport(
           this.draftReport?.report_id,
         );
+        await this.setReportId(this.draftReport?.report_id);
         this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
         this.showStage('FINAL');
       } catch (e) {
