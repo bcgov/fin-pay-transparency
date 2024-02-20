@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { app } from './app';
 import * as Config from './config';
 const mock_generateReport = jest.fn();
 jest.mock('./v1/services/doc-gen-service', () => ({
@@ -8,15 +9,12 @@ jest.mock('./v1/services/doc-gen-service', () => ({
 jest.mock('./config');
 Config.config.get = (key) => {
   if (key === 'server:apiKey') return 'api-key';
-  
-  return true
-}
-import { app } from './app';
+
+  return true;
+};
 
 describe('app', () => {
-
-  beforeEach(() => {
-  })
+  beforeEach(() => {});
   describe('globalMiddleWare', () => {
     it('[400] - should fail if correlationId and apiToken is not found', () => {
       return request(app).post('/api').send({}).expect(400);
@@ -36,6 +34,7 @@ describe('app', () => {
         .send({})
         .set('x-correlation-id', '1000')
         .set('x-api-key', 'api-key')
+        .query({ reportType: 'html' })
         .expect(200);
     });
   });

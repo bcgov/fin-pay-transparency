@@ -9,6 +9,7 @@ import {
   reportCalcService,
 } from './report-calc-service';
 import { utils } from './utils-service';
+const fs = require('node:fs/promises');
 
 enum enumReportStatus {
   Draft = 'Draft',
@@ -984,7 +985,10 @@ const reportService = {
 
   async getReportPdf(req, reportId: string): Promise<Buffer> {
     const reportData = await this.getReportData(req, reportId);
-    const responsePdf = await utils.postDataToDocGenService(
+
+    // Request the PDF from the DocGenService, and download the response
+    // as a stream
+    const responseStream = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
       req.session.correlationID,
@@ -998,7 +1002,15 @@ const reportService = {
     logger.debug(
       `getReportPdf completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
-    return responsePdf;
+
+    // Convert the stream to a buffer
+    const buffers = [];
+    for await (const data of responseStream) {
+      buffers.push(data);
+    }
+    const responseBuffer = Buffer.concat(buffers);
+
+    return responseBuffer;
   },
 
   /**

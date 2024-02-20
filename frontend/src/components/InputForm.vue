@@ -401,9 +401,22 @@
                 </v-btn>
 
                 <v-btn
+                  id="downloadDraftPdfButton"
+                  text="Download PDF"
+                  color="primary"
+                  class="mr-2"
+                  :loading="isDownloadingPdf"
+                  :disabled="isDownloadingPdf"
+                  @click="downloadPdf(draftReport.report_id)"
+                >
+                  Download PDF
+                </v-btn>
+
+                <v-btn
                   id="generateReportButton"
                   text="Generate Report"
                   color="primary"
+                  class="mr-2"
                   :disabled="!isReadyToGenerate"
                   @click="tryGenerateReport()"
                 >
@@ -538,10 +551,11 @@ export default {
     alertMessage: null,
     alertType: null,
     submissionErrors: null as SubmissionErrors | null,
-    draftReport: null,
+    draftReport: null as any,
     draftReportHtml: null,
     finalReportHtml: null,
     isReadyToGenerate: false,
+    isDownloadingPdf: false,
     confirmBackDialogVisible: false,
     confirmOverrideReportDialogVisible: false,
   }),
@@ -570,6 +584,11 @@ export default {
     },
     async fetchReportHtml(reportId: string) {
       this.draftReportHtml = await ApiService.getHtmlReport(reportId);
+    },
+    async downloadPdf(reportId: string) {
+      this.isDownloadingPdf = true;
+      await ApiService.getPdfReport(reportId);
+      this.isDownloadingPdf = false;
     },
     async tryGenerateReport() {
       const existingPublished = await ApiService.getReports({

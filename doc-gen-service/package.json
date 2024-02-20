@@ -13,6 +13,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
+    "@bcgov/bc-sans": "^2.1.0",
     "compression": "^1.7.4",
     "d3": "^7.8.5",
     "dotenv": "^16.3.1",
@@ -39,7 +40,7 @@
     "@types/nconf": "^0.10.6",
     "@types/node": "^20.0.0",
     "@types/supertest": "^6.0.2",
-    "@typescript-eslint/eslint-plugin": "^6.18.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
     "copyfiles": "^2.4.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
