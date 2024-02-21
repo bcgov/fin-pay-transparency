@@ -35,7 +35,7 @@
           This application does not collect, record or publish personal
           information.
         </p>
-        <v-btn class="mb-4" color="primary" to="generate-report"
+        <v-btn class="mb-4" color="primary" to="generate-report-form"
           >Generate Pay Transparency Report</v-btn
         >
       </v-col>
@@ -139,7 +139,10 @@ import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
 import moment from 'moment';
-import { useReportStepperStore } from '../store/modules/reportStepper';
+import {
+  useReportStepperStore,
+  ReportMode,
+} from '../store/modules/reportStepper';
 
 export default {
   components: { ReportSelectionManager },
@@ -153,7 +156,7 @@ export default {
     ...mapState(useCodeStore, ['naicsCodes']),
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setReportId', 'reset']),
+    ...mapActions(useReportStepperStore, ['setReportId', 'reset', 'setMode']),
     formatDate(value) {
       return moment(value).format('MMMM D, YYYY');
     },
@@ -162,8 +165,9 @@ export default {
         report_status: REPORT_STATUS.PUBLISHED,
       });
     },
-    viewReport(report) {
-      this.setReportId(report.report_id);
+    async viewReport(report) {
+      this.setMode(ReportMode.View);
+      await this.setReportId(report.report_id);
     },
   },
   beforeMount() {

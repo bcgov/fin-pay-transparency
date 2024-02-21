@@ -15,7 +15,7 @@
             </v-col>
           </v-row>
 
-          <div v-if="stage == 'UPLOAD'">
+          <div>
             <v-row class="d-flex justify-start mt-6" dense>
               <v-col cols="12">
                 <h2 class="heading text-center mb-4">Employer Details</h2>
@@ -148,11 +148,12 @@
               </v-col>
 
               <v-col cols="12">
-                <h3 class="heading mt-4 mb-2">
-                  Contextual Info/Comments
-                </h3>
+                <h3 class="heading mt-4 mb-2">Contextual Info/Comments</h3>
                 <p class="description mb-4">
-                  Please share any general information about your employer which will appear at the top of your pay transparency report. This section is optional and you can return to this page to complete it after viewing your draft report.                
+                  Please share any general information about your employer which
+                  will appear at the top of your pay transparency report. This
+                  section is optional and you can return to this page to
+                  complete it after viewing your draft report.
                 </p>
                 <v-textarea
                   id="comments"
@@ -161,14 +162,17 @@
                   clearable
                 >
                 </v-textarea>
-              </v-col>              
+              </v-col>
 
               <v-col cols="12">
-                <h3 class="heading mb-2">
-                  Data Constraints
-                </h3>
+                <h3 class="heading mb-2">Data Constraints</h3>
                 <p class="description mb-4">
-                  Please share any information (i.e., limitations, constraints, or dependencies) that may be helpful to explain your payroll data (i.e “Bonus pay not offered by [employer name]”). This will appear at the bottom of your pay transparency report. This section is optional and you can return to this page to complete it after viewing your draft report.
+                  Please share any information (i.e., limitations, constraints,
+                  or dependencies) that may be helpful to explain your payroll
+                  data (i.e “Bonus pay not offered by [employer name]”). This
+                  will appear at the bottom of your pay transparency report.
+                  This section is optional and you can return to this page to
+                  complete it after viewing your draft report.
                 </p>
                 <v-textarea
                   id="dataConstraints"
@@ -324,10 +328,11 @@
                 Please complete all required fields
               </v-col>
               <p class="text-subtitle-2">
-                Disclaimer:  This tool relies on the Employer supplying accurate and complete payroll data in order to calculate pay gaps.
+                Disclaimer: This tool relies on the Employer supplying accurate
+                and complete payroll data in order to calculate pay gaps.
               </p>
               <v-col cols="12" class="d-flex justify-center">
-                <primary-button
+                <PrimaryButton
                   id="submitButton"
                   :disabled="!areRequiredFieldsComplete"
                   text="Submit"
@@ -351,81 +356,6 @@
               </v-col>
             </v-row>
           </div>
-          <div v-if="stage == 'REVIEW'" class="mb-8">
-            <div v-dompurify-html="draftReportHtml"></div>
-
-            <hr class="mt-8 mb-8" />
-
-            <div>
-              <v-checkbox
-                v-model="isReadyToGenerate"
-                label="I am ready to create a final report that will be shared with the B.C. Government and can be shared publicly by my employer. Please note, this draft report will not be saved after closing this window or logging out of the system"
-              ></v-checkbox>
-
-              <div class="d-flex justify-center w-100 mt-4">
-                <v-btn id="backButton" text="Back" color="primary" class="mr-2">
-                  Back
-                  <v-dialog
-                    v-model="confirmBackDialogVisible"
-                    activator="parent"
-                    width="auto"
-                    max-width="400"
-                  >
-                    <v-card>
-                      <v-card-text>
-                        Do you want to go back to the form screen? Note that
-                        this draft report will not be saved after navigating
-                        back or logging out of the system.
-                      </v-card-text>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                          color="red-darken-1"
-                          @click="confirmBackDialogVisible = false"
-                        >
-                          No
-                        </v-btn>
-                        <v-btn
-                          color="primary"
-                          @click="
-                            confirmBackDialogVisible = false;
-                            showStage('UPLOAD');
-                          "
-                        >
-                          Yes
-                        </v-btn>
-                        <v-spacer></v-spacer>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                </v-btn>
-
-                <v-btn
-                  id="downloadDraftPdfButton"
-                  text="Download PDF"
-                  color="primary"
-                  class="mr-2"
-                  :loading="isDownloadingPdf"
-                  :disabled="isDownloadingPdf"
-                  @click="downloadPdf(draftReport.report_id)"
-                >
-                  Download PDF
-                </v-btn>
-
-                <v-btn
-                  id="generateReportButton"
-                  text="Generate Report"
-                  color="primary"
-                  class="mr-2"
-                  :disabled="!isReadyToGenerate"
-                  @click="tryGenerateReport()"
-                >
-                  Generate Report
-                </v-btn>
-              </div>
-            </div>
-          </div>
-          <FinalReport v-if="stage == 'FINAL'" />
         </v-col>
       </v-row>
       <v-overlay
@@ -436,40 +366,6 @@
         <spinner />
       </v-overlay>
     </v-form>
-
-    <!-- dialogs -->
-
-    <v-dialog
-      v-model="confirmOverrideReportDialogVisible"
-      width="auto"
-      max-width="400"
-    >
-      <v-card>
-        <v-card-text>
-          There is an existing report for the same time period. Do you want to
-          replace it?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="red-darken-1"
-            @click="confirmOverrideReportDialogVisible = false"
-          >
-            No
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="
-              confirmOverrideReportDialogVisible = false;
-              generateReport();
-            "
-          >
-            Yes
-          </v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -482,14 +378,9 @@ import ReportStepper from './util/ReportStepper.vue';
 import ApiService from '../common/apiService';
 import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
-import { mapActions, mapWritableState, mapState } from 'pinia';
-import {
-  useReportStepperStore,
-  ReportStage,
-} from '../store/modules/reportStepper';
+import { mapActions, mapState } from 'pinia';
+import { useReportStepperStore } from '../store/modules/reportStepper';
 import moment from 'moment';
-import { sanitizeUrl } from '@braintree/sanitize-url';
-import FinalReport from './FinalReport.vue';
 
 interface LineErrors {
   lineNum: number;
@@ -515,7 +406,6 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
-    FinalReport,
   },
   data: () => ({
     validForm: null,
@@ -555,10 +445,19 @@ export default {
     draftReportHtml: null,
     finalReportHtml: null,
     isReadyToGenerate: false,
-    isDownloadingPdf: false,
     confirmBackDialogVisible: false,
     confirmOverrideReportDialogVisible: false,
   }),
+  async beforeMount() {
+    if (this.reportId) {
+      this.comments = this.reportData.user_comment;
+      this.employeeCountRange = this.reportData.employee_count_range_id;
+      this.naicsCode = this.reportData.naics_code;
+      this.startDate = this.reportData.report_start_date;
+      this.endDate = this.reportData.report_end_date;
+      this.dataConstraints = this.reportData.data_constraints;
+    }
+  },
   methods: {
     ...mapActions(useReportStepperStore, ['setStage', 'setReportId']),
     setSuccessAlert(alertMessage) {
@@ -571,8 +470,9 @@ export default {
         this.uploadFileValue = null;
       }
     },
-    showStage(stageName: ReportStage) {
-      this.setStage(stageName);
+    nextStage() {
+      this.setStage('REVIEW');
+      this.$router.push({ path: '/draft-report' });
       this.setSuccessAlert(null);
       this.isReadyToGenerate = false;
 
@@ -581,42 +481,6 @@ export default {
       setTimeout(() => {
         window.scrollTo(0, 0); //scroll to top of screen
       }, 100);
-    },
-    async fetchReportHtml(reportId: string) {
-      this.draftReportHtml = await ApiService.getHtmlReport(reportId);
-    },
-    async downloadPdf(reportId: string) {
-      this.isDownloadingPdf = true;
-      await ApiService.getPdfReport(reportId);
-      this.isDownloadingPdf = false;
-    },
-    async tryGenerateReport() {
-      const existingPublished = await ApiService.getReports({
-        report_start_date: this.draftReport.report_start_date,
-        report_end_date: this.draftReport.report_end_date,
-        report_status: 'Published',
-      });
-      const reportAlreadyExists = existingPublished.length;
-      if (reportAlreadyExists) {
-        //show a dialog to confirm override
-        this.confirmOverrideReportDialogVisible = true;
-      } else {
-        this.generateReport();
-      }
-    },
-    async generateReport() {
-      this.isProcessing = true;
-      try {
-        const unsanitisedHtml = await ApiService.publishReport(
-          this.draftReport?.report_id,
-        );
-        await this.setReportId(this.draftReport?.report_id);
-        this.finalReportHtml = sanitizeUrl(unsanitisedHtml);
-        this.showStage('FINAL');
-      } catch (e) {
-        console.log(e);
-      }
-      this.isProcessing = false;
     },
     async submit() {
       this.isProcessing = true;
@@ -635,8 +499,8 @@ export default {
         formData.append('comments', this.comments ? this.comments : '');
         formData.append('file', this.uploadFileValue[0]);
         this.draftReport = await ApiService.postSubmission(formData);
-        await this.fetchReportHtml(this.draftReport.report_id);
-        this.showStage('REVIEW');
+        await this.setReportId(this.draftReport.report_id);
+        this.nextStage();
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
         this.isProcessing = false;
@@ -645,29 +509,6 @@ export default {
         this.isProcessing = false;
         this.setSuccessAlert(null);
         this.setErrorAlert(error.response.data?.errors);
-      }
-    },
-    submitRequest() {
-      if (this.dataReady) {
-        if (
-          this.uploadFileValue[0].name?.match(
-            '^[\\u0080-\\uFFFF\\w,\\s-_]+\\.[A-Za-z]{3,4}$',
-          )
-        ) {
-          this.active = true;
-          const reader = new FileReader();
-          reader.onload = this.uploadFile;
-          reader.onabort = this.handleFileReadErr;
-          reader.onerror = this.handleFileReadErr;
-          reader.readAsBinaryString(this.uploadFileValue[0]);
-        } else {
-          this.active = false;
-          this.setErrorAlert({
-            general_errors: [
-              'Please remove spaces and special characters from file name and try uploading again.',
-            ],
-          });
-        }
       }
     },
   },
@@ -707,7 +548,7 @@ export default {
   computed: {
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
-    ...mapWritableState(useReportStepperStore, ['stage']),
+    ...mapState(useReportStepperStore, ['reportId', 'reportData']),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },
@@ -754,7 +595,7 @@ textarea::placeholder {
 input {
   font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
   color: #606060 !important;
-  background-color: #F2F2F2 !important;
+  background-color: #f2f2f2 !important;
   size: 16px;
 }
 
@@ -772,12 +613,14 @@ p.description {
 
 p.warning {
   font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
-  color: #D8292F !important;
+  color: #d8292f !important;
   size: 12px;
 }
 
-.v-messages__message, .text-error, .v-input-error {
-  color: #D8292F !important;
+.v-messages__message,
+.text-error,
+.v-input-error {
+  color: #d8292f !important;
 }
 
 .BC-Gov-SecondaryButton {
@@ -797,15 +640,15 @@ p.warning {
 }
 
 .BC-Gov-SecondaryButton:hover {
-  opacity: 0.80;
+  opacity: 0.8;
   text-decoration: underline;
   background-color: #003366;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .BC-Gov-SecondaryButton:focus {
   outline-offset: 1px;
-  outline: 4px solid #3B99FC;
+  outline: 4px solid #3b99fc;
 }
 
 .BC-Gov-SecondaryButton:active {

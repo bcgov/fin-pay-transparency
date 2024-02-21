@@ -4,6 +4,7 @@
       v-for="(item, index) in REPORT_STAGES"
       :value="item.value"
       :label="item.label"
+      :url="item.url"
       :index="index"
       :disabled="item.isDisabled(stage)"
     />

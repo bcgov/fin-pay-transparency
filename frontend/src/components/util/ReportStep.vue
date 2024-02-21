@@ -22,14 +22,17 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useReportStepperStore } from '../../store/modules/reportStepper';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const { stage } = storeToRefs(useReportStepperStore());
 const { $patch } = useReportStepperStore();
-const props = defineProps(['value', 'label', 'index', 'disabled']);
+const props = defineProps(['value', 'label', 'url', 'index', 'disabled']);
 
 const handleClick = () => {
   if (props.disabled) return;
   $patch({ stage: props.value });
+  router.push(props.url);
 };
 </script>
 
