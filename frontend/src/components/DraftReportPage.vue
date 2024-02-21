@@ -16,11 +16,11 @@
           </v-row>
 
           <div class="mb-8">
-            <HtmlReport />
+            <HtmlReport @html-report-loaded="htmlReportLoaded = true" />
 
-            <hr class="mt-8 mb-8" />
+            <div v-if="htmlReportLoaded">
+              <hr class="mt-8 mb-8" />
 
-            <div>
               <v-checkbox
                 v-model="isReadyToGenerate"
                 label="I am ready to create a final report that will be shared with the B.C. Government and can be shared publicly by my employer. Please note, this draft report will not be saved after closing this window or logging out of the system"
@@ -148,6 +148,7 @@ const isProcessing = ref(false);
 const isReadyToGenerate = ref(false);
 const confirmBackDialogVisible = ref(false);
 const confirmOverrideReportDialogVisible = ref(false);
+const htmlReportLoaded = ref<boolean>(false);
 
 const isDownloadingPdf = ref(false);
 
