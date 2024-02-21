@@ -8,6 +8,8 @@ import {
 } from './doc-gen-service';
 import { getBrowser } from './puppeteer-service';
 
+const TEST_TIMEOUT_MS = 10000;
+
 const submittedReportData: SubmittedReportData = {
   companyName: 'Test company',
   companyAddress: 'Test',
@@ -70,19 +72,23 @@ const reportData =
 beforeEach(() => {
   //extend from the default 5000 because many tests use puppeteer, which can
   //be slow if the host container isn't allocated sufficient resources
-  jest.setTimeout(10000);
+  jest.setTimeout(TEST_TIMEOUT_MS);
 
   jest.clearAllMocks();
 });
 
 describe('generateReport', () => {
-  it('should generate a report', async () => {
-    const report = await generateReport(
-      REPORT_FORMAT.HTML,
-      submittedReportData as any,
-    );
-    expect(report).toBeDefined();
-  });
+  it(
+    'should generate a report',
+    async () => {
+      const report = await generateReport(
+        REPORT_FORMAT.HTML,
+        submittedReportData as any,
+      );
+      expect(report).toBeDefined();
+    },
+    TEST_TIMEOUT_MS,
+  );
 });
 
 describe('buildEjsTemplate', () => {
