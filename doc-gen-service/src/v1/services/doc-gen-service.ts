@@ -45,6 +45,7 @@ export type SubmittedReportData = {
   naicsLabel: string;
   employeeCountRange: string;
   comments: string;
+  dataConstraints: string;
   referenceGenderCategory: string;
   explanatoryNotes: unknown;
   chartData: {
