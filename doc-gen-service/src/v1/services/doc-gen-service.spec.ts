@@ -8,6 +8,8 @@ import {
 } from './doc-gen-service';
 import { getBrowser } from './puppeteer-service';
 
+const TEST_TIMEOUT_MS = 10000;
+
 const submittedReportData: SubmittedReportData = {
   companyName: 'Test company',
   companyAddress: 'Test',
@@ -70,19 +72,23 @@ const reportData =
 beforeEach(() => {
   //extend from the default 5000 because many tests use puppeteer, which can
   //be slow if the host container isn't allocated sufficient resources
-  jest.setTimeout(10000);
+  jest.setTimeout(TEST_TIMEOUT_MS);
 
   jest.clearAllMocks();
 });
 
 describe('generateReport', () => {
-  it('should generate a report', async () => {
-    const report = await generateReport(
-      REPORT_FORMAT.HTML,
-      submittedReportData as any,
-    );
-    expect(report).toBeDefined();
-  });
+  it(
+    'should generate a report',
+    async () => {
+      const report = await generateReport(
+        REPORT_FORMAT.HTML,
+        submittedReportData as any,
+      );
+      expect(report).toBeDefined();
+    },
+    TEST_TIMEOUT_MS,
+  );
 });
 
 describe('buildEjsTemplate', () => {
@@ -301,6 +307,61 @@ describe('getContentHeight', () => {
     }
 
     expect(heightPx).toBe(100);
+  });
+});
+
+describe('clearEmptyNotes', () => {
+  it(`removes empty 'explanatory notes' and 'footnotes' sections`, async () => {
+    const id1 = 'one';
+    const mockHtml = `
+    <html><body>
+      <div class='${docGenServicePrivate.STYLE_CLASSES.REPORT}'>
+        <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.EXPLANATORY_NOTES}'>
+            Explanatory Notes
+            <!-- this element will be deleted -->
+          </div>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.EXPLANATORY_NOTES}'>
+            Explanatory Notes
+            <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}'></div>
+            <!-- this element will be kept -->
+          </div>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}'>
+            <!-- this element will be deleted -->
+          </div>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}'>
+            <div class='${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}'></div>
+            <!-- this element will be kept -->
+          </div>
+        </div>     
+      </div> 
+    </body></html>`;
+    const browser: Browser = await getBrowser();
+    const puppeteerPage = await browser.newPage();
+    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+    const payTransparencyReport = await puppeteerPage.$(
+      `.${docGenServicePrivate.STYLE_CLASSES.REPORT}`,
+    );
+
+    await docGenServicePrivate.clearEmptyNotes(
+      puppeteerPage,
+      payTransparencyReport,
+    );
+
+    const explanatoryNotes = await payTransparencyReport.$$(
+      `.${docGenServicePrivate.STYLE_CLASSES.EXPLANATORY_NOTES}`,
+    );
+
+    const footnotes = await payTransparencyReport.$$(
+      `.${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}`,
+    );
+
+    if (puppeteerPage) {
+      await puppeteerPage.close();
+    }
+
+    expect(explanatoryNotes?.length).toBe(1);
+    expect(footnotes?.length).toBe(1);
   });
 });
 

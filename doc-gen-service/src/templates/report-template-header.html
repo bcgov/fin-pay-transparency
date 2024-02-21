@@ -48,12 +48,13 @@
 
   .pay-transparency-report .page {
     <%#
-    /* BA: The -8px height adjustment is a hack to account for a 
+    /* BA: The -10px height adjustment is a hack to account for a 
        small, inexplicable discrepency between the requested height 
        of the PDF page and the actual height of the PDF page. It's 
        unclear whether this is a puppeteer bug or some other issue 
-       that we can perhaps resolve in a cleaner way. */
-    %>height: <%=pageSize.height - pageSize.margin.top - pageSize.margin.bottom - 8 %>px;
+       that we can perhaps resolve in a cleaner way. Possibly related 
+       to padding of the last element on the page? */
+    %>min-height: <%=pageSize.height - pageSize.margin.top - pageSize.margin.bottom - 10 %>px;
   }
 
   .pay-transparency-report .page,

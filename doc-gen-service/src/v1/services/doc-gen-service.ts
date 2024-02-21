@@ -362,7 +362,59 @@ const docGenServicePrivate = {
       reportData,
     );
 
+    await docGenServicePrivate.clearEmptyNotes(
+      puppeteerPage,
+      payTransparencyReport,
+    );
+
     await payTransparencyReport.dispose();
+  },
+
+  /**
+   * Removes from the report any 'explanatory-notes' and 'footnotes' that have
+   * no inner content.
+   * @param puppeteerPage
+   * @param footnoteGroup
+   * @param payTransparencyReport
+   * @param reportData
+   * @returns
+   */
+  async clearEmptyNotes(puppeteerPage: Page, payTransparencyReport) {
+    //For each "explanatory notes" section (one per page), determine if
+    //it has at least one .block-explanatory-notes child.  If not, delete
+    //the section (it's empty).
+    const allExplanatoryNotes = await payTransparencyReport.$$(
+      `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} .${docGenServicePrivate.STYLE_CLASSES.EXPLANATORY_NOTES}`,
+    );
+    if (allExplanatoryNotes?.length) {
+      for (let explanatoryNotes of allExplanatoryNotes) {
+        const blockExplanatoryNotes = await explanatoryNotes.$$(
+          `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
+        );
+
+        if (!blockExplanatoryNotes?.length) {
+          docGenServicePrivate.removeFromDom(puppeteerPage, explanatoryNotes);
+        }
+      }
+    }
+
+    //For each "footnotes" section (one per page), determine if
+    //it has at least one .footnote-group child.  If not, delete
+    //the section (it's empty).
+    const allFootnotes = await payTransparencyReport.$$(
+      `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} .${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}`,
+    );
+    if (allFootnotes?.length) {
+      for (let footnotes of allFootnotes) {
+        const footnoteGroups = await footnotes.$$(
+          `.${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}`,
+        );
+
+        if (!footnoteGroups?.length) {
+          docGenServicePrivate.removeFromDom(puppeteerPage, footnotes);
+        }
+      }
+    }
   },
 
   /*
