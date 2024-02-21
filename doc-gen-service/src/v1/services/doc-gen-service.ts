@@ -614,6 +614,7 @@ const docGenServicePrivate = {
     const tablesToConsider = ['meanOvertimeHoursGap', 'medianOvertimeHoursGap'];
     const numGenderCategories = submittedReportData.genderCodes.length;
     const hasAtLeastOneIncludedChartWithSuppression =
+      submittedReportData.chartData &&
       chartsToConsider
         .map((chartName) => submittedReportData.chartData[chartName])
         .filter((c) => c.length && c.length < numGenderCategories).length > 0;
@@ -621,10 +622,11 @@ const docGenServicePrivate = {
     // Note: (numGenderCategories - 1) because because the reference gender
     // category isn't displayed in the tables
     const hasAtLeastOneIncludedTableWithSuppression =
+      submittedReportData.tableData &&
       tablesToConsider
         .map((tableName) => submittedReportData.tableData[tableName])
         .filter((c) => c.length && c.length < numGenderCategories - 1).length >
-      0;
+        0;
     return (
       hasAtLeastOneIncludedChartWithSuppression ||
       hasAtLeastOneIncludedTableWithSuppression
