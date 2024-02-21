@@ -19,6 +19,7 @@ const submittedReportData: SubmittedReportData = {
   naicsLabel: 'Agriculture, forestry, fishing and hunting',
   employeeCountRange: '50-299',
   comments: '',
+  dataConstraints: '',
   referenceGenderCategory: 'Men',
   chartSuppressedError: '',
   tableData: {

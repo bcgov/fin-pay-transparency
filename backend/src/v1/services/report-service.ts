@@ -454,14 +454,8 @@ const reportService = {
   createExplanatoryNotes(report: any) {
     const explanatoryNotes = {};
     let nextNum = 1;
-    if (report.data_constraints) {
-      explanatoryNotes['dataConstraints'] = {
-        num: nextNum++,
-        text: report.data_constraints,
-      } as ExplanatoryNote;
-    }
 
-    //assign numbers to all the other notes
+    //assign numbers to all the notes, in the following order
     const noteCodes = [
       'meanHourlyPayDiff',
       'medianHourlyPayDiff',
@@ -476,7 +470,7 @@ const reportService = {
     noteCodes.forEach((noteCode) => {
       explanatoryNotes[noteCode] = {
         num: nextNum++,
-        //don't include the text.  the template file has the text of the note
+        //don't include the text.  The doc-gen-service template file has the text of the note
       } as ExplanatoryNote;
     });
 
@@ -951,6 +945,7 @@ const reportService = {
           .naics_label,
       employeeCountRange: report.employee_count_range.employee_count_range,
       comments: report.user_comment,
+      dataConstraints: report.data_constraints,
       referenceGenderCategory: !isAllCalculatedDataSuppressed
         ? referenceGenderChartInfo.label
         : null,
