@@ -28,7 +28,7 @@ jobs:
       pull-requests: write
     timeout-minutes: 1
     steps:
-      - uses: bcgov-nr/action-pr-description-add@v1.1.0
+      - uses: bcgov-nr/action-pr-description-add@v1.1.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           add_markdown: |
@@ -46,16 +46,12 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [backend, database, database-migrations, frontend, doc-gen-service]
+        package: [backend, database-migrations, frontend, doc-gen-service]
         include:
           - package: backend
             triggers: ('backend/')
             build_file: ./backend/Dockerfile
             build_context: ./backend
-          - package: database
-            triggers: ('database/')
-            build_file: ./database/Dockerfile
-            build_context: ./database
           - package: frontend
             triggers: ('frontend/')
             build_file: ./frontend/Dockerfile
@@ -77,7 +73,6 @@ jobs:
           tag: ${{ github.event.number }}
           tag_fallback: test
           build_context: ${{ matrix.build_context }}
-
       - uses: shrink/actions-docker-registry-tag@v4
         with:
           registry: ghcr.io
@@ -87,6 +82,8 @@ jobs:
             pr-${{ github.event.number }}
             ${{ github.sha }}
             ${{ github.event.number }}
+
+
 
   check-quota:
     name: Check Quota

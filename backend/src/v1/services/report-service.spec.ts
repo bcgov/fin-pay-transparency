@@ -1,6 +1,7 @@
 import type { pay_transparency_report } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import moment from 'moment';
+import stream from 'stream';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
@@ -392,12 +393,16 @@ describe('getReportPdf', () => {
       const mockReportId = mockReportInDB.report_id;
       const mockReportData = {};
 
+      const mockPdfStream = new stream.Readable();
+      mockPdfStream.push('testpdf');
+      mockPdfStream.push(null);
+
       jest
         .spyOn(reportService, 'getReportData')
         .mockResolvedValueOnce(mockReportData);
       jest
         .spyOn(utils, 'postDataToDocGenService')
-        .mockResolvedValueOnce(Buffer.from('testpdf'));
+        .mockResolvedValueOnce(mockPdfStream);
 
       const result: Buffer = await reportService.getReportPdf(
         mockReq,

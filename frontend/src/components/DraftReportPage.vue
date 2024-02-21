@@ -65,8 +65,21 @@
                 </v-btn>
 
                 <v-btn
+                  id="downloadDraftPdfButton"
+                  text="Download PDF"
+                  color="primary"
+                  class="mr-2"
+                  :loading="isDownloadingPdf"
+                  :disabled="isDownloadingPdf"
+                  @click="downloadPdf(ReportStepperStore.reportId)"
+                >
+                  Download PDF
+                </v-btn>
+
+                <v-btn
                   id="generateReportButton"
                   color="primary"
+                  class="mr-2"
                   :disabled="!isReadyToGenerate"
                   @click="tryGenerateReport()"
                 >
@@ -137,6 +150,8 @@ const isReadyToGenerate = ref(false);
 const confirmBackDialogVisible = ref(false);
 const confirmOverrideReportDialogVisible = ref(false);
 
+const isDownloadingPdf = ref(false);
+
 const ReportStepperStore = useReportStepperStore();
 
 function nextStage() {
@@ -185,5 +200,11 @@ async function generateReport() {
     console.log(e);
   }
   isProcessing.value = false;
+}
+
+async function downloadPdf(reportId: string | undefined) {
+  this.isDownloadingPdf = true;
+  await ApiService.getPdfReport(reportId);
+  this.isDownloadingPdf = false;
 }
 </script>
