@@ -6,6 +6,9 @@ import {
   ReportStage,
   useReportStepperStore,
 } from '../../../store/modules/reportStepper';
+import { useRouter } from 'vue-router';
+
+vi.mock('vue-router');
 
 const pinia = createTestingPinia();
 const wrappedRender = () => {
@@ -57,6 +60,14 @@ describe('ReportStepper', () => {
   });
 
   describe('clicks', () => {
+    useRouter.mockReturnValue({
+      push: vi.fn(),
+    });
+
+    beforeEach(() => {
+      useRouter().push.mockReset();
+    });
+
     describe('from upload stage', () => {
       it('should not navigate to review step', async () => {
         const { getByTestId } = wrappedRender();
