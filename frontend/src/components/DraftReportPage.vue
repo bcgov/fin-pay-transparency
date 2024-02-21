@@ -16,7 +16,7 @@
           </v-row>
 
           <div class="mb-8">
-            <FinalReport />
+            <HtmlReport />
 
             <hr class="mt-8 mb-8" />
 
@@ -66,7 +66,6 @@
 
                 <v-btn
                   id="downloadDraftPdfButton"
-                  text="Download PDF"
                   color="primary"
                   class="mr-2"
                   :loading="isDownloadingPdf"
@@ -139,7 +138,7 @@
 import Spinner from './Spinner.vue';
 import ReportStepper from './util/ReportStepper.vue';
 import ApiService from '../common/apiService';
-import FinalReport from './FinalReport.vue';
+import HtmlReport from './util/HtmlReport.vue';
 import { useReportStepperStore } from '../store/modules/reportStepper';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';

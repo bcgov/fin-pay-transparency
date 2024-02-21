@@ -18,9 +18,9 @@
             </v-col>
           </v-row>
 
-          <FinalReport @html-report-loaded="finalReportHtml = true" />
+          <HtmlReport @html-report-loaded="htmlReportLoaded = true" />
 
-          <div v-if="finalReportHtml" class="d-flex justify-center w-100 mt-4">
+          <div v-if="htmlReportLoaded" class="d-flex justify-center w-100 mt-4">
             <v-btn
               id="downloadDraftPdfButton"
               color="primary"
@@ -53,7 +53,7 @@ import {
   useReportStepperStore,
   ReportMode,
 } from '../store/modules/reportStepper';
-import FinalReport from './FinalReport.vue';
+import HtmlReport from './util/HtmlReport.vue';
 import { ref } from 'vue';
 import ApiService from '../common/apiService';
 import { storeToRefs } from 'pinia';
@@ -61,7 +61,7 @@ import { storeToRefs } from 'pinia';
 const { reportId, mode } = storeToRefs(useReportStepperStore());
 const isProcessing = ref(false);
 const isDownloadingPdf = ref<boolean>(false);
-const finalReportHtml = ref<boolean>(false);
+const htmlReportLoaded = ref<boolean>(false);
 
 const downloadPdf = async (reportId) => {
   isDownloadingPdf.value = true;
