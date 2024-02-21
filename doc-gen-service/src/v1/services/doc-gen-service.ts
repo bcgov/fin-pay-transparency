@@ -18,7 +18,7 @@ const PDF_PAGE_SIZE_INCHES = {
   width: 8.5,
   height: 11,
   marginX: 0.6,
-  marginY: 0.4,
+  marginY: 0.5,
 };
 const PDF_PAGE_SIZE_PIXELS = {
   width: PDF_PAGE_SIZE_INCHES.width * PDF_PPI,
@@ -70,6 +70,7 @@ export type SubmittedReportData = {
   chartSuppressedError: string;
   isAllCalculatedDataSuppressed: boolean;
   genderCodes: string[];
+  isDraft: boolean;
 };
 
 /*
@@ -109,6 +110,7 @@ const docGenServicePrivate = {
     NOTE: 'note',
     FOOTNOTE_GROUP: 'footnote-group',
     FOOTNOTES: 'footnotes',
+    WATERMARK: 'watermark',
   },
 
   REPORT_TEMPLATE_HEADER: resolve(
@@ -190,36 +192,51 @@ const docGenServicePrivate = {
       <div class='explanatory-notes'></div>
     </div>
    */
-  async addReportPage(parent: any) {
+  async addReportPage(parent: any, isDraft: boolean) {
     //Implementation note (banders): classNames are inline strings here because
     //I cannot find a way to pass the STYLE_CLASSES values into Puppeteer's
     //evaluate function
 
     /* istanbul ignore next */
-    await parent.evaluate((parent) => {
-      const page = document.createElement('div');
-      page.className = 'page';
-      const pageContent = document.createElement('div');
-      pageContent.className = 'page-content';
-      const blockGroup = document.createElement('div');
-      blockGroup.className = 'block-group';
-      const explanatoryNotes = document.createElement('div');
-      explanatoryNotes.className = 'explanatory-notes';
-      const explanatoryNotesTitle = document.createElement('h5');
-      explanatoryNotesTitle.className = 'mb-2';
-      const explanatoryNotesTitleText =
-        document.createTextNode('Explanatory notes');
+    await parent.evaluate(
+      (self, parent, isDraft) => {
+        const page = document.createElement('div');
+        page.className = 'page';
+        const pageContent = document.createElement('div');
+        pageContent.className = 'page-content';
+        const blockGroup = document.createElement('div');
+        blockGroup.className = 'block-group';
+        const explanatoryNotes = document.createElement('div');
+        explanatoryNotes.className = 'explanatory-notes';
+        const explanatoryNotesTitle = document.createElement('h5');
+        explanatoryNotesTitle.className = 'mb-2';
+        const explanatoryNotesTitleText =
+          document.createTextNode('Explanatory notes');
+        const footnotes = document.createElement('div');
+        footnotes.className = 'footnotes';
 
-      const footnotes = document.createElement('div');
-      footnotes.className = 'footnotes';
-      explanatoryNotesTitle.appendChild(explanatoryNotesTitleText);
-      explanatoryNotes.appendChild(explanatoryNotesTitle);
-      pageContent.appendChild(blockGroup);
-      pageContent.appendChild(explanatoryNotes);
-      pageContent.appendChild(footnotes);
-      page.appendChild(pageContent);
-      parent.appendChild(page);
-    }, parent);
+        if (isDraft) {
+          const watermark = document.createElement('div');
+          watermark.className = 'watermark';
+          const watermarkBody = document.createElement('div');
+          watermarkBody.className = 'watermark-body';
+          const watermarkText = document.createTextNode('Draft');
+          watermarkBody.appendChild(watermarkText);
+          watermark.appendChild(watermarkBody);
+          page.appendChild(watermark);
+        }
+
+        explanatoryNotesTitle.appendChild(explanatoryNotesTitleText);
+        explanatoryNotes.appendChild(explanatoryNotesTitle);
+        pageContent.appendChild(blockGroup);
+        pageContent.appendChild(explanatoryNotes);
+        pageContent.appendChild(footnotes);
+        page.appendChild(pageContent);
+        parent.appendChild(page);
+      },
+      parent,
+      isDraft,
+    );
     const allReportPages = await parent.$$(
       `.${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
     );
@@ -278,7 +295,7 @@ const docGenServicePrivate = {
   a report page in order. Takes into account block height and the 
   availability of space on the "report pages".
   */
-  async organizeContentIntoPages(puppeteerPage: Page, reportPageOptions: any) {
+  async organizeContentIntoPages(puppeteerPage: Page, reportData: ReportData) {
     const MAX_ATTEMPTS = 2;
     const payTransparencyReport = await puppeteerPage.$(
       `.${docGenServicePrivate.STYLE_CLASSES.REPORT}`,
@@ -289,6 +306,7 @@ const docGenServicePrivate = {
 
     let currentReportPage = await docGenServicePrivate.addReportPage(
       payTransparencyReport,
+      reportData.isDraft,
     );
 
     // Organize all 'blocks' and their corresponding 'explanatory-notes'
@@ -313,7 +331,7 @@ const docGenServicePrivate = {
             block,
             `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}`,
             currentReportPage,
-            reportPageOptions,
+            reportData.pageSize,
           );
         if (wasBlockAddedToPage) {
           break;
@@ -321,6 +339,7 @@ const docGenServicePrivate = {
           // Add a new page to the report
           currentReportPage = await docGenServicePrivate.addReportPage(
             payTransparencyReport,
+            reportData.isDraft,
           );
         }
         numAttempts++;
@@ -340,7 +359,7 @@ const docGenServicePrivate = {
       puppeteerPage,
       footnoteGroup,
       payTransparencyReport,
-      reportPageOptions,
+      reportData,
     );
 
     await payTransparencyReport.dispose();
@@ -357,7 +376,7 @@ const docGenServicePrivate = {
     puppeteerPage,
     footnoteGroup,
     payTransparencyReport,
-    reportPageOptions,
+    reportData: ReportData,
   ): Promise<boolean> {
     if (!footnoteGroup) {
       return false;
@@ -383,13 +402,14 @@ const docGenServicePrivate = {
         footnoteGroup,
         `.${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}`,
         lastReportPage,
-        reportPageOptions,
+        reportData.pageSize,
       );
       if (wasAddedToPage) {
         break;
       } else {
         lastReportPage = await docGenServicePrivate.addReportPage(
           payTransparencyReport,
+          reportData.isDraft,
         );
       }
       numAttempts++;
@@ -762,7 +782,7 @@ async function generateReport(
     //elements with the .page class.
     await docGenServicePrivate.organizeContentIntoPages(
       puppeteerPage,
-      reportData.pageSize,
+      reportData,
     );
 
     let result = null;

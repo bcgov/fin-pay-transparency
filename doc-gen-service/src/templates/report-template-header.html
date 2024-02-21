@@ -19,15 +19,72 @@
     text-decoration: none !important;
   }
 
+  .pay-transparency-report .watermark {
+    position: absolute;
+    left: 0px;
+    top: 50%;
+    z-index: 10;
+    width: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    transform: translate(0, -50%);
+  }
+
+  .pay-transparency-report .watermark .watermark-body {
+    color: #cccccc;
+    opacity: 0.15;
+    font-size: 100px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transform: rotate(-45deg);
+    user-select: none;
+  }
+
   .pay-transparency-report {
     font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
     font-weight: 200;
+  }
+
+  .pay-transparency-report .page {
+    <%#
+    /* BA: The -8px height adjustment is a hack to account for a 
+       small, inexplicable discrepency between the requested height 
+       of the PDF page and the actual height of the PDF page. It's 
+       unclear whether this is a puppeteer bug or some other issue 
+       that we can perhaps resolve in a cleaner way. */
+    %>height: <%=pageSize.height - pageSize.margin.top - pageSize.margin.bottom - 8 %>px;
   }
 
   .pay-transparency-report .page,
   .pay-transparency-report .page .block-group {
     display: flex;
     flex-direction: column;
+    position: relative;
+  }
+
+  .pay-transparency-report .page {
+    break-inside: avoid;
+    page-break-after: always;
+  }
+
+  @media screen {
+    .pay-transparency-report .page {
+      border: 1px solid #eeeeee;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+
+  @media print {
+    .pay-transparency-report .page {
+      margin: 0px !important;
+      padding: 0px !important;
+    }
   }
 
   .pay-transparency-report .block {
@@ -191,24 +248,6 @@
     padding-right: 5px;
     height: 45px;
     width: 100%;
-  }
-
-  .pay-transparency-report .page {
-    break-inside: avoid;
-    page-break-after: always;
-  }
-
-  @media screen {
-    .pay-transparency-report .page {
-      border: 1px solid #eeeeee;
-      border-radius: 4px;
-      margin-bottom: 10px;
-      padding-top: 10px;
-      padding-bottom: 10px;
-      padding-left: 10px;
-      padding-right: 10px;
-      min-height: <%=pageSize.height - pageSize.margin.top - pageSize.margin.bottom %>px;
-    }
   }
 
   .pay-transparency-report .text-normal {

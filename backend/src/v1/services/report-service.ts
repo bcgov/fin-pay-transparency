@@ -965,6 +965,7 @@ const reportService = {
         : null,
       isAllCalculatedDataSuppressed: isAllCalculatedDataSuppressed,
       genderCodes: Object.values(GENDERS).map((g) => g.code),
+      isDraft: report.report_status == enumReportStatus.Draft,
     };
 
     return reportData;
