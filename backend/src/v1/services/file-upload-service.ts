@@ -17,12 +17,20 @@ const REPORT_STATUS = {
   DRAFT: 'Draft',
   PUBLISHED: 'Published',
 };
+const DISK_MB_PER_NETWORK_MB = 1.024;
 
-const MAX_FILE_SIZE_BYTES =
+const MAX_FILE_SIZE_ON_DISK_BYTES =
   config.get('server:uploadFileMaxSizeBytes') || 8000000;
 const parseMultipartFormData = multer({
   limits: {
-    fileSize: MAX_FILE_SIZE_BYTES,
+    // By convention, a megabyte (MB) on disk is defined slightly differently
+    // than a MB transferred over a network.  Users of the Pay Transparency
+    // application will probably compare the posted maximum file size to
+    // the file size on disk reported by their operating system.  Multer,
+    // however, does not use the same measure internally for its file size
+    // comparison. We make adjusted the file size provided to Multer
+    // to account for this discrepancy.
+    fileSize: DISK_MB_PER_NETWORK_MB * MAX_FILE_SIZE_ON_DISK_BYTES,
   },
 }).single('file'); //"file" is the name of multipart form field containing the uploaded file
 
@@ -354,7 +362,7 @@ const fileUploadService = {
         // specific.
         if (err?.code == 'LIMIT_FILE_SIZE') {
           errorMessage = `The uploaded file exceeds the size limit (${
-            MAX_FILE_SIZE_BYTES / 1000000
+            MAX_FILE_SIZE_ON_DISK_BYTES / 1000000
           }MB).`;
         }
         log.error(
