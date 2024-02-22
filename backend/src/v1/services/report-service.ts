@@ -176,6 +176,11 @@ const reportServicePrivate = {
       return null;
     }
 
+    //If the reference gender was suppressed from the chart...
+    if (!refChartDataRecord) {
+      return null;
+    }
+
     const isOrAre = measureNameIsPlural ? 'are' : 'is';
 
     const typeASummaries: string[] = [];
