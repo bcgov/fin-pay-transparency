@@ -832,7 +832,7 @@ const reportCalcServicePrivate = {
         overtimePayStats.getMeanOfNonZeros(refGenderCode);
       if (
         this.meetsPeopleCountThreshold(
-          overtimePayStats.getCountNonZeros(GENDER_CODES.UNKNOWN[0]),
+          overtimePayStats.getCountNonZeros(GENDER_CODES.MALE[0]),
         )
       ) {
         meanOvertimePayDiffM =
