@@ -79,17 +79,40 @@ beforeEach(() => {
 });
 
 describe('generateReport', () => {
-  it(
-    'should generate a report',
-    async () => {
-      const report = await generateReport(
-        REPORT_FORMAT.HTML,
-        submittedReportData as any,
-      );
-      expect(report).toBeDefined();
-    },
-    TEST_TIMEOUT_MS,
-  );
+  describe('when at least some calculated data are suppressed', () => {
+    it(
+      'should generate a report',
+      async () => {
+        const report = await generateReport(
+          REPORT_FORMAT.HTML,
+          submittedReportData as any,
+        );
+        expect(report).toBeDefined();
+      },
+      TEST_TIMEOUT_MS,
+    );
+  });
+  describe('when all calculated data are suppressed', () => {
+    it(
+      'should generate a report',
+      async () => {
+        const mockSubmittedReportData = {
+          ...submittedReportData,
+          tableData: null,
+          chartData: null,
+          chartSummaryText: null,
+          explanatoryNotes: null,
+          isAllCalculatedDataSuppressed: true,
+        };
+        const report = await generateReport(
+          REPORT_FORMAT.HTML,
+          mockSubmittedReportData as any,
+        );
+        expect(report).toBeDefined();
+      },
+      TEST_TIMEOUT_MS,
+    );
+  });
 });
 
 describe('buildEjsTemplate', () => {
