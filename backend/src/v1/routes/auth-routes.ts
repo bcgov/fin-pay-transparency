@@ -123,9 +123,16 @@ router.post(
     const errors = validationResult(req);
 
     if (!session?.companyDetails) {
-      log.error(
-        `${MISSING_COMPANY_DETAILS_ERROR} for user: ${session?.correlationID}`,
-      );
+      if (session?.correlationID) {
+        log.error(
+          `${MISSING_COMPANY_DETAILS_ERROR} for correlationID: ${session?.correlationID}`,
+        );
+      } else {
+        log.error(
+          `${MISSING_COMPANY_DETAILS_ERROR} in session. No correlation id found.`,
+        );
+      }
+      
       return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
     }
 
