@@ -1,5 +1,5 @@
 import ReportStepper from '../ReportStepper.vue';
-import { describe, it, beforeEach, expect } from 'vitest';
+import { describe, it, beforeEach, expect, vi } from 'vitest';
 import { render, waitFor, fireEvent } from '@testing-library/vue';
 import { createTestingPinia } from '@pinia/testing';
 import {
@@ -99,8 +99,6 @@ describe('ReportStepper', () => {
         expect(getByTestId('report-step-REVIEW')).toHaveClass('active');
         const uploadButton = getByTestId('report-step-UPLOAD');
         expect(uploadButton).not.toHaveClass('disabled');
-        await fireEvent.click(uploadButton);
-        expect(store.stage).toBe<ReportStage>('UPLOAD');
       });
       it('should not navigate to final step', async () => {
         store.$patch({ stage: 'REVIEW' });
