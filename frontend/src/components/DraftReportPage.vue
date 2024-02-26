@@ -1,15 +1,18 @@
 <template>
   <v-container class="d-flex justify-center h-100">
     <v-form ref="inputForm" class="w-100 h-100">
+      <v-banner
+        sticky
+        width=" fit-content"
+        border="none"
+        bg-color="rgba(255, 255, 255, 0)"
+        style="z-index: 1900"
+      >
+        <v-btn to="/generate-report-form">Back</v-btn>
+      </v-banner>
       <v-row class="d-flex justify-center w-100">
         <v-col sm="10" md="8" class="w-100">
-          <v-row class="pt-7">
-            <v-col cols="12">
-              <v-btn to="./generate-report-form">Back</v-btn>
-            </v-col>
-          </v-row>
-
-          <v-row class="pt-7 mb-4 d-flex justify-center w-100">
+          <v-row class="mb-4 d-flex justify-center w-100">
             <v-col cols="10" class="w-100">
               <ReportStepper />
             </v-col>
