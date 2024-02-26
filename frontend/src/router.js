@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from './components/Home.vue';
 import InputForm from './components/InputForm.vue';
 import ErrorPage from './components/ErrorPage.vue';
+import NotFoundPage from './components/NotFound.vue';
 import PublishedReportPage from './components/PublishedReportPage.vue';
 import DraftReportPage from './components/DraftReportPage.vue';
 import LoginError from './components/LoginError.vue';
@@ -92,6 +93,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundPage },
   ],
 });
 
