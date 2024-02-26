@@ -23,8 +23,8 @@ on:
         required: true
 
 concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: true
+  group: merge-to-main
+  cancel-in-progress: false # queue the workflows , if multiples are triggered.
 
 jobs:
   vars:
