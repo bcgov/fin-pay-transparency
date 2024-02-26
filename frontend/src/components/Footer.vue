@@ -2,32 +2,71 @@
   <v-footer color="#003366" dark absolute>
     <v-row no-gutters>
       <v-col class="justify-center">
-        For questions or assistance with creating a report please contact the Pay Transparency Unit - <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">PayTransparency@gov.bc.ca</a>
+        For questions or assistance with creating a report please contact the
+        Pay Transparency Unit -
+        <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">
+          PayTransparency@gov.bc.ca
+        </a>
       </v-col>
     </v-row>
   </v-footer>
   <v-footer color="#003366" dark absolute class="bordered">
     <v-row no-gutters>
       <v-col class="justify-center">
-        <v-btn id="footer-home" variant="text" color="white" href="https://www.gov.bc.ca/">
+        <v-btn
+          id="footer-home"
+          variant="text"
+          color="white"
+          href="https://www.gov.bc.ca/"
+        >
           Home
         </v-btn>
-        <v-btn id="footer-about" variant="text" color="white" href="https://www2.gov.bc.ca/gov/content/about-gov-bc-ca">
+        <v-btn
+          id="footer-about"
+          variant="text"
+          color="white"
+          href="https://www2.gov.bc.ca/gov/content/about-gov-bc-ca"
+        >
           About gov.bc.ca
         </v-btn>
-        <v-btn id="footer-disclaimer" variant="text" color="white" href="http://gov.bc.ca/disclaimer">
+        <v-btn
+          id="footer-disclaimer"
+          variant="text"
+          color="white"
+          href="http://gov.bc.ca/disclaimer"
+        >
           Disclaimer
         </v-btn>
-        <v-btn id="footer-privacy" variant="text" color="white" href="http://gov.bc.ca/privacy">
+        <v-btn
+          id="footer-privacy"
+          variant="text"
+          color="white"
+          href="http://gov.bc.ca/privacy"
+        >
           Privacy
         </v-btn>
-        <v-btn id="footer-accessibility" variant="text" color="white" href="http://gov.bc.ca/webaccessibility">
+        <v-btn
+          id="footer-accessibility"
+          variant="text"
+          color="white"
+          href="http://gov.bc.ca/webaccessibility"
+        >
           Accessibility
         </v-btn>
-        <v-btn id="footer-copyright" variant="text" color="white" href="http://gov.bc.ca/copyright">
+        <v-btn
+          id="footer-copyright"
+          variant="text"
+          color="white"
+          href="http://gov.bc.ca/copyright"
+        >
           Copyright
         </v-btn>
-        <v-btn id="footer-contact" variant="text" color="white" href="https://www2.gov.bc.ca/gov/content/home/contact-us">
+        <v-btn
+          id="footer-contact"
+          variant="text"
+          color="white"
+          href="https://www2.gov.bc.ca/gov/content/home/contact-us"
+        >
           Contact Us
         </v-btn>
       </v-col>
