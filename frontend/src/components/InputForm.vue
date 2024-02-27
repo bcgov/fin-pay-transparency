@@ -464,7 +464,7 @@ export default {
     employeeCountRange: null,
     isProcessing: false,
     uploadFileValue: null,
-    maxFileUploadSize: '8MB',
+    maxFileUploadSize: '',
     minStartDate: moment().subtract(2, 'years').startOf('month').toDate(),
     maxStartDate: moment().subtract(1, 'years').endOf('month').toDate(),
     minEndDate: moment()
