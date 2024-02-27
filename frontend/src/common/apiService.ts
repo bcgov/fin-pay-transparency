@@ -133,6 +133,7 @@ export default {
   async getConfig() {
     try {
       const { data } = await apiAxios.get<IConfigValue>(ApiRoutes.CONFIG);
+      
       return data;
     } catch (e) {
       console.log(`Failed to do get from Nodejs getConfig API - ${e}`);
