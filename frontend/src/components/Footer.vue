@@ -1,56 +1,105 @@
 <template>
-  <v-footer color="#003366" dark absolute>
+  <v-footer color="#003366" dark absolute class="bordered" app>
     <v-row no-gutters>
       <v-col class="justify-center">
-        For questions or assistance with creating a report please contact the Pay Transparency Unit - <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">PayTransparency@gov.bc.ca</a>
-      </v-col>
-    </v-row>
-  </v-footer>
-  <v-footer color="#003366" dark absolute class="bordered">
-    <v-row no-gutters>
-      <v-col class="justify-center">
-        <v-btn id="footer-home" variant="text" color="white" href="https://www.gov.bc.ca/">
+        <v-btn
+          id="footer-home"
+          class="footer-btn pl-1 pr-1"
+          variant="plain"
+          color="white"
+          href="https://www.gov.bc.ca/"
+        >
           Home
         </v-btn>
-        <v-btn id="footer-about" variant="text" color="white" href="https://www2.gov.bc.ca/gov/content/about-gov-bc-ca">
+        |
+        <v-btn
+          id="footer-about"
+          class="footer-btn pl-1 pr-1"
+          variant="plain"
+          color="white"
+          href="https://www2.gov.bc.ca/gov/content/about-gov-bc-ca"
+        >
           About gov.bc.ca
         </v-btn>
-        <v-btn id="footer-disclaimer" variant="text" color="white" href="http://gov.bc.ca/disclaimer">
+        |
+        <v-btn
+          id="footer-disclaimer"
+          class="footer-btn pl-1 pr-1"
+          variant="plain"
+          color="white"
+          href="http://gov.bc.ca/disclaimer"
+        >
           Disclaimer
         </v-btn>
-        <v-btn id="footer-privacy" variant="text" color="white" href="http://gov.bc.ca/privacy">
+        |
+        <v-btn
+          id="footer-privacy"
+          class="footer-btn pl-1 pr-1"
+          variant="plain"
+          color="white"
+          href="http://gov.bc.ca/privacy"
+        >
           Privacy
         </v-btn>
-        <v-btn id="footer-accessibility" variant="text" color="white" href="http://gov.bc.ca/webaccessibility">
+        |
+        <v-btn
+          id="footer-accessibility"
+          class="footer-btn pl-1 pr-1"
+          variant="plain"
+          color="white"
+          href="http://gov.bc.ca/webaccessibility"
+        >
           Accessibility
         </v-btn>
-        <v-btn id="footer-copyright" variant="text" color="white" href="http://gov.bc.ca/copyright">
+        |
+        <v-btn
+          id="footer-copyright"
+          class="footer-btn pl-1 pr-1"
+          variant="plain"
+          color="white"
+          href="http://gov.bc.ca/copyright"
+        >
           Copyright
         </v-btn>
-        <v-btn id="footer-contact" variant="text" color="white" href="https://www2.gov.bc.ca/gov/content/home/contact-us">
+        |
+        <v-btn
+          id="footer-contact"
+          class="footer-btn pl-1 pr-1"
+          variant="plain"
+          color="white"
+          href="https://www2.gov.bc.ca/gov/content/home/contact-us"
+        >
           Contact Us
         </v-btn>
       </v-col>
     </v-row>
   </v-footer>
+  <v-footer color="#003366" dark absolute app>
+    <v-row no-gutters>
+      <v-col class="justify-center" style="text-align: center">
+        For questions or assistance with creating a report please contact the
+        Pay Transparency Unit -
+        <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">
+          PayTransparency@gov.bc.ca
+        </a>
+      </v-col>
+    </v-row>
+  </v-footer>
 </template>
 
-<script>
-export default {};
-</script>
+<script setup lang="ts"></script>
 
 <style>
 .v-footer {
   flex-direction: column;
   min-width: 100%;
-  max-height: 2.5em;
 }
 
 .v-footer.bordered {
   border-top: 2px solid rgb(252, 186, 25) !important;
+  overflow: hidden;
   max-height: 3em;
 }
-
 a.contact-email {
   color: white;
   text-decoration: underline;
@@ -60,5 +109,8 @@ a.contact-email {
 .v-btn.footer:focus:before,
 .v-btn.footer:hover:before {
   background: none;
+}
+.footer-btn:hover {
+  text-decoration: underline !important;
 }
 </style>

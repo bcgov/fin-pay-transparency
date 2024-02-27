@@ -1,15 +1,18 @@
 <template>
   <v-container class="d-flex justify-center h-100">
     <v-form ref="inputForm" class="w-100 h-100">
+      <v-banner
+        sticky
+        width=" fit-content"
+        border="none"
+        bg-color="rgba(255, 255, 255, 0)"
+        style="z-index: 1900"
+      >
+        <v-btn to="/">Back</v-btn>
+      </v-banner>
       <v-row class="d-flex justify-center w-100">
-        <v-col xs="12" sm="10" md="8" class="w-100">
-          <v-row class="pt-7">
-            <v-col cols="12">
-              <v-btn class="BC-Gov-SecondaryButton" to="/">Back</v-btn>
-            </v-col>
-          </v-row>
-
-          <v-row class="pt-7 mb-4 d-flex justify-center w-100">
+        <v-col sm="10" md="8" class="w-100">
+          <v-row class="mb-4 d-flex justify-center w-100">
             <v-col cols="10" class="w-100">
               <ReportStepper />
             </v-col>
@@ -366,6 +369,33 @@
         <spinner />
       </v-overlay>
     </v-form>
+
+    <!-- dialogs -->
+
+    <v-dialog v-model="confirmBackDialogVisible" width="auto" max-width="400">
+      <v-card>
+        <v-card-text>
+          Do you want to go back to the dashboard? Note that changes will not be
+          saved after navigating back or logging out of the system.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="red-darken-1"
+            @click="booleanDialogUtils.setDialogResponse(false)"
+          >
+            No
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="booleanDialogUtils.setDialogResponse(true)"
+          >
+            Yes
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -379,8 +409,12 @@ import ApiService from '../common/apiService';
 import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
 import { mapActions, mapState } from 'pinia';
-import { useReportStepperStore } from '../store/modules/reportStepper';
+import {
+  useReportStepperStore,
+  ReportMode,
+} from '../store/modules/reportStepper';
 import moment from 'moment';
+import { DialogUtils } from '../utils/dialogUtils';
 
 interface LineErrors {
   lineNum: number;
@@ -406,6 +440,16 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
+  },
+  async beforeRouteLeave(to, from, next: any) {
+    if (to.fullPath == this.approvedRoute || this.mode != ReportMode.Edit) {
+      next();
+      return;
+    }
+    this.confirmBackDialogVisible = true;
+    const response = await this.booleanDialogUtils.getDialogResponse();
+    this.confirmBackDialogVisible = false;
+    next(response);
   },
   data: () => ({
     validForm: null,
@@ -442,13 +486,12 @@ export default {
     alertType: null,
     submissionErrors: null as SubmissionErrors | null,
     draftReport: null as any,
-    draftReportHtml: null,
-    finalReportHtml: null,
-    isReadyToGenerate: false,
     confirmBackDialogVisible: false,
-    confirmOverrideReportDialogVisible: false,
+    booleanDialogUtils: new DialogUtils<boolean>(),
+    approvedRoute: null,
   }),
   async beforeMount() {
+    this.setStage('UPLOAD');
     if (this.reportId) {
       this.comments = this.reportData.user_comment;
       this.employeeCountRange = this.reportData.employee_count_range_id;
@@ -459,7 +502,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage', 'setReportId']),
+    ...mapActions(useReportStepperStore, ['setStage', 'setReportId', 'reset']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -471,16 +514,8 @@ export default {
       }
     },
     nextStage() {
-      this.setStage('REVIEW');
-      this.$router.push({ path: '/draft-report' });
-      this.setSuccessAlert(null);
-      this.isReadyToGenerate = false;
-
-      // Wait a short time for the stage's HTML to render, then
-      // scroll to the top of the screen
-      setTimeout(() => {
-        window.scrollTo(0, 0); //scroll to top of screen
-      }, 100);
+      this.approvedRoute = '/draft-report';
+      this.$router.push({ path: this.approvedRoute });
     },
     async submit() {
       this.isProcessing = true;
@@ -548,7 +583,7 @@ export default {
   computed: {
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
-    ...mapState(useReportStepperStore, ['reportId', 'reportData']),
+    ...mapState(useReportStepperStore, ['reportId', 'reportData', 'mode']),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },

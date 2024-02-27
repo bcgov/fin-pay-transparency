@@ -23,8 +23,8 @@ on:
         required: true
 
 concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: true
+  group: merge-to-main
+  cancel-in-progress: false # queue the workflows , if multiples are triggered.
 
 jobs:
   vars:
@@ -107,7 +107,7 @@ jobs:
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
-      params: --set doc-gen-service.pdb=false
+      params: --set doc-gen-service.pdb=false --set-string crunchy.instances.dataVolumeClaimSpec.storage=960Mi
   zap:
     name: ZAP Scan
     needs: [deploys]

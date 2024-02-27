@@ -15,7 +15,7 @@ export default defineConfig({
     coverage: {
       reporter: ['lcov', 'text-summary','text', 'json', 'html'],
     },
-    setupFiles: ['./vitest.setup.ts']
+    setupFiles: ['./src/vitest.setup.ts']
   },
   server: {
     port: 8081,
