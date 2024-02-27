@@ -2,6 +2,7 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
+import { IConfigValue } from './types';
 
 export enum REPORT_FORMATS {
   HTML = 'html',
@@ -131,8 +132,8 @@ export default {
   },
   async getConfig() {
     try {
-      const response = await apiAxios.get(ApiRoutes.CONFIG);
-      return response;
+      const { data } = await apiAxios.get<IConfigValue>(ApiRoutes.CONFIG);
+      return data;
     } catch (e) {
       console.log(`Failed to do get from Nodejs getConfig API - ${e}`);
       throw e;
