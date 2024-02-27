@@ -1,16 +1,5 @@
 <template>
-  <v-footer color="#003366" dark absolute>
-    <v-row no-gutters>
-      <v-col class="justify-center" style="text-align: center">
-        For questions or assistance with creating a report please contact the
-        Pay Transparency Unit -
-        <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">
-          PayTransparency@gov.bc.ca
-        </a>
-      </v-col>
-    </v-row>
-  </v-footer>
-  <v-footer color="#003366" dark absolute class="bordered">
+  <v-footer color="#003366" dark absolute class="bordered" app>
     <v-row no-gutters>
       <v-col class="justify-center">
         <v-btn
@@ -82,6 +71,17 @@
         >
           Contact Us
         </v-btn>
+      </v-col>
+    </v-row>
+  </v-footer>
+  <v-footer color="#003366" dark absolute app>
+    <v-row no-gutters>
+      <v-col class="justify-center" style="text-align: center">
+        For questions or assistance with creating a report please contact the
+        Pay Transparency Unit -
+        <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">
+          PayTransparency@gov.bc.ca
+        </a>
       </v-col>
     </v-row>
   </v-footer>
