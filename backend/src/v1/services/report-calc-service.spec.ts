@@ -506,9 +506,9 @@ describe('calculateMedianHourlyPayGaps', () => {
 });
 
 describe('calculateMeanOvertimePayGaps', () => {
-  describe(`given a simulated list of people with gender codes and overtime pay data`, () => {
+  describe(`given at least two gender categories have sufficient data for reporting mean OT pay`, () => {
     it(`mean gender overtime pay gaps are calculated correctly`, () => {
-      // For these mock hourly pay data, assume:
+      // For these mock OT pay data, assume:
       // - All males earn $100/hr
       // - All females earn $99/hr
       // - All non-binary people earn $98/hr
@@ -550,6 +550,35 @@ describe('calculateMeanOvertimePayGaps', () => {
           (d) => d.calculationCode == CALCULATION_CODES.MEAN_OT_PAY_DIFF_U,
         )[0].value,
       ).toBe(3);
+    });
+  });
+  describe(`given only one gender category has sufficient data for reporting mean OT pay`, () => {
+    it(`all mean OT pay calculations are suppressed`, () => {
+      // For these mock OT pay data, assume:
+      // - there are 10 males (each earning $100/hr in OT pay)
+      // - there are 9 people in each of the other gender categories (each earning $100/hr in OT pay)
+      const overtimePayStats = new GroupedColumnStats();
+      Array(10)
+        .fill(100)
+        .forEach((v) => {
+          overtimePayStats.push(v, GENDER_CODES.MALE[0]);
+        });
+      Array(9)
+        .fill(100)
+        .forEach((v) => {
+          overtimePayStats.push(v, GENDER_CODES.FEMALE[0]);
+          overtimePayStats.push(v, GENDER_CODES.NON_BINARY[0]);
+          overtimePayStats.push(v, GENDER_CODES.UNKNOWN[0]);
+        });
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const means: CalculatedAmount[] =
+        reportCalcServicePrivate.calculateMeanOvertimePayGaps(
+          overtimePayStats,
+          refGenderCode,
+        );
+
+      expect(means.filter((d) => !d.isSuppressed).length).toBe(0);
+      expect(means.filter((d) => d.value !== null).length).toBe(0);
     });
   });
 });
@@ -599,6 +628,35 @@ describe('calculateMedianOvertimePayGaps', () => {
           (d) => d.calculationCode == CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U,
         )[0].value,
       ).toBe(3);
+    });
+  });
+  describe(`given only one gender category has sufficient data for reporting median OT pay`, () => {
+    it(`all median OT pay calculations are suppressed`, () => {
+      // For these mock OT pay data, assume:
+      // - there are 10 males (each earning $100/hr in OT pay)
+      // - there are 9 people in each of the other gender categories (each earning $100/hr in OT pay)
+      const overtimePayStats = new GroupedColumnStats();
+      Array(10)
+        .fill(100)
+        .forEach((v) => {
+          overtimePayStats.push(v, GENDER_CODES.MALE[0]);
+        });
+      Array(9)
+        .fill(100)
+        .forEach((v) => {
+          overtimePayStats.push(v, GENDER_CODES.FEMALE[0]);
+          overtimePayStats.push(v, GENDER_CODES.NON_BINARY[0]);
+          overtimePayStats.push(v, GENDER_CODES.UNKNOWN[0]);
+        });
+      const refGenderCode = GENDER_CODES.MALE[0];
+      const medians: CalculatedAmount[] =
+        reportCalcServicePrivate.calculateMedianOvertimePayGaps(
+          overtimePayStats,
+          refGenderCode,
+        );
+
+      expect(medians.filter((d) => !d.isSuppressed).length).toBe(0);
+      expect(medians.filter((d) => d.value !== null).length).toBe(0);
     });
   });
 });
