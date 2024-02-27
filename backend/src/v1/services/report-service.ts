@@ -3,13 +3,12 @@ import moment from 'moment';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
-import {
-  CALCULATION_CODES,
-  CalculatedAmount,
-  reportCalcService,
-} from './report-calc-service';
+import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
 const fs = require('node:fs/promises');
+
+const GENERIC_CHART_SUPPRESSED_MSG =
+  'This measure cannot be displayed because there are insufficient data to meet disclosure requirements.';
 
 enum enumReportStatus {
   Draft = 'Draft',
@@ -955,7 +954,7 @@ const reportService = {
         ? referenceGenderChartInfo.label
         : null,
       chartSuppressedError: !isAllCalculatedDataSuppressed
-        ? `This measure cannot be displayed as the reference category (${referenceGenderChartInfo.label}) has less than ${reportCalcService.MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT} employees.`
+        ? GENERIC_CHART_SUPPRESSED_MSG
         : null,
       tableData: tableData,
       chartData: chartData,
