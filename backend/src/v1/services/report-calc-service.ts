@@ -692,6 +692,22 @@ const reportCalcServicePrivate = {
       }
     }
 
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        meanHourlyPayDiffM,
+        meanHourlyPayDiffF,
+        meanHourlyPayDiffX,
+        meanHourlyPayDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      meanHourlyPayDiffM = null;
+      meanHourlyPayDiffF = null;
+      meanHourlyPayDiffX = null;
+      meanHourlyPayDiffU = null;
+    }
+
     const calculatedAmounts = [];
     calculatedAmounts.push({
       calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M,
@@ -782,6 +798,22 @@ const reportCalcServicePrivate = {
             medianHourlyPayRef) *
           100;
       }
+    }
+
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        medianHourlyPayDiffM,
+        medianHourlyPayDiffF,
+        medianHourlyPayDiffX,
+        medianHourlyPayDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      medianHourlyPayDiffM = null;
+      medianHourlyPayDiffF = null;
+      medianHourlyPayDiffX = null;
+      medianHourlyPayDiffU = null;
     }
 
     const calculatedAmounts = [];
@@ -876,6 +908,22 @@ const reportCalcServicePrivate = {
       }
     }
 
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        meanOvertimePayDiffM,
+        meanOvertimePayDiffF,
+        meanOvertimePayDiffX,
+        meanOvertimePayDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      meanOvertimePayDiffM = null;
+      meanOvertimePayDiffF = null;
+      meanOvertimePayDiffX = null;
+      meanOvertimePayDiffU = null;
+    }
+
     const calculatedAmounts = [];
     calculatedAmounts.push({
       calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_M,
@@ -968,6 +1016,22 @@ const reportCalcServicePrivate = {
       }
     }
 
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        medianOvertimePayDiffM,
+        medianOvertimePayDiffF,
+        medianOvertimePayDiffX,
+        medianOvertimePayDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      medianOvertimePayDiffM = null;
+      medianOvertimePayDiffF = null;
+      medianOvertimePayDiffX = null;
+      medianOvertimePayDiffU = null;
+    }
+
     const calculatedAmounts = [];
     calculatedAmounts.push({
       calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M,
@@ -1056,6 +1120,22 @@ const reportCalcServicePrivate = {
       }
     }
 
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        meanOvertimeHoursDiffM,
+        meanOvertimeHoursDiffF,
+        meanOvertimeHoursDiffX,
+        meanOvertimeHoursDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      meanOvertimeHoursDiffM = null;
+      meanOvertimeHoursDiffF = null;
+      meanOvertimeHoursDiffX = null;
+      meanOvertimeHoursDiffU = null;
+    }
+
     const calculatedAmounts = [];
     calculatedAmounts.push({
       calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M,
@@ -1142,6 +1222,22 @@ const reportCalcServicePrivate = {
           overtimeHoursStats.getMedianOfNonZeros(GENDER_CODES.UNKNOWN[0]) -
           medianOvertimeHoursRef;
       }
+    }
+
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        medianOvertimeHoursDiffM,
+        medianOvertimeHoursDiffF,
+        medianOvertimeHoursDiffX,
+        medianOvertimeHoursDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      medianOvertimeHoursDiffM = null;
+      medianOvertimeHoursDiffF = null;
+      medianOvertimeHoursDiffX = null;
+      medianOvertimeHoursDiffU = null;
     }
 
     const calculatedAmounts = [];
@@ -1235,6 +1331,22 @@ const reportCalcServicePrivate = {
       }
     }
 
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        meanBonusPayDiffM,
+        meanBonusPayDiffF,
+        meanBonusPayDiffX,
+        meanBonusPayDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      meanBonusPayDiffM = null;
+      meanBonusPayDiffF = null;
+      meanBonusPayDiffX = null;
+      meanBonusPayDiffU = null;
+    }
+
     const calculatedAmounts = [];
     calculatedAmounts.push({
       calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M,
@@ -1325,6 +1437,22 @@ const reportCalcServicePrivate = {
             medianBonusPayRef) *
           100;
       }
+    }
+
+    // If only one gender category has a non-null calculated amount,
+    // reset it to null.
+    if (
+      [
+        medianBonusPayDiffM,
+        medianBonusPayDiffF,
+        medianBonusPayDiffX,
+        medianBonusPayDiffU,
+      ].filter((d) => d !== null).length < 2
+    ) {
+      medianBonusPayDiffM = null;
+      medianBonusPayDiffF = null;
+      medianBonusPayDiffX = null;
+      medianBonusPayDiffU = null;
     }
 
     const calculatedAmounts = [];
