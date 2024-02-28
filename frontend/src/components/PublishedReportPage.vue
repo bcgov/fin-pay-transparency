@@ -6,7 +6,7 @@
         width=" fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0)"
-        style="z-index: 1900"
+        style="z-index: 190"
       >
         <v-btn to="/">Back</v-btn>
       </v-banner>
