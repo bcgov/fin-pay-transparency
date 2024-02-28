@@ -13,6 +13,7 @@ import codeRouter from './v1/routes/code-routes';
 import { fileUploadRouter } from './v1/routes/file-upload-routes';
 import userRouter from './v1/routes/user-info-routes';
 import { reportRouter } from './v1/routes/report-routes';
+import { router as configRouter } from './v1/routes/config-routes';
 import { auth } from './v1/services/auth-service';
 import { utils } from './v1/services/utils-service';
 import prom from 'prom-client';
@@ -249,6 +250,7 @@ apiRouter.use(
   },
 );
 apiRouter.use('/user', userRouter);
+apiRouter.use('/config', configRouter);
 apiRouter.use('/v1/file-upload', fileUploadRouter);
 apiRouter.use('/v1/codes', codeRouter);
 apiRouter.use('/v1/report', reportRouter);

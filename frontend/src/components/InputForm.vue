@@ -312,7 +312,8 @@
                   </div>
 
                   <p class="d-flex justify-center">
-                    Supported format: CSV. Maximum file size: 8MB.
+                    Supported format: CSV. Maximum file size:
+                    {{ maxFileUploadSize }}.
                   </p>
                 </v-sheet>
               </v-col>
@@ -416,6 +417,9 @@ import {
 } from '../store/modules/reportStepper';
 import moment from 'moment';
 import { DialogUtils } from '../utils/dialogUtils';
+import { humanFileSize } from '../utils/file';
+import { useConfigStore } from '../store/modules/config';
+import { NotificationService } from '../common/notificationService';
 
 interface LineErrors {
   lineNum: number;
@@ -462,6 +466,7 @@ export default {
     employeeCountRange: null,
     isProcessing: false,
     uploadFileValue: null,
+    maxFileUploadSize: '',
     minStartDate: moment().subtract(2, 'years').startOf('month').toDate(),
     maxStartDate: moment().subtract(1, 'years').endOf('month').toDate(),
     minEndDate: moment()
@@ -493,6 +498,13 @@ export default {
   }),
   async beforeMount() {
     this.setStage('UPLOAD');
+
+    try {
+      await this.loadConfig();
+    } catch (error) {
+      NotificationService.pushNotificationError('Failed to load application settings. Please reload the page.')
+    }
+
     if (this.reportId) {
       this.comments = this.reportData.user_comment;
       this.employeeCountRange = this.reportData.employee_count_range_id;
@@ -504,6 +516,7 @@ export default {
   },
   methods: {
     ...mapActions(useReportStepperStore, ['setStage', 'setReportId', 'reset']),
+    ...mapActions(useConfigStore, ['loadConfig']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
@@ -580,8 +593,17 @@ export default {
         this.companyAddress = address;
       },
     },
+    config(data) {
+      if (data.maxUploadFileSize) {
+        this.maxFileUploadSize = humanFileSize(
+          data?.maxUploadFileSize || 8000000,
+          0,
+        );
+      }
+    },
   },
   computed: {
+    ...mapState(useConfigStore, ['config']),
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
     ...mapState(useReportStepperStore, ['reportId', 'reportData', 'mode']),
