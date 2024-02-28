@@ -162,6 +162,8 @@
                   id="comments"
                   v-model="comments"
                   placeholder="Contextual Info field - Maximum 4,000 characters"
+                  maxlength="4000"
+                  counter
                   clearable
                 >
                 </v-textarea>
@@ -182,6 +184,7 @@
                   v-model="dataConstraints"
                   placeholder="Data Constraints field - Maximum 3,000 characters"
                   maxlength="3000"
+                  counter
                   clearable
                 >
                   <template v-slot:details> </template>
