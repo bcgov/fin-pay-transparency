@@ -8,7 +8,7 @@
         bg-color="rgba(255, 255, 255, 0)"
         style="z-index: 1900"
       >
-        <v-btn to="/generate-report-form">Back</v-btn>
+        <v-btn to="/">Back</v-btn>
       </v-banner>
       <v-row class="d-flex justify-center w-100">
         <v-col sm="10" md="8" class="w-100">

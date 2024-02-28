@@ -23,7 +23,7 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-4">
+      <td class="pe-4 half-width">
         <h4 class="mb-2">Mean hourly pay gap<sup>1</sup></h4>
         <div id="mean-hourly-pay-gap">
           <% if (chartData.meanHourlyPayGap.length) { %>
@@ -41,7 +41,7 @@
               <% } %>
         </div>
       </td>
-      <td>
+      <td class="half-width">
         <h4 class="mb-2">Median hourly pay gap<sup>2</sup></h4>
         <div id="mean-hourly-pay-gap">
           <% if (chartData.medianHourlyPayGap.length) { %>
@@ -117,7 +117,7 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-4">
+      <td class="pe-4 half-width">
         <h4 class="mb-2">
           Mean overtime pay<sup>
             <%= explanatoryNotes.meanOvertimePayDiff.num %>
@@ -139,7 +139,7 @@
               <% } %>
         </div>
       </td>
-      <td>
+      <td class="half-width">
         <h4 class="mb-2">
           Median overtime pay<sup>
             <%= explanatoryNotes.medianOvertimePayDiff.num %>
@@ -168,7 +168,7 @@
 
   <table role="presentation" width="100%" class="overtime-hours-tables">
     <tr>
-      <td class="pe-4" style="width: 50%">
+      <td class="pe-4 half-width">
         <h4 class="mb-0">
           Mean overtime paid hours<sup>
             <%= explanatoryNotes.meanOvertimeHoursDiff.num %>
@@ -202,7 +202,7 @@
             </div>
             <% } %>
       </td>
-      <td class="ps-2" style="width: 50%">
+      <td class="ps-2 half-width">
         <h4 class="mb-0">
           Median overtime paid hours<sup>
             <%= explanatoryNotes.medianOvertimeHoursDiff.num %>
@@ -334,7 +334,7 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-4">
+      <td class="pe-4 half-width">
         <h4 class="mb-2">
           Mean bonus pay<sup>
             <%= explanatoryNotes.meanBonusPayDiff.num %>
@@ -356,7 +356,7 @@
               <% } %>
         </div>
       </td>
-      <td>
+      <td class="half-width">
         <h4 class="mb-2">
           Median bonus pay<sup>
             <%= explanatoryNotes.medianBonusPayDiff.num %>
