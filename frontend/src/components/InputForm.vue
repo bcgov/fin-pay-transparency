@@ -418,6 +418,7 @@ import moment from 'moment';
 import { DialogUtils } from '../utils/dialogUtils';
 import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
+import { NotificationService } from '../common/notificationService';
 
 interface LineErrors {
   lineNum: number;
@@ -496,7 +497,13 @@ export default {
   }),
   async beforeMount() {
     this.setStage('UPLOAD');
-    await this.loadConfig();
+
+    try {
+      await this.loadConfig();
+    } catch (error) {
+      NotificationService.pushNotificationError('Failed to load application settings. Please reload the page.')
+    }
+
     if (this.reportId) {
       this.comments = this.reportData.user_comment;
       this.employeeCountRange = this.reportData.employee_count_range_id;
