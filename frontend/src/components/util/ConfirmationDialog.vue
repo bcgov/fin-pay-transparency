@@ -7,39 +7,35 @@
     @keydown.esc="cancel"
   >
     <v-card>
-      <slot
-        name="title"
-        :cancel="cancel"
-      >
+      <slot name="title" :cancel="cancel">
         <v-toolbar
           :dark="options.dark"
           :color="options.color"
           :dense="options.dense"
           flat
         >
-          <v-toolbar-title :class="{'text-white': options.dark, 'align-self-end': options.closeIcon, 'font-weight-bold': options.titleBold, 'dialog-subtitle': options.subtitle}">
+          <v-toolbar-title
+            :class="{
+              'text-white': options.dark,
+              'align-self-end': options.closeIcon,
+              'font-weight-bold': options.titleBold,
+              'dialog-subtitle': options.subtitle,
+            }"
+          >
             {{ title }}
           </v-toolbar-title>
           <v-spacer />
-          <v-btn
-            v-if="options.closeIcon"
-            id="closeBtn"
-            icon
-            @click="cancel"
-          >
-            <v-icon color="#38598A">
-              mdi-close
-            </v-icon>
+          <v-btn v-if="options.closeIcon" id="closeBtn" icon @click="cancel">
+            <v-icon color="#38598A"> mdi-close </v-icon>
           </v-btn>
         </v-toolbar>
       </slot>
-      <v-card-text :class="[options.messagePadding, { 'black--text': !options.dark }]">
+      <v-card-text
+        :class="[options.messagePadding, { 'black--text': !options.dark }]"
+      >
         {{ message }}
         <slot name="message" />
-        <v-divider
-          v-if="options.divider"
-          class="mt-1"
-        />              
+        <v-divider v-if="options.divider" class="mt-1" />
       </v-card-text>
       <v-card-actions class="pt-0">
         <v-spacer />
@@ -64,7 +60,7 @@
 import PrimaryButton from './PrimaryButton.vue';
 export default {
   name: 'ConfirmationDialog',
-  components: {PrimaryButton},
+  components: { PrimaryButton },
   props: {
     contentClass: {
       type: String,
@@ -89,7 +85,7 @@ export default {
       subtitle: false,
       divider: false,
       resolveDisabled: false,
-    }
+    },
   }),
   methods: {
     open(title, message, options) {
@@ -109,17 +105,17 @@ export default {
     cancel() {
       this.resolve(false);
       this.dialog = false;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-  .dialog-subtitle {
-    font-size: 1rem;
-  }
+.dialog-subtitle {
+  font-size: 1rem;
+}
 
-  :deep(.v-toolbar-title__placeholder){
-    overflow: visible;
-  }
+:deep(.v-toolbar-title__placeholder) {
+  overflow: visible;
+}
 </style>
