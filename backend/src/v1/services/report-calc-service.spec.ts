@@ -403,6 +403,16 @@ describe('getHourlyPayDollars', () => {
   });
 });
 
+describe('countNonNulls', () => {
+  describe(`given an array`, () => {
+    it(`returns the correct number of non-null elements`, () => {
+      const testArray = [1, null, 3, 4];
+      const numNotNull = reportCalcServicePrivate.countNonNulls(testArray);
+      expect(numNotNull).toBe(3);
+    });
+  });
+});
+
 describe('calculateMeanHourlyPayGaps', () => {
   describe(`given a simulated list of people with gender codes and hourly pay data`, () => {
     it(`mean gender hourly pay gaps are calculated correctly`, () => {

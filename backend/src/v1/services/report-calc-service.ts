@@ -626,6 +626,11 @@ const reportCalcServicePrivate = {
     );
   },
 
+  /* Counts the number of array elements that are not null */
+  countNonNulls(arr: any[]): number {
+    return arr ? arr.filter((d) => d !== null).length : 0;
+  },
+
   calculateMeanHourlyPayGaps(
     hourlyPayStats: GroupedColumnStats | null,
     refGenderCode: string,
@@ -695,12 +700,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         meanHourlyPayDiffM,
         meanHourlyPayDiffF,
         meanHourlyPayDiffX,
         meanHourlyPayDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       meanHourlyPayDiffM = null;
       meanHourlyPayDiffF = null;
@@ -803,12 +808,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         medianHourlyPayDiffM,
         medianHourlyPayDiffF,
         medianHourlyPayDiffX,
         medianHourlyPayDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       medianHourlyPayDiffM = null;
       medianHourlyPayDiffF = null;
@@ -911,12 +916,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         meanOvertimePayDiffM,
         meanOvertimePayDiffF,
         meanOvertimePayDiffX,
         meanOvertimePayDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       meanOvertimePayDiffM = null;
       meanOvertimePayDiffF = null;
@@ -1019,12 +1024,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         medianOvertimePayDiffM,
         medianOvertimePayDiffF,
         medianOvertimePayDiffX,
         medianOvertimePayDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       medianOvertimePayDiffM = null;
       medianOvertimePayDiffF = null;
@@ -1123,12 +1128,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         meanOvertimeHoursDiffM,
         meanOvertimeHoursDiffF,
         meanOvertimeHoursDiffX,
         meanOvertimeHoursDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       meanOvertimeHoursDiffM = null;
       meanOvertimeHoursDiffF = null;
@@ -1227,12 +1232,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         medianOvertimeHoursDiffM,
         medianOvertimeHoursDiffF,
         medianOvertimeHoursDiffX,
         medianOvertimeHoursDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       medianOvertimeHoursDiffM = null;
       medianOvertimeHoursDiffF = null;
@@ -1334,12 +1339,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         meanBonusPayDiffM,
         meanBonusPayDiffF,
         meanBonusPayDiffX,
         meanBonusPayDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       meanBonusPayDiffM = null;
       meanBonusPayDiffF = null;
@@ -1442,12 +1447,12 @@ const reportCalcServicePrivate = {
     // If only one gender category has a non-null calculated amount,
     // reset it to null.
     if (
-      [
+      reportCalcServicePrivate.countNonNulls([
         medianBonusPayDiffM,
         medianBonusPayDiffF,
         medianBonusPayDiffX,
         medianBonusPayDiffU,
-      ].filter((d) => d !== null).length < 2
+      ]) < 2
     ) {
       medianBonusPayDiffM = null;
       medianBonusPayDiffF = null;
