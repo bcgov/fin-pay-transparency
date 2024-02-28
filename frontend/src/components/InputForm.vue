@@ -6,7 +6,7 @@
         width=" fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0)"
-        style="z-index: 1900"
+        style="z-index: 190"
       >
         <v-btn to="/">Back</v-btn>
       </v-banner>
@@ -55,16 +55,16 @@
                   v-model="naicsCode"
                   :rules="requiredRules"
                   :items="naicsCodes"
-                  :item-title="(n) => `${n.naics_code} - ${n.naics_label}`"
+                  :item-title="(n: any) => `${n.naics_code} - ${n.naics_label}`"
                   item-value="naics_code"
                   label="NAICS Code"
                   required
                 ></v-autocomplete>
                 <v-icon
+                  v-if="!naicsCode"
                   color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
-                  v-if="!naicsCode"
                 ></v-icon>
               </v-col>
 
@@ -81,10 +81,10 @@
                   required
                 ></v-select>
                 <v-icon
+                  v-if="!employeeCountRange"
                   color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
-                  v-if="!employeeCountRange"
                 ></v-icon>
               </v-col>
 
@@ -114,10 +114,10 @@
                   }"
                 />
                 <v-icon
+                  v-if="!startDate"
                   color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
-                  v-if="!startDate"
                 ></v-icon>
               </v-col>
 
@@ -143,10 +143,10 @@
                   }"
                 />
                 <v-icon
+                  v-if="!endDate"
                   color="#D8292F"
                   icon="mdi-asterisk"
                   size="x-small"
-                  v-if="!endDate"
                 ></v-icon>
               </v-col>
 
@@ -197,14 +197,9 @@
                   for accurate processing.
                 </p>
 
-                <v-row class="mt-3" v-if="submissionErrors">
+                <v-row v-if="submissionErrors" class="mt-3">
                   <v-col>
-                    <v-alert
-                      dense
-                      outlined
-                      dismissible
-                      class="bootstrap-error mb-3"
-                    >
+                    <v-alert class="bootstrap-error mb-3">
                       <h4 class="mb-3">
                         The submission contains errors which must be corrected.
                       </h4>
@@ -303,10 +298,10 @@
                       :rules="requiredRules"
                     />
                     <v-icon
+                      v-if="!uploadFileValue"
                       color="#D8292F"
                       icon="mdi-asterisk"
                       size="x-small"
-                      v-if="!uploadFileValue"
                     ></v-icon>
                   </div>
 
@@ -320,9 +315,9 @@
 
             <v-row class="mt-6">
               <v-col
+                v-if="!areRequiredFieldsComplete"
                 cols="12"
                 class="text-subtitle-2 d-flex justify-center"
-                v-if="!areRequiredFieldsComplete"
               >
                 <v-icon
                   color="#D8292F"
@@ -347,14 +342,7 @@
 
             <v-row class="mt-3">
               <v-col>
-                <v-alert
-                  v-if="alertMessage"
-                  dense
-                  outlined
-                  dismissible
-                  :class="alertType"
-                  class="mb-3"
-                >
+                <v-alert v-if="alertMessage" :class="alertType" class="mb-3">
                   {{ alertMessage }}
                 </v-alert>
               </v-col>
@@ -372,31 +360,7 @@
     </v-form>
 
     <!-- dialogs -->
-
-    <v-dialog v-model="confirmBackDialogVisible" width="auto" max-width="400">
-      <v-card>
-        <v-card-text>
-          Do you want to go back to the dashboard? Note that changes will not be
-          saved after navigating back or logging out of the system.
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="red-darken-1"
-            @click="booleanDialogUtils.setDialogResponse(false)"
-          >
-            No
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="booleanDialogUtils.setDialogResponse(true)"
-          >
-            Yes
-          </v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ConfirmationDialog ref="confirmBackDialog" />
   </v-container>
 </template>
 
@@ -415,7 +379,7 @@ import {
   ReportMode,
 } from '../store/modules/reportStepper';
 import moment from 'moment';
-import { DialogUtils } from '../utils/dialogUtils';
+import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
@@ -444,15 +408,22 @@ export default {
     VueDatePicker,
     Spinner,
     ReportStepper,
+    ConfirmationDialog,
   },
-  async beforeRouteLeave(to, from, next: any) {
+  async beforeRouteLeave(to, from, next) {
     if (to.fullPath == this.approvedRoute || this.mode != ReportMode.Edit) {
       next();
       return;
     }
-    this.confirmBackDialogVisible = true;
-    const response = await this.booleanDialogUtils.getDialogResponse();
-    this.confirmBackDialogVisible = false;
+
+    const response = await this.$refs.confirmBackDialog.open(
+      'Please Confirm',
+      'Do you want to go back to the dashboard? Note that changes will not be saved after navigating back or logging out of the system.',
+      {
+        titleBold: true,
+        resolveText: 'Yes',
+      },
+    );
     next(response);
   },
   data: () => ({
@@ -490,9 +461,7 @@ export default {
     alertMessage: null,
     alertType: null,
     submissionErrors: null as SubmissionErrors | null,
-    draftReport: null as any,
-    confirmBackDialogVisible: false,
-    booleanDialogUtils: new DialogUtils<boolean>(),
+    draftReport: null,
     approvedRoute: null,
   }),
   async beforeMount() {
@@ -501,7 +470,9 @@ export default {
     try {
       await this.loadConfig();
     } catch (error) {
-      NotificationService.pushNotificationError('Failed to load application settings. Please reload the page.')
+      NotificationService.pushNotificationError(
+        'Failed to load application settings. Please reload the page.',
+      );
     }
 
     if (this.reportId) {
