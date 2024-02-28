@@ -162,6 +162,7 @@
                   id="comments"
                   v-model="comments"
                   placeholder="Contextual Info field - Maximum 4,000 characters"
+                  maxlength="4000"
                   clearable
                 >
                 </v-textarea>
@@ -170,9 +171,9 @@
               <v-col cols="12">
                 <h3 class="heading mb-2">Data Constraints</h3>
                 <p class="description mb-4">
-                  Please share any information (i.e., limitations, constraints,
+                  Please share any information (e.g. Limitations, constraints,
                   or dependencies) that may be helpful to explain your payroll
-                  data (i.e “Bonus pay not offered by [employer name]”). This
+                  data (e.g. “Bonus pay not offered by [employer name]”). This
                   will appear at the bottom of your pay transparency report.
                   This section is optional and you can return to this page to
                   complete it after viewing your draft report.
@@ -327,7 +328,7 @@
                 Please complete all required fields
               </v-col>
               <p class="text-subtitle-2">
-                Disclaimer: This tool relies on the Employer supplying accurate
+                Disclaimer: This tool relies on the employer supplying accurate
                 and complete payroll data in order to calculate pay gaps.
               </p>
               <v-col cols="12" class="d-flex justify-center">
