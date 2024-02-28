@@ -14,6 +14,7 @@ export default defineConfig({
     globals: true,
     coverage: {
       reporter: ['lcov', 'text-summary','text', 'json', 'html'],
+      exclude: ['src/**/index.ts'],
     },
     setupFiles: ['./src/vitest.setup.ts']
   },

@@ -125,7 +125,7 @@ describe("InputForm", () => {
     const endDateComponent = wrapper.findComponent({ ref: 'endDate' })
 
     const startDate = moment().subtract(1, "years").format("yyyy-MM-DD");
-    const expectedEndDate = moment().subtract(1, "months").format("yyyy-MM-DD");
+    const expectedEndDate = moment().subtract(1, "months").endOf('month').format("yyyy-MM-DD");
     await startDateComponent.setValue(startDate);
 
     expect(wrapper.vm.$data.startDate).toBe(startDate)
