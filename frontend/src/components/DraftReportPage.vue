@@ -6,7 +6,7 @@
         width=" fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0)"
-        style="z-index: 1900"
+        style="z-index: 190"
       >
         <v-btn to="/generate-report-form">Back</v-btn>
       </v-banner>
@@ -74,60 +74,7 @@
     </v-form>
 
     <!-- dialogs -->
-
-    <v-dialog v-model="confirmBackDialogVisible" width="auto" max-width="400">
-      <v-card>
-        <v-card-text>
-          Do you want to go back to the form screen? Note that this draft report
-          will not be saved after navigating back or logging out of the system.
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="red-darken-1"
-            @click="booleanDialogUtils.setDialogResponse(false)"
-          >
-            No
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="booleanDialogUtils.setDialogResponse(true)"
-          >
-            Yes
-          </v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="confirmOverrideReportDialogVisible"
-      width="auto"
-      max-width="400"
-    >
-      <v-card>
-        <v-card-text>
-          There is an existing report for the same time period. Do you want to
-          replace it?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="red-darken-1"
-            @click="booleanDialogUtils.setDialogResponse(false)"
-          >
-            No
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="booleanDialogUtils.setDialogResponse(true)"
-          >
-            Yes
-          </v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ConfirmationDialog ref="confirmDialog" />
   </v-container>
 </template>
 
@@ -139,17 +86,16 @@ import HtmlReport from './util/HtmlReport.vue';
 import { useReportStepperStore } from '../store/modules/reportStepper';
 import { onBeforeMount, ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
-import { DialogUtils } from '../utils/dialogUtils';
+import ConfirmationDialog from './util/ConfirmationDialog.vue';
 
-const router = useRouter();
 const isProcessing = ref<boolean>(false);
 const isReadyToGenerate = ref<boolean>(false);
-const confirmBackDialogVisible = ref<boolean>(false);
-const confirmOverrideReportDialogVisible = ref<boolean>(false);
 const htmlReportLoaded = ref<boolean>(false);
 const isDownloadingPdf = ref<boolean>(false);
+const confirmDialog = ref<typeof ConfirmationDialog>();
+
+const router = useRouter();
 const ReportStepperStore = useReportStepperStore();
-const booleanDialogUtils = new DialogUtils<boolean>();
 
 let approvedRoute: string;
 
@@ -164,9 +110,14 @@ onBeforeRouteLeave(async (to, from, next) => {
     return;
   }
 
-  confirmBackDialogVisible.value = true;
-  const response = await booleanDialogUtils.getDialogResponse();
-  confirmBackDialogVisible.value = false;
+  const response = await confirmDialog.value?.open(
+    'Please Confirm',
+    'Do you want to go back to the form screen? Note that this draft report will not be saved after navigating back or logging out of the system.',
+    {
+      titleBold: true,
+      resolveText: 'Yes',
+    },
+  );
   next(response);
 });
 
@@ -185,9 +136,14 @@ async function tryGenerateReport() {
   let shouldGenerateReport = true;
   const reportAlreadyExists = existingPublished.length;
   if (reportAlreadyExists) {
-    confirmOverrideReportDialogVisible.value = true;
-    shouldGenerateReport = await booleanDialogUtils.getDialogResponse();
-    confirmOverrideReportDialogVisible.value = false;
+    shouldGenerateReport = await confirmDialog.value?.open(
+      'Please Confirm',
+      'There is an existing report for the same time period. Do you want to replace it?',
+      {
+        titleBold: true,
+        resolveText: 'Yes',
+      },
+    );
   }
 
   if (shouldGenerateReport) {
