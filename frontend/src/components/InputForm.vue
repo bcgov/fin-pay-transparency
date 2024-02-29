@@ -394,7 +394,7 @@ import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
 import { LocalDate, ChronoUnit, convert, TemporalAdjusters, DateTimeFormatter } from '@js-joda/core';
-import {Locale} from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale_en';
 
 interface LineErrors {
   lineNum: number;
