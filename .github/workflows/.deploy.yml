@@ -110,7 +110,7 @@ jobs:
         run: |
           
           # 1 minute less for HELM to do atomic deployment and rollback if not completed within the time.
-          DEPLOY_TIMEOUT=$(${{ inputs.timeout-minutes }}-1) 
+          DEPLOY_TIMEOUT=$((${{ inputs.timeout-minutes }}-1)) 
           
           # Perform atomic upgrade/installation of helm chart
           helm upgrade --install --wait --atomic ${{ env.deployment_name }}-${{ inputs.target }} \
