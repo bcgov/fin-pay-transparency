@@ -363,7 +363,15 @@
     </v-form>
 
     <!-- dialogs -->
-    <ConfirmationDialog ref="confirmBackDialog" />
+    <ConfirmationDialog ref="confirmBackDialog">
+      <template #message>
+        <p class="pb-4">Do you want to go back to the previous screen?</p>
+        <p>
+          Please note: This draft report will not be saved after going back or
+          logging out of the system.
+        </p>
+      </template>
+    </ConfirmationDialog>
   </v-container>
 </template>
 
