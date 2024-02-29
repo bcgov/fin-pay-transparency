@@ -134,7 +134,7 @@ jobs:
           --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
           ${{ inputs.params }} \
-          --timeout "$DEPLOYMENT_TIMEOUT"m  ./${{ github.event.repository.name }}-${{ inputs.semver }}.tgz
+          --timeout "$DEPLOY_TIMEOUT"m  ./${{ github.event.repository.name }}-${{ inputs.semver }}.tgz
       
       - name: Print HELM Chart History
         shell: bash
