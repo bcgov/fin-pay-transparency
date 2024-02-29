@@ -112,6 +112,7 @@ model pay_transparency_report {
   report_status                                             String?                            @default("Draft") @db.VarChar(255)
   revision                                                  Decimal                            @db.Decimal
   data_constraints                                          String?                            @db.VarChar(3000)
+  unlocked                                                  Boolean?                           @default(false)
   pay_transparency_calculated_data                          pay_transparency_calculated_data[]
   naics_code_pay_transparency_report_naics_codeTonaics_code naics_code                         @relation("pay_transparency_report_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_naics_code_fk")
   employee_count_range                                      employee_count_range               @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_employee_count_range_id_fk")

@@ -1071,6 +1071,7 @@ const reportService = {
             report_end_date: true,
             report_status: true,
             revision: true,
+            unlocked: true
           },
           where: filters,
           orderBy: [
@@ -1170,6 +1171,7 @@ const reportService = {
             report_status: true,
             revision: true,
             data_constraints: true,
+            unlocked: true
           },
           where: {
             report_id: reportId,
