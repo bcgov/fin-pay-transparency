@@ -1,7 +1,4 @@
 import type {
-  employee_count_range,
-  naics_code,
-  pay_transparency_company,
   pay_transparency_report,
 } from '@prisma/client';
 import { config } from '../../config';
@@ -1052,14 +1049,14 @@ const reportService = {
     ;
     if (filters?.report_start_date) {
       filters.report_start_date = convert(
-        LocalDate.parse(filters.report_start_date, JODA_FORMATTER),
+        LocalDate.parse(filters.report_start_date),
       )
         .toDate()
         .toISOString();
     }
     if (filters?.report_end_date) {
       filters.report_end_date = convert(
-        LocalDate.parse(filters.report_end_date, JODA_FORMATTER),
+        LocalDate.parse(filters.report_end_date),
       )
         .toDate()
         .toISOString();
