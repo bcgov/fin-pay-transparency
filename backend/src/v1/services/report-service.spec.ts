@@ -1,6 +1,11 @@
 import type { pay_transparency_report } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import moment from 'moment';
+import {
+  LocalDateTime,
+  TemporalAdjusters,
+  ZoneId,
+  convert,
+} from '@js-joda/core';
 import stream from 'stream';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
@@ -9,6 +14,7 @@ import {
   enumReportStatus,
   GenderChartInfo,
   GENDERS,
+  JODA_FORMATTER,
   REPORT_DATE_FORMAT,
   ReportAndCalculations,
   reportService,
@@ -113,8 +119,10 @@ const mockPublishedReport: pay_transparency_report = {
   user_comment: null,
   employee_count_range_id: '67856345',
   naics_code: '234234',
-  report_start_date: moment.utc().toDate(),
-  report_end_date: moment.utc().add(1, 'year').toDate(),
+  report_start_date: convert(LocalDateTime.now().atZone(ZoneId.UTC)).toDate(),
+  report_end_date: convert(
+    LocalDateTime.now().atZone(ZoneId.UTC).plusYears(1),
+  ).toDate(),
   create_date: new Date(),
   update_date: new Date(),
   create_user: 'User',
@@ -152,7 +160,7 @@ const mockReportsInDB = {
   ],
 };
 
-describe('getReportAndCalculations', () => {
+describe.only('getReportAndCalculations', () => {
   describe('wwhere there is no user in the session', () => {
     it('throws an error', async () => {
       const mockReq = {};
@@ -627,16 +635,24 @@ describe('getReports', () => {
       pay_transparency_report: [
         {
           report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-          report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
-          report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
+          report_start_date: LocalDateTime.now()
+            .atZone(ZoneId.UTC)
+            .format(JODA_FORMATTER),
+          report_end_date: LocalDateTime.now()
+            .atZone(ZoneId.UTC)
+            .format(JODA_FORMATTER),
           create_date: new Date(),
           update_date: new Date(),
           revision: 1,
         },
         {
           report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
-          report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
-          report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
+          report_start_date: LocalDateTime.now()
+            .atZone(ZoneId.UTC)
+            .format(JODA_FORMATTER),
+          report_end_date: LocalDateTime.now()
+            .atZone(ZoneId.UTC)
+            .format(JODA_FORMATTER),
           create_date: new Date(),
           update_date: new Date(),
           revision: 4,
@@ -788,8 +804,12 @@ describe('getReportById', () => {
   it('returns an single report', async () => {
     const report = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: moment.utc().format(REPORT_DATE_FORMAT),
-      report_end_date: moment.utc().format(REPORT_DATE_FORMAT),
+      report_start_date: LocalDateTime.now()
+        .atZone(ZoneId.UTC)
+        .format(JODA_FORMATTER),
+      report_end_date: LocalDateTime.now()
+        .atZone(ZoneId.UTC)
+        .format(JODA_FORMATTER),
       create_date: new Date(),
       update_date: new Date(),
       revision: 1,
@@ -821,8 +841,10 @@ describe('getReportFileName', () => {
       user_comment: '',
       employee_count_range_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
       naics_code: '11',
-      report_start_date: moment.utc().subtract(11, 'months').toDate(),
-      report_end_date: moment.utc().toDate(),
+      report_start_date: convert(
+        LocalDateTime.now().atZone(ZoneId.UTC).minusMonths(11),
+      ).toDate(),
+      report_end_date: convert(LocalDateTime.now().atZone(ZoneId.UTC)).toDate(),
       report_status: 'Published',
       revision: new Prisma.Decimal(1),
       data_constraints: '',

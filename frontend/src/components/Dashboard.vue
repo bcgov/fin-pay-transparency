@@ -138,7 +138,8 @@ import { authStore } from '../store/modules/auth';
 import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
-import moment from 'moment';
+import { DateTimeFormatter, LocalDate } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import {
   useReportStepperStore,
   ReportMode,
@@ -158,7 +159,10 @@ export default {
   methods: {
     ...mapActions(useReportStepperStore, ['setReportId', 'reset', 'setMode']),
     formatDate(value) {
-      return moment(value).format('MMMM D, YYYY');
+      const formatter = DateTimeFormatter.ofPattern('MMMM D, YYYY').withLocale(Locale.CANADA);
+      return LocalDate.parse(
+        value,
+      ).format(formatter);
     },
     async getReports() {
       this.reports = await ApiService.getReports({

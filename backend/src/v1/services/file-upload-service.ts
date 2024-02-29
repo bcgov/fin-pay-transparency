@@ -1,4 +1,5 @@
-import moment from 'moment';
+import { LocalDate, LocalDateTime, TemporalAdjusters, ZoneId, convert } from '@js-joda/core';
+
 import multer from 'multer';
 import { Readable } from 'stream';
 import { config } from '../../config';
@@ -101,11 +102,13 @@ const fileUploadService = {
     const body = req.body;
     const userInfo = utils.getSessionUser(req);
 
-    // Use UTC so moment doesn't offset the timezone based on locale
-    const startDate = moment
-      .utc(body.startDate, REPORT_DATE_FORMAT)
-      .startOf('month');
-    const endDate = moment.utc(body.endDate, REPORT_DATE_FORMAT).endOf('month');
+    // Use UTC so js-doja doesn't offset the timezone based on locale
+    const startDate = LocalDate
+      .parse(body.startDate)
+      .withDayOfMonth(1);
+    const endDate = LocalDate.parse(body.endDate)
+      
+      .with(TemporalAdjusters.lastDayOfMonth());
 
     const payTransparencyUser = await tx.pay_transparency_user.findFirst({
       where: {
@@ -123,8 +126,8 @@ const fileUploadService = {
     const existingDraftReport = await tx.pay_transparency_report.findFirst({
       where: {
         company_id: payTransparencyCompany.company_id,
-        report_start_date: startDate,
-        report_end_date: endDate,
+        report_start_date: convert(startDate).toDate(),
+        report_end_date: convert(endDate).toDate(),
         report_status: REPORT_STATUS.DRAFT,
       },
     });
@@ -138,8 +141,8 @@ const fileUploadService = {
       naics_code: body?.naicsCode,
       revision: 1,
       report_status: REPORT_STATUS.DRAFT,
-      report_start_date: startDate.toDate(),
-      report_end_date: endDate.toDate(),
+      report_start_date: convert(startDate).toDate(),
+      report_end_date: convert(endDate).toDate(),
     };
 
     if (existingDraftReport) {

@@ -1,12 +1,12 @@
-import moment from 'moment';
+import { LocalDateTime, convert } from '@js-joda/core';
 import prisma from '../prisma/prisma-client';
 
 const cacheExpirationTimeHours = 25;
 
 let employeeCountRangeCache: any[] = [];
-let employeeCountRangeCacheExpiryDate: moment.Moment = null;
+let employeeCountRangeCacheExpiryDate: LocalDateTime = null;
 let naicsCodesCache: any[] = [];
-let naicsCodesCacheExpiryDate: moment.Moment = null;
+let naicsCodesCacheExpiryDate: LocalDateTime = null;
 let calculationCodeAndIdCache: any; //keys are calc codes, values are calc code ids
 
 const codeService = {
@@ -16,11 +16,11 @@ const codeService = {
   change infrequently, we reduce roundtrips to the database by caching (in memory)
   the full list of all values. */
   async getAllEmployeeCountRanges() {
-    const now = moment();
+    const now = LocalDateTime.now();
 
     if (
       employeeCountRangeCacheExpiryDate &&
-      moment(now).isAfter(employeeCountRangeCacheExpiryDate)
+      now.isAfter(employeeCountRangeCacheExpiryDate)
     ) {
       //Cache has expired.  Clear it
       employeeCountRangeCache = [];
@@ -40,7 +40,7 @@ const codeService = {
         //or expiry date is in the future
         where: {
           effective_date: {
-            lte: now.toDate(),
+            lte: convert(now).toDate(),
           },
           OR: [
             {
@@ -48,7 +48,7 @@ const codeService = {
             },
             {
               expiry_date: {
-                gte: now.toDate(),
+                gte: convert(now).toDate(),
               },
             },
           ],
@@ -56,9 +56,8 @@ const codeService = {
       });
 
       //Set the cache to expire at some time in the future.
-      employeeCountRangeCacheExpiryDate = moment().add(
+      employeeCountRangeCacheExpiryDate = LocalDateTime.now().plusHours(
         cacheExpirationTimeHours,
-        'hours',
       );
     }
 
@@ -71,12 +70,9 @@ const codeService = {
   change infrequently, we reduce roundtrips to the database by caching (in memory)
   the full list of all values. */
   async getAllNaicsCodes() {
-    const now = moment();
+    const now = LocalDateTime.now();
 
-    if (
-      naicsCodesCacheExpiryDate &&
-      moment(now).isAfter(naicsCodesCacheExpiryDate)
-    ) {
+    if (naicsCodesCacheExpiryDate && now.isAfter(naicsCodesCacheExpiryDate)) {
       //Cache has expired.  Clear it
       naicsCodesCache = [];
       naicsCodesCacheExpiryDate = null;
@@ -91,7 +87,7 @@ const codeService = {
         },
         where: {
           effective_date: {
-            lte: now.toDate(),
+            lte: convert(now).toDate(),
           },
           OR: [
             {
@@ -99,7 +95,7 @@ const codeService = {
             },
             {
               expiry_date: {
-                gte: now.toDate(),
+                gte: convert(now).toDate(),
               },
             },
           ],
@@ -107,9 +103,8 @@ const codeService = {
       });
 
       //Set the cache to expire at some time in the future.
-      naicsCodesCacheExpiryDate = moment().add(
+      naicsCodesCacheExpiryDate = LocalDateTime.now().plusHours(
         cacheExpirationTimeHours,
-        'hours',
       );
     }
 

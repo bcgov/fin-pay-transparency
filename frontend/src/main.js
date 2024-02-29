@@ -5,7 +5,6 @@ import App from './App.vue';
 import router from './router';
 import 'regenerator-runtime/runtime';
 import { createPinia } from 'pinia';
-import moment from 'moment';
 import * as colors from 'vuetify/lib/util/colors';
 import styles from 'vuetify/styles';
 import * as labs from 'vuetify/labs/components';
@@ -60,7 +59,6 @@ const pinia = createPinia();
 
 const newApp = createApp(App);
 
-newApp.provide('$moment', moment);
 newApp
   .use(router)
   .use(createMetaManager())

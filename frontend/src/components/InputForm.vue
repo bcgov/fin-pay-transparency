@@ -389,11 +389,12 @@ import {
   useReportStepperStore,
   ReportMode,
 } from '../store/modules/reportStepper';
-import moment from 'moment';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
+import { LocalDate, ChronoUnit, convert, TemporalAdjusters, DateTimeFormatter } from '@js-joda/core';
+import {Locale} from '@js-joda/locale_en';
 
 interface LineErrors {
   lineNum: number;
@@ -411,7 +412,9 @@ interface SubmissionErrors {
   generalErrors: string[];
 }
 
-const REPORT_DATE_FORMAT = 'yyyy-MM-DD';
+const REPORT_DATE_FORMAT = 'yyyy-MM-dd';
+
+const dateFormatter = DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT).withLocale(Locale.CANADA);
 
 export default {
   components: {
@@ -448,22 +451,18 @@ export default {
     isProcessing: false,
     uploadFileValue: null,
     maxFileUploadSize: '',
-    minStartDate: moment().subtract(2, 'years').startOf('month').toDate(),
-    maxStartDate: moment().subtract(1, 'years').endOf('month').toDate(),
-    minEndDate: moment()
-      .subtract(1, 'years')
-      .subtract(1, 'months')
-      .startOf('month')
-      .toDate(),
-    maxEndDate: moment().subtract(1, 'month').endOf('month').toDate(),
-    startDate: moment()
-      .subtract(1, 'years')
-      .endOf('month')
-      .format(REPORT_DATE_FORMAT),
-    endDate: moment()
-      .subtract(1, 'month')
-      .endOf('month')
-      .format(REPORT_DATE_FORMAT),
+    minStartDate: convert(
+      LocalDate.now().minus(2, ChronoUnit.YEARS).with(TemporalAdjusters.firstDayOfMonth()),
+    ).toDate(),
+    maxStartDate: convert(
+      LocalDate.now()
+        .minus(1, ChronoUnit.YEARS)
+        .with(TemporalAdjusters.lastDayOfMonth()),
+    ).toDate(),
+    minEndDate: convert(LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1)).toDate(),
+    maxEndDate: convert(LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth())).toDate(),
+    startDate: LocalDate.now().minusYears(1).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter),
+    endDate: LocalDate.now().minus(1, ChronoUnit.MONTHS).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter),
     dataConstraints: null,
     comments: null,
     fileAccept: '.csv',
@@ -550,16 +549,16 @@ export default {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later
       if (newVal) {
-        const endDate = moment(newVal).add(1, 'years').subtract(1, 'months');
-        this.endDate = endDate.format(REPORT_DATE_FORMAT);
+        const endDate = LocalDate.parse(newVal).plusYears(1).minusMonths(1);
+        this.endDate = endDate.format(dateFormatter);
       }
     },
     endDate(newVal) {
       // When the endDate changes, automatically adjust the startDate to be
       // 12 months earlier
       if (newVal) {
-        const startDate = moment(newVal).subtract(1, 'years').add(1, 'months');
-        this.startDate = startDate.format(REPORT_DATE_FORMAT);
+        const startDate = LocalDate.parse(newVal).minusYears(1).plusMonths(1);
+        this.startDate = startDate.format(dateFormatter);
       }
     },
     userInfo: {
