@@ -159,7 +159,7 @@ export default {
   methods: {
     ...mapActions(useReportStepperStore, ['setReportId', 'reset', 'setMode']),
     formatDate(value) {
-      const formatter = DateTimeFormatter.ofPattern('MMMM D, YYYY').withLocale(Locale.CANADA);
+      const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(Locale.CANADA);
       return LocalDate.parse(
         value,
       ).format(formatter);

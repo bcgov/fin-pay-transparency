@@ -11,7 +11,7 @@ import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
 import {
   DateTimeFormatter,
-  LocalDateTime,
+  LocalDate,
   TemporalAdjusters,
   ZoneId,
   convert,
@@ -947,16 +947,16 @@ const reportService = {
     }
 
     const dateFormatter = DateTimeFormatter.ofPattern(
-      'MMMM D, YYYY',
+      'MMMM d, YYYY',
     ).withLocale(Locale.CANADA);
     const reportData = {
       companyName: report.pay_transparency_company.company_name,
       companyAddress:
         `${report.pay_transparency_company.address_line1} ${report.pay_transparency_company.address_line2}`.trim(),
-      reportStartDate: LocalDateTime.from(nativeJs(report.report_start_date))
+      reportStartDate: LocalDate.from(nativeJs(report.report_start_date, ZoneId.UTC))
         .withDayOfMonth(1)
         .format(dateFormatter),
-      reportEndDate: LocalDateTime.from(nativeJs(report.report_end_date))
+      reportEndDate: LocalDate.from(nativeJs(report.report_end_date, ZoneId.UTC))
         .with(TemporalAdjusters.lastDayOfMonth())
         .format(dateFormatter),
       naicsCode:
@@ -1052,18 +1052,14 @@ const reportService = {
     ;
     if (filters?.report_start_date) {
       filters.report_start_date = convert(
-        LocalDateTime.parse(filters.report_start_date, JODA_FORMATTER).atZone(
-          ZoneId.UTC,
-        ),
+        LocalDate.parse(filters.report_start_date, JODA_FORMATTER),
       )
         .toDate()
         .toISOString();
     }
     if (filters?.report_end_date) {
       filters.report_end_date = convert(
-        LocalDateTime.parse(filters.report_end_date, JODA_FORMATTER).atZone(
-          ZoneId.UTC,
-        ),
+        LocalDate.parse(filters.report_end_date, JODA_FORMATTER),
       )
         .toDate()
         .toISOString();
@@ -1101,9 +1097,9 @@ const reportService = {
       const report = {
         ...r,
       } as any;
-      report.report_start_date = LocalDateTime.from(nativeJs(r.report_start_date)).atZone(ZoneId.UTC)
+      report.report_start_date = LocalDate.from(nativeJs(r.report_start_date, ZoneId.UTC))
         .format(JODA_FORMATTER);
-      report.report_end_date = LocalDateTime.from(nativeJs(r.report_end_date)).atZone(ZoneId.UTC)
+      report.report_end_date = LocalDate.from(nativeJs(r.report_end_date, ZoneId.UTC))
         .format(JODA_FORMATTER);
       return report;
     });
@@ -1201,8 +1197,8 @@ const reportService = {
     const report: pay_transparency_report = await this.getReportById(bceidBusinessGuid, reportId);
     const fileNameDateFormatter = DateTimeFormatter.ofPattern('YYYY-MM').withLocale(Locale.CANADA);
     if (report) {
-      const start = LocalDateTime.from(nativeJs(report.report_start_date)).format(fileNameDateFormatter);
-      const end = LocalDateTime.from(nativeJs(report.report_end_date)).format(fileNameDateFormatter);
+      const start = LocalDate.from(nativeJs(report.report_start_date)).format(fileNameDateFormatter);
+      const end = LocalDate.from(nativeJs(report.report_end_date)).format(fileNameDateFormatter);
       const filename = `pay_transparency_report_${start}_${end}.pdf`;
       return filename;
     }
