@@ -57,7 +57,7 @@
                   :disabled="!isReadyToGenerate"
                   @click="tryGenerateReport()"
                 >
-                  Generate Report
+                  Generate Final Report
                 </v-btn>
               </div>
             </div>
