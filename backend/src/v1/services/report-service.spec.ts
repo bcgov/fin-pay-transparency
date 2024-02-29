@@ -520,8 +520,8 @@ describe('getWageGapTextSummary', () => {
 });
 
 describe('getHoursGapTextSummary', () => {
-  describe('when a valid chartDataRecords array is provided', () => {
-    it('returns an object containing info about how the gender category should be depicted on charts', () => {
+  describe('where no gender categories are suppressed', () => {
+    it('returns summary text describing the OT hours data', () => {
       const referenceGenderCode = GENDERS.MALE.code;
 
       const mockCalcs = {};
@@ -584,6 +584,38 @@ describe('getHoursGapTextSummary', () => {
         Math.abs(mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X].value) +
           ' more',
       );
+    });
+  });
+  describe('when two gender categories are suppressed (leaving only the ref category and one other category)', () => {
+    it('returns a non-null summary sentence', () => {
+      const referenceGenderCode = GENDERS.MALE.code;
+
+      const mockCalcs = {};
+      mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W] = {
+        value: -5,
+        isSuppressed: false,
+      };
+      const mockTableData = [
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W,
+        } as CalcCodeGenderCode,
+      ]
+        .filter((d) => d.genderCode != referenceGenderCode)
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(mockCalcs, d, Math.round),
+        )
+        .filter((d) => d);
+
+      const text: string = reportServicePrivate.getHoursGapTextSummary(
+        referenceGenderCode,
+        mockTableData,
+        'median',
+        'overtime hours',
+      );
+      expect(text).not.toBeNull();
+      expect(text).toContain('median');
+      expect(text).toContain('overtime hours');
     });
   });
 });

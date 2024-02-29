@@ -248,7 +248,7 @@ const reportServicePrivate = {
     const refGenderChartInfo: GenderChartInfo =
       reportServicePrivate.genderCodeToGenderChartInfo(referenceGenderCode);
 
-    if (chartDataRecords.length < 2) {
+    if (chartDataRecords.length < 1) {
       return null;
     }
 
