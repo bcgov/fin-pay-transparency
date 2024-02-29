@@ -6,7 +6,7 @@
         width=" fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0)"
-        style="z-index: 190"
+        class="sticky-top"
       >
         <v-btn to="/">Back</v-btn>
       </v-banner>
@@ -22,21 +22,30 @@
           </v-row>
 
           <HtmlReport @html-report-loaded="htmlReportLoaded = true" />
-
-          <div v-if="htmlReportLoaded" class="d-flex justify-center w-100 mt-4">
-            <v-btn
-              id="downloadDraftPdfButton"
-              color="primary"
-              class="mr-2"
-              :loading="isDownloadingPdf"
-              :disabled="isDownloadingPdf"
-              @click="downloadPdf(reportId)"
-            >
-              Download PDF
-            </v-btn>
-          </div>
         </v-col>
       </v-row>
+      <v-banner
+        sticky
+        width="fit-content"
+        border="none"
+        bg-color="rgba(255, 255, 255, 0.9)"
+        class="d-flex justify-center w-100 sticky-bottom"
+        v-if="htmlReportLoaded"
+      >
+        <v-btn
+          id="downloadPdfButton"
+          color="primary"
+          class="mr-2"
+          :loading="isDownloadingPdf"
+          :disabled="isDownloadingPdf"
+          @click="downloadPdf(reportId)"
+        >
+          Download PDF
+        </v-btn>
+        <v-btn id="editButton" color="primary" to="/generate-report-form">
+          Edit this Report
+        </v-btn>
+      </v-banner>
       <v-overlay
         :persistent="true"
         :model-value="isProcessing"
@@ -84,3 +93,16 @@ const downloadPdf = async (reportId) => {
   isDownloadingPdf.value = false;
 };
 </script>
+
+<style lang="scss">
+.sticky-top {
+  z-index: 190;
+  bottom: none !important;
+  top: 0px !important;
+}
+.sticky-bottom {
+  z-index: 191;
+  bottom: 0px !important;
+  top: none !important;
+}
+</style>
