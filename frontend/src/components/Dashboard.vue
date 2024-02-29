@@ -3,7 +3,7 @@
   <v-container class="d-flex justify-center fill-height" fluid>
     <v-row class="mt-3">
       <v-col>
-        <h2>Welcome, {{ userInfo?.legalName }}.</h2>
+        <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
         <v-divider class="mt-2"></v-divider>
       </v-col>
     </v-row>
@@ -76,10 +76,14 @@
               <hr class="mt-4 mb-4" />
               <template v-for="report in reports">
                 <v-row>
-                  <v-col>{{ formatDate(report.report_start_date) }}</v-col>
-                  <v-col>{{ formatDate(report.report_end_date) }}</v-col>
+                  <v-col :data-testid="'report_start_date-' + report.id">{{
+                    formatDate(report.report_start_date)
+                  }}</v-col>
+                  <v-col :data-testid="'report_end_date-' + report.id">{{
+                    formatDate(report.report_end_date)
+                  }}</v-col>
                   <v-col cols="4">
-                    <a class="pr-5" href="#" @click="viewReport(report)">
+                    <a :data-testid="'view-report-' + report.id" class="pr-5" href="#" @click="viewReport(report)">
                       <v-icon color="#1976d2" icon="mdi-eye-outline"></v-icon>
                       View
                     </a>
@@ -159,10 +163,10 @@ export default {
   methods: {
     ...mapActions(useReportStepperStore, ['setReportId', 'reset', 'setMode']),
     formatDate(value) {
-      const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(Locale.CANADA);
-      return LocalDate.parse(
-        value,
-      ).format(formatter);
+      const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(
+        Locale.CANADA,
+      );
+      return LocalDate.parse(value).format(formatter);
     },
     async getReports() {
       this.reports = await ApiService.getReports({
@@ -174,7 +178,7 @@ export default {
       await this.setReportId(report.report_id);
     },
   },
-  beforeMount() {
+  async beforeMount() {
     this.reset();
     this.reports = this.getReports();
   },
