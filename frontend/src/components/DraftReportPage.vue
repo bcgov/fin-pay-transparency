@@ -74,6 +74,15 @@
     </v-form>
 
     <!-- dialogs -->
+    <ConfirmationDialog ref="confirmBackDialog">
+      <template #message>
+        <p class="pb-4">Do you want to go back to the previous screen?</p>
+        <p>
+          Please note: This draft report will not be saved after going back or
+          logging out of the system.
+        </p>
+      </template>
+    </ConfirmationDialog>
     <ConfirmationDialog ref="confirmDialog" />
   </v-container>
 </template>
@@ -93,6 +102,7 @@ const isReadyToGenerate = ref<boolean>(false);
 const htmlReportLoaded = ref<boolean>(false);
 const isDownloadingPdf = ref<boolean>(false);
 const confirmDialog = ref<typeof ConfirmationDialog>();
+const confirmBackDialog = ref<typeof ConfirmationDialog>();
 
 const router = useRouter();
 const ReportStepperStore = useReportStepperStore();
@@ -110,14 +120,10 @@ onBeforeRouteLeave(async (to, from, next) => {
     return;
   }
 
-  const response = await confirmDialog.value?.open(
-    'Please Confirm',
-    'Do you want to go back to the form screen? Note that this draft report will not be saved after navigating back or logging out of the system.',
-    {
-      titleBold: true,
-      resolveText: 'Yes',
-    },
-  );
+  const response = await confirmBackDialog.value?.open('Please Confirm', '', {
+    titleBold: true,
+    resolveText: 'Yes',
+  });
   next(response);
 });
 
