@@ -1062,7 +1062,7 @@ const reportService = {
             report_end_date: true,
             report_status: true,
             revision: true,
-            unlocked: true,
+            is_unlocked: true,
             create_date: true
           },
           where: filters,
@@ -1163,7 +1163,7 @@ const reportService = {
             report_status: true,
             revision: true,
             data_constraints: true,
-            unlocked: true
+            is_unlocked: true
           },
           where: {
             report_id: reportId,

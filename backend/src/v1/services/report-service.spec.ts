@@ -128,7 +128,7 @@ const mockPublishedReport: pay_transparency_report = {
   report_status: enumReportStatus.Published,
   revision: new Prisma.Decimal(1),
   data_constraints: null,
-  unlocked: true
+  is_unlocked: true
 };
 
 const mockDraftReport: pay_transparency_report = {
@@ -885,7 +885,7 @@ describe('getReportFileName', () => {
       update_date: new Date(),
       create_user: 'User',
       update_user: 'User',
-      unlocked: false
+      is_unlocked: false
     };
 
     jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);

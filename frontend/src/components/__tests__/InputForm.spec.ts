@@ -136,7 +136,6 @@ describe("InputForm", () => {
     const expectedEndDate = LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter);
     
     await startDateComponent.setValue(startDate);
-    console.log('*****', expectedEndDate, wrapper.vm.$data.endDate);
 
     expect(wrapper.vm.$data.startDate).toBe(startDate)
     expect(wrapper.vm.$data.endDate).toBe(expectedEndDate)

@@ -1,5 +1,6 @@
 export interface IConfigValue {
   maxUploadFileSize: number;
+  reportEditDurationInDays: number;
 }
 
 export interface IReport {
@@ -7,5 +8,5 @@ export interface IReport {
   report_start_date: string;
   report_end_date: string;
   create_date: string;
-  unlocked: boolean;
+  is_unlocked: boolean;
 }

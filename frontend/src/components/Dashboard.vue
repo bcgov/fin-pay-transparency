@@ -156,6 +156,7 @@ import {
 } from '../store/modules/reportStepper';
 import { IReport } from '../common/types';
 import { isReportEditable } from '../common/helpers';
+import { useConfigStore } from '../store/modules/config';
 
 type DashboardData = {
   reports: IReport[];
@@ -172,16 +173,20 @@ export default {
     ...mapState(useReportStepperStore, ['reportId']),
     ...mapState(authStore, ['userInfo']),
     ...mapState(useCodeStore, ['naicsCodes']),
+    ...mapState(useConfigStore, ['config']),
   },
   methods: {
     ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
+    ...mapActions(useConfigStore, ['loadConfig']),
     formatDate(value) {
       const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(
         Locale.CANADA,
       );
       return LocalDate.parse(value).format(formatter);
     },
-    isEditable: isReportEditable,
+    isEditable(report) {
+      return isReportEditable(report, this.config?.reportEditDurationInDays);
+    },
     async getReports() {
       this.reports = await ApiService.getReports({
         report_status: REPORT_STATUS.PUBLISHED,
@@ -194,6 +199,7 @@ export default {
   },
   async beforeMount() {
     this.reset();
+    this.loadConfig();
     this.getReports();
   },
 };

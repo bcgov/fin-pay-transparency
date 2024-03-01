@@ -42,7 +42,7 @@
         >
           Download PDF
         </v-btn>
-        <v-btn v-if="isReportEditable(reportInfo!)" id="editButton" color="primary" to="/generate-report-form">
+        <v-btn v-if="isReportEditable(reportInfo!, config?.reportEditDurationInDays)" id="editButton" color="primary" to="/generate-report-form">
           Edit this Report
         </v-btn>
       </v-banner>
@@ -71,6 +71,7 @@ import ApiService from '../common/apiService';
 import { storeToRefs } from 'pinia';
 import { onBeforeRouteLeave } from 'vue-router';
 import { isReportEditable } from '../common/helpers';
+import { useConfigStore } from '../store/modules/config';
 
 const ReportStepperStore = useReportStepperStore();
 
@@ -84,6 +85,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 });
 
 const { reportId, mode, reportInfo } = storeToRefs(useReportStepperStore());
+const { config } = storeToRefs(useConfigStore());
 const isProcessing = ref(false);
 const isDownloadingPdf = ref<boolean>(false);
 const htmlReportLoaded = ref<boolean>(false);

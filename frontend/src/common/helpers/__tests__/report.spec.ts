@@ -9,7 +9,7 @@ describe('helpers/report', () => {
       it('should not be editable', () => {
         const report: Partial<IReport> = {
             create_date: convert(LocalDateTime.now().minusDays(15)).toDate().toISOString(),
-            unlocked: true
+            is_unlocked: true
         }
 
         expect(isReportEditable(report as IReport)).toBeTruthy()
@@ -19,7 +19,7 @@ describe('helpers/report', () => {
       it('should not be editable', () => {
         const report: Partial<IReport> = {
             create_date: convert(LocalDateTime.now().minusDays(40)).toDate().toISOString(),
-            unlocked: false
+            is_unlocked: false
         }
 
         expect(isReportEditable(report as IReport)).toBeFalsy()
@@ -29,7 +29,7 @@ describe('helpers/report', () => {
       it('should not be editable', () => {
         const report: Partial<IReport> = {
             create_date: convert(LocalDateTime.now().minusDays(40)).toDate().toISOString(),
-            unlocked: false
+            is_unlocked: false
         }
 
         expect(isReportEditable(report as IReport)).toBeFalsy()
@@ -39,7 +39,7 @@ describe('helpers/report', () => {
       it('should be editable', () => {
         const report: Partial<IReport> = {
             create_date: convert(LocalDateTime.now().minusDays(40)).toDate().toISOString(),
-            unlocked: true
+            is_unlocked: true
         }
 
         expect(isReportEditable(report as IReport)).toBeTruthy()
