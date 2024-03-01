@@ -1071,7 +1071,8 @@ const reportService = {
             report_end_date: true,
             report_status: true,
             revision: true,
-            unlocked: true
+            unlocked: true,
+            create_date: true
           },
           where: filters,
           orderBy: [

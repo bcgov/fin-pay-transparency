@@ -1,8 +1,6 @@
 import { mount } from '@vue/test-utils';
 import {
   LocalDate,
-  ChronoUnit,
-  convert,
   nativeJs,
   TemporalAdjusters,
   DateTimeFormatter,
