@@ -495,7 +495,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage', 'setReportId', 'reset']),
+    ...mapActions(useReportStepperStore, ['setStage', 'setReportInfo', 'reset']),
     ...mapActions(useConfigStore, ['loadConfig']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
@@ -528,7 +528,7 @@ export default {
         formData.append('comments', this.comments ? this.comments : '');
         formData.append('file', this.uploadFileValue[0]);
         this.draftReport = await ApiService.postSubmission(formData);
-        await this.setReportId(this.draftReport.report_id);
+        await this.setReportInfo(this.draftReport as any);
         this.nextStage();
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);

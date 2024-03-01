@@ -174,7 +174,7 @@ export default {
     ...mapState(useCodeStore, ['naicsCodes']),
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setReportId', 'reset', 'setMode']),
+    ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
     formatDate(value) {
       const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(
         Locale.CANADA,
@@ -187,9 +187,9 @@ export default {
         report_status: REPORT_STATUS.PUBLISHED,
       });
     },
-    async viewReport(report) {
+    async viewReport(report: IReport) {
       this.setMode(ReportMode.View);
-      await this.setReportId(report.report_id);
+      await this.setReportInfo(report);
     },
   },
   async beforeMount() {
