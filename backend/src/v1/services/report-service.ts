@@ -1,10 +1,21 @@
-import type { pay_transparency_report } from '@prisma/client';
-import moment from 'moment';
+import type {
+  pay_transparency_report,
+} from '@prisma/client';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
+import {
+  DateTimeFormatter,
+  LocalDate,
+  TemporalAdjusters,
+  ZoneId,
+  convert,
+  nativeJs,
+} from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
+
 const fs = require('node:fs/promises');
 
 const GENERIC_CHART_SUPPRESSED_MSG =
@@ -69,7 +80,10 @@ const GENDERS = {
   } as GenderChartInfo,
 };
 
-const REPORT_DATE_FORMAT = 'YYYY-MM-DD';
+const REPORT_DATE_FORMAT = 'YYYY-MM-dd';
+const JODA_FORMATTER = DateTimeFormatter.ofPattern(
+  REPORT_DATE_FORMAT,
+).withLocale(Locale.CANADA);
 
 const reportServicePrivate = {
   /*
@@ -234,7 +248,7 @@ const reportServicePrivate = {
     const refGenderChartInfo: GenderChartInfo =
       reportServicePrivate.genderCodeToGenderChartInfo(referenceGenderCode);
 
-    if (chartDataRecords.length < 2) {
+    if (chartDataRecords.length < 1) {
       return null;
     }
 
@@ -504,10 +518,8 @@ const reportService = {
     logger.debug(
       `getReportData called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
-    const reportAndCalculations = await this.getReportAndCalculations(
-      req,
-      reportId,
-    );
+    const reportAndCalculations: ReportAndCalculations =
+      await this.getReportAndCalculations(req, reportId);
 
     if (!reportAndCalculations) {
       return null;
@@ -950,16 +962,19 @@ const reportService = {
       }
     }
 
+    const dateFormatter = DateTimeFormatter.ofPattern(
+      'MMMM d, YYYY',
+    ).withLocale(Locale.CANADA);
     const reportData = {
       companyName: report.pay_transparency_company.company_name,
       companyAddress:
         `${report.pay_transparency_company.address_line1} ${report.pay_transparency_company.address_line2}`.trim(),
-      reportStartDate: moment(report.report_start_date)
-        .startOf('month')
-        .format('MMMM D, YYYY'),
-      reportEndDate: moment(report.report_end_date)
-        .endOf('month')
-        .format('MMMM D, YYYY'),
+      reportStartDate: LocalDate.from(nativeJs(report.report_start_date, ZoneId.UTC))
+        .withDayOfMonth(1)
+        .format(dateFormatter),
+      reportEndDate: LocalDate.from(nativeJs(report.report_end_date, ZoneId.UTC))
+        .with(TemporalAdjusters.lastDayOfMonth())
+        .format(dateFormatter),
       naicsCode:
         report.naics_code_pay_transparency_report_naics_codeTonaics_code
           .naics_code,
@@ -1050,14 +1065,19 @@ const reportService = {
     // in ISO-8601 format (i.e. date + time + timezone).  If datestrings
     // were included in the filters parameter, convert those into the
     // required format.
+    ;
     if (filters?.report_start_date) {
-      filters.report_start_date = moment
-        .utc(filters.report_start_date, REPORT_DATE_FORMAT)
+      filters.report_start_date = convert(
+        LocalDate.parse(filters.report_start_date),
+      )
+        .toDate()
         .toISOString();
     }
     if (filters?.report_end_date) {
-      filters.report_end_date = moment
-        .utc(filters.report_end_date, REPORT_DATE_FORMAT)
+      filters.report_end_date = convert(
+        LocalDate.parse(filters.report_end_date),
+      )
+        .toDate()
         .toISOString();
     }
 
@@ -1093,12 +1113,10 @@ const reportService = {
       const report = {
         ...r,
       } as any;
-      report.report_start_date = moment
-        .utc(r.report_start_date)
-        .format(REPORT_DATE_FORMAT);
-      report.report_end_date = moment
-        .utc(r.report_end_date)
-        .format(REPORT_DATE_FORMAT);
+      report.report_start_date = LocalDate.from(nativeJs(r.report_start_date, ZoneId.UTC))
+        .format(JODA_FORMATTER);
+      report.report_end_date = LocalDate.from(nativeJs(r.report_end_date, ZoneId.UTC))
+        .format(JODA_FORMATTER);
       return report;
     });
 
@@ -1192,10 +1210,11 @@ const reportService = {
     bceidBusinessGuid: string,
     reportId: string,
   ): Promise<string> {
-    const report = await this.getReportById(bceidBusinessGuid, reportId);
+    const report: pay_transparency_report = await this.getReportById(bceidBusinessGuid, reportId);
+    const fileNameDateFormatter = DateTimeFormatter.ofPattern('YYYY-MM').withLocale(Locale.CANADA);
     if (report) {
-      const start = moment(report.report_start_date).format('YYYY-MM');
-      const end = moment(report.report_end_date).format('YYYY-MM');
+      const start = LocalDate.from(nativeJs(report.report_start_date)).format(fileNameDateFormatter);
+      const end = LocalDate.from(nativeJs(report.report_end_date)).format(fileNameDateFormatter);
       const filename = `pay_transparency_report_${start}_${end}.pdf`;
       return filename;
     }
@@ -1206,6 +1225,7 @@ export {
   CalcCodeGenderCode,
   GENDERS,
   GenderChartInfo,
+  JODA_FORMATTER,
   REPORT_DATE_FORMAT,
   ReportAndCalculations,
   enumReportStatus,
