@@ -1,10 +1,15 @@
-import type { pay_transparency_report } from '@prisma/client';
+import type {
+  Prisma,
+  PrismaClient,
+  pay_transparency_report,
+} from '@prisma/client';
 import moment from 'moment';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 const fs = require('node:fs/promises');
 
 const GENERIC_CHART_SUPPRESSED_MSG =
@@ -338,17 +343,36 @@ const reportServicePrivate = {
       );
     }
 
-    // Delete the calculated datas (they don't need to be moved to
-    // a history table)
-    await tx.pay_transparency_calculated_data.deleteMany({
+    // Copy the report into report_history
+    const reportHistory = await tx.report_history.create({
+      data: { ...report },
+    });
+
+    // Get calculated data
+    const calculatedData = await tx.pay_transparency_calculated_data.findMany({
       where: {
         report_id: report.report_id,
       },
     });
 
-    // Copy the report into report_history
-    await tx.report_history.create({
-      data: { ...report },
+    //update calculated data with report_history_id
+    const updatedData = calculatedData.map((data) => {
+      return {
+        ...data,
+        report_history_id: reportHistory.report_history_id,
+      };
+    });
+
+    // Copy the calculated data into calculated_data_history
+    await tx.calculated_data_history.createMany({
+      data: updatedData,
+    });
+
+    // Delete the calculated data
+    await tx.pay_transparency_calculated_data.deleteMany({
+      where: {
+        report_id: report.report_id,
+      },
     });
 
     // Delete the original report
