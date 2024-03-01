@@ -1,8 +1,6 @@
 <template>
   <v-app-bar
       absolute
-      color="rgb(0, 51, 102)"
-      class="sysBar"
       style="z-index: 1002;"
       :class="{'pl-2': $vuetify.display.smAndDown, 'pl-10': $vuetify.display.mdAndUp, 'pr-2': $vuetify.display.smAndDown, 'pr-10': $vuetify.display.mdAndUp} "
   >
@@ -13,7 +11,7 @@
     >
       <img
           tabindex="-1"
-          src="../assets/images/bc-gov-logo.svg"
+          src="../assets/images/bc-gov-logo-light.png"
           width="155"
           class="logo"
           alt="B.C. Government Logo"
@@ -25,7 +23,7 @@
     >
       <v-toolbar-title><h3
           class="mainTitle"
-          style="color:white"
+          style="color:rgb(32, 31, 30)"
       >{{ appTitle }}</h3></v-toolbar-title>
     </a>
     
@@ -39,7 +37,7 @@
         location="bottom">
         <template v-slot:activator="{ props }">
           <v-btn
-            color="white"
+            color="rgb(32, 31, 30)"
             v-bind="props"
             icon="mdi-account"
           ></v-btn>
