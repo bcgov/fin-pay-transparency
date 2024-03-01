@@ -549,7 +549,7 @@ export default {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later
       if (newVal) {
-        const endDate = LocalDate.parse(newVal).plusYears(1).minusMonths(1);
+        const endDate = LocalDate.parse(newVal).plusYears(1).minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
         this.endDate = endDate.format(dateFormatter);
       }
     },
