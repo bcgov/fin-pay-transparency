@@ -4,7 +4,7 @@ import { IReport } from '../../types';
 import { LocalDateTime, convert } from '@js-joda/core';
 
 describe('helpers/report', () => {
-  describe.only('isEditable', () => {
+  describe('isEditable', () => {
     describe('when report is less than 30 days old', () => {
       it('should not be editable', () => {
         const report: Partial<IReport> = {
