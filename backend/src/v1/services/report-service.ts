@@ -1,15 +1,10 @@
-import type {
-  Prisma,
-  PrismaClient,
-  pay_transparency_report,
-} from '@prisma/client';
+import type { pay_transparency_report } from '@prisma/client';
 import moment from 'moment';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
-import { DefaultArgs } from '@prisma/client/runtime/library';
 const fs = require('node:fs/promises');
 
 const GENERIC_CHART_SUPPRESSED_MSG =
