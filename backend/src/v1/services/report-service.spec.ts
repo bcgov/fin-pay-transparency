@@ -1,4 +1,4 @@
-import type { pay_transparency_report } from '@prisma/client';
+import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import moment from 'moment';
 import stream from 'stream';
@@ -41,6 +41,9 @@ jest.mock('../prisma/prisma-client', () => {
       create: jest.fn(),
       update: jest.fn(),
       deleteMany: jest.fn(),
+    },
+    calculated_data_history: {
+      createMany: jest.fn(),
     },
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
   };
@@ -107,6 +110,25 @@ const mockCalculatedDatasInDB = [
 ];
 
 const mockPublishedReport: pay_transparency_report = {
+  report_id: '456768',
+  company_id: '255677',
+  user_id: '1232344',
+  user_comment: null,
+  employee_count_range_id: '67856345',
+  naics_code: '234234',
+  report_start_date: moment.utc().toDate(),
+  report_end_date: moment.utc().add(1, 'year').toDate(),
+  create_date: new Date(),
+  update_date: new Date(),
+  create_user: 'User',
+  update_user: 'User',
+  report_status: enumReportStatus.Published,
+  revision: new Prisma.Decimal(1),
+  data_constraints: null,
+};
+
+const mockHistoryReport: report_history = {
+  report_history_id: '567',
   report_id: '456768',
   company_id: '255677',
   user_id: '1232344',
@@ -752,9 +774,45 @@ describe('movePublishedReportToHistory', () => {
   });
   describe('if the given report is Published', () => {
     it("copy it to history, delete it's calculated data, and delete the original record from reports", async () => {
-      const tx = await prisma.$transaction(async (tx) => {
+      (prisma.report_history.create as jest.Mock).mockResolvedValue(
+        mockHistoryReport,
+      );
+      (
+        prisma.pay_transparency_calculated_data.findMany as jest.Mock
+      ).mockResolvedValue(mockCalculatedDatasInDB);
+      await prisma.$transaction(async (tx) => {
         await actualMovePublishedReportToHistory(tx, mockPublishedReport);
       });
+
+      // Confirm that the report was copied to the history table
+      expect(prisma.report_history.create).toHaveBeenCalledTimes(1);
+      const createReportHistory = (prisma.report_history.create as jest.Mock)
+        .mock.calls[0][0];
+      expect(createReportHistory.data.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the calculated data was got
+      expect(
+        prisma.pay_transparency_calculated_data.findMany,
+      ).toHaveBeenCalledTimes(1);
+      const findCalculated = (
+        prisma.pay_transparency_calculated_data.findMany as jest.Mock
+      ).mock.calls[0][0];
+      expect(findCalculated.where.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the calculated data was copied to the history
+      expect(prisma.calculated_data_history.createMany).toHaveBeenCalledTimes(
+        1,
+      );
+      const createCalculatedHistory = (
+        prisma.calculated_data_history.createMany as jest.Mock
+      ).mock.calls[0][0];
+      expect(createCalculatedHistory.data[0].report_history_id).toBe(
+        mockHistoryReport.report_history_id,
+      );
 
       // Confirm that the calculated datas were deleted
       expect(
@@ -764,14 +822,6 @@ describe('movePublishedReportToHistory', () => {
         prisma.pay_transparency_calculated_data.deleteMany as jest.Mock
       ).mock.calls[0][0];
       expect(deleteCalcData.where.report_id).toBe(
-        mockPublishedReport.report_id,
-      );
-
-      // Confirm that the report was copied to the history table
-      expect(prisma.report_history.create).toHaveBeenCalledTimes(1);
-      const createReportHistory = (prisma.report_history.create as jest.Mock)
-        .mock.calls[0][0];
-      expect(createReportHistory.data.report_id).toBe(
         mockPublishedReport.report_id,
       );
 
