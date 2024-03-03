@@ -66,8 +66,7 @@ app.get(
   '/health',
   utils.asyncHandler(async (_req: Request, res: Response) => {
     try {
-      const result = await prismaClient.prismaRead.$queryRaw`SELECT * from naics_code`;
-      logger.info(result);
+      await prismaClient.prismaRead.$queryRaw`SELECT 1`;
       res.status(200).send('Health check passed');
     } catch (e) {
       logger.error(`Health check failed: ${e}`);
