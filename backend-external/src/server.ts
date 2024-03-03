@@ -1,25 +1,18 @@
 import http from 'http';
-import {config} from './config/index';
+import { config } from './config/index';
 
-import {logger} from './logger';
+import { logger } from './logger';
 
-import {app} from './app';
-import prismaClient from './v1/prisma/prisma-client';
+import { app } from './app';
 
 // run inside `async` function
 
 const port = config.get('server:port');
 const server = http.createServer(app);
-prismaClient.prismaRead.$connect().then(() => {
-  app.set('port', port);
-  logger.info('Postgres initialized');
-  server.listen(port);
-  server.on('error', onError);
-  server.on('listening', onListening);
-}).catch((error) => {
-  logger.error(error);
-  process.exit(1);
-});
+app.set('port', port);
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 
 /**
@@ -59,28 +52,14 @@ function onListening() {
 }
 
 process.on('SIGINT', () => {
-  prismaClient.prismaRead.$disconnect()
-    .then(() => {
-      server.close();
-      logger.info('process terminated by SIGINT');
-      process.exit(0);
-    })
-    .catch((error) => {
-      logger.error('Error while disconnecting from Prisma:', error);
-      process.exit(1); // Handle the error and exit with a non-zero status code
-    });
+  server.close();
+  logger.info('process terminated by SIGINT');
+  process.exit(0);
 });
 process.on('SIGTERM', () => {
-  prismaClient.prismaRead.$disconnect()
-    .then(() => {
-      server.close();
-      logger.info('process terminated by SIGTERM');
-      process.exit(0);
-    })
-    .catch((error) => {
-      logger.error('Error while disconnecting from Prisma:', error);
-      process.exit(1); // Handle the error and exit with a non-zero status code
-    });
+  server.close();
+  logger.info('process terminated by SIGTERM');
+  process.exit(0);
 });
 // Prevent unhandled promise errors from crashing application
 process.on('unhandledRejection', (err: Error) => {

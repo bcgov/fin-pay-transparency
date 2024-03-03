@@ -1,4 +1,5 @@
 {{- if .Values.enabled }}
+{{$crunchyReadOnlyReplicaHost := printf "%s-crunchy-replicas.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -88,6 +89,8 @@ spec:
                 secretKeyRef:
                   name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
                   key: host
+            - name: READ_ONLY_REPLICA_HOST
+              value: {{ $crunchyReadOnlyReplicaHost }}
             - name: POSTGRESQL_USER
               valueFrom:
                 secretKeyRef:

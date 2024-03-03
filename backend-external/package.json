@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "main": "src/server.ts",
   "dependencies": {
-    "@prisma/client": "^5.10.2",
-    "@prisma/extension-read-replicas": "^0.3.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-prom-bundle": "^7.0.0",
@@ -38,7 +36,6 @@
     "mock-req-res": "^1.2.1",
     "nodemon": "^3.0.2",
     "prettier": "^3.1.1",
-    "prisma": "^5.10.2",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.5.1",
@@ -47,12 +44,10 @@
   },
   "scripts": {
     "test": "jest",
-    "test:cov": "npm run generate && jest --coverage --detectOpenHandles --forceExit",
-    "build": "npm run generate && tsc",
-    "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
-    "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
+    "test:cov": "jest --coverage --detectOpenHandles --forceExit",
+    "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "npm run generate && nodemon src/server.ts",
+    "dev": "nodemon src/server.ts",
     "lint:fix": "eslint --ext js,ts,tsx src --fix",
     "prettier:write": "prettier src --write"
   },

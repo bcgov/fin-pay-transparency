@@ -18,8 +18,8 @@ config.defaults({
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
-      limit: process.env.RATE_LIMIT_LIMIT || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
-    },
+      limit: process.env.RATE_LIMIT_LIMIT || 100 // Limit each IP to 100 requests per `window` (here, per 1 minute)
+    }
   },
   oidc: {
     keycloakUrl: process.env.KEYCLOAK_URL,
@@ -27,25 +27,28 @@ config.defaults({
     clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
     discovery:
       process.env.KEYCLOAK_URL +
-      '/realms/standard/.well-known/openid-configuration',
+      '/realms/standard/.well-known/openid-configuration'
   },
   tokenGenerate: {
     privateKey: process.env.PRIVATE_KEY,
     publicKey: process.env.PUBLIC_KEY,
     audience: process.env.AUDIENCE,
-    issuer: process.env.ISSUER,
+    issuer: process.env.ISSUER
   },
   bceidWsIntegration: {
     auth: {
       username: process.env.BCEID_WS_BASIC_AUTH_USERNAME,
-      password: process.env.BCEID_WS_BASIC_AUTH_PASSWORD,
+      password: process.env.BCEID_WS_BASIC_AUTH_PASSWORD
     },
     url: process.env.BCEID_WS_URL,
-    onlineServiceId: process.env.BCEID_WS_ONLINE_SERVICE_ID,
+    onlineServiceId: process.env.BCEID_WS_ONLINE_SERVICE_ID
   },
   docGenService: {
     url: process.env.DOC_GEN_SERVICE_URL || 'http://localhost:3001/api',
-    apiKey: process.env.DOC_GEN_API_KEY || 'api-key',
+    apiKey: process.env.DOC_GEN_API_KEY || 'api-key'
   },
+  backendExternal: {
+    apiKey: process.env.BACKEND_EXTERNAL_API_KEY // this the API key for internal communication between services, backend-external will pass this api key in header.
+  }
 });
 export { config };

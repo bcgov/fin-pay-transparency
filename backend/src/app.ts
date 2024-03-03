@@ -24,6 +24,7 @@ import promBundle from 'express-prom-bundle';
 import passportJWT from 'passport-jwt';
 import fileSessionStore from 'session-file-store';
 import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
+import externalConsumerRouter from './v1/routes/external-consumer-routes';
 
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
@@ -31,7 +32,7 @@ const metricsMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
   metricsPath: '/prom-metrics',
-  promRegistry: register,
+  promRegistry: register
 });
 const app = express();
 const apiRouter = express.Router();
@@ -44,7 +45,7 @@ const fileSession = fileSessionStore(session);
 const logStream = {
   write: (message) => {
     logger.info(message);
-  },
+  }
 };
 
 app.use(helmet());
@@ -55,13 +56,13 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(
   bodyParser.urlencoded({
     extended: true,
-    limit: '50mb',
-  }),
+    limit: '50mb'
+  })
 );
 
 const cookie = {
   httpOnly: true,
-  maxAge: 1800000, //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
+  maxAge: 1800000 //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
@@ -75,8 +76,8 @@ const sess = {
     path: resolve('./', config.get('server:sessionPath')),
     logFn: (msg: string) => {
       logger.silly(msg);
-    },
-  }),
+    }
+  })
 };
 if ('production' === config.get('environment')) {
   app.set('trust proxy', 1);
@@ -90,7 +91,7 @@ function addLoginPassportUse(
   discovery,
   strategyName,
   callbackURI,
-  kc_idp_hint,
+  kc_idp_hint
 ) {
   logger.debug(`Adding strategy ${strategyName} with callback ${callbackURI}`);
   logger.debug(`discovery: ${JSON.stringify(discovery)}`);
@@ -107,7 +108,7 @@ function addLoginPassportUse(
         callbackURL: callbackURI,
         scope: 'bceidbusiness',
         kc_idp_hint: kc_idp_hint,
-        sessionKey: 'fin-pay-transparency',
+        sessionKey: 'fin-pay-transparency'
       },
       (
         _issuer,
@@ -116,10 +117,10 @@ function addLoginPassportUse(
         idToken,
         accessToken,
         refreshToken,
-        done,
+        done
       ) => {
         logger.debug(
-          `Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`,
+          `Login flow first pass done. accessToken: ${accessToken}, refreshToken: ${refreshToken}, idToken: ${idToken}`
         );
         if (accessToken == null || refreshToken == null) {
           return done('No access token', null);
@@ -132,8 +133,8 @@ function addLoginPassportUse(
         profile.refreshToken = refreshToken;
         profile.idToken = idToken;
         return done(null, profile);
-      },
-    ),
+      }
+    )
   );
 }
 
@@ -152,7 +153,7 @@ utils.getOidcDiscovery().then((discovery) => {
     discovery,
     'oidcBusinessBceid',
     config.get('server:frontend') + '/api/auth/callback_business_bceid',
-    'bceidbusiness',
+    'bceidbusiness'
   );
   //JWT strategy is used for authorization
   passport.use(
@@ -167,7 +168,7 @@ utils.getOidcDiscovery().then((discovery) => {
         issuer: config.get('tokenGenerate:issuer'),
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: config.get('tokenGenerate:publicKey'),
-        ignoreExpiration: true,
+        ignoreExpiration: true
       },
       (jwtPayload, done) => {
         if (typeof jwtPayload === 'undefined' || jwtPayload === null) {
@@ -181,10 +182,10 @@ utils.getOidcDiscovery().then((discovery) => {
           jwt: jwtPayload,
           name: jwtPayload.name,
           user_guid: jwtPayload.user_guid,
-          realmRole: jwtPayload.realm_role,
+          realmRole: jwtPayload.realm_role
         });
-      },
-    ),
+      }
+    )
   );
 });
 //functions for serializing/deserializing users
@@ -199,9 +200,9 @@ app.use(
         return (
           req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
         );
-      },
-    },
-  ),
+      }
+    }
+  )
 );
 
 if (config.get('server:rateLimit:enabled')) {
@@ -210,7 +211,7 @@ if (config.get('server:rateLimit:enabled')) {
     limit: config.get('server:rateLimit:limit'),
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers,
-    skipSuccessfulRequests: true, // Do not count successful responses
+    skipSuccessfulRequests: true // Do not count successful responses
   });
   app.use(limiter);
 }
@@ -221,7 +222,7 @@ app.get(
     const prismaMetrics = await prisma.$metrics.prometheus();
     const appMetrics = await register.metrics();
     res.end(prismaMetrics + appMetrics);
-  }),
+  })
 );
 app.get(
   '/health',
@@ -233,9 +234,10 @@ app.get(
       logger.error(`Health check failed: ${e}`);
       res.status(500).send('Health check failed');
     }
-  }),
+  })
 );
-
+// The API routes are proxied from frontend, which is exposed to internet, this will avoid external consumer endpoints in backend not to be exposed to internet.
+app.use(/(\/external-consumer-api)?/, externalConsumerRouter);
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
@@ -247,7 +249,7 @@ apiRouter.use(
   passport.authenticate('jwt', { session: false }),
   (req: Request, res: Response, next: NextFunction) => {
     auth.isValidBackendToken()(req, res, next);
-  },
+  }
 );
 apiRouter.use('/user', userRouter);
 apiRouter.use('/config', configRouter);

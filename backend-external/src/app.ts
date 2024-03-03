@@ -5,7 +5,6 @@ import morgan from 'morgan';
 import noCache from 'nocache';
 import { config } from './config';
 import prom from 'prom-client';
-import prismaClient from './v1/prisma/prisma-client';
 import { logger } from './logger';
 import { rateLimit } from 'express-rate-limit';
 import promBundle from 'express-prom-bundle';
@@ -17,14 +16,14 @@ const metricsMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
   metricsPath: '/prom-metrics',
-  promRegistry: register,
+  promRegistry: register
 });
 const app = express();
 const apiRouter = express.Router();
 const logStream = {
   write: (message) => {
     logger.info(message);
-  },
+  }
 };
 
 app.use(helmet());
@@ -46,9 +45,9 @@ app.use(
         return (
           req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
         );
-      },
-    },
-  ),
+      }
+    }
+  )
 );
 
 if (config.get('server:rateLimit:enabled')) {
@@ -57,7 +56,7 @@ if (config.get('server:rateLimit:enabled')) {
     limit: config.get('server:rateLimit:limit'),
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers,
-    skipSuccessfulRequests: true, // Do not count successful responses
+    skipSuccessfulRequests: true // Do not count successful responses
   });
   app.use(limiter);
 }
@@ -66,13 +65,12 @@ app.get(
   '/health',
   utils.asyncHandler(async (_req: Request, res: Response) => {
     try {
-      await prismaClient.prismaRead.$queryRaw`SELECT 1`;
       res.status(200).send('Health check passed');
     } catch (e) {
       logger.error(`Health check failed: ${e}`);
       res.status(500).send('Health check failed');
     }
-  }),
+  })
 );
 
 app.use(/(\/api)?/, apiRouter);
@@ -91,7 +89,7 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
   } else {
     logger.error('API Key is missing in the request header');
     res.status(400).send({
-      message: 'API Key is missing in the request header',
+      message: 'API Key is missing in the request header'
     });
   }
 };

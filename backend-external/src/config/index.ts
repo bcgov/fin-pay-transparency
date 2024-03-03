@@ -10,6 +10,7 @@ config.defaults({
   server: {
     logLevel: process.env.LOG_LEVEL,
     morganFormat: 'dev',
+    backendUrl: process.env.BACKEND_URL || 'http://localhost:3000', // Backend URL to be used for making requests
     apiKey: process.env.EXTERNAL_CONSUMER_API_KEY || 'api-key',
     port: process.env.PORT || 3002,
     rateLimit: {

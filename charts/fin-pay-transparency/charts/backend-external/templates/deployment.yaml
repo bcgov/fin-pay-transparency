@@ -1,10 +1,4 @@
 {{- if .Values.enabled }}
-#chck if release name contains PR, if so the postgres hot is dev otherwise it is release name
-{{$postgresHost := printf "%s-crunchy-replicas.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
-{{$releaseName:= printf "%s" .Release.Name }}
-{{- if contains "pr" .Release.Name  }}
-{{$postgresHost = printf "pay-transparency-dev-crunchy-replicas.%s.svc.cluster.local" .Release.Namespace  }}
-{{$releaseName = "pay-transparency-dev" }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -37,24 +31,8 @@ spec:
           image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/fin-pay-transparency/backend-external:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            # This API is only connected to replicas of Crunchy Postgres Operator
-            - name: POSTGRESQL_HOST
-              value: {{ $postgresHost }}
-            - name: POSTGRESQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{$releaseName}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
-                  key: user
-            - name: POSTGRESQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{$releaseName}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
-                  key: password
-            - name: POSTGRESQL_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: {{$releaseName}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
-                  key: dbname
+            - name: BACKEND_URL
+              value: http://{{ .Release.Name }}-backend
             - name: NODE_ENV
               value: production
             - name: IS_RATE_LIMIT_ENABLED

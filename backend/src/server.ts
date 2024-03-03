@@ -5,6 +5,7 @@ import {logger} from './logger';
 
 import {app} from './app';
 import prisma from './v1/prisma/prisma-client';
+import prismaReadOnlyReplica from './v1/prisma/prisma-client-readonly-replica';
 
 // run inside `async` function
 
@@ -13,6 +14,12 @@ const server = http.createServer(app);
 prisma.$connect().then(() => {
   app.set('port', port);
   logger.info('Postgres initialized');
+  prismaReadOnlyReplica.$connect().then(() => {
+    logger.info('Readonly Postgres initialized');
+  }).catch((error) => {
+    logger.error(error);
+    process.exit(1);
+  });
   server.listen(port);
   server.on('error', onError);
   server.on('listening', onListening);
@@ -61,9 +68,14 @@ function onListening() {
 process.on('SIGINT', () => {
   prisma.$disconnect()
     .then(() => {
-      server.close();
-      logger.info('process terminated by SIGINT');
-      process.exit(0);
+      prismaReadOnlyReplica.$disconnect().then(() => {
+        server.close();
+        logger.info('process terminated by SIGINT');
+        process.exit(0);
+      }).catch((error) => {
+        logger.error(error);
+        process.exit(1);
+      });
     })
     .catch((error) => {
       logger.error('Error while disconnecting from Prisma:', error);
@@ -73,9 +85,14 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   prisma.$disconnect()
     .then(() => {
-      server.close();
-      logger.info('process terminated by SIGTERM');
-      process.exit(0);
+      prismaReadOnlyReplica.$disconnect().then(() => {
+        server.close();
+        logger.info('process terminated by SIGINT');
+        process.exit(0);
+      }).catch((error) => {
+        logger.error(error);
+        process.exit(1);
+      });
     })
     .catch((error) => {
       logger.error('Error while disconnecting from Prisma:', error);
