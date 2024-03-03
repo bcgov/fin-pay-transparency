@@ -287,10 +287,10 @@ backend-external:
     targetPort: 3000
   resources:
     limits:
-      cpu: 50m
+      cpu: 20m
       memory: 150Mi
     requests:
-      cpu: 20m
+      cpu: 10m
       memory: 50Mi
   app:
     env:
