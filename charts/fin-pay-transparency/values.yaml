@@ -270,7 +270,7 @@ doc-gen-service:
   pdb: true
 backend-external:
   enabled: true
-  deploymentStrategy: Replace
+  deploymentStrategy: Recreate
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
