@@ -34,7 +34,7 @@ const externalConsumerService = {
     }
     // TODO: Add logic to fetch data from prismaReadOnlyReplica, below query needs to be updated.
     // Query to fetch data from report, company, calculation and calculation_code, naics_code, employee_count range tables
-    const results = await prismaReadOnlyReplica.$replica().pay_transparency_report.findMany();
+    const results = await prismaReadOnlyReplica.$replica().pay_transparency_report.findMany({skip: offset, take: limit});
     logger.info(results);
     return results;
 

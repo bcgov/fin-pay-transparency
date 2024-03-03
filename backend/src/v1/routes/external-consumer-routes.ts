@@ -14,7 +14,7 @@ router.get('/', utils.asyncHandler(async (req: Request, res: Response) => {
     if(isNaN(offset) || isNaN(limit)) {
       return res.status(400).json({ error: 'Invalid offset or limit' });
     }
-    const results = externalConsumerService.exportDataWithPagination(startDate, endDate, offset, limit);
+    const results = await externalConsumerService.exportDataWithPagination(startDate, endDate, offset, limit);
     res.status(200).json(results);
   } catch (e) {
     res.status(500).json({ error: e.message });
