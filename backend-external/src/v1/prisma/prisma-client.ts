@@ -20,7 +20,8 @@ const prisma = new PrismaClient({
     { emit: 'stdout', level: 'warn' },
     { emit: 'stdout', level: 'error' }
   ],
-  errorFormat: 'pretty'
+  errorFormat: 'pretty',
+  datasourceUrl: datasourceUrl,
 });
 const prismaRead = prisma.$extends(
   readReplicas({
