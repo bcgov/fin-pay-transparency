@@ -1,8 +1,8 @@
 {{- if .Values.enabled }}
 #chck if release name contains PR, if so the postgres hot is dev otherwise it is release name
-{{$postgresHost := printf "pay-transparency-dev-crunchy-replicas.%s.svc.cluster.local" .Release.Namespace }}
-{{- if not contains .Release.Name "pr" }}
-{{$postgresHost = printf "%s-crunchy-replicas.%s.svc.cluster.local" .Release.Name .Release.Namespace  }}
+{{$postgresHost := printf "%s-crunchy-replicas.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- if contains "pr" .Release.Name  }}
+{{$postgresHost = printf "pay-transparency-dev-crunchy-replicas.%s.svc.cluster.local" .Release.Namespace  }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -62,12 +62,12 @@ spec:
             - name: RATE_LIMIT_LIMIT
               value: '1000'
             - name: LOG_LEVEL
-              value: info
+              value: {{.Values.app.env.logLevel}}
             - name: EXTERNAL_CONSUMER_API_KEY
               valueFrom:
-                  secretKeyRef:
-                    name: {{.Release.Name}}
-                    key: EXTERNAL_CONSUMER_API_KEY
+                secretKeyRef:
+                  name: {{.Release.Name}}
+                  key: EXTERNAL_CONSUMER_API_KEY
 
           ports:
             - name: http

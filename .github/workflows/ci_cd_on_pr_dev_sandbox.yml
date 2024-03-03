@@ -21,6 +21,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  vars:
+    name: Set Variables
+    runs-on: ubuntu-22.04
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.timestamp }}
+    steps:
+      - name: Set Timestamp
+        shell: bash
+        id: timestamp
+        run: |
+          echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+
   pr-description-add:
     name: PR Description Add
     runs-on: ubuntu-22.04
@@ -42,6 +54,7 @@ jobs:
     if: '!github.event.pull_request.head.repo.fork'
     name: Builds
     runs-on: ubuntu-22.04
+    needs: [vars]
     permissions:
       packages: write
     strategy:
@@ -82,9 +95,7 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: ${{ github.event.number }}
           tags: |
-            pr-${{ github.event.number }}
-            ${{ github.sha }}
-            ${{ github.event.number }}
+            pr-${{ github.event.number }}-${{ needs.vars.outputs.timestamp }}
 
 
 
@@ -143,12 +154,12 @@ jobs:
 
   deploys:
     name: Deploys
-    needs: [builds, check-quota]
+    needs: [vars, builds, check-quota]
     uses: ./.github/workflows/.deploy.yml
     secrets: inherit
     with:
       autoscaling: false
       target: pr-${{ github.event.number }}
-      tag: ${{ github.sha }}
+      tag: pr-${{ github.event.number }}-${{ needs.vars.outputs.timestamp }}
       values: "values-pr.yaml"
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
