@@ -9,7 +9,7 @@ import { logger } from './logger';
 import { rateLimit } from 'express-rate-limit';
 import promBundle from 'express-prom-bundle';
 import { utils } from './utils';
-
+import payTransparencyRouter from './v1/routes/pay-transparency-routes';
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
 const metricsMiddleware = promBundle({
@@ -94,6 +94,7 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 apiRouter.use(globalMiddleware);
+apiRouter.use('/pay-transparency', payTransparencyRouter);
 // Handle 500
 app.use((err: Error, _req: Request, res: Response) => {
   /* istanbul ignore if  */

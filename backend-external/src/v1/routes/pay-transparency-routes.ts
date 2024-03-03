@@ -19,3 +19,4 @@ router.get('/', utils.asyncHandler(async (req: Request, res: Response) => {
     res.status(500).json({ error: e.message });
   }
 }));
+export default router;
