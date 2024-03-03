@@ -33,10 +33,7 @@ const externalConsumerService = {
     }
     // TODO: Add logic to fetch data from prismaReadOnlyReplica, below query needs to be updated.
     // Query to fetch data from report, company, calculation and calculation_code, naics_code, employee_count range tables
-    return prismaReadOnlyReplica.pay_transparency_report.findMany({
-      skip: offset,
-      take: limit
-    });
+    return prismaReadOnlyReplica.$queryRaw`SELECT * FROM pay_transparency.pay_transparency_report ptr WHERE ptr.create_date >= ${startDt} AND ptr.create_date <= ${endDt} LIMIT ${limit} OFFSET ${offset}`;
 
   }
 };

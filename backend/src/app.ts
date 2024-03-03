@@ -24,6 +24,7 @@ import promBundle from 'express-prom-bundle';
 import passportJWT from 'passport-jwt';
 import fileSessionStore from 'session-file-store';
 import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
+import { externalConsumerApp } from './external-consumer-app';
 
 
 const register = new prom.Registry();
@@ -256,4 +257,12 @@ apiRouter.use('/config', configRouter);
 apiRouter.use('/v1/file-upload', fileUploadRouter);
 apiRouter.use('/v1/codes', codeRouter);
 apiRouter.use('/v1/report', reportRouter);
+app.use(function(req:Request, res:Response, _next: NextFunction) {
+  return res.status(404).send({ message: 'Route'+req.url+' Not found.' });
+});
+
+// 500 - Any server error
+app.use(function(err:Error, req:Request, res:Response, _next: NextFunction) {
+  return res.status(500).send({ error: err });
+});
 export { app };

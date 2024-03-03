@@ -96,6 +96,12 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
 apiRouter.use(globalMiddleware);
 apiRouter.use('/v1/pay-transparency', payTransparencyRouter);
 // Handle 500
+
+// Handle 404
+/* istanbul ignore next  */
+app.use((_req: Request, res: Response) => {
+  res.sendStatus(404);
+});
 app.use((err: Error, _req: Request, res: Response) => {
   /* istanbul ignore if  */
   if (err?.stack) {
@@ -104,9 +110,4 @@ app.use((err: Error, _req: Request, res: Response) => {
   res.sendStatus(500);
 });
 
-// Handle 404
-/* istanbul ignore next  */
-app.use((_req: Request, res: Response) => {
-  res.sendStatus(404);
-});
 export { app };
