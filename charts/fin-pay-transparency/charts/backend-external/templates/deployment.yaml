@@ -1,8 +1,10 @@
 {{- if .Values.enabled }}
 #chck if release name contains PR, if so the postgres hot is dev otherwise it is release name
 {{$postgresHost := printf "%s-crunchy-replicas.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{$releaseName:= printf "%s" .Release.Name }}
 {{- if contains "pr" .Release.Name  }}
 {{$postgresHost = printf "pay-transparency-dev-crunchy-replicas.%s.svc.cluster.local" .Release.Namespace  }}
+{{$releaseName = "pay-transparency-dev" }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -24,7 +26,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "backend-external.selectorLabels" . | nindent 8 }}
+        {{- include "backend-external.labels" . | nindent 8 }}
     spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -41,17 +43,17 @@ spec:
             - name: POSTGRESQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
+                  name: {{$releaseName}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
                   key: user
             - name: POSTGRESQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
+                  name: {{$releaseName}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
                   key: password
             - name: POSTGRESQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
+                  name: {{$releaseName}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
                   key: dbname
             - name: NODE_ENV
               value: production
