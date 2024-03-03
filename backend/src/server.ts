@@ -7,6 +7,7 @@ import {app} from './app';
 import prisma from './v1/prisma/prisma-client';
 import prismaReadOnlyReplica from './v1/prisma/prisma-client-readonly-replica';
 import { externalConsumerApp } from './external-consumer-app';
+import { AddressInfo } from 'node:net';
 
 // run inside `async` function
 
@@ -28,7 +29,7 @@ prisma.$connect().then(() => {
   server.on('error', onError);
   server.on('listening', onListening);
   externalConsumerServer.on('error', onError);
-  externalConsumerServer.on('listening', onListening);
+  externalConsumerServer.on('listening', onExternalConsumerListening);
 }).catch((error) => {
   logger.error(error);
   process.exit(1);
@@ -60,15 +61,23 @@ function onError(error: { syscall: string; code: any; }) {
   }
 }
 
+function printToConsole(addr: AddressInfo | string) {
+  const bind = typeof addr === 'string' ?
+    'pipe ' + addr :
+    'port ' + addr.port;
+  logger.info('Listening on ' + bind);
+}
+
 /**
  * Event listener for HTTP server "listening" event.
  */
 function onListening() {
   const addr = server.address();
-  const bind = typeof addr === 'string' ?
-    'pipe ' + addr :
-    'port ' + addr.port;
-  logger.info('Listening on ' + bind);
+  printToConsole(addr);
+}
+function onExternalConsumerListening() {
+  const addr = externalConsumerServer.address();
+  printToConsole(addr);
 }
 
 process.on('SIGINT', () => {
