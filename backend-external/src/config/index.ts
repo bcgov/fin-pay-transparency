@@ -10,7 +10,6 @@ config.defaults({
   server: {
     logLevel: process.env.LOG_LEVEL,
     morganFormat: 'dev',
-    backendUrl: process.env.BACKEND_URL || 'http://localhost:3000', // Backend URL to be used for making requests
     apiKey: process.env.EXTERNAL_CONSUMER_API_KEY || 'api-key',
     port: process.env.PORT || 3002,
     rateLimit: {
@@ -18,6 +17,10 @@ config.defaults({
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
       limit: process.env.RATE_LIMIT_LIMIT || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
     },
+  },
+  backend:{
+    apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key',
+    url: process.env.BACKEND_URL || 'http://localhost:3000'
   }
 });
 export { config };

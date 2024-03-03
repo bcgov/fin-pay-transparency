@@ -36,6 +36,7 @@ const metricsMiddleware = promBundle({
 });
 const app = express();
 const apiRouter = express.Router();
+const externalConsumerApiRouter = express.Router();
 
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -237,7 +238,27 @@ app.get(
   })
 );
 // The API routes are proxied from frontend, which is exposed to internet, this will avoid external consumer endpoints in backend not to be exposed to internet.
-app.use(/(\/external-consumer-api)?/, externalConsumerRouter);
+app.use(/(\/external-consumer-api)?/, externalConsumerApiRouter);
+externalConsumerApiRouter.use(
+  (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header('x-api-key');
+    if (apiKey) {
+      if (config.get('backendExternal:apiKey') === apiKey) {
+        next();
+      } else {
+        logger.error('Invalid API Key');
+        res.status(401).send({ message: 'Invalid API Key' });
+      }
+    } else {
+      logger.error('API Key is missing in the request header');
+      res.status(400).send({
+        message: 'API Key is missing in the request header',
+      });
+    }
+  }
+);
+externalConsumerApiRouter.use('/v1', externalConsumerRouter);
+
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.

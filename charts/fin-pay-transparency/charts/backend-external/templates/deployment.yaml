@@ -49,6 +49,11 @@ spec:
                   key: EXTERNAL_CONSUMER_API_KEY
             - name: PORT
               value: {{ .Values.service.targetPort | quote }}
+            - name: BACKEND_EXTERNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}
+                  key: BACKEND_EXTERNAL_API_KEY
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

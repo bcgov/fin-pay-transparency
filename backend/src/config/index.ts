@@ -48,7 +48,7 @@ config.defaults({
     apiKey: process.env.DOC_GEN_API_KEY || 'api-key'
   },
   backendExternal: {
-    apiKey: process.env.BACKEND_EXTERNAL_API_KEY // this the API key for internal communication between services, backend-external will pass this api key in header.
+    apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key' // this the API key for internal communication between services, backend-external will pass this api key in header.
   }
 });
 export { config };
