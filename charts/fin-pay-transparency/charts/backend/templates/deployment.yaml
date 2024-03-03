@@ -145,7 +145,7 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-            - name: external-consumer-http
+            - name: external-http
               containerPort: 3001
               protocol: TCP
           readinessProbe:

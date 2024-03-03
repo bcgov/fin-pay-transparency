@@ -14,9 +14,9 @@ spec:
       protocol: TCP
       name: http
     - port: 3001
-      targetPort: external-consumer-http
+      targetPort: external-http
       protocol: TCP
-      name: external-consumer-http
+      name: external-http
   selector:
     {{- include "backend.selectorLabels" . | nindent 4 }}
 {{- end }}
