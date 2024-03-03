@@ -12,6 +12,7 @@ config.defaults({
     logLevel: process.env.LOG_LEVEL,
     morganFormat: 'dev',
     port: process.env.PORT || 3000,
+    externalConsumerPort: process.env.EXTERNAL_CONSUMER_PORT || 3010,
     sessionPath: process.env.SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),

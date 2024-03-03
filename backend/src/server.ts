@@ -6,11 +6,14 @@ import {logger} from './logger';
 import {app} from './app';
 import prisma from './v1/prisma/prisma-client';
 import prismaReadOnlyReplica from './v1/prisma/prisma-client-readonly-replica';
+import { externalConsumerApp } from './external-consumer-app';
 
 // run inside `async` function
 
 const port = config.get('server:port');
+const externalConsumerPort = config.get('server:externalConsumerPort');
 const server = http.createServer(app);
+const externalConsumerServer = http.createServer(externalConsumerApp);
 prisma.$connect().then(() => {
   app.set('port', port);
   logger.info('Postgres initialized');
@@ -21,8 +24,11 @@ prisma.$connect().then(() => {
     process.exit(1);
   });
   server.listen(port);
+  externalConsumerServer.listen(externalConsumerPort);
   server.on('error', onError);
   server.on('listening', onListening);
+  externalConsumerServer.on('error', onError);
+  externalConsumerServer.on('listening', onListening);
 }).catch((error) => {
   logger.error(error);
   process.exit(1);
@@ -70,6 +76,7 @@ process.on('SIGINT', () => {
     .then(() => {
       prismaReadOnlyReplica.$disconnect().then(() => {
         server.close();
+        externalConsumerServer.close();
         logger.info('process terminated by SIGINT');
         process.exit(0);
       }).catch((error) => {
@@ -87,6 +94,7 @@ process.on('SIGTERM', () => {
     .then(() => {
       prismaReadOnlyReplica.$disconnect().then(() => {
         server.close();
+        externalConsumerServer.close();
         logger.info('process terminated by SIGINT');
         process.exit(0);
       }).catch((error) => {

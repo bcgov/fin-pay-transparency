@@ -138,10 +138,15 @@ spec:
               value: '/app/sessions'
             - name: DOC_GEN_SERVICE_URL
               value: 'http://{{.Release.Name}}-doc-gen-service/api'
+            - name: EXTERNAL_CONSUMER_PORT
+              value: '3001'
 
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+            - name: externalConsumerHttp
+              containerPort: 3001
               protocol: TCP
           readinessProbe:
             httpGet:

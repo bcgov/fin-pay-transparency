@@ -31,7 +31,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: BACKEND_URL
-              value: http://{{ .Release.Name }}-backend
+              value: http://{{ .Release.Name }}-backend:3001 # the 3001 is the port of the backend service for external consumers
             - name: NODE_ENV
               value: production
             - name: IS_RATE_LIMIT_ENABLED

@@ -94,7 +94,7 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 apiRouter.use(globalMiddleware);
-apiRouter.use('/pay-transparency', payTransparencyRouter);
+apiRouter.use('/v1/pay-transparency', payTransparencyRouter);
 // Handle 500
 app.use((err: Error, _req: Request, res: Response) => {
   /* istanbul ignore if  */
