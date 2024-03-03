@@ -1,5 +1,6 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { LocalDate, LocalDateTime } from '@js-joda/core';
+import { logger } from '../../logger';
 
 const externalConsumerService = {
   /**
@@ -33,7 +34,9 @@ const externalConsumerService = {
     }
     // TODO: Add logic to fetch data from prismaReadOnlyReplica, below query needs to be updated.
     // Query to fetch data from report, company, calculation and calculation_code, naics_code, employee_count range tables
-    return prismaReadOnlyReplica.$queryRaw`SELECT * FROM pay_transparency.pay_transparency_report  LIMIT ${limit} OFFSET ${offset}`;
+    const results = await prismaReadOnlyReplica.$replica().pay_transparency_report.findMany();
+    logger.info(results);
+    return results;
 
   }
 };
