@@ -91,7 +91,7 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
   } else {
     logger.error('API Key is missing in the request header');
     res.status(400).send({
-      message: 'Correlation Id or API Key is missing in the request header',
+      message: 'API Key is missing in the request header',
     });
   }
 };
