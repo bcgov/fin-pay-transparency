@@ -1,17 +1,19 @@
-import moment from 'moment';
+import { LocalDate, LocalDateTime, ZoneId, DateTimeFormatter } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import prisma from '../prisma/prisma-client';
-import type { pay_transparency_report } from '@prisma/client';
-import { enumReportStatus, REPORT_DATE_FORMAT } from './report-service';
+import { enumReportStatus, REPORT_DATE_FORMAT, JODA_FORMATTER } from './report-service';
 
 const schedulerService = {
   /*
    * TODO
    */
   async deleteDraftReports() {
-    
-  },
-  async getDraftReports() {
-        const delete_date = moment().subtract(24, 'hours').utc().toISOString();
+        //const dateFormatter = DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT).withLocale(Locale.CANADA);
+        //const delete_date = dateFormatter.now(ZoneId.UTC).minusDays(1).format(JODA_FORMATTER);
+
+        //const delete_date = now(ZoneId.UTC).minusDays(1).format(JODA_FORMATTER);
+
+        const delete_date = LocalDateTime.now(ZoneId.UTC).minusDays(1).toString() + 'Z';
 
         //console.log(delete_date);
 
@@ -27,11 +29,14 @@ const schedulerService = {
             },
         }); 
 
-        if (!reports) return null;
+        console.log(reports.length);
+
+        //if (!reports) return null;
 
         reports.forEach((r) => {
-          console.log(r.report_id)
-        })          
+          //console.log(r.report_id)
+        })        
+ 
         /*
         await prisma.pay_transparency_report.deleteMany({
           where: {
