@@ -47,13 +47,13 @@
 
               <v-row>
                 <v-col class="d-flex justify-center align-center">                                    
-                  <div class="circle" :class="{ active: stage == 'UPLOAD', disabled: stage != 'UPLOAD'  }" v-on:click="changeStage('UPLOAD')">1</div>
+                  <div class="circle" :class="{ active: stage == 'UPLOAD', available: stage != 'UPLOAD'  }" v-on:click="changeStage('UPLOAD')">1</div>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <div class="circle" :class="{ active: stage == 'REVIEW', disabled: stage != 'REVIEW' }" v-on:click="changeStage('REVIEW')">2</div>
+                  <div class="circle" :class="{ active: stage == 'REVIEW', available: stage != 'REVIEW' }" v-on:click="changeStage('REVIEW')">2</div>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <div class="circle" :class="{ active: stage == 'GENERATE', disabled: stage != 'GENERATE' }" v-on:click="changeStage('GENERATE')">3</div>
+                  <div class="circle" :class="{ active: stage == 'GENERATE', available: stage != 'GENERATE' }" v-on:click="changeStage('GENERATE')">3</div>
                 </v-col>
               </v-row>
 
