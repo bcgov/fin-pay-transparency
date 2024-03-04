@@ -1,19 +1,41 @@
-import { render } from '@testing-library/vue';
+import { render, screen, waitFor } from '@testing-library/vue';
 import Header from '../Header.vue';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createTestingPinia } from '@pinia/testing';
+import { authStore } from '../../store/modules/auth';
+import { createVuetify } from 'vuetify';
 
 const pinia = createTestingPinia();
-const wrappedRender = () => {
+const vuetify = createVuetify();
+const wrappedRender = async () => {
   return render(Header, {
     global: {
-      plugins: [pinia],
+      plugins: [pinia, vuetify],
     },
   });
 };
 
+const auth = authStore();
+
 describe('Header', () => {
-  describe('Authenticated', () => {
-    
+  describe('when authenticated', () => {
+    beforeEach(() => {
+      auth.$patch({
+        isAuthenticated: true,
+        userInfo: {
+          displayName: 'Test user',
+          legalName: 'Test legal',
+        },
+      });
+      vi.clearAllMocks();
+    });
+
+    it.only('should render correctly', async () => {
+      await wrappedRender();
+      screen.debug()
+      expect(screen.getByTestId('header-title')).toHaveTextContent(
+        'Pay Transparency Reporting',
+      );
+    });
   });
 });

@@ -14,7 +14,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col class="justify-center" style="text-align: left">
+          <v-col class="justify-center" style="text-align: left" data-testid="footer-message">
             For questions or assistance with creating a report please contact
             the Pay Transparency Unit -
             <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">
@@ -32,6 +32,7 @@
                 class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.left"
                 :href="link.to"
+                :data-testid="link.id"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
               </v-list-item>
@@ -43,6 +44,7 @@
                 class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.right"
                 :href="link.to"
+                :data-testid="link.id"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
               </v-list-item>
@@ -55,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-type Link = { label: string; to: string };
+type Link = { label: string; to: string; id: string };
 
 type FooterSettings = {
   links: {
@@ -67,21 +69,36 @@ type FooterSettings = {
 const settings: FooterSettings = {
   links: {
     left: [
-      { label: 'Home', to: 'https://www.gov.bc.ca/' },
+      { id: 'footer-link-home', label: 'Home', to: 'https://www.gov.bc.ca/' },
       {
+        id: 'footer-link-about',
         label: 'About gov.bc.ca',
         to: 'https://www2.gov.bc.ca/gov/content/about-gov-bc-ca',
       },
-      { label: 'Disclaimer', to: 'https://www.gov.bc.ca/disclaimer' },
-      { label: 'Privacy', to: 'https://www.gov.bc.ca/privacy' },
+      {
+        id: 'footer-link-disclaimer',
+        label: 'Disclaimer',
+        to: 'https://www.gov.bc.ca/disclaimer',
+      },
+      {
+        id: 'footer-link-privacy',
+        label: 'Privacy',
+        to: 'https://www.gov.bc.ca/privacy',
+      },
     ],
     right: [
-      { label: 'Accessibility', to: 'https://www.gov.bc.ca/webaccessibility' },
       {
+        id: 'footer-link-accessibility',
+        label: 'Accessibility',
+        to: 'https://www.gov.bc.ca/webaccessibility',
+      },
+      {
+        id: 'footer-link-copyright',
         label: 'Copyright',
         to: 'https://www.gov.bc.ca/copyright',
       },
       {
+        id: 'footer-link-contact-us',
         label: 'Contact Us',
         to: 'https://www2.gov.bc.ca/gov/content/home/contact-us',
       },

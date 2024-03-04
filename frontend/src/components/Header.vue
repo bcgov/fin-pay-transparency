@@ -21,7 +21,11 @@
     </a>
     <a tabindex="-1" href="/">
       <v-toolbar-title
-        ><h3 data-testid="header-title" class="mainTitle" style="color: rgb(32, 31, 30)">
+        ><h3
+          data-testid="header-title"
+          class="mainTitle"
+          style="color: rgb(32, 31, 30)"
+        >
           {{ appTitle }}
         </h3></v-toolbar-title
       >
@@ -35,6 +39,7 @@
         v-if="isAuthenticated"
         :close-on-content-click="false"
         location="bottom"
+        data-testid="header-account-menu"
       >
         <template v-slot:activator="{ props }">
           <v-btn
