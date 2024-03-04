@@ -1,10 +1,6 @@
 import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import {
-  LocalDate,
-  ZoneId,
-  convert,
-} from '@js-joda/core';
+import { LocalDate, ZoneId, convert } from '@js-joda/core';
 import stream from 'stream';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
@@ -121,9 +117,7 @@ const mockPublishedReport: pay_transparency_report = {
   employee_count_range_id: '67856345',
   naics_code: '234234',
   report_start_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
-  report_end_date: convert(
-    LocalDate.now(ZoneId.UTC).plusYears(1),
-  ).toDate(),
+  report_end_date: convert(LocalDate.now(ZoneId.UTC).plusYears(1)).toDate(),
   create_date: new Date(),
   update_date: new Date(),
   create_user: 'User',
@@ -131,26 +125,12 @@ const mockPublishedReport: pay_transparency_report = {
   report_status: enumReportStatus.Published,
   revision: new Prisma.Decimal(1),
   data_constraints: null,
-  is_unlocked: true
+  is_unlocked: true,
 };
 
 const mockHistoryReport: report_history = {
   report_history_id: '567',
-  report_id: '456768',
-  company_id: '255677',
-  user_id: '1232344',
-  user_comment: null,
-  employee_count_range_id: '67856345',
-  naics_code: '234234',
-  report_start_date: moment.utc().toDate(),
-  report_end_date: moment.utc().add(1, 'year').toDate(),
-  create_date: new Date(),
-  update_date: new Date(),
-  create_user: 'User',
-  update_user: 'User',
-  report_status: enumReportStatus.Published,
-  revision: new Prisma.Decimal(1),
-  data_constraints: null,
+  ...mockPublishedReport,
 };
 
 const mockDraftReport: pay_transparency_report = {
@@ -159,34 +139,6 @@ const mockDraftReport: pay_transparency_report = {
   user_id: '5265928',
   report_status: enumReportStatus.Draft,
 };
-
-const mockReportsInDB = {
-  pay_transparency_report: [
-    {
-      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: new Date(),
-      report_end_date: new Date(),
-      create_date: new Date(),
-      update_date: new Date(),
-      revision: 1,
-    },
-    {
-      report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
-      report_start_date: new Date(),
-      report_end_date: new Date(),
-      create_date: new Date(),
-      update_date: new Date(),
-      revision: 4,
-    },
-  ],
-};
-
-// describe('genderCodeToGenderChartInfo', () => {
-//   it('should return the correct gender', () => {
-//     console.log('*************')
-//     expect(reportServicePrivate.genderCodeToGenderChartInfo('M')).toBeDefined();
-//   })
-// });
 
 describe('getReportAndCalculations', () => {
   describe('wwhere there is no user in the session', () => {
@@ -716,8 +668,7 @@ describe('getReports', () => {
     );
     const ret = await reportService.getReports(mockCompanyInDB.company_id, {
       report_status: enumReportStatus.Draft,
-      report_start_date:
-        LocalDate.now().format(JODA_FORMATTER),
+      report_start_date: LocalDate.now().format(JODA_FORMATTER),
       report_end_date: LocalDate.now().format(JODA_FORMATTER),
     });
     expect(ret).toEqual(
@@ -889,10 +840,8 @@ describe('getReportById', () => {
   it('returns an single report', async () => {
     const report = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: LocalDate.now(ZoneId.UTC)
-        .format(JODA_FORMATTER),
-      report_end_date: LocalDate.now(ZoneId.UTC)
-        .format(JODA_FORMATTER),
+      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
       create_date: new Date(),
       update_date: new Date(),
       revision: 1,
@@ -935,7 +884,7 @@ describe('getReportFileName', () => {
       update_date: new Date(),
       create_user: 'User',
       update_user: 'User',
-      is_unlocked: false
+      is_unlocked: false,
     };
 
     jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);
