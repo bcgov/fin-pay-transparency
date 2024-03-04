@@ -15,6 +15,7 @@ config.defaults({
     sessionPath: process.env.SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
+    schedulerDeleteDraftCronTime: '1/2 * * * * *', // 1 minute
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
