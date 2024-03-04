@@ -1,10 +1,6 @@
-import type { pay_transparency_report } from '@prisma/client';
+import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import {
-  LocalDate,
-  ZoneId,
-  convert,
-} from '@js-joda/core';
+import { LocalDate, ZoneId, convert } from '@js-joda/core';
 import stream from 'stream';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
@@ -45,6 +41,9 @@ jest.mock('../prisma/prisma-client', () => {
       create: jest.fn(),
       update: jest.fn(),
       deleteMany: jest.fn(),
+    },
+    calculated_data_history: {
+      createMany: jest.fn(),
     },
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
   };
@@ -118,9 +117,7 @@ const mockPublishedReport: pay_transparency_report = {
   employee_count_range_id: '67856345',
   naics_code: '234234',
   report_start_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
-  report_end_date: convert(
-    LocalDate.now(ZoneId.UTC).plusYears(1),
-  ).toDate(),
+  report_end_date: convert(LocalDate.now(ZoneId.UTC).plusYears(1)).toDate(),
   create_date: new Date(),
   update_date: new Date(),
   create_user: 'User',
@@ -128,7 +125,12 @@ const mockPublishedReport: pay_transparency_report = {
   report_status: enumReportStatus.Published,
   revision: new Prisma.Decimal(1),
   data_constraints: null,
-  is_unlocked: true
+  is_unlocked: true,
+};
+
+const mockHistoryReport: report_history = {
+  report_history_id: '567',
+  ...mockPublishedReport,
 };
 
 const mockDraftReport: pay_transparency_report = {
@@ -137,34 +139,6 @@ const mockDraftReport: pay_transparency_report = {
   user_id: '5265928',
   report_status: enumReportStatus.Draft,
 };
-
-const mockReportsInDB = {
-  pay_transparency_report: [
-    {
-      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: new Date(),
-      report_end_date: new Date(),
-      create_date: new Date(),
-      update_date: new Date(),
-      revision: 1,
-    },
-    {
-      report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
-      report_start_date: new Date(),
-      report_end_date: new Date(),
-      create_date: new Date(),
-      update_date: new Date(),
-      revision: 4,
-    },
-  ],
-};
-
-// describe('genderCodeToGenderChartInfo', () => {
-//   it('should return the correct gender', () => {
-//     console.log('*************')
-//     expect(reportServicePrivate.genderCodeToGenderChartInfo('M')).toBeDefined();
-//   })
-// });
 
 describe('getReportAndCalculations', () => {
   describe('wwhere there is no user in the session', () => {
@@ -694,8 +668,7 @@ describe('getReports', () => {
     );
     const ret = await reportService.getReports(mockCompanyInDB.company_id, {
       report_status: enumReportStatus.Draft,
-      report_start_date:
-        LocalDate.now().format(JODA_FORMATTER),
+      report_start_date: LocalDate.now().format(JODA_FORMATTER),
       report_end_date: LocalDate.now().format(JODA_FORMATTER),
     });
     expect(ret).toEqual(
@@ -803,9 +776,45 @@ describe('movePublishedReportToHistory', () => {
   });
   describe('if the given report is Published', () => {
     it("copy it to history, delete it's calculated data, and delete the original record from reports", async () => {
-      const tx = await prisma.$transaction(async (tx) => {
+      (prisma.report_history.create as jest.Mock).mockResolvedValue(
+        mockHistoryReport,
+      );
+      (
+        prisma.pay_transparency_calculated_data.findMany as jest.Mock
+      ).mockResolvedValue(mockCalculatedDatasInDB);
+      await prisma.$transaction(async (tx) => {
         await actualMovePublishedReportToHistory(tx, mockPublishedReport);
       });
+
+      // Confirm that the report was copied to the history table
+      expect(prisma.report_history.create).toHaveBeenCalledTimes(1);
+      const createReportHistory = (prisma.report_history.create as jest.Mock)
+        .mock.calls[0][0];
+      expect(createReportHistory.data.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the calculated data was got
+      expect(
+        prisma.pay_transparency_calculated_data.findMany,
+      ).toHaveBeenCalledTimes(1);
+      const findCalculated = (
+        prisma.pay_transparency_calculated_data.findMany as jest.Mock
+      ).mock.calls[0][0];
+      expect(findCalculated.where.report_id).toBe(
+        mockPublishedReport.report_id,
+      );
+
+      // Confirm that the calculated data was copied to the history
+      expect(prisma.calculated_data_history.createMany).toHaveBeenCalledTimes(
+        1,
+      );
+      const createCalculatedHistory = (
+        prisma.calculated_data_history.createMany as jest.Mock
+      ).mock.calls[0][0];
+      expect(createCalculatedHistory.data[0].report_history_id).toBe(
+        mockHistoryReport.report_history_id,
+      );
 
       // Confirm that the calculated datas were deleted
       expect(
@@ -815,14 +824,6 @@ describe('movePublishedReportToHistory', () => {
         prisma.pay_transparency_calculated_data.deleteMany as jest.Mock
       ).mock.calls[0][0];
       expect(deleteCalcData.where.report_id).toBe(
-        mockPublishedReport.report_id,
-      );
-
-      // Confirm that the report was copied to the history table
-      expect(prisma.report_history.create).toHaveBeenCalledTimes(1);
-      const createReportHistory = (prisma.report_history.create as jest.Mock)
-        .mock.calls[0][0];
-      expect(createReportHistory.data.report_id).toBe(
         mockPublishedReport.report_id,
       );
 
@@ -839,10 +840,8 @@ describe('getReportById', () => {
   it('returns an single report', async () => {
     const report = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: LocalDate.now(ZoneId.UTC)
-        .format(JODA_FORMATTER),
-      report_end_date: LocalDate.now(ZoneId.UTC)
-        .format(JODA_FORMATTER),
+      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
       create_date: new Date(),
       update_date: new Date(),
       revision: 1,
@@ -885,7 +884,7 @@ describe('getReportFileName', () => {
       update_date: new Date(),
       create_user: 'User',
       update_user: 'User',
-      is_unlocked: false
+      is_unlocked: false,
     };
 
     jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);
