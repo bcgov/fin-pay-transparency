@@ -1065,20 +1065,11 @@ const reportService = {
     // in ISO-8601 format (i.e. date + time + timezone).  If datestrings
     // were included in the filters parameter, convert those into the
     // required format.
-    ;
     if (filters?.report_start_date) {
-      filters.report_start_date = convert(
-        LocalDate.parse(filters.report_start_date),
-      )
-        .toDate()
-        .toISOString();
+      filters.report_start_date = new Date(filters.report_start_date).toISOString();
     }
     if (filters?.report_end_date) {
-      filters.report_end_date = convert(
-        LocalDate.parse(filters.report_end_date),
-      )
-        .toDate()
-        .toISOString();
+      filters.report_end_date = new Date(filters.report_end_date).toISOString();
     }
 
     const reports = await prisma.pay_transparency_company.findFirst({
@@ -1090,6 +1081,8 @@ const reportService = {
             report_end_date: true,
             report_status: true,
             revision: true,
+            is_unlocked: true,
+            create_date: true
           },
           where: filters,
           orderBy: [
@@ -1189,6 +1182,7 @@ const reportService = {
             report_status: true,
             revision: true,
             data_constraints: true,
+            is_unlocked: true
           },
           where: {
             report_id: reportId,

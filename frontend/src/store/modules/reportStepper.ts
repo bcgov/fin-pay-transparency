@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import ApiService from '../../common/apiService';
+import { IReport } from '../../common/types';
 
 export type ReportStage = 'UPLOAD' | 'REVIEW' | 'FINAL';
 export enum ReportMode {
@@ -41,6 +42,7 @@ export const REPORT_STAGES: IStageOption[] = [
 export const useReportStepperStore = defineStore('reportStepper', () => {
   const stage = ref<ReportStage>('UPLOAD');
   const reportId = ref<string | undefined>();
+  const reportInfo = ref<IReport | undefined>();
   const reportData = ref();
   const mode = ref<ReportMode>();
 
@@ -53,11 +55,13 @@ export const useReportStepperStore = defineStore('reportStepper', () => {
     stage.value = 'UPLOAD';
     reportId.value = undefined;
     reportData.value = undefined;
+    reportInfo.value = undefined;
   };
 
-  const setReportId = async (id: string) => {
-    reportId.value = id;
-    reportData.value = await ApiService.getReport(id);
+  const setReportInfo = async (report: IReport) => {
+    reportId.value = report.report_id;
+    reportInfo.value = report;
+    reportData.value = await ApiService.getReport(report.report_id);
   };
 
   const setMode = (newMode: ReportMode) => {
@@ -67,11 +71,12 @@ export const useReportStepperStore = defineStore('reportStepper', () => {
   return {
     stage,
     reportId,
+    reportInfo,
     reportData,
     mode,
     setStage,
     reset,
-    setReportId,
+    setReportInfo,
     setMode,
   };
 });

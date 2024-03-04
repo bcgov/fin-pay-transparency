@@ -76,18 +76,24 @@
               <hr class="mt-4 mb-4" />
               <template v-for="report in reports">
                 <v-row>
-                  <v-col :data-testid="'report_start_date-' + report.id">{{
-                    formatDate(report.report_start_date)
-                  }}</v-col>
-                  <v-col :data-testid="'report_end_date-' + report.id">{{
+                  <v-col
+                    :data-testid="'report_start_date-' + report.report_id"
+                    >{{ formatDate(report.report_start_date) }}</v-col
+                  >
+                  <v-col :data-testid="'report_end_date-' + report.report_id">{{
                     formatDate(report.report_end_date)
                   }}</v-col>
                   <v-col cols="4">
-                    <a :data-testid="'view-report-' + report.id" class="pr-5" href="#" @click="viewReport(report)">
+                    <a
+                      :data-testid="'view-report-' + report.report_id"
+                      class="pr-5"
+                      href="#"
+                      @click="viewReport(report)"
+                    >
                       <v-icon color="#1976d2" icon="mdi-eye-outline"></v-icon>
                       View
                     </a>
-                    <a href="#">
+                    <a href="#" v-if="isEditable(report)">
                       <v-icon color="#1976d2" icon="mdi-table-edit"></v-icon>
                       Edit
                     </a>
@@ -148,10 +154,18 @@ import {
   useReportStepperStore,
   ReportMode,
 } from '../store/modules/reportStepper';
+import { IReport } from '../common/types';
+import { isReportEditable } from '../common/helpers';
+import { useConfigStore } from '../store/modules/config';
+
+type DashboardData = {
+  reports: IReport[];
+  userInfo?: any;
+};
 
 export default {
   components: { ReportSelectionManager },
-  data: () => ({
+  data: (): DashboardData => ({
     reports: [],
   }),
   watch: {},
@@ -159,28 +173,34 @@ export default {
     ...mapState(useReportStepperStore, ['reportId']),
     ...mapState(authStore, ['userInfo']),
     ...mapState(useCodeStore, ['naicsCodes']),
+    ...mapState(useConfigStore, ['config']),
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setReportId', 'reset', 'setMode']),
+    ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
+    ...mapActions(useConfigStore, ['loadConfig']),
     formatDate(value) {
       const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(
         Locale.CANADA,
       );
       return LocalDate.parse(value).format(formatter);
     },
+    isEditable(report) {
+      return isReportEditable(report, this.config?.reportEditDurationInDays);
+    },
     async getReports() {
       this.reports = await ApiService.getReports({
         report_status: REPORT_STATUS.PUBLISHED,
       });
     },
-    async viewReport(report) {
+    async viewReport(report: IReport) {
       this.setMode(ReportMode.View);
-      await this.setReportId(report.report_id);
+      await this.setReportInfo(report);
     },
   },
   async beforeMount() {
     this.reset();
-    this.reports = this.getReports();
+    this.loadConfig();
+    this.getReports();
   },
 };
 </script>
