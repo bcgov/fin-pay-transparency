@@ -21,7 +21,7 @@
     </a>
     <a tabindex="-1" href="/">
       <v-toolbar-title
-        ><h3 class="mainTitle" style="color: rgb(32, 31, 30)">
+        ><h3 data-testid="header-title" class="mainTitle" style="color: rgb(32, 31, 30)">
           {{ appTitle }}
         </h3></v-toolbar-title
       >
@@ -41,18 +41,23 @@
             color="rgb(32, 31, 30)"
             v-bind="props"
             icon="mdi-account"
+            data-testid="header-account-button"
           ></v-btn>
         </template>
         <v-card min-width="250">
           <template v-slot:prepend>
             <v-list>
               <v-list-item>
-                <v-list-item-title class="styles-override">{{
-                  userInfo?.displayName
-                }}</v-list-item-title>
-                <v-list-item-subtitle class="styles-override">{{
-                  userInfo?.legalName
-                }}</v-list-item-subtitle>
+                <v-list-item-title
+                  data-testid="header-display-name"
+                  class="styles-override"
+                  >{{ userInfo?.displayName }}</v-list-item-title
+                >
+                <v-list-item-subtitle
+                  data-testid="header-legal-name"
+                  class="styles-override"
+                  >{{ userInfo?.legalName }}</v-list-item-subtitle
+                >
               </v-list-item>
             </v-list>
           </template>
@@ -66,6 +71,7 @@
                 <v-btn
                   v-bind="props"
                   icon="mdi-logout"
+                  data-testid="header-logout-button"
                   @click="redirectToLogout"
                 ></v-btn>
               </template>
