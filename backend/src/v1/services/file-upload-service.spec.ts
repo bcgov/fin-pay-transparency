@@ -101,21 +101,13 @@ const mockUserInfo = {
 
 describe('postFileUploadHandler', () => {
   describe('when request is invalid', () => {
-    it('response has an error code', (done) => {
+    it('response has an error code', async () => {
       const req = mockRequest();
       const res = {
         status: jest.fn().mockReturnValue({ json: (v) => {} }),
       };
-      const next = jest.fn();
-      const callback = jest.fn().mockImplementation(() => {
-        try {
-          expect(res.status).toHaveBeenCalledWith(500);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      });
-      fileUploadService.handleFileUpload(req, res, callback);
+      await fileUploadService.handleFileUpload(req, res);
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 });

@@ -348,7 +348,7 @@ const fileUploadService = {
   If there are any problem, return a JSON error.  If success,
   returns an draft report in HTML format.
   */
-  async handleFileUpload(req, res, next) {
+  async handleFileUpload(req, res) {
     log.info(
       'Handling file upload for correlation id: ' + req?.session?.correlationID,
     );
@@ -377,7 +377,6 @@ const fileUploadService = {
             generalErrors: [errorMessage],
           },
         } as ValidationErrorResponse);
-        next();
         return;
       }
 
@@ -430,7 +429,6 @@ const fileUploadService = {
         }
       }
 
-      next();
     });
   },
 };
