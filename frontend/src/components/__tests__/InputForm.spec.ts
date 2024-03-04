@@ -1,8 +1,6 @@
 import { mount } from '@vue/test-utils';
 import {
   LocalDate,
-  ChronoUnit,
-  convert,
   nativeJs,
   TemporalAdjusters,
   DateTimeFormatter,
@@ -136,6 +134,7 @@ describe("InputForm", () => {
 
     const startDate = LocalDate.now().minusYears(1).format(dateFormatter);
     const expectedEndDate = LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter);
+    
     await startDateComponent.setValue(startDate);
 
     expect(wrapper.vm.$data.startDate).toBe(startDate)
