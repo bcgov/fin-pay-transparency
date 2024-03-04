@@ -30,7 +30,7 @@ describe('Header', () => {
       vi.clearAllMocks();
     });
 
-    it.only('should render correctly', async () => {
+    it('should render correctly', async () => {
       await wrappedRender();
       screen.debug()
       expect(screen.getByTestId('header-title')).toHaveTextContent(
