@@ -352,17 +352,36 @@ const reportServicePrivate = {
       );
     }
 
-    // Delete the calculated datas (they don't need to be moved to
-    // a history table)
-    await tx.pay_transparency_calculated_data.deleteMany({
+    // Copy the report into report_history
+    const reportHistory = await tx.report_history.create({
+      data: { ...report },
+    });
+
+    // Get calculated data
+    const calculatedData = await tx.pay_transparency_calculated_data.findMany({
       where: {
         report_id: report.report_id,
       },
     });
 
-    // Copy the report into report_history
-    await tx.report_history.create({
-      data: { ...report },
+    //update calculated data with report_history_id
+    const updatedData = calculatedData.map((data) => {
+      return {
+        ...data,
+        report_history_id: reportHistory.report_history_id,
+      };
+    });
+
+    // Copy the calculated data into calculated_data_history
+    await tx.calculated_data_history.createMany({
+      data: updatedData,
+    });
+
+    // Delete the calculated data
+    await tx.pay_transparency_calculated_data.deleteMany({
+      where: {
+        report_id: report.report_id,
+      },
     });
 
     // Delete the original report
