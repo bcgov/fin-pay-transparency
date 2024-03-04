@@ -207,6 +207,7 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="data_constraints" nullable="true" remarks="" size="3000" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="revision" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="16" name="is_unlocked" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
          <index name="report_history_pk" unique="true">
             <column ascending="true" name="report_history_id"/>
