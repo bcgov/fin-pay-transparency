@@ -26,7 +26,7 @@ on:
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
-        default: 10
+        default: 8
         required: false
         type: number
       values:
@@ -81,7 +81,7 @@ jobs:
           echo "$UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
-      - name: Deploy to OpenShift
+      - name: Login to OpenShift
         shell: bash
         run: |
           # Allow pipefail, since we could be catching oc create errors
@@ -90,25 +90,36 @@ jobs:
           # Login to OpenShift (NOTE: project command is a safeguard)
           oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
           oc project ${{ vars.oc_namespace }}
-          
-          #upgrade helm dependencies.
-          helm dependency update ${{ inputs.directory }}
-          
-          #Package helm chart
-          helm package --app-version="${{ inputs.tag }}" --version=${{ inputs.semver }} ./${{ inputs.directory }}
+
+      - name: Clean PR Environment
+        shell: bash
+        run: |
           
           # If inputs.target starts with 'pr-', uninstall the helm chart first to ensure a clean install
           if [[ "${{ inputs.target }}" == pr-* ]]; then
             helm uninstall ${{ env.deployment_name }}-${{ inputs.target }} || true
           fi
+
+      - name: Package HELM Chart
+        shell: bash
+        run: |
+          helm package -u --app-version="${{ inputs.tag }}" --version=${{ inputs.semver }} ./${{ inputs.directory }}
+
+      - name: Deploy to OpenShift
+        shell: bash
+        run: |
           
-          #Perform atomic upgrade/installation of helm chart
+          # 1 minute less for HELM to do atomic deployment and rollback if not completed within the time.
+          DEPLOY_TIMEOUT=$((${{ inputs.timeout-minutes }}-1)) 
+          
+          # Perform atomic upgrade/installation of helm chart
           helm upgrade --install --wait --atomic ${{ env.deployment_name }}-${{ inputs.target }} \
           --values ${{ inputs.directory }}/${{ inputs.values }} \
           --set-string backend.image.tag="${{ inputs.tag }}" \
           --set-string frontend.image.tag="${{ inputs.tag }}" \
           --set-string database.image.tag="${{ inputs.tag }}" \
           --set-string doc-gen-service.image.tag="${{ inputs.tag }}" \
+          --set-string backend-external.image.tag="${{ inputs.tag }}" \
           --set global.autoscaling.enabled=${{ inputs.autoscaling }} \
           --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
           --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \
@@ -122,10 +133,14 @@ jobs:
           --set-string global.secrets.bceidWsAuthPassword="${{ secrets.BCEID_WS_BASIC_AUTH_PASSWORD }}" \
           --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
           --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
+          --set-string global.secrets.externalConsumerApiKey="${{ secrets.EXTERNAL_CONSUMER_API_KEY }}"  \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
           ${{ inputs.params }} \
-          --timeout ${{ inputs.timeout-minutes }}m  ./${{ github.event.repository.name }}-${{ inputs.semver }}.tgz
-          
+          --timeout "$DEPLOY_TIMEOUT"m  ./${{ github.event.repository.name }}-${{ inputs.semver }}.tgz
+
+      - name: Print HELM Chart History
+        shell: bash
+        run: |
           # print history 
           helm history ${{ env.deployment_name }}-${{ inputs.target }}
 

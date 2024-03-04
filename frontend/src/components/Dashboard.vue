@@ -3,7 +3,7 @@
   <v-container class="d-flex justify-center fill-height" fluid>
     <v-row class="mt-3">
       <v-col>
-        <h2>Welcome, {{ userInfo?.legalName }}.</h2>
+        <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
         <v-divider class="mt-2"></v-divider>
       </v-col>
     </v-row>
@@ -76,14 +76,24 @@
               <hr class="mt-4 mb-4" />
               <template v-for="report in reports">
                 <v-row>
-                  <v-col>{{ formatDate(report.report_start_date) }}</v-col>
-                  <v-col>{{ formatDate(report.report_end_date) }}</v-col>
+                  <v-col
+                    :data-testid="'report_start_date-' + report.report_id"
+                    >{{ formatDate(report.report_start_date) }}</v-col
+                  >
+                  <v-col :data-testid="'report_end_date-' + report.report_id">{{
+                    formatDate(report.report_end_date)
+                  }}</v-col>
                   <v-col cols="4">
-                    <a class="pr-5" href="#" @click="viewReport(report)">
+                    <a
+                      :data-testid="'view-report-' + report.report_id"
+                      class="pr-5"
+                      href="#"
+                      @click="viewReport(report)"
+                    >
                       <v-icon color="#1976d2" icon="mdi-eye-outline"></v-icon>
                       View
                     </a>
-                    <a href="#">
+                    <a href="#" v-if="isEditable(report)">
                       <v-icon color="#1976d2" icon="mdi-table-edit"></v-icon>
                       Edit
                     </a>
@@ -138,15 +148,24 @@ import { authStore } from '../store/modules/auth';
 import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
-import moment from 'moment';
+import { DateTimeFormatter, LocalDate } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import {
   useReportStepperStore,
   ReportMode,
 } from '../store/modules/reportStepper';
+import { IReport } from '../common/types';
+import { isReportEditable } from '../common/helpers';
+import { useConfigStore } from '../store/modules/config';
+
+type DashboardData = {
+  reports: IReport[];
+  userInfo?: any;
+};
 
 export default {
   components: { ReportSelectionManager },
-  data: () => ({
+  data: (): DashboardData => ({
     reports: [],
   }),
   watch: {},
@@ -154,25 +173,34 @@ export default {
     ...mapState(useReportStepperStore, ['reportId']),
     ...mapState(authStore, ['userInfo']),
     ...mapState(useCodeStore, ['naicsCodes']),
+    ...mapState(useConfigStore, ['config']),
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setReportId', 'reset', 'setMode']),
+    ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
+    ...mapActions(useConfigStore, ['loadConfig']),
     formatDate(value) {
-      return moment(value).format('MMMM D, YYYY');
+      const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(
+        Locale.CANADA,
+      );
+      return LocalDate.parse(value).format(formatter);
+    },
+    isEditable(report) {
+      return isReportEditable(report, this.config?.reportEditDurationInDays);
     },
     async getReports() {
       this.reports = await ApiService.getReports({
         report_status: REPORT_STATUS.PUBLISHED,
       });
     },
-    async viewReport(report) {
+    async viewReport(report: IReport) {
       this.setMode(ReportMode.View);
-      await this.setReportId(report.report_id);
+      await this.setReportInfo(report);
     },
   },
-  beforeMount() {
+  async beforeMount() {
     this.reset();
-    this.reports = this.getReports();
+    this.loadConfig();
+    this.getReports();
   },
 };
 </script>

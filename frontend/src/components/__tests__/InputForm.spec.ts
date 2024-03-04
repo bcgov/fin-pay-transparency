@@ -1,6 +1,11 @@
 import { mount } from '@vue/test-utils';
-import moment from 'moment';
-
+import {
+  LocalDate,
+  nativeJs,
+  TemporalAdjusters,
+  DateTimeFormatter,
+} from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createVuetify } from "vuetify";
@@ -9,6 +14,9 @@ import * as directives from 'vuetify/directives';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
 import InputForm from '../InputForm.vue';
+
+const DATE_FORMAT = 'yyyy-MM-dd';
+const dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
 describe("InputForm", () => {
   let wrapper;
@@ -124,8 +132,9 @@ describe("InputForm", () => {
     const startDateComponent = wrapper.findComponent({ ref: 'startDate' })
     const endDateComponent = wrapper.findComponent({ ref: 'endDate' })
 
-    const startDate = moment().subtract(1, "years").format("yyyy-MM-DD");
-    const expectedEndDate = moment().subtract(1, "months").endOf('month').format("yyyy-MM-DD");
+    const startDate = LocalDate.now().minusYears(1).format(dateFormatter);
+    const expectedEndDate = LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter);
+    
     await startDateComponent.setValue(startDate);
 
     expect(wrapper.vm.$data.startDate).toBe(startDate)
@@ -135,15 +144,17 @@ describe("InputForm", () => {
 
   it('Range of allowable start and end months is correct', async () => {
 
+    const dateNow = LocalDate.now();
+    const formatter = DateTimeFormatter.ofPattern('YYYY-MM').withLocale(Locale.CANADA)
     //Earliest allowable start month is two years before the current month
-    expect(moment(wrapper.vm.minStartDate).format("YYYY-MM")).toBe(moment().subtract(2, "years").startOf("month").format("YYYY-MM"));
+    expect(LocalDate.from(nativeJs(wrapper.vm.minStartDate)).format(formatter)).toBe(dateNow.minusYears(2).withDayOfMonth(1).format(formatter));
     //Latest allowable end month is the month prior the current month
-    expect(moment(wrapper.vm.maxEndDate).format("YYYY-MM")).toBe(moment().subtract(1, "month").endOf("month").format("YYYY-MM"));
+    expect(LocalDate.from(nativeJs(wrapper.vm.maxEndDate)).format(formatter)).toBe(dateNow.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(formatter));
 
     //Latest allowable start month is 11 months before the latest allowable end month
-    expect(moment(wrapper.vm.maxStartDate).format("YYYY-MM")).toBe(moment(wrapper.vm.maxEndDate).subtract(11, "months").format("YYYY-MM"));
+    expect(LocalDate.from(nativeJs(wrapper.vm.maxStartDate)).format(formatter)).toBe(LocalDate.from(nativeJs(wrapper.vm.maxEndDate)).minusMonths(11).format(formatter));
     //Earliest allowable end month is 11 months after earliest allowable start month
-    expect(moment(wrapper.vm.minEndDate).format("YYYY-MM")).toBe(moment(wrapper.vm.minStartDate).add(11, "months").format("YYYY-MM"));
+    expect(LocalDate.from(nativeJs(wrapper.vm.minEndDate)).format(formatter)).toBe(LocalDate.from(nativeJs(wrapper.vm.minStartDate)).plusMonths(11).format(formatter));
 
   })
 

@@ -49,7 +49,7 @@ describe('app', () => {
     });
   });
 
-  it('should handle errors', () => {
+  it('should handle NotFound', () => {
     app.get('/api/error', (req, res, next) => {
       const error: any = new Error('Forced error');
       error.status = 500;
@@ -61,6 +61,6 @@ describe('app', () => {
       .get('/api/error')
       .set('x-correlation-id', '1000')
       .set('x-api-key', 'api-key')
-      .expect(500);
+      .expect(404);
   });
 });

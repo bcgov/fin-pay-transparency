@@ -41,6 +41,9 @@ dependencies:
   - name: doc-gen-service
     condition: doc-gen-service.enabled
     version: 0.1.0
+  - name: backend-external
+    condition: backend-external.enabled
+    version: 0.1.0
 keywords:
   - fin-pay-transparency
   - fin

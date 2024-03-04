@@ -28,6 +28,7 @@ describe('config-routes', () => {
       .get('/config')
       .expect(({ body }) => {
         expect(body.maxUploadFileSize).not.toBeNull();
+        expect(body.reportEditDurationInDays).not.toBeNull();
       });
   });
 });

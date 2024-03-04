@@ -102,6 +102,11 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
 apiRouter.use(globalMiddleware);
 apiRouter.use('/doc-gen', docGenRoute);
 
+// Handle 404
+/* istanbul ignore next  */
+app.use((_req: Request, res: Response) => {
+  res.sendStatus(404);
+});
 // Handle 500
 app.use((err: Error, _req: Request, res: Response) => {
   /* istanbul ignore if  */
@@ -111,10 +116,7 @@ app.use((err: Error, _req: Request, res: Response) => {
   res.sendStatus(500);
 });
 
-// Handle 404
-  /* istanbul ignore next  */
-app.use((_req: Request, res: Response) => {
-  res.sendStatus(404);
-});
+
+
 
 export { app };
