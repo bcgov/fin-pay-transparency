@@ -91,7 +91,7 @@ const settings: FooterSettings = {
 </script>
 
 <style lang="scss">
-$font-size: 14px;
+$font-size: 12px;
 $text-color: rgb(70, 67, 65);
 
 .v-footer {
@@ -113,6 +113,10 @@ a.contact-email {
 .v-list-item-title {
   color: $text-color;
   font-size: $font-size !important;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .more-info-title {
