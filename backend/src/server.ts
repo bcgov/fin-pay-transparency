@@ -5,17 +5,31 @@ import {logger} from './logger';
 
 import {app} from './app';
 import prisma from './v1/prisma/prisma-client';
+import prismaReadOnlyReplica from './v1/prisma/prisma-client-readonly-replica';
+import { externalConsumerApp } from './external-consumer-app';
+import { AddressInfo } from 'node:net';
 
 // run inside `async` function
 
 const port = config.get('server:port');
+const externalConsumerPort = config.get('server:externalConsumerPort');
 const server = http.createServer(app);
+const externalConsumerServer = http.createServer(externalConsumerApp);
 prisma.$connect().then(() => {
   app.set('port', port);
   logger.info('Postgres initialized');
+  prismaReadOnlyReplica.$connect().then(() => {
+    logger.info('Readonly Postgres initialized');
+  }).catch((error) => {
+    logger.error(error);
+    process.exit(1);
+  });
   server.listen(port);
+  externalConsumerServer.listen(externalConsumerPort);
   server.on('error', onError);
   server.on('listening', onListening);
+  externalConsumerServer.on('error', onError);
+  externalConsumerServer.on('listening', onExternalConsumerListening);
 }).catch((error) => {
   logger.error(error);
   process.exit(1);
@@ -47,23 +61,37 @@ function onError(error: { syscall: string; code: any; }) {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-function onListening() {
-  const addr = server.address();
+function printToConsole(addr: AddressInfo | string) {
   const bind = typeof addr === 'string' ?
     'pipe ' + addr :
     'port ' + addr.port;
   logger.info('Listening on ' + bind);
 }
 
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+  const addr = server.address();
+  printToConsole(addr);
+}
+function onExternalConsumerListening() {
+  const addr = externalConsumerServer.address();
+  printToConsole(addr);
+}
+
 process.on('SIGINT', () => {
   prisma.$disconnect()
     .then(() => {
-      server.close();
-      logger.info('process terminated by SIGINT');
-      process.exit(0);
+      prismaReadOnlyReplica.$disconnect().then(() => {
+        server.close();
+        externalConsumerServer.close();
+        logger.info('process terminated by SIGINT');
+        process.exit(0);
+      }).catch((error) => {
+        logger.error(error);
+        process.exit(1);
+      });
     })
     .catch((error) => {
       logger.error('Error while disconnecting from Prisma:', error);
@@ -73,9 +101,15 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   prisma.$disconnect()
     .then(() => {
-      server.close();
-      logger.info('process terminated by SIGTERM');
-      process.exit(0);
+      prismaReadOnlyReplica.$disconnect().then(() => {
+        server.close();
+        externalConsumerServer.close();
+        logger.info('process terminated by SIGINT');
+        process.exit(0);
+      }).catch((error) => {
+        logger.error(error);
+        process.exit(1);
+      });
     })
     .catch((error) => {
       logger.error('Error while disconnecting from Prisma:', error);

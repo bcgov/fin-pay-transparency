@@ -1,0 +1,105 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend-external.fullname" . }}
+  labels:
+    {{- include "backend-external.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.deploymentStrategy }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "backend-external.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "backend-external.labels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "backend-external.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/fin-pay-transparency/backend-external:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: BACKEND_URL
+              value: http://{{ .Release.Name }}-backend:3001 # the 3001 is the port of the backend service for external consumers
+            - name: NODE_ENV
+              value: production
+            - name: IS_RATE_LIMIT_ENABLED
+              value: 'true'
+            - name: RATE_LIMIT_WINDOW_MS
+              value: '60000'
+            - name: RATE_LIMIT_LIMIT
+              value: '1000'
+            - name: LOG_LEVEL
+              value: {{.Values.app.env.logLevel}}
+            - name: EXTERNAL_CONSUMER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}
+                  key: EXTERNAL_CONSUMER_API_KEY
+            - name: PORT
+              value: {{ .Values.service.targetPort | quote }}
+            - name: BACKEND_EXTERNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}
+                  key: BACKEND_EXTERNAL_API_KEY
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "backend-external.fullname" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+
+{{- end }}

@@ -41,6 +41,7 @@ jest.mock('./v1/prisma/prisma-client', () => {
       findMany: jest.fn(),
     },
     $queryRaw: jest.fn(),
+    $extends: jest.fn(),
   };
 });
 

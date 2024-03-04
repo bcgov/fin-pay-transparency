@@ -396,6 +396,9 @@
             },
             "annotation": {
               "type": "object"
+            },
+            "externalConsumerApiKey": {
+              "type": "string"
             }
           },
           "additionalProperties": true,
@@ -408,7 +411,8 @@
             "bceidWsAuthPassword",
             "bceidWsAuthUserName",
             "bceidWsOnlineServiceId",
-            "bceidWsUrl"
+            "bceidWsUrl",
+            "externalConsumerApiKey"
           ]
         },
         "domain": {

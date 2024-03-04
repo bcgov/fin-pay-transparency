@@ -21,6 +21,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
   pr-description-add:
     name: PR Description Add
     runs-on: ubuntu-22.04
@@ -46,7 +47,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [backend, database-migrations, frontend, doc-gen-service]
+        package: [backend, database-migrations, frontend, doc-gen-service, backend-external]
         include:
           - package: backend
             triggers: ('backend/')
@@ -64,6 +65,9 @@ jobs:
             triggers: ('doc-gen-service/')
             build_file: ./doc-gen-service/Dockerfile
             build_context: ./doc-gen-service
+          - package: backend-external
+            build_file: ./backend-external/Dockerfile
+            build_context: ./backend-external
 
     steps:
       - uses: actions/checkout@v4
@@ -78,12 +82,7 @@ jobs:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: ${{ github.event.number }}
-          tags: |
-            pr-${{ github.event.number }}
-            ${{ github.sha }}
-            ${{ github.event.number }}
-
-
+          tags: pr-${{ github.event.number }}-${{ github.run_number }}
 
   check-quota:
     name: Check Quota
@@ -146,6 +145,6 @@ jobs:
     with:
       autoscaling: false
       target: pr-${{ github.event.number }}
-      tag: ${{ github.sha }}
+      tag: pr-${{ github.event.number }}-${{ github.run_number }}
       values: "values-pr.yaml"
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
