@@ -6,7 +6,6 @@ const env = process.env.NODE_ENV || 'local';
 
 config.defaults({
   environment: env,
-  siteMinder_logout_endpoint: process.env.SITEMINDER_LOGOUT_ENDPOINT,
   server: {
     logLevel: process.env.LOG_LEVEL,
     morganFormat: 'dev',

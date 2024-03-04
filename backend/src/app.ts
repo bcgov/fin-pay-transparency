@@ -24,7 +24,6 @@ import promBundle from 'express-prom-bundle';
 import passportJWT from 'passport-jwt';
 import fileSessionStore from 'session-file-store';
 import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
-import { externalConsumerApp } from './external-consumer-app';
 
 
 const register = new prom.Registry();
