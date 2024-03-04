@@ -84,6 +84,23 @@ services:
         condition: service_started
     networks:
       - default
+  backend-external:
+    image: backend-external:latest
+    build:
+      context: backend-external
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: '3000'
+    hostname: backend-external
+    ports:
+      - "3002:3000"
+    user: '1001'
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - default
   frontend:
     container_name: frontend
     build:
