@@ -26,6 +26,7 @@ global:
     enabled: true
   config:
     upload_file_max_size: '8000000'
+    report_edit_duration_in_days: '30'
     template_path: './dist/templates'
   crunchyEnabled: true
 backend:
