@@ -31,7 +31,7 @@
               <v-list-item
                 class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.left"
-                :href="link.to"
+                :href="sanitizeUrl(link.to)"
                 :data-testid="link.id"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
@@ -43,7 +43,7 @@
               <v-list-item
                 class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.right"
-                :href="link.to"
+                :href="sanitizeUrl(link.to)"
                 :data-testid="link.id"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
@@ -57,6 +57,8 @@
 </template>
 
 <script setup lang="ts">
+import { sanitizeUrl } from '@braintree/sanitize-url';
+
 type Link = { label: string; to: string; id: string };
 
 type FooterSettings = {
