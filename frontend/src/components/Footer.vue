@@ -31,7 +31,7 @@
               <v-list-item
                 class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.left"
-                :href="sanitizeUrl(link.to)"
+                v-bind:href="sanitizeUrl(link.to)"
                 :data-testid="link.id"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
@@ -43,7 +43,7 @@
               <v-list-item
                 class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.right"
-                :href="sanitizeUrl(link.to)"
+                v-bind:href="sanitizeUrl(link.to)"
                 :data-testid="link.id"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
