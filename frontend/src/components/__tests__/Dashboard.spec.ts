@@ -1,4 +1,5 @@
 import { expect, describe, it, vi, beforeEach } from 'vitest';
+
 import { render, waitFor, fireEvent } from '@testing-library/vue';
 import Dashboard from '../Dashboard.vue';
 import { createTestingPinia } from '@pinia/testing';
@@ -42,9 +43,10 @@ describe('Dashboard', () => {
   it('should display correct records', async () => {
     mockGetReports.mockReturnValue([
       {
-        id: 'id1',
+        report_id: 'id1',
         report_start_date: '2023-01-01',
         report_end_date: '2023-02-01',
+        create_date: new Date().toISOString(),
       },
     ]);
     const { getByTestId } = await wrappedRender();
@@ -62,16 +64,17 @@ describe('Dashboard', () => {
   it('should open report details', async () => {
     mockGetReports.mockReturnValue([
       {
-        id: 'id1',
+        report_id: 'id1',
         report_start_date: '2023-01-01',
         report_end_date: '2023-02-01',
+        create_date: new Date().toISOString(),
       },
     ]);
     const { getByTestId } = await wrappedRender();
     await waitFor(() => {
       expect(mockGetReports).toHaveBeenCalled();
     });
-    
+
     const viewReportButton = getByTestId('view-report-id1');
     await fireEvent.click(viewReportButton);
   });
