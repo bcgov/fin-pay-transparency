@@ -1,7 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?><database name="default" schema="pay_transparency" type="PostgreSQL - 16.2 (Debian 16.2-1.pgdg120+2)">
    <tables>
+      <table name="calculated_data_history" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="calculated_data_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="calculated_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="calculated_data_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="report_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_history_id" foreignKey="calculated_data_history_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="calculation_code_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="calculation_code_id" foreignKey="calculated_data_history_calculation_code_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="calculation_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="value" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="is_suppressed" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="7" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_USER" digits="0" id="9" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_USER" digits="0" id="10" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="calculated_data_history_id" sequenceNumberInPK="1"/>
+         <index name="calculated_data_history_pk" unique="true">
+            <column ascending="true" name="calculated_data_history_id"/>
+         </index>
+         <index name="calculated_data_history_report_history_id_calculation_code__key" unique="true">
+            <column ascending="true" name="report_history_id"/>
+            <column ascending="true" name="calculation_code_id"/>
+         </index>
+      </table>
       <table name="calculation_code" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="calculation_code_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="calculation_code_id" foreignKey="calculated_data_history_calculation_code_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
             <child column="calculation_code_id" foreignKey="calculation_code_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="calculation_code" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
@@ -85,7 +115,9 @@
          </index>
       </table>
       <table name="pay_transparency_calculated_data" remarks="" schema="pay_transparency" type="TABLE">
-         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="calculated_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="calculated_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="calculated_data_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
+         </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
          </column>
@@ -133,6 +165,7 @@
       </table>
       <table name="pay_transparency_report" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
             <child column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
             <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
          </column>
@@ -181,7 +214,9 @@
          </index>
       </table>
       <table name="report_history" remarks="" schema="pay_transparency" type="TABLE">
-         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="report_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="report_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="report_history_id" foreignKey="calculated_data_history_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
+         </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
          </column>

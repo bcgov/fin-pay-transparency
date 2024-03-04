@@ -118,6 +118,11 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
+                                                <td title="calculated_data_history.calculation_code_id references calculation_code.calculation_code_id via calculated_data_history_calculation_code_id_fk"><a href='calculated_data_history.html'>calculated_data_history</a><span class='relatedKey'>.calculation_code_id</span></td>
+                                                <td class="constraint detail">calculated_data_history_calculation_code_id_fk</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="pay_transparency_calculated_data.calculation_code_id references calculation_code.calculation_code_id via calculation_code_id_fk"><a href='pay_transparency_calculated_data.html'>pay_transparency_calculated_data</a><span class='relatedKey'>.calculation_code_id</span></td>
                                                 <td class="constraint detail">calculation_code_id_fk</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -208,22 +213,45 @@
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
                                     <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,5,740,181">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,61,343,189">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="429,5,697,240">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,217,343,345">
+<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,257,740,433">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/calculation_code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,15,740,191">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,111,343,239">
-<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="35,5,313,93">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="429,212,697,447">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,135,343,263">
+<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="77,280,271,368">
+<area shape="rect" id="node4" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,5,740,181">
+<area shape="rect" id="node5" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="35,29,313,117">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/calculation_code.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="784,9,1052,244">
+<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,5,740,181">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,109,343,237">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/calculation_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="784,119,1052,207">
+<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,64,740,152">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,5,343,133">
+<area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="467,169,660,257">
+<area shape="rect" id="node5" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="35,169,313,257">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/calculation_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>
