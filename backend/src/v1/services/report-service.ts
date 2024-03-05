@@ -1,6 +1,4 @@
-import type {
-  pay_transparency_report,
-} from '@prisma/client';
+import type { pay_transparency_report } from '@prisma/client';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
@@ -15,8 +13,6 @@ import {
   nativeJs,
 } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
-
-const fs = require('node:fs/promises');
 
 const GENERIC_CHART_SUPPRESSED_MSG =
   'This measure cannot be displayed because there are insufficient data to meet disclosure requirements.';
@@ -969,10 +965,14 @@ const reportService = {
       companyName: report.pay_transparency_company.company_name,
       companyAddress:
         `${report.pay_transparency_company.address_line1} ${report.pay_transparency_company.address_line2}`.trim(),
-      reportStartDate: LocalDate.from(nativeJs(report.report_start_date, ZoneId.UTC))
+      reportStartDate: LocalDate.from(
+        nativeJs(report.report_start_date, ZoneId.UTC),
+      )
         .withDayOfMonth(1)
         .format(dateFormatter),
-      reportEndDate: LocalDate.from(nativeJs(report.report_end_date, ZoneId.UTC))
+      reportEndDate: LocalDate.from(
+        nativeJs(report.report_end_date, ZoneId.UTC),
+      )
         .with(TemporalAdjusters.lastDayOfMonth())
         .format(dateFormatter),
       naicsCode:
@@ -1066,7 +1066,9 @@ const reportService = {
     // were included in the filters parameter, convert those into the
     // required format.
     if (filters?.report_start_date) {
-      filters.report_start_date = new Date(filters.report_start_date).toISOString();
+      filters.report_start_date = new Date(
+        filters.report_start_date,
+      ).toISOString();
     }
     if (filters?.report_end_date) {
       filters.report_end_date = new Date(filters.report_end_date).toISOString();
@@ -1082,7 +1084,7 @@ const reportService = {
             report_status: true,
             revision: true,
             is_unlocked: true,
-            create_date: true
+            create_date: true,
           },
           where: filters,
           orderBy: [
@@ -1106,10 +1108,12 @@ const reportService = {
       const report = {
         ...r,
       } as any;
-      report.report_start_date = LocalDate.from(nativeJs(r.report_start_date, ZoneId.UTC))
-        .format(JODA_FORMATTER);
-      report.report_end_date = LocalDate.from(nativeJs(r.report_end_date, ZoneId.UTC))
-        .format(JODA_FORMATTER);
+      report.report_start_date = LocalDate.from(
+        nativeJs(r.report_start_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER);
+      report.report_end_date = LocalDate.from(
+        nativeJs(r.report_end_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER);
       return report;
     });
 
@@ -1182,7 +1186,7 @@ const reportService = {
             report_status: true,
             revision: true,
             data_constraints: true,
-            is_unlocked: true
+            is_unlocked: true,
           },
           where: {
             report_id: reportId,
@@ -1195,8 +1199,24 @@ const reportService = {
       },
     });
     if (!reports) return null;
-    const [first] =
-      reports.pay_transparency_report as pay_transparency_report[];
+
+    // Convert the data type for report_start_date and report_end_date from
+    // a Date object into a date string formatted with REPORT_DATE_FORMAT
+    const reportsAdjusted = reports?.pay_transparency_report.map((r) => {
+      const report = {
+        ...r,
+      } as any;
+      report.report_start_date = LocalDate.from(
+        nativeJs(r.report_start_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER);
+      report.report_end_date = LocalDate.from(
+        nativeJs(r.report_end_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER);
+      return report;
+    });
+
+    const [first] = reportsAdjusted as pay_transparency_report[];
+
     return first;
   },
 
@@ -1204,11 +1224,20 @@ const reportService = {
     bceidBusinessGuid: string,
     reportId: string,
   ): Promise<string> {
-    const report: pay_transparency_report = await this.getReportById(bceidBusinessGuid, reportId);
-    const fileNameDateFormatter = DateTimeFormatter.ofPattern('YYYY-MM').withLocale(Locale.CANADA);
+    const report: pay_transparency_report = await this.getReportById(
+      bceidBusinessGuid,
+      reportId,
+    );
+    const fileNameDateFormatter = DateTimeFormatter.ofPattern(
+      'YYYY-MM',
+    ).withLocale(Locale.CANADA);
     if (report) {
-      const start = LocalDate.from(nativeJs(report.report_start_date)).format(fileNameDateFormatter);
-      const end = LocalDate.from(nativeJs(report.report_end_date)).format(fileNameDateFormatter);
+      const start = LocalDate.from(nativeJs(report.report_start_date)).format(
+        fileNameDateFormatter,
+      );
+      const end = LocalDate.from(nativeJs(report.report_end_date)).format(
+        fileNameDateFormatter,
+      );
       const filename = `pay_transparency_report_${start}_${end}.pdf`;
       return filename;
     }
