@@ -1,16 +1,16 @@
+import { LocalDate, ZoneId, convert } from '@js-joda/core';
 import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import { LocalDate, ZoneId, convert } from '@js-joda/core';
 import stream from 'stream';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
-  enumReportStatus,
-  GenderChartInfo,
   GENDERS,
+  GenderChartInfo,
   JODA_FORMATTER,
   ReportAndCalculations,
+  enumReportStatus,
   reportService,
   reportServicePrivate,
 } from './report-service';
