@@ -1,34 +1,36 @@
 <template>
   <v-app-bar
-      absolute
-      color="rgb(0, 51, 102)"
-      class="sysBar"
-      style="z-index: 1002;"
-      :class="{'pl-2': $vuetify.display.smAndDown, 'pl-10': $vuetify.display.mdAndUp, 'pr-2': $vuetify.display.smAndDown, 'pr-10': $vuetify.display.mdAndUp} "
+    absolute
+    style="z-index: 1002"
+    :class="{
+      'pl-2': $vuetify.display.smAndDown,
+      'pl-10': $vuetify.display.mdAndUp,
+      'pr-2': $vuetify.display.smAndDown,
+      'pr-10': $vuetify.display.mdAndUp,
+    }"
   >
     <!-- Navbar content -->
-    <a
-        tabindex="-1"
-        href="/"
-    >
+    <a tabindex="-1" href="/">
       <img
-          tabindex="-1"
-          src="../assets/images/bc-gov-logo.svg"
-          width="155"
-          class="logo"
-          alt="B.C. Government Logo"
+        tabindex="-1"
+        src="../assets/images/bc-gov-logo-light.png"
+        width="155"
+        class="logo"
+        alt="B.C. Government Logo"
+      />
+    </a>
+    <a tabindex="-1" href="/">
+      <v-toolbar-title
+        ><h3
+          data-testid="header-title"
+          class="mainTitle"
+          style="color: rgb(32, 31, 30)"
+        >
+          {{ appTitle }}
+        </h3></v-toolbar-title
       >
     </a>
-    <a
-        tabindex="-1"
-        href="/"
-    >
-      <v-toolbar-title><h3
-          class="mainTitle"
-          style="color:white"
-      >{{ appTitle }}</h3></v-toolbar-title>
-    </a>
-    
+
     <v-spacer />
 
     <template v-slot:append>
@@ -36,20 +38,31 @@
         v-model="menu"
         v-if="isAuthenticated"
         :close-on-content-click="false"
-        location="bottom">
+        location="bottom"
+        data-testid="header-account-menu"
+      >
         <template v-slot:activator="{ props }">
           <v-btn
-            color="white"
+            color="rgb(32, 31, 30)"
             v-bind="props"
             icon="mdi-account"
+            data-testid="header-account-button"
           ></v-btn>
         </template>
         <v-card min-width="250">
           <template v-slot:prepend>
             <v-list>
               <v-list-item>
-                <v-list-item-title class="styles-override">{{ userInfo?.displayName }}</v-list-item-title>
-                <v-list-item-subtitle class="styles-override">{{ userInfo?.legalName }}</v-list-item-subtitle>
+                <v-list-item-title
+                  data-testid="header-display-name"
+                  class="styles-override"
+                  >{{ userInfo?.displayName }}</v-list-item-title
+                >
+                <v-list-item-subtitle
+                  data-testid="header-legal-name"
+                  class="styles-override"
+                  >{{ userInfo?.legalName }}</v-list-item-subtitle
+                >
               </v-list-item>
             </v-list>
           </template>
@@ -60,18 +73,18 @@
             <v-tooltip text="Logout" location="bottom">
               <template v-slot:activator="{ props }">
                 <v-spacer></v-spacer>
-                <v-btn 
-                  v-bind="props" 
+                <v-btn
+                  v-bind="props"
                   icon="mdi-logout"
+                  data-testid="header-logout-button"
                   @click="redirectToLogout"
-                  ></v-btn>
+                ></v-btn>
               </template>
-            </v-tooltip>                
+            </v-tooltip>
           </v-card-actions>
-
         </v-card>
       </v-menu>
-    </template>  
+    </template>
   </v-app-bar>
 </template>
 
@@ -88,8 +101,8 @@ export default {
       fav: true,
       menu: false,
       message: false,
-      hints: true,        
-      authRoutesLogout: sanitizeUrl(AuthRoutes.LOGOUT)
+      hints: true,
+      authRoutesLogout: sanitizeUrl(AuthRoutes.LOGOUT),
     };
   },
   computed: {
@@ -99,8 +112,8 @@ export default {
   methods: {
     redirectToLogout() {
       window.location.href = this.authRoutesLogout;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -143,7 +156,7 @@ a {
 }
 
 .v-input__slot {
-  padding-top: 10px
+  padding-top: 10px;
 }
 
 .top-down {
@@ -166,7 +179,7 @@ a {
   }
 
   .mainTitle {
-    font-size: 1.0rem;
+    font-size: 1rem;
   }
 
   .display-name {

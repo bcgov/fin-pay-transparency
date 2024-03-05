@@ -3,8 +3,7 @@ version: "3.9"
 
 services:
   database:
-    build:
-      context: database
+    image: postgres:15
     container_name: database
     environment:
       POSTGRES_USER: postgres
