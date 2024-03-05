@@ -1,68 +1,65 @@
 import { LocalDateTime, ZoneId } from '@js-joda/core';
 import prisma from '../prisma/prisma-client';
 import { enumReportStatus } from './report-service';
+import { logger as log, logger } from '../../logger';
 
 const schedulerService = {
   /*
-   *    Delete draft reports older than 24 hours
+   *    Delete draft older than 24 hours
    *    - configurable cron time in backend/config/index.ts
-   *    
+   *    - deletes draft report and associated calculated data
+   *
    */
   async deleteDraftReports() {
-        const delete_date = LocalDateTime.now(ZoneId.UTC).minusHours(1).toString() + 'Z';
-        
-        //console.log(delete_date);
+    const delete_date =
+      LocalDateTime.now(ZoneId.UTC).minusHours(1).toString() + 'Z';
 
-        const reports = await prisma.pay_transparency_report.findMany({
-          select: {
-            report_id: true,
-          },
-            where: {
-                report_status: enumReportStatus.Draft,
-                create_date: {
-                  lte: delete_date
-                }, 
-            },
-        }); 
+    logger.info(
+      'schedulerService.deleteDraftReports delete_date: ' + delete_date,
+    );
 
-        //console.log(reports.length);
+    const reports = await prisma.pay_transparency_report.findMany({
+      select: {
+        report_id: true,
+      },
+      where: {
+        report_status: enumReportStatus.Draft,
+        create_date: {
+          lte: delete_date,
+        },
+      },
+    });
 
-        if (!reports) return;
+    logger.info('schedulerService.deleteDraftReports count: ' + reports.length);
 
-        /*
-        reports.forEach((r) => {
-          console.log(r.report_id)
-        })        
-        */
+    if (!reports) return;
 
-        //const strings = await prisma.pay_transparency_calculated_data.findMany({
-        await prisma.pay_transparency_calculated_data.deleteMany({
-          where: {
-            report_id: {
-              in: reports.map(function(report) { return report['report_id']; })
-            }
-          }
-        })
-        /*
-        strings.map(function(report) { return report['calculated_data_id']; }).forEach((r) => {
-          console.log(r)
-        })
-        */                
-        
-        //const strings = await prisma.pay_transparency_report.findMany({
-        await prisma.pay_transparency_report.deleteMany({
-          where: {
-            report_id: {
-              in: reports.map(function(report) { return report['report_id']; })
-            }
-          }
-        }) 
-        /*
-        reports.map(function(report) { return report['report_id']; }).forEach((r) => {
-          console.log(r)
-        })
-        */       
-    },
-}
+    reports.forEach((r) => {
+      logger.info(
+        'schedulerService.deleteDraftReports report_id: ' + r.report_id,
+      );
+    });
 
-export {schedulerService};
+    await prisma.pay_transparency_calculated_data.deleteMany({
+      where: {
+        report_id: {
+          in: reports.map(function (report) {
+            return report['report_id'];
+          }),
+        },
+      },
+    });
+
+    await prisma.pay_transparency_report.deleteMany({
+      where: {
+        report_id: {
+          in: reports.map(function (report) {
+            return report['report_id'];
+          }),
+        },
+      },
+    });
+  },
+};
+
+export { schedulerService };
