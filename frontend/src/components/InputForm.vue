@@ -172,12 +172,13 @@
               <v-col cols="12">
                 <h3 class="heading mb-2">Data Constraints</h3>
                 <p class="description mb-4">
-                  Please share any information (e.g. Limitations, constraints,
-                  or dependencies) that may be helpful to explain your payroll
-                  data (e.g. “Bonus pay not offered by [employer name]”). This
-                  will appear at the bottom of your pay transparency report.
-                  This section is optional and you can return to this page to
-                  complete it after viewing your draft report.
+                  Please share any information (that is, Limitations,
+                  constraints, or dependencies) that may be helpful to explain
+                  your payroll data (for example, “Bonus pay not offered by
+                  [employer name]”). This will appear at the bottom of your pay
+                  transparency report. This section is optional and you can
+                  return to this page to complete it after viewing your draft
+                  report.
                 </p>
                 <v-textarea
                   id="dataConstraints"
@@ -393,7 +394,13 @@ import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
-import { LocalDate, ChronoUnit, convert, TemporalAdjusters, DateTimeFormatter } from '@js-joda/core';
+import {
+  LocalDate,
+  ChronoUnit,
+  convert,
+  TemporalAdjusters,
+  DateTimeFormatter,
+} from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 
 interface LineErrors {
@@ -414,7 +421,9 @@ interface SubmissionErrors {
 
 const REPORT_DATE_FORMAT = 'yyyy-MM-dd';
 
-const dateFormatter = DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT).withLocale(Locale.CANADA);
+const dateFormatter = DateTimeFormatter.ofPattern(
+  REPORT_DATE_FORMAT,
+).withLocale(Locale.CANADA);
 
 export default {
   components: {
@@ -452,17 +461,29 @@ export default {
     uploadFileValue: null,
     maxFileUploadSize: '',
     minStartDate: convert(
-      LocalDate.now().minus(2, ChronoUnit.YEARS).with(TemporalAdjusters.firstDayOfMonth()),
+      LocalDate.now()
+        .minus(2, ChronoUnit.YEARS)
+        .with(TemporalAdjusters.firstDayOfMonth()),
     ).toDate(),
     maxStartDate: convert(
       LocalDate.now()
         .minus(1, ChronoUnit.YEARS)
         .with(TemporalAdjusters.lastDayOfMonth()),
     ).toDate(),
-    minEndDate: convert(LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1)).toDate(),
-    maxEndDate: convert(LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth())).toDate(),
-    startDate: LocalDate.now().minusYears(1).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter),
-    endDate: LocalDate.now().minus(1, ChronoUnit.MONTHS).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter),
+    minEndDate: convert(
+      LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1),
+    ).toDate(),
+    maxEndDate: convert(
+      LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()),
+    ).toDate(),
+    startDate: LocalDate.now()
+      .minusYears(1)
+      .with(TemporalAdjusters.lastDayOfMonth())
+      .format(dateFormatter),
+    endDate: LocalDate.now()
+      .minus(1, ChronoUnit.MONTHS)
+      .with(TemporalAdjusters.lastDayOfMonth())
+      .format(dateFormatter),
     dataConstraints: null,
     comments: null,
     fileAccept: '.csv',
@@ -495,7 +516,11 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage', 'setReportInfo', 'reset']),
+    ...mapActions(useReportStepperStore, [
+      'setStage',
+      'setReportInfo',
+      'reset',
+    ]),
     ...mapActions(useConfigStore, ['loadConfig']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
@@ -549,7 +574,10 @@ export default {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later
       if (newVal) {
-        const endDate = LocalDate.parse(newVal).plusYears(1).minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+        const endDate = LocalDate.parse(newVal)
+          .plusYears(1)
+          .minusMonths(1)
+          .with(TemporalAdjusters.lastDayOfMonth());
         this.endDate = endDate.format(dateFormatter);
       }
     },
