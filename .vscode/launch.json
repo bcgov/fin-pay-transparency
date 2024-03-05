@@ -15,6 +15,15 @@
       "preLaunchTask": "database"
     },
     {
+      "name": "Backend-External",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "dev"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["backend-external/<node_internals>/**"],
+      "type": "node",
+      "cwd": "${workspaceFolder}/backend-external"
+    },
+    {
       "name": "DocGenService",
       "request": "launch",
       "runtimeArgs": ["run-script", "dev"],
@@ -43,7 +52,13 @@
   "compounds": [
     {
       "name": "Launch All",
-      "configurations": ["Backend", "Frontend", "Launch Edge", "DocGenService"],
+      "configurations": [
+        "Backend",
+        "Backend-External",
+        "Frontend",
+        "Launch Edge",
+        "DocGenService"
+      ],
       "stopAll": true
     }
   ]

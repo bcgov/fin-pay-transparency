@@ -13,6 +13,9 @@
     },
     {
       "path": "../doc-gen-service"
+    },
+    {
+      "path": "../backend-external"
     }
   ],
   "settings": {
@@ -24,6 +27,7 @@
       "backend": true,
       "frontend": true,
       "doc-gen-service": true,
+      "backend-external": true,
       "coverage": true
     }
   }

@@ -1200,8 +1200,24 @@ const reportService = {
       },
     });
     if (!reports) return null;
-    const [first] =
-      reports.pay_transparency_report as pay_transparency_report[];
+
+    // Convert the data type for report_start_date and report_end_date from
+    // a Date object into a date string formatted with REPORT_DATE_FORMAT
+    const reportsAdjusted = reports?.pay_transparency_report.map((r) => {
+      const report = {
+        ...r,
+      } as any;
+      report.report_start_date = LocalDate.from(
+        nativeJs(r.report_start_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER);
+      report.report_end_date = LocalDate.from(
+        nativeJs(r.report_end_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER);
+      return report;
+    });
+
+    const [first] = reportsAdjusted as pay_transparency_report[];
+
     return first;
   },
 
