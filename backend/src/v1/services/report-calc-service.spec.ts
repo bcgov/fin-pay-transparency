@@ -1269,6 +1269,45 @@ describe('calculatePercentReceivingOvertimePay', () => {
       ).toBeNull();
     });
   });
+  describe(`given a data in which the reference gender should be suppressed`, () => {
+    it(`calculations for all genders are suppressed`, () => {
+      // For these mock overtime pay data, assume:
+      // - there are 9 males.  all received 1000 each.
+      // - there are 40 females.  10 of them earned 1500 (each) in OT pay, and the other 30 earned no OT pay
+      // - there are zero non-binary people.
+      // - there are 10 people of unknown gender.  9 of them earned 1200 (each) in OT pay, and the other 1 earned no OT pay
+      const overtimePayStats = new GroupedColumnStats();
+      //Male
+      for (let i = 0; i < 9; i++) {
+        overtimePayStats.push(1000, GENDER_CODES.MALE[0]);
+      }
+      //Female
+      for (let i = 0; i < 10; i++) {
+        overtimePayStats.push(1500, GENDER_CODES.FEMALE[0]);
+      }
+      for (let i = 0; i < 30; i++) {
+        overtimePayStats.push(0, GENDER_CODES.FEMALE[0]);
+      }
+      //Unknown
+      for (let i = 0; i < 9; i++) {
+        overtimePayStats.push(1200, GENDER_CODES.UNKNOWN[0]);
+      }
+      overtimePayStats.push(0, GENDER_CODES.UNKNOWN[0]);
+
+      const refGenderCode = GENDER_CODES.MALE[0];
+
+      const calcs: CalculatedAmount[] =
+        reportCalcServicePrivate.calculatePercentReceivingOvertimePay(
+          overtimePayStats,
+          refGenderCode,
+        );
+
+      calcs.forEach((c) => {
+        expect(c.value).toBeNull();
+        expect(c.isSuppressed).toBeTruthy();
+      });
+    });
+  });
 });
 
 describe('calculatePercentReceivingBonusPay', () => {
@@ -1334,6 +1373,82 @@ describe('calculatePercentReceivingBonusPay', () => {
             CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_U,
         )[0].value,
       ).toBeNull();
+    });
+  });
+  describe(`given data in which the reference gender should be suppressed`, () => {
+    it(`calculations for all genders are suppressed`, () => {
+      // For these mock bonus pay data, assume:
+      // - there are 9 males.  all receive 1000 each in bonus pay
+      // - there are 40 females.  10 of them earned 1500 (each) in bonus pay, and the other 30 earned no bonus pay
+      // - there are zero non-binary people.
+      // - there are 10 people of unknown gender.  9 of them earned 1200 (each) in bonus pay, and the other 1 earned no bonus pay
+      const bonusPayStats = new GroupedColumnStats();
+      //Male
+      for (let i = 0; i < 9; i++) {
+        bonusPayStats.push(1000, GENDER_CODES.MALE[0]);
+        bonusPayStats.push(0, GENDER_CODES.MALE[0]);
+      }
+      //Female
+      for (let i = 0; i < 10; i++) {
+        bonusPayStats.push(1500, GENDER_CODES.FEMALE[0]);
+      }
+      for (let i = 0; i < 30; i++) {
+        bonusPayStats.push(0, GENDER_CODES.FEMALE[0]);
+      }
+      //Unknown
+      for (let i = 0; i < 9; i++) {
+        bonusPayStats.push(1200, GENDER_CODES.UNKNOWN[0]);
+      }
+      bonusPayStats.push(0, GENDER_CODES.UNKNOWN[0]);
+
+      const refGenderCode = GENDER_CODES.MALE[0];
+
+      const calcs: CalculatedAmount[] =
+        reportCalcServicePrivate.calculatePercentReceivingBonusPay(
+          bonusPayStats,
+          refGenderCode,
+        );
+
+      calcs.forEach((c) => {
+        expect(c.value).toBeNull();
+        expect(c.isSuppressed).toBeTruthy();
+      });
+    });
+  });
+  describe(`given data in which only the ref gender has more than 10 people earning bonus pay`, () => {
+    it(`calculations for all genders are suppressed`, () => {
+      // For these mock bonus pay data, assume:
+      // - there are 50 males.  all receive 1000 each in bonus pay
+      // - there are 9 females.  all of them earned 1500 (each) in bonus pay
+      // - there are zero non-binary people.
+      // - there are 9 people of unknown gender.  all of them earned 1200 (each) in bonus pay
+      const bonusPayStats = new GroupedColumnStats();
+      //Male
+      for (let i = 0; i < 50; i++) {
+        bonusPayStats.push(1000, GENDER_CODES.MALE[0]);
+      }
+      //Female
+      for (let i = 0; i < 9; i++) {
+        bonusPayStats.push(1500, GENDER_CODES.FEMALE[0]);
+      }
+      //Unknown
+      for (let i = 0; i < 9; i++) {
+        bonusPayStats.push(1200, GENDER_CODES.UNKNOWN[0]);
+      }
+      bonusPayStats.push(0, GENDER_CODES.UNKNOWN[0]);
+
+      const refGenderCode = GENDER_CODES.MALE[0];
+
+      const calcs: CalculatedAmount[] =
+        reportCalcServicePrivate.calculatePercentReceivingBonusPay(
+          bonusPayStats,
+          refGenderCode,
+        );
+
+      calcs.forEach((c) => {
+        expect(c.value).toBeNull();
+        expect(c.isSuppressed).toBeTruthy();
+      });
     });
   });
 });
