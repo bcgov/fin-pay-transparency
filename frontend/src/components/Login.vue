@@ -23,6 +23,7 @@
                 id="login-button"
                 color="primary"
                 @click="clearStorageAndRedirectToLogin"
+                data-testid="login-button"
               >
                 Log In with Business BCeID<v-icon>mdi-login</v-icon>
               </v-btn>  
