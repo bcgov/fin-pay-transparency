@@ -1235,9 +1235,12 @@ describe('calculatePercentReceivingOvertimePay', () => {
       }
       overtimePayStats.push(0, GENDER_CODES.UNKNOWN[0]);
 
+      const refGenderCode = GENDER_CODES.MALE[0];
+
       const calcs: CalculatedAmount[] =
         reportCalcServicePrivate.calculatePercentReceivingOvertimePay(
           overtimePayStats,
+          refGenderCode,
         );
 
       expect(
@@ -1295,9 +1298,12 @@ describe('calculatePercentReceivingBonusPay', () => {
       }
       bonusPayStats.push(0, GENDER_CODES.UNKNOWN[0]);
 
+      const refGenderCode = GENDER_CODES.MALE[0];
+
       const calcs: CalculatedAmount[] =
         reportCalcServicePrivate.calculatePercentReceivingBonusPay(
           bonusPayStats,
+          refGenderCode,
         );
 
       expect(

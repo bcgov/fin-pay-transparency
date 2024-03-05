@@ -582,11 +582,13 @@ const reportCalcService = {
     calculatedAmounts.push(
       ...reportCalcServicePrivate.calculatePercentReceivingOvertimePay(
         !suppressAllCalculations ? overtimePayStats : null,
+        refGenderCode,
       ),
     );
     calculatedAmounts.push(
       ...reportCalcServicePrivate.calculatePercentReceivingBonusPay(
         !suppressAllCalculations ? bonusPayStats : null,
+        refGenderCode,
       ),
     );
 
@@ -1561,6 +1563,7 @@ const reportCalcServicePrivate = {
 
   calculatePercentReceivingOvertimePay(
     overtimePayStats: GroupedColumnStats | null,
+    refGenderCode: string,
   ): CalculatedAmount[] {
     let percentReceivingOvertimePayM = null;
     let percentReceivingOvertimePayW = null;
@@ -1581,45 +1584,69 @@ const reportCalcServicePrivate = {
         GENDER_CODES.UNKNOWN[0],
       );
 
-      const countAllM = overtimePayStats.getCountAll(GENDER_CODES.MALE[0]);
-      const countAllW = overtimePayStats.getCountAll(GENDER_CODES.FEMALE[0]);
-      const countAllX = overtimePayStats.getCountAll(
-        GENDER_CODES.NON_BINARY[0],
-      );
-      const countAllU = overtimePayStats.getCountAll(GENDER_CODES.UNKNOWN[0]);
-
-      const isSuppressedMale = !this.meetsPeopleCountThreshold(
-        countReceivingOvertimePayM,
-      );
-      const isSuppressedFemale = !this.meetsPeopleCountThreshold(
-        countReceivingOvertimePayW,
-      );
-      const isSuppressedNonBinary = !this.meetsPeopleCountThreshold(
-        countReceivingOvertimePayX,
-      );
-      const isSuppressedUnknown = !this.meetsPeopleCountThreshold(
-        countReceivingOvertimePayU,
+      const countReceivingOvertimePayRefGender =
+        overtimePayStats.getCountNonZeros(refGenderCode);
+      const isSuppressedRefGender = !this.meetsPeopleCountThreshold(
+        countReceivingOvertimePayRefGender,
       );
 
-      if (!isSuppressedMale) {
-        percentReceivingOvertimePayM =
-          (countReceivingOvertimePayM / countAllM) * 100;
+      if (!isSuppressedRefGender) {
+        const countAllM = overtimePayStats.getCountAll(GENDER_CODES.MALE[0]);
+        const countAllW = overtimePayStats.getCountAll(GENDER_CODES.FEMALE[0]);
+        const countAllX = overtimePayStats.getCountAll(
+          GENDER_CODES.NON_BINARY[0],
+        );
+        const countAllU = overtimePayStats.getCountAll(GENDER_CODES.UNKNOWN[0]);
+
+        const isSuppressedMale = !this.meetsPeopleCountThreshold(
+          countReceivingOvertimePayM,
+        );
+        const isSuppressedFemale = !this.meetsPeopleCountThreshold(
+          countReceivingOvertimePayW,
+        );
+        const isSuppressedNonBinary = !this.meetsPeopleCountThreshold(
+          countReceivingOvertimePayX,
+        );
+        const isSuppressedUnknown = !this.meetsPeopleCountThreshold(
+          countReceivingOvertimePayU,
+        );
+
+        if (!isSuppressedMale) {
+          percentReceivingOvertimePayM =
+            (countReceivingOvertimePayM / countAllM) * 100;
+        }
+
+        if (!isSuppressedFemale) {
+          percentReceivingOvertimePayW =
+            (countReceivingOvertimePayW / countAllW) * 100;
+        }
+
+        if (!isSuppressedNonBinary) {
+          percentReceivingOvertimePayX =
+            (countReceivingOvertimePayX / countAllX) * 100;
+        }
+
+        if (!isSuppressedUnknown) {
+          percentReceivingOvertimePayU =
+            (countReceivingOvertimePayU / countAllU) * 100;
+        }
       }
+    }
 
-      if (!isSuppressedFemale) {
-        percentReceivingOvertimePayW =
-          (countReceivingOvertimePayW / countAllW) * 100;
-      }
-
-      if (!isSuppressedNonBinary) {
-        percentReceivingOvertimePayX =
-          (countReceivingOvertimePayX / countAllX) * 100;
-      }
-
-      if (!isSuppressedUnknown) {
-        percentReceivingOvertimePayU =
-          (countReceivingOvertimePayU / countAllU) * 100;
-      }
+    // If only one gender category has a non-null calculated amount,
+    // reset all calculated amounts to null.
+    if (
+      reportCalcServicePrivate.countNonNulls([
+        percentReceivingOvertimePayM,
+        percentReceivingOvertimePayW,
+        percentReceivingOvertimePayX,
+        percentReceivingOvertimePayU,
+      ]) < 2
+    ) {
+      percentReceivingOvertimePayM = null;
+      percentReceivingOvertimePayW = null;
+      percentReceivingOvertimePayX = null;
+      percentReceivingOvertimePayU = null;
     }
 
     const calculatedAmounts = [];
@@ -1649,6 +1676,7 @@ const reportCalcServicePrivate = {
 
   calculatePercentReceivingBonusPay(
     bonusPayStats: GroupedColumnStats | null,
+    refGenderCode: string,
   ): CalculatedAmount[] {
     let percentReceivingBonusPayM = null;
     let percentReceivingBonusPayW = null;
@@ -1669,39 +1697,67 @@ const reportCalcServicePrivate = {
         GENDER_CODES.UNKNOWN[0],
       );
 
-      const countAllM = bonusPayStats.getCountAll(GENDER_CODES.MALE[0]);
-      const countAllW = bonusPayStats.getCountAll(GENDER_CODES.FEMALE[0]);
-      const countAllX = bonusPayStats.getCountAll(GENDER_CODES.NON_BINARY[0]);
-      const countAllU = bonusPayStats.getCountAll(GENDER_CODES.UNKNOWN[0]);
-
-      const isSuppressedMale = !this.meetsPeopleCountThreshold(
-        countReceivingBonusPayM,
-      );
-      const isSuppressedFemale = !this.meetsPeopleCountThreshold(
-        countReceivingBonusPayW,
-      );
-      const isSuppressedNonBinary = !this.meetsPeopleCountThreshold(
-        countReceivingBonusPayX,
-      );
-      const isSuppressedUnknown = !this.meetsPeopleCountThreshold(
-        countReceivingBonusPayU,
+      const countReceivingBonusPayRefGender =
+        bonusPayStats.getCountNonZeros(refGenderCode);
+      const isSuppressedRefGender = !this.meetsPeopleCountThreshold(
+        countReceivingBonusPayRefGender,
       );
 
-      if (!isSuppressedMale) {
-        percentReceivingBonusPayM = (countReceivingBonusPayM / countAllM) * 100;
-      }
+      if (!isSuppressedRefGender) {
+        const countAllM = bonusPayStats.getCountAll(GENDER_CODES.MALE[0]);
+        const countAllW = bonusPayStats.getCountAll(GENDER_CODES.FEMALE[0]);
+        const countAllX = bonusPayStats.getCountAll(GENDER_CODES.NON_BINARY[0]);
+        const countAllU = bonusPayStats.getCountAll(GENDER_CODES.UNKNOWN[0]);
 
-      if (!isSuppressedFemale) {
-        percentReceivingBonusPayW = (countReceivingBonusPayW / countAllW) * 100;
-      }
+        const isSuppressedMale = !this.meetsPeopleCountThreshold(
+          countReceivingBonusPayM,
+        );
+        const isSuppressedFemale = !this.meetsPeopleCountThreshold(
+          countReceivingBonusPayW,
+        );
+        const isSuppressedNonBinary = !this.meetsPeopleCountThreshold(
+          countReceivingBonusPayX,
+        );
+        const isSuppressedUnknown = !this.meetsPeopleCountThreshold(
+          countReceivingBonusPayU,
+        );
 
-      if (!isSuppressedNonBinary) {
-        percentReceivingBonusPayX = (countReceivingBonusPayX / countAllX) * 100;
-      }
+        if (!isSuppressedMale) {
+          percentReceivingBonusPayM =
+            (countReceivingBonusPayM / countAllM) * 100;
+        }
 
-      if (!isSuppressedUnknown) {
-        percentReceivingBonusPayU = (countReceivingBonusPayU / countAllU) * 100;
+        if (!isSuppressedFemale) {
+          percentReceivingBonusPayW =
+            (countReceivingBonusPayW / countAllW) * 100;
+        }
+
+        if (!isSuppressedNonBinary) {
+          percentReceivingBonusPayX =
+            (countReceivingBonusPayX / countAllX) * 100;
+        }
+
+        if (!isSuppressedUnknown) {
+          percentReceivingBonusPayU =
+            (countReceivingBonusPayU / countAllU) * 100;
+        }
       }
+    }
+
+    // If only one gender category has a non-null calculated amount,
+    // reset all calculated amounts to null.
+    if (
+      reportCalcServicePrivate.countNonNulls([
+        percentReceivingBonusPayM,
+        percentReceivingBonusPayW,
+        percentReceivingBonusPayX,
+        percentReceivingBonusPayU,
+      ]) < 2
+    ) {
+      percentReceivingBonusPayM = null;
+      percentReceivingBonusPayW = null;
+      percentReceivingBonusPayX = null;
+      percentReceivingBonusPayU = null;
     }
 
     const calculatedAmounts = [];
