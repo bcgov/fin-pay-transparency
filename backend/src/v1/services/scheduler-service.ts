@@ -27,7 +27,7 @@ const schedulerService = {
 
         //console.log(reports.length);
 
-        if (!reports) return null;
+        if (!reports) return;
 
         /*
         reports.forEach((r) => {
