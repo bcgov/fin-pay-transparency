@@ -101,6 +101,7 @@
                   month-picker
                   auto-apply
                   format="MMMM yyyy"
+                  :disabled="reportStatus === 'Published'"
                   placeholder="Start Date"
                   input-class-name="datepicker-input"
                   :min-date="minStartDate"
@@ -129,6 +130,7 @@
                   model-type="yyyy-MM-dd"
                   month-picker
                   auto-apply
+                  :disabled="reportStatus === 'Published'"
                   format="MMMM yyyy"
                   placeholder="End Date"
                   input-class-name="datepicker-input"
@@ -494,6 +496,7 @@ export default {
     submissionErrors: null as SubmissionErrors | null,
     draftReport: null,
     approvedRoute: null,
+    reportStatus: null,
   }),
   async beforeMount() {
     this.setStage('UPLOAD');
@@ -513,6 +516,7 @@ export default {
       this.startDate = this.reportData.report_start_date;
       this.endDate = this.reportData.report_end_date;
       this.dataConstraints = this.reportData.data_constraints;
+      this.reportStatus = this.reportData.report_status;
     }
   },
   methods: {
@@ -540,6 +544,7 @@ export default {
       this.isProcessing = true;
       try {
         const formData = new FormData();
+        formData.append('id', this.reportId);
         formData.append('companyName', this.companyName);
         formData.append('companyAddress', this.companyAddress);
         formData.append('naicsCode', this.naicsCode);
@@ -614,7 +619,12 @@ export default {
     ...mapState(useConfigStore, ['config']),
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
-    ...mapState(useReportStepperStore, ['reportId', 'reportData', 'mode']),
+    ...mapState(useReportStepperStore, [
+      'reportId',
+      'reportInfo',
+      'reportData',
+      'mode',
+    ]),
     dataReady() {
       return this.validForm && this.uploadFileValue;
     },

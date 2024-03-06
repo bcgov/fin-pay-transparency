@@ -1135,8 +1135,8 @@ const reportService = {
         await tx.pay_transparency_report.findFirst({
           where: {
             company_id: report_to_publish.company_id,
-            report_start_date: report_to_publish.report_start_date,
-            report_end_date: report_to_publish.report_end_date,
+            report_start_date: new Date(report_to_publish.report_start_date),
+            report_end_date: new Date(report_to_publish.report_end_date),
             report_status: enumReportStatus.Published,
           },
         });
@@ -1188,6 +1188,8 @@ const reportService = {
             revision: true,
             data_constraints: true,
             is_unlocked: true,
+            create_date: true,
+            company_id: true
           },
           where: {
             report_id: reportId,
