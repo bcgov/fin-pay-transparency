@@ -93,7 +93,11 @@
                       <v-icon color="#1976d2" icon="mdi-eye-outline"></v-icon>
                       View
                     </a>
-                    <a href="#" v-if="isEditable(report)">
+                    <a
+                      :data-testid="'edit-report-' + report.report_id"
+                      @click="editReport(report)"
+                      v-if="isEditable(report)"
+                    >
                       <v-icon color="#1976d2" icon="mdi-table-edit"></v-icon>
                       Edit
                     </a>
@@ -195,6 +199,11 @@ export default {
     async viewReport(report: IReport) {
       this.setMode(ReportMode.View);
       await this.setReportInfo(report);
+    },
+    async editReport(report: IReport) {
+      this.setMode(ReportMode.Edit);
+      await this.setReportInfo(report);
+      await this.$router.push({ path: 'generate-report-form' });
     },
   },
   async beforeMount() {

@@ -4,13 +4,21 @@ import { render, waitFor, fireEvent } from '@testing-library/vue';
 import Dashboard from '../Dashboard.vue';
 import { createTestingPinia } from '@pinia/testing';
 import { authStore } from '../../store/modules/auth';
+import { useReportStepperStore } from '../../store/modules/reportStepper';
 
 const pinia = createTestingPinia();
+const mockRouterPush = vi.fn();
+const mockRouter = {
+  push: (...args) => mockRouterPush(...args),
+};
 
 const wrappedRender = async () => {
   return render(Dashboard, {
     global: {
       plugins: [pinia],
+      mocks: {
+        $router: mockRouter
+      }
     },
   });
 };
@@ -77,5 +85,25 @@ describe('Dashboard', () => {
 
     const viewReportButton = getByTestId('view-report-id1');
     await fireEvent.click(viewReportButton);
+  });
+  it('should open report in edit mode', async () => {
+    mockGetReports.mockReturnValue([
+      {
+        report_id: 'id1',
+        report_start_date: '2023-01-01',
+        report_end_date: '2023-02-01',
+        create_date: new Date().toISOString(),
+      },
+    ]);
+    const { getByTestId } = await wrappedRender();
+    await waitFor(() => {
+      expect(mockGetReports).toHaveBeenCalled();
+    });
+
+    const editReportButton = getByTestId('edit-report-id1');
+    await fireEvent.click(editReportButton);
+    expect(mockRouterPush).toHaveBeenCalledWith({
+      path: 'generate-report-form'
+    });
   });
 });

@@ -42,7 +42,16 @@
         >
           Download PDF
         </v-btn>
-        <v-btn v-if="isReportEditable(reportInfo!, config?.reportEditDurationInDays)" id="editButton" color="primary" to="/generate-report-form">
+        <v-btn
+          v-if="
+            !!reportData &&
+            isReportEditable(reportData!, config?.reportEditDurationInDays)
+          "
+          id="editButton"
+          color="primary"
+          data-testid="published-report-edit-button"
+          @click="editReport()"
+        >
           Edit this Report
         </v-btn>
       </v-banner>
@@ -69,10 +78,11 @@ import HtmlReport from './util/HtmlReport.vue';
 import { onBeforeMount, ref } from 'vue';
 import ApiService from '../common/apiService';
 import { storeToRefs } from 'pinia';
-import { onBeforeRouteLeave } from 'vue-router';
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { isReportEditable } from '../common/helpers';
 import { useConfigStore } from '../store/modules/config';
 
+const router = useRouter();
 const ReportStepperStore = useReportStepperStore();
 
 onBeforeMount(() => {
@@ -80,11 +90,13 @@ onBeforeMount(() => {
 });
 
 onBeforeRouteLeave(async (to, from, next) => {
-  ReportStepperStore.reset();
+  if (to.path !== '/generate-report-form') {
+    ReportStepperStore.reset();
+  }
   next();
 });
 
-const { reportId, mode, reportInfo } = storeToRefs(useReportStepperStore());
+const { reportId, mode, reportData } = storeToRefs(useReportStepperStore());
 const { config } = storeToRefs(useConfigStore());
 const isProcessing = ref(false);
 const isDownloadingPdf = ref<boolean>(false);
@@ -94,6 +106,12 @@ const downloadPdf = async (reportId) => {
   isDownloadingPdf.value = true;
   await ApiService.getPdfReport(reportId);
   isDownloadingPdf.value = false;
+};
+
+const editReport = async () => {
+  ReportStepperStore.setMode(ReportMode.Edit)
+  await ReportStepperStore.setReportInfo(reportData.value!);
+  await router.push({ path: 'generate-report-form' });
 };
 </script>
 
