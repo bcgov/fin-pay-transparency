@@ -101,6 +101,9 @@ describe('Dashboard', () => {
     });
 
     const editReportButton = getByTestId('edit-report-id1');
+    await waitFor(() => {
+      expect(editReportButton).toBeInTheDocument();
+    })
     await fireEvent.click(editReportButton);
     expect(mockRouterPush).toHaveBeenCalledWith({
       path: 'generate-report-form'
