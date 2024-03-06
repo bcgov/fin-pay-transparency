@@ -504,7 +504,7 @@ export default {
 
     try {
       const data = await this.loadConfig();
-      this.setMaxFileUploadSize(data!);
+      this.setMaxFileUploadSize(data as IConfigValue);
     } catch (error) {
       NotificationService.pushNotificationError(
         'Failed to load application settings. Please reload the page.',
