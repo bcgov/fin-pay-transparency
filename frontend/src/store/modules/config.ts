@@ -12,6 +12,8 @@ export const useConfigStore = defineStore('config', () => {
     const data = await ApiService.getConfig();
 
     config.value = data;
+
+    return data;
   }
 
   return { config, loadConfig };

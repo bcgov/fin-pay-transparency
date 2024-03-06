@@ -404,6 +404,7 @@ import {
   DateTimeFormatter,
 } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
+import { IConfigValue } from '../common/types';
 
 interface LineErrors {
   lineNum: number;
@@ -502,7 +503,8 @@ export default {
     this.setStage('UPLOAD');
 
     try {
-      await this.loadConfig();
+      const data = await this.loadConfig();
+      this.setMaxFileUploadSize(data!);
     } catch (error) {
       NotificationService.pushNotificationError(
         'Failed to load application settings. Please reload the page.',
@@ -570,6 +572,14 @@ export default {
         this.setErrorAlert(error.response.data?.errors);
       }
     },
+    setMaxFileUploadSize(data: IConfigValue) {
+      if (data.maxUploadFileSize) {
+        this.maxFileUploadSize = humanFileSize(
+          data?.maxUploadFileSize || 8000000,
+          0,
+        );
+      }
+    },
   },
   watch: {
     naicsCodes(val) {
@@ -607,12 +617,7 @@ export default {
       },
     },
     config(data) {
-      if (data.maxUploadFileSize) {
-        this.maxFileUploadSize = humanFileSize(
-          data?.maxUploadFileSize || 8000000,
-          0,
-        );
-      }
+      this.setMaxFileUploadSize(data);
     },
   },
   computed: {
