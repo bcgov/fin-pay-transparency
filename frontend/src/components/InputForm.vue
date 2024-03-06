@@ -441,7 +441,7 @@ export default {
       return;
     }
 
-    const response = await this.$refs.confirmBackDialog.open(
+    const response = await (this.$refs as any).confirmBackDialog.open(
       'Please Confirm',
       'Do you want to go back to the dashboard? Note that changes will not be saved after navigating back or logging out of the system.',
       {
@@ -456,11 +456,11 @@ export default {
     requiredRules: [(v) => !!v || 'Required'],
     companyName: '',
     companyAddress: '',
-    naicsCode: null,
+    naicsCode: null as any,
     naicsCodesTruncated: [],
-    employeeCountRange: null,
+    employeeCountRange: null as any,
     isProcessing: false,
-    uploadFileValue: null,
+    uploadFileValue: undefined as File[] | undefined,
     maxFileUploadSize: '',
     minStartDate: convert(
       LocalDate.now()
@@ -491,11 +491,11 @@ export default {
     fileAccept: '.csv',
     fileRules: [],
     fileInputError: [],
-    alertMessage: null,
-    alertType: null,
+    alertMessage: null as string | null,
+    alertType: null as string | null,
     submissionErrors: null as SubmissionErrors | null,
     draftReport: null,
-    approvedRoute: null,
+    approvedRoute: null as string | null,
     reportStatus: null,
   }),
   async beforeMount() {
@@ -533,7 +533,7 @@ export default {
     setErrorAlert(submissionErrors: SubmissionErrors | null) {
       this.submissionErrors = submissionErrors;
       if (submissionErrors) {
-        this.uploadFileValue = null;
+        this.uploadFileValue = undefined;
       }
     },
     nextStage() {
@@ -544,11 +544,14 @@ export default {
       this.isProcessing = true;
       try {
         const formData = new FormData();
-        formData.append('id', this.reportId);
+        formData.append('id', this.reportId ? this.reportId : '');
         formData.append('companyName', this.companyName);
         formData.append('companyAddress', this.companyAddress);
-        formData.append('naicsCode', this.naicsCode);
-        formData.append('employeeCountRangeId', this.employeeCountRange);
+        formData.append('naicsCode', this.naicsCode ? this.naicsCode : '');
+        formData.append(
+          'employeeCountRangeId',
+          this.employeeCountRange ? this.employeeCountRange : '',
+        );
         formData.append('startDate', this.startDate);
         formData.append('endDate', this.endDate);
         formData.append(
@@ -556,14 +559,17 @@ export default {
           this.dataConstraints ? this.dataConstraints : '',
         );
         formData.append('comments', this.comments ? this.comments : '');
-        formData.append('file', this.uploadFileValue[0]);
+        formData.append(
+          'file',
+          this.uploadFileValue ? this.uploadFileValue[0] : '',
+        );
         this.draftReport = await ApiService.postSubmission(formData);
         await this.setReportInfo(this.draftReport as any);
         this.nextStage();
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
         this.isProcessing = false;
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
         this.isProcessing = false;
         this.setSuccessAlert(null);
@@ -627,9 +633,6 @@ export default {
     ]),
     dataReady() {
       return this.validForm && this.uploadFileValue;
-    },
-    fromDateDisp() {
-      return this.fromDateVal;
     },
     areRequiredFieldsComplete() {
       return (
