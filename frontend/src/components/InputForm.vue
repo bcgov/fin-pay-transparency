@@ -499,17 +499,17 @@ export default {
     approvedRoute: null as string | null,
     reportStatus: null,
   }),
-  async beforeMount() {
+  beforeMount() {
     this.setStage('UPLOAD');
-
-    try {
-      const data = await this.loadConfig();
-      this.setMaxFileUploadSize(data as IConfigValue);
-    } catch (error) {
-      NotificationService.pushNotificationError(
-        'Failed to load application settings. Please reload the page.',
-      );
-    }
+    this.loadConfig()
+      .then((data) => {
+        this.setMaxFileUploadSize(data as IConfigValue);
+      })
+      .catch((error) => {
+        NotificationService.pushNotificationError(
+          'Failed to load application settings. Please reload the page.',
+        );
+      });
 
     if (this.reportId) {
       this.comments = this.reportData.user_comment;
@@ -579,7 +579,7 @@ export default {
       }
     },
     setMaxFileUploadSize(data: IConfigValue) {
-      if (data.maxUploadFileSize) {
+      if (data?.maxUploadFileSize) {
         this.maxFileUploadSize = humanFileSize(
           data?.maxUploadFileSize || 8000000,
           0,
