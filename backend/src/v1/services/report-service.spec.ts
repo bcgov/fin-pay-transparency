@@ -668,14 +668,16 @@ describe('getReports', () => {
     );
     const ret = await reportService.getReports(mockCompanyInDB.company_id, {
       report_status: enumReportStatus.Draft,
-      report_start_date: LocalDate.now().format(JODA_FORMATTER),
-      report_end_date: LocalDate.now().format(JODA_FORMATTER),
+      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
     });
     expect(ret).toEqual(
       mockReportResults.pay_transparency_report.map((r) => ({
         ...r,
-        report_start_date: LocalDate.now().format(JODA_FORMATTER),
-        report_end_date: LocalDate.now().format(JODA_FORMATTER),
+        report_start_date: LocalDate.now(ZoneId.UTC)
+          .minusDays(1)
+          .format(JODA_FORMATTER),
+        report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
       })),
     );
   });
@@ -848,8 +850,8 @@ describe('getReportById', () => {
     };
     const expectedReport = {
       ...report,
-      report_start_date: LocalDate.now().format(JODA_FORMATTER),
-      report_end_date: LocalDate.now().format(JODA_FORMATTER),
+      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
     };
     const mockReportResults = {
       pay_transparency_report: [report],
