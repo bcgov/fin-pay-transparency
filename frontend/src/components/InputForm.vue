@@ -502,7 +502,7 @@ export default {
   beforeMount() {
     this.setStage('UPLOAD');
     this.loadConfig()
-      .then((data) => {
+      ?.then((data) => {
         this.setMaxFileUploadSize(data as IConfigValue);
       })
       .catch((error) => {
