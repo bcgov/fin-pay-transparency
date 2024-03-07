@@ -116,6 +116,7 @@ router.beforeEach((to, _from, next) => {
 
   // requires authentication
   const aStore = authStore();
+
   aStore
     .getJwtToken()
     .then(() => {

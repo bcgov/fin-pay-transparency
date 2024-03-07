@@ -5,6 +5,7 @@
   "description": "pay transparency",
   "scripts": {
     "test": "vitest run",
+    "test:ui": "vitest --ui",
     "test:cov": "vitest run --mode test --coverage",
     "serve": "vite --host",
     "build": "vite build",
