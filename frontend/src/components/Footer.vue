@@ -1,5 +1,5 @@
 <template>
-  <v-footer color="#fff" dark absolute class="bordered" app>
+  <v-footer color="#fff" dark absolute class="bordered margin-top" app>
     <v-row>
       <v-col class="justify-left" style="text-align: left">
         <v-row>
@@ -14,7 +14,11 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col class="justify-center" style="text-align: left" data-testid="footer-message">
+          <v-col
+            class="justify-center"
+            style="text-align: left"
+            data-testid="footer-message"
+          >
             For questions or assistance with creating a report please contact
             the Pay Transparency Unit -
             <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">
@@ -53,6 +57,16 @@
         </v-row>
       </v-col>
     </v-row>
+  </v-footer>
+  <v-footer dark absolute class="bordered first-nation-acknowledgement" app>
+    <div>
+      The B.C. public Service acknowledges the territories of First Nations
+      around B.C. and is grateful to carry out our work on these lands. We
+      acknowledge the rights, interests, priorities, and concerns of all
+      Indigenous Peoples - First Nations, Métis, and Inuit - respecting and
+      acknowledging their distinct cultures, histories, rights, laws, and
+      governments.
+    </div>
   </v-footer>
 </template>
 
@@ -120,9 +134,30 @@ $text-color: rgb(70, 67, 65);
 }
 
 .v-footer.bordered {
-  border-top: 2px solid rgb(252, 186, 25) !important;
+  border-top: 4px solid rgb(252, 186, 25) !important;
   overflow: hidden;
-  padding-top: 50px;
+
+  &.margin-top {
+    padding-top: 50px;
+  }
+
+  &.first-nation-acknowledgement {
+    background-color: rgb(41, 41, 41);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    color: #fff;
+    font-size: 14px;
+    line-height: 21px;
+    transition: none !important;
+
+    div {
+      max-width: 1120px;
+      margin: auto;
+    }
+  }
 }
 a.contact-email {
   color: rgb(32, 31, 30);
