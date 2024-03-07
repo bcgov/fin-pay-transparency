@@ -174,7 +174,7 @@
               <v-col cols="12">
                 <h3 class="heading mb-2">Data Constraints</h3>
                 <p class="description mb-4">
-                  Please share any information (that is, Limitations,
+                  Please share any information (that is, limitations,
                   constraints, or dependencies) that may be helpful to explain
                   your payroll data (for example, “Bonus pay not offered by
                   [employer name]”). This will appear at the bottom of your pay
