@@ -1,8 +1,5 @@
 import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
 
-import multer from 'multer';
-import { Readable } from 'stream';
-import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import {
@@ -11,29 +8,25 @@ import {
 } from '../services/report-calc-service';
 import { codeService } from './code-service';
 import { reportService } from './report-service';
-import { utils } from './utils-service';
 import { FileErrors, validateService } from './validate-service';
 
 const REPORT_STATUS = {
   DRAFT: 'Draft',
   PUBLISHED: 'Published',
 };
-const DISK_MB_PER_NETWORK_MB = 1.024;
 
-const MAX_FILE_SIZE_ON_DISK_BYTES =
-  config.get('server:uploadFileMaxSizeBytes') || 8000000;
-const parseMultipartFormData = multer({
-  limits: {
-    // By convention, a megabyte (MB) on disk is defined slightly differently
-    // than a MB transferred over a network.  Users of the Pay Transparency
-    // application will probably compare the posted maximum file size to
-    // the file size on disk reported by their operating system.  Multer,
-    // however, does not use the same measure internally for its file size
-    // comparison. We make adjusted the file size provided to Multer
-    // to account for this discrepancy.
-    fileSize: DISK_MB_PER_NETWORK_MB * MAX_FILE_SIZE_ON_DISK_BYTES,
-  },
-}).single('file'); //"file" is the name of multipart form field containing the uploaded file
+export interface ISubmission {
+  id?: string;
+  companyName: string;
+  companyAddress: string;
+  naicsCode: string;
+  employeeCountRangeId: string;
+  startDate: string;
+  endDate: string;
+  dataConstraints: string | null;
+  comments: string | null;
+  records: any[];
+}
 
 interface ValidationErrorResponse {
   status: string;
@@ -64,16 +57,22 @@ const fileUploadService = {
 
   /* save the report body and the calculated amounts to the database */
   async saveDraftReport(
-    req,
+    userInfo: any,
+    submission: ISubmission,
     calculatedAmounts: CalculatedAmount[],
+    correlationId: string = null,
   ): Promise<string> {
-    logger.debug(
-      'Saving draft report for correlation id: ' + req?.session?.correlationID,
-    );
+    if (correlationId) {
+      logger.debug(`Saving draft report for correlation id: ${correlationId}`);
+    }
     let reportId = null;
     try {
       await prisma.$transaction(async (tx) => {
-        reportId = await fileUploadService.saveReportBody(req, tx);
+        reportId = await fileUploadService.saveSubmissionAsReport(
+          submission,
+          userInfo,
+          tx,
+        );
         await fileUploadService.saveReportCalculations(
           calculatedAmounts,
           reportId,
@@ -88,9 +87,9 @@ const fileUploadService = {
         throw new Error('Error saving report');
       }
     }
-    logger.debug(
-      'Saved draft report for correlation id: ' + req?.session?.correlationID,
-    );
+    if (correlationId) {
+      logger.debug(`Saved draft report for correlation id: ${correlationId}`);
+    }
     return reportId;
   },
 
@@ -98,16 +97,15 @@ const fileUploadService = {
   Saves the report body to the database.
   Returns the report_id of the new record 
   */
-  async saveReportBody(req, tx): Promise<string> {
-    const body = req.body;
-    const userInfo = utils.getSessionUser(req);
-
+  async saveSubmissionAsReport(
+    submission: ISubmission,
+    userInfo: any,
+    tx,
+  ): Promise<string> {
     // Use UTC so js-doja doesn't offset the timezone based on locale
-    const startDate = LocalDate
-      .parse(body.startDate)
-      .withDayOfMonth(1);
-    const endDate = LocalDate.parse(body.endDate)
-      
+    const startDate = LocalDate.parse(submission.startDate).withDayOfMonth(1);
+    const endDate = LocalDate.parse(submission.endDate)
+
       .with(TemporalAdjusters.lastDayOfMonth());
 
     const payTransparencyUser = await tx.pay_transparency_user.findFirst({
@@ -135,10 +133,10 @@ const fileUploadService = {
     const reportData = {
       company_id: payTransparencyCompany.company_id,
       user_id: payTransparencyUser.user_id,
-      user_comment: body?.comments,
-      data_constraints: body?.dataConstraints,
-      employee_count_range_id: body?.employeeCountRangeId,
-      naics_code: body?.naicsCode,
+      user_comment: submission?.comments,
+      data_constraints: submission?.dataConstraints,
+      employee_count_range_id: submission?.employeeCountRangeId,
+      naics_code: submission?.naicsCode,
       revision: 1,
       report_status: REPORT_STATUS.DRAFT,
       report_start_date: convert(startDate).toDate(),
@@ -342,131 +340,104 @@ const fileUploadService = {
   },
 
   /*
-  Process the multipart form data and use the multer library's
-  built-in checks to perform a preliminary validation of the
-  uploaded file (ensure file size is within the allowed limit).
-  If there are any problem, return a JSON error.  If success,
-  returns an draft report in HTML format.
+  Process the uploaded submission.  If accepted, saves as a Report, and returns
+  a report object.  If rejected, throws an error with a detailed explanation.
   */
-  async handleFileUpload(req, res) {
-    log.info(
-      'Handling file upload for correlation id: ' + req?.session?.correlationID,
-    );
+  async handleSubmission(
+    userInfo: any,
+    submission: ISubmission,
+    correlationId: string = null,
+  ): Promise<any> {
+    const bceidBusinessGuid = userInfo?._json?.bceid_business_guid;
 
-    const bceidBusinessGuid =
-      utils.getSessionUser(req)?._json?.bceid_business_guid;
+    // At this stage no MulterErrors were detected,
+    // so start a deeper validation of the request body (form fields) and
+    // the contents of the uploaded file. (Note: this statement causes response
+    // status to be set and error data to be added to the response if any
+    // validation error is found.)
+    const validationError =
+      fileUploadServicePrivate.validateSubmission(submission);
 
-    parseMultipartFormData(req, res, async (err) => {
-      if (err instanceof multer.MulterError) {
-        // A default, general-purpose error message
-        let errorMessage = 'Invalid submission';
+    if (validationError) {
+      return validationError;
+    }
 
-        // In some cases, replace the default error message with something more
-        // specific.
-        if (err?.code == 'LIMIT_FILE_SIZE') {
-          errorMessage = `The uploaded file exceeds the size limit (${
-            MAX_FILE_SIZE_ON_DISK_BYTES / 1000000
-          }MB).`;
-        }
-        log.error(
-          `Error handling file upload for correlation_id: ${req.session?.correlationID} and error is ${err?.code}`,
-        );
-        res.status(400).json({
+    try {
+      const calculatedAmounts: CalculatedAmount[] =
+        await reportCalcService.calculateAll(submission.records);
+      const reportId = await fileUploadService.saveDraftReport(
+        bceidBusinessGuid,
+        submission,
+        calculatedAmounts,
+        correlationId,
+      );
+      const report = await reportService.getReportById(
+        bceidBusinessGuid,
+        reportId,
+      );
+      return report;
+    } catch (err) {
+      // If the error was caused by invalid user input, try to throw a helpful
+      // message
+      if (err instanceof PayTransparencyUserError) {
+        throw {
           status: 'error',
           errors: {
-            generalErrors: [errorMessage],
+            generalErrors: [err.message],
           },
-        } as ValidationErrorResponse);
-        return;
+        } as ValidationErrorResponse;
+      } else {
+        // An internal error occurred while saving the validated data to the
+        // database. Log the actual error, but return a more general error
+        // that won't reveal details of the backend implementation.
+        log.error(err);
+        throw {
+          status: 'error',
+          errors: {
+            generalErrors: ['Something went wrong'],
+          },
+        } as ValidationErrorResponse;
       }
-
-      // At this stage no MulterErrors were detected,
-      // so start a deeper validation of the request body (form fields) and
-      // the contents of the uploaded file. (Note: this statement causes response
-      // status to be set and error data to be added to the response if any
-      // validation error is found.)
-      const isValid = fileUploadServicePrivate.validateSubmission(req, res);
-
-      if (isValid) {
-        try {
-          //add entire CSV file to Readable stream (so it can be processed asyncronously)
-          const csvReadable = new Readable();
-          csvReadable.push(req.file.buffer);
-          csvReadable.push(null);
-          const calculatedAmounts: CalculatedAmount[] =
-            await reportCalcService.calculateAll(csvReadable);
-          const reportId = await fileUploadService.saveDraftReport(
-            req,
-            calculatedAmounts,
-          );
-          const report = await reportService.getReportById(
-            bceidBusinessGuid,
-            reportId,
-          );
-          res.status(200).json(report);
-        } catch (err) {
-          if (err instanceof PayTransparencyUserError) {
-            // The request was somehow invalid.  Try to show the user a helpful
-            // error message.
-            res.status(400).json({
-              status: 'error',
-              errors: {
-                generalErrors: [err.message],
-              },
-            } as ValidationErrorResponse);
-          } else {
-            // An internal error occurred while saving the validated data to the
-            // database.  Don't show the user the internal error message.  Instead,
-            // return a non-specific general error message.
-            log.error(err);
-            res.status(500).json({
-              status: 'error',
-              errors: {
-                generalErrors: ['Something went wrong'],
-              },
-            } as ValidationErrorResponse);
-          }
-        }
-      }
-
-    });
+    }
   },
 };
 
 const fileUploadServicePrivate = {
   /*
-   * Validates the multipart form request. If valid returns true.  Returns false
-   * otherwise.
-   * Validation involves checking the request body (form fields) and also the
-   * attached file.
-   * Side effects: if any validation errors were found, updates the response (res)
-   * object with appropriate status codes and return data. if no validation errors
-   * were found does *not* modify the response (res).
+   * Validates the contents of an ISubmission object to ensure it meets all
+   *  the data requirements for Pay Transparency reporting.
+   * Validation is split into two steps:
+   * - validate the attributes submitted from the frontend InputForm
+   * - validate the employee pay records
+   * If no validation errors are found, returns null.
+   * If validation errors are found, returns a ValidationErrorResponse.
+   * If an unexpected error occurs, throws an Error.
    */
-  validateSubmission(req, res) {
+  validateSubmission(data: ISubmission): ValidationErrorResponse | null {
     try {
-      const bodyErrors = validateService.validateBody(req.body);
-      const fileErrors = validateService.validateCsv(req.file.buffer);
+      const bodyErrors = validateService.validateBody(data);
+      const fileErrors = validateService.validateEmployeePayRecords(
+        data.records,
+      );
       if (bodyErrors?.length || fileErrors) {
-        res.status(400).json({
+        return {
           status: 'error',
           errors: {
             bodyErrors: bodyErrors,
             fileErrors: fileErrors,
           },
-        } as ValidationErrorResponse);
-        return false;
+        } as ValidationErrorResponse;
       }
     } catch (e) {
-      res.status(500).json({
+      throw {
         status: 'error',
         errors: {
           generalErrors: ['Something went wrong'],
         },
-      } as ValidationErrorResponse);
-      return false;
+      } as ValidationErrorResponse;
     }
-    return true;
+
+    return null;
   },
 };
 

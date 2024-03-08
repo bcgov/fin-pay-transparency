@@ -1,5 +1,4 @@
-import { parse } from 'csv-parse/sync';
-import { logger as log } from '../../logger';
+import { ISubmission } from './file-upload-service';
 
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const CSV_COLUMNS = {
@@ -57,11 +56,9 @@ interface LineErrors {
 
 const validateService = {
   /*
-  Validates the content of the submission body, which includes all form fields, 
-  but excludes the uploaded CSV file.  Returns a list of any validation error messages, 
-  or an empty list if no errors.
+  Validates all the properties of the submission except the "records" property.
   */
-  validateBody(body: any): string[] {
+  validateBody(body: ISubmission): string[] {
     const errorMessages = [];
     if (body?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
       errorMessages.push(
@@ -72,34 +69,51 @@ const validateService = {
   },
 
   /*
-  Validates all fields in the submission, including the form fields and the
-  uploaded file.  Returns an array of error messages if any errors
-  are found, or returns an empty array if no errors are found (if the 
-  submission is valid)
+  Validates the given array of employee pay records.  Checks that the
+  data meet the Pay Transparency reporting requirements.
+  Expects as input an array of arrays.  The first record
+  is a header, which gives column names as an array.  Each subsequent 
+  record represent one employee's anonymized pay information.
+  For example:
+  const records = [
+    ['col 1 name', 'col 2 name', ...],
+    ['value for col 1', 'value for col 2', ...],
+    ['value for col 1', 'value for col 2', ...],
+    ...
+  ]
+  If validation passes, returns null.
+  If validation fails returns a FileErrors object
   */
-  validateCsv(csvContent: string): FileErrors {
+  validateEmployeePayRecords(records: any[]): FileErrors | null {
     const fileErrors: FileErrors = {
       generalErrors: null,
       lineErrors: null,
     };
 
-    // Parse the CSV content and check that the column names as
-    // expected (and in the expected order)
-    let rows: Row[] = [];
-    try {
-      rows = this.parseCsv(csvContent);
-    } catch (e) {
-      fileErrors.generalErrors = [e.message];
+    // Confirm that the records array begins with a valid header record
+    const validateHeaderResult = this.validateEmployeePayRecordsHeader(records);
+    if (validateHeaderResult) {
+      return validateHeaderResult;
     }
 
-    // If there were errors during the first stages of validation then
-    // return those errors now without doing any further validation.
-    if (fileErrors.generalErrors?.length) {
-      return fileErrors;
+    // Scan each record (after the header) checking that each has valid
+    // content in all columns
+    const lineErrors: LineErrors[] = [];
+    for (let recordNum = 1; recordNum < records.length; recordNum++) {
+      //+1 because the line numbers are not zero-indexed, and
+      //+1 again because the first data line is actually the second line of the file(after the header line)
+      const lineNum = recordNum + 2;
+
+      const record = records[recordNum];
+      const errorsForCurrentLine: LineErrors = this.validateRow(
+        lineNum,
+        record,
+      );
+      if (errorsForCurrentLine) {
+        lineErrors.push(errorsForCurrentLine);
+      }
     }
 
-    // Scan each row, checking that they all have valid content in all columns
-    const lineErrors: LineErrors[] = this.validateRows(rows);
     if (lineErrors?.length) {
       fileErrors.lineErrors = lineErrors;
     }
@@ -111,94 +125,32 @@ const validateService = {
     return null;
   },
 
-  /*
-  Convert the CSV file into an array of objects.  Throw an error if any problems occur.
-  If there are no problems with the parsing, each resulting object will include both the
-  translated version of the CSV row as a javascript object and also the original (raw) 
-  version of the CSV row as a string.
-  
-  For example, given this CSV row:
-    F,1853,85419.00,,7,484.03,,46.10
-
-  The resulting object would be:
-    {
-      record: {
-        'Gender Code': 'F',
-        'Hours Worked': '1853',
-        'Ordinary Pay': '85419.00',
-        'Special Salary': '',
-        'Overtime Hours': '7',
-        'Overtime Pay': '484.03',
-        'Bonus Pay': '',
-        'Regular Hourly Wage': '46.10'
-      },
-      raw: 'F,1853,85419.00,,7,484.03,,46.10\r'
+  /**
+   * Checks that the first element of the employee pay records array
+   * contains the expected set of column names
+   * @param records an array of arrays.  The first inner array represents the
+   * header line, and each subsequent record represents one employee pay record
+   * @returns
+   */
+  validateEmployeePayRecordsHeader(records: any[]): FileErrors | null {
+    if (!records?.length) {
+      return {
+        generalErrors: [INVALID_COLUMN_ERROR],
+        lineErrors: null,
+      } as FileErrors;
     }
-
-  */
-  parseCsv(csvContent: string): Row[] {
-    let rows = [];
-    try {
-      rows = parse(csvContent, {
-        columns: true,
-        bom: true,
-        raw: true,
-        trim: true,
-        ltrim: true,
-        skip_empty_lines: true,
-        relax_column_count: true,
-      });
-    } catch (e) {
-      log.debug(e);
-      throw new Error('Unable to parse file');
+    const firstLine = records[0];
+    const expectedFirstLine = Object.values(CSV_COLUMNS).join(',');
+    const isHeaderValid = firstLine.join(',') == expectedFirstLine;
+    if (!isHeaderValid) {
+      return {
+        generalErrors: [
+          `Invalid header.  Expected the first line of the file to have the following format: ${expectedFirstLine}`,
+        ],
+        lineErrors: null,
+      } as FileErrors;
     }
-
-    if (!rows?.length) {
-      throw new Error('No content');
-    }
-
-    // Confirm that the CSV contains the expected columns in the expected order
-    const firstRow = rows[0];
-    const colNames = Object.getOwnPropertyNames(firstRow.record);
-    if (colNames?.length < EXPECTED_COLUMNS.length) {
-      throw new Error(INVALID_COLUMN_ERROR);
-    }
-    for (let i = 0; i < EXPECTED_COLUMNS.length; i++) {
-      if (colNames[i] != EXPECTED_COLUMNS[i]) {
-        throw new Error(INVALID_COLUMN_ERROR);
-      }
-    }
-
-    // Don't throw an error if the CSV contains extra columns
-    // that they occur after all the required columns.  The main reason
-    // not to throw an error in this case is that extra commas
-    // at the end of a line can cause the CSV parser to detect "ghost"
-    // columns (i.e. columns with no header and with empty strings
-    // as values).  We don't want to complain about "ghost" columns,
-    // It may be reasonable to complain about extra
-    // non-ghost columns (although we don't do that currently).
-
-    return rows;
-  },
-
-  /*
-  Scans all rows.  For each row check that all columns have valid values.  
-  Return an array of any row errors found
-  */
-  validateRows(rows: Row[]): LineErrors[] {
-    const allRowErrors: LineErrors[] = [];
-    for (let rowNum = 0; rowNum < rows.length; rowNum++) {
-      //+1 because the line numbers are not zero-indexed, and
-      //+1 again because the first data line is actually the second line of the file(after the header line)
-      const lineNum = rowNum + 2;
-
-      const row = rows[rowNum];
-      const errorsForCurrentLine: LineErrors = this.validateRow(lineNum, row);
-      if (errorsForCurrentLine) {
-        allRowErrors.push(errorsForCurrentLine);
-      }
-    }
-    return allRowErrors;
+    return null;
   },
 
   /**
@@ -228,12 +180,11 @@ const validateService = {
   },
 
   /*
-  Scans the given row. Check that all columns have valid values.  
+  Scans the given record. Check that all columns have valid values.  
   Return a LineErrors object if any errors are found, or returns null 
   if no errors are found
   */
-  validateRow(lineNum: number, row: Row): LineErrors {
-    const record = row.record;
+  validateRecord(recordNum: number, record: any[]): LineErrors | null {
     const errorMessages: string[] = [];
 
     // Validation checks common to all columns with data in units of 'hours'
@@ -296,7 +247,7 @@ const validateService = {
 
     if (errorMessages.length) {
       const lineErrors = {
-        lineNum: lineNum,
+        lineNum: recordNum,
         errors: errorMessages,
       };
 

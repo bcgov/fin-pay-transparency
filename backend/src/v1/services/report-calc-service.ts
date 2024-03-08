@@ -1,6 +1,6 @@
 import { parse } from 'csv-parse';
-import { Readable } from 'stream';
 import { logger } from '../../logger';
+import { ISubmission } from './file-upload-service';
 import {
   CSV_COLUMNS,
   GENDER_CODES,
@@ -445,7 +445,7 @@ const reportCalcService = {
     Returns an array of all the CalculatedAmounts, or returns null if calculations 
     are not permitted (because there is insufficient data).
   */
-  async calculateAll(csvReadable: Readable): Promise<CalculatedAmount[]> {
+  async calculateAll(data: ISubmission): Promise<CalculatedAmount[]> {
     const calculatedAmounts: CalculatedAmount[] = [];
     const csvParser = csvReadable.pipe(
       parse({
