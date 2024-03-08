@@ -1,8 +1,0 @@
-{
-  "extends": "@vue/tsconfig/tsconfig.json",
-  "compilerOptions": {
-    "noImplicitAny": false,
-    "verbatimModuleSyntax": false
-  },
-  "include": ["./src/**/*"]
-}
