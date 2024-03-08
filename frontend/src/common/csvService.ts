@@ -45,9 +45,7 @@ export const CsvService = {
    * Parses the given .csv file, converting it into JSON format.
    * @param file
    */
-  async parse(
-    contents: File | string,
-  ): Promise<IParseSuccessResponse | IParseErrorResponse> {
+  async parse(contents: File | string): Promise<IParseSuccessResponse> {
     return new Promise((resolve, reject) => {
       const parserConfig: any = {
         delimiter: ',',
@@ -75,29 +73,31 @@ export const CsvServicePrivate = {
    * csv file, parse errors (if any), and also some metadata about the parsing process.
    */
   onParseComplete(resolve, reject, papaParseResult: ParseResult<any>): void {
-    console.log(papaParseResult);
     if (papaParseResult?.errors?.length) {
       reject({
         status: ParseStatus.Error,
         message: GENERIC_PARSE_ERROR_MSG,
       });
-    }
-    if (papaParseResult?.meta?.truncated || papaParseResult?.meta?.aborted) {
+    } else if (
+      papaParseResult?.meta?.truncated ||
+      papaParseResult?.meta?.aborted
+    ) {
       reject({
         status: ParseStatus.Error,
         message: PARSE_ABORTED_ERROR_MSG,
       });
+    } else {
+      const validationError: IParseErrorResponse | null =
+        this.preliminaryValidation(papaParseResult);
+      if (validationError) {
+        reject(validationError);
+      } else {
+        resolve({
+          status: ParseStatus.Success,
+          data: papaParseResult.data,
+        });
+      }
     }
-    const validationError: IParseErrorResponse | null =
-      this.preliminaryValidation(papaParseResult);
-    if (validationError) {
-      reject(validationError);
-    }
-
-    resolve({
-      status: ParseStatus.Success,
-      data: papaParseResult.data,
-    });
   },
 
   /**

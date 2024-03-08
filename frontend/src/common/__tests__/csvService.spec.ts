@@ -1,9 +1,44 @@
-import { describe, expect, it } from 'vitest';
-import { CsvService, REQUIRED_HEADER_COLUMNS } from '../csvService';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  CsvService,
+  CsvServicePrivate,
+  ParseStatus,
+  REQUIRED_HEADER_COLUMNS,
+} from '../csvService';
 
 const validCsvHeader = REQUIRED_HEADER_COLUMNS.join(',');
 const validCsvDataLine = 'M,1500,100000,,2,70,';
 const validCsvString = `${validCsvHeader}\n${validCsvDataLine}`;
+
+const mockValidPapaParseResult = {
+  data: [REQUIRED_HEADER_COLUMNS] as any[],
+  errors: [] as any[],
+  meta: {} as any,
+};
+const mockInvalidPapaParseResult = {
+  data: [['mock,invalid,header']] as any[],
+  errors: [] as any[],
+  meta: {} as any,
+};
+const mockErrorPapaParseResult = {
+  data: [] as any[],
+  errors: [{}] as any[],
+  meta: {} as any,
+};
+const mockAbortedPapaParseResult = {
+  data: [] as any[],
+  errors: [] as any[],
+  meta: {
+    aborted: true,
+  } as any,
+};
+const mockTruncatedPapaParseResult = {
+  data: [REQUIRED_HEADER_COLUMNS] as any[],
+  errors: [] as any[],
+  meta: {
+    truncated: true,
+  } as any,
+};
 
 describe('parseCsv', () => {
   describe('when a properly formatted csv file is given', () => {
@@ -39,6 +74,113 @@ describe('parseCsv', () => {
       const expectedNumLines =
         (csvStringWithInvalidSecondLine.match(/\n/g) || []).length + 1;
       expect(result.data.length).toBe(expectedNumLines);
+    });
+  });
+});
+
+describe('validateHeader', () => {
+  describe('when a properly formatted header is given in the first line', () => {
+    it('returns null', async () => {
+      const result = CsvServicePrivate.validateHeader(mockValidPapaParseResult);
+      expect(result).toBeNull();
+    });
+  });
+  describe('when an improperly formatted header is given in the first line', () => {
+    it('returns an error object', async () => {
+      const result = CsvServicePrivate.validateHeader(
+        mockInvalidPapaParseResult,
+      );
+      expect(result?.status).toBe(ParseStatus.Error);
+    });
+  });
+});
+
+describe('preliminaryValidation', () => {
+  describe('when the given ParseResult is valid with respect to preliminary frontend checks', () => {
+    it('returns null', async () => {
+      const result = CsvServicePrivate.validateHeader(mockValidPapaParseResult);
+      expect(result).toBeNull();
+    });
+  });
+  describe('when the given ParseResult is invalid with respect to preliminary frontend checks', () => {
+    it('returns an error object', async () => {
+      const result = CsvServicePrivate.validateHeader(
+        mockInvalidPapaParseResult,
+      );
+      expect(result?.status).toBe(ParseStatus.Error);
+    });
+  });
+});
+
+describe('onParseComplete', () => {
+  describe('when the given ParseResult contains no errors', () => {
+    it('calls the resolve callback', async () => {
+      const resolve = vi.fn();
+      const reject = vi.fn();
+      CsvServicePrivate.onParseComplete(
+        resolve,
+        reject,
+        mockValidPapaParseResult,
+      );
+      expect(resolve).toHaveBeenCalledOnce();
+      expect(resolve.mock.calls[0][0]?.status).toBe(ParseStatus.Success);
+      expect(reject).toHaveBeenCalledTimes(0);
+    });
+  });
+  describe('when the given ParseResult contains parse errors', () => {
+    it('calls the reject callback', async () => {
+      const resolve = vi.fn();
+      const reject = vi.fn();
+      CsvServicePrivate.onParseComplete(
+        resolve,
+        reject,
+        mockErrorPapaParseResult,
+      );
+      expect(resolve).toHaveBeenCalledTimes(0);
+      expect(reject).toHaveBeenCalledOnce();
+      expect(reject.mock.calls[0][0]?.status).toBe(ParseStatus.Error);
+    });
+  });
+  describe('when the parse was aborted', () => {
+    it('calls the reject callback', async () => {
+      const resolve = vi.fn();
+      const reject = vi.fn();
+      CsvServicePrivate.onParseComplete(
+        resolve,
+        reject,
+        mockAbortedPapaParseResult,
+      );
+      expect(resolve).toHaveBeenCalledTimes(0);
+      expect(reject).toHaveBeenCalledOnce();
+      expect(reject.mock.calls[0][0]?.status).toBe(ParseStatus.Error);
+    });
+  });
+  describe('when the parse was truncated', () => {
+    it('calls the reject callback', async () => {
+      const resolve = vi.fn();
+      const reject = vi.fn();
+      CsvServicePrivate.onParseComplete(
+        resolve,
+        reject,
+        mockTruncatedPapaParseResult,
+      );
+      expect(resolve).toHaveBeenCalledTimes(0);
+      expect(reject).toHaveBeenCalledOnce();
+      expect(reject.mock.calls[0][0]?.status).toBe(ParseStatus.Error);
+    });
+  });
+  describe('when the parse was successful, but there preliminary validation failed', () => {
+    it('calls the reject callback', async () => {
+      const resolve = vi.fn();
+      const reject = vi.fn();
+      CsvServicePrivate.onParseComplete(
+        resolve,
+        reject,
+        mockInvalidPapaParseResult,
+      );
+      expect(resolve).toHaveBeenCalledTimes(0);
+      expect(reject).toHaveBeenCalledOnce();
+      expect(reject.mock.calls[0][0]?.status).toBe(ParseStatus.Error);
     });
   });
 });
