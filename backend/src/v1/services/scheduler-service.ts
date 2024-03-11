@@ -7,7 +7,7 @@ const schedulerService = {
   /*
    *    Delete draft older than 24 hours (1 day)
    *    - configurable cron time in backend/config/index.ts
-   *    - deletes draft report and associated calculated data
+   *    - deletes both draft report and associated calculated data
    *
    */
   async deleteDraftReports() {
