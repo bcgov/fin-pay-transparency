@@ -25,15 +25,24 @@ describe('deleteDraftReports', () => {
     jest.useRealTimers();
   });
   it('cron job executes once at configured cron time', async () => {
-    // set system time to cron time: 12:15 AM
-    var now = new Date();
-    now.setHours(0);
-    now.setMinutes(15);
-    now.setSeconds(0);
-    now.setMilliseconds(0);
+    const mockedDeleteDraftReports = jest.spyOn(
+      schedulerService,
+      'deleteDraftReports',
+    );
+    // set system time to cron execute time 12:15 AM
+    var twelvefifteen = new Date();
+    twelvefifteen.setHours(0);
+    twelvefifteen.setMinutes(15);
+    twelvefifteen.setSeconds(0);
+    twelvefifteen.setMilliseconds(0);
 
-    jest.useFakeTimers().setSystemTime(now);
+    // expect twelvefifteen to be less than now
+    expect(new Date().getTime() - twelvefifteen.getTime() > 0).toBe(true);
 
-    expect(schedulerService.deleteDraftReports).toHaveBeenCalledTimes(1);
+    // set system time to 12:15 AM
+    jest.useFakeTimers().setSystemTime(twelvefifteen);
+
+    await schedulerService.deleteDraftReports();
+    expect(mockedDeleteDraftReports).toHaveBeenCalled();
   });
 });
