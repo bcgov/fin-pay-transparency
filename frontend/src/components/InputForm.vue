@@ -587,7 +587,7 @@ export default {
           endDate: this.endDate,
           dataConstraints: this.dataConstraints,
           comments: this.comments,
-          records: parseResponse.data,
+          rows: parseResponse.data,
         };
         if (this.reportId) {
           submission['id'] = this.reportId;

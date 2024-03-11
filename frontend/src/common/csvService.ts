@@ -5,16 +5,6 @@ export enum ParseStatus {
   Error = 'error',
 }
 
-export interface IEmployeeRecord {
-  genderCode: string;
-  hoursWorked: number | null;
-  ordinaryPay: number | null;
-  specialSalary: number | null;
-  overtimeHours: number | null;
-  overtimePay: number | null;
-  bonusPay: number | null;
-}
-
 export interface IParseErrorResponse {
   status: ParseStatus.Error;
   message: string;
@@ -22,7 +12,7 @@ export interface IParseErrorResponse {
 
 export interface IParseSuccessResponse {
   status: ParseStatus.Success;
-  data: IEmployeeRecord[];
+  data: any[];
 }
 
 export const REQUIRED_HEADER_COLUMNS = [
@@ -49,7 +39,7 @@ export const CsvService = {
     return new Promise((resolve, reject) => {
       const parserConfig: any = {
         delimiter: ',',
-        complete: (papaParseResult: ParseResult<IEmployeeRecord>) =>
+        complete: (papaParseResult: ParseResult<any>) =>
           CsvServicePrivate.onParseComplete(resolve, reject, papaParseResult),
         skipEmptyLines: false,
         transform: undefined,

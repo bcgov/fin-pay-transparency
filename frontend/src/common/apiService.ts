@@ -20,7 +20,7 @@ export interface ISubmission {
   endDate: string;
   dataConstraints: string | null;
   comments: string | null;
-  records: any[];
+  rows: any[];
 }
 
 // Buffer concurrent requests while refresh token is being acquired
