@@ -9,4 +9,7 @@ export interface IReport {
   report_end_date: string;
   create_date: string;
   is_unlocked: boolean;
+  naics_code: string;
+  report_status: string;
+  employee_count_range_id: string;
 }

@@ -1,16 +1,16 @@
+import { LocalDate, ZoneId, convert } from '@js-joda/core';
 import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import { LocalDate, ZoneId, convert } from '@js-joda/core';
 import stream from 'stream';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
-  enumReportStatus,
-  GenderChartInfo,
   GENDERS,
+  GenderChartInfo,
   JODA_FORMATTER,
   ReportAndCalculations,
+  enumReportStatus,
   reportService,
   reportServicePrivate,
 } from './report-service';
@@ -840,11 +840,16 @@ describe('getReportById', () => {
   it('returns an single report', async () => {
     const report = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
-      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_start_date: new Date(),
+      report_end_date: new Date(),
       create_date: new Date(),
       update_date: new Date(),
       revision: 1,
+    };
+    const expectedReport = {
+      ...report,
+      report_start_date: LocalDate.now().format(JODA_FORMATTER),
+      report_end_date: LocalDate.now().format(JODA_FORMATTER),
     };
     const mockReportResults = {
       pay_transparency_report: [report],
@@ -854,9 +859,9 @@ describe('getReportById', () => {
     );
     const ret = await reportService.getReportById(
       mockCompanyInDB.company_id,
-      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      report.report_id,
     );
-    expect(ret).toEqual(report);
+    expect(ret).toEqual(expectedReport);
   });
 });
 

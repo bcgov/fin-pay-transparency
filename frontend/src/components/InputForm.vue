@@ -101,6 +101,7 @@
                   month-picker
                   auto-apply
                   format="MMMM yyyy"
+                  :disabled="reportStatus === 'Published'"
                   placeholder="Start Date"
                   input-class-name="datepicker-input"
                   :min-date="minStartDate"
@@ -129,6 +130,7 @@
                   model-type="yyyy-MM-dd"
                   month-picker
                   auto-apply
+                  :disabled="reportStatus === 'Published'"
                   format="MMMM yyyy"
                   placeholder="End Date"
                   input-class-name="datepicker-input"
@@ -172,12 +174,13 @@
               <v-col cols="12">
                 <h3 class="heading mb-2">Data Constraints</h3>
                 <p class="description mb-4">
-                  Please share any information (e.g. Limitations, constraints,
-                  or dependencies) that may be helpful to explain your payroll
-                  data (e.g. “Bonus pay not offered by [employer name]”). This
-                  will appear at the bottom of your pay transparency report.
-                  This section is optional and you can return to this page to
-                  complete it after viewing your draft report.
+                  Please share any information (that is, limitations,
+                  constraints, or dependencies) that may be helpful to explain
+                  your payroll data (for example, “Bonus pay not offered by
+                  [employer name]”). This will appear at the bottom of your pay
+                  transparency report. This section is optional and you can
+                  return to this page to complete it after viewing your draft
+                  report.
                 </p>
                 <v-textarea
                   id="dataConstraints"
@@ -393,8 +396,15 @@ import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
-import { LocalDate, ChronoUnit, convert, TemporalAdjusters, DateTimeFormatter } from '@js-joda/core';
+import {
+  LocalDate,
+  ChronoUnit,
+  convert,
+  TemporalAdjusters,
+  DateTimeFormatter,
+} from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
+import { IConfigValue } from '../common/types';
 
 interface LineErrors {
   lineNum: number;
@@ -414,7 +424,9 @@ interface SubmissionErrors {
 
 const REPORT_DATE_FORMAT = 'yyyy-MM-dd';
 
-const dateFormatter = DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT).withLocale(Locale.CANADA);
+const dateFormatter = DateTimeFormatter.ofPattern(
+  REPORT_DATE_FORMAT,
+).withLocale(Locale.CANADA);
 
 export default {
   components: {
@@ -430,7 +442,7 @@ export default {
       return;
     }
 
-    const response = await this.$refs.confirmBackDialog.open(
+    const response = await (this.$refs as any).confirmBackDialog.open(
       'Please Confirm',
       'Do you want to go back to the dashboard? Note that changes will not be saved after navigating back or logging out of the system.',
       {
@@ -445,45 +457,59 @@ export default {
     requiredRules: [(v) => !!v || 'Required'],
     companyName: '',
     companyAddress: '',
-    naicsCode: null,
+    naicsCode: null as any,
     naicsCodesTruncated: [],
-    employeeCountRange: null,
+    employeeCountRange: null as any,
     isProcessing: false,
-    uploadFileValue: null,
+    uploadFileValue: undefined as File[] | undefined,
     maxFileUploadSize: '',
     minStartDate: convert(
-      LocalDate.now().minus(2, ChronoUnit.YEARS).with(TemporalAdjusters.firstDayOfMonth()),
+      LocalDate.now()
+        .minus(2, ChronoUnit.YEARS)
+        .with(TemporalAdjusters.firstDayOfMonth()),
     ).toDate(),
     maxStartDate: convert(
       LocalDate.now()
         .minus(1, ChronoUnit.YEARS)
         .with(TemporalAdjusters.lastDayOfMonth()),
     ).toDate(),
-    minEndDate: convert(LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1)).toDate(),
-    maxEndDate: convert(LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth())).toDate(),
-    startDate: LocalDate.now().minusYears(1).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter),
-    endDate: LocalDate.now().minus(1, ChronoUnit.MONTHS).with(TemporalAdjusters.lastDayOfMonth()).format(dateFormatter),
+    minEndDate: convert(
+      LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1),
+    ).toDate(),
+    maxEndDate: convert(
+      LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()),
+    ).toDate(),
+    startDate: LocalDate.now()
+      .minusYears(1)
+      .with(TemporalAdjusters.lastDayOfMonth())
+      .format(dateFormatter),
+    endDate: LocalDate.now()
+      .minus(1, ChronoUnit.MONTHS)
+      .with(TemporalAdjusters.lastDayOfMonth())
+      .format(dateFormatter),
     dataConstraints: null,
     comments: null,
     fileAccept: '.csv',
     fileRules: [],
     fileInputError: [],
-    alertMessage: null,
-    alertType: null,
+    alertMessage: null as string | null,
+    alertType: null as string | null,
     submissionErrors: null as SubmissionErrors | null,
     draftReport: null,
-    approvedRoute: null,
+    approvedRoute: null as string | null,
+    reportStatus: null,
   }),
-  async beforeMount() {
+  beforeMount() {
     this.setStage('UPLOAD');
-
-    try {
-      await this.loadConfig();
-    } catch (error) {
-      NotificationService.pushNotificationError(
-        'Failed to load application settings. Please reload the page.',
-      );
-    }
+    this.loadConfig()
+      ?.then((data) => {
+        this.setMaxFileUploadSize(data as IConfigValue);
+      })
+      .catch((error) => {
+        NotificationService.pushNotificationError(
+          'Failed to load application settings. Please reload the page.',
+        );
+      });
 
     if (this.reportId) {
       this.comments = this.reportData.user_comment;
@@ -492,10 +518,15 @@ export default {
       this.startDate = this.reportData.report_start_date;
       this.endDate = this.reportData.report_end_date;
       this.dataConstraints = this.reportData.data_constraints;
+      this.reportStatus = this.reportData.report_status;
     }
   },
   methods: {
-    ...mapActions(useReportStepperStore, ['setStage', 'setReportInfo', 'reset']),
+    ...mapActions(useReportStepperStore, [
+      'setStage',
+      'setReportInfo',
+      'reset',
+    ]),
     ...mapActions(useConfigStore, ['loadConfig']),
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
@@ -504,7 +535,7 @@ export default {
     setErrorAlert(submissionErrors: SubmissionErrors | null) {
       this.submissionErrors = submissionErrors;
       if (submissionErrors) {
-        this.uploadFileValue = null;
+        this.uploadFileValue = undefined;
       }
     },
     nextStage() {
@@ -515,10 +546,14 @@ export default {
       this.isProcessing = true;
       try {
         const formData = new FormData();
+        formData.append('id', this.reportId ? this.reportId : '');
         formData.append('companyName', this.companyName);
         formData.append('companyAddress', this.companyAddress);
-        formData.append('naicsCode', this.naicsCode);
-        formData.append('employeeCountRangeId', this.employeeCountRange);
+        formData.append('naicsCode', this.naicsCode ? this.naicsCode : '');
+        formData.append(
+          'employeeCountRangeId',
+          this.employeeCountRange ? this.employeeCountRange : '',
+        );
         formData.append('startDate', this.startDate);
         formData.append('endDate', this.endDate);
         formData.append(
@@ -526,18 +561,29 @@ export default {
           this.dataConstraints ? this.dataConstraints : '',
         );
         formData.append('comments', this.comments ? this.comments : '');
-        formData.append('file', this.uploadFileValue[0]);
+        formData.append(
+          'file',
+          this.uploadFileValue ? this.uploadFileValue[0] : '',
+        );
         this.draftReport = await ApiService.postSubmission(formData);
         await this.setReportInfo(this.draftReport as any);
         this.nextStage();
         this.setSuccessAlert('Submission received.');
         this.setErrorAlert(null);
         this.isProcessing = false;
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
         this.isProcessing = false;
         this.setSuccessAlert(null);
         this.setErrorAlert(error.response.data?.errors);
+      }
+    },
+    setMaxFileUploadSize(data: IConfigValue) {
+      if (data?.maxUploadFileSize) {
+        this.maxFileUploadSize = humanFileSize(
+          data?.maxUploadFileSize || 8000000,
+          0,
+        );
       }
     },
   },
@@ -549,7 +595,10 @@ export default {
       // When the startDate changes, automatically adjust the endDate to be
       // 12 months later
       if (newVal) {
-        const endDate = LocalDate.parse(newVal).plusYears(1).minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+        const endDate = LocalDate.parse(newVal)
+          .plusYears(1)
+          .minusMonths(1)
+          .with(TemporalAdjusters.lastDayOfMonth());
         this.endDate = endDate.format(dateFormatter);
       }
     },
@@ -574,24 +623,21 @@ export default {
       },
     },
     config(data) {
-      if (data.maxUploadFileSize) {
-        this.maxFileUploadSize = humanFileSize(
-          data?.maxUploadFileSize || 8000000,
-          0,
-        );
-      }
+      this.setMaxFileUploadSize(data);
     },
   },
   computed: {
     ...mapState(useConfigStore, ['config']),
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
     ...mapState(authStore, ['userInfo']),
-    ...mapState(useReportStepperStore, ['reportId', 'reportData', 'mode']),
+    ...mapState(useReportStepperStore, [
+      'reportId',
+      'reportInfo',
+      'reportData',
+      'mode',
+    ]),
     dataReady() {
       return this.validForm && this.uploadFileValue;
-    },
-    fromDateDisp() {
-      return this.fromDateVal;
     },
     areRequiredFieldsComplete() {
       return (
