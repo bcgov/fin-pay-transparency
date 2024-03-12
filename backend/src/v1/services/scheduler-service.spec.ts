@@ -1,5 +1,14 @@
 import prisma from '../prisma/prisma-client';
 import { schedulerService } from './scheduler-service';
+import { Prisma, pay_transparency_report } from '@prisma/client';
+import {
+  LocalDate,
+  LocalDateTime,
+  ZoneId,
+  convert,
+  nativeJs,
+} from '@js-joda/core';
+import { enumReportStatus } from './report-service';
 
 jest.mock('./utils-service');
 jest.mock('../prisma/prisma-client', () => {
@@ -16,33 +25,57 @@ jest.mock('../prisma/prisma-client', () => {
   };
 });
 
+const mockDraftReport: pay_transparency_report = {
+  report_id: '456768',
+  company_id: '255677',
+  user_id: '1232344',
+  user_comment: null,
+  employee_count_range_id: '67856345',
+  naics_code: '234234',
+  report_start_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
+  report_end_date: convert(LocalDate.now(ZoneId.UTC).plusYears(1)).toDate(),
+  create_date: new Date(),
+  update_date: new Date(),
+  create_user: 'User',
+  update_user: 'User',
+  report_status: enumReportStatus.Draft,
+  revision: new Prisma.Decimal(1),
+  data_constraints: null,
+  is_unlocked: true,
+};
+
+const mockCalculatedDatasInDB = [
+  { ...mockDraftReport },
+  { ...mockDraftReport, report_id: '456769' },
+];
+
 afterEach(() => {
   jest.clearAllMocks();
 });
 
 describe('deleteDraftReports', () => {
-  afterEach(() => {
-    jest.useRealTimers();
-  });
   it('cron job executes once at configured cron time', async () => {
-    const mockedDeleteDraftReports = jest.spyOn(
-      schedulerService,
-      'deleteDraftReports',
+    (prisma.pay_transparency_report.findMany as jest.Mock).mockResolvedValue(
+      mockCalculatedDatasInDB,
     );
-    // set system time to cron execute time 12:15 AM
-    var twelvefifteen = new Date();
-    twelvefifteen.setHours(0);
-    twelvefifteen.setMinutes(15);
-    twelvefifteen.setSeconds(0);
-    twelvefifteen.setMilliseconds(0);
-
-    // expect twelvefifteen to be less than now
-    expect(new Date().getTime() - twelvefifteen.getTime() > 0).toBe(true);
-
-    // set system time to 12:15 AM
-    jest.useFakeTimers().setSystemTime(twelvefifteen);
-
     await schedulerService.deleteDraftReports();
-    expect(mockedDeleteDraftReports).toHaveBeenCalled();
+
+    expect(prisma.pay_transparency_report.findMany).toHaveBeenCalledTimes(1);
+
+    //verify that it was called with one day previous
+    const delete_date = LocalDate.now(ZoneId.UTC).minusDays(1).toString();
+    const call = (prisma.pay_transparency_report.findMany as jest.Mock).mock
+      .calls[0][0];
+    const callDate = LocalDateTime.from(
+      nativeJs(new Date(call.where.create_date.lte)),
+    )
+      .toLocalDate()
+      .toString();
+    expect(callDate).toBe(delete_date);
+
+    expect(
+      prisma.pay_transparency_calculated_data.deleteMany,
+    ).toHaveBeenCalledTimes(1);
+    expect(prisma.pay_transparency_report.deleteMany).toHaveBeenCalledTimes(1);
   });
 });
