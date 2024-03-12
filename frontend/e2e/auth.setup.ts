@@ -1,9 +1,9 @@
 import { test as setup, expect } from '@playwright/test';
-
+import { PagePaths, baseURL } from './utils/index';
 const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate', async ({ page }) => {
-  await page.goto('https://dev.paytransparency.fin.gov.bc.ca/login');
+  await page.goto(`${baseURL!}${PagePaths.LOGIN}`);
   const loginButton = page.getByText('Log In with Business BCeID');
   await loginButton.click();
   await page.waitForTimeout(2000);
@@ -15,7 +15,7 @@ setup('authenticate', async ({ page }) => {
     await page.fill('#password', process.env.PASSWORD!);
     await page.waitForTimeout(1000);
     await page.locator('#login-form').press('Enter');
-    await page.waitForURL('https://dev.paytransparency.fin.gov.bc.ca/');
+    await page.waitForURL(baseURL!);
     await expect(page.getByText('Generate Pay Transparency Report')).toBeVisible();
     await page.context().storageState({ path: authFile });
   }
