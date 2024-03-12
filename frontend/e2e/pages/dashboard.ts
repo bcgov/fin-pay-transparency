@@ -4,21 +4,17 @@ import { baseURL, PagePaths } from '../utils';
 
 export class DashboardPage extends PTPage {
   static path = PagePaths.DASHBOARD;
-  public getReports: Promise<Response>;
+  public generateReportButton;
 
-  initialize(): void {
-    this.getReports = this.instance.waitForResponse(
-      '**/api/v1/report/?report_status=Published',
+  async setup() {
+    this.generateReportButton = this.instance.getByText(
+      'Generate Pay Transparency Report',
     );
-    this.instance.goto(DashboardPage.path);
   }
 
   async gotoGenerateReport() {
-    const generateReportButton = await this.instance.getByText(
-      'Generate Pay Transparency Report',
-    );
-    expect(generateReportButton).toBeVisible();
-    await generateReportButton.click();
+    expect(this.generateReportButton).toBeVisible();
+    await this.generateReportButton.click();
     await this.instance.waitForURL(`${baseURL}${PagePaths.GENERATE_REPORT}`);
     await expect(this.instance.getByText('Employer Details')).toBeVisible();
   }
