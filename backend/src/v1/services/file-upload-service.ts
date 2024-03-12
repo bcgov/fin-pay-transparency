@@ -8,7 +8,7 @@ import {
 } from '../services/report-calc-service';
 import { codeService } from './code-service';
 import { reportService } from './report-service';
-import { FileErrors, validateService } from './validate-service';
+import { RowError, validateService } from './validate-service';
 
 const REPORT_STATUS = {
   DRAFT: 'Draft',
@@ -25,14 +25,20 @@ export interface ISubmission {
   endDate: string;
   dataConstraints: string | null;
   comments: string | null;
-  records: any[];
+  rows: any[];
+}
+
+class ISubmissionErrors {
+  bodyErrors: string[];
+  generalErrors: string[];
+  rowErrors: RowError[];
 }
 
 interface ValidationErrorResponse {
   status: string;
   errors: {
     bodyErrors: string[];
-    fileErrors: FileErrors | null;
+    rowErrors: RowError | null;
     generalErrors: string[];
   };
 }
@@ -340,8 +346,11 @@ const fileUploadService = {
   },
 
   /*
-  Process the uploaded submission.  If accepted, saves as a Report, and returns
-  a report object.  If rejected, throws an error with a detailed explanation.
+  Process the uploaded submission.  
+  If accepted, saves as a Report, and returns a Report object.  
+  If rejected due to invalid input, returns a ValidationErrorResponse.  
+  If rejected due to an unexpected backend problem, throws an 
+  error with an explanation.
   */
   async handleSubmission(
     userInfo: any,
@@ -350,23 +359,22 @@ const fileUploadService = {
   ): Promise<any> {
     const bceidBusinessGuid = userInfo?._json?.bceid_business_guid;
 
-    // At this stage no MulterErrors were detected,
-    // so start a deeper validation of the request body (form fields) and
-    // the contents of the uploaded file. (Note: this statement causes response
-    // status to be set and error data to be added to the response if any
-    // validation error is found.)
-    const validationError =
-      fileUploadServicePrivate.validateSubmission(submission);
-
-    if (validationError) {
-      return validationError;
+    const preliminaryValidationErrors =
+      validateService.validateSubmissionBodyAndHeader(submission);
+    if (preliminaryValidationErrors?.length) {
+      return {
+        status: 'error',
+        errors: {
+          generalErrors: preliminaryValidationErrors,
+        },
+      } as ValidationErrorResponse;
     }
 
     try {
       const calculatedAmounts: CalculatedAmount[] =
-        await reportCalcService.calculateAll(submission.records);
+        await reportCalcService.calculateAll(submission?.rows);
       const reportId = await fileUploadService.saveDraftReport(
-        bceidBusinessGuid,
+        userInfo,
         submission,
         calculatedAmounts,
         correlationId,
@@ -377,15 +385,15 @@ const fileUploadService = {
       );
       return report;
     } catch (err) {
-      // If the error was caused by invalid user input, try to throw a helpful
+      // If the error was caused by invalid user input, throw a helpful
       // message
-      if (err instanceof PayTransparencyUserError) {
-        throw {
+      if (err instanceof RowError[]) {
+        return {
           status: 'error',
-          errors: {
-            generalErrors: [err.message],
-          },
-        } as ValidationErrorResponse;
+          bodyErrors: null,
+          generalErrors: null,
+          rowErrors: err as IRowErrors[],
+        } as ISubmissionErrors;
       } else {
         // An internal error occurred while saving the validated data to the
         // database. Log the actual error, but return a more general error
@@ -402,48 +410,5 @@ const fileUploadService = {
   },
 };
 
-const fileUploadServicePrivate = {
-  /*
-   * Validates the contents of an ISubmission object to ensure it meets all
-   *  the data requirements for Pay Transparency reporting.
-   * Validation is split into two steps:
-   * - validate the attributes submitted from the frontend InputForm
-   * - validate the employee pay records
-   * If no validation errors are found, returns null.
-   * If validation errors are found, returns a ValidationErrorResponse.
-   * If an unexpected error occurs, throws an Error.
-   */
-  validateSubmission(data: ISubmission): ValidationErrorResponse | null {
-    try {
-      const bodyErrors = validateService.validateBody(data);
-      const fileErrors = validateService.validateEmployeePayRecords(
-        data.records,
-      );
-      if (bodyErrors?.length || fileErrors) {
-        return {
-          status: 'error',
-          errors: {
-            bodyErrors: bodyErrors,
-            fileErrors: fileErrors,
-          },
-        } as ValidationErrorResponse;
-      }
-    } catch (e) {
-      throw {
-        status: 'error',
-        errors: {
-          generalErrors: ['Something went wrong'],
-        },
-      } as ValidationErrorResponse;
-    }
+export { PayTransparencyUserError, REPORT_STATUS, fileUploadService };
 
-    return null;
-  },
-};
-
-export {
-  PayTransparencyUserError,
-  REPORT_STATUS,
-  fileUploadService,
-  fileUploadServicePrivate,
-};

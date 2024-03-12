@@ -39,10 +39,9 @@ export const CsvService = {
     return new Promise((resolve, reject) => {
       const parserConfig: any = {
         delimiter: ',',
+        skipEmptyLines: true,
         complete: (papaParseResult: ParseResult<any>) =>
           CsvServicePrivate.onParseComplete(resolve, reject, papaParseResult),
-        skipEmptyLines: false,
-        transform: undefined,
       };
       Papa.parse(contents, parserConfig);
     });

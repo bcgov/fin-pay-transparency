@@ -1,4 +1,3 @@
-import { Readable } from 'stream';
 import {
   CALCULATION_CODES,
   CalculatedAmount,
@@ -7,8 +6,8 @@ import {
   reportCalcService,
   reportCalcServicePrivate,
 } from './report-calc-service';
-import { CSV_COLUMNS, GENDER_CODES, Row } from './validate-service';
-import { createSampleRow } from './validate-service.spec';
+import { GENDER_CODES, SUBMISSION_ROW_COLUMNS } from './validate-service';
+import { createSampleRecord } from './validate-service.spec';
 
 describe('GroupedColumnStats', () => {
   // Initialize a GroupedColumnStats object with a sample dataset that will
@@ -341,63 +340,57 @@ describe('cleanCsvRecord', () => {
   describe(`when numeric columns have values represented as strings`, () => {
     it(`those values are converted into proper numbers`, () => {
       const overrides = {};
-      overrides[CSV_COLUMNS.HOURS_WORKED] = '10';
-      overrides[CSV_COLUMNS.ORDINARY_PAY] = '200';
-      overrides[CSV_COLUMNS.SPECIAL_SALARY] = '';
-      const row: Row = createSampleRow(overrides);
-      const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(
-        row.record,
+      overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = '10';
+      overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = '200';
+      overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = '';
+      const record = createSampleRecord(overrides);
+      const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(record);
+      expect(cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.HOURS_WORKED]).toBe(
+        parseFloat(overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED]),
       );
-      expect(cleanedCsvRecord[CSV_COLUMNS.HOURS_WORKED]).toBe(
-        parseFloat(overrides[CSV_COLUMNS.HOURS_WORKED]),
+      expect(cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY]).toBe(
+        parseFloat(overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY]),
       );
-      expect(cleanedCsvRecord[CSV_COLUMNS.ORDINARY_PAY]).toBe(
-        parseFloat(overrides[CSV_COLUMNS.ORDINARY_PAY]),
-      );
-      expect(cleanedCsvRecord[CSV_COLUMNS.SPECIAL_SALARY]).toBe(0);
+      expect(cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY]).toBe(0);
     });
   });
 });
 
 describe('getHourlyPayDollars', () => {
-  describe(`when ${CSV_COLUMNS.HOURS_WORKED} and ${CSV_COLUMNS.ORDINARY_PAY} are specified`, () => {
-    it(`hourly rate is ${CSV_COLUMNS.ORDINARY_PAY} divided by ${CSV_COLUMNS.HOURS_WORKED}`, () => {
+  describe(`when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} and ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} are specified`, () => {
+    it(`hourly rate is ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} divided by ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}`, () => {
       const overrides = {};
-      overrides[CSV_COLUMNS.HOURS_WORKED] = '10';
-      overrides[CSV_COLUMNS.ORDINARY_PAY] = '200';
-      overrides[CSV_COLUMNS.SPECIAL_SALARY] = '';
-      const row: Row = createSampleRow(overrides);
+      overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = '10';
+      overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = '200';
+      overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = '';
+      const record = createSampleRecord(overrides);
       // A precondition of getHourlyPayDollars(..) is:
       //  cleanCsvRecord(..) must be been called before it.
       // Do that now.
-      const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(
-        row.record,
-      );
+      const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(record);
       const hourlyPayDollars =
         reportCalcServicePrivate.getHourlyPayDollars(cleanedCsvRecord);
       const expectedHourlyPayDollars =
-        cleanedCsvRecord[CSV_COLUMNS.ORDINARY_PAY] /
-        cleanedCsvRecord[CSV_COLUMNS.HOURS_WORKED];
+        cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] /
+        cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.HOURS_WORKED];
       expect(hourlyPayDollars).toBe(expectedHourlyPayDollars);
     });
   });
-  describe(`when ${CSV_COLUMNS.SPECIAL_SALARY} is specified`, () => {
-    it(`hourly rate ${CSV_COLUMNS.SPECIAL_SALARY}`, () => {
+  describe(`when ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} is specified`, () => {
+    it(`hourly rate ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
       const overrides = {};
-      overrides[CSV_COLUMNS.HOURS_WORKED] = '';
-      overrides[CSV_COLUMNS.ORDINARY_PAY] = '';
-      overrides[CSV_COLUMNS.SPECIAL_SALARY] = '100';
-      const row: Row = createSampleRow(overrides);
+      overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = '';
+      overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = '';
+      overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = '100';
+      const record = createSampleRecord(overrides);
       // A precondition of getHourlyPayDollars(..) is:
       //  cleanCsvRecord(..) must be been called before it.
       // Do that now.
-      const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(
-        row.record,
-      );
+      const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(record);
       const hourlyPayDollars =
         reportCalcServicePrivate.getHourlyPayDollars(cleanedCsvRecord);
       const expectedHourlyPayDollars =
-        cleanedCsvRecord[CSV_COLUMNS.SPECIAL_SALARY];
+        cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY];
       expect(hourlyPayDollars).toBe(expectedHourlyPayDollars);
     });
   });
@@ -1308,6 +1301,42 @@ describe('calculatePercentReceivingOvertimePay', () => {
       });
     });
   });
+  describe(`given data in which only the ref gender has more than 10 people earning OT pay`, () => {
+    it(`calculations for all genders are suppressed`, () => {
+      // For these mock OT pay data, assume:
+      // - there are 50 males.  all receive 1000 each in OT pay
+      // - there are 9 females.  all of them earned 1500 (each) in OT pay
+      // - there are zero non-binary people.
+      // - there are 9 people of unknown gender.  all of them earned 1200 (each) in OT pay
+      const overtimePayStats = new GroupedColumnStats();
+      //Male
+      for (let i = 0; i < 50; i++) {
+        overtimePayStats.push(1000, GENDER_CODES.MALE[0]);
+      }
+      //Female
+      for (let i = 0; i < 9; i++) {
+        overtimePayStats.push(1500, GENDER_CODES.FEMALE[0]);
+      }
+      //Unknown
+      for (let i = 0; i < 9; i++) {
+        overtimePayStats.push(1200, GENDER_CODES.UNKNOWN[0]);
+      }
+      overtimePayStats.push(0, GENDER_CODES.UNKNOWN[0]);
+
+      const refGenderCode = GENDER_CODES.MALE[0];
+
+      const calcs: CalculatedAmount[] =
+        reportCalcServicePrivate.calculatePercentReceivingBonusPay(
+          overtimePayStats,
+          refGenderCode,
+        );
+
+      calcs.forEach((c) => {
+        expect(c.value).toBeNull();
+        expect(c.isSuppressed).toBeTruthy();
+      });
+    });
+  });
 });
 
 describe('calculatePercentReceivingBonusPay', () => {
@@ -1456,16 +1485,22 @@ describe('calculatePercentReceivingBonusPay', () => {
 describe('calculateAll', () => {
   describe(`when only one gender category has at least ${reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER} employees`, () => {
     it(`returns all applicable calculated amounts, but each is suppressed`, async () => {
-      const csvReadable = new Readable();
-      csvReadable.push(
-        `Gender Code,Hours Worked,Ordinary Pay,Special Salary,Overtime Hours,Overtime Pay,Bonus Pay\n`,
-      );
-      Array(reportCalcService.MIN_REQUIRED_PEOPLE_FOR_REPORT).forEach((v) => {
-        csvReadable.push(`${GENDER_CODES.MALE[0]},1,100,0,0,0,0\n`);
-      });
-      csvReadable.push(null);
+      const mockRecords = [];
+      Array(reportCalcService.MIN_REQUIRED_PEOPLE_FOR_REPORT)
+        .fill(null)
+        .forEach((v) => {
+          mockRecords.push({
+            'Gender Code': GENDER_CODES.MALE[0],
+            'Hours Worked': '1',
+            'Ordinary Pay': '100',
+            'Special Salary': '0',
+            'Overtime Hours': '0',
+            'Overtime Pay': '0',
+            'Bonus Pay': '0',
+          });
+        });
       const allCalculatedAmounts: CalculatedAmount[] =
-        await reportCalcService.calculateAll(csvReadable);
+        await reportCalcService.calculateAll(mockRecords);
       allCalculatedAmounts.forEach((c) => {
         expect(c.isSuppressed).toBeTruthy();
         expect(c.value).toBeNull();
@@ -1481,21 +1516,31 @@ describe('calculateAll', () => {
       // - All non-binary people earn $98/hr for overtime
       // - All people whose gender is unknown earn $97/hr for overtime
       // Add 10 fake people in each gender category
-      const csvReadable = new Readable();
-      csvReadable.push(
-        `Gender Code,Hours Worked,Ordinary Pay,Special Salary,Overtime Hours,Overtime Pay,Bonus Pay\n`,
-      );
-      Array(10)
-        .fill(100)
-        .forEach((v) => {
-          csvReadable.push(`${GENDER_CODES.MALE[0]},1,100,0,0,0,0\n`);
-          csvReadable.push(`${GENDER_CODES.FEMALE[0]},1,99,0,0,0,0\n`);
-          csvReadable.push(`${GENDER_CODES.NON_BINARY[0]},1,98,0,0,0,0\n`);
-          csvReadable.push(`${GENDER_CODES.UNKNOWN[0]},1,97,0,0,0,0\n`);
-        });
-      csvReadable.push(null);
+      const payAmounts = {};
+      payAmounts[GENDER_CODES.MALE[0]] = '100';
+      payAmounts[GENDER_CODES.FEMALE[0]] = '99';
+      payAmounts[GENDER_CODES.NON_BINARY[0]] = '98';
+      payAmounts[GENDER_CODES.UNKNOWN[0]] = '97';
+
+      const mockRecords = [];
+      for (const [genderCode, ordinaryPay] of Object.entries(payAmounts)) {
+        Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER)
+          .fill(0)
+          .forEach((v) => {
+            mockRecords.push({
+              'Gender Code': genderCode,
+              'Hours Worked': '1',
+              'Ordinary Pay': ordinaryPay,
+              'Special Salary': '0',
+              'Overtime Hours': '0',
+              'Overtime Pay': '0',
+              'Bonus Pay': '0',
+            });
+          });
+      }
+
       const allCalculatedAmounts: CalculatedAmount[] =
-        await reportCalcService.calculateAll(csvReadable);
+        await reportCalcService.calculateAll(mockRecords);
 
       // Check that all the required calculations were performed (once each)
       Object.values(CALCULATION_CODES).forEach((calculationCode) => {
