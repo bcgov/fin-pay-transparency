@@ -9,6 +9,7 @@ import {
   GENDERS,
   GenderChartInfo,
   JODA_FORMATTER,
+  Report,
   ReportAndCalculations,
   enumReportStatus,
   reportService,
@@ -109,7 +110,7 @@ const mockCalculatedDatasInDB = [
   },
 ];
 
-const mockPublishedReport: pay_transparency_report = {
+const mockPublishedReportInDb: pay_transparency_report = {
   report_id: '456768',
   company_id: '255677',
   user_id: '1232344',
@@ -128,17 +129,23 @@ const mockPublishedReport: pay_transparency_report = {
   is_unlocked: true,
 };
 
+const mockPublishedReportInApi: Report =
+  reportServicePrivate.prismaReportToReport(mockPublishedReportInDb);
+
 const mockHistoryReport: report_history = {
   report_history_id: '567',
-  ...mockPublishedReport,
+  ...mockPublishedReportInDb,
 };
 
-const mockDraftReport: pay_transparency_report = {
-  ...mockPublishedReport,
+const mockDraftReportInDb: pay_transparency_report = {
+  ...mockPublishedReportInDb,
   report_id: '2489554',
   user_id: '5265928',
   report_status: enumReportStatus.Draft,
 };
+
+const mockDraftReportInApi: Report =
+  reportServicePrivate.prismaReportToReport(mockDraftReportInDb);
 
 describe('getReportAndCalculations', () => {
   describe('wwhere there is no user in the session', () => {
@@ -641,6 +648,14 @@ describe('dollarsToText', () => {
   });
 });
 
+describe('prismaReportToReport', () => {
+  it('converts a pay_transparency_report type into a Report type', () => {
+    const resp = reportServicePrivate.prismaReportToReport(mockDraftReportInDb);
+    expect(typeof resp.report_start_date).toBe('string');
+    expect(typeof resp.report_end_date).toBe('string');
+  });
+});
+
 describe('getReports', () => {
   it('returns an array of Report data', async () => {
     const mockReportResults = {
@@ -685,7 +700,7 @@ describe('publishReport', () => {
   describe("if the given report doesn't have status=Draft", () => {
     it('throws an error', async () => {
       await expect(
-        reportService.publishReport(mockPublishedReport),
+        reportService.publishReport(mockPublishedReportInApi),
       ).rejects.toThrow();
     });
   });
@@ -698,7 +713,7 @@ describe('publishReport', () => {
         .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
 
-      await reportService.publishReport(mockDraftReport);
+      await reportService.publishReport(mockDraftReportInApi);
 
       // Expect no attempt to move a pre-existing published report to
       // history (because there is no pre-existing published report)
@@ -718,7 +733,9 @@ describe('publishReport', () => {
 
       // Expect only one record to be updated (the report that was passed to
       // publishReport(...)
-      expect(updateStatement.where.report_id).toBe(mockDraftReport.report_id);
+      expect(updateStatement.where.report_id).toBe(
+        mockDraftReportInApi.report_id,
+      );
 
       // Expect only one column to be updated (the report status_column)
       expect(updateStatement.data).toStrictEqual({
@@ -729,13 +746,13 @@ describe('publishReport', () => {
   describe('if the given report has status=Draft, and there is an existing Published report', () => {
     it('archives the existing published report in history, and changes the status of the Draft to Published', async () => {
       (prisma.pay_transparency_report.findFirst as jest.Mock).mockResolvedValue(
-        mockPublishedReport,
+        mockPublishedReportInDb,
       );
       jest
         .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
 
-      await reportService.publishReport(mockDraftReport);
+      await reportService.publishReport(mockDraftReportInApi);
 
       // Expect an attempt to move the pre-existing published report to
       // history
@@ -755,7 +772,9 @@ describe('publishReport', () => {
 
       // Expect only one record to be updated (the report that was passed to
       // publishReport(...)
-      expect(updateStatement.where.report_id).toBe(mockDraftReport.report_id);
+      expect(updateStatement.where.report_id).toBe(
+        mockDraftReportInApi.report_id,
+      );
 
       // Expect only one column to be updated (the report status_column)
       expect(updateStatement.data).toStrictEqual({
@@ -770,7 +789,7 @@ describe('movePublishedReportToHistory', () => {
     it('throws an error', async () => {
       const tx = jest.fn();
       await expect(
-        actualMovePublishedReportToHistory(tx, mockDraftReport),
+        actualMovePublishedReportToHistory(tx, mockDraftReportInDb),
       ).rejects.toThrow();
     });
   });
@@ -783,7 +802,7 @@ describe('movePublishedReportToHistory', () => {
         prisma.pay_transparency_calculated_data.findMany as jest.Mock
       ).mockResolvedValue(mockCalculatedDatasInDB);
       await prisma.$transaction(async (tx) => {
-        await actualMovePublishedReportToHistory(tx, mockPublishedReport);
+        await actualMovePublishedReportToHistory(tx, mockPublishedReportInDb);
       });
 
       // Confirm that the report was copied to the history table
@@ -791,7 +810,7 @@ describe('movePublishedReportToHistory', () => {
       const createReportHistory = (prisma.report_history.create as jest.Mock)
         .mock.calls[0][0];
       expect(createReportHistory.data.report_id).toBe(
-        mockPublishedReport.report_id,
+        mockPublishedReportInDb.report_id,
       );
 
       // Confirm that the calculated data was got
@@ -802,7 +821,7 @@ describe('movePublishedReportToHistory', () => {
         prisma.pay_transparency_calculated_data.findMany as jest.Mock
       ).mock.calls[0][0];
       expect(findCalculated.where.report_id).toBe(
-        mockPublishedReport.report_id,
+        mockPublishedReportInDb.report_id,
       );
 
       // Confirm that the calculated data was copied to the history
@@ -824,14 +843,16 @@ describe('movePublishedReportToHistory', () => {
         prisma.pay_transparency_calculated_data.deleteMany as jest.Mock
       ).mock.calls[0][0];
       expect(deleteCalcData.where.report_id).toBe(
-        mockPublishedReport.report_id,
+        mockPublishedReportInDb.report_id,
       );
 
       // Confirm that the original report was deleted from the reports table
       expect(prisma.pay_transparency_report.delete).toHaveBeenCalledTimes(1);
       const deleteReport = (prisma.pay_transparency_report.delete as jest.Mock)
         .mock.calls[0][0];
-      expect(deleteReport.where.report_id).toBe(mockPublishedReport.report_id);
+      expect(deleteReport.where.report_id).toBe(
+        mockPublishedReportInDb.report_id,
+      );
     });
   });
 });
@@ -871,7 +892,7 @@ describe('getReportFileName', () => {
   });
   it('returns a filename', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
-    const report = {
+    const reportInDb = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
       company_id: mockCompanyInDB.company_id,
       user_id: '1232344',
@@ -891,8 +912,11 @@ describe('getReportFileName', () => {
       update_user: 'User',
       is_unlocked: false,
     };
+    const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);
 
-    jest.spyOn(reportService, 'getReportById').mockResolvedValueOnce(report);
+    jest
+      .spyOn(reportService, 'getReportById')
+      .mockResolvedValueOnce(reportInApi);
 
     const ret = await reportService.getReportFileName(
       mockCompanyInDB.company_id,

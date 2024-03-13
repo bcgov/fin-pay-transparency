@@ -50,6 +50,14 @@ interface ExplanatoryNote {
   text: string;
 }
 
+type Report = Omit<
+  pay_transparency_report,
+  'report_start_date' | 'report_end_date'
+> & {
+  report_start_date: string;
+  report_end_date: string;
+};
+
 const GENDERS = {
   MALE: {
     code: 'M',
@@ -387,6 +395,30 @@ const reportServicePrivate = {
         report_id: report.report_id,
       },
     });
+  },
+
+  /**
+   * Re-type the pay_transparency_object returned by Prisma into
+   * a Report.  The only difference between these two types is
+   * the Report uses YYYY-MM-DD strings for report_start_date and
+   * report_end_date, while the prisma type uses Date objects for
+   * these.
+   */
+  prismaReportToReport(
+    pay_transparency_report: pay_transparency_report,
+  ): Report {
+    const report = {
+      ...pay_transparency_report,
+      //change the type of the date columns
+      report_start_date: LocalDate.from(
+        nativeJs(pay_transparency_report.report_start_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER),
+      report_end_date: LocalDate.from(
+        nativeJs(pay_transparency_report.report_end_date, ZoneId.UTC),
+      ).format(JODA_FORMATTER),
+    } as Report;
+
+    return report;
   },
 };
 
@@ -1121,7 +1153,7 @@ const reportService = {
     return reportsAdjusted;
   },
 
-  async publishReport(report_to_publish: pay_transparency_report) {
+  async publishReport(report_to_publish: Report) {
     // Check preconditions
     if (report_to_publish.report_status != enumReportStatus.Draft) {
       throw new Error('Only draft reports can be published');
@@ -1173,7 +1205,7 @@ const reportService = {
   async getReportById(
     bceidBusinessGuid: string,
     reportId: string,
-  ): Promise<pay_transparency_report> {
+  ): Promise<Report> {
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -1189,7 +1221,7 @@ const reportService = {
             data_constraints: true,
             is_unlocked: true,
             create_date: true,
-            company_id: true
+            company_id: true,
           },
           where: {
             report_id: reportId,
@@ -1205,20 +1237,15 @@ const reportService = {
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
-    const reportsAdjusted = reports?.pay_transparency_report.map((r) => {
-      const report = {
-        ...r,
-      } as any;
-      report.report_start_date = LocalDate.from(
-        nativeJs(r.report_start_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER);
-      report.report_end_date = LocalDate.from(
-        nativeJs(r.report_end_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER);
-      return report;
-    });
+    // (to achieve this, we also retype the object from pay_transparency_report
+    // (the prisma type) to Report (a custom interface that extends the prisma
+    // type)
+    const reportsAdjusted = reports?.pay_transparency_report.map(
+      (r: pay_transparency_report) =>
+        reportServicePrivate.prismaReportToReport(r),
+    );
 
-    const [first] = reportsAdjusted as pay_transparency_report[];
+    const [first] = reportsAdjusted;
 
     return first;
   },
@@ -1227,7 +1254,7 @@ const reportService = {
     bceidBusinessGuid: string,
     reportId: string,
   ): Promise<string> {
-    const report: pay_transparency_report = await this.getReportById(
+    const report: Report = await this.getReportById(
       bceidBusinessGuid,
       reportId,
     );
@@ -1235,10 +1262,10 @@ const reportService = {
       'YYYY-MM',
     ).withLocale(Locale.CANADA);
     if (report) {
-      const start = LocalDate.from(nativeJs(report.report_start_date)).format(
+      const start = LocalDate.parse(report.report_start_date).format(
         fileNameDateFormatter,
       );
-      const end = LocalDate.from(nativeJs(report.report_end_date)).format(
+      const end = LocalDate.parse(report.report_end_date).format(
         fileNameDateFormatter,
       );
       const filename = `pay_transparency_report_${start}_${end}.pdf`;
@@ -1253,6 +1280,7 @@ export {
   GenderChartInfo,
   JODA_FORMATTER,
   REPORT_DATE_FORMAT,
+  Report,
   ReportAndCalculations,
   enumReportStatus,
   reportService,
