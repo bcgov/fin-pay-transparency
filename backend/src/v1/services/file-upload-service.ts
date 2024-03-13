@@ -103,11 +103,9 @@ const fileUploadService = {
     const userInfo = utils.getSessionUser(req);
 
     // Use UTC so js-doja doesn't offset the timezone based on locale
-    const startDate = LocalDate
-      .parse(body.startDate)
-      .withDayOfMonth(1);
+    const startDate = LocalDate.parse(body.startDate).withDayOfMonth(1);
     const endDate = LocalDate.parse(body.endDate)
-      
+
       .with(TemporalAdjusters.lastDayOfMonth());
 
     const payTransparencyUser = await tx.pay_transparency_user.findFirst({
@@ -389,6 +387,25 @@ const fileUploadService = {
 
       if (isValid) {
         try {
+          const startDate = LocalDate.parse(req.body.startDate).withDayOfMonth(
+            1,
+          );
+          const endDate = LocalDate.parse(req.body.endDate).with(
+            TemporalAdjusters.lastDayOfMonth(),
+          );
+
+          const shouldPreventReportOverride =
+            await reportService.shouldPreventReportOverrides(
+              startDate,
+              endDate,
+              bceidBusinessGuid,
+            );
+          if (shouldPreventReportOverride) {
+            throw new PayTransparencyUserError(
+              'A report for this time period already exists and cannot be updated.',
+            );
+          }
+
           //add entire CSV file to Readable stream (so it can be processed asyncronously)
           const csvReadable = new Readable();
           csvReadable.push(req.file.buffer);
@@ -428,7 +445,6 @@ const fileUploadService = {
           }
         }
       }
-
     });
   },
 };
