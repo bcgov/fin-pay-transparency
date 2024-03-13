@@ -412,10 +412,10 @@ const reportServicePrivate = {
       //change the type of the date columns
       report_start_date: LocalDate.from(
         nativeJs(pay_transparency_report.report_start_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER) as string,
+      ).format(JODA_FORMATTER),
       report_end_date: LocalDate.from(
         nativeJs(pay_transparency_report.report_end_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER) as string,
+      ).format(JODA_FORMATTER),
     } as Report;
 
     return report;
@@ -1245,7 +1245,7 @@ const reportService = {
         reportServicePrivate.prismaReportToReport(r),
     );
 
-    const [first] = reportsAdjusted as Report[];
+    const [first] = reportsAdjusted;
 
     return first;
   },
