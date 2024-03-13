@@ -63,7 +63,7 @@
       <v-col>
         <v-card class="rounded-lg" min-height="100%">
           <v-toolbar color="primary">
-            <v-toolbar-title>View Generated Reports</v-toolbar-title>
+            <v-toolbar-title>Submitted Reports</v-toolbar-title>
           </v-toolbar>
           <v-card-text class="mt-4 mb-4">
             <div v-if="!reports.length">No generated reports yet.</div>
@@ -71,6 +71,7 @@
               <v-row>
                 <v-col class="font-weight-bold">Start Date</v-col>
                 <v-col class="font-weight-bold">End Date</v-col>
+                <v-col class="font-weight-bold">Submission Date</v-col>
                 <v-col class="font-weight-bold" cols="4">Action</v-col>
               </v-row>
               <hr class="mt-4 mb-4" />
@@ -83,6 +84,10 @@
                   <v-col :data-testid="'report_end_date-' + report.report_id">{{
                     formatDate(report.report_end_date)
                   }}</v-col>
+                  <v-col
+                    :data-testid="'report_published_date-' + report.report_id"
+                    >{{ formatDateTime(report.create_date) }}</v-col
+                  >
                   <v-col cols="4">
                     <a
                       :data-testid="'view-report-' + report.report_id"
@@ -152,7 +157,7 @@ import { authStore } from '../store/modules/auth';
 import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
-import { DateTimeFormatter, LocalDate } from '@js-joda/core';
+import { DateTimeFormatter, LocalDate, ZonedDateTime } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import {
   useReportStepperStore,
@@ -182,11 +187,17 @@ export default {
   methods: {
     ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
     ...mapActions(useConfigStore, ['loadConfig']),
-    formatDate(value) {
-      const formatter = DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(
+    formatDate(value, format = 'MMMM d, YYYY') {
+      const formatter = DateTimeFormatter.ofPattern(format).withLocale(
         Locale.CANADA,
       );
       return LocalDate.parse(value).format(formatter);
+    },
+    formatDateTime(value, format = 'MMMM d, YYYY') {
+      const formatter = DateTimeFormatter.ofPattern(format).withLocale(
+        Locale.CANADA,
+      );
+      return ZonedDateTime.parse(value).format(formatter);
     },
     isEditable(report) {
       return isReportEditable(report, this.config?.reportEditDurationInDays);
