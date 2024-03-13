@@ -47,7 +47,7 @@ interface Row {
   raw: string;
 }
 
-class SubmissionValidationError {
+class ValidationError {
   bodyErrors: string[] | null;
   rowErrors: RowError[] | null;
   generalErrors: string[] | null;
@@ -62,11 +62,10 @@ class SubmissionValidationError {
   }
 }
 
-class RowError extends Error {
+class RowError {
   rowNum: number;
   errorMsgs: string[];
   constructor(rowNum: number, errorMsgs: string[]) {
-    super(`row ${rowNum}: ${errorMsgs.join('.')}`);
     this.rowNum = rowNum;
     this.errorMsgs = errorMsgs;
   }
@@ -77,16 +76,14 @@ const validateService = {
   Validates all the properties of the submission except the "records" property.  
   Returns an array of error messages, (or an empty array if no errors were found.)
   */
-  validateSubmissionBody(
-    submission: ISubmission,
-  ): SubmissionValidationError | null {
+  validateSubmissionBody(submission: ISubmission): ValidationError | null {
     const bodyErrors = [];
     if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
       bodyErrors.push(
         `Text in ${FIELD_DATA_CONSTRAINTS} must not exceed ${MAX_LEN_DATA_CONSTRAINTS} characters.`,
       );
     }
-    return new SubmissionValidationError(bodyErrors, null, null);
+    return new ValidationError(bodyErrors, null, null);
   },
 
   /**
@@ -112,7 +109,7 @@ const validateService = {
    */
   validateSubmissionBodyAndHeader(
     submission: ISubmission,
-  ): SubmissionValidationError | null {
+  ): ValidationError | null {
     const bodyValidationError =
       validateService.validateSubmissionBody(submission);
 
@@ -122,7 +119,7 @@ const validateService = {
 
     //combine all validation errors into one object
     if (bodyValidationError || headerValidationError) {
-      return new SubmissionValidationError(
+      return new ValidationError(
         bodyValidationError.bodyErrors,
         null, //row errors
         headerValidationError ? [headerValidationError] : null, //general errors
@@ -338,5 +335,6 @@ export {
   Row,
   RowError,
   SUBMISSION_ROW_COLUMNS,
+  ValidationError,
   validateService,
 };

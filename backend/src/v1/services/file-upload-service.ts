@@ -8,12 +8,17 @@ import {
 } from '../services/report-calc-service';
 import { codeService } from './code-service';
 import { reportService } from './report-service';
-import { RowError, validateService } from './validate-service';
+import { RowError, ValidationError, validateService } from './validate-service';
 
 const REPORT_STATUS = {
   DRAFT: 'Draft',
   PUBLISHED: 'Published',
 };
+
+export enum SubmissionStatus {
+  Success = 'success',
+  Error = 'error',
+}
 
 export interface ISubmission {
   id?: string;
@@ -28,10 +33,9 @@ export interface ISubmission {
   rows: any[];
 }
 
-class ISubmissionErrors {
-  bodyErrors: string[];
-  generalErrors: string[];
-  rowErrors: RowError[];
+interface ISubmissionError {
+  status: SubmissionStatus.Error;
+  error: any;
 }
 
 interface ValidationErrorResponse {
@@ -356,18 +360,16 @@ const fileUploadService = {
     userInfo: any,
     submission: ISubmission,
     correlationId: string = null,
-  ): Promise<any> {
+  ): Promise<any | ISubmissionError> {
     const bceidBusinessGuid = userInfo?._json?.bceid_business_guid;
 
-    const preliminaryValidationErrors =
+    const preliminaryValidationError: ValidationError | null =
       validateService.validateSubmissionBodyAndHeader(submission);
-    if (preliminaryValidationErrors?.length) {
+    if (preliminaryValidationError) {
       return {
-        status: 'error',
-        errors: {
-          generalErrors: preliminaryValidationErrors,
-        },
-      } as ValidationErrorResponse;
+        status: SubmissionStatus.Error,
+        error: preliminaryValidationError as ValidationError,
+      } as ISubmissionError;
     }
 
     try {
@@ -385,30 +387,27 @@ const fileUploadService = {
       );
       return report;
     } catch (err) {
-      // If the error was caused by invalid user input, throw a helpful
-      // message
-      if (err instanceof RowError[]) {
+      // If the error was caused by invalid user input, return it (it provides
+      // helpful information to show the user about what went wrong).
+      if (err instanceof ValidationError) {
         return {
-          status: 'error',
-          bodyErrors: null,
-          generalErrors: null,
-          rowErrors: err as IRowErrors[],
-        } as ISubmissionErrors;
+          status: SubmissionStatus.Error,
+          error: err as ValidationError,
+        } as ISubmissionError;
       } else {
-        // An internal error occurred while saving the validated data to the
-        // database. Log the actual error, but return a more general error
+        // An unexpected, internal error occurred while saving the validated data
+        // to the database. Log the actual error, but return a more general error
         // that won't reveal details of the backend implementation.
         log.error(err);
         throw {
-          status: 'error',
-          errors: {
+          status: SubmissionStatus.Error,
+          error: {
             generalErrors: ['Something went wrong'],
           },
-        } as ValidationErrorResponse;
+        } as ISubmissionError;
       }
     }
   },
 };
 
 export { PayTransparencyUserError, REPORT_STATUS, fileUploadService };
-

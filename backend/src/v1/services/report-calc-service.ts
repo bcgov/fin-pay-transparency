@@ -5,6 +5,7 @@ import {
   RowError,
   SUBMISSION_ROW_COLUMNS,
   validateService,
+  ValidationError,
 } from './validate-service';
 
 const CALCULATION_CODES = {
@@ -511,9 +512,9 @@ const reportCalcService = {
       }
     }
 
-    // If any RowErrors were found, throw an exception and don't finish the calculations
+    // If any RowErrors were found, wrap them into a ValidationError and throw it
     if (rowErrors.length) {
-      throw new ValidationError(rowErrors);
+      throw new ValidationError(null, rowErrors, null);
     }
 
     // Only allow the calculations to be performed if at least two gender categories
@@ -1839,10 +1840,10 @@ const reportCalcServicePrivate = {
 };
 
 export {
-  CALCULATION_CODES,
   CalculatedAmount,
+  CALCULATION_CODES,
   GroupedColumnStats,
-  TaggedColumnStats,
   reportCalcService,
   reportCalcServicePrivate,
+  TaggedColumnStats,
 };
