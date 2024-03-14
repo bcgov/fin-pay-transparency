@@ -7,7 +7,7 @@ import {
   reportCalcService,
 } from '../services/report-calc-service';
 import { codeService } from './code-service';
-import { reportService } from './report-service';
+import { Report, reportService } from './report-service';
 import { IValidationError, validateService } from './validate-service';
 
 const REPORT_STATUS = {
@@ -33,9 +33,13 @@ export interface ISubmission {
   rows: any[];
 }
 
-export interface ISubmissionError {
+export class SubmissionError extends Error {
   status: SubmissionStatus.Error;
   error: any;
+  constructor(error: any) {
+    super();
+    this.error = error;
+  }
 }
 
 /* An Error subclass to help us distinguish between unexpected internal errors
@@ -351,16 +355,13 @@ const fileUploadService = {
     userInfo: any,
     submission: ISubmission,
     correlationId: string = null,
-  ): Promise<any | ISubmissionError> {
+  ): Promise<Report | SubmissionError> {
     const bceidBusinessGuid = userInfo?._json?.bceid_business_guid;
 
     const preliminaryValidationError: IValidationError | null =
       validateService.validateSubmissionBodyAndHeader(submission);
     if (preliminaryValidationError) {
-      return {
-        status: SubmissionStatus.Error,
-        error: preliminaryValidationError as IValidationError,
-      } as ISubmissionError;
+      return new SubmissionError(preliminaryValidationError);
     }
 
     try {
@@ -372,7 +373,7 @@ const fileUploadService = {
         calculatedAmounts,
         correlationId,
       );
-      const report = await reportService.getReportById(
+      const report: Report = await reportService.getReportById(
         bceidBusinessGuid,
         reportId,
       );
@@ -381,21 +382,15 @@ const fileUploadService = {
       // If the error was caused by invalid user input, return it (it provides
       // helpful information to show the user about what went wrong).
       if (validateService.isIValidationError(err)) {
-        return {
-          status: SubmissionStatus.Error,
-          error: err as IValidationError,
-        } as ISubmissionError;
+        return new SubmissionError(err);
       } else {
         // An unexpected, internal error occurred while saving the validated data
         // to the database. Log the actual error, but return a more general error
         // that won't reveal details of the backend implementation.
         log.error(JSON.stringify(err));
-        throw {
-          status: SubmissionStatus.Error,
-          error: {
-            generalErrors: ['Something went wrong'],
-          },
-        } as ISubmissionError;
+        throw new SubmissionError({
+          generalErrors: ['Something went wrong'],
+        });
       }
     }
   },

@@ -2,8 +2,7 @@ import express, { Request, Response } from 'express';
 import { logger as log } from '../../logger';
 import {
   ISubmission,
-  ISubmissionError,
-  SubmissionStatus,
+  SubmissionError,
   fileUploadService,
 } from '../services/file-upload-service';
 import { utils } from '../services/utils-service';
@@ -21,18 +20,18 @@ fileUploadRouter.post(
       const userInfo = utils.getSessionUser(req);
       const data: ISubmission = req.body;
       try {
-        const result = await fileUploadService.handleSubmission(userInfo, data);
-        if (result?.status == SubmissionStatus.Error) {
+        const result: any = await fileUploadService.handleSubmission(
+          userInfo,
+          data,
+        );
+        if (result instanceof SubmissionError) {
           res.status(400).json(result);
           return;
         }
         res.status(200).json(result);
         return;
       } catch (err) {
-        res.status(500).json({
-          status: SubmissionStatus.Error,
-          error: 'Something went wrong',
-        } as ISubmissionError);
+        res.status(500).json(new SubmissionError('Some went wrong'));
       }
     },
   ),
