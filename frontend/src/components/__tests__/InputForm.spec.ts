@@ -98,6 +98,15 @@ describe('InputForm', () => {
         expect(wrapper.vm.isISubmissionError(result)).toBeTruthy();
       });
     });
+    describe("when the input param is an object with a 'message' property", () => {
+      it('returns an ISubmissionError', () => {
+        const obj = {
+          message: 'mock error',
+        };
+        const result = wrapper.vm.toISubmissionError(obj);
+        expect(wrapper.vm.isISubmissionError(result)).toBeTruthy();
+      });
+    });
   });
 
   it('Renders with the expected form controls', () => {
