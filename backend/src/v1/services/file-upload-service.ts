@@ -8,7 +8,7 @@ import {
 } from '../services/report-calc-service';
 import { codeService } from './code-service';
 import { Report, reportService } from './report-service';
-import { IValidationError, validateService } from './validate-service';
+import { ValidationError, validateService } from './validate-service';
 
 const REPORT_STATUS = {
   DRAFT: 'Draft',
@@ -358,7 +358,7 @@ const fileUploadService = {
   ): Promise<Report | SubmissionError> {
     const bceidBusinessGuid = userInfo?._json?.bceid_business_guid;
 
-    const preliminaryValidationError: IValidationError | null =
+    const preliminaryValidationError: ValidationError | null =
       validateService.validateSubmissionBodyAndHeader(submission);
     if (preliminaryValidationError) {
       return new SubmissionError(preliminaryValidationError);
@@ -381,7 +381,7 @@ const fileUploadService = {
     } catch (err) {
       // If the error was caused by invalid user input, return it (it provides
       // helpful information to show the user about what went wrong).
-      if (validateService.isIValidationError(err)) {
+      if (err instanceof ValidationError) {
         return new SubmissionError(err);
       } else {
         // An unexpected, internal error occurred while saving the validated data

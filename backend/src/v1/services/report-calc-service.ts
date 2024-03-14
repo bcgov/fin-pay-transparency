@@ -1,11 +1,11 @@
 import { logger } from '../../logger';
 import {
   GENDER_CODES,
-  IValidationError,
   NUMERIC_COLUMNS,
   RowError,
   SUBMISSION_ROW_COLUMNS,
   validateService,
+  ValidationError,
 } from './validate-service';
 
 const CALCULATION_CODES = {
@@ -450,9 +450,6 @@ const reportCalcService = {
     an array of CalculatedAmount objects.
   */
   async calculateAll(rows: any[]): Promise<CalculatedAmount[]> {
-    if (rows?.length && !Array.isArray(rows[0])) {
-      throw new Error("Expected 'rows' to be an array of arrays.");
-    }
     const calculatedAmounts: CalculatedAmount[] = [];
 
     // Create data structures to support the mean and median
@@ -470,13 +467,15 @@ const reportCalcService = {
     // validate it.  If valid push the value of each column into the
     // "working objects" that that help us efficiently manage the calculations
     const rowErrors: RowError[] = [];
-    for (let rowNum = 1; rowNum < rows?.length; rowNum++) {
-      const row = rows[rowNum];
+    rows?.forEach((row: any, rowNum: number) => {
+      if (rowNum == 0) {
+        return; //skip the first row (the header)
+      }
       const record = reportCalcServicePrivate.arrayToObject(row, rows[0]);
       const rowError: RowError = validateService.validateRecord(rowNum, record);
       if (rowError) {
         rowErrors.push(rowError);
-        continue;
+        return;
       }
 
       reportCalcServicePrivate.cleanCsvRecord(record);
@@ -513,15 +512,11 @@ const reportCalcService = {
           record[SUBMISSION_ROW_COLUMNS.GENDER_CODE],
         );
       }
-    }
+    });
 
-    // If any RowErrors were found, wrap them into a IValidationError and throw it
+    // If any RowErrors were found, wrap them into a ValidationError and throw it
     if (rowErrors.length) {
-      throw {
-        bodyErrors: null,
-        rowErrors: rowErrors,
-        generalErrors: null,
-      } as IValidationError;
+      throw new ValidationError(null, rowErrors, null);
     }
 
     // Only allow the calculations to be performed if at least two gender categories
@@ -1861,10 +1856,10 @@ const reportCalcServicePrivate = {
 };
 
 export {
-  CALCULATION_CODES,
   CalculatedAmount,
+  CALCULATION_CODES,
   GroupedColumnStats,
-  TaggedColumnStats,
   reportCalcService,
   reportCalcServicePrivate,
+  TaggedColumnStats,
 };

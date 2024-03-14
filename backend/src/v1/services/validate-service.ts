@@ -47,10 +47,15 @@ interface Row {
   raw: string;
 }
 
-interface IValidationError {
+class ValidationError {
   bodyErrors: string[] | null;
   rowErrors: RowError[] | null;
   generalErrors: string[] | null;
+  constructor(bodyErrors, rowErrors, generalErrors) {
+    this.bodyErrors = bodyErrors;
+    this.rowErrors = rowErrors;
+    this.generalErrors = generalErrors;
+  }
 }
 
 class RowError {
@@ -65,13 +70,13 @@ class RowError {
 const validateService = {
   /**
    * Validates all the properties of the submission except the "rows" property.
-   * If any validation problems were found, returns an IValidationError object.
+   * If any validation problems were found, returns an ValidationError object.
    * If no problems were found, returns null.
    * @param submission
-   * @returns If any validation problems were found, returns an IValidationError object.
+   * @returns If any validation problems were found, returns an ValidationError object.
    * If no problems were found, returns null.*
    */
-  validateSubmissionBody(submission: ISubmission): IValidationError | null {
+  validateSubmissionBody(submission: ISubmission): ValidationError | null {
     const bodyErrors = [];
     if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
       bodyErrors.push(
@@ -79,11 +84,7 @@ const validateService = {
       );
     }
     if (bodyErrors?.length) {
-      return {
-        bodyErrors: bodyErrors,
-        rowErrors: null,
-        generalErrors: null,
-      } as IValidationError;
+      return new ValidationError(bodyErrors, null, null);
     }
     return null;
   },
@@ -95,12 +96,12 @@ const validateService = {
    * first row in the "rows" property (i.e. the header row).  All other rows
    * in the "rows" property aren't checked.
    * @param submission
-   * @returns If any validation problems were found, returns an IValidationError object.
+   * @returns If any validation problems were found, returns an ValidationError object.
    * If no problems were found, returns null.
    */
   validateSubmissionBodyAndHeader(
     submission: ISubmission,
-  ): IValidationError | null {
+  ): ValidationError | null {
     const bodyValidationError =
       validateService.validateSubmissionBody(submission);
 
@@ -110,11 +111,11 @@ const validateService = {
 
     //combine all validation errors into one object
     if (bodyValidationError || headerValidationError) {
-      return {
-        bodyErrors: bodyValidationError?.bodyErrors,
-        rowErrors: null,
-        generalErrors: headerValidationError ? [headerValidationError] : null,
-      } as IValidationError;
+      return new ValidationError(
+        bodyValidationError?.bodyErrors,
+        null, //row errors
+        headerValidationError ? [headerValidationError] : null, //general errors
+      );
     }
     return null;
   },
@@ -161,17 +162,6 @@ const validateService = {
     });
 
     return errorMessages;
-  },
-
-  /**
-   * Checks if the given object conforms to the IValidationError interface
-   */
-  isIValidationError(err: any) {
-    return (
-      err?.hasOwnProperty('bodyErrors') &&
-      err?.hasOwnProperty('rowErrors') &&
-      err?.hasOwnProperty('generalErrors')
-    );
   },
 
   /**
@@ -343,11 +333,11 @@ export {
   EXPECTED_COLUMNS,
   FIELD_DATA_CONSTRAINTS,
   GENDER_CODES,
-  IValidationError,
   MAX_LEN_DATA_CONSTRAINTS,
   NUMERIC_COLUMNS,
   Row,
   RowError,
   SUBMISSION_ROW_COLUMNS,
+  ValidationError,
   validateService,
 };
