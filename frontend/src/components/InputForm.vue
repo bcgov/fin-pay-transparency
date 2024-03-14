@@ -366,8 +366,7 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import PrimaryButton from './util/PrimaryButton.vue';
 import Spinner from './Spinner.vue';
 import ReportStepper from './util/ReportStepper.vue';
-import ApiService from '../common/apiService';
-import { ISubmission } from '../common/apiService';
+import ApiService, { ISubmission } from '../common/apiService';
 import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
 import { mapActions, mapState } from 'pinia';
@@ -379,11 +378,7 @@ import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
-import {
-  CsvService,
-  IParseSuccessResponse,
-  IParseErrorResponse,
-} from '../common/csvService';
+import { CsvService, IParseSuccessResponse } from '../common/csvService';
 import {
   LocalDate,
   ChronoUnit,
