@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', () => {
   const config = ref<IConfigValue>();
 
   const loadConfig = async () => {
-    if (config.value) return;
+    if (config.value) return config.value;
 
     const data = await ApiService.getConfig();
 

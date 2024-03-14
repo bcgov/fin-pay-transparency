@@ -104,8 +104,13 @@ const fileUploadService = {
     tx,
   ): Promise<string> {
     // Use UTC so js-doja doesn't offset the timezone based on locale
+<<<<<<< HEAD
     const startDate = LocalDate.parse(submission.startDate).withDayOfMonth(1);
     const endDate = LocalDate.parse(submission.endDate)
+=======
+    const startDate = LocalDate.parse(body.startDate).withDayOfMonth(1);
+    const endDate = LocalDate.parse(body.endDate)
+>>>>>>> main
 
       .with(TemporalAdjusters.lastDayOfMonth());
 
@@ -354,6 +359,7 @@ const fileUploadService = {
   ): Promise<any | ISubmissionError> {
     const bceidBusinessGuid = userInfo?._json?.bceid_business_guid;
 
+<<<<<<< HEAD
     const preliminaryValidationError: IValidationError | null =
       validateService.validateSubmissionBodyAndHeader(submission);
     if (preliminaryValidationError) {
@@ -397,6 +403,143 @@ const fileUploadService = {
           },
         } as ISubmissionError;
       }
+=======
+    const bceidBusinessGuid =
+      utils.getSessionUser(req)?._json?.bceid_business_guid;
+
+    parseMultipartFormData(
+      req,
+      res,
+      /* istanbul ignore next */
+      async (err) => {
+        if (err instanceof multer.MulterError) {
+          // A default, general-purpose error message
+          let errorMessage = 'Invalid submission';
+
+          // In some cases, replace the default error message with something more
+          // specific.
+          if (err?.code == 'LIMIT_FILE_SIZE') {
+            errorMessage = `The uploaded file exceeds the size limit (${
+              MAX_FILE_SIZE_ON_DISK_BYTES / 1000000
+            }MB).`;
+          }
+          log.error(
+            `Error handling file upload for correlation_id: ${req.session?.correlationID} and error is ${err?.code}`,
+          );
+          res.status(400).json({
+            status: 'error',
+            errors: {
+              generalErrors: [errorMessage],
+            },
+          } as ValidationErrorResponse);
+          return;
+        }
+
+        // At this stage no MulterErrors were detected,
+        // so start a deeper validation of the request body (form fields) and
+        // the contents of the uploaded file. (Note: this statement causes response
+        // status to be set and error data to be added to the response if any
+        // validation error is found.)
+        const isValid = fileUploadServicePrivate.validateSubmission(req, res);
+
+        if (isValid) {
+          try {
+            const startDate = LocalDate.parse(
+              req.body.startDate,
+            ).withDayOfMonth(1);
+            const endDate = LocalDate.parse(req.body.endDate).with(
+              TemporalAdjusters.lastDayOfMonth(),
+            );
+
+            const shouldPreventReportOverride =
+              await reportService.shouldPreventReportOverrides(
+                startDate,
+                endDate,
+                bceidBusinessGuid,
+              );
+            if (shouldPreventReportOverride) {
+              throw new PayTransparencyUserError(
+                'A report for this time period already exists and cannot be updated.',
+              );
+            }
+
+            //add entire CSV file to Readable stream (so it can be processed asyncronously)
+            const csvReadable = new Readable();
+            csvReadable.push(req.file.buffer);
+            csvReadable.push(null);
+            const calculatedAmounts: CalculatedAmount[] =
+              await reportCalcService.calculateAll(csvReadable);
+            const reportId = await fileUploadService.saveDraftReport(
+              req,
+              calculatedAmounts,
+            );
+            const report = await reportService.getReportById(
+              bceidBusinessGuid,
+              reportId,
+            );
+            res.status(200).json(report);
+          } catch (err) {
+            if (err instanceof PayTransparencyUserError) {
+              // The request was somehow invalid.  Try to show the user a helpful
+              // error message.
+              res.status(400).json({
+                status: 'error',
+                errors: {
+                  generalErrors: [err.message],
+                },
+              } as ValidationErrorResponse);
+            } else {
+              // An internal error occurred while saving the validated data to the
+              // database.  Don't show the user the internal error message.  Instead,
+              // return a non-specific general error message.
+              log.error(err);
+              res.status(500).json({
+                status: 'error',
+                errors: {
+                  generalErrors: ['Something went wrong'],
+                },
+              } as ValidationErrorResponse);
+            }
+          }
+        }
+      },
+    );
+  },
+};
+
+const fileUploadServicePrivate = {
+  /*
+   * Validates the multipart form request. If valid returns true.  Returns false
+   * otherwise.
+   * Validation involves checking the request body (form fields) and also the
+   * attached file.
+   * Side effects: if any validation errors were found, updates the response (res)
+   * object with appropriate status codes and return data. if no validation errors
+   * were found does *not* modify the response (res).
+   */
+  validateSubmission(req, res) {
+    try {
+      const bodyErrors = validateService.validateBody(req.body);
+      const fileErrors = validateService.validateCsv(req.file.buffer);
+      if (bodyErrors?.length || fileErrors) {
+        res.status(400).json({
+          status: 'error',
+          errors: {
+            bodyErrors: bodyErrors,
+            fileErrors: fileErrors,
+          },
+        } as ValidationErrorResponse);
+        return false;
+      }
+    } catch (e) {
+      res.status(500).json({
+        status: 'error',
+        errors: {
+          generalErrors: ['Something went wrong'],
+        },
+      } as ValidationErrorResponse);
+      return false;
+>>>>>>> main
     }
   },
 };

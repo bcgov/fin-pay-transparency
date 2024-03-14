@@ -174,7 +174,7 @@
               <v-col cols="12">
                 <h3 class="heading mb-2">Data Constraints</h3>
                 <p class="description mb-4">
-                  Please share any information (that is, Limitations,
+                  Please share any information (that is, limitations,
                   constraints, or dependencies) that may be helpful to explain
                   your payroll data (for example, “Bonus pay not offered by
                   [employer name]”). This will appear at the bottom of your pay
@@ -483,17 +483,17 @@ export default {
     approvedRoute: null as string | null,
     reportStatus: null,
   }),
-  async beforeMount() {
+  beforeMount() {
     this.setStage('UPLOAD');
-
-    try {
-      const data = await this.loadConfig();
-      this.setMaxFileUploadSize(data as IConfigValue);
-    } catch (error) {
-      NotificationService.pushNotificationError(
-        'Failed to load application settings. Please reload the page.',
-      );
-    }
+    this.loadConfig()
+      ?.then((data) => {
+        this.setMaxFileUploadSize(data as IConfigValue);
+      })
+      .catch((error) => {
+        NotificationService.pushNotificationError(
+          'Failed to load application settings. Please reload the page.',
+        );
+      });
 
     if (this.reportId) {
       this.comments = this.reportData.user_comment;
@@ -629,7 +629,7 @@ export default {
       this.isProcessing = false;
     },
     setMaxFileUploadSize(data: IConfigValue) {
-      if (data.maxUploadFileSize) {
+      if (data?.maxUploadFileSize) {
         this.maxFileUploadSize = humanFileSize(
           data?.maxUploadFileSize || 8000000,
           0,
