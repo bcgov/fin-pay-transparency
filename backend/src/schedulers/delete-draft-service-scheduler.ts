@@ -11,7 +11,6 @@ try {
 
   const job = new CronJob(
     crontime, // cronTime
-    //'1/4 0 0 * * *',
     async function () {
       try {
         await mutex.withLock(async () => {
