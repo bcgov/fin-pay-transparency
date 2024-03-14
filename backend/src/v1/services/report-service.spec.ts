@@ -869,8 +869,8 @@ describe('getReportById', () => {
     };
     const expectedReport = {
       ...report,
-      report_start_date: LocalDate.now().format(JODA_FORMATTER),
-      report_end_date: LocalDate.now().format(JODA_FORMATTER),
+      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
     };
     const mockReportResults = {
       pay_transparency_report: [report],
