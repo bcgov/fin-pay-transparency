@@ -27,26 +27,28 @@ const schedulerService = {
     });
 
     if (!reports) return;
-
-    await prisma.pay_transparency_calculated_data.deleteMany({
-      where: {
-        report_id: {
-          in: reports.map(function (report) {
-            return report['report_id'];
-          }),
+    await prisma.$transaction(async (tx) => {
+      await tx.pay_transparency_calculated_data.deleteMany({
+        where: {
+          report_id: {
+            in: reports.map(function (report) {
+              return report['report_id'];
+            }),
+          },
         },
-      },
+      });
+
+      await tx.pay_transparency_report.deleteMany({
+        where: {
+          report_id: {
+            in: reports.map(function (report) {
+              return report['report_id'];
+            }),
+          },
+        },
+      });
     });
 
-    await prisma.pay_transparency_report.deleteMany({
-      where: {
-        report_id: {
-          in: reports.map(function (report) {
-            return report['report_id'];
-          }),
-        },
-      },
-    });
   },
 };
 

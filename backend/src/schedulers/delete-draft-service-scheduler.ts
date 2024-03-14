@@ -5,7 +5,7 @@ import { logger as log } from '../logger';
 import advisoryLock from 'advisory-lock';
 
 try {
-  const mutex = advisoryLock(config.get('server:databaseUrl'))('locke');
+  const mutex = advisoryLock(config.get('server:databaseUrl'))('delete_draft_reports');
   const crontime = config.get('server:schedulerDeleteDraftCronTime');
   const timezone = config.get('server:schedulerDeleteDraftTimeZone');
 
@@ -14,9 +14,12 @@ try {
     async function () {
       try {
         await mutex.withLock(async () => {
-          schedulerService.deleteDraftReports();
+          log.info('Starting deleteDraftReports Schedule Job.');
+          await schedulerService.deleteDraftReports();
+          log.info('deleteDraftReports Schedule Job completed.');
         });
       } catch (e) {
+        log.error('Error in deleteDraftReports.');
         log.error(e);
       }
     }, // onTick
