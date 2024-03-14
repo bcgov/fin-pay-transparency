@@ -63,10 +63,14 @@ class RowError {
 }
 
 const validateService = {
-  /*
-  Validates all the properties of the submission except the "records" property.  
-  Returns an array of error messages, (or an empty array if no errors were found.)
-  */
+  /**
+   * Validates all the properties of the submission except the "rows" property.
+   * If any validation problems were found, returns an IValidationError object.
+   * If no problems were found, returns null.
+   * @param submission
+   * @returns If any validation problems were found, returns an IValidationError object.
+   * If no problems were found, returns null.*
+   */
   validateSubmissionBody(submission: ISubmission): IValidationError | null {
     const bodyErrors = [];
     if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
@@ -85,11 +89,14 @@ const validateService = {
   },
 
   /**
+   * A convenience function that performs the work of both
+   * validateSubmissionBody(..) and validateSubmissionRowsHeader(..).
    * Performs validation checks on the submission body and on the
-   * first row in the "rows" property (i.e. the header row).
+   * first row in the "rows" property (i.e. the header row).  All other rows
+   * in the "rows" property aren't checked.
    * @param submission
-   * @returns an array of error messages (as string) if any errors are found, or
-   * null if no errors are found
+   * @returns If any validation problems were found, returns an IValidationError object.
+   * If no problems were found, returns null.
    */
   validateSubmissionBodyAndHeader(
     submission: ISubmission,
@@ -114,16 +121,16 @@ const validateService = {
 
   /**
    * Checks that the header row is of the expected format
-   * @param records an array of arrays.  The first inner array represents the
-   * header line, and each subsequent record represents one employee pay record
+   * @param headerRow an array containing the "column" names that correspond
+   * to all subsequent rows (after the header) in the submission.
    * @returns
    */
-  validateSubmissionRowsHeader(header: string[]): string | null {
-    if (!header?.length) {
+  validateSubmissionRowsHeader(headerRow: string[]): string | null {
+    if (!headerRow?.length) {
       return INVALID_COLUMN_ERROR;
     }
     const expectedFirstLine = Object.values(SUBMISSION_ROW_COLUMNS).join(',');
-    const isHeaderValid = header.join(',') == expectedFirstLine;
+    const isHeaderValid = headerRow.join(',') == expectedFirstLine;
     if (!isHeaderValid) {
       return `Invalid header.  Expected the first line of the file to have the following format: ${expectedFirstLine}`;
     }
@@ -156,7 +163,8 @@ const validateService = {
     return errorMessages;
   },
 
-  /*Checks if the given object conforms to the IValidationError interface
+  /**
+   * Checks if the given object conforms to the IValidationError interface
    */
   isIValidationError(err: any) {
     return (
@@ -166,27 +174,29 @@ const validateService = {
     );
   },
 
-  /*
-  Scans the given record. Check that all columns have valid values.  
-  Return a RowError object if any errors are found, or returns null 
-  if no errors are found
-  */
+  /**
+   * Scans the given record. Check that all columns have valid values.
+   * Return a RowError if any errors are found, or returns null
+   * if no errors are found.
+   * @record an object form of a row from ISubmission.rows.  The object form
+   * can be derived using reportCalcService.arrayToObject(row, header).
+   */
   validateRecord(recordNum: number, record: object): RowError | null {
     const errorMessages: string[] = [];
 
-    const genderCode = this.columnFromRecord(
+    const genderCode = this.getObjectProperty(
       record,
       SUBMISSION_ROW_COLUMNS.GENDER_CODE,
     );
-    const hoursWorked = this.columnFromRecord(
+    const hoursWorked = this.getObjectProperty(
       record,
       SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
     );
-    const specialSalary = this.columnFromRecord(
+    const specialSalary = this.getObjectProperty(
       record,
       SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
     );
-    const ordinaryPay = this.columnFromRecord(
+    const ordinaryPay = this.getObjectProperty(
       record,
       SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
     );
@@ -251,8 +261,16 @@ const validateService = {
     return null;
   },
 
-  columnFromRecord(record, columnName) {
-    return record.hasOwnProperty(columnName) ? record[columnName] : null;
+  /**
+   * A helper function to get a property with a given name from an object,
+   * and to guard against null values
+   * @param obj any object
+   * @param columnName a property name from the object
+   * @returns the value of the property with the given name. returns null
+   * if the property doesn't exist, or if the object itself is null.
+   */
+  getObjectProperty(obj, propertyName) {
+    return obj?.hasOwnProperty(propertyName) ? obj[propertyName] : null;
   },
 
   /*

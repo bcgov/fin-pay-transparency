@@ -196,6 +196,34 @@ describe('standardizeGenderCode', () => {
   });
 });
 
+describe('isIValidationError', () => {
+  describe('given an object that conforms to the IValidationError interface', () => {
+    it('returns true', () => {
+      const obj: IValidationError = {
+        bodyErrors: null,
+        rowErrors: null,
+        generalErrors: null,
+      };
+      expect(validateService.isIValidationError(obj)).toBeTruthy();
+    });
+  });
+  describe("given an object that doesn't conform to the IValidationError interface", () => {
+    it('returns true', () => {
+      const obj: any = {
+        bodyErrors: null,
+        rowErrors: null,
+      };
+      expect(validateService.isIValidationError(obj)).toBeFalsy();
+    });
+  });
+  describe('given a null value', () => {
+    it('returns false', () => {
+      const obj = null;
+      expect(validateService.isIValidationError(obj)).toBeFalsy();
+    });
+  });
+});
+
 describe('isZeroSynonym', () => {
   NO_DATA_VALUES.forEach((value) => {
     describe(`given a value ('${value}') that should be treated as zero`, () => {
