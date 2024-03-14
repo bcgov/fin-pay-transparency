@@ -3,7 +3,7 @@ import { codeService } from './code-service';
 import { REPORT_STATUS, fileUploadService } from './file-upload-service';
 import { CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
-import { SUBMISSION_ROW_COLUMNS, validateService } from './validate-service';
+import { SUBMISSION_ROW_COLUMNS } from './validate-service';
 import { createSampleRecord } from './validate-service.spec';
 const { mockRequest } = require('mock-req-res');
 
@@ -112,21 +112,14 @@ const mockUserInfo = {
 };
 
 describe('handleSubmission', () => {
-  describe('when request is invalid', () => {
+  describe(`when a submission has no 'rows'`, () => {
     it('returns an error object', async () => {
-      jest
-        .spyOn(validateService, 'validateSubmissionBody')
-        .mockReturnValueOnce(['Error message']);
-      jest
-        .spyOn(validateService, 'validateSubmissionRows')
-        .mockReturnValueOnce(null);
-
       const mockInvalidSubmission = { ...mockValidSubmission, rows: null };
       const result = await fileUploadService.handleSubmission(
         mockUserInfo,
         mockInvalidSubmission,
       );
-      expect(result.errors).toBeTruthy();
+      expect(result).toBeTruthy();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { LocalDate, ZoneId, convert } from '@js-joda/core';
+import { LocalDate, ZoneId, convert, nativeJs } from '@js-joda/core';
 import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import stream from 'stream';
@@ -643,22 +643,23 @@ describe('dollarsToText', () => {
 
 describe('getReports', () => {
   it('returns an array of Report data', async () => {
+    const dateNow: Date = convert(LocalDate.now()).toDate();
     const mockReportResults = {
       pay_transparency_report: [
         {
           report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-          report_start_date: new Date(),
-          report_end_date: new Date(),
-          create_date: new Date(),
-          update_date: new Date(),
+          report_start_date: dateNow,
+          report_end_date: dateNow,
+          create_date: dateNow,
+          update_date: dateNow,
           revision: 1,
         },
         {
           report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
-          report_start_date: new Date(),
-          report_end_date: new Date(),
-          create_date: new Date(),
-          update_date: new Date(),
+          report_start_date: dateNow,
+          report_end_date: dateNow,
+          create_date: dateNow,
+          update_date: dateNow,
           revision: 4,
         },
       ],
@@ -668,14 +669,14 @@ describe('getReports', () => {
     );
     const ret = await reportService.getReports(mockCompanyInDB.company_id, {
       report_status: enumReportStatus.Draft,
-      report_start_date: LocalDate.now().format(JODA_FORMATTER),
-      report_end_date: LocalDate.now().format(JODA_FORMATTER),
+      report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
+      report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
     });
     expect(ret).toEqual(
       mockReportResults.pay_transparency_report.map((r) => ({
         ...r,
-        report_start_date: LocalDate.now().format(JODA_FORMATTER),
-        report_end_date: LocalDate.now().format(JODA_FORMATTER),
+        report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
+        report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
       })),
     );
   });
@@ -837,19 +838,20 @@ describe('movePublishedReportToHistory', () => {
 });
 
 describe('getReportById', () => {
-  it('returns an single report', async () => {
+  it('returns an single report with dates in the appropriate format', async () => {
+    const dateNow: Date = convert(LocalDate.now()).toDate();
     const report = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: new Date(),
-      report_end_date: new Date(),
-      create_date: new Date(),
-      update_date: new Date(),
+      report_start_date: dateNow,
+      report_end_date: dateNow,
+      create_date: dateNow,
+      update_date: dateNow,
       revision: 1,
     };
     const expectedReport = {
       ...report,
-      report_start_date: LocalDate.now().format(JODA_FORMATTER),
-      report_end_date: LocalDate.now().format(JODA_FORMATTER),
+      report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
+      report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
     };
     const mockReportResults = {
       pay_transparency_report: [report],

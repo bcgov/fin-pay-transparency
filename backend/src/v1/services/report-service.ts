@@ -1174,6 +1174,9 @@ const reportService = {
     bceidBusinessGuid: string,
     reportId: string,
   ): Promise<pay_transparency_report> {
+    if (!reportId) {
+      throw new Error('reportId must be specified.');
+    }
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -1189,7 +1192,7 @@ const reportService = {
             data_constraints: true,
             is_unlocked: true,
             create_date: true,
-            company_id: true
+            company_id: true,
           },
           where: {
             report_id: reportId,

@@ -6,7 +6,11 @@ import {
   reportCalcService,
   reportCalcServicePrivate,
 } from './report-calc-service';
-import { GENDER_CODES, SUBMISSION_ROW_COLUMNS } from './validate-service';
+import {
+  EXPECTED_COLUMNS,
+  GENDER_CODES,
+  SUBMISSION_ROW_COLUMNS,
+} from './validate-service';
 import { createSampleRecord } from './validate-service.spec';
 
 describe('GroupedColumnStats', () => {
@@ -1485,22 +1489,16 @@ describe('calculatePercentReceivingBonusPay', () => {
 describe('calculateAll', () => {
   describe(`when only one gender category has at least ${reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER} employees`, () => {
     it(`returns all applicable calculated amounts, but each is suppressed`, async () => {
-      const mockRecords = [];
+      const mockRows = [
+        EXPECTED_COLUMNS, //header
+      ];
       Array(reportCalcService.MIN_REQUIRED_PEOPLE_FOR_REPORT)
         .fill(null)
         .forEach((v) => {
-          mockRecords.push({
-            'Gender Code': GENDER_CODES.MALE[0],
-            'Hours Worked': '1',
-            'Ordinary Pay': '100',
-            'Special Salary': '0',
-            'Overtime Hours': '0',
-            'Overtime Pay': '0',
-            'Bonus Pay': '0',
-          });
+          mockRows.push([GENDER_CODES.MALE[0], '1', '100', '0', '0', '0', '0']);
         });
       const allCalculatedAmounts: CalculatedAmount[] =
-        await reportCalcService.calculateAll(mockRecords);
+        await reportCalcService.calculateAll(mockRows);
       allCalculatedAmounts.forEach((c) => {
         expect(c.isSuppressed).toBeTruthy();
         expect(c.value).toBeNull();
@@ -1522,25 +1520,27 @@ describe('calculateAll', () => {
       payAmounts[GENDER_CODES.NON_BINARY[0]] = '98';
       payAmounts[GENDER_CODES.UNKNOWN[0]] = '97';
 
-      const mockRecords = [];
+      const mockRows = [
+        EXPECTED_COLUMNS, //header
+      ];
       for (const [genderCode, ordinaryPay] of Object.entries(payAmounts)) {
         Array(reportCalcService.MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER)
           .fill(0)
           .forEach((v) => {
-            mockRecords.push({
-              'Gender Code': genderCode,
-              'Hours Worked': '1',
-              'Ordinary Pay': ordinaryPay,
-              'Special Salary': '0',
-              'Overtime Hours': '0',
-              'Overtime Pay': '0',
-              'Bonus Pay': '0',
-            });
+            mockRows.push([
+              genderCode,
+              '1',
+              ordinaryPay as string,
+              '0',
+              '0',
+              '0',
+              '0',
+            ]);
           });
       }
 
       const allCalculatedAmounts: CalculatedAmount[] =
-        await reportCalcService.calculateAll(mockRecords);
+        await reportCalcService.calculateAll(mockRows);
 
       // Check that all the required calculations were performed (once each)
       Object.values(CALCULATION_CODES).forEach((calculationCode) => {

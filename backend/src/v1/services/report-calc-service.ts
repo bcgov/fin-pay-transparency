@@ -1,11 +1,11 @@
 import { logger } from '../../logger';
 import {
   GENDER_CODES,
+  IValidationError,
   NUMERIC_COLUMNS,
   RowError,
   SUBMISSION_ROW_COLUMNS,
   validateService,
-  ValidationError,
 } from './validate-service';
 
 const CALCULATION_CODES = {
@@ -450,6 +450,9 @@ const reportCalcService = {
     an array of CalculatedAmount objects.
   */
   async calculateAll(rows: any[]): Promise<CalculatedAmount[]> {
+    if (rows?.length && !Array.isArray(rows[0])) {
+      throw new Error("Expected 'rows' to be an array of arrays.");
+    }
     const calculatedAmounts: CalculatedAmount[] = [];
 
     // Create data structures to support the mean and median
@@ -512,9 +515,13 @@ const reportCalcService = {
       }
     }
 
-    // If any RowErrors were found, wrap them into a ValidationError and throw it
+    // If any RowErrors were found, wrap them into a IValidationError and throw it
     if (rowErrors.length) {
-      throw new ValidationError(null, rowErrors, null);
+      throw {
+        bodyErrors: null,
+        rowErrors: rowErrors,
+        generalErrors: null,
+      } as IValidationError;
     }
 
     // Only allow the calculations to be performed if at least two gender categories
@@ -1840,10 +1847,10 @@ const reportCalcServicePrivate = {
 };
 
 export {
-  CalculatedAmount,
   CALCULATION_CODES,
+  CalculatedAmount,
   GroupedColumnStats,
+  TaggedColumnStats,
   reportCalcService,
   reportCalcServicePrivate,
-  TaggedColumnStats,
 };

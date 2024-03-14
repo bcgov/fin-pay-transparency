@@ -8,7 +8,7 @@ import {
 } from '../services/report-calc-service';
 import { codeService } from './code-service';
 import { reportService } from './report-service';
-import { RowError, ValidationError, validateService } from './validate-service';
+import { IValidationError, validateService } from './validate-service';
 
 const REPORT_STATUS = {
   DRAFT: 'Draft',
@@ -33,18 +33,9 @@ export interface ISubmission {
   rows: any[];
 }
 
-interface ISubmissionError {
+export interface ISubmissionError {
   status: SubmissionStatus.Error;
   error: any;
-}
-
-interface ValidationErrorResponse {
-  status: string;
-  errors: {
-    bodyErrors: string[];
-    rowErrors: RowError | null;
-    generalErrors: string[];
-  };
 }
 
 /* An Error subclass to help us distinguish between unexpected internal errors
@@ -352,9 +343,9 @@ const fileUploadService = {
   /*
   Process the uploaded submission.  
   If accepted, saves as a Report, and returns a Report object.  
-  If rejected due to invalid input, returns a ValidationErrorResponse.  
-  If rejected due to an unexpected backend problem, throws an 
-  error with an explanation.
+  If rejected due to invalid input, returns an ISubmissionError.  
+  If rejected due to an unexpected backend problem, throws an
+  ISubmissionError.   
   */
   async handleSubmission(
     userInfo: any,
@@ -363,12 +354,12 @@ const fileUploadService = {
   ): Promise<any | ISubmissionError> {
     const bceidBusinessGuid = userInfo?._json?.bceid_business_guid;
 
-    const preliminaryValidationError: ValidationError | null =
+    const preliminaryValidationError: IValidationError | null =
       validateService.validateSubmissionBodyAndHeader(submission);
     if (preliminaryValidationError) {
       return {
         status: SubmissionStatus.Error,
-        error: preliminaryValidationError as ValidationError,
+        error: preliminaryValidationError as IValidationError,
       } as ISubmissionError;
     }
 
@@ -389,16 +380,16 @@ const fileUploadService = {
     } catch (err) {
       // If the error was caused by invalid user input, return it (it provides
       // helpful information to show the user about what went wrong).
-      if (err instanceof ValidationError) {
+      if (validateService.isIValidationError(err)) {
         return {
           status: SubmissionStatus.Error,
-          error: err as ValidationError,
+          error: err as IValidationError,
         } as ISubmissionError;
       } else {
         // An unexpected, internal error occurred while saving the validated data
         // to the database. Log the actual error, but return a more general error
         // that won't reveal details of the backend implementation.
-        log.error(err);
+        log.error(JSON.stringify(err));
         throw {
           status: SubmissionStatus.Error,
           error: {

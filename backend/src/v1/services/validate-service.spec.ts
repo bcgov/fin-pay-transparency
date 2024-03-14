@@ -1,8 +1,9 @@
 import {
   FIELD_DATA_CONSTRAINTS,
   GENDER_CODES,
-  LineErrors,
+  IValidationError,
   MAX_LEN_DATA_CONSTRAINTS,
+  RowError,
   SUBMISSION_ROW_COLUMNS,
   validateService,
 } from './validate-service';
@@ -76,11 +77,8 @@ const doesAnyStringContainAll = (
  * returns True if at least one of the error messages contains
  * the given text.  Returns false otherwise.
  */
-const doesAnyLineErrorContain = (
-  lineErrors: LineErrors,
-  text: string,
-): boolean => {
-  return doesAnyLineErrorContainAll(lineErrors, [text]);
+const doesAnyRowErrorContain = (rowError: RowError, text: string): boolean => {
+  return doesAnyRowErrorContainAll(rowError, [text]);
 };
 
 /**
@@ -88,15 +86,19 @@ const doesAnyLineErrorContain = (
  * returns True if at least one of the error messages contains
  * all of the given values.  Returns false otherwise
  */
-const doesAnyLineErrorContainAll = (
-  lineErrors: LineErrors,
+const doesAnyRowErrorContainAll = (
+  rowError: RowError,
   values: string[],
 ): boolean => {
-  if (!lineErrors) {
+  if (!rowError) {
     return false;
   }
-  for (var lineIndex = 0; lineIndex < lineErrors?.errors?.length; lineIndex++) {
-    const errorMsg: string = lineErrors.errors[lineIndex];
+  for (
+    var lineIndex = 0;
+    lineIndex < rowError?.errorMsgs?.length;
+    lineIndex++
+  ) {
+    const errorMsg: string = rowError.errorMsgs[lineIndex];
     var lineContainsAll = true;
     for (var valueIndex = 0; valueIndex < values.length; valueIndex++) {
       const value = values[valueIndex];
@@ -232,10 +234,10 @@ describe('validateSubmissionBody', () => {
       const invalidSubmission = Object.assign({}, validSubmission, {
         dataConstraints: dataConstraintsTooLong,
       });
-      const bodyErrors: string[] =
+      const result: IValidationError | null =
         validateService.validateSubmissionBody(invalidSubmission);
       expect(
-        doesAnyStringContainAll(bodyErrors, [
+        doesAnyStringContainAll(result.bodyErrors, [
           FIELD_DATA_CONSTRAINTS,
           MAX_LEN_DATA_CONSTRAINTS + '',
         ]),
@@ -249,10 +251,10 @@ describe('validateSubmissionBody', () => {
       const invalidSubmission = Object.assign({}, validSubmission, {
         dataConstraints: dataConstraintsTooLong,
       });
-      const bodyErrors: string[] =
+      const result: IValidationError | null =
         validateService.validateSubmissionBody(invalidSubmission);
       expect(
-        doesAnyStringContainAll(bodyErrors, [
+        doesAnyStringContainAll(result?.bodyErrors, [
           FIELD_DATA_CONSTRAINTS,
           MAX_LEN_DATA_CONSTRAINTS + '',
         ]),
@@ -261,101 +263,88 @@ describe('validateSubmissionBody', () => {
   });
 });
 
-describe('validateEmployeePayRowsHeader', () => {
+describe('validateSubmissionRowsHeader', () => {
   describe(`given a valid header row`, () => {
     it('returns null', () => {
-      const result = validateService.validateEmployeePayRowsHeader(
-        mockValidSubmission.rows[0],
-      );
+      const result: string | null =
+        validateService.validateSubmissionRowsHeader(
+          mockValidSubmission.rows[0],
+        );
       expect(result).toBeNull();
     });
   });
   describe(`given a null header row`, () => {
     it('returns an error object', () => {
-      const result = validateService.validateEmployeePayRowsHeader(null);
+      const result: string | null =
+        validateService.validateSubmissionRowsHeader(null);
       expect(result).not.toBeNull();
-      expect(result.generalErrors || result.lineErrors).toBeTruthy();
     });
   });
   describe(`given an invalid header row`, () => {
     it('returns an error object', () => {
-      const result = validateService.validateEmployeePayRowsHeader([
-        'col1',
-        'col2',
-      ]);
+      const result: string | null =
+        validateService.validateSubmissionRowsHeader(['col1', 'col2']);
       expect(result).not.toBeNull();
-      expect(result.generalErrors || result.lineErrors).toBeTruthy();
-    });
-  });
-});
-
-describe('validateSubmissionRows', () => {
-  describe(`given a valid header row and a valid data row`, () => {
-    it('returns null', () => {
-      const result = validateService.validateSubmissionRows(
-        mockValidSubmission.rows,
-      );
-      expect(result).toBeNull();
     });
   });
 });
 
 describe('validateRecord', () => {
-  describe(`given an row that is fully valid`, () => {
+  describe(`given an record that is fully valid`, () => {
     it('returns null', () => {
       const overrides = {};
-      //Valid rows must either have values for both (Hours Worked and )
+      //Valid records must either have values for both (Hours Worked and )
       //or a value for Special Salary.
       overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = 10;
       overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = 20;
       const validRecord = createSampleRecord(overrides);
 
-      const lineNum = 1;
-      const lineErrors: LineErrors = validateService.validateRecord(
-        lineNum,
+      const recordNum = 1;
+      const result: RowError | null = validateService.validateRecord(
+        recordNum,
         validRecord,
       );
-      expect(lineErrors).toBeNull();
+      expect(result).toBeNull();
     });
   });
 
-  describe(`given a valid row with 0.00 in one of the columns`, () => {
+  describe(`given a valid record with 0.00 in one of the columns`, () => {
     it('the 0.00 is interpreted the same as 0', () => {
       const overrides = {};
-      //Valid rows must either have values for both (Hours Worked and Ordinary Pay)
+      //Valid records must either have values for both (Hours Worked and Ordinary Pay)
       //or a value for Special Salary.
       overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = 10;
       overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = 20;
       overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = '0.00';
       const validRecord = createSampleRecord(overrides);
 
-      const lineNum = 1;
-      const lineErrors: LineErrors = validateService.validateRecord(
-        lineNum,
+      const recordNum = 1;
+      const result: RowError | null = validateService.validateRecord(
+        recordNum,
         validRecord,
       );
-      expect(lineErrors).toBeNull();
+      expect(result).toBeNull();
     });
   });
 
-  describe(`given an row that specifies both ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
-    it('returns a line error', () => {
+  describe(`given an record that specifies both ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+    it('returns a RowError', () => {
       const overrides = {};
       overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = VALID_HOUR_AMOUNTS[0];
       overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
         VALID_DOLLAR_AMOUNTS[0];
       const invalidRecord = createSampleRecord(overrides);
 
-      const lineNum = 1;
-      const lineErrors: LineErrors = validateService.validateRecord(
-        lineNum,
+      const recordNum = 1;
+      const result: RowError | null = validateService.validateRecord(
+        recordNum,
         invalidRecord,
       );
 
       //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.HOURS_WORKED and SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY
-      expect(lineErrors).not.toBeNull();
+      expect(result).not.toBeNull();
       expect(
-        doesAnyLineErrorContainAll(lineErrors, [
+        doesAnyRowErrorContainAll(result, [
           SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
           SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
         ]),
@@ -363,23 +352,23 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given an row that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}`, () => {
-    it('returns a line error', () => {
+  describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}`, () => {
+    it('returns a RowError', () => {
       const overrides = {};
       overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = 20;
       overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
       overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
       const invalidRecord = createSampleRecord(overrides);
 
-      const lineNum = 1;
-      const lineErrors: LineErrors = validateService.validateRecord(
-        lineNum,
+      const recordNum = 1;
+      const result: RowError | null = validateService.validateRecord(
+        recordNum,
         invalidRecord,
       );
 
       //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.HOURS_WORKED and SUBMISSION_ROW_COLUMNS.ORDINARY_PAY
       expect(
-        doesAnyLineErrorContainAll(lineErrors, [
+        doesAnyRowErrorContainAll(result, [
           SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
           SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
         ]),
@@ -387,23 +376,23 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given an row that specifies ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} but not ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}`, () => {
-    it('returns a line error', () => {
+  describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} but not ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}`, () => {
+    it('returns a RowError', () => {
       const overrides = {};
       overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
       overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = 35;
       overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
       const invalidRecord = createSampleRecord(overrides);
 
-      const lineNum = 1;
-      const lineErrors: LineErrors = validateService.validateRecord(
-        lineNum,
+      const recordNum = 1;
+      const result: RowError | null = validateService.validateRecord(
+        recordNum,
         invalidRecord,
       );
 
       //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.HOURS_WORKED and SUBMISSION_ROW_COLUMNS.ORDINARY_PAY
       expect(
-        doesAnyLineErrorContainAll(lineErrors, [
+        doesAnyRowErrorContainAll(result, [
           SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
           SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
         ]),
@@ -411,25 +400,25 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given an row that specifies no data in any of the following columns: ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}, ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
-    it('returns a line error', () => {
+  describe(`given a record that specifies no data in any of the following columns: ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}, ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+    it('returns a RowError', () => {
       const overrides = {};
       overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
       overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
       overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
       const invalidRecord = createSampleRecord(overrides);
 
-      const lineNum = 1;
-      const lineErrors: LineErrors = validateService.validateRecord(
-        lineNum,
+      const recordNum = 1;
+      const result: RowError | null = validateService.validateRecord(
+        recordNum,
         invalidRecord,
       );
 
       //expect one line error that mentions SUBMISSION_ROW_COLUMNS.HOURS_WORKED, SUBMISSION_ROW_COLUMNS.ORDINARY_PAY and SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY
-      expect(lineErrors).not.toBeNull();
-      expect(lineErrors?.errors?.length).toBe(1);
+      expect(result).not.toBeNull();
+      expect(result?.errorMsgs?.length).toBe(1);
       expect(
-        doesAnyLineErrorContainAll(lineErrors, [
+        doesAnyRowErrorContainAll(result, [
           SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
           SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
           SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
@@ -438,37 +427,34 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given an row with invalid '${SUBMISSION_ROW_COLUMNS.GENDER_CODE}'`, () => {
+  describe(`given a record with invalid '${SUBMISSION_ROW_COLUMNS.GENDER_CODE}'`, () => {
     //Check that validation fails for each of several different
     //invalid gender codes
     INVALID_GENDER_CODES.forEach((genderCode) => {
       describe(`${SUBMISSION_ROW_COLUMNS.GENDER_CODE} = ${genderCode}`, () => {
-        it('returns a line error', () => {
+        it('returns a RowError', () => {
           // Create a sample row that is valid except for the value of the
           // Gender Code
           const overrides = {};
           overrides[SUBMISSION_ROW_COLUMNS.GENDER_CODE] = genderCode;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
-          expect(lineErrors).not.toBeNull();
-          expect(lineErrors.lineNum).toBe(lineNum);
+          expect(result).not.toBeNull();
+          expect(result.rowNum).toBe(recordNum);
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.GENDER_CODE,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.GENDER_CODE),
           ).toBeTruthy();
         });
       });
     });
   });
 
-  describe(`given a row with valid '${SUBMISSION_ROW_COLUMNS.GENDER_CODE}'`, () => {
+  describe(`given a record with valid '${SUBMISSION_ROW_COLUMNS.GENDER_CODE}'`, () => {
     // Check that validation passes for each given gender code
     VALID_GENDER_CODES.forEach((genderCode) => {
       describe(`${SUBMISSION_ROW_COLUMNS.GENDER_CODE} = ${genderCode}`, () => {
@@ -478,55 +464,49 @@ describe('validateRecord', () => {
           overrides[SUBMISSION_ROW_COLUMNS.GENDER_CODE] = genderCode;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.GENDER_CODE,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.GENDER_CODE),
           ).toBeFalsy();
         });
       });
     });
   });
 
-  describe("given an row with invalid '${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}'", () => {
+  describe("given a record with invalid '${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}'", () => {
     const invalidHoursWorked = INVALID_HOUR_AMOUNTS;
 
     //Check that validation fails for each of several different
     //invalid values for SUBMISSION_ROW_COLUMNS.HOURS_WORKED
     invalidHoursWorked.forEach((hoursWorked) => {
       describe(`${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} = ${hoursWorked}`, () => {
-        it('returns a line error', () => {
+        it('returns a RowError', () => {
           // Create a sample row that is valid except for the value of the
           // Hours worked
           const overrides = {};
           overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = hoursWorked;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
-          expect(lineErrors).not.toBeNull();
-          expect(lineErrors.lineNum).toBe(lineNum);
+          expect(result).not.toBeNull();
+          expect(result.rowNum).toBe(recordNum);
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.HOURS_WORKED),
           ).toBeTruthy();
         });
       });
     });
   });
 
-  describe(`given a row with valid '${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}'`, () => {
+  describe(`given a record with valid '${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}'`, () => {
     const validHoursWorked = VALID_HOUR_AMOUNTS;
 
     // Check that validation passes for each given value of Hours Worked
@@ -550,56 +530,50 @@ describe('validateRecord', () => {
           }
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
 
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.HOURS_WORKED),
           ).toBeFalsy();
         });
       });
     });
   });
 
-  describe(`given an row with invalid '${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}'`, () => {
+  describe(`given a record with invalid '${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}'`, () => {
     const invalidOrdinaryPay = INVALID_DOLLAR_AMOUNTS;
 
     //Check that validation fails for each of several different
     //invalid values for 'Ordinary Pay'
     invalidOrdinaryPay.forEach((ordinaryPay) => {
       describe(`${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} = ${ordinaryPay}`, () => {
-        it('returns a line error', () => {
+        it('returns a RowError', () => {
           // Create a sample row that is valid except for the value of the
           // Ordinary Pay
           const overrides = {};
           overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = ordinaryPay;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
-          expect(lineErrors).not.toBeNull();
-          expect(lineErrors.lineNum).toBe(lineNum);
+          expect(result).not.toBeNull();
+          expect(result.rowNum).toBe(recordNum);
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.ORDINARY_PAY),
           ).toBeTruthy();
         });
       });
     });
   });
 
-  describe(`given a row with valid '${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}'`, () => {
+  describe(`given a record with valid '${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}'`, () => {
     const validOrdinaryPay = VALID_DOLLAR_AMOUNTS;
 
     // Check that validation passes for each given value of Ordinary Pay
@@ -623,47 +597,44 @@ describe('validateRecord', () => {
           }
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
 
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.ORDINARY_PAY),
           ).toBeFalsy();
         });
       });
     });
   });
 
-  describe(`given an row with invalid '${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}'`, () => {
+  describe(`given a record with invalid '${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}'`, () => {
     const invalidSpecialSalary = INVALID_DOLLAR_AMOUNTS;
 
     //Check that validation fails for each of several different
     //invalid values for SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY
     invalidSpecialSalary.forEach((specialSalary) => {
       describe(`${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} = ${specialSalary}`, () => {
-        it('returns a line error', () => {
+        it('returns a RowError', () => {
           // Create a sample row that is valid except for the value of the
           // Special Salary
           const overrides = {};
           overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = specialSalary;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
-          expect(lineErrors).not.toBeNull();
-          expect(lineErrors.lineNum).toBe(lineNum);
+          expect(result).not.toBeNull();
+          expect(result.rowNum).toBe(recordNum);
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
+            doesAnyRowErrorContain(
+              result,
               SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
             ),
           ).toBeTruthy();
@@ -672,7 +643,7 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given a row with valid '${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}'`, () => {
+  describe(`given a record with valid '${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}'`, () => {
     const validSpecialSalary = VALID_DOLLAR_AMOUNTS;
 
     // Check that validation passes for each given value of Special Salary
@@ -695,14 +666,14 @@ describe('validateRecord', () => {
           }
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
+            doesAnyRowErrorContain(
+              result,
               SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
             ),
           ).toBeFalsy();
@@ -711,30 +682,30 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given an row with invalid '${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS}'`, () => {
+  describe(`given a record with invalid '${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS}'`, () => {
     const invalidOvertimeHours = INVALID_HOUR_AMOUNTS;
 
     //Check that validation fails for each of several different
     //invalid values for SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS
     invalidOvertimeHours.forEach((overtimeHours) => {
       describe(`${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} = ${overtimeHours}`, () => {
-        it('returns a line error', () => {
+        it('returns a RowEerror', () => {
           // Create a sample row that is valid except for the value of the
           // Overtime Hours
           const overrides = {};
           overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = overtimeHours;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
-          expect(lineErrors).not.toBeNull();
-          expect(lineErrors.lineNum).toBe(lineNum);
+          expect(result).not.toBeNull();
+          expect(result.rowNum).toBe(recordNum);
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
+            doesAnyRowErrorContain(
+              result,
               SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS,
             ),
           ).toBeTruthy();
@@ -743,7 +714,7 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given a row with valid '${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS}'`, () => {
+  describe(`given a record with valid '${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS}'`, () => {
     const validOvertimeHours = VALID_HOUR_AMOUNTS;
 
     // Check that validation passes for each given value of Overtime Hours
@@ -755,14 +726,14 @@ describe('validateRecord', () => {
           overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = overtimeHours;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
+            doesAnyRowErrorContain(
+              result,
               SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS,
             ),
           ).toBeFalsy();
@@ -771,39 +742,36 @@ describe('validateRecord', () => {
     });
   });
 
-  describe(`given an row with invalid '${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY}'`, () => {
+  describe(`given a record with invalid '${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY}'`, () => {
     const invalidOvertimePay = INVALID_DOLLAR_AMOUNTS;
 
     //Check that validation fails for each of several different
     //invalid values for SUBMISSION_ROW_COLUMNS.OVERTIME_PAY
     invalidOvertimePay.forEach((overtimePay) => {
       describe(`${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} = ${overtimePay}`, () => {
-        it('returns a line error', () => {
+        it('returns a RowError', () => {
           // Create a sample row that is valid except for the value of the
           // Overtime Pay
           const overrides = {};
           overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = overtimePay;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
-          expect(lineErrors).not.toBeNull();
-          expect(lineErrors.lineNum).toBe(lineNum);
+          expect(result).not.toBeNull();
+          expect(result.rowNum).toBe(recordNum);
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.OVERTIME_PAY,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
           ).toBeTruthy();
         });
       });
     });
   });
 
-  describe(`given a row with valid '${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY}'`, () => {
+  describe(`given a record with valid '${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY}'`, () => {
     const validOvertimePay = VALID_DOLLAR_AMOUNTS;
 
     // Check that validation passes for each given value of Overtime Pay
@@ -815,16 +783,13 @@ describe('validateRecord', () => {
           overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = overtimePay;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.OVERTIME_PAY,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
           ).toBeFalsy();
         });
       });
@@ -842,25 +807,22 @@ describe('validateRecord', () => {
     ];
     invalidBonusPay.forEach((bonusPay) => {
       describe(`${SUBMISSION_ROW_COLUMNS.BONUS_PAY} = ${bonusPay}`, () => {
-        it('returns a line error', () => {
+        it('returns a RowError', () => {
           // Create a sample row that is valid except for the value of the
           // Bonus Pay
           const overrides = {};
           overrides[SUBMISSION_ROW_COLUMNS.BONUS_PAY] = bonusPay;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
-          expect(lineErrors).not.toBeNull();
-          expect(lineErrors.lineNum).toBe(lineNum);
+          expect(result).not.toBeNull();
+          expect(result.rowNum).toBe(recordNum);
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.BONUS_PAY,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.BONUS_PAY),
           ).toBeTruthy();
         });
       });
@@ -879,16 +841,13 @@ describe('validateRecord', () => {
           overrides[SUBMISSION_ROW_COLUMNS.BONUS_PAY] = bonusPay;
           const record = createSampleRecord(overrides);
 
-          const lineNum = 1;
-          const lineErrors: LineErrors = validateService.validateRecord(
-            lineNum,
+          const recordNum = 1;
+          const result: RowError | null = validateService.validateRecord(
+            recordNum,
             record,
           );
           expect(
-            doesAnyLineErrorContain(
-              lineErrors,
-              SUBMISSION_ROW_COLUMNS.BONUS_PAY,
-            ),
+            doesAnyRowErrorContain(result, SUBMISSION_ROW_COLUMNS.BONUS_PAY),
           ).toBeFalsy();
         });
       });

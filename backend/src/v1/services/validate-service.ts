@@ -47,19 +47,10 @@ interface Row {
   raw: string;
 }
 
-class ValidationError {
+interface IValidationError {
   bodyErrors: string[] | null;
   rowErrors: RowError[] | null;
   generalErrors: string[] | null;
-  constructor(
-    bodyErrors: string[] | null,
-    rowErrors: RowError[] | null,
-    generalErrors: string[] | null,
-  ) {
-    this.bodyErrors = bodyErrors;
-    this.rowErrors = rowErrors;
-    this.generalErrors = generalErrors;
-  }
 }
 
 class RowError {
@@ -76,14 +67,21 @@ const validateService = {
   Validates all the properties of the submission except the "records" property.  
   Returns an array of error messages, (or an empty array if no errors were found.)
   */
-  validateSubmissionBody(submission: ISubmission): ValidationError | null {
+  validateSubmissionBody(submission: ISubmission): IValidationError | null {
     const bodyErrors = [];
     if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
       bodyErrors.push(
         `Text in ${FIELD_DATA_CONSTRAINTS} must not exceed ${MAX_LEN_DATA_CONSTRAINTS} characters.`,
       );
     }
-    return new ValidationError(bodyErrors, null, null);
+    if (bodyErrors?.length) {
+      return {
+        bodyErrors: bodyErrors,
+        rowErrors: null,
+        generalErrors: null,
+      } as IValidationError;
+    }
+    return null;
   },
 
   /**
@@ -109,7 +107,7 @@ const validateService = {
    */
   validateSubmissionBodyAndHeader(
     submission: ISubmission,
-  ): ValidationError | null {
+  ): IValidationError | null {
     const bodyValidationError =
       validateService.validateSubmissionBody(submission);
 
@@ -119,11 +117,11 @@ const validateService = {
 
     //combine all validation errors into one object
     if (bodyValidationError || headerValidationError) {
-      return new ValidationError(
-        bodyValidationError.bodyErrors,
-        null, //row errors
-        headerValidationError ? [headerValidationError] : null, //general errors
-      );
+      return {
+        bodyErrors: bodyValidationError?.bodyErrors,
+        rowErrors: null,
+        generalErrors: headerValidationError ? [headerValidationError] : null,
+      } as IValidationError;
     }
     return null;
   },
@@ -170,6 +168,16 @@ const validateService = {
     });
 
     return errorMessages;
+  },
+
+  /*Checks if the given object conforms to the IValidationError interface
+   */
+  isIValidationError(err: any) {
+    return (
+      err?.hasOwnProperty('bodyErrors') &&
+      err?.hasOwnProperty('rowErrors') &&
+      err?.hasOwnProperty('generalErrors')
+    );
   },
 
   /*
@@ -328,13 +336,14 @@ const validateService = {
 };
 
 export {
+  EXPECTED_COLUMNS,
   FIELD_DATA_CONSTRAINTS,
   GENDER_CODES,
+  IValidationError,
   MAX_LEN_DATA_CONSTRAINTS,
   NUMERIC_COLUMNS,
   Row,
   RowError,
   SUBMISSION_ROW_COLUMNS,
-  ValidationError,
   validateService,
 };
