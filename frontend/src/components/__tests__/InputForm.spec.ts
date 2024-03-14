@@ -13,7 +13,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
-import InputForm from '../InputForm.vue';
+import InputForm, { ISubmissionError } from '../InputForm.vue';
 
 const DATE_FORMAT = 'yyyy-MM-dd';
 const dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -54,6 +54,21 @@ describe('InputForm', () => {
     describe('when no upload file has been selected', () => {
       it('throws an error', async () => {
         await expect(wrapper.vm.submit()).rejects.toThrow();
+      });
+    });
+  });
+
+  describe('onSubmitComplete', () => {
+    describe('when an error object is received', () => {
+      it('throws an error', async () => {
+        const err = {
+          bodyErrors: [],
+          rowErrors: null,
+          generalErrors: ['mock error'],
+        } as ISubmissionError;
+        await wrapper.vm.onSubmitComplete(err);
+        expect(wrapper.vm.submissionErrors).toStrictEqual(err);
+        expect(wrapper.vm.alertMessage).toBe(null);
       });
     });
   });

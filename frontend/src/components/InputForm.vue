@@ -400,7 +400,7 @@ interface RowError {
   errorMsgs: string[];
 }
 
-interface ISubmissionError {
+export interface ISubmissionError {
   bodyErrors: string[] | null;
   rowErrors: RowError[] | null;
   generalErrors: string[];
