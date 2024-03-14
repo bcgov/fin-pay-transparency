@@ -145,34 +145,39 @@ describe('saveSubmissionAsReport', () => {
   (utils.getSessionUser as jest.Mock).mockReturnValue(mockUserInfo);
 
   describe("when the report isn't yet in the database", () => {
-    const existingReport = null;
-    const newReport = {
-      reportId: 1,
-    };
-    (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
-      mockCompanyInDB,
-    );
     it('saves a new draft report', async () => {
+      const existingReport = null;
+      const newReport = {
+        reportId: '1',
+        revision: 1,
+        report_status: REPORT_STATUS.DRAFT,
+      };
+      (
+        prisma.pay_transparency_report.findFirst as jest.Mock
+      ).mockResolvedValueOnce(existingReport);
+      (
+        prisma.pay_transparency_report.create as jest.Mock
+      ).mockResolvedValueOnce(newReport);
       await fileUploadService.saveSubmissionAsReport(
         mockValidSubmission,
         mockUserInfo,
         prisma,
       );
+      expect(prisma.pay_transparency_report.findFirst).toHaveBeenCalledTimes(1);
       expect(prisma.pay_transparency_report.create).toHaveBeenCalled();
     });
   });
 
   describe('when draft report already exists', () => {
-    const existingReport = {
-      reportId: '1',
-      revision: 1,
-      report_status: REPORT_STATUS.DRAFT,
-    };
-    (
-      prisma.pay_transparency_report.findFirst as jest.Mock
-    ).mockResolvedValueOnce(existingReport);
-
     it('updated the existing report', async () => {
+      const existingReport = {
+        reportId: '1',
+        revision: 1,
+        report_status: REPORT_STATUS.DRAFT,
+      };
+      (
+        prisma.pay_transparency_report.findFirst as jest.Mock
+      ).mockResolvedValueOnce(existingReport);
       await fileUploadService.saveSubmissionAsReport(
         mockValidSubmission,
         mockUserInfo,
