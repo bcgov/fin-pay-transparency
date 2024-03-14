@@ -922,7 +922,7 @@ describe('getReportFileName', () => {
 
 describe('shouldPreventReportOverride', () => {
   describe('when a published report exists for the same date period', () => {
-    it ('should prevent override', async() => {
+    it ('should prevent override if the report is older than 30 days', async() => {
       mockCompanyFindFirst.mockReturnValue({company_id: ""});
       mockReportFindFirst.mockReturnValue({report_id: ""});
       const result = await reportService.shouldPreventReportOverrides(LocalDate.now(), LocalDate.now(), "");
@@ -930,7 +930,7 @@ describe('shouldPreventReportOverride', () => {
     });
   });
   describe('when a published report does not exist for the same date period', () => {
-    it ('should prevent override', async() => {
+    it ('should not prevent override', async() => {
       mockCompanyFindFirst.mockReturnValue({company_id: ""});
       mockReportFindFirst.mockReturnValue(undefined);
       const result = await reportService.shouldPreventReportOverrides(LocalDate.now(), LocalDate.now(), "");
