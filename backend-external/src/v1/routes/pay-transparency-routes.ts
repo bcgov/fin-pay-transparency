@@ -3,6 +3,23 @@ import { payTransparencyService } from '../services/pay-transparency-service';
 import { utils } from '../../utils';
 
 const router = express.Router();
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Report:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The id if the report
+ *         naicsCode:
+ *           type: string
+ *       example:
+ *         id: '3ab94f38-382f-4ea6-8b60-7b4b8b476721',
+ *         naicsCode: "11"
+
+ */
 
 router.get('/', utils.asyncHandler(async (req: Request, res: Response) => {
   try {

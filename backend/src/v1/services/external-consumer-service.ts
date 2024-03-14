@@ -1,5 +1,5 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { LocalDate, LocalDateTime } from '@js-joda/core';
+import { LocalDate } from '@js-joda/core';
 import { logger } from '../../logger';
 
 const externalConsumerService = {

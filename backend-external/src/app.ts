@@ -1,5 +1,6 @@
 import express, { json, NextFunction, Request, Response } from 'express';
-
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import noCache from 'nocache';
@@ -72,6 +73,9 @@ app.get(
     }
   })
 );
+
+const specs = swaggerJsdoc(utils.swaggerDocsOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {explorer: true}));
 
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
