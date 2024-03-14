@@ -2,16 +2,28 @@ import { CronJob } from 'cron';
 import { config } from '../config';
 import { schedulerService } from '../v1/services/scheduler-service';
 import { logger as log } from '../logger';
+import advisoryLock from 'advisory-lock';
 
 try {
+  const mutex = advisoryLock(config.get('server:databaseUrl'))('locke');
+  const crontime = config.get('server:schedulerDeleteDraftCronTime');
+  const timezone = config.get('server:schedulerDeleteDraftTimeZone');
+
   const job = new CronJob(
-    config.get('server:schedulerDeleteDraftCronTime'), // cronTime
+    crontime, // cronTime
+    //'1/4 0 0 * * *',
     async function () {
-      await schedulerService.deleteDraftReports();
+      try {
+        await mutex.withLock(async () => {
+          schedulerService.deleteDraftReports();
+        });
+      } catch (e) {
+        log.error(e);
+      }
     }, // onTick
     null, // onComplete
     true, // start
-    'America/Los_Angeles', // timeZone
+    timezone, // timeZone
   );
   job.start();
 } catch (e) {

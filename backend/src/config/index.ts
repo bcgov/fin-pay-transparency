@@ -16,7 +16,9 @@ config.defaults({
     sessionPath: process.env.SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
-    schedulerDeleteDraftCronTime: '0 15 0 * * *', // 12:15 AM daily
+    schedulerDeleteDraftCronTime: process.env.CRON_CRONTIME || '1/2 0 0 * * *',
+    schedulerDeleteDraftTimeZone: process.env.CRON_TIMEZONE,
+    databaseUrl: process.env.DATABASE_URL,
     reportEditDurationInDays: parseInt(
       process.env.REPORT_EDIT_DURATION_IN_DAYS || '30',
     ),
