@@ -5,10 +5,8 @@ import { logger } from '../../logger';
 
 const schedulerService = {
   /*
-   *    Delete draft older than 24 hours (1 day)
-   *    - configurable cron time in backend/config/index.ts
-   *    - deletes both draft report and associated calculated data
-   *
+   *    Delete draft report and associated calculated data older than 24 hours
+   *    - crontime and timezone in backend/.env
    */
   async deleteDraftReports() {
     const delete_date =
@@ -29,26 +27,28 @@ const schedulerService = {
     });
 
     if (!reports) return;
-
-    await prisma.pay_transparency_calculated_data.deleteMany({
-      where: {
-        report_id: {
-          in: reports.map(function (report) {
-            return report['report_id'];
-          }),
+    await prisma.$transaction(async (tx) => {
+      await tx.pay_transparency_calculated_data.deleteMany({
+        where: {
+          report_id: {
+            in: reports.map(function (report) {
+              return report['report_id'];
+            }),
+          },
         },
-      },
+      });
+
+      await tx.pay_transparency_report.deleteMany({
+        where: {
+          report_id: {
+            in: reports.map(function (report) {
+              return report['report_id'];
+            }),
+          },
+        },
+      });
     });
 
-    await prisma.pay_transparency_report.deleteMany({
-      where: {
-        report_id: {
-          in: reports.map(function (report) {
-            return report['report_id'];
-          }),
-        },
-      },
-    });
   },
 };
 
