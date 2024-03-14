@@ -17,14 +17,14 @@ const metricsMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
   metricsPath: '/prom-metrics',
-  promRegistry: register
+  promRegistry: register,
 });
 const app = express();
 const apiRouter = express.Router();
 const logStream = {
   write: (message) => {
     logger.info(message);
-  }
+  },
 };
 
 app.use(helmet());
@@ -46,9 +46,9 @@ app.use(
         return (
           req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
         );
-      }
-    }
-  )
+      },
+    },
+  ),
 );
 
 if (config.get('server:rateLimit:enabled')) {
@@ -57,7 +57,7 @@ if (config.get('server:rateLimit:enabled')) {
     limit: config.get('server:rateLimit:limit'),
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers,
-    skipSuccessfulRequests: true // Do not count successful responses
+    skipSuccessfulRequests: true, // Do not count successful responses
   });
   app.use(limiter);
 }
@@ -71,11 +71,17 @@ app.get(
       logger.error(`Health check failed: ${e}`);
       res.status(500).send('Health check failed');
     }
-  })
+  }),
 );
 
-const specs = swaggerJsdoc(utils.swaggerDocsOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {explorer: true}));
+if (process.env.NODE_ENV !== 'production') {
+  const specs = swaggerJsdoc(utils.swaggerDocsOptions);
+  app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(specs, { explorer: true }),
+  );
+}
 
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
@@ -93,7 +99,7 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
   } else {
     logger.error('API Key is missing in the request header');
     res.status(400).send({
-      message: 'API Key is missing in the request header'
+      message: 'API Key is missing in the request header',
     });
   }
 };

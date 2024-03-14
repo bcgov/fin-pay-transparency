@@ -19,7 +19,7 @@ config.defaults({
   },
   backend:{
     apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key',
-    url: process.env.BACKEND_URL || 'http://localhost:3000'
+    url: process.env.BACKEND_URL || 'http://localhost:3010'
   }
 });
 export { config };
