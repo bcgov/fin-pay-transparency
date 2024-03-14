@@ -1600,3 +1600,83 @@ describe('calculateAll', () => {
     });
   });
 });
+
+describe('arrayToObject', () => {
+  describe(`given a valid array of values and a valid array of property names`, () => {
+    it(`returns an object with keys representing property names, and values copied from the other array`, () => {
+      const propertyNames = ['A', 'B', 'C'];
+      const propertyValues = ['1', '2', '3'];
+      const result = reportCalcServicePrivate.arrayToObject(
+        propertyValues,
+        propertyNames,
+      );
+      expect(Object.keys(result)).toStrictEqual(propertyNames);
+      expect(Object.values(result)).toStrictEqual(propertyValues);
+    });
+  });
+  describe(`given a property values array with fewer elements than the property names array`, () => {
+    it(`returns an object with keys representing property names, and values copied from the other array (where available), and null (where not available)`, () => {
+      const propertyNames = ['A', 'B', 'C'];
+      const propertyValues = ['1', '2'];
+      const result = reportCalcServicePrivate.arrayToObject(
+        propertyValues,
+        propertyNames,
+      );
+      expect(Object.keys(result)).toStrictEqual(propertyNames);
+      expect(Object.values(result)).toStrictEqual([...propertyValues, null]);
+    });
+  });
+  describe(`given a property values array with more elements than the property names array`, () => {
+    it(`returns an object with keys and values copied from the input arrays, except values without corresponding keys won't be included`, () => {
+      const propertyNames = ['A', 'B'];
+      const propertyValues = ['1', '2', '3'];
+      const result = reportCalcServicePrivate.arrayToObject(
+        propertyValues,
+        propertyNames,
+      );
+      expect(Object.keys(result)).toStrictEqual(propertyNames);
+      expect(Object.values(result)).toStrictEqual(
+        propertyValues.filter((d, i) => i < propertyNames.length),
+      );
+    });
+  });
+  describe(`given a null properties value array, and a non-null property names array`, () => {
+    it(`returns an object with keys and values copied from the input arrays, except values without corresponding keys won't be included`, () => {
+      const propertyNames = ['A', 'B'];
+      const propertyValues = null;
+      const result = reportCalcServicePrivate.arrayToObject(
+        propertyValues,
+        propertyNames,
+      );
+      expect(Object.keys(result)).toStrictEqual(propertyNames);
+      expect(Object.values(result)).toStrictEqual(
+        Array(propertyNames.length).fill(null),
+      );
+    });
+  });
+  describe(`given a length 0 properties value array, and a populated property names array`, () => {
+    it(`returns an object with properties corresponding to the property names array but all with null values`, () => {
+      const propertyNames = ['A', 'B'];
+      const propertyValues = [];
+      const result = reportCalcServicePrivate.arrayToObject(
+        propertyValues,
+        propertyNames,
+      );
+      expect(Object.keys(result)).toStrictEqual(propertyNames);
+      expect(Object.values(result)).toStrictEqual(
+        Array(propertyNames.length).fill(null),
+      );
+    });
+  });
+  describe(`given a null properties names array, and a non-null property values array`, () => {
+    it(`returns an empty object`, () => {
+      const propertyNames = null;
+      const propertyValues = ['1', '2', '3'];
+      const result = reportCalcServicePrivate.arrayToObject(
+        propertyValues,
+        propertyNames,
+      );
+      expect(result).toStrictEqual({});
+    });
+  });
+});

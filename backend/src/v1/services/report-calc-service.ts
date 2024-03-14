@@ -472,7 +472,7 @@ const reportCalcService = {
     const rowErrors: RowError[] = [];
     for (let rowNum = 1; rowNum < rows?.length; rowNum++) {
       const row = rows[rowNum];
-      const record = validateService.arrayToObject(row, rows[0]);
+      const record = reportCalcServicePrivate.arrayToObject(row, rows[0]);
       const rowError: RowError = validateService.validateRecord(rowNum, record);
       if (rowError) {
         rowErrors.push(rowError);
@@ -651,6 +651,20 @@ const reportCalcServicePrivate = {
   /* Counts the number of array elements that are not null */
   countNonNulls(arr: any[]): number {
     return arr ? arr.filter((d) => d !== null).length : 0;
+  },
+
+  /**
+   * Copies elements from the given array into properties of a new object.
+   * @arr: any array of input values
+   * @namesForProperties an array which specifies the property names that
+   * each value from 'arr' will be copied into.
+   */
+  arrayToObject(arr: any[], namesForProperties: string[]) {
+    const obj = {};
+    namesForProperties?.forEach((propName, i) => {
+      obj[propName] = arr && i < arr.length ? arr[i] : null;
+    });
+    return obj;
   },
 
   calculateMeanHourlyPayGaps(

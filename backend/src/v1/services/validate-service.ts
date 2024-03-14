@@ -85,20 +85,6 @@ const validateService = {
   },
 
   /**
-   * Copies elements from the given array into properties of a new object.
-   * @arr: any array of input values
-   * @namesForProperties an array which specifies the property names that
-   * each value from 'arr' will be copied into.
-   */
-  arrayToObject(arr: any[], namesForProperties: string[]) {
-    const obj = {};
-    namesForProperties.forEach((propName, i) => {
-      obj[propName] = i < arr.length ? arr[i] : null;
-    });
-    return obj;
-  },
-
-  /**
    * Performs validation checks on the submission body and on the
    * first row in the "rows" property (i.e. the header row).
    * @param submission
