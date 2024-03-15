@@ -92,11 +92,17 @@ spec:
       {{ if .Values.pgBackRest.image }}
       image: {{ .Values.pgBackRest.image }}
       {{ end }}
+      configuration:
+        - secret:
+            name: {{ .Release.Name }}-s3
       global:
         # hardcoding repo1 until we solution allowing multiple repos
         repo1-retention-full: {{ .Values.pgBackRest.retention | quote }}
         repo1-retention-full-type: {{ .Values.pgBackRest.retentionFullType }}
-
+        repo2-retention-full: {{ .Values.pgBackRest.s3.retention | quote }}
+        repo2-retention-full-type: {{ .Values.pgBackRest.retentionFullType }}
+        repo2-path: '/db-backups'
+        repo2-s3-uri-style: path
       repos:
         # hardcoding repo1 until we solution allowing multiple repos
         - name: repo1
@@ -111,7 +117,14 @@ spec:
                 requests:
                   storage: {{ .Values.pgBackRest.repos.volume.storage }}
               storageClassName: {{ .Values.pgBackRest.repos.volume.storageClassName }}
-
+        - name: repo2
+            schedules:
+              full: {{ .Values.pgBackRest.s3.fullBackupSchedule }}
+              incremental: {{ .Values.pgBackRest.s3.incrementalBackupSchedule }}
+            s3:
+              bucket: {{ .Values.pgBackRest.s3.bucket }}
+              endpoint: {{ .Values.pgBackRest.s3.endpoint }}
+              region: "ca-central-1"
       # this stuff is for the "pgbackrest" container (the only non-init container) in the "postgres-crunchy-repo-host" pod
       repoHost:
         resources:
