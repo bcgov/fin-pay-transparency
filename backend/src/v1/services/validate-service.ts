@@ -132,7 +132,7 @@ const validateService = {
     }
     const expectedFirstLine = Object.values(SUBMISSION_ROW_COLUMNS).join(',');
     const isHeaderValid =
-      headerRow.map((d) => (d ? d.trim() : '')).join(',') == expectedFirstLine;
+      this.cleanRow(headerRow).join(',') == expectedFirstLine;
     if (!isHeaderValid) {
       return `Invalid header.  Expected the first line of the file to have the following format: ${expectedFirstLine}`;
     }
@@ -262,6 +262,16 @@ const validateService = {
    */
   getObjectProperty(obj, propertyName) {
     return obj?.hasOwnProperty(propertyName) ? obj[propertyName] : null;
+  },
+
+  /**
+   * Removes leading and trailing whitespace from each element in the array
+   */
+  cleanRow(row: any[]) {
+    if (row?.length) {
+      return row.map((d) => (typeof d == 'string' ? d.trim() : ''));
+    }
+    return row;
   },
 
   /*

@@ -183,6 +183,16 @@ const mockValidSubmission = {
 // Tests
 // ----------------------------------------------------------------------------
 
+describe('cleanRow', () => {
+  describe('given an array of strings', () => {
+    it('removes leading and trailing whitespace for each element', () => {
+      const row = [' A ', 'B ', ' C', 'D'];
+      const result = validateService.cleanRow(row);
+      expect(result).toStrictEqual(row.map((d) => (d ? d.trim() : '')));
+    });
+  });
+});
+
 describe('standardizeGenderCode', () => {
   it('converts the given gender code into its standardized form', () => {
     const standardized1 = validateService.standardizeGenderCode(
@@ -270,6 +280,17 @@ describe('validateSubmissionRowsHeader', () => {
         validateService.validateSubmissionRowsHeader(
           mockValidSubmission.rows[0],
         );
+      expect(result).toBeNull();
+    });
+  });
+  describe(`given a header row that has extra whitespace before and after column names, but is otherwise valid`, () => {
+    it('returns null', () => {
+      const headerWithExtraWhitespace = mockValidSubmission.rows[0].map(
+        (d) => ` ${d} `,
+      );
+      headerWithExtraWhitespace;
+      const result: string | null =
+        validateService.validateSubmissionRowsHeader(headerWithExtraWhitespace);
       expect(result).toBeNull();
     });
   });

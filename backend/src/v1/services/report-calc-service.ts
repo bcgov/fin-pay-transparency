@@ -467,11 +467,12 @@ const reportCalcService = {
     // validate it.  If valid push the value of each column into the
     // "working objects" that that help us efficiently manage the calculations
     const rowErrors: RowError[] = [];
+    const header = validateService.cleanRow(rows[0]);
     rows?.forEach((row: any, rowNum: number) => {
       if (rowNum == 0) {
         return; //skip the first row (the header)
       }
-      const record = reportCalcServicePrivate.arrayToObject(row, rows[0]);
+      const record = reportCalcServicePrivate.arrayToObject(row, header);
       const rowError: RowError = validateService.validateRecord(rowNum, record);
       if (rowError) {
         rowErrors.push(rowError);
