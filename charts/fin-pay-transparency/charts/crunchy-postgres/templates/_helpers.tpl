@@ -60,8 +60,3 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
-{{- define "s3" }}
-[global]
-repo2-s3-key={{ .Values.pgBackRest.s3.accessKey | b64enc }}
-repo2-s3-key-secret={{ .Values.pgBackRest.s3.secretKey | b64enc }}
-{{ end }}
