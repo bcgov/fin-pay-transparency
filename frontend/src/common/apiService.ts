@@ -10,6 +10,19 @@ export enum REPORT_FORMATS {
   JSON = 'json',
 }
 
+export interface ISubmission {
+  id?: string;
+  companyName: string;
+  companyAddress: string;
+  naicsCode: string;
+  employeeCountRangeId: string;
+  startDate: string;
+  endDate: string;
+  dataConstraints: string | null;
+  comments: string | null;
+  rows: any[];
+}
+
 // Buffer concurrent requests while refresh token is being acquired
 let failedQueue = [];
 
@@ -86,15 +99,15 @@ export default {
       delete apiAxios.defaults.headers.common['x-correlation-id'];
     }
   },
-  async postSubmission(formData) {
+  async postSubmission(data: ISubmission) {
     try {
-      const resp = await apiAxios.post(ApiRoutes.POST_SUBMISSION, formData);
+      const resp = await apiAxios.post(ApiRoutes.POST_SUBMISSION, data);
       if (resp?.data) {
         return resp.data;
       }
       throw new Error('Unable to post the submission');
     } catch (e) {
-      console.log(`Failed topost the submission - ${e}`);
+      console.log(`Failed to post the submission - ${e}`);
       throw e;
     }
   },
@@ -133,7 +146,7 @@ export default {
   async getConfig() {
     try {
       const { data } = await apiAxios.get<IConfigValue>(ApiRoutes.CONFIG);
-      
+
       return data;
     } catch (e) {
       console.log(`Failed to do get from Nodejs getConfig API - ${e}`);

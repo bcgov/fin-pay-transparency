@@ -1,11 +1,11 @@
-import { parse } from 'csv-parse';
-import { Readable } from 'stream';
 import { logger } from '../../logger';
 import {
-  CSV_COLUMNS,
   GENDER_CODES,
   NUMERIC_COLUMNS,
+  RowError,
+  SUBMISSION_ROW_COLUMNS,
   validateService,
+  ValidationError,
 } from './validate-service';
 
 const CALCULATION_CODES = {
@@ -441,22 +441,16 @@ const reportCalcService = {
   MIN_REQUIRED_PEOPLE_WITH_DATA_COUNT: 10,
 
   /*
-    Scans the entire CSV file and calculates all the amounts needed for the report.
-    Returns an array of all the CalculatedAmounts, or returns null if calculations 
-    are not permitted (because there is insufficient data).
+    Scans all given "rows" (from an ISubmission).  Each row is an array of values, and the
+    first row is the header which gives the column names.  Validates each row, and if
+    validation checks pass, performs all the required calculations for
+    Pay Transparency reporting.  Returns a promise. If any validation 
+    checks fail, the promise will be rejected with a RowErrors array.  If all 
+    validation checks pass, the promise will be resolved with
+    an array of CalculatedAmount objects.
   */
-  async calculateAll(csvReadable: Readable): Promise<CalculatedAmount[]> {
+  async calculateAll(rows: any[]): Promise<CalculatedAmount[]> {
     const calculatedAmounts: CalculatedAmount[] = [];
-    const csvParser = csvReadable.pipe(
-      parse({
-        columns: true,
-        bom: true,
-        trim: true,
-        ltrim: true,
-        skip_empty_lines: true,
-        relax_column_count: true,
-      }),
-    );
 
     // Create data structures to support the mean and median
     // calculations for specific columns
@@ -469,25 +463,42 @@ const reportCalcService = {
     // calculations
     const hourlyPayQuartileStats = new TaggedColumnStats();
 
-    // Scan each row from the CSV file, and push the value of each column
-    // into the objects that will be used to manage the column data and stats
-    for await (const csvRecord of csvParser) {
-      reportCalcServicePrivate.cleanCsvRecord(csvRecord);
+    // Scan each row from the submission (except the header row) and
+    // validate it.  If valid push the value of each column into the
+    // "working objects" that that help us efficiently manage the calculations
+    const rowErrors: RowError[] = [];
+    const header = validateService.cleanRow(rows[0]);
+    rows?.forEach((row: any, rowNum: number) => {
+      if (rowNum == 0) {
+        return; //skip the first row (the header)
+      }
+      const record = reportCalcServicePrivate.arrayToObject(row, header);
+      const rowError: RowError = validateService.validateRecord(rowNum, record);
+      if (rowError) {
+        rowErrors.push(rowError);
+        return;
+      }
+
+      reportCalcServicePrivate.cleanCsvRecord(record);
       const hourlyPayDollars =
-        reportCalcServicePrivate.getHourlyPayDollars(csvRecord);
-      const overtimePayDollarsPerHour = csvRecord[CSV_COLUMNS.OVERTIME_PAY];
-      const overtimeHours = csvRecord[CSV_COLUMNS.OVERTIME_HOURS];
-      const bonusPayDollars = csvRecord[CSV_COLUMNS.BONUS_PAY];
+        reportCalcServicePrivate.getHourlyPayDollars(record);
+      const overtimePayDollarsPerHour =
+        record[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY];
+      const overtimeHours = record[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS];
+      const bonusPayDollars = record[SUBMISSION_ROW_COLUMNS.BONUS_PAY];
 
       overtimePayStats.push(
         overtimePayDollarsPerHour,
-        csvRecord[CSV_COLUMNS.GENDER_CODE],
+        record[SUBMISSION_ROW_COLUMNS.GENDER_CODE],
       );
       overtimeHoursStats.push(
         overtimeHours,
-        csvRecord[CSV_COLUMNS.GENDER_CODE],
+        record[SUBMISSION_ROW_COLUMNS.GENDER_CODE],
       );
-      bonusPayStats.push(bonusPayDollars, csvRecord[CSV_COLUMNS.GENDER_CODE]);
+      bonusPayStats.push(
+        bonusPayDollars,
+        record[SUBMISSION_ROW_COLUMNS.GENDER_CODE],
+      );
 
       // Load the same hourlyPay value into two different data structures:
       // one to support efficient mean/median calculations, and the other
@@ -495,13 +506,18 @@ const reportCalcService = {
       if (hourlyPayDollars) {
         hourlyPayStats.push(
           hourlyPayDollars,
-          csvRecord[CSV_COLUMNS.GENDER_CODE],
+          record[SUBMISSION_ROW_COLUMNS.GENDER_CODE],
         );
         hourlyPayQuartileStats.push(
           hourlyPayDollars,
-          csvRecord[CSV_COLUMNS.GENDER_CODE],
+          record[SUBMISSION_ROW_COLUMNS.GENDER_CODE],
         );
       }
+    });
+
+    // If any RowErrors were found, wrap them into a ValidationError and throw it
+    if (rowErrors.length) {
+      throw new ValidationError(null, rowErrors, null);
     }
 
     // Only allow the calculations to be performed if at least two gender categories
@@ -631,6 +647,20 @@ const reportCalcServicePrivate = {
   /* Counts the number of array elements that are not null */
   countNonNulls(arr: any[]): number {
     return arr ? arr.filter((d) => d !== null).length : 0;
+  },
+
+  /**
+   * Copies elements from the given array into properties of a new object.
+   * @arr: any array of input values
+   * @namesForProperties an array which specifies the property names that
+   * each value from 'arr' will be copied into.
+   */
+  arrayToObject(arr: any[], namesForProperties: string[]) {
+    const obj = {};
+    namesForProperties?.forEach((propName, i) => {
+      obj[propName] = arr && i < arr.length ? arr[i] : null;
+    });
+    return obj;
   },
 
   calculateMeanHourlyPayGaps(
@@ -1503,6 +1533,7 @@ const reportCalcServicePrivate = {
     const allGenderCodes = Object.keys(GENDER_CODES).map(
       (g) => GENDER_CODES[g][0],
     );
+
     Object.keys(QUARTILES).forEach((quartile) => {
       const genderCounts = genderCountsPerQuartile
         ? genderCountsPerQuartile[quartile]
@@ -1813,23 +1844,23 @@ const reportCalcServicePrivate = {
       throw new Error('csvRecord must be specified');
     }
     if (
-      csvRecord[CSV_COLUMNS.ORDINARY_PAY] &&
-      csvRecord[CSV_COLUMNS.HOURS_WORKED]
+      csvRecord[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] &&
+      csvRecord[SUBMISSION_ROW_COLUMNS.HOURS_WORKED]
     ) {
       return (
-        csvRecord[CSV_COLUMNS.ORDINARY_PAY] /
-        csvRecord[CSV_COLUMNS.HOURS_WORKED]
+        csvRecord[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] /
+        csvRecord[SUBMISSION_ROW_COLUMNS.HOURS_WORKED]
       );
     }
-    return csvRecord[CSV_COLUMNS.SPECIAL_SALARY];
+    return csvRecord[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY];
   },
 };
 
 export {
-  CALCULATION_CODES,
   CalculatedAmount,
+  CALCULATION_CODES,
   GroupedColumnStats,
-  TaggedColumnStats,
   reportCalcService,
   reportCalcServicePrivate,
+  TaggedColumnStats,
 };

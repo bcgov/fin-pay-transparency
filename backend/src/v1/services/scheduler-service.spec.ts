@@ -1,6 +1,3 @@
-import prisma from '../prisma/prisma-client';
-import { schedulerService } from './scheduler-service';
-import { Prisma, pay_transparency_report } from '@prisma/client';
 import {
   LocalDate,
   LocalDateTime,
@@ -8,7 +5,10 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
+import { Prisma, pay_transparency_report } from '@prisma/client';
+import prisma from '../prisma/prisma-client';
 import { enumReportStatus } from './report-service';
+import { schedulerService } from './scheduler-service';
 
 jest.mock('./utils-service');
 jest.mock('../prisma/prisma-client', () => {
