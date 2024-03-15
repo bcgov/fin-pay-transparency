@@ -7,16 +7,18 @@ export class DashboardPage extends PTPage {
   public generateReportButton;
 
   async setup() {
-    this.generateReportButton = this.instance.getByText(
-      'Generate Pay Transparency Report',
-    );
+    this.generateReportButton = await this.instance.getByRole('link', {
+      name: /Generate Pay Transparency Report/i,
+    });
   }
 
   async gotoGenerateReport() {
     expect(this.generateReportButton).toBeVisible();
     await this.generateReportButton.click();
     await this.instance.waitForURL(`${baseURL}${PagePaths.GENERATE_REPORT}`);
-    await expect(this.instance.getByText('Employer Details')).toBeVisible();
+    await expect(
+      this.instance.getByRole('heading', { name: 'Employer Details' }),
+    ).toBeVisible();
   }
 
   async gotoReport(id: string) {
