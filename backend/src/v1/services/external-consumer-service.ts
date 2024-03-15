@@ -96,16 +96,22 @@ const externalConsumerService = {
               'create_date',
               'update_date',
               'data_constraints',
-              'user_comments',
+              'user_comment',
+              'revision',
               'report_start_date',
               'report_end_date',
-              'report_status',]
+              'report_status',
+            ]
             ),
             company_name: pay_transparency_company.company_name,
             company_province: pay_transparency_company.province,
             company_bceid_business_guid:
               pay_transparency_company.bceid_business_guid,
             company_city: pay_transparency_company.city,
+            company_country: pay_transparency_company.country,
+            company_postal_code: pay_transparency_company.postal_code,
+            company_address_line1: pay_transparency_company.address_line1,
+            company_address_line2: pay_transparency_company.address_line2,
             employee_count_range: employee_count_range.employee_count_range,
             naics_code:
               naics_code_pay_transparency_report_naics_codeTonaics_code.naics_code,

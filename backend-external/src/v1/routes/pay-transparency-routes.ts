@@ -26,7 +26,7 @@ const router = express.Router();
  *       properties:
  *         report_id:
  *           type: string
- *         user_comments:
+ *         user_comment:
  *           type: string
  *         data_constrains:
  *           type: string
@@ -52,6 +52,18 @@ const router = express.Router();
  *           type: string
  *         company_city:
  *           type: string
+ *         company_bceid_business_guid:
+ *           type: string
+ *         company_country:
+ *           type: string
+ *         company_postal_code:
+ *           type: string
+ *         company_postal_address_line1:
+ *           type: string
+ *         company_postal_address_line2:
+ *           type: string
+ *         revision:
+ *           type: number
  *         employee_count_range:
  *           type: string
  *         calculated_data:
