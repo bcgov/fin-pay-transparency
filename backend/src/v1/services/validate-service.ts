@@ -131,7 +131,8 @@ const validateService = {
       return INVALID_COLUMN_ERROR;
     }
     const expectedFirstLine = Object.values(SUBMISSION_ROW_COLUMNS).join(',');
-    const isHeaderValid = headerRow.join(',') == expectedFirstLine;
+    const isHeaderValid =
+      headerRow.map((d) => (d ? d.trim() : '')).join(',') == expectedFirstLine;
     if (!isHeaderValid) {
       return `Invalid header.  Expected the first line of the file to have the following format: ${expectedFirstLine}`;
     }

@@ -118,7 +118,8 @@ export const CsvServicePrivate = {
     }
     const firstLine = papaParseResult?.data[0];
     const isHeaderValid =
-      firstLine.join(',') == REQUIRED_HEADER_COLUMNS.join(',');
+      firstLine.map((d) => (d ? d.trim() : '')).join(',') ==
+      REQUIRED_HEADER_COLUMNS.join(',');
     if (!isHeaderValid) {
       return {
         status: ParseStatus.Error,
