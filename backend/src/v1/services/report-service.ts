@@ -11,9 +11,9 @@ import type { pay_transparency_report } from '@prisma/client';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
+import { REPORT_STATUS } from './file-upload-service';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
-import { REPORT_STATUS } from './file-upload-service';
 
 const fs = require('node:fs/promises');
 
@@ -1301,9 +1301,9 @@ const reportService = {
         },
       },
     });
-    
+
     if (report) {
-      return true
+      return true;
     }
 
     return false;

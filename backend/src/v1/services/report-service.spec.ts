@@ -1,4 +1,4 @@
-import { LocalDate, ZoneId, convert } from '@js-joda/core';
+import { LocalDate, ZoneId, convert, nativeJs } from '@js-joda/core';
 import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import stream from 'stream';
@@ -168,9 +168,7 @@ describe('getReportAndCalculations', () => {
       const mockReportId = mockReportInDB.report_id;
       (utils.getSessionUser as jest.Mock).mockReturnValue(mockUserInfo);
       mockCompanyFindFirst.mockResolvedValue(mockCompanyInDB);
-      mockReportFindFirst.mockResolvedValue(
-        mockReportInDB,
-      );
+      mockReportFindFirst.mockResolvedValue(mockReportInDB);
       (
         prisma.pay_transparency_calculated_data.findMany as jest.Mock
       ).mockResolvedValue(mockCalculatedDatasInDB);
@@ -178,9 +176,7 @@ describe('getReportAndCalculations', () => {
       const reportAndCalculations: ReportAndCalculations =
         await reportService.getReportAndCalculations(mockReq, mockReportId);
 
-      expect(mockCompanyFindFirst).toHaveBeenCalledTimes(
-        1,
-      );
+      expect(mockCompanyFindFirst).toHaveBeenCalledTimes(1);
       expect(mockReportFindFirst).toHaveBeenCalledTimes(1);
       expect(
         prisma.pay_transparency_calculated_data.findMany,
@@ -201,9 +197,7 @@ describe('getReportAndCalculations', () => {
       await expect(
         reportService.getReportAndCalculations(mockReq, mockReportId),
       ).rejects.toThrow();
-      expect(mockCompanyFindFirst).toHaveBeenCalledTimes(
-        1,
-      );
+      expect(mockCompanyFindFirst).toHaveBeenCalledTimes(1);
     });
   });
   describe('when an invalid report id is provided', () => {
@@ -212,18 +206,14 @@ describe('getReportAndCalculations', () => {
       const mockReportId = 'invalid_report_id';
       (utils.getSessionUser as jest.Mock).mockReturnValue(mockUserInfo);
       mockCompanyFindFirst.mockResolvedValue(mockCompanyInDB);
-      mockReportFindFirst.mockResolvedValue(
-        null,
-      );
+      mockReportFindFirst.mockResolvedValue(null);
 
       const reportAndCalcs = await reportService.getReportAndCalculations(
         mockReq,
         mockReportId,
       );
       await expect(reportAndCalcs).toBeNull();
-      expect(mockCompanyFindFirst).toHaveBeenCalledTimes(
-        1,
-      );
+      expect(mockCompanyFindFirst).toHaveBeenCalledTimes(1);
       expect(mockReportFindFirst).toHaveBeenCalledTimes(1);
     });
   });
@@ -654,39 +644,38 @@ describe('prismaReportToReport', () => {
 
 describe('getReports', () => {
   it('returns an array of Report data', async () => {
+    const dateNow: Date = convert(LocalDate.now()).toDate();
     const mockReportResults = {
       pay_transparency_report: [
         {
           report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-          report_start_date: new Date(),
-          report_end_date: new Date(),
-          create_date: new Date(),
-          update_date: new Date(),
+          report_start_date: dateNow,
+          report_end_date: dateNow,
+          create_date: dateNow,
+          update_date: dateNow,
           revision: 1,
         },
         {
           report_id: '0cf3a2dd-4fa2-450e-a291-e9b44940e5ec',
-          report_start_date: new Date(),
-          report_end_date: new Date(),
-          create_date: new Date(),
-          update_date: new Date(),
+          report_start_date: dateNow,
+          report_end_date: dateNow,
+          create_date: dateNow,
+          update_date: dateNow,
           revision: 4,
         },
       ],
     };
-    mockCompanyFindFirst.mockResolvedValue(
-      mockReportResults,
-    );
+    mockCompanyFindFirst.mockResolvedValue(mockReportResults);
     const ret = await reportService.getReports(mockCompanyInDB.company_id, {
       report_status: enumReportStatus.Draft,
-      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
-      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
+      report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
     });
     expect(ret).toEqual(
       mockReportResults.pay_transparency_report.map((r) => ({
         ...r,
-        report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
-        report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+        report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
+        report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
       })),
     );
   });
@@ -702,9 +691,7 @@ describe('publishReport', () => {
   });
   describe('if the given report has status=Draft, and there is no existing Published report', () => {
     it('changes the status from Draft to Published', async () => {
-      mockReportFindFirst.mockResolvedValue(
-        null,
-      );
+      mockReportFindFirst.mockResolvedValue(null);
       jest
         .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
@@ -852,26 +839,25 @@ describe('movePublishedReportToHistory', () => {
 });
 
 describe('getReportById', () => {
-  it('returns an single report', async () => {
+  it('returns an single report with dates in the appropriate format', async () => {
+    const dateNow: Date = convert(LocalDate.now()).toDate();
     const report = {
       report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: new Date(),
-      report_end_date: new Date(),
-      create_date: new Date(),
-      update_date: new Date(),
+      report_start_date: dateNow,
+      report_end_date: dateNow,
+      create_date: dateNow,
+      update_date: dateNow,
       revision: 1,
     };
     const expectedReport = {
       ...report,
-      report_start_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
-      report_end_date: LocalDate.now(ZoneId.UTC).format(JODA_FORMATTER),
+      report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
+      report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
     };
     const mockReportResults = {
       pay_transparency_report: [report],
     };
-    mockCompanyFindFirst.mockResolvedValue(
-      mockReportResults,
-    );
+    mockCompanyFindFirst.mockResolvedValue(mockReportResults);
     const ret = await reportService.getReportById(
       mockCompanyInDB.company_id,
       report.report_id,
@@ -922,19 +908,27 @@ describe('getReportFileName', () => {
 
 describe('shouldPreventReportOverride', () => {
   describe('when a published report exists for the same date period', () => {
-    it ('should prevent override if the report is older than 30 days', async() => {
-      mockCompanyFindFirst.mockReturnValue({company_id: ""});
-      mockReportFindFirst.mockReturnValue({report_id: ""});
-      const result = await reportService.shouldPreventReportOverrides(LocalDate.now(), LocalDate.now(), "");
+    it('should prevent override if the report is older than 30 days', async () => {
+      mockCompanyFindFirst.mockReturnValue({ company_id: '' });
+      mockReportFindFirst.mockReturnValue({ report_id: '' });
+      const result = await reportService.shouldPreventReportOverrides(
+        LocalDate.now(),
+        LocalDate.now(),
+        '',
+      );
       expect(result).toBeTruthy();
     });
   });
   describe('when a published report does not exist for the same date period', () => {
-    it ('should not prevent override', async() => {
-      mockCompanyFindFirst.mockReturnValue({company_id: ""});
+    it('should not prevent override', async () => {
+      mockCompanyFindFirst.mockReturnValue({ company_id: '' });
       mockReportFindFirst.mockReturnValue(undefined);
-      const result = await reportService.shouldPreventReportOverrides(LocalDate.now(), LocalDate.now(), "");
+      const result = await reportService.shouldPreventReportOverrides(
+        LocalDate.now(),
+        LocalDate.now(),
+        '',
+      );
       expect(result).toBeFalsy();
     });
-  })
-})
+  });
+});

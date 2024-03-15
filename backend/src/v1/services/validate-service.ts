@@ -1,8 +1,7 @@
-import { parse } from 'csv-parse/sync';
-import { logger as log } from '../../logger';
+import { ISubmission } from './file-upload-service';
 
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
-const CSV_COLUMNS = {
+const SUBMISSION_ROW_COLUMNS = {
   GENDER_CODE: 'Gender Code',
   HOURS_WORKED: 'Hours Worked',
   ORDINARY_PAY: 'Ordinary Pay',
@@ -11,15 +10,18 @@ const CSV_COLUMNS = {
   OVERTIME_PAY: 'Overtime Pay',
   BONUS_PAY: 'Bonus Pay',
 };
-const EXPECTED_COLUMNS: string[] = Object.values(CSV_COLUMNS);
+const EXPECTED_COLUMNS: string[] = Object.values(SUBMISSION_ROW_COLUMNS);
 // columns which express numbers in units of 'hours'
-const HOURS_COLUMNS = [CSV_COLUMNS.HOURS_WORKED, CSV_COLUMNS.OVERTIME_HOURS];
+const HOURS_COLUMNS = [
+  SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+  SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS,
+];
 // columns which express numbers in units of 'dollars'
 const DOLLARS_COLUMNS = [
-  CSV_COLUMNS.ORDINARY_PAY,
-  CSV_COLUMNS.SPECIAL_SALARY,
-  CSV_COLUMNS.OVERTIME_PAY,
-  CSV_COLUMNS.BONUS_PAY,
+  SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+  SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+  SUBMISSION_ROW_COLUMNS.OVERTIME_PAY,
+  SUBMISSION_ROW_COLUMNS.BONUS_PAY,
 ];
 const NUMERIC_COLUMNS = [...HOURS_COLUMNS, ...DOLLARS_COLUMNS];
 const INVALID_COLUMN_ERROR = `Invalid CSV format. Please ensure the uploaded file contains the following columns: ${EXPECTED_COLUMNS.join(', ')}`;
@@ -35,7 +37,7 @@ const ALL_VALID_GENDER_CODES = [
   ...GENDER_CODES.NON_BINARY,
   ...GENDER_CODES.UNKNOWN,
 ];
-const ZERO_SYNONYMS = [''];
+const ZERO_SYNONYMS = ['', null];
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
 const MAX_LEN_DATA_CONSTRAINTS = 3000;
@@ -45,160 +47,96 @@ interface Row {
   raw: string;
 }
 
-interface FileErrors {
-  generalErrors: string[];
-  lineErrors: LineErrors[];
+class ValidationError {
+  bodyErrors: string[] | null;
+  rowErrors: RowError[] | null;
+  generalErrors: string[] | null;
+  constructor(bodyErrors, rowErrors, generalErrors) {
+    this.bodyErrors = bodyErrors;
+    this.rowErrors = rowErrors;
+    this.generalErrors = generalErrors;
+  }
 }
 
-interface LineErrors {
-  lineNum: number;
-  errors: string[];
+class RowError {
+  rowNum: number;
+  errorMsgs: string[];
+  constructor(rowNum: number, errorMsgs: string[]) {
+    this.rowNum = rowNum;
+    this.errorMsgs = errorMsgs;
+  }
 }
 
 const validateService = {
-  /*
-  Validates the content of the submission body, which includes all form fields, 
-  but excludes the uploaded CSV file.  Returns a list of any validation error messages, 
-  or an empty list if no errors.
-  */
-  validateBody(body: any): string[] {
-    const errorMessages = [];
-    if (body?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
-      errorMessages.push(
+  /**
+   * Validates all the properties of the submission except the "rows" property.
+   * If any validation problems were found, returns an ValidationError object.
+   * If no problems were found, returns null.
+   * @param submission
+   * @returns If any validation problems were found, returns an ValidationError object.
+   * If no problems were found, returns null.*
+   */
+  validateSubmissionBody(submission: ISubmission): ValidationError | null {
+    const bodyErrors = [];
+    if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
+      bodyErrors.push(
         `Text in ${FIELD_DATA_CONSTRAINTS} must not exceed ${MAX_LEN_DATA_CONSTRAINTS} characters.`,
       );
     }
-    return errorMessages;
-  },
-
-  /*
-  Validates all fields in the submission, including the form fields and the
-  uploaded file.  Returns an array of error messages if any errors
-  are found, or returns an empty array if no errors are found (if the 
-  submission is valid)
-  */
-  validateCsv(csvContent: string): FileErrors {
-    const fileErrors: FileErrors = {
-      generalErrors: null,
-      lineErrors: null,
-    };
-
-    // Parse the CSV content and check that the column names as
-    // expected (and in the expected order)
-    let rows: Row[] = [];
-    try {
-      rows = this.parseCsv(csvContent);
-    } catch (e) {
-      fileErrors.generalErrors = [e.message];
+    if (bodyErrors?.length) {
+      return new ValidationError(bodyErrors, null, null);
     }
-
-    // If there were errors during the first stages of validation then
-    // return those errors now without doing any further validation.
-    if (fileErrors.generalErrors?.length) {
-      return fileErrors;
-    }
-
-    // Scan each row, checking that they all have valid content in all columns
-    const lineErrors: LineErrors[] = this.validateRows(rows);
-    if (lineErrors?.length) {
-      fileErrors.lineErrors = lineErrors;
-    }
-
-    if (fileErrors.generalErrors?.length || fileErrors.lineErrors?.length) {
-      return fileErrors;
-    }
-
     return null;
   },
 
-  /*
-  Convert the CSV file into an array of objects.  Throw an error if any problems occur.
-  If there are no problems with the parsing, each resulting object will include both the
-  translated version of the CSV row as a javascript object and also the original (raw) 
-  version of the CSV row as a string.
-  
-  For example, given this CSV row:
-    F,1853,85419.00,,7,484.03,,46.10
+  /**
+   * A convenience function that performs the work of both
+   * validateSubmissionBody(..) and validateSubmissionRowsHeader(..).
+   * Performs validation checks on the submission body and on the
+   * first row in the "rows" property (i.e. the header row).  All other rows
+   * in the "rows" property aren't checked.
+   * @param submission
+   * @returns If any validation problems were found, returns an ValidationError object.
+   * If no problems were found, returns null.
+   */
+  validateSubmissionBodyAndHeader(
+    submission: ISubmission,
+  ): ValidationError | null {
+    const bodyValidationError =
+      validateService.validateSubmissionBody(submission);
 
-  The resulting object would be:
-    {
-      record: {
-        'Gender Code': 'F',
-        'Hours Worked': '1853',
-        'Ordinary Pay': '85419.00',
-        'Special Salary': '',
-        'Overtime Hours': '7',
-        'Overtime Pay': '484.03',
-        'Bonus Pay': '',
-        'Regular Hourly Wage': '46.10'
-      },
-      raw: 'F,1853,85419.00,,7,484.03,,46.10\r'
+    const header = submission?.rows?.length ? submission.rows[0] : [];
+    const headerValidationError =
+      validateService.validateSubmissionRowsHeader(header);
+
+    //combine all validation errors into one object
+    if (bodyValidationError || headerValidationError) {
+      return new ValidationError(
+        bodyValidationError?.bodyErrors,
+        null, //row errors
+        headerValidationError ? [headerValidationError] : null, //general errors
+      );
     }
-
-  */
-  parseCsv(csvContent: string): Row[] {
-    let rows = [];
-    try {
-      rows = parse(csvContent, {
-        columns: true,
-        bom: true,
-        raw: true,
-        trim: true,
-        ltrim: true,
-        skip_empty_lines: true,
-        relax_column_count: true,
-      });
-    } catch (e) {
-      log.debug(e);
-      throw new Error('Unable to parse file');
-    }
-
-    if (!rows?.length) {
-      throw new Error('No content');
-    }
-
-    // Confirm that the CSV contains the expected columns in the expected order
-    const firstRow = rows[0];
-    const colNames = Object.getOwnPropertyNames(firstRow.record);
-    if (colNames?.length < EXPECTED_COLUMNS.length) {
-      throw new Error(INVALID_COLUMN_ERROR);
-    }
-    for (let i = 0; i < EXPECTED_COLUMNS.length; i++) {
-      if (colNames[i] != EXPECTED_COLUMNS[i]) {
-        throw new Error(INVALID_COLUMN_ERROR);
-      }
-    }
-
-    // Don't throw an error if the CSV contains extra columns
-    // that they occur after all the required columns.  The main reason
-    // not to throw an error in this case is that extra commas
-    // at the end of a line can cause the CSV parser to detect "ghost"
-    // columns (i.e. columns with no header and with empty strings
-    // as values).  We don't want to complain about "ghost" columns,
-    // It may be reasonable to complain about extra
-    // non-ghost columns (although we don't do that currently).
-
-    return rows;
+    return null;
   },
 
-  /*
-  Scans all rows.  For each row check that all columns have valid values.  
-  Return an array of any row errors found
-  */
-  validateRows(rows: Row[]): LineErrors[] {
-    const allRowErrors: LineErrors[] = [];
-    for (let rowNum = 0; rowNum < rows.length; rowNum++) {
-      //+1 because the line numbers are not zero-indexed, and
-      //+1 again because the first data line is actually the second line of the file(after the header line)
-      const lineNum = rowNum + 2;
-
-      const row = rows[rowNum];
-      const errorsForCurrentLine: LineErrors = this.validateRow(lineNum, row);
-      if (errorsForCurrentLine) {
-        allRowErrors.push(errorsForCurrentLine);
-      }
+  /**
+   * Checks that the header row is of the expected format
+   * @param headerRow an array containing the "column" names that correspond
+   * to all subsequent rows (after the header) in the submission.
+   * @returns
+   */
+  validateSubmissionRowsHeader(headerRow: string[]): string | null {
+    if (!headerRow?.length) {
+      return INVALID_COLUMN_ERROR;
     }
-    return allRowErrors;
+    const expectedFirstLine = Object.values(SUBMISSION_ROW_COLUMNS).join(',');
+    const isHeaderValid =
+      this.cleanRow(headerRow).join(',') == expectedFirstLine;
+    if (!isHeaderValid) {
+      return `Invalid header.  Expected the first line of the file to have the following format: ${expectedFirstLine}`;
+    }
+    return null;
   },
 
   /**
@@ -227,14 +165,32 @@ const validateService = {
     return errorMessages;
   },
 
-  /*
-  Scans the given row. Check that all columns have valid values.  
-  Return a LineErrors object if any errors are found, or returns null 
-  if no errors are found
-  */
-  validateRow(lineNum: number, row: Row): LineErrors {
-    const record = row.record;
+  /**
+   * Scans the given record. Check that all columns have valid values.
+   * Return a RowError if any errors are found, or returns null
+   * if no errors are found.
+   * @record an object form of a row from ISubmission.rows.  The object form
+   * can be derived using reportCalcService.arrayToObject(row, header).
+   */
+  validateRecord(recordNum: number, record: object): RowError | null {
     const errorMessages: string[] = [];
+
+    const genderCode = this.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.GENDER_CODE,
+    );
+    const hoursWorked = this.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+    );
+    const specialSalary = this.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+    );
+    const ordinaryPay = this.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+    );
 
     // Validation checks common to all columns with data in units of 'hours'
     errorMessages.push(
@@ -247,63 +203,75 @@ const validateService = {
     );
 
     // Other column-specific validation checks
-    if (ALL_VALID_GENDER_CODES.indexOf(record[CSV_COLUMNS.GENDER_CODE]) == -1) {
+    if (ALL_VALID_GENDER_CODES.indexOf(genderCode) == -1) {
       errorMessages.push(
-        `Invalid ${CSV_COLUMNS.GENDER_CODE} '${record[CSV_COLUMNS.GENDER_CODE]}' (expected one of: ${ALL_VALID_GENDER_CODES.join(', ')}).`,
+        `Invalid ${SUBMISSION_ROW_COLUMNS.GENDER_CODE} '${genderCode}' (expected one of: ${ALL_VALID_GENDER_CODES.join(', ')}).`,
       );
     }
     if (
-      !this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED]) &&
-      !this.isZeroSynonym(record[CSV_COLUMNS.SPECIAL_SALARY])
+      !this.isZeroSynonym(hoursWorked) &&
+      !this.isZeroSynonym(specialSalary)
     ) {
       errorMessages.push(
-        `${CSV_COLUMNS.HOURS_WORKED} must not contain data when ${CSV_COLUMNS.SPECIAL_SALARY} contains data.`,
+        `${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} must not contain data when ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} contains data.`,
       );
     }
     if (
-      !this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY]) &&
-      !this.isZeroSynonym(record[CSV_COLUMNS.SPECIAL_SALARY])
+      !this.isZeroSynonym(ordinaryPay) &&
+      !this.isZeroSynonym(specialSalary)
     ) {
       errorMessages.push(
-        `${CSV_COLUMNS.ORDINARY_PAY} must not contain data when ${CSV_COLUMNS.SPECIAL_SALARY} contains data.`,
+        `${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} must not contain data when ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} contains data.`,
       );
     }
     if (
-      this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED]) &&
-      this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY]) &&
-      this.isZeroSynonym(record[CSV_COLUMNS.SPECIAL_SALARY])
+      this.isZeroSynonym(hoursWorked) &&
+      this.isZeroSynonym(ordinaryPay) &&
+      this.isZeroSynonym(specialSalary)
     ) {
       errorMessages.push(
-        `${CSV_COLUMNS.SPECIAL_SALARY} must contain data when ${CSV_COLUMNS.HOURS_WORKED} and ${CSV_COLUMNS.ORDINARY_PAY} do not contain data.`,
+        `${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} must contain data when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} and ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} do not contain data.`,
       );
     }
-    if (
-      this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED]) &&
-      !this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY])
-    ) {
+    if (this.isZeroSynonym(hoursWorked) && !this.isZeroSynonym(ordinaryPay)) {
       errorMessages.push(
-        `${CSV_COLUMNS.HOURS_WORKED} must not be blank or 0 when ${CSV_COLUMNS.ORDINARY_PAY} contains data.`,
+        `${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} contains data.`,
       );
     }
-    if (
-      this.isZeroSynonym(record[CSV_COLUMNS.ORDINARY_PAY]) &&
-      !this.isZeroSynonym(record[CSV_COLUMNS.HOURS_WORKED])
-    ) {
+    if (this.isZeroSynonym(ordinaryPay) && !this.isZeroSynonym(hoursWorked)) {
       errorMessages.push(
-        `${CSV_COLUMNS.ORDINARY_PAY} must not be blank or 0 when ${CSV_COLUMNS.HOURS_WORKED} contains data.`,
+        `${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} contains data.`,
       );
     }
 
     if (errorMessages.length) {
-      const lineErrors = {
-        lineNum: lineNum,
-        errors: errorMessages,
-      };
-
-      return lineErrors;
+      const rowError = new RowError(recordNum, errorMessages);
+      return rowError;
     }
 
     return null;
+  },
+
+  /**
+   * A helper function to get a property with a given name from an object,
+   * and to guard against null values
+   * @param obj any object
+   * @param columnName a property name from the object
+   * @returns the value of the property with the given name. returns null
+   * if the property doesn't exist, or if the object itself is null.
+   */
+  getObjectProperty(obj, propertyName) {
+    return obj?.hasOwnProperty(propertyName) ? obj[propertyName] : null;
+  },
+
+  /**
+   * Removes leading and trailing whitespace from each element in the array
+   */
+  cleanRow(row: any[]) {
+    if (row?.length) {
+      return row.map((d) => (typeof d == 'string' ? d.trim() : ''));
+    }
+    return row;
   },
 
   /*
@@ -373,13 +341,14 @@ const validateService = {
 };
 
 export {
-  CSV_COLUMNS,
+  EXPECTED_COLUMNS,
   FIELD_DATA_CONSTRAINTS,
-  FileErrors,
   GENDER_CODES,
-  LineErrors,
   MAX_LEN_DATA_CONSTRAINTS,
   NUMERIC_COLUMNS,
   Row,
+  RowError,
+  SUBMISSION_ROW_COLUMNS,
+  ValidationError,
   validateService,
 };
