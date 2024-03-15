@@ -101,7 +101,7 @@ spec:
         repo1-retention-full-type: {{ .Values.pgBackRest.retentionFullType }}
         repo2-retention-full: {{ .Values.pgBackRest.s3.retention | quote }}
         repo2-retention-full-type: {{ .Values.pgBackRest.retentionFullType }}
-        repo2-path: '/db-backups'
+        repo2-path: '/crunchy-db-backups'
         repo2-s3-uri-style: path
       repos:
         # hardcoding repo1 until we solution allowing multiple repos
