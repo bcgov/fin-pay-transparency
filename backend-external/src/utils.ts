@@ -19,14 +19,11 @@ const swaggerOpenAPIOptions: Options = {
     },
     servers: [
       {
-        url: `${config.get('server:url')}/api/v1/pay-transparency`,
+        url: `${config.get('server:baseURL')}/api/v1/pay-transparency`,
       },
     ],
   },
-  apis: [
-    `${__dirname}/v1/routes/*.ts`,
-    './dist/v1/routes/*.js'
-  ],
+  apis: [`${__dirname}/v1/routes/*.ts`, './dist/v1/routes/*.js'],
 };
 
 export const utils = {
