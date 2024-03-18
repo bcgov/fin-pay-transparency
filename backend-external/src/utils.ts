@@ -19,7 +19,7 @@ const swaggerOpenAPIOptions: Options = {
     },
     servers: [
       {
-        url: 'http://localhost:3002/api/v1/pay-transparency',
+        url: `${config.get('server:url')}/api/v1/pay-transparency`,
       },
     ],
   },

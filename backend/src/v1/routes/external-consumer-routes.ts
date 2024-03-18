@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
-import { codeService } from '../services/code-service';
 
 const router = express.Router();
 
@@ -9,7 +8,6 @@ router.get(
   '/',
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
-      console.log(req.query)
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();
       const offset = Number((req.query.page || '0').toString());

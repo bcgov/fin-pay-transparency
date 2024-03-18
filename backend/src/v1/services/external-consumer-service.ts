@@ -38,9 +38,7 @@ const externalConsumerService = {
     if (endDate) {
       endDt = LocalDate.parse(endDate);
     }
-    // TODO: Add logic to fetch data from prismaReadOnlyReplica, below query needs to be updated.
-    // Query to fetch data from report, company, calculation and calculation_code, naics_code, employee_count range tables
-
+    
     const totalCount = await prismaReadOnlyReplica
       .$replica()
       .pay_transparency_report.count({
@@ -74,8 +72,8 @@ const externalConsumerService = {
         skip: offset,
         take: limit,
       });
-    logger.info(results);
-    return {
+
+      return {
       totalRecords: totalCount,
       page: offset,
       pageSize: limit,

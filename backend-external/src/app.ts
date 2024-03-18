@@ -74,14 +74,12 @@ app.get(
   }),
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  const specs = swaggerJsdoc(utils.swaggerDocsOptions);
-  app.use(
-    '/api-docs',
-    swaggerUi.serve,
-    swaggerUi.setup(specs, { explorer: true }),
-  );
-}
+const specs = swaggerJsdoc(utils.swaggerDocsOptions);
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true }),
+);
 
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
