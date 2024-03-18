@@ -1,7 +1,7 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { LocalDate, convert } from '@js-joda/core';
-import { logger } from '../../logger';
 import pick from 'lodash/pick';
+import { logger } from '../../logger';
 
 const externalConsumerService = {
   /**
@@ -19,24 +19,30 @@ const externalConsumerService = {
    * @param limit the number of records to be fetched
    */
   async exportDataWithPagination(
-    startDate: string,
-    endDate: string,
-    offset: number,
-    limit: number,
+    startDate?: string,
+    endDate?: string,
+    offset?: number,
+    limit?: number,
   ) {
-    let startDt: LocalDate = LocalDate.now().minusYears(1);
+    let startDt: LocalDate = LocalDate.now().minusMonths(1);
     let endDt: LocalDate = LocalDate.now();
     if (limit > 1000 || !limit || limit <= 0) {
       limit = 1000;
     }
-    if (offset < 0) {
+    if (!offset || offset < 0) {
       offset = 0;
     }
-    if (startDate) {
-      startDt = LocalDate.parse(startDate);
-    }
-    if (endDate) {
-      endDt = LocalDate.parse(endDate);
+    try {
+      if (startDate) {
+        startDt = LocalDate.parse(startDate);
+      }
+
+      if (endDate) {
+        endDt = LocalDate.parse(endDate);
+      }
+    } catch (error) {
+      logger.error('Failed to parse dates',  {error, dates: {startDate, endDate}});
+      throw new Error('Failed to parse dates.');
     }
     
     const totalCount = await prismaReadOnlyReplica
@@ -118,7 +124,7 @@ const externalConsumerService = {
             calculated_data: pay_transparency_calculated_data.map((data) => ({
               value: data.value,
               is_suppressed: data.is_suppressed,
-              calculation_code: data.calculation_code.calculation_code,
+              calculation_code: data.calculation_code,
             })),
           };
         },
