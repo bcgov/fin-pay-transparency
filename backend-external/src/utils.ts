@@ -23,7 +23,10 @@ const swaggerOpenAPIOptions: Options = {
       },
     ],
   },
-  apis: [`${__dirname}/v1/routes/*.ts`],
+  apis: [
+    `${__dirname}/v1/routes/*.ts`,
+    './dist/v1/routes/*.js'
+  ],
 };
 
 export const utils = {
