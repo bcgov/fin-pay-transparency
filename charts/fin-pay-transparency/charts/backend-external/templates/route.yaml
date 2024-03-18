@@ -10,8 +10,7 @@ metadata:
     haproxy.router.openshift.io/timeout: 180s
 spec:
   host: {{ include "backend-external.fullname" . }}.{{ .Values.global.domain }}
-  path: /api.*
-  pathType: Prefix
+  path: /api
   port:
     targetPort: http
   to:

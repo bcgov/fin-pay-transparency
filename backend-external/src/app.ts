@@ -74,13 +74,6 @@ app.get(
   }),
 );
 
-const specs = swaggerJsdoc(utils.swaggerDocsOptions);
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(specs, { explorer: true }),
-);
-
 app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
@@ -101,6 +94,12 @@ const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
     });
   }
 };
+const specs = swaggerJsdoc(utils.swaggerDocsOptions);
+apiRouter.use(
+  '/v1/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true }),
+);
 apiRouter.use(globalMiddleware);
 apiRouter.use('/v1/pay-transparency', payTransparencyRouter);
 // Handle 500
