@@ -68,7 +68,9 @@ app.get(
     try {
       res.status(200).send('Health check passed');
     } catch (e) {
+      /* istanbul ignore next  */
       logger.error(`Health check failed: ${e}`);
+      /* istanbul ignore next  */
       res.status(500).send('Health check failed');
     }
   }),
@@ -109,12 +111,15 @@ apiRouter.use('/v1/pay-transparency', payTransparencyRouter);
 app.use((_req: Request, res: Response) => {
   res.sendStatus(404);
 });
-app.use((err: Error, _req: Request, res: Response) => {
-  /* istanbul ignore if  */
-  if (err?.stack) {
-    logger.error(err);
-  }
-  res.sendStatus(500);
-});
+app.use(
+  /* istanbul ignore next  */
+  (err: Error, _req: Request, res: Response) => {
+    /* istanbul ignore if  */
+    if (err?.stack) {
+      logger.error(err);
+    }
+    res.sendStatus(500);
+  },
+);
 
 export { app };

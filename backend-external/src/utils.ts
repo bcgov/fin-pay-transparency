@@ -32,6 +32,7 @@ export const utils = {
       Promise.resolve(fn(req, res, next)).catch(next);
     };
   },
+  /* istanbul ignore next  */
   backendAxios(): AxiosInstance {
     return backendAxios;
   },

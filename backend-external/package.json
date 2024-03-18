@@ -73,7 +73,8 @@
     "coverageDirectory": "../coverage",
     "coveragePathIgnorePatterns": [
       "/node_modules/",
-      "/test/"
+      "/test/",
+      "./src/server.ts"
     ],
     "coverageReporters": [
       "text",
