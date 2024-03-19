@@ -103,30 +103,26 @@ const router = express.Router();
  *     parameters:
  *       - in: query
  *         name: page
- *         default: 0
  *         schema:
  *           type: integer
  *         required: false
  *         description: The page offset number to retrive reports - optional
  *       - in: query
  *         name: pageSize
- *         default: 1000
  *         schema:
  *           type: integer
  *         required: false
- *         description: The number of records/reports per page - optional
+ *         description: The number of records/reports per page (max 1000) - optional
  *       - in: query
  *         name: startDate
  *         type: date
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
- *         example: "2019-05-17"
  *         required: false
  *         description: "Start date for the date range filter (format: YYYY-MM-dd) - optional"
  *       - in: query
  *         name: endDate
  *         type: string
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
- *         example: "2019-05-17"
  *         required: false
  *         description: "End date for the date range filter (format: YYYY-MM-dd) - optional"
  *
