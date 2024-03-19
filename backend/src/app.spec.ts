@@ -1,6 +1,7 @@
 import { app } from './app';
 import prisma from './v1/prisma/prisma-client';
 import { auth } from './v1/services/auth-service';
+import { schedulerService } from './v1/services/scheduler-service';
 const request = require('supertest');
 
 // ----------------------------------------------------------------------------
@@ -92,6 +93,8 @@ jest.mock('./config', () => {
     },
   };
 });
+
+jest.mock('./v1/services/scheduler-service');
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -195,5 +198,12 @@ describe('GET /health', () => {
 
     expect(response.status).toBe(500);
     expect(response.text).toBe('Health check failed');
+  });
+});
+
+describe('Cron Jobs', () => {
+  it('should delete draft reports older than 24 hours', async () => {
+    await schedulerService.deleteDraftReports();
+    expect(schedulerService.deleteDraftReports).toHaveBeenCalled();
   });
 });

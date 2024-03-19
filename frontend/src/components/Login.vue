@@ -276,13 +276,8 @@ export default {
 
   .triangle-down.disabled {
       display: none;
-  }   
-
-  .circle.disabled {
-      background-color: #aaaaaa;
-      cursor: pointer;
   }  
-
+  
   .text-welcome {
     font-size: 1.6em;
     margin-block-start: 1em;

@@ -1,5 +1,5 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { LocalDate, LocalDateTime } from '@js-joda/core';
+import { LocalDate } from '@js-joda/core';
 import { logger } from '../../logger';
 
 const externalConsumerService = {
@@ -17,7 +17,12 @@ const externalConsumerService = {
    * @param offset the starting point of the records , to support pagination
    * @param limit the number of records to be fetched
    */
-  async exportDataWithPagination(startDate: string, endDate: string, offset: number, limit: number) {
+  async exportDataWithPagination(
+    startDate: string,
+    endDate: string,
+    offset: number,
+    limit: number,
+  ) {
     let startDt: LocalDate;
     let endDt: LocalDate;
     if (limit > 1000 || !limit || limit <= 0) {
@@ -34,10 +39,11 @@ const externalConsumerService = {
     }
     // TODO: Add logic to fetch data from prismaReadOnlyReplica, below query needs to be updated.
     // Query to fetch data from report, company, calculation and calculation_code, naics_code, employee_count range tables
-    const results = await prismaReadOnlyReplica.$replica().pay_transparency_report.findMany({skip: offset, take: limit});
+    const results = await prismaReadOnlyReplica
+      .$replica()
+      .pay_transparency_report.findMany({ skip: offset, take: limit });
     logger.info(results);
     return results;
-
-  }
+  },
 };
 export { externalConsumerService };
