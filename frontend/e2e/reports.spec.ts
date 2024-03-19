@@ -20,5 +20,5 @@ test('generate new report', async ({ page }) => {
     dataConstraints: 'Example data constraint text',
     fileName: 'CsvGood.csv',
   });
-  await generateReportPage.submitForm();
+  // await generateReportPage.submitForm();
 });

@@ -10,9 +10,9 @@ setup('authenticate', async ({ page }) => {
   const html = await page.locator('body').innerHTML();
   if (html.includes('Use a Business BCeID')) {
     expect(page.getByText('Use a Business BCeID'));
-    await page.fill('#user', process.env.USERNAME!);
+    await page.fill('#user', process.env.E2E_USERNAME!);
     await page.click('#password');
-    await page.fill('#password', process.env.PASSWORD!);
+    await page.fill('#password', process.env.E2E_PASSWORD!);
     await page.waitForTimeout(1000);
     await page.locator('#login-form').press('Enter');
     await page.waitForURL(baseURL!);

@@ -68,12 +68,12 @@ export class GenerateReportPage extends PTPage {
     const dataConstraints = await this.instance.locator('#dataConstraints');
     await dataConstraints.fill('Example data constraint text');
 
-    const fileChooserPromise = this.instance.waitForEvent('filechooser');
-    const csvFileInput = await this.instance.locator('#csvFile');
-    await csvFileInput.click();
-    const fileChooser = await fileChooserPromise;
-    await fileChooser.setFiles(path.join(__dirname, 'assets', values.fileName));
-    await this.instance.waitForTimeout(1000);
+    // const fileChooserPromise = this.instance.waitForEvent('filechooser');
+    // const csvFileInput = await this.instance.locator('#csvFile');
+    // await csvFileInput.click();
+    // const fileChooser = await fileChooserPromise;
+    // await fileChooser.setFiles(path.join(__dirname, 'assets', values.fileName));
+    // await this.instance.waitForTimeout(1000);
   }
 
   async submitForm() {

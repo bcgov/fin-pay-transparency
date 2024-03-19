@@ -1,0 +1,44 @@
+name: End-to-end
+env:
+  deployment_name: pay-transparency
+on:
+  workflow_call:
+    inputs:
+      frontend-url:
+        description: "Frontend URL of the application"
+        required: true
+        type: string
+      environment:
+        description: "Environment to read secrets from GitHub secrets"
+        required: false
+        default: dev
+        type: string
+
+jobs:
+  end-to-end:
+    name: End-to-end
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        package: [frontend]
+        include:
+          - package: frontend
+            triggers: ('frontend/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          package: ${{ matrix.package }}
+          tag: ${{ github.event.number }}
+          tag_fallback: test
+          build_context: ${{ matrix.build_context }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Install dependencies
+        env:
+          E2E_BASE_URL: ${{ inputs.frontend-url }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+        run: npm run e2e

@@ -1,4 +1,4 @@
-export const baseURL = process.env.E2EBASE_URL; //'https://dev.paytransparency.fin.gov.bc.ca';
+export const baseURL = process.env.E2E_BASE_URL; //'https://dev.paytransparency.fin.gov.bc.ca';
 
 export const PagePaths = {
     LOGIN: '/login',
