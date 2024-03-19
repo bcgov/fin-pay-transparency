@@ -150,7 +150,7 @@ jobs:
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
   test-e2e:
     name: End-to-end
-    needs: [deploys]
+    needs: [builds, check-quota, deploys]
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
     with:
