@@ -16,10 +16,11 @@ config.defaults({
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
       limit: process.env.RATE_LIMIT_LIMIT || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
     },
+    baseURL: process.env.BASE_URL || 'http://localhost:3002'
   },
   backend:{
     apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key',
-    url: process.env.BACKEND_URL || 'http://localhost:3000'
+    url: process.env.BACKEND_URL || 'http://localhost:3010'
   }
 });
 export { config };

@@ -71,12 +71,18 @@ externalConsumerApiRouter.use(
 externalConsumerApiRouter.use('/v1', externalConsumerRouter);
 // Handle 500
 // 404
-externalConsumerApp.use(function(req:Request, res:Response, _next: NextFunction) {
-  return res.status(404).send({ message: 'Route'+req.url+' Not found.' });
-});
+externalConsumerApp.use(
+  /* istanbul ignore next  */
+  function (req: Request, res: Response, _next: NextFunction) {
+    return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
+  },
+);
 
 // 500 - Any server error
-externalConsumerApp.use(function(err:Error, req:Request, res:Response, _next: NextFunction) {
-  return res.status(500).send({ error: err });
-});
+externalConsumerApp.use(
+  /* istanbul ignore next  */
+  function (err: Error, req: Request, res: Response, _next: NextFunction) {
+    return res.status(500).send({ error: err });
+  },
+);
 export { externalConsumerApp };
