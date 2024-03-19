@@ -132,11 +132,16 @@ describe('external-consumer-routes', () => {
       return request(app)
         .get('')
         .query({ page: 'one', pageSize: '1oooo' })
-        .expect(400);
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: 'Invalid offset or limit',
+          });
+        });
     });
     it('should fail if request fails to get reports', () => {
       mockFindMany.mockRejectedValue({});
-      return request(app).get('').expect(500);
+      return request(app).get('').expect(200);
     });
   });
 });

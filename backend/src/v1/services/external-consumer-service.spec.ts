@@ -115,7 +115,18 @@ describe('external-consumer-service', () => {
     try {
         await externalConsumerService.exportDataWithPagination("20241-01-01", '20241-01-01', -1, -1);
     } catch (error) {
-        expect(error.message).toBe('Failed to parse dates.')
+        expect(error.message).toBe(
+          'Failed to parse dates. Please use date format YYYY-MM-dd',
+        );
+    }
+  });
+  it('should fail when endDate is before the startDate', async () => {
+    mockCount.mockReturnValue(1);
+    mockFindMany.mockReturnValue([testData]);
+    try {
+        await externalConsumerService.exportDataWithPagination("2024-01-01", '2023-01-01', -1, -1);
+    } catch (error) {
+        expect(error.message).toBe('Start date must be before the end date.');
     }
   });
 });
