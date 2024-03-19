@@ -59,8 +59,6 @@ function percentFilledHorizBarChart(data, options = {}) {
     .attr('viewBox', [0, 0, width, height])
     .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`);
 
-  const color = (i) => colors[i];
-
   // Append two bars for each data element:
   //  one on the left to represent the primary data value
   // another on the right to represent the difference between the
@@ -159,7 +157,6 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
   const defaultStack = 'stack-1';
   const primaryFont = '12px sans-serif';
   const secondaryFont = '10px sans-serif';
-  const minBarWidthForLabel = 75; //px
 
   // Determine the series that need to be stacked.
   const stacks = d3
@@ -206,9 +203,6 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
       .map((d) => `${d.genderChartInfo.label} (${format(d.value)}%)`)[0];
 
   const barWidth = (d) => x(d[1]) - x(d[0]);
-
-  // A function to format the value in the tooltip.
-  const formatValue = (x) => (isNaN(x) ? 'N/A' : x.toLocaleString('en'));
 
   // Create the SVG container.
   const svg = d3
@@ -319,8 +313,6 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
     .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`);
-
-  const color = (i) => colors[i];
 
   // Append a rect for each category.
   svg
