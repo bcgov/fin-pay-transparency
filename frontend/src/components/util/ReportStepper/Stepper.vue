@@ -137,18 +137,18 @@ const getMarkClassName = (step: IStageOption) => {
     justify-content: space-between;
     align-items: flex-end;
     position: absolute;
-    bottom: 32px;
+    bottom: 30px;
   }
 
   .track {
     width: calc(100% - 170px);
-    height: 15px;
+    height: 8px;
     background-color: lightgrey;
     border-radius: 5px;
     position: relative;
 
     .slide {
-      height: 15px;
+      height: 8px;
       background-color: #003366;
       border-radius: 5px;
       position: relative;
