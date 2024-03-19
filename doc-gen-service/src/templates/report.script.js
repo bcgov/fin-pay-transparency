@@ -204,6 +204,9 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
 
   const barWidth = (d) => x(d[1]) - x(d[0]);
 
+  // A function to format the value in the tooltip.
+  const formatValue = (x) => (isNaN(x) ? 'N/A' : x.toLocaleString('en'));
+
   // Create the SVG container.
   const svg = d3
     .create('svg')
