@@ -1,12 +1,7 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-<<<<<<< HEAD
-import { LocalDate } from '@js-joda/core';
-import { logger } from '../../logger';
-=======
 import { LocalDate, convert } from '@js-joda/core';
 import pick from 'lodash/pick';
 import { PayTransparencyUserError } from './file-upload-service';
->>>>>>> main
 
 const externalConsumerService = {
   /**
@@ -24,15 +19,6 @@ const externalConsumerService = {
    * @param limit the number of records to be fetched
    */
   async exportDataWithPagination(
-<<<<<<< HEAD
-    startDate: string,
-    endDate: string,
-    offset: number,
-    limit: number,
-  ) {
-    let startDt: LocalDate;
-    let endDt: LocalDate;
-=======
     startDate?: string,
     endDate?: string,
     offset?: number,
@@ -40,28 +26,12 @@ const externalConsumerService = {
   ) {
     let startDt: LocalDate = LocalDate.now().minusMonths(1);
     let endDt: LocalDate = LocalDate.now();
->>>>>>> main
     if (limit > 1000 || !limit || limit <= 0) {
       limit = 1000;
     }
     if (!offset || offset < 0) {
       offset = 0;
     }
-<<<<<<< HEAD
-    if (startDate) {
-      startDt = LocalDate.parse(startDate);
-    }
-    if (endDate) {
-      endDt = LocalDate.parse(endDate);
-    }
-    // TODO: Add logic to fetch data from prismaReadOnlyReplica, below query needs to be updated.
-    // Query to fetch data from report, company, calculation and calculation_code, naics_code, employee_count range tables
-    const results = await prismaReadOnlyReplica
-      .$replica()
-      .pay_transparency_report.findMany({ skip: offset, take: limit });
-    logger.info(results);
-    return results;
-=======
     try {
       if (startDate) {
         startDt = LocalDate.parse(startDate);
@@ -71,11 +41,15 @@ const externalConsumerService = {
         endDt = LocalDate.parse(endDate);
       }
     } catch (error) {
-      throw new PayTransparencyUserError('Failed to parse dates. Please use date format YYYY-MM-dd');
+      throw new PayTransparencyUserError(
+        'Failed to parse dates. Please use date format YYYY-MM-dd',
+      );
     }
 
     if (startDt.isAfter(endDt)) {
-      throw new PayTransparencyUserError('Start date must be before the end date.')
+      throw new PayTransparencyUserError(
+        'Start date must be before the end date.',
+      );
     }
 
     const totalCount = await prismaReadOnlyReplica
@@ -163,7 +137,6 @@ const externalConsumerService = {
         },
       ),
     };
->>>>>>> main
   },
 };
 export { externalConsumerService };

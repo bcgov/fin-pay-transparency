@@ -8,17 +8,10 @@ router.get(
   '/',
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
-<<<<<<< HEAD
-      const startDate = req.query.startDate.toString();
-      const endDate = req.query.endDate.toString();
-      const offset = Number(req.query.offset.toString());
-      const limit = Number(req.query.limit.toString());
-=======
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();
       const offset = Number((req.query.page || '0').toString());
       const limit = Number((req.query.pageSize || '1000').toString());
->>>>>>> main
       if (isNaN(offset) || isNaN(limit)) {
         return res.status(400).json({ error: 'Invalid offset or limit' });
       }
@@ -30,11 +23,7 @@ router.get(
       );
       res.status(200).json(results);
     } catch (e) {
-<<<<<<< HEAD
-      res.status(500).json({ error: e.message });
-=======
-      res.json({error: true, message: e.message });
->>>>>>> main
+      res.json({ error: true, message: e.message });
     }
   }),
 );
