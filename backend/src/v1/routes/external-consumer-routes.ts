@@ -23,7 +23,7 @@ router.get(
       );
       res.status(200).json(results);
     } catch (e) {
-      res.status(500).json({ error: e.message });
+      res.json({error: true, message: e.message });
     }
   }),
 );

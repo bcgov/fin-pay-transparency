@@ -1,7 +1,7 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { LocalDate, convert } from '@js-joda/core';
 import pick from 'lodash/pick';
-import { logger } from '../../logger';
+import { PayTransparencyUserError } from './file-upload-service';
 
 const externalConsumerService = {
   /**
@@ -41,10 +41,13 @@ const externalConsumerService = {
         endDt = LocalDate.parse(endDate);
       }
     } catch (error) {
-      logger.error('Failed to parse dates',  {error, dates: {startDate, endDate}});
-      throw new Error('Failed to parse dates.');
+      throw new PayTransparencyUserError('Failed to parse dates. Please use date format YYYY-MM-dd');
     }
-    
+
+    if (startDt.isAfter(endDt)) {
+      throw new PayTransparencyUserError('Start date must be before the end date.')
+    }
+
     const totalCount = await prismaReadOnlyReplica
       .$replica()
       .pay_transparency_report.count({
@@ -52,6 +55,7 @@ const externalConsumerService = {
           AND: [
             { create_date: { gte: convert(startDt).toDate() } },
             { create_date: { lte: convert(endDt).toDate() } },
+            { report_status: 'Published' },
           ],
         },
       });
@@ -63,6 +67,7 @@ const externalConsumerService = {
           AND: [
             { create_date: { gte: convert(startDt).toDate() } },
             { create_date: { lte: convert(endDt).toDate() } },
+            { report_status: 'Published' },
           ],
         },
         include: {
@@ -79,7 +84,7 @@ const externalConsumerService = {
         take: limit,
       });
 
-      return {
+    return {
       totalRecords: totalCount,
       page: offset,
       pageSize: limit,
@@ -92,9 +97,8 @@ const externalConsumerService = {
           ...report
         }) => {
           return {
-            ...pick(
-              report,
-              ['report_id',
+            ...pick(report, [
+              'report_id',
               'company_id',
               'naics_code',
               'create_date',
@@ -105,8 +109,7 @@ const externalConsumerService = {
               'report_start_date',
               'report_end_date',
               'report_status',
-            ]
-            ),
+            ]),
             company_name: pay_transparency_company.company_name,
             company_province: pay_transparency_company.province,
             company_bceid_business_guid:
