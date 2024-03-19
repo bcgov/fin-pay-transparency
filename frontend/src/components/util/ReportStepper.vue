@@ -9,6 +9,7 @@
       :disabled="item.isDisabled(stage)"
     />
   </v-row>
+
   <v-row>
     <v-col class="d-flex d-flex-col justify-center align-center">
       <h5>Upload</h5>
@@ -22,10 +23,14 @@
       <h5>Report</h5>
     </v-col>
   </v-row>
+  <v-row>
+    <ReportSteps />
+  </v-row>
 </template>
 
 <script setup lang="ts">
 import ReportStep from './ReportStep.vue';
+import ReportSteps from './ReportSteps/Steps.vue';
 import {
   REPORT_STAGES,
   useReportStepperStore,
