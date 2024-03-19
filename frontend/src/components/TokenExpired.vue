@@ -8,7 +8,6 @@
         <v-btn color="primary" @click="redirectToLogin">Login Again</v-btn>
       </v-col>
     </v-row>
-      <ReportStepper />
   </v-container>
 </template>
 
@@ -17,13 +16,10 @@ import { authStore } from '../store/modules/auth';
 import { mapState } from 'pinia';
 import { AuthRoutes } from '../utils/constant';
 import { sanitizeUrl } from '@braintree/sanitize-url';
-import ReportStepper from './util/ReportStepper.vue';
 
 export default {
   name: 'TokenExpired',
-  components: {
-    ReportStepper
-  },
+  components: {},
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',

@@ -13,7 +13,7 @@
       <v-row class="d-flex justify-center w-100">
         <v-col sm="10" md="8" class="w-100">
           <v-row class="mb-4 d-flex justify-center w-100">
-            <v-col cols="10" class="w-100">
+            <v-col cols="12" class="w-100">
               <ReportStepper />
             </v-col>
           </v-row>
@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import Spinner from './Spinner.vue';
-import ReportStepper from './util/ReportStepper.vue';
+import ReportStepper from './util/ReportStepper/Stepper.vue';
 import ApiService from '../common/apiService';
 import HtmlReport from './util/HtmlReport.vue';
 import { useReportStepperStore } from '../store/modules/reportStepper';

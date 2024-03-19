@@ -16,7 +16,7 @@
             v-if="mode != ReportMode.View"
             class="mb-4 d-flex justify-center w-100"
           >
-            <v-col cols="10" class="w-100">
+            <v-col cols="12" class="w-100">
               <ReportStepper />
             </v-col>
           </v-row>
@@ -69,7 +69,7 @@
 <script setup lang="ts">
 import '@vuepic/vue-datepicker/dist/main.css';
 import Spinner from './Spinner.vue';
-import ReportStepper from './util/ReportStepper.vue';
+import ReportStepper from './util/ReportStepper/Stepper.vue';
 import {
   useReportStepperStore,
   ReportMode,
