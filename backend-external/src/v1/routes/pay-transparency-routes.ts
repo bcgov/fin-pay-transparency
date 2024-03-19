@@ -19,7 +19,7 @@ const router = express.Router();
  *           type: string
  *         is_suppressed:
  *           type: boolean
- *         calculation_code: 
+ *         calculation_code:
  *           type: string
  *     Report:
  *       type: object
@@ -68,9 +68,9 @@ const router = express.Router();
  *           type: string
  *         calculated_data:
  *           type: array
- *           items: 
+ *           items:
  *             $ref: "#/components/schemas/CalculatedData"
- * 
+ *
  *     PaginatedReports:
  *       type: object
  *       properties:
@@ -87,7 +87,7 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/Report"
- * 
+ *
  */
 
 /**
@@ -107,28 +107,30 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *         required: false
- *         description: The page offset number to retrive reports
+ *         description: The page offset number to retrive reports - optional
  *       - in: query
  *         name: pageSize
  *         default: 1000
  *         schema:
  *           type: integer
  *         required: false
- *         description: The number of records/reports per page
+ *         description: The number of records/reports per page - optional
  *       - in: query
  *         name: startDate
- *         schema:
- *           type: date
+ *         type: date
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
+ *         example: "2019-05-17"
  *         required: false
- *         description: Start date for the date range filter
+ *         description: "Start date for the date range filter (format: YYYY-MM-dd) - optional"
  *       - in: query
  *         name: endDate
- *         schema:
- *           type: date
+ *         type: string
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
+ *         example: "2019-05-17"
  *         required: false
- *         description: End date for the date range filter
- *         
- * 
+ *         description: "End date for the date range filter (format: YYYY-MM-dd) - optional"
+ *
+ *
  *     responses:
  *       200:
  *         description: A paginated list of reports
@@ -139,19 +141,32 @@ const router = express.Router();
  *               items:
  *                 $ref: "#/components/schemas/PaginatedReports"
  */
-router.get('/', utils.asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const startDate = req.query.startDate?.toString();
-    const endDate = req.query.endDate?.toString();
-    const offset = Number((req.query.page || '0')?.toString());
-    const limit = Number((req.query.pageSize || '1000')?.toString());
-    if (isNaN(offset) || isNaN(limit)) {
-      return res.status(400).json({ error: 'Invalid offset or limit' });
+router.get(
+  '/',
+  utils.asyncHandler(async (req: Request, res: Response) => {
+    try {
+      const startDate = req.query.startDate?.toString();
+      const endDate = req.query.endDate?.toString();
+      const offset = Number((req.query.page || '0')?.toString());
+      const limit = Number((req.query.pageSize || '1000')?.toString());
+      if (isNaN(offset) || isNaN(limit)) {
+        return res.status(400).json({ error: 'Invalid offset or limit' });
+      }
+      const { status, data } =
+        await payTransparencyService.getPayTransparencyData(
+          startDate,
+          endDate,
+          offset,
+          limit,
+        );
+
+      if (data.error) {
+        return res.status(400).json({ error: data.message });
+      }
+      res.status(status).json(data);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
     }
-    const { status, data } = await payTransparencyService.getPayTransparencyData(startDate, endDate, offset, limit);
-    res.status(status).json(data);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-}));
+  }),
+);
 export default router;

@@ -67,7 +67,7 @@ describe('deleteDraftReports', () => {
     const call = (prisma.pay_transparency_report.findMany as jest.Mock).mock
       .calls[0][0];
     const callDate = LocalDateTime.from(
-      nativeJs(new Date(call.where.create_date.lte)),
+      nativeJs(new Date(call.where.create_date.lte), ZoneId.UTC),
     )
       .toLocalDate()
       .toString();
