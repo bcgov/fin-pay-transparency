@@ -174,39 +174,6 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
   // Compute the height from the number of stacks.
   const height = stacks[0].length * barHeight + marginTop + marginBottom;
 
-  // Prepare the scales for positional and color encodings.
-  const x = d3
-    .scaleLinear()
-    .domain([0, d3.max(stacks, (d) => d3.max(d, (d) => d[1]))])
-    .range([marginLeft, width - marginRight]);
-
-  const y = d3
-    .scaleBand()
-    .domain(
-      d3.groupSort(
-        data,
-        (D) => -d3.sum(D, (d) => d.value),
-        (d) => d.stack || defaultStack,
-      ),
-    )
-    .range([marginTop, height - marginBottom])
-    .padding(0.08);
-
-  const format = x.tickFormat(1, numberFormat);
-  const color = (key) =>
-    data
-      .filter((d) => d.genderChartInfo.code == key)
-      .map((d) => d.genderChartInfo.color)[0];
-  const label = (key) =>
-    data
-      .filter((d) => d.genderChartInfo.code == key)
-      .map((d) => `${d.genderChartInfo.label} (${format(d.value)}%)`)[0];
-
-  const barWidth = (d) => x(d[1]) - x(d[0]);
-
-  // A function to format the value in the tooltip.
-  const formatValue = (x) => (isNaN(x) ? 'N/A' : x.toLocaleString('en'));
-
   // Create the SVG container.
   const svg = d3
     .create('svg')
@@ -214,52 +181,6 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
     .attr('style', 'max-width: 100%; height: auto;');
-
-  const barGroup = svg.append('g').append('g').selectAll().data(stacks);
-
-  const barGroupPart = barGroup
-    .join('g')
-    .attr('fill', (d) => color(d.key))
-    .selectAll('rect')
-    .data((D) => D.map((d) => ((d.key = D.key), d)));
-
-  const barsRects = barGroupPart
-    .join('rect')
-    .attr('x', (d) => x(d[0]))
-    .attr('y', (d) => y(d.data[0]))
-    .attr('height', y.bandwidth())
-    .attr('width', barWidth);
-
-  const unrenderedLabels = [];
-  const barLabels = barGroupPart
-    .join('g')
-    .attr('fill', 'white')
-    .attr('text-anchor', 'middle')
-    .append('text')
-    .attr('x', (d) => x(d[0] + (d[1] - d[0]) / 2))
-    .attr('y', (d) => y(d.data[0]) + barHeight / 2)
-    .attr('dy', '0.20em')
-    .attr('style', `font: ${primaryFont}; font-weight: normal;`)
-    .text((d) => {
-      const barLabel = label(d.key);
-      const barLabelWidth = getTextSize(barLabel, primaryFont).width;
-      if (barLabelWidth <= barWidth(d) * 0.9) {
-        return barLabel;
-      }
-      unrenderedLabels.push(barLabel);
-      return '';
-    });
-
-  const secondaryLabels = svg
-    .select('g')
-    .append('g')
-    .attr('fill', 'black')
-    .attr('text-anchor', 'end')
-    .append('text')
-    .attr('dy', height - marginBottom / 2)
-    .attr('dx', width)
-    .attr('style', `font: ${secondaryFont}; font-weight: normal`)
-    .text((d) => unrenderedLabels.join(' '));
 
   return svg.node();
 }
