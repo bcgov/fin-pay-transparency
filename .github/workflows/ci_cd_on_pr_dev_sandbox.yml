@@ -154,5 +154,4 @@ jobs:
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
     with:
-      target: pr-${{ github.event.number }}
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
