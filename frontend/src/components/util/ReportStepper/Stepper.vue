@@ -4,7 +4,10 @@
       <div class="track-root d-flex align-center">
         <div class="track-marks d-flex mb-6">
           <div class="step-root" v-for="(step, index) in REPORT_STAGES">
-            <div :data-testid="'report-step-mark-' + step.value" :class="getMarkClassName(step)">
+            <div
+              :data-testid="'report-step-mark-' + step.value"
+              :class="getMarkClassName(step)"
+            >
               {{ index + 1 }}
             </div>
           </div>
@@ -137,7 +140,7 @@ const getMarkClassName = (step: IStageOption) => {
     justify-content: space-between;
     align-items: flex-end;
     position: absolute;
-    bottom: 30px;
+    bottom: 32px;
   }
 
   .track {

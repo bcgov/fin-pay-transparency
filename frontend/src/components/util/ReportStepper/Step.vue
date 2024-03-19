@@ -46,8 +46,8 @@ const handleClick = () => {
 <style scoped lang="scss">
 .step-root {
   .step-thumb {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     background-color: #fff;
     border-radius: 15px;
     border: lightgrey 8px solid;
