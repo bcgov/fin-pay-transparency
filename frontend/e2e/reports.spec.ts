@@ -1,9 +1,6 @@
-import { test, expect } from '@playwright/test';
-import { DateTimeFormatter, LocalDate } from '@js-joda/core';
-import { Locale } from '@js-joda/locale';
+import { test } from '@playwright/test';
 import { DashboardPage } from './pages/dashboard';
 import { GenerateReportPage } from './pages/generate-report';
-import path from 'path';
 
 test('generate new report', async ({ page }) => {
   // 1: Click generate report button from the dashboard page
