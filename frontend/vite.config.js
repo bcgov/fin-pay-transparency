@@ -16,7 +16,8 @@ export default defineConfig({
       reporter: ['lcov', 'text-summary','text', 'json', 'html'],
       exclude: ['src/**/index.ts'],
     },
-    setupFiles: ['./src/vitest.setup.ts']
+    setupFiles: ['./src/vitest.setup.ts'],
+    exclude: ['./e2e/**']
   },
   server: {
     port: 8081,
