@@ -153,7 +153,5 @@ jobs:
     needs: [builds, check-quota, deploys]
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
-      # E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-      # E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
     with:
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca

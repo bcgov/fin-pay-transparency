@@ -5,16 +5,16 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '*.md'
-      - 'docker-compose.yml'
-      - 'renovate.json'
-      - 'COMPLIANCE.yaml'
-      - '.gitignore'
-      - '.vscode/**'
-      - '.diagrams/**'
-      - '.graphics/**'
-      - 'sysdig/**'
-      - '.github/workflows/sysdig.yml'
+      - "*.md"
+      - "docker-compose.yml"
+      - "renovate.json"
+      - "COMPLIANCE.yaml"
+      - ".gitignore"
+      - ".vscode/**"
+      - ".diagrams/**"
+      - ".graphics/**"
+      - "sysdig/**"
+      - ".github/workflows/sysdig.yml"
   workflow_dispatch:
     inputs:
       pr_no:
@@ -75,17 +75,24 @@ jobs:
         continue-on-error: true
         with:
           github-token: ${{ github.token }}
-          output-file: 'CHANGELOG.md'
-          skip-version-file: 'true'
-          skip-commit: 'true'
-          skip-on-empty: 'false'
-          git-push: 'true'
+          output-file: "CHANGELOG.md"
+          skip-version-file: "true"
+          skip-commit: "true"
+          skip-on-empty: "false"
+          git-push: "true"
   retag-images:
-    needs: [ vars, semantic-version ]
+    needs: [vars, semantic-version]
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [ backend, database-migrations, frontend, doc-gen-service, backend-external ]
+        package:
+          [
+            backend,
+            database-migrations,
+            frontend,
+            doc-gen-service,
+            backend-external,
+          ]
     steps:
       - name: Tag Docker Images
         uses: shrink/actions-docker-registry-tag@v4
@@ -112,9 +119,7 @@ jobs:
     name: End-to-end (dev)
     needs: [builds, check-quota, deploys]
     uses: ./.github/workflows/.e2e.yml
-    secrets:
-      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+    secrets: inherit
     with:
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
   zap:
