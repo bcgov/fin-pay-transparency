@@ -1,4 +1,4 @@
-name: End-to-end
+name: E2E
 env:
   deployment_name: pay-transparency
 on:
@@ -27,12 +27,15 @@ on:
 
 jobs:
   end-to-end:
-    name: End-to-end
+    name: Tests
     environment: ${{ inputs.environment }}
     defaults:
       run:
         working-directory: frontend
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        project: [chromium, Google Chrome, firefox, safari, Microsoft Edge]
     steps:
       - uses: actions/checkout@v4
         name: Checkout
@@ -51,7 +54,7 @@ jobs:
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: |
-          npm run e2e
+          npx playwright test --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
         name: upload results
         with:
