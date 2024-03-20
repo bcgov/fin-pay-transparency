@@ -21,6 +21,11 @@ on:
         required: false
         default: dev
         type: string
+      timeout-minutes:
+        description: 'Timeout minutes'
+        default: 8
+        required: false
+        type: number
   workflow_call:
     inputs:
       frontend-url:
