@@ -3,17 +3,14 @@ env:
   deployment_name: pay-transparency
 on:
   workflow_dispatch:
+    secrets:
+      E2E_USERNAME:
+        required: true
+      E2E_PASSWORD:
+        required: true
     inputs:
       frontend-url:
         description: "Frontend URL of the application"
-        required: true
-        type: string
-      e2e-username:
-        description: "The username of the user to for testing"
-        required: true
-        type: string
-      e2e-password:
-        description: "The password of the user to for testing"
         required: true
         type: string
       environment:
@@ -27,6 +24,11 @@ on:
         required: false
         type: number
   workflow_call:
+    secrets:
+      E2E_USERNAME:
+        required: true
+      E2E_PASSWORD:
+        required: true
     inputs:
       frontend-url:
         description: "Frontend URL of the application"
@@ -36,14 +38,6 @@ on:
         description: "Environment to read secrets from GitHub secrets"
         required: false
         default: dev
-        type: string
-      e2e-username:
-        description: "The username of the user to for testing"
-        required: true
-        type: string
-      e2e-password:
-        description: "The password of the user to for testing"
-        required: true
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
@@ -77,8 +71,8 @@ jobs:
       - name: Run Tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
-          E2E_USERNAME: ${{ inputs.e2e-username }}
-          E2E_PASSWORD: ${{ inputs.e2e-password }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: |
           npx playwright test --project="${{ matrix.project }}"
       - uses: actions/upload-artifact@v4

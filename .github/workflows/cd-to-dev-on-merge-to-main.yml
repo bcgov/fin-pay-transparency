@@ -112,11 +112,11 @@ jobs:
     name: End-to-end (dev)
     needs: [builds, check-quota, deploys]
     uses: ./.github/workflows/.e2e.yml
-    secrets: inherit
+    secrets:
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
     with:
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
-      e2e-username: ${{ secrets.E2E_USERNAME }}
-      e2e-password: ${{ secrets.E2E_PASSWORD }}
   zap:
     name: ZAP Scan
     needs: [deploys]
