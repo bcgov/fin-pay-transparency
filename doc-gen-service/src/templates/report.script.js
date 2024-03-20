@@ -174,6 +174,36 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
   // Compute the height from the number of stacks.
   const height = stacks[0].length * barHeight + marginTop + marginBottom;
 
+  // Prepare the scales for positional and color encodings.
+  const x = d3
+    .scaleLinear()
+    .domain([0, d3.max(stacks, (d) => d3.max(d, (d) => d[1]))])
+    .range([marginLeft, width - marginRight]);
+
+  const y = d3
+    .scaleBand()
+    .domain(
+      d3.groupSort(
+        data,
+        (D) => -d3.sum(D, (d) => d.value),
+        (d) => d.stack || defaultStack,
+      ),
+    )
+    .range([marginTop, height - marginBottom])
+    .padding(0.08);
+
+  const format = x.tickFormat(1, numberFormat);
+  const color = (key) =>
+    data
+      .filter((d) => d.genderChartInfo.code == key)
+      .map((d) => d.genderChartInfo.color)[0];
+  const label = (key) =>
+    data
+      .filter((d) => d.genderChartInfo.code == key)
+      .map((d) => `${d.genderChartInfo.label} (${format(d.value)}%)`)[0];
+
+  const barWidth = (d) => x(d[1]) - x(d[0]);
+
   // Create the SVG container.
   const svg = d3
     .create('svg')
@@ -181,6 +211,14 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
     .attr('style', 'max-width: 100%; height: auto;');
+
+  const barGroup = svg.append('g').append('g').selectAll().data(stacks);
+
+  const barGroupPart = barGroup
+    .join('g')
+    .attr('fill', (d) => color(d.key))
+    .selectAll('rect')
+    .data((D) => D.map((d) => ((d.key = D.key), d)));
 
   return svg.node();
 }
