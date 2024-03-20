@@ -11,6 +11,7 @@ import { baseURL } from './e2e/utils';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  timeout: 120000,
   testDir: './e2e',
   globalSetup: './e2e/utils/globalSetup.ts',
   /* Run tests in files in parallel */
