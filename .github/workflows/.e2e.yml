@@ -42,15 +42,15 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: |
-          ls -lrt
           npm ci
+      - name: Install Playwright dependencies
+        run: npx playwright install 
       - name: Run Tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: |
-          ls -lrt
           npm run e2e
 
 
