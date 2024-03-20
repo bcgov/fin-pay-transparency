@@ -17,7 +17,7 @@ try {
       try {
         await mutex.withLock(async () => {
           log.info('Starting deleteDraftReports Schedule Job.');
-          await await schedulerService.deleteDraftReports();
+          await schedulerService.deleteDraftReports();
           log.info('deleteDraftReports Schedule Job completed.');
         });
       } catch (e) {
