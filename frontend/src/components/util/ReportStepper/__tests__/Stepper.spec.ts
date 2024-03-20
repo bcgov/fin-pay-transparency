@@ -1,11 +1,11 @@
-import ReportStepper from '../ReportStepper.vue';
+import ReportStepper from '../Stepper.vue';
 import { describe, it, beforeEach, expect, vi } from 'vitest';
 import { render, waitFor, fireEvent } from '@testing-library/vue';
 import { createTestingPinia } from '@pinia/testing';
 import {
   ReportStage,
   useReportStepperStore,
-} from '../../../store/modules/reportStepper';
+} from '../../../../store/modules/reportStepper';
 import { useRouter } from 'vue-router';
 
 vi.mock('vue-router');
@@ -41,9 +41,9 @@ describe('ReportStepper', () => {
     it('should correct label for each step', () => {
       const { getByTestId } = wrappedRender();
 
-      expect(getByTestId('report-step-UPLOAD')).toHaveTextContent('1');
-      expect(getByTestId('report-step-REVIEW')).toHaveTextContent('2');
-      expect(getByTestId('report-step-FINAL')).toHaveTextContent('3');
+      expect(getByTestId('report-step-mark-UPLOAD')).toHaveTextContent('1');
+      expect(getByTestId('report-step-mark-REVIEW')).toHaveTextContent('2');
+      expect(getByTestId('report-step-mark-FINAL')).toHaveTextContent('3');
     });
   });
 
