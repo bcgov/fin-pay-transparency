@@ -1,9 +1,20 @@
 import dotenv from 'dotenv';
 import config from 'nconf';
+import { logger } from '../logger';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
+const DB_HOST = process.env.POSTGRESQL_HOST || 'localhost';
+const DB_USER = process.env.POSTGRESQL_USER || 'postgres';
+const DB_PWD = encodeURIComponent(
+  process.env.POSTGRESQL_PASSWORD || 'postgres',
+);
+const DB_PORT = process.env.POSTGRESQL_PORT || 5432;
+const DB_NAME = process.env.POSTGRESQL_DATABASE || 'postgres';
+const DB_SCHEMA = process.env.DB_SCHEMA || 'pay_transparency';
 
+const datasourceUrl = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=5`;
+logger.silly(`Connecting to ${datasourceUrl}`);
 config.defaults({
   environment: env,
   siteMinder_logout_endpoint: process.env.SITEMINDER_LOGOUT_ENDPOINT,
@@ -16,9 +27,9 @@ config.defaults({
     sessionPath: process.env.SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
-    schedulerDeleteDraftCronTime: process.env.CRON_CRONTIME,
-    schedulerDeleteDraftTimeZone: process.env.CRON_TIMEZONE,
-    databaseUrl: process.env.DATABASE_URL,
+    schedulerDeleteDraftCronTime: process.env.DELETE_DRAFT_REPORT_CRON_CRONTIME,
+    schedulerDeleteDraftTimeZone: process.env.DELETE_DRAFT_REPORT_CRON_TIMEZONE,
+    databaseUrl: datasourceUrl,
     reportEditDurationInDays: parseInt(
       process.env.REPORT_EDIT_DURATION_IN_DAYS || '30',
     ),

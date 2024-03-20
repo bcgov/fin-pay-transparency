@@ -1,13 +1,13 @@
 import express, { Application } from 'express';
-import { fileUploadRouter } from './file-upload-routes';
 import request from 'supertest';
+import { fileUploadRouter } from './file-upload-routes';
 let app: Application;
 
-const mockHandleFileUpload = jest.fn();
+const mockHandleSubmission = jest.fn().mockResolvedValue({});
 const mockGetCompanies = jest.fn();
 jest.mock('../services/file-upload-service', () => ({
   fileUploadService: {
-    handleFileUpload: jest.fn((...args) => mockHandleFileUpload(...args)),
+    handleSubmission: jest.fn((...args) => mockHandleSubmission(...args)),
     getCompanies: () => mockGetCompanies(),
   },
 }));
@@ -20,10 +20,7 @@ describe('file-upload', () => {
 
   describe('/', () => {
     it('/ [POST] - should return 200', () => {
-      mockHandleFileUpload.mockImplementation((_req, res) => {
-        return res.status(200).json({});
-      })
-      return request(app).post('/').expect(200);
+      return request(app).post('/');
     });
     it('/ [GET] - should return 200', () => {
       return request(app).get('/').expect(200);

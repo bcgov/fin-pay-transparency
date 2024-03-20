@@ -1,18 +1,41 @@
 import prisma from '../prisma/prisma-client';
 import { codeService } from './code-service';
-import {
-  REPORT_STATUS,
-  fileUploadService,
-  fileUploadServicePrivate,
-} from './file-upload-service';
+import { REPORT_STATUS, fileUploadService } from './file-upload-service';
 import { CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
-import { validateService } from './validate-service';
+import { SUBMISSION_ROW_COLUMNS } from './validate-service';
+import { createSampleRecord } from './validate-service.spec';
 const { mockRequest } = require('mock-req-res');
+
+const mockShouldPreventReportOverrides = jest.fn();
+
+jest.mock('./report-service', () => ({
+  ...jest.requireActual('./report-service'),
+  reportService: {
+    ...jest.requireActual('./report-service').reportService,
+    shouldPreventReportOverrides: () => mockShouldPreventReportOverrides(),
+  },
+}));
 
 const MOCK_CALCULATION_CODES = {
   mock_calculation_code_1: 'calculation_id_1',
   mock_calculation_code_2: 'calculation_id_2',
+};
+
+const mockRecordOverrides = {};
+mockRecordOverrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = '10';
+mockRecordOverrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = '20';
+const mockRecord = createSampleRecord(mockRecordOverrides);
+const mockValidSubmission = {
+  companyName: '',
+  companyAddress: '',
+  naicsCode: '',
+  employeeCountRangeId: '',
+  startDate: '2022-01-01',
+  endDate: '2022-12-31',
+  dataConstraints: null,
+  comments: null,
+  rows: [Object.keys(mockRecord), Object.values(mockRecord)],
 };
 
 //Mock only the updateManyUnsafe method in file-upload-service (for all other methods
@@ -35,7 +58,6 @@ const actualFileUploadService = jest.requireActual(
   './file-upload-service',
 ).fileUploadService;
 
-jest.mock('./validate-service');
 jest.mock('./utils-service');
 jest.mock('./code-service');
 (codeService.getAllCalculationCodesAndIds as jest.Mock).mockResolvedValue(
@@ -99,30 +121,20 @@ const mockUserInfo = {
   },
 };
 
-describe('postFileUploadHandler', () => {
-  describe('when request is invalid', () => {
-    it('response has an error code', async () => {
-      const req = mockRequest();
-      const res = {
-        status: jest.fn().mockReturnValue({ json: (v) => {} }),
-      };
-      await fileUploadService.handleFileUpload(req, res);
-      expect(res.status).toHaveBeenCalledWith(500);
+describe('handleSubmission', () => {
+  describe(`when a submission has no 'rows'`, () => {
+    it('returns an error object', async () => {
+      const mockInvalidSubmission = { ...mockValidSubmission, rows: null };
+      const result = await fileUploadService.handleSubmission(
+        mockUserInfo,
+        mockInvalidSubmission,
+      );
+      expect(result).toBeTruthy();
     });
   });
 });
 
-describe('saveReportBody', () => {
-  const req = {
-    body: {
-      startDate: '2020-01-01',
-      endDate: '2020-12-31',
-      comments: null,
-      dataConstraints: null,
-      employee_count_range_id: '123456',
-      naicsCode: '11',
-    },
-  };
+describe('saveSubmissionAsReport', () => {
   (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
     mockCompanyInDB,
   );
@@ -133,34 +145,44 @@ describe('saveReportBody', () => {
   (utils.getSessionUser as jest.Mock).mockReturnValue(mockUserInfo);
 
   describe("when the report isn't yet in the database", () => {
-    const existingReport = null;
-    const newReport = {
-      reportId: 1,
-    };
-    (
-      prisma.pay_transparency_report.findFirst as jest.Mock
-    ).mockResolvedValueOnce(existingReport);
-    (prisma.pay_transparency_report.create as jest.Mock).mockResolvedValueOnce(
-      newReport,
-    );
     it('saves a new draft report', async () => {
-      await fileUploadService.saveReportBody(req, prisma);
+      const existingReport = null;
+      const newReport = {
+        reportId: '1',
+        revision: 1,
+        report_status: REPORT_STATUS.DRAFT,
+      };
+      (
+        prisma.pay_transparency_report.findFirst as jest.Mock
+      ).mockResolvedValueOnce(existingReport);
+      (
+        prisma.pay_transparency_report.create as jest.Mock
+      ).mockResolvedValueOnce(newReport);
+      await fileUploadService.saveSubmissionAsReport(
+        mockValidSubmission,
+        mockUserInfo,
+        prisma,
+      );
+      expect(prisma.pay_transparency_report.findFirst).toHaveBeenCalledTimes(1);
       expect(prisma.pay_transparency_report.create).toHaveBeenCalled();
     });
   });
 
   describe('when draft report already exists', () => {
-    const existingReport = {
-      reportId: '1',
-      revision: 1,
-      report_status: REPORT_STATUS.DRAFT,
-    };
-    (
-      prisma.pay_transparency_report.findFirst as jest.Mock
-    ).mockResolvedValueOnce(existingReport);
-
     it('updated the existing report', async () => {
-      await fileUploadService.saveReportBody(req, prisma);
+      const existingReport = {
+        reportId: '1',
+        revision: 1,
+        report_status: REPORT_STATUS.DRAFT,
+      };
+      (
+        prisma.pay_transparency_report.findFirst as jest.Mock
+      ).mockResolvedValueOnce(existingReport);
+      await fileUploadService.saveSubmissionAsReport(
+        mockValidSubmission,
+        mockUserInfo,
+        prisma,
+      );
       expect(prisma.pay_transparency_report.update).toHaveBeenCalled();
     });
   });
@@ -296,85 +318,6 @@ describe('updateManyUnsafe', () => {
       Object.keys(updates[0]).forEach((k) => {
         expect(executedSql).toContain(k);
       });
-    });
-  });
-});
-
-describe('validateSubmission', () => {
-  describe('when submission is valid', () => {
-    it('calls the success callback', () => {
-      //mock a response indicating the body is valid
-      (validateService.validateBody as jest.Mock).mockReturnValue(
-        [] as string[],
-      );
-
-      //mock a response indicating the CSV file is valid
-      (validateService.validateCsv as jest.Mock).mockReturnValue(null);
-
-      const successCallback = jest.fn();
-      const req = {
-        body: {},
-        file: {
-          buffer: null,
-        },
-      };
-      const res = {
-        status: jest.fn().mockReturnValue({ json: (v) => {} }),
-      };
-      const isValid = fileUploadServicePrivate.validateSubmission(req, res);
-      expect(isValid).toBeTruthy();
-    });
-  });
-
-  describe('when submission body is invalid', () => {
-    it('sets 400 error code in the response', () => {
-      //mock a response indicating the body is valid
-      (validateService.validateBody as jest.Mock).mockReturnValue([
-        'Error message',
-      ]);
-
-      //mock a response indicating the CSV file is valid
-      (validateService.validateCsv as jest.Mock).mockReturnValue(null);
-
-      const successCallback = jest.fn();
-      const req = {
-        body: {},
-        file: {
-          buffer: null,
-        },
-      };
-      const res = {
-        status: jest.fn().mockReturnValue({ json: (v) => {} }),
-      };
-      const isValid = fileUploadServicePrivate.validateSubmission(req, res);
-      expect(isValid).toBeFalsy();
-      expect(res.status).toHaveBeenCalledWith(400);
-    });
-  });
-
-  describe('when validation throws an error', () => {
-    it('sets a 500 error code in the response', () => {
-      //mock a response indicating the body is valid
-      (validateService.validateBody as jest.Mock).mockReturnValue([]);
-
-      //mock a response indicating the CSV file is valid
-      (validateService.validateCsv as jest.Mock).mockImplementation(() => {
-        throw new Error('some error');
-      });
-
-      const successCallback = jest.fn();
-      const req = {
-        body: {},
-        file: {
-          buffer: null,
-        },
-      };
-      const res = {
-        status: jest.fn().mockReturnValue({ json: (v) => {} }),
-      };
-      const isValid = fileUploadServicePrivate.validateSubmission(req, res);
-      expect(isValid).toBeFalsy();
-      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 });

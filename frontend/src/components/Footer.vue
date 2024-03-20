@@ -131,6 +131,7 @@ $text-color: rgb(70, 67, 65);
   flex-direction: column;
   min-width: 100%;
   font-size: $font-size;
+  z-index: 0 !important;
 }
 
 .v-footer.bordered {
