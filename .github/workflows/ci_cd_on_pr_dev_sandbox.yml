@@ -155,3 +155,5 @@ jobs:
     secrets: inherit
     with:
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+      e2e-username: ${{ secrets.E2E_USERNAME }}
+      e2e-password: ${{ secrets.E2E_PASSWORD }}

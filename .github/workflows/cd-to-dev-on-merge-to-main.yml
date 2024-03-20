@@ -108,6 +108,15 @@ jobs:
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
       params: --set doc-gen-service.pdb=false --set-string crunchy.instances.dataVolumeClaimSpec.storage=960Mi
+  test-e2e:
+    name: End-to-end (dev)
+    needs: [builds, check-quota, deploys]
+    uses: ./.github/workflows/.e2e.yml
+    secrets: inherit
+    with:
+      frontend-url: https://dev.paytransparency.fin.gov.bc.ca
+      e2e-username: ${{ secrets.E2E_USERNAME }}
+      e2e-password: ${{ secrets.E2E_PASSWORD }}
   zap:
     name: ZAP Scan
     needs: [deploys]
