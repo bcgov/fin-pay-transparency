@@ -24,6 +24,11 @@ on:
         required: false
         default: dev
         type: string
+      timeout-minutes:
+        description: 'Timeout minutes'
+        default: 8
+        required: false
+        type: number
 
 jobs:
   end-to-end:
@@ -33,6 +38,7 @@ jobs:
       run:
         working-directory: frontend
     runs-on: ubuntu-22.04
+    timeout-minutes: ${{ inputs.timeout-minutes }}
     strategy:
       matrix:
         project: [chromium, Google Chrome, firefox, safari, Microsoft Edge]
