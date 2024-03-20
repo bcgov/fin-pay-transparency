@@ -26,3 +26,4 @@ local.*
 /blob-report/
 /playwright/
 .env.playwright
+user.json

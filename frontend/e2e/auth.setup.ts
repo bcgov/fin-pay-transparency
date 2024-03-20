@@ -1,6 +1,6 @@
 import { test as setup, expect } from '@playwright/test';
 import { PagePaths, baseURL } from './utils/index';
-const authFile = 'playwright/.auth/user.json';
+const authFile = 'user.json';
 
 setup('authenticate', async ({ page }) => {
   await page.goto(`${baseURL!}${PagePaths.LOGIN}`);
