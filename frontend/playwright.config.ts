@@ -12,7 +12,7 @@ import { baseURL } from './e2e/utils';
  */
 export default defineConfig({
   testDir: './e2e',
-  globalSetup: './e2e/utils/globalsetup.ts',
+  globalSetup: './e2e/utils/globalSetup.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
