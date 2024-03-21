@@ -21,3 +21,9 @@ local.*
 *.ntvs*
 *.njsproj
 *.sln
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/
+.env.playwright
+user.json
