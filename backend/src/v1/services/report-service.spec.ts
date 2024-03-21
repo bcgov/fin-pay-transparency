@@ -1,4 +1,10 @@
-import { LocalDate, ZoneId, convert, nativeJs } from '@js-joda/core';
+import {
+  LocalDate,
+  TemporalAdjusters,
+  ZoneId,
+  convert,
+  nativeJs,
+} from '@js-joda/core';
 import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import stream from 'stream';
@@ -6,9 +12,10 @@ import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
+  DISPLAY_REPORT_DATE_FORMAT,
   GENDERS,
   GenderChartInfo,
-  JODA_FORMATTER,
+  JSON_REPORT_DATE_FORMAT,
   Report,
   ReportAndCalculations,
   enumReportStatus,
@@ -222,6 +229,12 @@ describe('getReportAndCalculations', () => {
 describe('getReportData', () => {
   describe('when a valid report id is provided', () => {
     it('returns an HTML string of the report', async () => {
+      const startDate: Date = convert(
+        LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()),
+      ).toDate();
+      const endDate: Date = convert(
+        LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()),
+      ).toDate();
       const mockReq = {
         session: {
           correlationID: 'mockCorrelationId',
@@ -234,8 +247,8 @@ describe('getReportData', () => {
             company_name: 'Mock company',
             address_line1: '123 main st.',
           },
-          report_start_date: new Date(),
-          report_end_date: new Date(),
+          report_start_date: startDate,
+          report_end_date: endDate,
           naics_code_pay_transparency_report_naics_codeTonaics_code: {
             naics_code: '1',
             naics_label: 'NAICS label',
@@ -256,19 +269,22 @@ describe('getReportData', () => {
         .spyOn(reportService, 'getReportAndCalculations')
         .mockResolvedValueOnce(mockReportAndCalculations);
 
-      const reportData = await reportService.getReportData(
+      const reportData: any = await reportService.getReportData(
         mockReq,
         mockReportId,
       );
 
-      // Although it isn't the final value returned from reportService.getReportHtml,
-      // it's useful to verify that its intermediate processing step produces
-      // a partial HTML report
-
-      // It's hard to test the rendering of the final report HTML when we're
-      // using a mock puppeteer, but we can at least verify that
-      // some of the puppeteer functions have been called.
       expect(reportService.getReportAndCalculations).toHaveBeenCalledTimes(1);
+
+      // Confirm that correct report start and end dates are in the correct format
+      const expectedStartDate = nativeJs(
+        mockReportAndCalculations.report.report_start_date,
+      ).format(DISPLAY_REPORT_DATE_FORMAT);
+      const expectedEndDate = nativeJs(
+        mockReportAndCalculations.report.report_end_date,
+      ).format(DISPLAY_REPORT_DATE_FORMAT);
+      expect(reportData.reportStartDate).toBe(expectedStartDate);
+      expect(reportData.reportEndDate).toBe(expectedEndDate);
     });
   });
   describe('when all of the calculations are suppressed', () => {
@@ -668,14 +684,14 @@ describe('getReports', () => {
     mockCompanyFindFirst.mockResolvedValue(mockReportResults);
     const ret = await reportService.getReports(mockCompanyInDB.company_id, {
       report_status: enumReportStatus.Draft,
-      report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
-      report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
+      report_start_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
+      report_end_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
     });
     expect(ret).toEqual(
       mockReportResults.pay_transparency_report.map((r) => ({
         ...r,
-        report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
-        report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
+        report_start_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
+        report_end_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
       })),
     );
   });
@@ -851,8 +867,8 @@ describe('getReportById', () => {
     };
     const expectedReport = {
       ...report,
-      report_start_date: nativeJs(dateNow).format(JODA_FORMATTER),
-      report_end_date: nativeJs(dateNow).format(JODA_FORMATTER),
+      report_start_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
+      report_end_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
     };
     const mockReportResults = {
       pay_transparency_report: [report],

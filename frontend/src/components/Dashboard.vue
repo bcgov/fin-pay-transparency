@@ -35,7 +35,8 @@
           This application does not collect, record or publish personal
           information.
         </p>
-        <v-btn class="mb-4" color="primary" to="generate-report-form">Generate Pay Transparency Report</v-btn
+        <v-btn class="mb-4" color="primary" to="generate-report-form"
+          >Generate Pay Transparency Report</v-btn
         >
       </v-col>
       <v-col cols="4">
@@ -188,13 +189,13 @@ export default {
     ...mapActions(useConfigStore, ['loadConfig']),
     formatDate(value, format = 'MMMM d, YYYY') {
       const formatter = DateTimeFormatter.ofPattern(format).withLocale(
-        Locale.CANADA,
+        Locale.ENGLISH,
       );
       return LocalDate.parse(value).format(formatter);
     },
     formatDateTime(value, format = 'MMMM d, YYYY') {
       const formatter = DateTimeFormatter.ofPattern(format).withLocale(
-        Locale.CANADA,
+        Locale.ENGLISH,
       );
       return ZonedDateTime.parse(value).format(formatter);
     },
