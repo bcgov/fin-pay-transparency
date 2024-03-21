@@ -77,9 +77,10 @@ jobs:
           npx playwright test --project="${{ matrix.project }}" --reporter=html
           ls -lR
       - uses: actions/upload-artifact@v4
+        if: always()
         name: upload results
         with:
           name: playwright-report
-          path: playwright-report/
+          path: playwright-report/index.html
           retention-days: 30
 
