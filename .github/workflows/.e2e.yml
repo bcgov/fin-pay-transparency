@@ -75,7 +75,9 @@ jobs:
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: |
           npx playwright test --project="${{ matrix.project }}" --reporter=html
-          echo $PWD
+      - name: print directories
+        run: |
+          ls -laR | grep -v "^./node_modules"
       - uses: actions/upload-artifact@v4
         if: always()
         name: upload results
