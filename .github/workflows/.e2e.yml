@@ -54,9 +54,9 @@ jobs:
         working-directory: frontend
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ inputs.timeout-minutes }}
-    strategy:
-      matrix:
-        project: [chromium, Google Chrome, firefox, safari, Microsoft Edge]
+    # strategy:
+    #   matrix:
+    #     project: [chromium, Google Chrome, firefox, safari, Microsoft Edge]
     steps:
       - uses: actions/checkout@v4
         name: Checkout
@@ -74,7 +74,7 @@ jobs:
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=github
+          npx playwright test --reporter=github
       - uses: actions/upload-artifact@v4
         name: upload results
         with:
