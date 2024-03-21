@@ -18,23 +18,26 @@
 
       <v-row>
         <v-col cols="12">
-          <v-banner border class="text-grey-darken-1">
+          <v-banner border class="text-grey-darken-1 justify-center">
             Disclaimer: This tool relies on the employer supplying accurate and
             complete payroll data in order to calculate pay gaps.
           </v-banner>
         </v-col>
       </v-row>
       <v-row class="mt-6" dense>
-        <v-col class="font-weight-bold text-h6"> Employer </v-col>
+        <v-col class="text-body-1 font-weight-bold"> Employer </v-col>
       </v-row>
       <v-row dense>
-        <v-col class="font-weight-bold text-h5 d-flex align-center">
+        <v-col
+          id="companyName"
+          class="font-weight-bold text-h5 d-flex align-center"
+        >
           <v-icon icon="fa:fas fa-user" size="small" class="icon-color mr-3" />
           {{ companyName }}
         </v-col>
       </v-row>
       <v-row dense>
-        <v-col class="text-h5 d-flex align-center">
+        <v-col id="companyAddress" class="text-h5 d-flex align-center">
           <v-icon
             icon="fa:fas fa-location-dot"
             size="small"
@@ -59,12 +62,15 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label for="naicsCode" :class="{ 'text-red': naicsCodeError }">
+            <label
+              for="naicsCode"
+              :class="{ 'text-red': isSubmit && !naicsCode }"
+            >
               NAICS Code
             </label>
             <span class="text-red font-weight-bold text-h6">*</span>
             <v-tooltip
-              text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer comprises of multiple sectors, select the code that covers the majority of employees"
+              text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer comprises of multiple sectors, select the code that covers the majority of employees."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -101,13 +107,13 @@
           <div class="text-body-1 font-weight-bold">
             <label
               for="employeeCountRange"
-              :class="{ 'text-red': employeeCountRangeError }"
+              :class="{ 'text-red': isSubmit && !employeeCountRange }"
             >
               Employee Count Range
             </label>
             <span class="text-red font-weight-bold text-h6">*</span>
             <v-tooltip
-              text="Select the range that is closest to the number of employees who were employed as of January 1 of the year your report is being prepared for"
+              text="Select the range that is closest to the number of employees who were employed as of January 1 of the year your report is being prepared for."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -145,12 +151,22 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label :class="{ 'text-red': timePeroidError }">
+            <label
+              :class="{
+                'text-red':
+                  isSubmit &&
+                  (!startMonth ||
+                    !startYear ||
+                    !endMonth ||
+                    !endYear ||
+                    !reportYear),
+              }"
+            >
               Time Period
             </label>
             <span class="text-red font-weight-bold text-h6">*</span>
             <v-tooltip
-              text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year"
+              text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -174,12 +190,11 @@
               <span class="text-grey-darken-1">From</span>
               <v-combobox
                 id="startMonth"
-                ref="startMonth"
                 v-model="startMonth"
                 label="Month"
-                :items="months"
-                item-title="name"
-                item-value="value"
+                :items="startMonthList"
+                :return-object="false"
+                :rules="requiredRules"
               />
             </v-col>
             <!-- startYear -->
@@ -189,7 +204,8 @@
                 ref="startYear"
                 v-model="startYear"
                 label="Year"
-                :items="selectYears"
+                :items="startYearList"
+                :rules="requiredRules"
               />
             </v-col>
           </v-row>
@@ -213,9 +229,9 @@
                 ref="endMonth"
                 v-model="endMonth"
                 label="Month"
-                :items="months"
-                item-title="name"
-                item-value="value"
+                :items="endMonthList"
+                :return-object="false"
+                :rules="requiredRules"
               />
             </v-col>
             <!-- endYear -->
@@ -225,7 +241,8 @@
                 ref="endYear"
                 v-model="endYear"
                 label="Year"
-                :items="selectYears"
+                :items="endYearList"
+                :rules="requiredRules"
               />
             </v-col>
           </v-row>
@@ -238,7 +255,7 @@
                 <label for="reportYear"> Reporting Year: </label>
                 <span class="text-red font-weight-bold text-h6">*</span>
                 <v-tooltip
-                  text="testest"
+                  text="Employers must submit pay transparency reports by November 1 of each year. Select the year you are submitting a report for."
                   :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
                 >
                   <template #activator="{ props }">
@@ -256,7 +273,8 @@
                 ref="reportYear"
                 v-model="reportYear"
                 label="Year"
-                :items="selectYears"
+                :items="reportYearList"
+                :rules="requiredRules"
               />
             </v-col>
           </v-row>
@@ -268,7 +286,7 @@
           <div class="text-body-1 font-weight-bold">
             <label for="comments"> Employer Statement </label>
             <v-tooltip
-              text="Please share any general information about your employer"
+              text="Please share any general information about your employer."
             >
               <template #activator="{ props }">
                 <v-icon
@@ -306,7 +324,7 @@
           <div class="text-body-1 font-weight-bold">
             <label for="dataConstraints"> Data Constraints </label>
             <v-tooltip
-              text='Please share any information (e.g. Limitations, constraints, or dependencies) that may be helpful to explain your payroll data (e.g. "Bonus pay not offered by [employer name]")'
+              text='Please share any information (e.g. Limitations, constraints, or dependencies) that may be helpful to explain your payroll data (e.g. "Bonus pay not offered by [employer name]").'
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -339,18 +357,23 @@
           />
         </v-col>
       </v-row>
-
+      <!-- File Upload -->
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label for="naicsCode" :class="{ 'text-red': fileUploadError }">
+            <label
+              for="naicsCode"
+              :class="{ 'text-red': isSubmit && !uploadFileValue }"
+            >
               File Upload
             </label>
             <span class="text-red font-weight-bold text-h6">*</span>
             <div class="text-subtitle-2 text-grey-darken-1">
               To proceed, upload your employee data in comma-separated value
               (CSV) format. Ensure the CSV file follows the provided CSV
-              template () for accurate processing.
+              template
+              <a href="SampleCsv.csv" download>Download sample CSV</a>
+              for accurate processing.
             </div>
           </div>
         </v-col>
@@ -410,6 +433,7 @@
           </div>
         </v-col>
       </v-row>
+      <!-- Submission Errors -->
       <v-row v-if="submissionErrors" class="mt-3">
         <v-col>
           <v-alert class="bootstrap-error mb-3">
@@ -453,7 +477,11 @@
                   >
                     <td class="text-left">{{ rowError.rowNum }}</td>
                     <td class="text-left">
-                      <span v-for="errMsg in rowError.errorMsgs" class="mr-2">
+                      <span
+                        v-for="errMsg in rowError.errorMsgs"
+                        :key="errMsg"
+                        class="mr-2"
+                      >
                         {{ errMsg }}
                       </span>
                     </td>
@@ -466,10 +494,11 @@
       </v-row>
 
       <v-row class="mt-6">
-        <v-col cols="12" class="d-flex justify-center">
+        <v-col class="d-flex justify-center">
           <PrimaryButton
             id="submitButton"
             text="Submit"
+            :icon="isSubmit ? 'fa:fas fa-xmark' : ''"
             :click-action="submit"
           />
         </v-col>
@@ -523,17 +552,12 @@ import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
 import { CsvService, IParseSuccessResponse } from '../common/csvService';
-import {
-  LocalDate,
-  ChronoUnit,
-  convert,
-  TemporalAdjusters,
-  DateTimeFormatter,
-} from '@js-joda/core';
+import { LocalDate, TemporalAdjusters, DateTimeFormatter } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { IConfigValue } from '../common/types';
 import axios from 'axios';
 import { VFileInput } from 'vuetify/components';
+import _ from 'lodash';
 
 interface RowError {
   rowNum: number;
@@ -577,60 +601,44 @@ export default {
     next(response);
   },
   data: () => ({
-    validForm: null,
     requiredRules: [(v: string) => !!v || 'Complete this field.'],
     companyName: '',
     companyAddress: '',
+    //fields
     naicsCode: null as any,
-    naicsCodeError: false as boolean,
-    naicsCodesTruncated: [],
     employeeCountRange: null as any,
-    employeeCountRangeError: false as boolean,
+    startMonth: LocalDate.now().minusYears(1).monthValue() || undefined,
+    startYear: LocalDate.now().minusYears(1).year(),
+    endMonth: LocalDate.now().minusMonths(1).monthValue() || undefined,
+    endYear: LocalDate.now().minusMonths(1).year(),
+    reportYear: null,
+    isSubmit: false, //whether or not the submit button has been pressed
     isProcessing: false,
     uploadFileValue: undefined as File[] | undefined,
     maxFileUploadSize: '',
-    minStartDate: convert(
-      LocalDate.now()
-        .minus(2, ChronoUnit.YEARS)
-        .with(TemporalAdjusters.firstDayOfMonth()),
-    ).toDate(),
-    maxStartDate: convert(
-      LocalDate.now()
-        .minus(1, ChronoUnit.YEARS)
-        .with(TemporalAdjusters.lastDayOfMonth()),
-    ).toDate(),
-    minEndDate: convert(
-      LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1),
-    ).toDate(),
-    maxEndDate: convert(
-      LocalDate.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()),
-    ).toDate(),
-    startDate: LocalDate.now()
+    minStartDate: LocalDate.now()
+      .minusYears(2)
+      .with(TemporalAdjusters.firstDayOfMonth()),
+    maxStartDate: LocalDate.now()
       .minusYears(1)
-      .with(TemporalAdjusters.lastDayOfMonth())
-      .format(dateFormatter),
-    endDate: LocalDate.now()
-      .minus(1, ChronoUnit.MONTHS)
-      .with(TemporalAdjusters.lastDayOfMonth())
-      .format(dateFormatter),
-    // startMonth: null as number,
-    // startYear: null as number,
-    // endMonth: null as number,
-    // endYear: null as number,
-    // reportYear: null as number,
+      .with(TemporalAdjusters.lastDayOfMonth()),
+    minEndDate: LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1),
+    maxEndDate: LocalDate.now()
+      .minusMonths(1)
+      .with(TemporalAdjusters.lastDayOfMonth()),
     months: [
-      { name: 'January', value: 1 },
-      { name: 'February', value: 2 },
-      { name: 'March', value: 3 },
-      { name: 'April', value: 4 },
-      { name: 'May', value: 5 },
-      { name: 'June', value: 6 },
-      { name: 'July', value: 7 },
-      { name: 'August', value: 8 },
-      { name: 'September', value: 9 },
-      { name: 'October', value: 10 },
-      { name: 'November', value: 11 },
-      { name: 'December', value: 12 },
+      { title: 'January', value: 1 },
+      { title: 'February', value: 2 },
+      { title: 'March', value: 3 },
+      { title: 'April', value: 4 },
+      { title: 'May', value: 5 },
+      { title: 'June', value: 6 },
+      { title: 'July', value: 7 },
+      { title: 'August', value: 8 },
+      { title: 'September', value: 9 },
+      { title: 'October', value: 10 },
+      { title: 'November', value: 11 },
+      { title: 'December', value: 12 },
     ],
     selectYears: [2023, 2024],
     dataConstraints: null,
@@ -641,17 +649,139 @@ export default {
     alertMessage: null as string | null,
     alertType: null as string | null,
     submissionErrors: null as ISubmissionError | null,
-    draftReport: null,
     approvedRoute: null as string | null,
     reportStatus: null,
   }),
+  computed: {
+    ...mapState(useConfigStore, ['config']),
+    ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
+    ...mapState(authStore, ['userInfo']),
+    ...mapState(useReportStepperStore, [
+      'reportId',
+      'reportInfo',
+      'reportData',
+      'mode',
+    ]),
+    formReady() {
+      return (
+        !!this.companyName &&
+        !!this.companyAddress &&
+        !!this.naicsCode &&
+        !!this.employeeCountRange &&
+        !!this.startMonth &&
+        !!this.startYear &&
+        !!this.endMonth &&
+        !!this.endYear &&
+        !!this.reportYear &&
+        !!this.uploadFileValue &&
+        this.uploadFileValue.length == 1
+      );
+    },
+    startDate() {
+      if (!this.startMonth) return;
+      return LocalDate.of(this.startYear, this.startMonth, 1).format(
+        dateFormatter,
+      );
+    },
+    endDate() {
+      if (!this.endMonth) return;
+      return LocalDate.of(this.endYear, this.endMonth, 1)
+        .with(TemporalAdjusters.lastDayOfMonth())
+        .format(dateFormatter);
+    },
+    reportYearList() {
+      return [LocalDate.now().year(), LocalDate.now().minusYears(1).year()];
+    },
+    startMonthList() {
+      return this.months.map((month) => {
+        const selected = LocalDate.of(this.startYear, month.value, 1);
+        const disabled =
+          selected.isBefore(this.minStartDate as LocalDate) ||
+          selected.isAfter(this.maxStartDate as LocalDate);
+        return { ...month, props: { disabled } };
+      });
+    },
+    startYearList() {
+      return _.range(this.minStartDate.year(), this.maxStartDate.year() + 1);
+    },
+    endMonthList() {
+      return this.months.map((month) => {
+        const selected = LocalDate.of(this.endYear, month.value, 1);
+        const disabled =
+          selected.isBefore(this.minEndDate as LocalDate) ||
+          selected.isAfter(this.maxEndDate as LocalDate);
+        return { ...month, props: { disabled } };
+      });
+    },
+    endYearList() {
+      return _.range(this.minEndDate.year(), this.maxEndDate.year() + 1);
+    },
+  },
+  watch: {
+    startMonth() {
+      //automatically update the endMonth and endYear to be one year later
+      if (!this.startDate) return;
+      const end = LocalDate.parse(this.startDate).plusMonths(11);
+      this.endMonth = end.monthValue();
+    },
+    startYear() {
+      //automatically update the endMonth and endYear to be one year later
+      if (!this.startDate) return;
+      const end = LocalDate.parse(this.startDate).plusMonths(11);
+      this.endMonth = end.monthValue();
+      this.endYear = end.year();
+      //if the selected endMonth is disabled, clear the field
+      if (
+        this.endMonthList.find((month) => month.value === this.endMonth)?.props
+          .disabled
+      )
+        this.endMonth = undefined;
+    },
+    endMonth() {
+      //automatically update the startMonth and startYear to be one year earlier
+      if (!this.endDate) return;
+      const start = LocalDate.parse(this.endDate).minusMonths(11);
+      this.startMonth = start.monthValue();
+    },
+    endYear() {
+      //automatically update the startMonth and startYear to be one year earlier
+      if (!this.endDate) return;
+      const start = LocalDate.parse(this.endDate).minusMonths(11);
+      this.startMonth = start.monthValue();
+      this.startYear = start.year();
+      //if the selected startMonth is disabled, clear the field
+      if (
+        this.startMonthList.find((month) => month.value === this.startMonth)
+          ?.props.disabled
+      )
+        this.startMonth = undefined;
+    },
+    userInfo: {
+      // Watch for changes to userInfo (from the authStore).  Copy company name
+      // and address from that object into state variables in this component.
+      immediate: true,
+      handler(userInfo) {
+        this.companyName = userInfo?.legalName;
+        const address = `${
+          userInfo?.addressLine1 ? userInfo?.addressLine1 : ''
+        } ${userInfo?.addressLine2 ? userInfo?.addressLine2 : ''} ${userInfo?.city ? userInfo?.city : ''} ${userInfo?.province ? userInfo?.province : ''} ${userInfo?.postal ? userInfo?.postal : ''}`.trim();
+        this.companyAddress = address;
+      },
+    },
+    config(data) {
+      this.setMaxFileUploadSize(data);
+    },
+    formReady(newVal) {
+      if (newVal) this.isSubmit = false;
+    },
+  },
   beforeMount() {
     this.setStage('UPLOAD');
     this.loadConfig()
-      .then((data) => {
+      ?.then((data) => {
         this.setMaxFileUploadSize(data as IConfigValue);
       })
-      .catch((error) => {
+      .catch(() => {
         NotificationService.pushNotificationError(
           'Failed to load application settings. Please reload the page.',
         );
@@ -732,12 +862,10 @@ export default {
       );
     },
     async submit() {
-      if (!this.uploadFileValue?.length) {
-        throw new Error('Cannot submit without a selected file');
+      this.isSubmit = true;
+      if (!this.formReady) {
+        throw 'form not ready';
       }
-
-      this.employeeCountRangeError = !this.employeeCountRange;
-      this.naicsCodeError = !this.naicsCode;
       this.isProcessing = true;
       let submission: ISubmission | null = null;
 
@@ -745,7 +873,7 @@ export default {
         // Parse the csv file, convert it into a json array, and perform
         // preliminary validation.
         const parseResponse: IParseSuccessResponse = await CsvService.parse(
-          this.uploadFileValue[0],
+          this.uploadFileValue![0],
         );
 
         // Preliminary validation of the input file passed, so prepare
@@ -755,8 +883,8 @@ export default {
           companyAddress: this.companyAddress,
           naicsCode: this.naicsCode,
           employeeCountRangeId: this.employeeCountRange,
-          startDate: this.startDate,
-          endDate: this.endDate,
+          startDate: this.startDate!,
+          endDate: this.endDate!,
           dataConstraints: this.dataConstraints,
           comments: this.comments,
           rows: parseResponse.data,
@@ -770,8 +898,8 @@ export default {
       }
 
       try {
-        this.draftReport = await ApiService.postSubmission(submission);
-        await this.setReportInfo(this.draftReport as any);
+        const draftReport = await ApiService.postSubmission(submission);
+        await this.setReportInfo(draftReport as any);
         this.onSubmitComplete(null);
       } catch (error: any) {
         console.log(error);
@@ -801,85 +929,6 @@ export default {
           0,
         );
       }
-    },
-  },
-  watch: {
-    naicsCodes(val) {
-      this.naicsCodesTruncated = val?.length > 25 ? val.slice(0, 25) : val;
-    },
-    naicsCode() {
-      this.naicsCodeError = false;
-    },
-    employeeCountRange() {
-      this.employeeCountRangeError = false;
-    },
-    startDate(newVal) {
-      // When the startDate changes, automatically adjust the endDate to be
-      // 12 months later
-      if (newVal) {
-        const endDate = LocalDate.parse(newVal)
-          .plusYears(1)
-          .minusMonths(1)
-          .with(TemporalAdjusters.lastDayOfMonth());
-        this.endDate = endDate.format(dateFormatter);
-      }
-    },
-    endDate(newVal) {
-      // When the endDate changes, automatically adjust the startDate to be
-      // 12 months earlier
-      if (newVal) {
-        const startDate = LocalDate.parse(newVal).minusYears(1).plusMonths(1);
-        this.startDate = startDate.format(dateFormatter);
-      }
-    },
-    userInfo: {
-      // Watch for changes to userInfo (from the authStore).  Copy company name
-      // and address from that object into state variables in this component.
-      immediate: true,
-      handler(userInfo) {
-        this.companyName = userInfo?.legalName;
-        const address = `${
-          userInfo?.addressLine1 ? userInfo?.addressLine1 : ''
-        } ${userInfo?.addressLine2 ? userInfo?.addressLine2 : ''} ${userInfo?.city ? userInfo?.city : ''} ${userInfo?.province ? userInfo?.province : ''} ${userInfo?.postal ? userInfo?.postal : ''}`.trim();
-        this.companyAddress = address;
-      },
-    },
-    config(data) {
-      this.setMaxFileUploadSize(data);
-    },
-  },
-  computed: {
-    timePeroidError() {
-      return (
-        this.startMonth &&
-        this.startYear &&
-        this.endMonth &&
-        this.endYear &&
-        this.reportYear
-      );
-    },
-    ...mapState(useConfigStore, ['config']),
-    ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
-    ...mapState(authStore, ['userInfo']),
-    ...mapState(useReportStepperStore, [
-      'reportId',
-      'reportInfo',
-      'reportData',
-      'mode',
-    ]),
-    dataReady() {
-      return this.validForm && this.uploadFileValue;
-    },
-    areRequiredFieldsComplete() {
-      return (
-        !!this.companyName &&
-        !!this.companyAddress &&
-        !!this.naicsCode &&
-        !!this.employeeCountRange &&
-        !!this.startDate &&
-        !!this.endDate &&
-        !!this.uploadFileValue
-      );
     },
   },
 };
