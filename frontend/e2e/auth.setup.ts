@@ -4,7 +4,9 @@ const authFile = 'user.json';
 
 setup('authenticate', async ({ page }) => {
   await page.goto(`${baseURL!}${PagePaths.LOGIN}`);
-  const loginButton = page.getByText('Log In with Business BCeID');
+  const loginButton = page.getByRole('button', {
+    name: 'Log In with Business BCeID',
+  });
   await loginButton.click();
   await page.waitForTimeout(2000);
   const html = await page.locator('body').innerHTML();
@@ -16,8 +18,9 @@ setup('authenticate', async ({ page }) => {
     await page.waitForTimeout(1000);
     await page.locator('#login-form').press('Enter');
     await page.waitForURL(baseURL!);
-    await expect(page.getByText('Generate Pay Transparency Report')).toBeVisible();
+    await expect(
+      page.getByText('Generate Pay Transparency Report'),
+    ).toBeVisible();
     await page.context().storageState({ path: authFile });
   }
-
 });

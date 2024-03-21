@@ -3,7 +3,6 @@ import { PTPage } from './page';
 import { PagePaths, baseURL } from '../utils';
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale';
-import path from 'path';
 
 interface IFormValues {
   naicsCode: string;
@@ -18,7 +17,8 @@ export class GenerateReportPage extends PTPage {
   public employeeCountInput: Locator;
 
   async setup() {
-    this.naicsInput = await this.instance.locator('#naicsCode');
+    await this.instance.waitForLoadState('networkidle');
+    this.naicsInput = await this.instance.getByLabel('NAICS Code');
     this.employeeCountInput = await this.instance.locator(
       '#employeeCountRange',
     );
@@ -26,7 +26,7 @@ export class GenerateReportPage extends PTPage {
 
   async setNaicsCode(label: string) {
     await this.naicsInput.click();
-    const code = await this.instance.getByText(label);
+    const code = await this.instance.getByRole('option', { name: label });
     expect(code).toBeVisible();
     await code.click();
   }
