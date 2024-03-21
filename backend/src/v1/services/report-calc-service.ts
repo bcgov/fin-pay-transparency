@@ -472,8 +472,13 @@ const reportCalcService = {
       if (rowNum == 0) {
         return; //skip the first row (the header)
       }
-      const record = reportCalcServicePrivate.arrayToObject(row, header);
-      const rowError: RowError = validateService.validateRecord(rowNum, record);
+      const cleanedRow = validateService.cleanRow(row);
+      const record = reportCalcServicePrivate.arrayToObject(cleanedRow, header);
+      const recordNum = rowNum + 1; //numbering of records starts at 1
+      const rowError: RowError = validateService.validateRecord(
+        recordNum,
+        record,
+      );
       if (rowError) {
         rowErrors.push(rowError);
         return;

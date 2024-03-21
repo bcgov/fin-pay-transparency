@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import * as configModule from '../../store/modules/config';
 import {
   CsvService,
   CsvServicePrivate,
@@ -43,13 +44,28 @@ const mockTruncatedPapaParseResult = {
 describe('parseCsv', () => {
   describe('when a properly formatted csv file is given', () => {
     it('returns a promise containing the parsed data in json format', async () => {
+      vi.spyOn(configModule, 'useConfigStore').mockReturnValue({
+        loadConfig: async () => {
+          return {
+            maxUploadFileSize: 100000, //a large enough limit to avoid size errors
+          };
+        },
+      } as any);
       const result: any = await CsvService.parse(validCsvString);
+      console.log(result);
       const expectedNumLines = (validCsvString.match(/\n/g) || []).length + 1;
       expect(result.data.length).toBe(expectedNumLines);
     });
   });
   describe('when a csv with an invalid header is given', () => {
     it('returns a rejected promise', async () => {
+      vi.spyOn(configModule, 'useConfigStore').mockReturnValue({
+        loadConfig: async () => {
+          return {
+            maxUploadFileSize: 100000, //a large enough limit to avoid size errors
+          };
+        },
+      } as any);
       const csvStringWithInvalidHeader = 'col1,col2,col3\na,b,c';
       await expect(
         CsvService.parse(csvStringWithInvalidHeader),
@@ -67,6 +83,13 @@ describe('parseCsv', () => {
       it explicit that CsvService.parse(...) is intentionally allowing some 
       invalid data to pass through without error.
       */
+      vi.spyOn(configModule, 'useConfigStore').mockReturnValue({
+        loadConfig: async () => {
+          return {
+            maxUploadFileSize: 100000, //a large enough limit to avoid size errors
+          };
+        },
+      } as any);
       const csvStringWithInvalidSecondLine = `${validCsvHeader}\na,b,c`;
       const result: any = await CsvService.parse(
         csvStringWithInvalidSecondLine,
@@ -74,6 +97,47 @@ describe('parseCsv', () => {
       const expectedNumLines =
         (csvStringWithInvalidSecondLine.match(/\n/g) || []).length + 1;
       expect(result.data.length).toBe(expectedNumLines);
+    });
+  });
+  describe('when a csv is too large', () => {
+    it('returns a rejected promise', async () => {
+      vi.spyOn(configModule, 'useConfigStore').mockReturnValue({
+        loadConfig: async () => {
+          return {
+            maxUploadFileSize: 1, //1 byte maximum (a very small csv size limit!)
+          };
+        },
+      } as any);
+      await expect(CsvService.parse(validCsvString)).rejects.toBeTruthy();
+    });
+  });
+});
+
+describe('validateSize', () => {
+  describe('when the csv file is under the max size limit', () => {
+    it('returns null', async () => {
+      vi.spyOn(configModule, 'useConfigStore').mockReturnValue({
+        loadConfig: async () => {
+          return {
+            maxUploadFileSize: 100000, //a large enough limit to avoid size errors
+          };
+        },
+      } as any);
+      const result = await CsvServicePrivate.validateSize(validCsvString);
+      expect(result).toBeNull();
+    });
+  });
+  describe('when the csv file is over the max size limit', () => {
+    it('returns an error object', async () => {
+      vi.spyOn(configModule, 'useConfigStore').mockReturnValue({
+        loadConfig: async () => {
+          return {
+            maxUploadFileSize: 1, //1 byte maximum (a very small csv size limit!)
+          };
+        },
+      } as any);
+      const result = await CsvServicePrivate.validateSize(validCsvString);
+      expect(result?.status).toBe(ParseStatus.Error);
     });
   });
 });
