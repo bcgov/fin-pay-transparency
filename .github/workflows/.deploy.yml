@@ -1,4 +1,4 @@
-name: Deploy
+name: .Deploy
 env:
   deployment_name: pay-transparency
 on:

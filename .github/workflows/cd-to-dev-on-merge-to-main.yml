@@ -109,7 +109,7 @@ jobs:
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
       params: --set doc-gen-service.pdb=false --set-string crunchy.instances.dataVolumeClaimSpec.storage=960Mi
   test-e2e:
-    name: End-to-end (dev)
+    name: E2E (dev)
     needs: [deploys]
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
