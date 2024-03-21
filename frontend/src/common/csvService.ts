@@ -1,4 +1,5 @@
 import Papa, { ParseResult } from 'papaparse';
+import { useConfigStore } from '../store/modules/config';
 
 export enum ParseStatus {
   Success = 'success',
@@ -27,15 +28,25 @@ export const REQUIRED_HEADER_COLUMNS = [
 const GENERIC_PARSE_ERROR_MSG = 'Unable to parse .csv file.';
 const PARSE_ABORTED_ERROR_MSG =
   'Parsing was aborted before reaching the end of the input.';
+const FILE_TOO_LARGE_ERROR_MSG = 'The selected file is too large';
 const PARSE_INVALID_HEADER_ERROR_MSG =
   'The first line of the .csv file does not include the expected column names.';
 
 export const CsvService = {
   /**
    * Parses the given .csv file, converting it into JSON format.
+   * Returns a promise.  If parsing is successful, the promise resolves
+   * to a IParseSuccessResponse.  If anything goes wrong, the
+   * projects is rejected with an IParseErrorResponse.
    * @param file
    */
   async parse(contents: File | string): Promise<IParseSuccessResponse> {
+    //Before parsing the file, check that its size is within the allowed limit
+    const validateSizeError = await CsvServicePrivate.validateSize(contents);
+    if (validateSizeError) {
+      throw validateSizeError;
+    }
+
     return new Promise((resolve, reject) => {
       const parserConfig: any = {
         delimiter: ',',
@@ -99,6 +110,31 @@ export const CsvServicePrivate = {
     papaParseResult: ParseResult<any>,
   ): IParseErrorResponse | null {
     return this.validateHeader(papaParseResult);
+  },
+
+  /**
+   *
+   */
+  async validateSize(
+    contents: File | string,
+  ): Promise<IParseErrorResponse | null> {
+    let sizeBytes = 0;
+    if (contents instanceof File) {
+      sizeBytes = contents.size;
+    } else {
+      sizeBytes = new Blob([contents]).size;
+    }
+    const configStore = useConfigStore();
+    const config = await configStore.loadConfig();
+    const maxUploadSizeBytes = config.maxUploadFileSize;
+    if (sizeBytes > maxUploadSizeBytes) {
+      const maxUploadSizeMB = maxUploadSizeBytes / (1024 * 1024);
+      return {
+        status: ParseStatus.Error,
+        message: `${FILE_TOO_LARGE_ERROR_MSG}. Limit ${Math.floor(maxUploadSizeMB)}MB.`,
+      };
+    }
+    return null;
   },
 
   /**

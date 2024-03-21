@@ -26,11 +26,32 @@ import { auth } from './v1/services/auth-service';
 import { utils } from './v1/services/utils-service';
 require('./schedulers/delete-draft-service-scheduler');
 
+const MAX_CSV_FILE_SIZE_ON_DISK_BYTES =
+  config.get('server:uploadFileMaxSizeBytes') || 8388608;
+
+// The original CSV file is parsed on the frontend and converted to JSON.
+// The data in JSON format is typically larger than the original CSV
+// because the JSON includes extra characters (such as quotes around
+// values, and square brackets around arrays).
+// For example, this CSV line:
+//   W,1987.7,139897.6,,70,105.57,1000
+// is converted on the frontend into this JSON array:
+//   ["W","1987.7","139897.6","","70","105.57","1000"]
+// Due to the extra bulk of the JSON format we allow the JSON to be
+// up to 50 % larger than the CSV, which is a reasonable upper bound for
+// most 'realistic' data, although it's possible to craft symthetic CSV
+// submissions in which the corresponding JSON is more like 100% larger
+// (e.g.a CSV file in which each column is empty).
+const MAX_SUBMISSION_SIZE_ON_DISK_BYTES = MAX_CSV_FILE_SIZE_ON_DISK_BYTES * 1.5;
+
+// Express can restrict requests to a certain maximum size, but it
+// measures the request transfer size as the amount of bytes transferred
+// over the network with the HTTP request.  Network transfer size is
+// different from size on disk, so convert the limits defined above into
+// the format that Express works with.
 const DISK_MB_PER_NETWORK_MB = 1.024;
-const MAX_FILE_SIZE_ON_DISK_BYTES =
-  config.get('server:uploadFileMaxSizeBytes') || 8000000;
 const MAX_NETWORK_TRANSFER_SIZE_BYTES =
-  DISK_MB_PER_NETWORK_MB * MAX_FILE_SIZE_ON_DISK_BYTES;
+  MAX_SUBMISSION_SIZE_ON_DISK_BYTES * DISK_MB_PER_NETWORK_MB;
 
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
