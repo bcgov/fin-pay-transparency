@@ -5,7 +5,9 @@ import { logger as log } from '../logger';
 import advisoryLock from 'advisory-lock';
 
 try {
-  const mutex = advisoryLock(config.get('server:databaseUrl'))('delete_draft_reports');
+  const mutex = advisoryLock(config.get('server:databaseUrl'))(
+    'delete_draft_reports',
+  );
   const crontime = config.get('server:schedulerDeleteDraftCronTime');
   const timezone = config.get('server:schedulerDeleteDraftTimeZone');
 

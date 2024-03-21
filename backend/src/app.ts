@@ -24,6 +24,7 @@ import { reportRouter } from './v1/routes/report-routes';
 import userRouter from './v1/routes/user-info-routes';
 import { auth } from './v1/services/auth-service';
 import { utils } from './v1/services/utils-service';
+require('./schedulers/delete-draft-service-scheduler');
 
 const DISK_MB_PER_NETWORK_MB = 1.024;
 const MAX_FILE_SIZE_ON_DISK_BYTES =
