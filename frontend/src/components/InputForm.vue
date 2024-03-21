@@ -370,9 +370,8 @@
             <span class="text-red font-weight-bold text-h6">*</span>
             <div class="text-subtitle-2 text-grey-darken-1">
               To proceed, upload your employee data in comma-separated value
-              (CSV) format. Ensure the CSV file follows the provided CSV
-              template
-              <a href="SampleCsv.csv" download>Download sample CSV</a>
+              (CSV) format. Ensure the CSV file follows the provided
+              <a href="SampleCsv.csv" download>CSV Sample</a>
               for accurate processing.
             </div>
           </div>
@@ -421,7 +420,7 @@
           </div>
           <div v-if="uploadFileValue" class="d-flex align-center">
             <div class="d-flex justify-center" style="flex: 1">
-              {{ uploadFileValue[0].name }} ({{ uploadFileValue[0].size }})
+              {{ uploadFileValue[0].name }} ({{ uploadFileSize }})
             </div>
             <div>
               <v-btn
@@ -498,9 +497,14 @@
           <PrimaryButton
             id="submitButton"
             text="Submit"
-            :icon="isSubmit ? 'fa:fas fa-xmark' : ''"
+            :icon="isSubmit && !formReady ? 'fa:fas fa-xmark' : ''"
             :click-action="submit"
           />
+        </v-col>
+      </v-row>
+      <v-row v-if="isSubmit && !formReady" dense>
+        <v-col class="text-red d-flex justify-center">
+          Please check the form and correct all errors before submitting.
         </v-col>
       </v-row>
 
@@ -676,6 +680,11 @@ export default {
         !!this.uploadFileValue &&
         this.uploadFileValue.length == 1
       );
+    },
+    uploadFileSize() {
+      if (this.uploadFileValue?.length)
+        return humanFileSize(this.uploadFileValue[0].size);
+      return '';
     },
     startDate() {
       if (!this.startMonth) return;
