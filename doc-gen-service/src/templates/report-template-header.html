@@ -307,6 +307,37 @@
           <div id="block-employer-details" class="block">
             <h2 class="text-primary mb-4">Employer details</h2>
 
+            <div
+              class="employer-details table"
+              role="presentation"
+              style="width: 100%"
+            >
+              <div>
+                <div class="table-header">Employer:</div>
+                <div class="text-normal"><%= companyName %></div>
+              </div>
+              <div>
+                <div class="table-header">Address:</div>
+                <div class="text-normal"><%= companyAddress %></div>
+              </div>
+              <div>
+                <div class="table-header">Time Period:</div>
+                <div class="text-normal">
+                  <%= reportStartDate %> - <%= reportEndDate %>
+                </div>
+              </div>
+              <div>
+                <div class="table-header">NAICS Code:</div>
+                <div class="text-normal">
+                  <%= naicsCode %> - <%= naicsLabel %>
+                </div>
+              </div>
+              <div>
+                <div class="table-header">Number of Employees:</div>
+                <div class="text-normal"><%= employeeCountRange %></div>
+              </div>
+            </div>
+            <!--
             <table
               class="employer-details table"
               role="presentation"
@@ -337,7 +368,7 @@
                 <td class="text-normal"><%= employeeCountRange %></td>
               </tr>
             </table>
-          </div>
+          --></div>
         </div>
       </div>
     </div>
