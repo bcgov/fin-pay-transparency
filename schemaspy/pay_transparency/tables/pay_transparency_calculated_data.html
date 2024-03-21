@@ -192,7 +192,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="is_suppressed">is_suppressed</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="is_suppressed">is_suppressed</span></td>
                                     <td>bool</td>
                                     <td>1</td>
                                     <td title=''></td>
@@ -318,6 +318,18 @@
                                     <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
                                     <td>report_id + calculation_code_id</td>
                                 </tr>
+                                <tr>
+                                    <td title='Indexed'>pay_transparency_calculated_data_report_id_idx</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>report_id</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>pay_transparency_calculated_data_report_id_is_suppressed_idx</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>report_id + is_suppressed</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div><!-- /.box-body -->
@@ -343,18 +355,18 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,85,785,419">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,257,251,380">
-<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,5,284,240">
+<area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,144,785,477">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,375,251,497">
+<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,5,284,357">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/pay_transparency_calculated_data.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="768,405,1036,493">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="384,371,596,493">
-<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="673,55,1131,388">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,87,629,321">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="768,459,1036,547">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="384,456,596,579">
+<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="673,81,1131,415">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,87,629,439">
 <area shape="rect" id="node5" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,307,93">
 <area shape="rect" id="node6" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,216,287,304">
 <area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,321,239,409">
@@ -366,8 +378,8 @@
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
 <area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="829,228,1097,463">
 <area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,5,785,339">
-<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,336,251,459">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,53,284,288">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,392,251,515">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,23,284,375">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/pay_transparency_calculated_data.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

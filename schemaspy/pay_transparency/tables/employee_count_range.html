@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>employee_count_range</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <h1>employee_count_range</h1><p><span id="recordNumber">3</span> rows</p><br />
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -187,7 +187,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="effective_date">effective_date</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="effective_date">effective_date</span></td>
                                     <td>timestamp</td>
                                     <td>29,6</td>
                                     <td title=''></td>
@@ -204,7 +204,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="expiry_date">expiry_date</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="expiry_date">expiry_date</span></td>
                                     <td>timestamp</td>
                                     <td>29,6</td>
                                     <td title='nullable'>√</td>
@@ -290,6 +290,12 @@
                                     <td><span title='Ascending'>Asc</span></td>
                                     <td>employee_count_range_id</td>
                                 </tr>
+                                <tr>
+                                    <td title='Indexed'>employee_count_range_effective_date_expiry_date_idx</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>effective_date + expiry_date</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div><!-- /.box-body -->
@@ -315,9 +321,9 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="437,5,716,240">
-<area shape="rect" id="node2" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="5,232,393,536">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="450,257,703,521">
+<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="437,5,716,357">
+<area shape="rect" id="node2" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="5,291,393,595">
+<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="450,375,703,639">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/employee_count_range.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
@@ -330,15 +336,15 @@
 <area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="117,560,282,648">
 <area shape="rect" id="node8" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="68,133,331,221">
 <area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="760,289,1113,377">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="437,287,716,521">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="437,287,716,639">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/employee_count_range.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="437,5,716,240">
-<area shape="rect" id="node2" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="5,153,393,457">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="760,39,1013,303">
+<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="437,5,716,357">
+<area shape="rect" id="node2" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="5,212,393,516">
+<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="760,97,1013,361">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/employee_count_range.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

@@ -60,7 +60,7 @@
             <column ascending="true" name="company_history_id"/>
          </index>
       </table>
-      <table name="employee_count_range" remarks="" schema="pay_transparency" type="TABLE">
+      <table name="employee_count_range" numRows="3" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="employee_count_range_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="employee_count_range_id" foreignKey="report_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="employee_count_range_id" foreignKey="report_history_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
@@ -75,6 +75,10 @@
          <primaryKey column="employee_count_range_id" sequenceNumberInPK="1"/>
          <index name="employee_count_range_id_pk" unique="true">
             <column ascending="true" name="employee_count_range_id"/>
+         </index>
+         <index name="employee_count_range_effective_date_expiry_date_idx" unique="false">
+            <column ascending="true" name="effective_date"/>
+            <column ascending="true" name="expiry_date"/>
          </index>
       </table>
       <table name="flyway_schema_history" remarks="" schema="pay_transparency" type="TABLE">
@@ -96,7 +100,7 @@
             <column ascending="true" name="success"/>
          </index>
       </table>
-      <table name="naics_code" remarks="" schema="pay_transparency" type="TABLE">
+      <table name="naics_code" numRows="20" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="naics_code" nullable="false" remarks="" size="5" type="varchar" typeCode="12">
             <child column="naics_code" foreignKey="pay_transparency_report_naics_code_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="naics_code" foreignKey="report_history_naics_code_fkey" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
@@ -112,6 +116,10 @@
          <primaryKey column="naics_code" sequenceNumberInPK="1"/>
          <index name="naics_code_id_pk" unique="true">
             <column ascending="true" name="naics_code"/>
+         </index>
+         <index name="naics_code_effective_date_expiry_date_idx" unique="false">
+            <column ascending="true" name="effective_date"/>
+            <column ascending="true" name="expiry_date"/>
          </index>
       </table>
       <table name="pay_transparency_calculated_data" remarks="" schema="pay_transparency" type="TABLE">
@@ -138,6 +146,13 @@
             <column ascending="true" name="report_id"/>
             <column ascending="true" name="calculation_code_id"/>
          </index>
+         <index name="pay_transparency_calculated_data_report_id_idx" unique="false">
+            <column ascending="true" name="report_id"/>
+         </index>
+         <index name="pay_transparency_calculated_data_report_id_is_suppressed_idx" unique="false">
+            <column ascending="true" name="report_id"/>
+            <column ascending="true" name="is_suppressed"/>
+         </index>
       </table>
       <table name="pay_transparency_company" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
@@ -160,6 +175,9 @@
             <column ascending="true" name="company_id"/>
          </index>
          <index name="company_bceid_business_guid_uk" unique="true">
+            <column ascending="true" name="bceid_business_guid"/>
+         </index>
+         <index name="pay_transparency_company_bceid_business_guid_idx" unique="false">
             <column ascending="true" name="bceid_business_guid"/>
          </index>
       </table>
@@ -196,6 +214,27 @@
          <index name="report_id_pk" unique="true">
             <column ascending="true" name="report_id"/>
          </index>
+         <index name="pay_transparency_report_company_id_create_date_report_start_idx" unique="false">
+            <column ascending="true" name="company_id"/>
+            <column ascending="true" name="create_date"/>
+            <column ascending="true" name="report_start_date"/>
+            <column ascending="true" name="report_end_date"/>
+            <column ascending="true" name="report_status"/>
+         </index>
+         <index name="pay_transparency_report_company_id_report_start_date_report_idx" unique="false">
+            <column ascending="true" name="company_id"/>
+            <column ascending="true" name="report_start_date"/>
+            <column ascending="true" name="report_end_date"/>
+            <column ascending="true" name="report_status"/>
+         </index>
+         <index name="pay_transparency_report_create_date_report_status_idx" unique="false">
+            <column ascending="true" name="create_date"/>
+            <column ascending="true" name="report_status"/>
+         </index>
+         <index name="pay_transparency_report_report_id_company_id_idx" unique="false">
+            <column ascending="true" name="report_id"/>
+            <column ascending="true" name="company_id"/>
+         </index>
          <checkConstraint constraint="(((report_status)::text = ANY ((ARRAY['Draft'::character varying, 'Published'::character varying])::text[])))" name="report_status_check"/>
       </table>
       <table name="pay_transparency_user" remarks="" schema="pay_transparency" type="TABLE">
@@ -211,6 +250,10 @@
          <primaryKey column="user_id" sequenceNumberInPK="1"/>
          <index name="user_id_pk" unique="true">
             <column ascending="true" name="user_id"/>
+         </index>
+         <index name="pay_transparency_user_bceid_user_guid_bceid_business_guid_idx" unique="false">
+            <column ascending="true" name="bceid_user_guid"/>
+            <column ascending="true" name="bceid_business_guid"/>
          </index>
       </table>
       <table name="report_history" remarks="" schema="pay_transparency" type="TABLE">
