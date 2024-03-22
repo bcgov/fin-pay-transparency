@@ -96,27 +96,11 @@ spec:
         - secret:
             name: {{ .Release.Name }}-s3-secret
       global:
-        # hardcoding repo1 until we solution allowing multiple repos
-        repo1-retention-full: {{ .Values.pgBackRest.retention | quote }}
-        repo1-retention-full-type: {{ .Values.pgBackRest.retentionFullType }}
         repo2-retention-full: {{ .Values.pgBackRest.s3.retention | quote }}
         repo2-retention-full-type: {{ .Values.pgBackRest.retentionFullType }}
         repo2-path: '/crunchy-db-backups'
         repo2-s3-uri-style: path
       repos:
-        # hardcoding repo1 until we solution allowing multiple repos
-        - name: repo1
-          schedules:
-            full: {{ .Values.pgBackRest.repos.schedules.full }}
-            incremental: {{ .Values.pgBackRest.repos.schedules.incremental }}
-          volume:
-            volumeClaimSpec:
-              accessModes:
-                - {{ .Values.pgBackRest.repos.volume.accessModes }}
-              resources:
-                requests:
-                  storage: {{ .Values.pgBackRest.repos.volume.storage }}
-              storageClassName: {{ .Values.pgBackRest.repos.volume.storageClassName }}
         - name: repo2
           schedules:
             full: {{ .Values.pgBackRest.s3.fullBackupSchedule }}

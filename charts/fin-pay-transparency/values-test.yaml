@@ -1,0 +1,307 @@
+# Default values for fin-pay-transparency.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
+global:
+  secrets:
+    databasePassword: ~
+    databaseName: ~
+    databaseUser: ~
+    keycloakClientId: ~
+    keycloakClientSecret: ~
+    keycloakUrl: ~
+    uiPrivateKey: ~
+    uiPublicKey: ~
+    bceidWsAuthPassword: ~
+    bceidWsAuthUserName: ~
+    bceidWsUrl: ~
+    bceidWsOnlineServiceId: ~
+    externalConsumerApiKey: ~
+    annotation:
+      helm.sh/policy: "keep"
+  domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
+  serverFrontend: ~
+  autoscaling:
+    enabled: true
+  config:
+    upload_file_max_size: "8388608"
+    report_edit_duration_in_days: "30"
+    template_path: "./dist/templates"
+    delete_draft_report_cron_crontime: "0 0 0 * * *" # 12:00 AM PST/PDT
+    delete_draft_report_cron_timezone: "America/Vancouver"
+  crunchyEnabled: true
+backend:
+  enabled: true
+  deploymentStrategy: RollingUpdate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/backend
+    repositoryInit: ghcr.io/bcgov/fin-pay-transparency/database-migrations
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    limits:
+      cpu: 150m
+      memory: 250Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
+  initResources:
+    limits:
+      cpu: 150m
+      memory: 250Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 60 # this percentage from request cpu
+  storage:
+    enabled: true
+    size: 50Mi
+    accessMode: ReadWriteMany
+  app:
+    env:
+      siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
+      logLevel: info
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+  podSecurityContext: {}
+  securityContext: {}
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  pdb: true
+frontend:
+  enabled: true
+  deploymentStrategy: RollingUpdate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/frontend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  route:
+    enabled: true
+    host: ""
+    verificationPath: ""
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    limits:
+      cpu: 50m
+      memory: 150Mi
+    requests:
+      cpu: 15m
+      memory: 50Mi
+  env:
+    logLevel: info
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80 # this percentage from request cpu
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3003"
+    prometheus.io/path: "/metrics"
+  podSecurityContext: {}
+  securityContext:
+    capabilities:
+      add: ["NET_BIND_SERVICE"]
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  pdb: true
+database:
+  enabled: false
+crunchy:
+  enabled: true
+  postgresVersion: 15
+  imagePullPolicy: IfNotPresent
+  instances:
+    name: db
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+    replicas: 3
+    dataVolumeClaimSpec:
+      storage: 600Mi
+      storageClassName: netapp-block-standard
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    replicaCertCopy:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 20m
+        memory: 32Mi
+
+  pgBackRest:
+    image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+    # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
+    # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
+    retentionFullType: count
+    s3:
+      retention: "14"
+      bucket: ~
+      endpoint: ~
+      accessKey: ~
+      secretKey: ~
+      fullBackupSchedule: 0 9 * * *
+      incrementalBackupSchedule: "0 0,4,8,12,16 * * *" # every 4 hours, but 9 is not put intentionally to avoid conflict with full backup
+    config:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      limits:
+        cpu: 20m
+        memory: 64Mi
+    repoHost:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      limits:
+        cpu: 20m
+        memory: 64Mi
+    sidecars:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 20m
+        memory: 64Mi
+
+  patroni:
+    postgresql:
+      pg_hba: "host all all 0.0.0.0/0 md5"
+      parameters:
+        shared_buffers: 16MB # default is 128MB; a good tuned default for shared_buffers is 25% of the memory allocated to the pod
+        wal_buffers: "64kB" # this can be set to -1 to automatically set as 1/32 of shared_buffers or 64kB, whichever is larger
+        min_wal_size: 32MB
+        max_wal_size: 64MB # default is 1GB
+        max_slot_wal_keep_size: 128MB # default is -1, allowing unlimited wal growth when replicas fall behind
+
+  proxy:
+    enabled: true
+    pgBouncer:
+      image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+      replicas: 1
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 20m
+        memory: 32Mi
+
+  # Postgres Cluster resource values:
+  pgmonitor:
+    enabled: true
+    exporter:
+      image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 30m
+        memory: 32Mi
+doc-gen-service:
+  enabled: true
+  deploymentStrategy: Recreate
+  replicaCount: 2
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/doc-gen-service
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    limits:
+      cpu: 600m
+      memory: 350Mi
+    requests:
+      cpu: 100m
+      memory: 50Mi
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+  podSecurityContext: {}
+  securityContext: {}
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  pdb: true
+backend-external:
+  enabled: true
+  deploymentStrategy: Recreate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/backend-external
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    limits:
+      cpu: 20m
+      memory: 150Mi
+    requests:
+      cpu: 10m
+      memory: 50Mi
+  app:
+    env:
+      logLevel: info
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/prom-metrics"
+  podSecurityContext: {}
+  securityContext: {}
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
