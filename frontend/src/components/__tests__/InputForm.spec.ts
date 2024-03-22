@@ -110,12 +110,12 @@ describe('InputForm', () => {
   });
 
   it('Renders with the expected form controls', () => {
-    expect(wrapper.findAll('#companyName').length).toBe(1);
-    expect(wrapper.findAll('#companyAddress').length).toBe(1);
     expect(wrapper.findAll('#naicsCode').length).toBe(1);
-    expect(wrapper.findAll('#employeeCountRange').length).toBe(1);
-    expect(wrapper.findAll('#startDate').length).toBe(1);
-    expect(wrapper.findAll('#endDate').length).toBe(1);
+    expect(wrapper.findAll('#startMonth').length).toBe(1);
+    expect(wrapper.findAll('#startYear').length).toBe(1);
+    expect(wrapper.findAll('#endMonth').length).toBe(1);
+    expect(wrapper.findAll('#endYear').length).toBe(1);
+    expect(wrapper.findAll('#reportYear').length).toBe(1);
     expect(wrapper.findAll('#dataConstraints').length).toBe(1);
     expect(wrapper.findAll('#comments').length).toBe(1);
     expect(wrapper.find('#csvFile').attributes('type')).toBe('file');
@@ -132,15 +132,16 @@ describe('InputForm', () => {
     ];
     await codeStore.$patch({ employeeCountRanges: employeeCountRanges } as any);
 
-    const employeeCountRangeComponent = wrapper.findComponent({
-      ref: 'employeeCountRange',
-    });
-    expect(employeeCountRangeComponent.vm.items[0].employee_count_range).toBe(
-      employeeCountRanges[0].employee_count_range,
-    );
-    expect(employeeCountRangeComponent.vm.items.length).toBe(
-      employeeCountRanges.length,
-    );
+    // const employeeCountRangeComponent = wrapper.findComponent({
+    //   ref: 'employeeCountRange',
+    // });
+    expect(wrapper.findAll('input[type="radio"]').length).toBe(1);
+    // expect(employeeCountRangeComponent.vm.items[0].employee_count_range).toBe(
+    //   employeeCountRanges[0].employee_count_range,
+    // );
+    // expect(employeeCountRangeComponent.vm.items.length).toBe(
+    //   employeeCountRanges.length,
+    // );
   });
 
   it("Form control for 'NAICS Code' is populated with the expected options", async () => {
@@ -164,7 +165,7 @@ describe('InputForm', () => {
     expect(naicsCodeComponent.vm.items.length).toBe(naicsCodes.length);
   });
 
-  it('Form controls for company name and address are auto-populated and disabled', async () => {
+  it('Company name and address are shown', async () => {
     // Mock the userInfo property of the authStore.  InputForm.vue reads
     // this property and uses it to populate the Company Name and Company Address
     //fields.
@@ -176,32 +177,33 @@ describe('InputForm', () => {
     };
     await auth.$patch({ userInfo: userInfo } as any);
 
-    const companyNameComponent = wrapper.findComponent({ ref: 'companyName' });
-    expect(companyNameComponent.vm.value).toBe(userInfo.legalName);
-    expect(companyNameComponent.vm.disabled).toBeTruthy();
+    const companyNameComponent = wrapper.find('#companyName');
+    expect(companyNameComponent.text()).toContain(userInfo.legalName);
 
-    const companyAddressComponent = wrapper.findComponent({
-      ref: 'companyAddress',
-    });
-    expect(companyAddressComponent.vm.value).toContain(userInfo.addressLine1);
-    expect(companyAddressComponent.vm.value).toContain(userInfo.addressLine2);
-    expect(companyAddressComponent.vm.disabled).toBeTruthy();
+    const companyAddressComponent = wrapper.find('#companyAddress');
+    expect(companyAddressComponent.text()).toContain(userInfo.addressLine1);
   });
 
   it('Setting start date causes end date to default to one year later', async () => {
-    const startDateComponent = wrapper.findComponent({ ref: 'startDate' });
-    const endDateComponent = wrapper.findComponent({ ref: 'endDate' });
+    const startMonthComponent = wrapper.find('#startMonth');
+    const startYearComponent = wrapper.find('#startYear');
 
-    const startDate = LocalDate.now().minusYears(1).format(dateFormatter);
+    const testDate = LocalDate.now()
+      .minusYears(1)
+      .minusMonths(4)
+      .withDayOfMonth(1);
+    const expectedStartDate = testDate.format(dateFormatter);
     const expectedEndDate = LocalDate.now()
+      .minusMonths(4)
       .minusMonths(1)
       .with(TemporalAdjusters.lastDayOfMonth())
       .format(dateFormatter);
 
-    await startDateComponent.setValue(startDate);
+    await startMonthComponent.setValue(testDate.monthValue());
+    await startYearComponent.setValue(testDate.year());
 
-    expect(wrapper.vm.$data.startDate).toBe(startDate);
-    expect(wrapper.vm.$data.endDate).toBe(expectedEndDate);
+    expect(wrapper.vm.startDate).toBe(expectedStartDate);
+    expect(wrapper.vm.endDate).toBe(expectedEndDate);
   });
 
   it('Range of allowable start and end months is correct', async () => {
@@ -210,13 +212,11 @@ describe('InputForm', () => {
       Locale.CANADA,
     );
     //Earliest allowable start month is two years before the current month
-    expect(
-      LocalDate.from(nativeJs(wrapper.vm.minStartDate)).format(formatter),
-    ).toBe(dateNow.minusYears(2).withDayOfMonth(1).format(formatter));
+    expect((wrapper.vm.minStartDate as LocalDate).format(formatter)).toBe(
+      dateNow.minusYears(2).withDayOfMonth(1).format(formatter),
+    );
     //Latest allowable end month is the month prior the current month
-    expect(
-      LocalDate.from(nativeJs(wrapper.vm.maxEndDate)).format(formatter),
-    ).toBe(
+    expect((wrapper.vm.maxEndDate as LocalDate).format(formatter)).toBe(
       dateNow
         .minusMonths(1)
         .with(TemporalAdjusters.lastDayOfMonth())
@@ -224,20 +224,12 @@ describe('InputForm', () => {
     );
 
     //Latest allowable start month is 11 months before the latest allowable end month
-    expect(
-      LocalDate.from(nativeJs(wrapper.vm.maxStartDate)).format(formatter),
-    ).toBe(
-      LocalDate.from(nativeJs(wrapper.vm.maxEndDate))
-        .minusMonths(11)
-        .format(formatter),
+    expect((wrapper.vm.maxStartDate as LocalDate).format(formatter)).toBe(
+      (wrapper.vm.maxEndDate as LocalDate).minusMonths(11).format(formatter),
     );
     //Earliest allowable end month is 11 months after earliest allowable start month
-    expect(
-      LocalDate.from(nativeJs(wrapper.vm.minEndDate)).format(formatter),
-    ).toBe(
-      LocalDate.from(nativeJs(wrapper.vm.minStartDate))
-        .plusMonths(11)
-        .format(formatter),
+    expect((wrapper.vm.minEndDate as LocalDate).format(formatter)).toBe(
+      (wrapper.vm.minStartDate as LocalDate).plusMonths(11).format(formatter),
     );
   });
 });

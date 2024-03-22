@@ -27,6 +27,11 @@ const myCustomLightTheme = {
     warning: '#81692c',
     success: '#234720',
   },
+  variables: {
+    'border-opacity': 0.24, //default 0.12
+    'medium-emphasis-opacity': 0.8, //default 0.6
+    'theme-error': '#ff0000',
+  },
 };
 
 const vuetify = createVuetify({
