@@ -9,7 +9,7 @@
     <v-btn to="/">Back</v-btn>
   </v-banner>
   <v-container>
-    <v-form ref="inputForm">
+    <v-form ref="inputForm" @submit.prevent="submit">
       <v-row class="justify-center">
         <v-col cols="10" class="w-100">
           <ReportStepper />
@@ -32,7 +32,12 @@
           id="companyName"
           class="font-weight-bold text-h5 d-flex align-center"
         >
-          <v-icon icon="fa:fas fa-user" size="small" class="icon-color mr-3" />
+          <v-icon
+            icon="fa:fas fa-user"
+            size="small"
+            color="primary"
+            class="mr-3"
+          />
           {{ companyName }}
         </v-col>
       </v-row>
@@ -40,8 +45,9 @@
         <v-col id="companyAddress" class="text-h5 d-flex align-center">
           <v-icon
             icon="fa:fas fa-location-dot"
+            color="primary"
             size="small"
-            class="icon-color mr-3"
+            class="mr-3"
           />
           {{ companyAddress }}
         </v-col>
@@ -78,7 +84,7 @@
                   v-bind="props"
                   icon="fa:fas fa-circle-info"
                   size="x-small"
-                  class="icon-color"
+                  color="primary"
                 />
               </template>
             </v-tooltip>
@@ -121,7 +127,7 @@
                   v-bind="props"
                   icon="fa:fas fa-circle-info"
                   size="x-small"
-                  class="icon-color"
+                  color="primary"
                 />
               </template>
             </v-tooltip>
@@ -174,7 +180,7 @@
                   v-bind="props"
                   icon="fa:fas fa-circle-info"
                   size="x-small"
-                  class="icon-color"
+                  color="primary"
                 />
               </template>
             </v-tooltip>
@@ -263,7 +269,7 @@
                       v-bind="props"
                       icon="fa:fas fa-circle-info"
                       size="x-small"
-                      class="icon-color"
+                      color="primary"
                     />
                   </template>
                 </v-tooltip>
@@ -293,7 +299,7 @@
                   v-bind="props"
                   icon="fa:fas fa-circle-info"
                   size="x-small"
-                  class="icon-color"
+                  color="primary"
                 />
               </template>
             </v-tooltip>
@@ -332,7 +338,7 @@
                   v-bind="props"
                   icon="fa:fas fa-circle-info"
                   size="x-small"
-                  class="icon-color"
+                  color="primary"
                 />
               </template>
             </v-tooltip>
@@ -397,24 +403,20 @@
               Supported format: CSV. Maximum file size:
               {{ maxFileUploadSize }}.
             </p>
-            <PrimaryButton
-              text="Upload file"
-              :click-action="
-                () => {
-                  ($refs.uploadFile as VFileInput).click();
-                }
-              "
-            />
+            <v-btn
+              color="primary"
+              type="button"
+              @click="($refs.uploadFile as VFileInput).click()"
+            >
+              Upload file
+            </v-btn>
             <v-file-input
               v-show="false"
               id="csvFile"
               ref="uploadFile"
               v-model="uploadFileValue"
-              color="#003366"
               :accept="fileAccept"
-              hint="Select a CSV file"
               :error-messages="fileInputError"
-              placeholder="Select a CSV file"
               :rules="requiredRules"
             />
           </div>
@@ -494,12 +496,14 @@
 
       <v-row class="mt-6">
         <v-col class="d-flex justify-center">
-          <PrimaryButton
+          <v-btn
             id="submitButton"
-            text="Submit"
-            :icon="isSubmit && !formReady ? 'fa:fas fa-xmark' : ''"
-            :click-action="submit"
-          />
+            color="primary"
+            type="submit"
+            :append-icon="isSubmit && !formReady ? 'fa:fas fa-xmark' : ''"
+          >
+            Submit
+          </v-btn>
         </v-col>
       </v-row>
       <v-row v-if="isSubmit && !formReady" dense>
@@ -540,7 +544,6 @@
 <script lang="ts">
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import PrimaryButton from './util/PrimaryButton.vue';
 import Spinner from './Spinner.vue';
 import ReportStepper from './util/ReportStepper/Stepper.vue';
 import ApiService, { ISubmission } from '../common/apiService';
@@ -582,7 +585,6 @@ const dateFormatter = DateTimeFormatter.ofPattern(
 
 export default {
   components: {
-    PrimaryButton,
     VFileInput,
     Spinner,
     ReportStepper,
@@ -944,37 +946,12 @@ export default {
 </script>
 
 <style lang="scss">
-.file-success {
-  background-color: #d9e7d8;
-}
-
-.icon-color {
-  color: #003366;
-}
-
 textarea::placeholder {
   text-align: right;
   transform: translateY(95px);
 }
 
-.hide-date-picker-controls {
-  .v-date-picker-controls {
-    display: none;
-  }
-}
-
-// remove label from text-field component
-// .remove-label-textfield .v-field .v-field__field {
-//   .v-field__input {
-//     padding-top: 4px;
-//   }
-//   .v-field-label--floating {
-//     opacity: 0;
-//   }
-// }
-
-.text-error,
-.v-input-error {
-  color: #d8292f !important;
+.file-success {
+  background-color: #d9e7d8;
 }
 </style>
