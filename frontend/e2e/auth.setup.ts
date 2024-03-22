@@ -1,26 +1,23 @@
-import { test as setup, expect } from '@playwright/test';
+import { test as setup } from '@playwright/test';
 import { PagePaths, baseURL } from './utils/index';
-const authFile = 'user.json';
+import { LoginPage } from './pages/login';
+import { DashboardPage } from './pages/dashboard';
 
 setup('authenticate', async ({ page }) => {
-  await page.goto(`${baseURL!}${PagePaths.LOGIN}`);
-  const loginButton = page.getByRole('button', {
-    name: 'Log In with Business BCeID',
-  });
-  await loginButton.click();
-  await page.waitForTimeout(2000);
-  const html = await page.locator('body').innerHTML();
-  if (html.includes('Use a Business BCeID')) {
-    expect(page.getByText('Use a Business BCeID'));
-    await page.fill('#user', process.env.E2E_USERNAME!);
-    await page.click('#password');
-    await page.fill('#password', process.env.E2E_PASSWORD!);
-    await page.waitForTimeout(1000);
-    await page.locator('#login-form').press('Enter');
-    await page.waitForURL(baseURL!);
-    await expect(
-      page.getByText('Generate Pay Transparency Report'),
-    ).toBeVisible();
-    await page.context().storageState({ path: authFile });
-  }
+  await page.goto(PagePaths.LOGIN);
+  const loginPage = new LoginPage(page);
+  await loginPage.setup();
+  const getUserResponse = page.waitForResponse(
+    (res) => res.url().includes('/api/user') && res.status() === 200,
+  );
+  await loginPage.login();
+
+  const response = await getUserResponse;
+  const user = await response.json();
+
+  // Verify auth state
+  await page.goto(PagePaths.DASHBOARD);
+  const dashboard = new DashboardPage(loginPage.instance);
+  await dashboard.setup();
+  await dashboard.verifyUser(user);
 });
