@@ -87,10 +87,16 @@ const GENDERS = {
   } as GenderChartInfo,
 };
 
-const REPORT_DATE_FORMAT = 'YYYY-MM-dd';
-const JODA_FORMATTER = DateTimeFormatter.ofPattern(
-  REPORT_DATE_FORMAT,
-).withLocale(Locale.CANADA);
+// Define how report dates should be formatted for different
+const JSON_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
+  'YYYY-MM-dd',
+).withLocale(Locale.ENGLISH);
+const DISPLAY_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
+  'MMMM d, YYYY',
+).withLocale(Locale.ENGLISH);
+const FILENAME_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
+  'YYYY-MM',
+).withLocale(Locale.ENGLISH);
 
 const reportServicePrivate = {
   /*
@@ -414,10 +420,10 @@ const reportServicePrivate = {
       //change the type of the date columns
       report_start_date: LocalDate.from(
         nativeJs(pay_transparency_report.report_start_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER),
+      ).format(JSON_REPORT_DATE_FORMAT),
       report_end_date: LocalDate.from(
         nativeJs(pay_transparency_report.report_end_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER),
+      ).format(JSON_REPORT_DATE_FORMAT),
     } as Report;
 
     return report;
@@ -993,9 +999,6 @@ const reportService = {
       }
     }
 
-    const dateFormatter = DateTimeFormatter.ofPattern(
-      'MMMM d, YYYY',
-    ).withLocale(Locale.CANADA);
     const reportData = {
       companyName: report.pay_transparency_company.company_name,
       companyAddress:
@@ -1004,12 +1007,12 @@ const reportService = {
         nativeJs(report.report_start_date, ZoneId.UTC),
       )
         .withDayOfMonth(1)
-        .format(dateFormatter),
+        .format(DISPLAY_REPORT_DATE_FORMAT),
       reportEndDate: LocalDate.from(
         nativeJs(report.report_end_date, ZoneId.UTC),
       )
         .with(TemporalAdjusters.lastDayOfMonth())
-        .format(dateFormatter),
+        .format(DISPLAY_REPORT_DATE_FORMAT),
       naicsCode:
         report.naics_code_pay_transparency_report_naics_codeTonaics_code
           .naics_code,
@@ -1145,10 +1148,10 @@ const reportService = {
       } as any;
       report.report_start_date = LocalDate.from(
         nativeJs(r.report_start_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER);
+      ).format(JSON_REPORT_DATE_FORMAT);
       report.report_end_date = LocalDate.from(
         nativeJs(r.report_end_date, ZoneId.UTC),
-      ).format(JODA_FORMATTER);
+      ).format(JSON_REPORT_DATE_FORMAT);
       return report;
     });
 
@@ -1260,15 +1263,13 @@ const reportService = {
       bceidBusinessGuid,
       reportId,
     );
-    const fileNameDateFormatter = DateTimeFormatter.ofPattern(
-      'YYYY-MM',
-    ).withLocale(Locale.CANADA);
+
     if (report) {
       const start = LocalDate.parse(report.report_start_date).format(
-        fileNameDateFormatter,
+        FILENAME_REPORT_DATE_FORMAT,
       );
       const end = LocalDate.parse(report.report_end_date).format(
-        fileNameDateFormatter,
+        FILENAME_REPORT_DATE_FORMAT,
       );
       const filename = `pay_transparency_report_${start}_${end}.pdf`;
       return filename;
@@ -1312,10 +1313,10 @@ const reportService = {
 
 export {
   CalcCodeGenderCode,
+  DISPLAY_REPORT_DATE_FORMAT,
   GENDERS,
   GenderChartInfo,
-  JODA_FORMATTER,
-  REPORT_DATE_FORMAT,
+  JSON_REPORT_DATE_FORMAT,
   Report,
   ReportAndCalculations,
   enumReportStatus,
