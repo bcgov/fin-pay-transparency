@@ -268,7 +268,7 @@ doc-gen-service:
   imagePullSecrets: []
   nodeSelector: {}
   tolerations: []
-  pdb: true
+  pdb: false
 backend-external:
   enabled: true
   deploymentStrategy: Recreate
