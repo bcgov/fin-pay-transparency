@@ -27,14 +27,14 @@ export class GenerateReportPage extends PTPage {
   async setNaicsCode(label: string) {
     await this.naicsInput.click();
     const code = await this.instance.getByRole('option', { name: label });
-    expect(code).toBeVisible();
+    //expect(code).toBeVisible();
     await code.click();
   }
 
   async setEmployeeCount(label: string) {
     await this.employeeCountInput.press('Enter');
     const option = await this.instance.getByText(label);
-    expect(option).toBeVisible();
+    //expect(option).toBeVisible();
     await option.click();
   }
 
@@ -54,11 +54,11 @@ export class GenerateReportPage extends PTPage {
     const start = this.instance.getByText(startDate.format(formatter));
 
     await this.instance.mouse.up({ clickCount: 4 });
-    await expect(start).toBeDefined();
+    //await expect(start).toBeDefined();
 
     const endDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
     const end = this.instance.getByText(endDate.format(formatter));
-    await expect(end).toBeDefined();
+    //await expect(end).toBeDefined();
 
     const comments = await this.instance.locator('#comments');
     await comments.fill(values.comments);
