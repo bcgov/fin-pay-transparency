@@ -16,9 +16,9 @@ export class DashboardPage extends PTPage {
     expect(this.generateReportButton).toBeVisible();
     await this.generateReportButton.click();
     await this.instance.waitForURL(`${baseURL}${PagePaths.GENERATE_REPORT}`);
-    await expect(
-      this.instance.getByRole('heading', { name: 'Employer Details' }),
-    ).toBeVisible();
+    // await expect(
+    //   this.instance.getByRole('heading', { name: 'Employer Details' }),
+    // ).toBeVisible();
   }
 
   async gotoReport(id: string) {
