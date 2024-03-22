@@ -84,7 +84,7 @@ jobs:
         env:
           PW_TEST_HTML_REPORT_OPEN: always
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.project }}
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 30
 
