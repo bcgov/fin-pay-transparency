@@ -171,13 +171,13 @@ crunchy:
     # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
     retentionFullType: count
     s3:
-      retention: "14"
+      retention: "30"
       bucket: ~
       endpoint: ~
       accessKey: ~
       secretKey: ~
       fullBackupSchedule: 0 9 * * *
-      incrementalBackupSchedule: "0 0,4,8,12,16 * * *" # every 4 hours, but 9 is not put intentionally to avoid conflict with full backup
+      incrementalBackupSchedule: "0 0,1,3,5,7,11,13,15,17,19,21,23 * * *" # every 2 hours, but 9 is not put intentionally to avoid conflict with full backup
     config:
       requests:
         cpu: 5m
@@ -235,7 +235,7 @@ crunchy:
         memory: 32Mi
 doc-gen-service:
   enabled: true
-  deploymentStrategy: Recreate
+  deploymentStrategy: RollingUpdate
   replicaCount: 3
   nameOverride: ""
   fullnameOverride: ""
