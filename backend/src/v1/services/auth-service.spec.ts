@@ -627,4 +627,33 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
   });
+
+  it('should redirect to error if not all company details exist', async () => {
+    const mockCompanyInSessionMissingData = {
+      ...mockCompanyInSession,
+      city: '',
+    };
+    jest.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
+      return Promise.resolve(mockCompanyInSessionMissingData);
+    });
+    (
+      prisma.pay_transparency_company.findFirst as jest.Mock
+    ).mockResolvedValueOnce(mockCompanyInDB);
+    (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
+      mockUserInDB,
+    );
+    (prisma.pay_transparency_company.update as jest.Mock).mockRejectedValueOnce(
+      'DB transaction failed',
+    );
+    const modifiedReq = {
+      ...req,
+    };
+    modifiedReq.session.companyDetails = undefined;
+    await auth.handleCallBackBusinessBceid(modifiedReq, res);
+    expect(res.redirect).toHaveBeenCalled();
+    expect(req.session.companyDetails).toBeUndefined();
+    expect(prisma.$transaction).toHaveBeenCalledTimes(0);
+    expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalledTimes(0);
+    expect(prisma.pay_transparency_company.update).toHaveBeenCalledTimes(0);
+  });
 });

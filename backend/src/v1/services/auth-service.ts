@@ -283,27 +283,51 @@ const auth = {
     const userGuid = jwtPayload?.bceid_user_guid;
     if (!userGuid) {
       log.error(`no bceid_user_guid found in the jwt token`, userInfo.jwt);
-      res.redirect(config.get('server:frontend') + '/login-error');
+      return res.redirect(config.get('server:frontend') + '/login-error');
     }
+
     try {
       auth.validateClaims(userInfo.jwt);
-      if (!session?.companyDetails) {
-        try {
-          session.companyDetails = await getCompanyDetails(userGuid);
-          await auth.storeUserInfo(req, userInfo);
-        } catch (e) {
-          log.error(
-            `Error happened while getting company details from BCEID for user ${userGuid}`,
-            e,
-          );
-          return res.redirect(config.get('server:frontend') + '/login-error');
-        }
-      }
-      res.redirect(config.get('server:frontend'));
     } catch (e) {
       log.error('invalid claims in token', e);
-      res.redirect(config.get('server:frontend') + '/login-error');
+      return res.redirect(config.get('server:frontend') + '/login-error');
     }
+
+    // companyDetails already saved - success
+    if (session?.companyDetails) {
+      return res.redirect(config.get('server:frontend'));
+    }
+
+    // companyDetails haven't been saved - get them
+    let details;
+    try {
+      details = await getCompanyDetails(userGuid);
+
+      if (
+        !details.legalName ||
+        !details.addressLine1 ||
+        !details.city ||
+        !details.province ||
+        !details.country ||
+        !details.postal
+      ) {
+        log.error(
+          `Required company details missing from BCEID for user ${userGuid}`,
+        );
+        return res.redirect(config.get('server:frontend') + '/contact-error');
+      }
+
+      session.companyDetails = details;
+      await auth.storeUserInfo(req, userInfo);
+    } catch (e) {
+      log.error(
+        `Error happened while getting company details from BCEID for user ${userGuid}`,
+        e,
+      );
+      return res.redirect(config.get('server:frontend') + '/login-error');
+    }
+
+    return res.redirect(config.get('server:frontend'));
   },
 };
 
