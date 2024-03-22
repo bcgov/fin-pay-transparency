@@ -28,8 +28,9 @@ const myCustomLightTheme = {
     success: '#234720',
   },
   variables: {
-    //'high-emphasis-opacity': 1, //default 0.87
+    'border-opacity': 0.24, //default 0.12
     'medium-emphasis-opacity': 0.8, //default 0.6
+    'theme-error': '#ff0000',
   },
 };
 

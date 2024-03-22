@@ -60,7 +60,7 @@
       <v-row no-gutters>
         <v-col class="text-subtitle-2">
           Fields marked
-          <span class="text-red font-weight-bold text-h6">*</span>
+          <span class="text-error font-weight-bold text-h6">*</span>
           are required.
         </v-col>
       </v-row>
@@ -70,11 +70,12 @@
           <div class="text-body-1 font-weight-bold">
             <label
               for="naicsCode"
-              :class="{ 'text-red': isSubmit && !naicsCode }"
+              color="error"
+              :class="{ 'text-error': isSubmit && !naicsCode }"
             >
               NAICS Code
             </label>
-            <span class="text-red font-weight-bold text-h6">*</span>
+            <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
               text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer comprises of multiple sectors, select the code that covers the majority of employees."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
@@ -85,6 +86,7 @@
                   icon="fa:fas fa-circle-info"
                   size="x-small"
                   color="primary"
+                  class="ml-1"
                 />
               </template>
             </v-tooltip>
@@ -113,11 +115,11 @@
           <div class="text-body-1 font-weight-bold">
             <label
               for="employeeCountRange"
-              :class="{ 'text-red': isSubmit && !employeeCountRange }"
+              :class="{ 'text-error': isSubmit && !employeeCountRange }"
             >
               Employee Count Range
             </label>
-            <span class="text-red font-weight-bold text-h6">*</span>
+            <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
               text="Select the range that is closest to the number of employees who were employed as of January 1 of the year your report is being prepared for."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
@@ -128,6 +130,7 @@
                   icon="fa:fas fa-circle-info"
                   size="x-small"
                   color="primary"
+                  class="ml-1"
                 />
               </template>
             </v-tooltip>
@@ -159,7 +162,7 @@
           <div class="text-body-1 font-weight-bold">
             <label
               :class="{
-                'text-red':
+                'text-error':
                   isSubmit &&
                   (!startMonth ||
                     !startYear ||
@@ -170,7 +173,7 @@
             >
               Time Period
             </label>
-            <span class="text-red font-weight-bold text-h6">*</span>
+            <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
               text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
@@ -181,6 +184,7 @@
                   icon="fa:fas fa-circle-info"
                   size="x-small"
                   color="primary"
+                  class="ml-1"
                 />
               </template>
             </v-tooltip>
@@ -259,7 +263,7 @@
             <v-col class="d-flex">
               <div class="mt-2 mx-3">
                 <label for="reportYear"> Reporting Year: </label>
-                <span class="text-red font-weight-bold text-h6">*</span>
+                <span class="text-error font-weight-bold text-h6">*</span>
                 <v-tooltip
                   text="Employers must submit pay transparency reports by November 1 of each year. Select the year you are submitting a report for."
                   :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
@@ -270,6 +274,7 @@
                       icon="fa:fas fa-circle-info"
                       size="x-small"
                       color="primary"
+                      class="ml-1"
                     />
                   </template>
                 </v-tooltip>
@@ -300,13 +305,14 @@
                   icon="fa:fas fa-circle-info"
                   size="x-small"
                   color="primary"
+                  class="mr-1"
                 />
               </template>
             </v-tooltip>
-            <span class="text-subtitle-2 text-grey"
-              >(Optional: you can return to this page to complete it after
-              viewing your draft report.)</span
-            >
+            <span class="text-subtitle-2 text-grey">
+              (Optional: you can return to this page to complete it after
+              viewing your draft report.)
+            </span>
           </div>
           <div class="text-subtitle-2 text-grey-darken-1">
             This will appear at the top of your pay transparency report.
@@ -339,13 +345,14 @@
                   icon="fa:fas fa-circle-info"
                   size="x-small"
                   color="primary"
+                  class="mr-1"
                 />
               </template>
             </v-tooltip>
-            <span class="text-subtitle-2 text-grey"
-              >(Optional: you can return to this page to complete it after
-              viewing your draft report.)</span
-            >
+            <span class="text-subtitle-2 text-grey">
+              (Optional: you can return to this page to complete it after
+              viewing your draft report.)
+            </span>
           </div>
           <div class="text-subtitle-2 text-grey-darken-1">
             This will appear at the bottom of your pay transparency report.
@@ -369,11 +376,11 @@
           <div class="text-body-1 font-weight-bold">
             <label
               for="naicsCode"
-              :class="{ 'text-red': isSubmit && !uploadFileValue }"
+              :class="{ 'text-error': isSubmit && !uploadFileValue }"
             >
               File Upload
             </label>
-            <span class="text-red font-weight-bold text-h6">*</span>
+            <span class="text-error font-weight-bold text-h6">*</span>
             <div class="text-subtitle-2 text-grey-darken-1">
               To proceed, upload your employee data in comma-separated value
               (CSV) format. Ensure the CSV file follows the provided
@@ -507,7 +514,7 @@
         </v-col>
       </v-row>
       <v-row v-if="isSubmit && !formReady" dense>
-        <v-col class="text-red d-flex justify-center">
+        <v-col class="text-error d-flex justify-center">
           Please check the form and correct all errors before submitting.
         </v-col>
       </v-row>
