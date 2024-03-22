@@ -406,7 +406,7 @@
             v-if="!uploadFileValue"
             class="d-flex justify-center align-center"
           >
-            <p class="text-subtitle-2 text-grey-darken-1">
+            <p class="text-subtitle-2 text-grey-darken-1 mr-2">
               Supported format: CSV. Maximum file size:
               {{ maxFileUploadSize }}.
             </p>
@@ -746,12 +746,7 @@ export default {
       const end = LocalDate.parse(this.startDate).plusMonths(11);
       this.endMonth = end.monthValue();
       this.endYear = end.year();
-      //if the selected endMonth is disabled, clear the field
-      if (
-        this.endMonthList.find((month) => month.value === this.endMonth)?.props
-          .disabled
-      )
-        this.endMonth = undefined;
+      this.removeDisabledMonths();
     },
     endMonth() {
       //automatically update the startMonth and startYear to be one year earlier
@@ -765,12 +760,7 @@ export default {
       const start = LocalDate.parse(this.endDate).minusMonths(11);
       this.startMonth = start.monthValue();
       this.startYear = start.year();
-      //if the selected startMonth is disabled, clear the field
-      if (
-        this.startMonthList.find((month) => month.value === this.startMonth)
-          ?.props.disabled
-      )
-        this.startMonth = undefined;
+      this.removeDisabledMonths();
     },
     userInfo: {
       // Watch for changes to userInfo (from the authStore).  Copy company name
@@ -820,6 +810,20 @@ export default {
       'reset',
     ]),
     ...mapActions(useConfigStore, ['loadConfig']),
+    removeDisabledMonths() {
+      //if the selected startMonth is disabled, clear the field
+      if (
+        this.startMonthList.find((month) => month.value === this.startMonth)
+          ?.props.disabled
+      )
+        this.startMonth = undefined;
+      //if the selected endMonth is disabled, clear the field
+      if (
+        this.endMonthList.find((month) => month.value === this.endMonth)?.props
+          .disabled
+      )
+        this.endMonth = undefined;
+    },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
       this.alertType = 'bootstrap-success';
