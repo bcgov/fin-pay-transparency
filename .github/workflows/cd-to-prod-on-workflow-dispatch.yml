@@ -38,4 +38,4 @@ jobs:
       tag: ${{ github.event.inputs.tag }}
       frontend-url: https://paytransparency.fin.gov.bc.ca
       semver: ${{ github.event.inputs.tag }}
-      params: --set doc-gen-service.replicaCount=3 --set crunchy.instances.replicas=3
+      values: "values-prod.yaml"
