@@ -160,7 +160,7 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label
+            <span
               :class="{
                 'text-error':
                   isSubmit &&
@@ -172,7 +172,7 @@
               }"
             >
               Time Period
-            </label>
+            </span>
             <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
               text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
@@ -549,8 +549,6 @@
 </template>
 
 <script lang="ts">
-import VueDatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
 import Spinner from './Spinner.vue';
 import ReportStepper from './util/ReportStepper/Stepper.vue';
 import ApiService, { ISubmission } from '../common/apiService';
@@ -882,7 +880,7 @@ export default {
     async submit() {
       this.isSubmit = true;
       if (!this.formReady) {
-        throw 'form not ready';
+        throw new Error('Form missing required fields');
       }
       this.isProcessing = true;
       let submission: ISubmission | null = null;
@@ -917,7 +915,7 @@ export default {
 
       try {
         const draftReport = await ApiService.postSubmission(submission);
-        await this.setReportInfo(draftReport as any);
+        await this.setReportInfo(draftReport);
         this.onSubmitComplete(null);
       } catch (error: any) {
         console.log(error);
