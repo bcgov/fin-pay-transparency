@@ -74,10 +74,8 @@ jobs:
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: |
-          npx playwright test --project="${{ matrix.project }}"
-      - name: print directories
-        run: |
-          ls -laR | grep -v "^./node_modules"
+          npx playwright test --project="${{ matrix.project }}" --reporter=html
+
       - uses: actions/upload-artifact@v4
         if: always()
         name: upload results
@@ -86,5 +84,5 @@ jobs:
         with:
           name: playwright-report-${{ matrix.project }}
           path: "./frontend/playwright-report" # path from current folder
-          retention-days: 30
+          retention-days: 7
 
