@@ -74,6 +74,7 @@ jobs:
         id: changelog
         continue-on-error: true
         with:
+          preset: "conventionalcommits"
           github-token: ${{ github.token }}
           output-file: "CHANGELOG.md"
           skip-version-file: "true"

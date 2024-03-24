@@ -114,7 +114,7 @@ spec:
       global:
         repo1-retention-full: {{ .Values.pgBackRest.s3.retention | quote }}
         repo1-retention-full-type: {{ .Values.pgBackRest.retentionFullType }}
-        repo1-path: '{{ .Values.pgBackRest.backupPath }}{{ .Values.pgBackRest.clusterCounter}}'
+        repo1-path: '{{ .Values.pgBackRest.backupPath }}/{{ .Values.pgBackRest.clusterCounter}}'
         repo1-s3-uri-style: path
       repos:
         - name: repo1
