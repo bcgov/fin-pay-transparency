@@ -62,6 +62,6 @@ Create the name of the service account to use
 {{- end }}
 {{- define "crunchy.s3" }}
 [global]
-repo2-s3-key={{ .Values.pgBackRest.s3.accessKey }}
-repo2-s3-key-secret={{ .Values.pgBackRest.s3.secretKey }}
+repo1-s3-key={{ .Values.pgBackRest.s3.accessKey }}
+repo1-s3-key-secret={{ .Values.pgBackRest.s3.secretKey }}
 {{ end }}
