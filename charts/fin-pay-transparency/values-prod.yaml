@@ -51,17 +51,17 @@ backend:
     targetPort: 3000
   resources:
     limits:
-      cpu: 150m
+      cpu: 200m
       memory: 250Mi
     requests:
-      cpu: 50m
+      cpu: 30m
       memory: 100Mi
   initResources:
     limits:
-      cpu: 150m
+      cpu: 200m
       memory: 250Mi
     requests:
-      cpu: 50m
+      cpu: 30m
       memory: 100Mi
 
   autoscaling:
@@ -141,6 +141,21 @@ crunchy:
   enabled: true
   postgresVersion: 15
   imagePullPolicy: IfNotPresent
+  # enable below to start a new crunchy cluster after disaster from a backed-up location, crunchy will choose the best place to recover from.
+  # follow https://access.crunchydata.com/documentation/postgres-operator/5.2.0/tutorial/disaster-recovery/
+  # Clone From Backups Stored in S3 / GCS / Azure Blob Storage
+  # TESTED SUCCESSFULLY
+  clone:
+    enabled: false
+    path: ~ # provide the proper path to source the cluster. ex: /backups/cluster/version/1, if current new cluster being created, this should be current cluster version -1, ideally
+  # enable this to go back to a specific timestamp in history in the current cluster.
+  # follow https://access.crunchydata.com/documentation/postgres-operator/5.2.0/tutorial/disaster-recovery/
+  # Perform an In-Place Point-in-time-Recovery (PITR)
+  # need to fire this command `oc annotate postgrescluster pay-transparency-tools-crunchy --overwrite postgres-operator.crunchydata.com/pgbackrest-restore=repo1`
+  # NOT TESTED SUCCESSFULLY
+  restore:
+    enabled: false
+    target: ~ # 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
   instances:
     name: db
     metadata:
@@ -166,6 +181,8 @@ crunchy:
         memory: 32Mi
 
   pgBackRest:
+    backupPath: /backups/cluster/version
+    clusterCounter: 1 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
     image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
     # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
     # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
@@ -252,7 +269,7 @@ doc-gen-service:
     targetPort: 3000
   resources:
     limits:
-      cpu: 600m
+      cpu: 650m
       memory: 350Mi
     requests:
       cpu: 100m
@@ -271,7 +288,7 @@ doc-gen-service:
 backend-external:
   enabled: true
   deploymentStrategy: Recreate
-  replicaCount: 1
+  replicaCount: 2
   nameOverride: ""
   fullnameOverride: ""
   image:
