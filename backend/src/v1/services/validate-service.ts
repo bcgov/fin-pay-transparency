@@ -101,7 +101,7 @@ const validateService = {
 
     if (
       LocalDate.parse(submission.endDate)
-        .minusYears(1)
+        .minusMonths(11)
         .isBefore(LocalDate.parse(submission.startDate))
     ) {
       bodyErrors.push(
