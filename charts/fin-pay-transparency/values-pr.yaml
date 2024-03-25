@@ -85,7 +85,7 @@ database:
       memory: 100Mi
   persistence:
     enabled: true
-    size: 60Mi
+    size: 80Mi
     accessMode: ReadWriteOnce
     storageClass: netapp-block-standard
 
