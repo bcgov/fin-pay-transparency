@@ -15,11 +15,13 @@ try {
     crontime, // cronTime
     async function () {
       try {
-        await mutex.withLock(async () => {
+        const unlock = await mutex.tryLock();
+        if (unlock) {
           log.info('Starting deleteDraftReports Schedule Job.');
           await schedulerService.deleteDraftReports();
           log.info('deleteDraftReports Schedule Job completed.');
-        });
+          await unlock();
+        }
       } catch (e) {
         log.error('Error in deleteDraftReports.');
         log.error(e);
