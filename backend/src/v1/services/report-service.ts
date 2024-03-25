@@ -1,5 +1,4 @@
 import {
-  DateTimeFormatter,
   LocalDate,
   TemporalAdjusters,
   ZoneId,
@@ -14,8 +13,7 @@ import prisma from '../prisma/prisma-client';
 import { REPORT_STATUS } from './file-upload-service';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
-
-const fs = require('node:fs/promises');
+import { JSON_REPORT_DATE_FORMAT, DISPLAY_REPORT_DATE_FORMAT, FILENAME_REPORT_DATE_FORMAT } from '../../constants';
 
 const GENERIC_CHART_SUPPRESSED_MSG =
   'This measure cannot be displayed because there is insufficient data to meet disclosure requirements.';
@@ -87,16 +85,7 @@ const GENDERS = {
   } as GenderChartInfo,
 };
 
-// Define how report dates should be formatted for different
-const JSON_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
-  'YYYY-MM-dd',
-).withLocale(Locale.ENGLISH);
-const DISPLAY_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
-  'MMMM d, YYYY',
-).withLocale(Locale.ENGLISH);
-const FILENAME_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
-  'YYYY-MM',
-).withLocale(Locale.ENGLISH);
+
 
 const reportServicePrivate = {
   /*
@@ -1313,10 +1302,8 @@ const reportService = {
 
 export {
   CalcCodeGenderCode,
-  DISPLAY_REPORT_DATE_FORMAT,
   GENDERS,
   GenderChartInfo,
-  JSON_REPORT_DATE_FORMAT,
   Report,
   ReportAndCalculations,
   enumReportStatus,

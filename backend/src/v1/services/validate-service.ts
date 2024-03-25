@@ -1,6 +1,7 @@
 import { LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { ISubmission } from './file-upload-service';
-import { JSON_REPORT_DATE_FORMAT } from './report-service';
+import { JSON_REPORT_DATE_FORMAT } from '../../constants';
+
 
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const SUBMISSION_ROW_COLUMNS = {
