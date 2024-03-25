@@ -1,4 +1,6 @@
+import { LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { ISubmission } from './file-upload-service';
+import { JSON_REPORT_DATE_FORMAT } from './report-service';
 
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const SUBMISSION_ROW_COLUMNS = {
@@ -78,6 +80,35 @@ const validateService = {
    */
   validateSubmissionBody(submission: ISubmission): ValidationError | null {
     const bodyErrors = [];
+    const minStartTime = LocalDate.now()
+      .with(TemporalAdjusters.firstDayOfYear())
+      .minusYears(2)
+      .with(TemporalAdjusters.firstDayOfMonth());
+    if (minStartTime.isAfter(LocalDate.parse(submission.startDate))) {
+      bodyErrors.push(
+        `Minimum allowed start date is ${minStartTime.format(JSON_REPORT_DATE_FORMAT)}`,
+      );
+    }
+
+    const maxEndTime = LocalDate.now()
+      .minusMonths(1)
+      .with(TemporalAdjusters.lastDayOfMonth());
+    if (maxEndTime.isBefore(LocalDate.parse(submission.endDate))) {
+      bodyErrors.push(
+        `Maximum allowed end date is ${maxEndTime.format(JSON_REPORT_DATE_FORMAT)}`,
+      );
+    }
+
+    if (
+      LocalDate.parse(submission.endDate)
+        .minusYears(1)
+        .isBefore(LocalDate.parse(submission.startDate))
+    ) {
+      bodyErrors.push(
+        `Start date and end date must always be 12 months apart.`,
+      );
+    }
+
     if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
       bodyErrors.push(
         `Text in ${FIELD_DATA_CONSTRAINTS} must not exceed ${MAX_LEN_DATA_CONSTRAINTS} characters.`,

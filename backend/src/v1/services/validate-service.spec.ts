@@ -1,3 +1,4 @@
+import { LocalDate, TemporalAdjusters } from '@js-joda/core';
 import {
   FIELD_DATA_CONSTRAINTS,
   GENDER_CODES,
@@ -7,6 +8,7 @@ import {
   validateService,
   ValidationError,
 } from './validate-service';
+import { JSON_REPORT_DATE_FORMAT } from './report-service';
 
 // ----------------------------------------------------------------------------
 // Helper functions
@@ -231,8 +233,8 @@ describe('validateSubmissionBody', () => {
     companyAddress: '1200 Fake St.',
     naicsCode: '11',
     employeeCountRangeId: 'enmployeeRangeCountId',
-    startDate: '2022-12',
-    endDate: '2023-11',
+    startDate: '2022-12-01',
+    endDate: '2023-11-01',
     dataConstraints: 'data constraints',
     comments: 'other comments',
     rows: [] as any[],
@@ -269,6 +271,52 @@ describe('validateSubmissionBody', () => {
           MAX_LEN_DATA_CONSTRAINTS + '',
         ]),
       ).toBeFalsy();
+    });
+  });
+
+  describe('given a startDate before minimum start date', () => {
+    it('should return error', () => {
+      const startDate = LocalDate.now()
+        .minusYears(3)
+        .format(JSON_REPORT_DATE_FORMAT);
+      const errors = validateService.validateSubmissionBody({
+        ...(validSubmission as any),
+        startDate,
+      });
+
+      const minStartTime = LocalDate.now()
+        .with(TemporalAdjusters.firstDayOfYear())
+        .minusYears(2)
+        .with(TemporalAdjusters.firstDayOfMonth())
+        .format(JSON_REPORT_DATE_FORMAT);
+
+      expect(errors.bodyErrors).toContain(
+        `Minimum allowed start date is ${minStartTime}`,
+      );
+    });
+  });
+  describe('given an endDate is after maximum end date', () => {
+    it('should return error', () => {
+      const startDate = LocalDate.now()
+        .minusYears(1)
+        .format(JSON_REPORT_DATE_FORMAT);
+      const endDate = LocalDate.now()
+        .plusYears(1)
+        .format(JSON_REPORT_DATE_FORMAT);
+      const errors = validateService.validateSubmissionBody({
+        ...(validSubmission as any),
+        startDate,
+        endDate,
+      });
+
+      const maxEndTime = LocalDate.now()
+        .minusMonths(1)
+        .with(TemporalAdjusters.lastDayOfMonth())
+        .format(JSON_REPORT_DATE_FORMAT);
+
+      expect(errors.bodyErrors).toContain(
+        `Maximum allowed end date is ${maxEndTime}`,
+      );
     });
   });
 });
