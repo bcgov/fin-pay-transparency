@@ -780,6 +780,7 @@ export default {
       if (!this.startDate) return;
       const end = LocalDate.parse(this.startDate).plusMonths(11);
       this.endMonth = end.monthValue();
+      this.endYear = end.year();
     },
     startYear() {
       //automatically update the endMonth and endYear to be one year later
@@ -794,6 +795,7 @@ export default {
       if (!this.endDate) return;
       const start = LocalDate.parse(this.endDate).minusMonths(11);
       this.startMonth = start.monthValue();
+      this.startYear = start.year();
     },
     endYear() {
       //automatically update the startMonth and startYear to be one year earlier
