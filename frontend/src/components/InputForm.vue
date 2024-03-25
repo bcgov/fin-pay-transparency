@@ -663,7 +663,9 @@ export default {
     startYear: LocalDate.now().minusYears(1).year(),
     endMonth: LocalDate.now().minusMonths(1).monthValue() || undefined,
     endYear: LocalDate.now().minusMonths(1).year(),
-    reportYear: null,
+    reportYear: LocalDate.now().year() as number,
+    dataConstraints: null,
+    comments: null,
     isSubmit: false, //whether or not the submit button has been pressed
     isProcessing: false,
     uploadFileValue: undefined as File[] | undefined,
@@ -692,9 +694,6 @@ export default {
       { title: 'November', value: 11 },
       { title: 'December', value: 12 },
     ],
-    selectYears: [2023, 2024],
-    dataConstraints: null,
-    comments: null,
     fileAccept: '.csv',
     fileRules: [],
     fileInputError: [],
@@ -747,7 +746,11 @@ export default {
         .format(dateFormatter);
     },
     reportYearList() {
-      return [LocalDate.now().year(), LocalDate.now().minusYears(1).year()];
+      const list = [
+        LocalDate.now().year(),
+        LocalDate.now().minusYears(1).year(),
+      ];
+      return list.filter((year) => year >= 2024);
     },
     startMonthList() {
       return this.months.map((month) => {
@@ -852,6 +855,7 @@ export default {
       this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
+      this.reportYear = this.reportData.reporting_year;
     }
   },
   methods: {
@@ -956,6 +960,7 @@ export default {
           employeeCountRangeId: this.employeeCountRange,
           startDate: this.startDate!,
           endDate: this.endDate!,
+          reportingYear: this.reportYear,
           dataConstraints: this.dataConstraints,
           comments: this.comments,
           rows: parseResponse.data,

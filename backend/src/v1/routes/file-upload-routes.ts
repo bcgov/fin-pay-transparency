@@ -31,7 +31,7 @@ fileUploadRouter.post(
         res.status(200).json(result);
         return;
       } catch (err) {
-        res.status(500).json(new SubmissionError('Some went wrong'));
+        res.status(500).json(new SubmissionError('Something went wrong'));
       }
     },
   ),

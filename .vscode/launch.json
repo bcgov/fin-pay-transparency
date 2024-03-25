@@ -12,7 +12,7 @@
       "skipFiles": ["backend/<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/backend",
-      "preLaunchTask": "database"
+      "preLaunchTask": "Launch and migrate database"
     },
     {
       "name": "Backend-External",

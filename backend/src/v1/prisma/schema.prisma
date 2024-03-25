@@ -63,7 +63,7 @@ model naics_code {
   naics_year                                                             String?                   @db.VarChar(255)
   pay_transparency_report_pay_transparency_report_naics_codeTonaics_code pay_transparency_report[] @relation("pay_transparency_report_naics_codeTonaics_code")
   report_history_report_history_naics_codeTonaics_code                   report_history[]          @relation("report_history_naics_codeTonaics_code")
-  
+
   @@index([effective_date, expiry_date])
 }
 
@@ -121,6 +121,7 @@ model pay_transparency_report {
   revision                                                  Decimal                            @db.Decimal
   data_constraints                                          String?                            @db.VarChar(3000)
   is_unlocked                                               Boolean                            @default(false)
+  reporting_year                                            Decimal                            @db.Decimal
   pay_transparency_calculated_data                          pay_transparency_calculated_data[]
   naics_code_pay_transparency_report_naics_codeTonaics_code naics_code                         @relation("pay_transparency_report_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_naics_code_fk")
   employee_count_range                                      employee_count_range               @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_employee_count_range_id_fk")
@@ -164,6 +165,7 @@ model report_history {
   data_constraints                                 String?                   @db.VarChar(3000)
   revision                                         Decimal                   @db.Decimal
   is_unlocked                                      Boolean                   @default(false)
+  reporting_year                                   Decimal                   @db.Decimal
   calculated_data_history                          calculated_data_history[]
   pay_transparency_company                         pay_transparency_company  @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_company_id_fk")
   employee_count_range                             employee_count_range      @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_employee_count_range_id_fk")

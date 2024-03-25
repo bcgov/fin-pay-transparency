@@ -28,6 +28,7 @@ export interface ISubmission {
   employeeCountRangeId: string;
   startDate: string;
   endDate: string;
+  reportingYear: number;
   dataConstraints: string | null;
   comments: string | null;
   rows: any[];
@@ -109,9 +110,9 @@ const fileUploadService = {
   ): Promise<string> {
     // Use UTC so js-doja doesn't offset the timezone based on locale
     const startDate = LocalDate.parse(submission.startDate).withDayOfMonth(1);
-    const endDate = LocalDate.parse(submission.endDate)
-
-      .with(TemporalAdjusters.lastDayOfMonth());
+    const endDate = LocalDate.parse(submission.endDate).with(
+      TemporalAdjusters.lastDayOfMonth(),
+    );
 
     const payTransparencyUser = await tx.pay_transparency_user.findFirst({
       where: {
@@ -146,6 +147,7 @@ const fileUploadService = {
       report_status: REPORT_STATUS.DRAFT,
       report_start_date: convert(startDate).toDate(),
       report_end_date: convert(endDate).toDate(),
+      reporting_year: submission?.reportingYear,
     };
 
     if (existingDraftReport) {
