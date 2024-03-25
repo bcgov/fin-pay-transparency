@@ -74,6 +74,7 @@ jobs:
         id: changelog
         continue-on-error: true
         with:
+          preset: "conventionalcommits"
           github-token: ${{ github.token }}
           output-file: "CHANGELOG.md"
           skip-version-file: "true"
@@ -107,7 +108,8 @@ jobs:
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
-      params: --set doc-gen-service.pdb=false --set-string crunchy.instances.dataVolumeClaimSpec.storage=960Mi
+      values: "values-dev.yaml"
+      
   test-e2e:
     name: E2E (dev)
     needs: [deploys]

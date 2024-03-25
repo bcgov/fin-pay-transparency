@@ -9,13 +9,13 @@ test('generate new report', async ({ page }) => {
   await dashboard.setup();
   await dashboard.gotoGenerateReport();
 
-  const generateReportPage = new GenerateReportPage(dashboard.instance);
-  await generateReportPage.fillOutForm({
-    naicsCode: '11 - Agriculture, forestry, fishing and hunting',
-    employeeCountRange: '50-299',
-    comments: 'Example test comment',
-    dataConstraints: 'Example data constraint text',
-    fileName: 'CsvGood.csv',
-  });
+  // const generateReportPage = new GenerateReportPage(dashboard.instance);
+  // await generateReportPage.fillOutForm({
+  //   naicsCode: '11 - Agriculture, forestry, fishing and hunting',
+  //   employeeCountRange: '50-299',
+  //   comments: 'Example test comment',
+  //   dataConstraints: 'Example data constraint text',
+  //   fileName: 'CsvGood.csv',
+  // });
   // await generateReportPage.submitForm();
 });

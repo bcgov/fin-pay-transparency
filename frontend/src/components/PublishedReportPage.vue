@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import '@vuepic/vue-datepicker/dist/main.css';
 import Spinner from './Spinner.vue';
 import ReportStepper from './util/ReportStepper/Stepper.vue';
 import {
@@ -110,7 +109,7 @@ const downloadPdf = async (reportId) => {
 
 const editReport = async () => {
   ReportStepperStore.setMode(ReportMode.Edit);
-  await ReportStepperStore.setReportInfo(reportData.value);
+  await ReportStepperStore.setReportInfo(reportData.value!);
   await router.push({ path: 'generate-report-form' });
 };
 </script>

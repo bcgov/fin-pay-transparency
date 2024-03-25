@@ -58,10 +58,10 @@ backend:
       memory: 100Mi
   initResources:
     limits:
-      cpu: 350m
+      cpu: 150m
       memory: 250Mi
     requests:
-      cpu: 150m
+      cpu: 50m
       memory: 100Mi
 
   autoscaling:
@@ -164,7 +164,7 @@ crunchy:
         prometheus.io/port: "9187"
     replicas: 3
     dataVolumeClaimSpec:
-      storage: 500Mi
+      storage: 600Mi
       storageClassName: netapp-block-standard
     requests:
       cpu: 50m
@@ -188,7 +188,7 @@ crunchy:
     # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
     retentionFullType: count
     s3:
-      retention: "30"
+      retention: "14"
       bucket: ~
       endpoint: ~
       accessKey: ~
@@ -253,7 +253,7 @@ crunchy:
 doc-gen-service:
   enabled: true
   deploymentStrategy: Recreate
-  replicaCount: 1
+  replicaCount: 2
   nameOverride: ""
   fullnameOverride: ""
   image:
@@ -269,7 +269,7 @@ doc-gen-service:
     targetPort: 3000
   resources:
     limits:
-      cpu: 650m
+      cpu: 600m
       memory: 350Mi
     requests:
       cpu: 100m

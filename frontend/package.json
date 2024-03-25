@@ -24,7 +24,6 @@
     "@mdi/font": "^7.1.96",
     "@types/papaparse": "^5.3.14",
     "@vue/tsconfig": "^0.5.1",
-    "@vuepic/vue-datepicker": "^8.0.0",
     "axios": "^1.6.7",
     "dotenv": "^16.4.5",
     "file-saver": "^2.0.5",

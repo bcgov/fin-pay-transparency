@@ -51,17 +51,17 @@ backend:
     targetPort: 3000
   resources:
     limits:
-      cpu: 150m
+      cpu: 200m
       memory: 250Mi
     requests:
-      cpu: 50m
+      cpu: 30m
       memory: 100Mi
   initResources:
     limits:
-      cpu: 350m
+      cpu: 200m
       memory: 250Mi
     requests:
-      cpu: 150m
+      cpu: 30m
       memory: 100Mi
 
   autoscaling:
@@ -75,7 +75,7 @@ backend:
     accessMode: ReadWriteMany
   app:
     env:
-      siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
+      siteminderLogoutEndpoint: https://logon7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
       logLevel: info
 
   podAnnotations:
@@ -164,7 +164,7 @@ crunchy:
         prometheus.io/port: "9187"
     replicas: 3
     dataVolumeClaimSpec:
-      storage: 500Mi
+      storage: 600Mi
       storageClassName: netapp-block-standard
     requests:
       cpu: 50m
@@ -194,7 +194,7 @@ crunchy:
       accessKey: ~
       secretKey: ~
       fullBackupSchedule: 0 9 * * *
-      incrementalBackupSchedule: "0 0,4,8,12,16 * * *" # every 4 hours, but 9 is not put intentionally to avoid conflict with full backup
+      incrementalBackupSchedule: "0 0,1,3,5,7,11,13,15,17,19,21,23 * * *" # every 2 hours, but 9 is not put intentionally to avoid conflict with full backup
     config:
       requests:
         cpu: 5m
@@ -252,8 +252,8 @@ crunchy:
         memory: 32Mi
 doc-gen-service:
   enabled: true
-  deploymentStrategy: Recreate
-  replicaCount: 1
+  deploymentStrategy: RollingUpdate
+  replicaCount: 3
   nameOverride: ""
   fullnameOverride: ""
   image:
@@ -288,7 +288,7 @@ doc-gen-service:
 backend-external:
   enabled: true
   deploymentStrategy: Recreate
-  replicaCount: 1
+  replicaCount: 2
   nameOverride: ""
   fullnameOverride: ""
   image:

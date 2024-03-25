@@ -7,13 +7,13 @@ import PublishedReportPage from './components/PublishedReportPage.vue';
 import DraftReportPage from './components/DraftReportPage.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
+import ContactError from './components/ContactError.vue';
 import { appStore } from './store/modules/app';
 import { PAGE_TITLES } from './utils/constant';
 import Login from './components/Login.vue';
 import { authStore } from './store/modules/auth';
 import Logout from './components/Logout.vue';
 
-// a comment for commit.
 const router = createRouter({
   history: createWebHistory(),
   base: import.meta.env.BASE_URL,
@@ -32,13 +32,19 @@ const router = createRouter({
       },
     },
     {
-      //A route to show a general error for unrecoverable system failures
+      // A route to show a general error for unrecoverable system failures
       path: '/error',
       name: 'error',
       component: ErrorPage,
     },
     {
-      //A route to show an error specifically related to failed logins
+      // A route to show an error when the user must contact support
+      path: '/contact-error',
+      name: 'contact-error',
+      component: ContactError,
+    },
+    {
+      // A route to show an error specifically related to failed logins
       path: '/login-error',
       name: 'login-error',
       component: LoginError,
@@ -93,13 +99,13 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    { 
-      path: '/:pathMatch(.*)*', 
-      name: 'NotFound', 
-      component: NotFoundPage, 
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: NotFoundPage,
       meta: {
-        requiresAuth: true
-      } 
+        requiresAuth: true,
+      },
     },
   ],
 });
@@ -114,7 +120,7 @@ router.beforeEach((to, _from, next) => {
     return;
   }
 
-  // requires authentication
+  // requires bceid info
   const aStore = authStore();
 
   aStore
