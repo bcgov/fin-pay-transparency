@@ -96,6 +96,7 @@ import { useReportStepperStore } from '../store/modules/reportStepper';
 import { onBeforeMount, ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
+import { NotificationService } from '../common/notificationService';
 
 const isProcessing = ref<boolean>(false);
 const isReadyToGenerate = ref<boolean>(false);
@@ -156,6 +157,9 @@ async function tryGenerateReport() {
     isProcessing.value = true;
     try {
       await ApiService.publishReport(ReportStepperStore.reportId ?? '');
+      NotificationService.pushNotificationSuccess(
+        'You have created a pay transparency report.',
+      );
       nextStage();
     } catch (e) {
       console.log(e);
