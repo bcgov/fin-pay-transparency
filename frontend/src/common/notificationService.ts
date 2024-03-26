@@ -13,27 +13,31 @@ in the application can use to report errors.  The recommended use is as follows:
   - pushNotificationInfo("my message")    
 */
 
-const DEFAULT_ERROR_PAGE_MESSAGE = "You have encountered a system error. Close your web browser, open a new session, then try again."
-const NOTIFICATION_EVENT = "notification";
+const DEFAULT_ERROR_PAGE_MESSAGE =
+  'You have encountered a system error. Close your web browser, open a new session, then try again.';
+const NOTIFICATION_EVENT = 'notification';
 const LOCAL_STORAGE_KEY_ERROR_PAGE_MSG = 'errorPageMessage';
+const DEFAULT_TIMEOUT_MS = 5000;
 
 const notificationEvents = new (TinyEmitter as any)();
 
-export interface Notification {
-  message: string,
-  severity: string
+export enum NotificationSeverity {
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info',
+  SUCCESS = 'success',
 }
-export const NotificationTypes = {
-  NOTIFICATION_ERROR: "error",
-  NOTIFICATION_WARNING: "warning",
-  NOTIFICATION_INFO: "info",
-  NOTIFICATION_SUCCESS: "success"
+
+export interface INotification {
+  message: string;
+  title?: string | null;
+  severity: NotificationSeverity;
+  timeoutMs: number;
 }
 
 export const NotificationService = {
-
   //---------------------------------------------------------------------------
-  // Public interface (intended for any component or service that needs to 
+  // Public interface (intended for any component or service that needs to
   // report a notification or error)
   //---------------------------------------------------------------------------
 
@@ -44,7 +48,7 @@ export const NotificationService = {
   */
   goToErrorPage(message: string = DEFAULT_ERROR_PAGE_MESSAGE) {
     this.setErrorPageMessage(message);
-    Router.push("/error")
+    Router.push('/error');
   },
 
   /* 
@@ -52,34 +56,74 @@ export const NotificationService = {
   Implementation note: The intention is that this service is coupled with
   a related component that will listen for the notification events and display them.
   */
-  pushNotification(message: string, severity: string = NotificationTypes.NOTIFICATION_INFO) {
-    if (Object.values(NotificationTypes).indexOf(severity) == -1) {
-      throw new Error(`Invalid notification severity '${severity}'.  Expected one of [${Object.values(NotificationTypes)}]`);
+  pushNotification(notification: INotification) {
+    if (
+      Object.values(NotificationSeverity).indexOf(notification?.severity) == -1
+    ) {
+      throw new Error(
+        `Invalid notification severity '${notification?.severity}'.  Expected one of [${Object.values(NotificationSeverity)}]`,
+      );
     }
-    const notification: Notification = {
-      message: message,
-      severity: severity
-    };
-    notificationEvents.emit(NOTIFICATION_EVENT, notification)
+    notificationEvents.emit(NOTIFICATION_EVENT, notification);
   },
 
   /* Emits a notification event with error severity */
-  pushNotificationError(message: string) {
-    this.pushNotification(message, NotificationTypes.NOTIFICATION_ERROR);
+  pushNotificationError(
+    message: string,
+    title: string = 'Error!',
+    timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  ) {
+    this.pushNotification({
+      title: title,
+      message: message,
+      severity: NotificationSeverity.ERROR,
+      timeoutMs: timeoutMs,
+    });
   },
 
   /* Emits a notification event with warning severity */
-  pushNotificationWarning(message: string) {
-    this.pushNotification(message, NotificationTypes.NOTIFICATION_WARNING);
+  pushNotificationWarning(
+    message: string,
+    title: string = 'Warning!',
+    timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  ) {
+    this.pushNotification({
+      title: title,
+      message: message,
+      severity: NotificationSeverity.WARNING,
+      timeoutMs: timeoutMs,
+    });
   },
 
   /* Emits a notification event with info severity */
-  pushNotificationInfo(message: string) {
-    this.pushNotification(message, NotificationTypes.NOTIFICATION_INFO);
+  pushNotificationInfo(
+    message: string,
+    title: string | null = null,
+    timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  ) {
+    this.pushNotification({
+      title: title,
+      message: message,
+      severity: NotificationSeverity.INFO,
+      timeoutMs: timeoutMs,
+    });
+  },
+
+  pushNotificationSuccess(
+    message: string,
+    title: string = 'Success!',
+    timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  ) {
+    this.pushNotification({
+      title: title,
+      message: message,
+      severity: NotificationSeverity.SUCCESS,
+      timeoutMs: timeoutMs,
+    });
   },
 
   //---------------------------------------------------------------------------
-  // Protected interface (intended only for the coupled component responsible 
+  // Protected interface (intended only for the coupled component responsible
   // for displaying notifications
   //---------------------------------------------------------------------------
 
@@ -97,7 +141,7 @@ export const NotificationService = {
   },
 
   //---------------------------------------------------------------------------
-  // Protected interface (intended only for the coupled component responsible 
+  // Protected interface (intended only for the coupled component responsible
   // for rendering the ErrorPage and the component responsible to clearing
   // error messages when
   //---------------------------------------------------------------------------
@@ -120,6 +164,5 @@ export const NotificationService = {
       message = DEFAULT_ERROR_PAGE_MESSAGE;
     }
     localStorage.setItem(LOCAL_STORAGE_KEY_ERROR_PAGE_MSG, message);
-  }
-
-}
+  },
+};
