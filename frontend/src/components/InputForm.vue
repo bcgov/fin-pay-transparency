@@ -660,7 +660,7 @@ export default {
     startYear: LocalDate.now().minusYears(1).year(),
     endMonth: LocalDate.now().minusMonths(1).monthValue() || undefined,
     endYear: LocalDate.now().minusMonths(1).year(),
-    reportYear: LocalDate.now().year() as number,
+    reportYear: LocalDate.now().year(),
     dataConstraints: null,
     comments: null,
     isSubmit: false, //whether or not the submit button has been pressed
