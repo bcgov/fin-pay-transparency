@@ -221,6 +221,7 @@
               >
               <v-select
                 id="startMonth"
+                ref="startMonth"
                 v-model="startMonth"
                 label="Month"
                 :items="startMonthList"

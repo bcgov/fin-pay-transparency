@@ -195,8 +195,8 @@ describe('InputForm', () => {
   });
 
   it('Setting start date causes end date to default to one year later', async () => {
-    const startMonthComponent = wrapper.find('#startMonth');
-    const startYearComponent = wrapper.find('#startYear');
+    const startMonthComponent = wrapper.findComponent({ ref: 'startMonth' });
+    const startYearComponent = wrapper.findComponent({ ref: 'startYear' });
 
     const testDate = LocalDate.now()
       .minusYears(1)
