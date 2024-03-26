@@ -219,7 +219,7 @@
                 :class="{ 'text-disabled': mode == ReportMode.Edit }"
                 >From</span
               >
-              <v-combobox
+              <v-select
                 id="startMonth"
                 v-model="startMonth"
                 label="Month"
@@ -231,7 +231,7 @@
             </v-col>
             <!-- startYear -->
             <v-col>
-              <v-combobox
+              <v-select
                 id="startYear"
                 ref="startYear"
                 v-model="startYear"
@@ -263,7 +263,7 @@
               >
                 To
               </span>
-              <v-combobox
+              <v-select
                 id="endMonth"
                 ref="endMonth"
                 v-model="endMonth"
@@ -276,7 +276,7 @@
             </v-col>
             <!-- endYear -->
             <v-col>
-              <v-combobox
+              <v-select
                 id="endYear"
                 ref="endYear"
                 v-model="endYear"
@@ -315,7 +315,7 @@
                   </template>
                 </v-tooltip>
               </div>
-              <v-combobox
+              <v-select
                 id="reportYear"
                 ref="reportYear"
                 v-model="reportYear"
@@ -855,7 +855,10 @@ export default {
       this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
-      this.reportYear = this.reportData.reporting_year;
+      this.reportYear =
+        typeof this.reportData.reporting_year === 'number'
+          ? this.reportData.reporting_year
+          : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
     }
   },
   methods: {
