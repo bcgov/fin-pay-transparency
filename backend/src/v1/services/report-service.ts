@@ -5,7 +5,6 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
 import type { pay_transparency_report } from '@prisma/client';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
