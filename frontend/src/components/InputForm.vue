@@ -24,13 +24,10 @@
   >
     <v-btn to="/">Back</v-btn>
   </v-banner>
-  <v-container class="pt-0">
+  <v-container fluid>
     <v-form ref="inputForm" @submit.prevent="submit">
-      <v-row>
-        <v-col> </v-col>
-      </v-row>
       <v-row class="justify-center" no-gutters>
-        <v-col cols="10" class="w-100">
+        <v-col cols="12" class="w-100">
           <ReportStepper />
         </v-col>
       </v-row>
@@ -671,12 +668,17 @@ export default {
     uploadFileValue: undefined as File[] | undefined,
     maxFileUploadSize: '',
     minStartDate: LocalDate.now()
+      .with(TemporalAdjusters.firstDayOfYear())
       .minusYears(2)
       .with(TemporalAdjusters.firstDayOfMonth()),
     maxStartDate: LocalDate.now()
       .minusYears(1)
       .with(TemporalAdjusters.lastDayOfMonth()),
-    minEndDate: LocalDate.now().minusYears(1).minusMonths(1).withDayOfMonth(1),
+    minEndDate: LocalDate.now()
+      .with(TemporalAdjusters.firstDayOfYear())
+      .minusYears(1)
+      .minusMonths(1)
+      .withDayOfMonth(1),
     maxEndDate: LocalDate.now()
       .minusMonths(1)
       .with(TemporalAdjusters.lastDayOfMonth()),
@@ -767,9 +769,7 @@ export default {
     endMonthList() {
       return this.months.map((month) => {
         const selected = LocalDate.of(this.endYear, month.value, 1);
-        const disabled =
-          selected.isBefore(this.minEndDate as LocalDate) ||
-          selected.isAfter(this.maxEndDate as LocalDate);
+        const disabled = selected.isAfter(this.maxEndDate as LocalDate);
         return { ...month, props: { disabled } };
       });
     },
@@ -1010,7 +1010,11 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
+.v-container {
+  max-width: 1080px;
+}
+
 textarea::placeholder {
   text-align: right;
   transform: translateY(95px);

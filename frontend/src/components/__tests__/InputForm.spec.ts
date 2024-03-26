@@ -223,7 +223,11 @@ describe('InputForm', () => {
     );
     //Earliest allowable start month is two years before the current month
     expect((wrapper.vm.minStartDate as LocalDate).format(formatter)).toBe(
-      dateNow.minusYears(2).withDayOfMonth(1).format(formatter),
+      dateNow
+        .with(TemporalAdjusters.firstDayOfYear())
+        .minusYears(2)
+        .withDayOfMonth(1)
+        .format(formatter),
     );
     //Latest allowable end month is the month prior the current month
     expect((wrapper.vm.maxEndDate as LocalDate).format(formatter)).toBe(

@@ -12,10 +12,8 @@ import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
   CalcCodeGenderCode,
-  DISPLAY_REPORT_DATE_FORMAT,
   GENDERS,
   GenderChartInfo,
-  JSON_REPORT_DATE_FORMAT,
   Report,
   ReportAndCalculations,
   enumReportStatus,
@@ -23,6 +21,7 @@ import {
   reportServicePrivate,
 } from './report-service';
 import { utils } from './utils-service';
+import { DISPLAY_REPORT_DATE_FORMAT, JSON_REPORT_DATE_FORMAT } from '../../constants';
 
 const actualMovePublishedReportToHistory =
   reportServicePrivate.movePublishedReportToHistory;
