@@ -2,7 +2,6 @@ import { LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { ISubmission } from './file-upload-service';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 
-
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const SUBMISSION_ROW_COLUMNS = {
   GENDER_CODE: 'Gender Code',
@@ -108,6 +107,15 @@ const validateService = {
       bodyErrors.push(
         `Start date and end date must always be 12 months apart.`,
       );
+    }
+
+    const allowedReaportingYears = [
+      LocalDate.now().year(),
+      LocalDate.now().year() - 1,
+    ].filter((val) => val >= 2024);
+    if (!allowedReaportingYears.includes(submission.reportingYear)) {
+      const text = allowedReaportingYears.join(' or ');
+      bodyErrors.push(`Reporting year must be ${text}.`);
     }
 
     if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {

@@ -322,6 +322,17 @@ describe('validate-service', () => {
         );
       });
     });
+    describe('given a reporting year older than two years', () => {
+      it('should return error', () => {
+        const errors = validateService.validateSubmissionBody(validSubmission);
+
+        expect(
+          doesAnyStringContainAll(errors.bodyErrors, [
+            `Reporting year must be`,
+          ]),
+        ).toBeTruthy();
+      });
+    });
   });
 
   describe('validateSubmissionRowsHeader', () => {
