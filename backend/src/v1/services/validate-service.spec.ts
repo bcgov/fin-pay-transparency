@@ -177,6 +177,7 @@ const mockValidSubmission = {
   employeeCountRangeId: '',
   startDate: '2022-01-01',
   endDate: '2022-12-31',
+  reportingYear: 2022,
   dataConstraints: null,
   comments: null,
   rows: [Object.keys(mockRecord), Object.values(mockRecord)],
@@ -236,6 +237,7 @@ describe('validate-service', () => {
       employeeCountRangeId: 'enmployeeRangeCountId',
       startDate: '2022-12-01',
       endDate: '2023-11-01',
+      reportingYear: 2023,
       dataConstraints: 'data constraints',
       comments: 'other comments',
       rows: [] as any[],
@@ -318,6 +320,17 @@ describe('validate-service', () => {
         expect(errors.bodyErrors).toContain(
           `Maximum allowed end date is ${maxEndTime}`,
         );
+      });
+    });
+    describe('given a reporting year older than two years', () => {
+      it('should return error', () => {
+        const errors = validateService.validateSubmissionBody(validSubmission);
+
+        expect(
+          doesAnyStringContainAll(errors.bodyErrors, [
+            `Reporting year must be`,
+          ]),
+        ).toBeTruthy();
       });
     });
   });

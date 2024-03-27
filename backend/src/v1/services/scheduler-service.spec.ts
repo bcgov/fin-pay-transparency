@@ -34,6 +34,7 @@ const mockDraftReport: pay_transparency_report = {
   naics_code: '234234',
   report_start_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
   report_end_date: convert(LocalDate.now(ZoneId.UTC).plusYears(1)).toDate(),
+  reporting_year: new Prisma.Decimal(2022),
   create_date: new Date(),
   update_date: new Date(),
   create_user: 'User',

@@ -33,6 +33,7 @@ const mockValidSubmission = {
   employeeCountRangeId: '',
   startDate: '2022-01-01',
   endDate: '2022-12-31',
+  reportingYear: 2022,
   dataConstraints: null,
   comments: null,
   rows: [Object.keys(mockRecord), Object.values(mockRecord)],

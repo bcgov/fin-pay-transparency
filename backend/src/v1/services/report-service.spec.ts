@@ -127,6 +127,7 @@ const mockPublishedReportInDb: pay_transparency_report = {
   naics_code: '234234',
   report_start_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
   report_end_date: convert(LocalDate.now(ZoneId.UTC).plusYears(1)).toDate(),
+  reporting_year: new Prisma.Decimal(2022),
   create_date: new Date(),
   update_date: new Date(),
   create_user: 'User',
@@ -248,6 +249,7 @@ describe('getReportData', () => {
           },
           report_start_date: startDate,
           report_end_date: endDate,
+          reporting_year: new Prisma.Decimal(2022),
           naics_code_pay_transparency_report_naics_codeTonaics_code: {
             naics_code: '1',
             naics_label: 'NAICS label',
@@ -298,6 +300,7 @@ describe('getReportData', () => {
           },
           report_start_date: new Date(),
           report_end_date: new Date(),
+          reporting_year: new Prisma.Decimal(2022),
           naics_code_pay_transparency_report_naics_codeTonaics_code: {
             naics_code: '1',
             naics_label: 'NAICS label',
@@ -898,6 +901,7 @@ describe('getReportFileName', () => {
         LocalDate.now(ZoneId.UTC).minusMonths(11),
       ).toDate(),
       report_end_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
+      reporting_year: new Prisma.Decimal(2022),
       report_status: 'Published',
       revision: new Prisma.Decimal(1),
       data_constraints: '',

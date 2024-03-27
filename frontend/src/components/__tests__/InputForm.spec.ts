@@ -1,9 +1,4 @@
-import {
-  DateTimeFormatter,
-  LocalDate,
-  TemporalAdjusters,
-  nativeJs,
-} from '@js-joda/core';
+import { DateTimeFormatter, LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
@@ -14,9 +9,44 @@ import * as directives from 'vuetify/directives';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
 import InputForm, { ISubmissionError } from '../InputForm.vue';
+import { ReportMode } from '../../store/modules/reportStepper';
 
 const DATE_FORMAT = 'yyyy-MM-dd';
 const dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+
+const mockNaicsCodes = [
+  {
+    naics_code: '11',
+    naics_label: 'Agriculture, forestry, fishing and hunting',
+  },
+  {
+    naics_code: '913',
+    naics_label: 'Local, municipal and regional public administration',
+  },
+];
+const mockEmployeeCountRanges = [
+  { employee_count_range_id: 1, employee_count_range: '10+' },
+];
+
+const mockReport = {
+  report_id: '456768',
+  user_comment: 'test abc',
+  employee_count_range_id: '1',
+  naics_code: '913',
+  report_start_date: LocalDate.now()
+    .minusYears(1)
+    .minusMonths(4)
+    .withDayOfMonth(1)
+    .format(dateFormatter),
+  report_end_date: LocalDate.now()
+    .minusMonths(4)
+    .minusMonths(1)
+    .with(TemporalAdjusters.lastDayOfMonth())
+    .format(dateFormatter),
+  reporting_year: LocalDate.now().year(),
+  data_constraints: 'test 123',
+  is_unlocked: true,
+};
 
 describe('InputForm', () => {
   let wrapper;
@@ -127,21 +157,11 @@ describe('InputForm', () => {
     // this property and uses it to populate the list of options for the Employee Count Range
     // form field.
     const codeStore = useCodeStore(pinia);
-    const employeeCountRanges = [
-      { employee_count_range_id: 1, employee_count_range: '10+' },
-    ];
-    await codeStore.$patch({ employeeCountRanges: employeeCountRanges } as any);
+    await codeStore.$patch({
+      employeeCountRanges: mockEmployeeCountRanges,
+    } as any);
 
-    // const employeeCountRangeComponent = wrapper.findComponent({
-    //   ref: 'employeeCountRange',
-    // });
     expect(wrapper.findAll('input[type="radio"]').length).toBe(1);
-    // expect(employeeCountRangeComponent.vm.items[0].employee_count_range).toBe(
-    //   employeeCountRanges[0].employee_count_range,
-    // );
-    // expect(employeeCountRangeComponent.vm.items.length).toBe(
-    //   employeeCountRanges.length,
-    // );
   });
 
   it("Form control for 'NAICS Code' is populated with the expected options", async () => {
@@ -149,20 +169,10 @@ describe('InputForm', () => {
     // this property and uses it to populate the list of options for the NAICS Code
     // form field.
     const codeStore = useCodeStore(pinia);
-    const naicsCodes = [
-      {
-        naics_code: '11',
-        naics_label: 'Agriculture, forestry, fishing and hunting',
-      },
-      {
-        naics_code: '913',
-        naics_label: 'Local, municipal and regional public administration',
-      },
-    ];
-    await codeStore.$patch({ naicsCodes: naicsCodes } as any);
+    await codeStore.$patch({ naicsCodes: mockNaicsCodes } as any);
 
     const naicsCodeComponent = wrapper.findComponent({ ref: 'naicsCode' });
-    expect(naicsCodeComponent.vm.items.length).toBe(naicsCodes.length);
+    expect(naicsCodeComponent.vm.items.length).toBe(mockNaicsCodes.length);
   });
 
   it('Company name and address are shown', async () => {
@@ -185,8 +195,8 @@ describe('InputForm', () => {
   });
 
   it('Setting start date causes end date to default to one year later', async () => {
-    const startMonthComponent = wrapper.find('#startMonth');
-    const startYearComponent = wrapper.find('#startYear');
+    const startMonthComponent = wrapper.findComponent({ ref: 'startMonth' });
+    const startYearComponent = wrapper.findComponent({ ref: 'startYear' });
 
     const testDate = LocalDate.now()
       .minusYears(1)
@@ -235,5 +245,67 @@ describe('InputForm', () => {
     expect((wrapper.vm.minEndDate as LocalDate).format(formatter)).toBe(
       (wrapper.vm.minStartDate as LocalDate).plusMonths(11).format(formatter),
     );
+  });
+});
+
+describe('InputForm Edit Mode', () => {
+  let wrapper;
+  let pinia;
+
+  beforeEach(async () => {
+    //create an instances of vuetify and pinia so we can inject them
+    //into the mounted component, allowing it to behave as it would
+    //in a browser
+    const vuetify = createVuetify({
+      components,
+      directives,
+    });
+
+    pinia = createTestingPinia({
+      initialState: {
+        code: {
+          naicsCodes: mockNaicsCodes,
+          employeeCountRanges: mockEmployeeCountRanges,
+        },
+
+        reportStepper: {
+          mode: ReportMode.Edit,
+          reportData: mockReport,
+          reportId: mockReport.report_id,
+        },
+      },
+    });
+
+    wrapper = mount(InputForm, {
+      global: {
+        plugins: [vuetify, pinia],
+      },
+    });
+  });
+
+  afterEach(() => {
+    if (wrapper) {
+      wrapper.unmount();
+    }
+  });
+
+  it('Fills the form with the selected report in edit mode.', async () => {
+    expect(wrapper.vm.naicsCode).toBe(mockReport.naics_code);
+    expect(wrapper.vm.employeeCountRange).toBe(
+      mockReport.employee_count_range_id,
+    );
+    expect(wrapper.vm.startDate).toBe(mockReport.report_start_date);
+    expect(wrapper.vm.endDate).toBe(mockReport.report_end_date);
+    expect(wrapper.vm.reportYear).toBe(mockReport.reporting_year);
+    expect(wrapper.vm.dataConstraints).toBe(mockReport.data_constraints);
+    expect(wrapper.vm.comments).toBe(mockReport.user_comment);
+  });
+
+  it('disables the Time Period fields', async () => {
+    expect(wrapper.find('#startMonth').element.disabled).toBeTruthy();
+    expect(wrapper.find('#startYear').element.disabled).toBeTruthy();
+    expect(wrapper.find('#endMonth').element.disabled).toBeTruthy();
+    expect(wrapper.find('#endYear').element.disabled).toBeTruthy();
+    expect(wrapper.find('#reportYear').element.disabled).toBeTruthy();
   });
 });

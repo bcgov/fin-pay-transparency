@@ -17,6 +17,13 @@ import Logout from './components/Logout.vue';
 const router = createRouter({
   history: createWebHistory(),
   base: import.meta.env.BASE_URL,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  },
   routes: [
     {
       path: '/',

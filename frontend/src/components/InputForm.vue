@@ -1,16 +1,32 @@
 <template>
+  <v-container class="pb-0">
+    <v-row no-gutters>
+      <v-col>
+        <v-alert
+          v-if="mode == ReportMode.Edit"
+          closable
+          text="You are now in edit mode. Please note that the reporting year and the time period are not editable in this mode."
+          class="text-error"
+          type="info"
+          variant="tonal"
+        >
+        </v-alert>
+      </v-col>
+    </v-row>
+  </v-container>
   <v-banner
     sticky
     width=" fit-content"
     border="none"
     bg-color="rgba(255, 255, 255, 0)"
     style="z-index: 190"
+    density="compact"
   >
     <v-btn to="/">Back</v-btn>
   </v-banner>
   <v-container fluid>
     <v-form ref="inputForm" @submit.prevent="submit">
-      <v-row class="justify-center">
+      <v-row class="justify-center" no-gutters>
         <v-col cols="12" class="w-100">
           <ReportStepper />
         </v-col>
@@ -169,6 +185,7 @@
                     !endMonth ||
                     !endYear ||
                     !reportYear),
+                'text-disabled': mode == ReportMode.Edit,
               }"
             >
               Time Period
@@ -197,25 +214,32 @@
           <v-row dense align="end">
             <!-- startMonth -->
             <v-col>
-              <span class="text-grey-darken-1">From</span>
-              <v-combobox
+              <span
+                class="text-grey-darken-1"
+                :class="{ 'text-disabled': mode == ReportMode.Edit }"
+                >From</span
+              >
+              <v-select
                 id="startMonth"
+                ref="startMonth"
                 v-model="startMonth"
                 label="Month"
                 :items="startMonthList"
                 :return-object="false"
                 :rules="requiredRules"
+                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
             <!-- startYear -->
             <v-col>
-              <v-combobox
+              <v-select
                 id="startYear"
                 ref="startYear"
                 v-model="startYear"
                 label="Year"
                 :items="startYearList"
                 :rules="requiredRules"
+                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
           </v-row>
@@ -228,13 +252,19 @@
               cols="1"
               class="d-flex justify-center text-h3 text-grey-darken-1"
               align-self="center"
+              :class="{ 'text-disabled': mode == ReportMode.Edit }"
             >
               -
             </v-col>
             <!-- endMonth -->
             <v-col>
-              <span class="text-grey-darken-1">To</span>
-              <v-combobox
+              <span
+                class="text-grey-darken-1"
+                :class="{ 'text-disabled': mode == ReportMode.Edit }"
+              >
+                To
+              </span>
+              <v-select
                 id="endMonth"
                 ref="endMonth"
                 v-model="endMonth"
@@ -242,17 +272,19 @@
                 :items="endMonthList"
                 :return-object="false"
                 :rules="requiredRules"
+                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
             <!-- endYear -->
             <v-col>
-              <v-combobox
+              <v-select
                 id="endYear"
                 ref="endYear"
                 v-model="endYear"
                 label="Year"
                 :items="endYearList"
                 :rules="requiredRules"
+                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
           </v-row>
@@ -262,7 +294,12 @@
           <v-row dense>
             <v-col class="d-flex">
               <div class="mt-2 mx-3">
-                <label for="reportYear"> Reporting Year: </label>
+                <label
+                  for="reportYear"
+                  :class="{ 'text-disabled': mode == ReportMode.Edit }"
+                >
+                  Reporting Year:
+                </label>
                 <span class="text-error font-weight-bold text-h6">*</span>
                 <v-tooltip
                   text="Employers must submit pay transparency reports by November 1 of each year. Select the year you are submitting a report for."
@@ -279,13 +316,14 @@
                   </template>
                 </v-tooltip>
               </div>
-              <v-combobox
+              <v-select
                 id="reportYear"
                 ref="reportYear"
                 v-model="reportYear"
                 label="Year"
                 :items="reportYearList"
                 :rules="requiredRules"
+                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
           </v-row>
@@ -605,6 +643,7 @@ export default {
     next(response);
   },
   data: () => ({
+    ReportMode,
     requiredRules: [(v: string) => !!v || 'Complete this field.'],
     companyName: '',
     companyAddress: '',
@@ -615,7 +654,9 @@ export default {
     startYear: LocalDate.now().minusYears(1).year(),
     endMonth: LocalDate.now().minusMonths(1).monthValue() || undefined,
     endYear: LocalDate.now().minusMonths(1).year(),
-    reportYear: null,
+    reportYear: LocalDate.now().year(),
+    dataConstraints: null,
+    comments: null,
     isSubmit: false, //whether or not the submit button has been pressed
     isProcessing: false,
     uploadFileValue: undefined as File[] | undefined,
@@ -649,9 +690,6 @@ export default {
       { title: 'November', value: 11 },
       { title: 'December', value: 12 },
     ],
-    selectYears: [2023, 2024],
-    dataConstraints: null,
-    comments: null,
     fileAccept: '.csv',
     fileRules: [],
     fileInputError: [],
@@ -704,7 +742,11 @@ export default {
         .format(dateFormatter);
     },
     reportYearList() {
-      return [LocalDate.now().year(), LocalDate.now().minusYears(1).year()];
+      const list = [
+        LocalDate.now().year(),
+        LocalDate.now().minusYears(1).year(),
+      ];
+      return list.filter((year) => year >= 2024);
     },
     startMonthList() {
       return this.months.map((month) => {
@@ -795,10 +837,22 @@ export default {
       this.comments = this.reportData.user_comment;
       this.employeeCountRange = this.reportData.employee_count_range_id;
       this.naicsCode = this.reportData.naics_code;
-      this.startDate = this.reportData.report_start_date;
-      this.endDate = this.reportData.report_end_date;
+      this.startMonth = LocalDate.parse(
+        this.reportData.report_start_date,
+      ).monthValue();
+      this.startYear = LocalDate.parse(
+        this.reportData.report_start_date,
+      ).year();
+      this.endMonth = LocalDate.parse(
+        this.reportData.report_end_date,
+      ).monthValue();
+      this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
+      this.reportYear =
+        typeof this.reportData.reporting_year === 'number'
+          ? this.reportData.reporting_year
+          : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
     }
   },
   methods: {
@@ -903,6 +957,7 @@ export default {
           employeeCountRangeId: this.employeeCountRange,
           startDate: this.startDate!,
           endDate: this.endDate!,
+          reportingYear: this.reportYear,
           dataConstraints: this.dataConstraints,
           comments: this.comments,
           rows: parseResponse.data,

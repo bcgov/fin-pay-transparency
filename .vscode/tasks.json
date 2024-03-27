@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "database",
+      "label": "Launch and migrate database",
       "type": "shell",
       "command": "podman-compose up -d database-migrations",
       "problemMatcher": []

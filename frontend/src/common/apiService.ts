@@ -18,6 +18,7 @@ export interface ISubmission {
   employeeCountRangeId: string;
   startDate: string;
   endDate: string;
+  reportingYear: number;
   dataConstraints: string | null;
   comments: string | null;
   rows: any[];
@@ -187,7 +188,7 @@ export default {
    * @param {string} reportId
    * @returns {report_id, user_comment, employee_count_range_id, naics_code, report_start_date, report_end_date, report_status, revision, data_constraints}
    */
-  async getReport(reportId) {
+  async getReport(reportId): Promise<ISubmission> {
     try {
       const resp = await apiAxios.get(ApiRoutes.REPORT + reportId);
       if (resp?.data) {
