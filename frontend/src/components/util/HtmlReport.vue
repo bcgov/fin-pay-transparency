@@ -1,6 +1,21 @@
 <template>
   <div class="mb-8">
-    <div v-dompurify-html="reportHtml"></div>
+    <div
+      v-if="reportHtml"
+      v-dompurify-html="reportHtml"
+      class="report-preview"
+    ></div>
+    <div
+      v-if="loadReportError && !reportHtml && !loading"
+      class="load-report-error"
+    >
+      <v-alert dense outlined class="bootstrap-error mb-3">
+        Unable to load the report. This may be a temporary problem. If the
+        problem persists, please report it to a system administrator.
+      </v-alert>
+      <p class="mt-2 mb-2"></p>
+      <v-btn color="secondary" @click="loadReport">Try again</v-btn>
+    </div>
   </div>
   <v-overlay
     :persistent="true"
@@ -23,16 +38,19 @@ import { useRouter } from 'vue-router';
 const { reportId } = storeToRefs(useReportStepperStore());
 const reportHtml = ref();
 const loading = ref<boolean>(true);
+const loadReportError = ref<boolean>(false);
 const router = useRouter();
 const emit = defineEmits(['html-report-loaded']);
 
 const loadReport = async () => {
   try {
+    loadReportError.value = false;
     loading.value = true;
     reportHtml.value = await ApiService.getHtmlReport(reportId.value);
     emit('html-report-loaded');
   } catch (error) {
-    router.replace('/');
+    reportHtml.value = null;
+    loadReportError.value = true;
   } finally {
     loading.value = false;
   }
