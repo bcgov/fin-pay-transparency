@@ -939,7 +939,7 @@ export default {
     },
     async selectFile() {
       this.isSelectingFile = true;
-      await (this.$refs.uploadFile as VFileInput).click();
+      (this.$refs.uploadFile as VFileInput).click();
       this.isSelectingFile = false;
     },
     async submit() {
