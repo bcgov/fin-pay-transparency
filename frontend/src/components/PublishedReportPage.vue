@@ -109,7 +109,7 @@ const downloadPdf = async (reportId) => {
 
 const editReport = async () => {
   ReportStepperStore.setMode(ReportMode.Edit);
-  await ReportStepperStore.setReportInfo(reportData.value!);
+  await ReportStepperStore.setReportInfo(reportData.value);
   await router.push({ path: 'generate-report-form' });
 };
 </script>
