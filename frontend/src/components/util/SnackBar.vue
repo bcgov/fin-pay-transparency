@@ -48,7 +48,7 @@ export default {
       polling: null as any,
       timeout: 5000,
       pause: false,
-      activeNotification: null as INotification | null,
+      activeNotification: null as INotification | null | undefined,
       notificationQueue: [] as INotification[],
       isVisible: false,
       // This attribute is used to force Vue to update the snackbar in the case
@@ -118,8 +118,8 @@ export default {
         this.close();
       }
     },
-    setActiveNotification(notification: INotification | undefined | null) {
-      this.activeNotification = notification ? notification : null;
+    setActiveNotification(notification: INotification | null | undefined) {
+      this.activeNotification = notification;
       if (notification) {
         this.setSeverity(notification.severity);
         this.setTimeoutMs(notification.timeoutMs);
