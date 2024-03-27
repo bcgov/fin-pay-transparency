@@ -25,7 +25,7 @@ const myCustomLightTheme = {
     secondary: '#385a8a',
     error: '#712024',
     warning: '#81692c',
-    success: '#234720',
+    success: '#00A54F',
   },
   variables: {
     'border-opacity': 0.24, //default 0.12

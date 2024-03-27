@@ -1,11 +1,30 @@
 <template>
   <div @mouseover="pause = true" @mouseleave="pause = false">
-    <v-snackbar id="mainSnackBar" v-model="isVisible" :key="notificationKey" :timeout="timeout" elevation="24"
-      location="top" centered :color="colour" transition="slide-y-transition" class="snackbar">
-      {{ message }}
+    <v-snackbar
+      id="mainSnackBar"
+      v-model="isVisible"
+      :key="notificationKey"
+      :timeout="timeout"
+      elevation="24"
+      location="top"
+      centered
+      :color="colour"
+      transition="slide-y-transition"
+      class="snackbar"
+    >
+      <span :if="activeNotification?.title" class="snackbar-title mr-1">{{
+        activeNotification?.title
+      }}</span
+      ><span :if="activeNotification?.message" class="snackbar-message">{{
+        activeNotification?.message
+      }}</span>
       <template #actions>
-        <v-btn text color="white" v-bind="$attrs" @click="processNextNotification()">
-          {{ notificationQueue.length > 0 ? 'Next (' + notificationQueue.length + ')' : 'Close' }}
+        <v-btn color="white" v-bind="$attrs" @click="processNextNotification()">
+          {{
+            notificationQueue.length > 0
+              ? 'Next (' + notificationQueue.length + ')'
+              : 'Close'
+          }}
         </v-btn>
       </template>
     </v-snackbar>
@@ -13,32 +32,35 @@
 </template>
 
 <script lang="ts">
-
-import { NotificationService, Notification, NotificationTypes } from '../../common/notificationService';
-import { useTheme } from 'vuetify'
+import {
+  NotificationService,
+  INotification,
+  NotificationSeverity,
+} from '../../common/notificationService';
+import { useTheme } from 'vuetify';
 
 export default {
   name: 'SnackBar',
   data() {
     return {
-      colour: '',
-      theme: null,
-      polling: null,
+      colour: '' as string | undefined,
+      theme: null as any,
+      polling: null as any,
       timeout: 5000,
       pause: false,
-      message: null,
-      notificationQueue: [],
+      activeNotification: null as INotification | null | undefined,
+      notificationQueue: [] as INotification[],
       isVisible: false,
       // This attribute is used to force Vue to update the snackbar in the case
       // where isVisible quickly changes between true, false and then true again.
-      notificationKey: 0
+      notificationKey: 0,
     };
   },
   mounted() {
     NotificationService.registerNotificationListener(this.onNotificationEvent);
 
     // Get access to colors defined in the Vuetify theme
-    this.theme = useTheme()
+    this.theme = useTheme();
   },
   computed: {
     hasNotificationsPending() {
@@ -48,12 +70,12 @@ export default {
   watch: {
     isVisible(isVisible) {
       if (!isVisible) {
-        this.onNotificationExpired()
+        this.onNotificationExpired();
       }
     },
   },
   methods: {
-    onNotificationEvent(notification: Notification) {
+    onNotificationEvent(notification: INotification) {
       this.notificationQueue.push(notification);
       if (!this.isVisible) {
         this.processNextNotification();
@@ -70,33 +92,41 @@ export default {
       if (!severity) {
         severity = '';
       }
-      this.timeout = 5000;
       switch (severity) {
-        case (NotificationTypes.NOTIFICATION_ERROR):
-          this.timeout = 8000;
+        case NotificationSeverity.ERROR:
           this.colour = this.theme.current.colors.error;
           break;
-        case (NotificationTypes.NOTIFICATION_WARNING):
+        case NotificationSeverity.WARNING:
           this.colour = this.theme.current.colors.warning;
           break;
-        case (NotificationTypes.NOTIFICATION_SUCCESS):
+        case NotificationSeverity.SUCCESS:
           this.colour = this.theme.current.colors.success;
           break;
         default:
           this.colour = this.theme.current.colors.secondary;
       }
     },
+    setTimeoutMs(timeoutMs: number) {
+      this.timeout = timeoutMs;
+    },
     processNextNotification() {
       if (this.notificationQueue.length) {
         this.isVisible = true;
         const notification = this.notificationQueue.shift();
-        this.message = notification.message;
-        this.setSeverity(notification.severity)
+        this.setActiveNotification(notification);
+      } else {
+        this.close();
+      }
+    },
+    setActiveNotification(notification: INotification | null | undefined) {
+      this.activeNotification = notification;
+      if (notification) {
+        this.setSeverity(notification.severity);
+        this.setTimeoutMs(notification.timeoutMs);
         document.addEventListener('keydown', this.onKeyPressed);
         this.timeoutCounter();
-      }
-      else {
-        this.close();
+      } else {
+        this.colour = undefined;
       }
     },
     onKeyPressed(e) {
@@ -105,8 +135,7 @@ export default {
       }
     },
     close() {
-      this.message = null;
-      this.color = null;
+      this.setActiveNotification(null);
       this.isVisible = false;
       document.removeEventListener('keydown', this.onKeyPressed);
       clearInterval(this.polling);
@@ -117,8 +146,8 @@ export default {
           this.timeout += 1;
         }
       }, 1000);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -126,5 +155,7 @@ export default {
 .snackbar {
   padding: 0 !important;
 }
+.snackbar-title {
+  font-weight: bold;
+}
 </style>
-
