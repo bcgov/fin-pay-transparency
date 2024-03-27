@@ -1,5 +1,8 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { LocalDate, convert } from '@js-joda/core';
+import {
+  LocalDate,
+  convert,
+} from '@js-joda/core';
 import pick from 'lodash/pick';
 import { PayTransparencyUserError } from './file-upload-service';
 
@@ -24,8 +27,9 @@ const externalConsumerService = {
     offset?: number,
     limit?: number,
   ) {
-    let startDt: LocalDate = LocalDate.now().minusMonths(1);
-    let endDt: LocalDate = LocalDate.now();
+    let startDt = LocalDate.now()
+      .minusMonths(1);
+    let endDt = LocalDate.now().plusDays(1);
     if (limit > 1000 || !limit || limit <= 0) {
       limit = 1000;
     }
@@ -41,22 +45,26 @@ const externalConsumerService = {
         endDt = LocalDate.parse(endDate);
       }
     } catch (error) {
-      throw new PayTransparencyUserError('Failed to parse dates. Please use date format YYYY-MM-dd');
+      throw new PayTransparencyUserError(
+        'Failed to parse dates. Please use date format YYYY-MM-dd',
+      );
     }
 
     if (startDt.isAfter(endDt)) {
-      throw new PayTransparencyUserError('Start date must be before the end date.')
+      throw new PayTransparencyUserError(
+        'Start date must be before the end date.',
+      );
     }
 
     const totalCount = await prismaReadOnlyReplica
       .$replica()
       .pay_transparency_report.count({
         where: {
-          AND: [
-            { create_date: { gte: convert(startDt).toDate() } },
-            { create_date: { lte: convert(endDt).toDate() } },
-            { report_status: 'Published' },
-          ],
+          create_date: {
+            gte: convert(startDt).toDate(),
+            lte: convert(endDt).toDate(),
+          },
+          report_status: 'Published',
         },
       });
 
@@ -64,11 +72,11 @@ const externalConsumerService = {
       .$replica()
       .pay_transparency_report.findMany({
         where: {
-          AND: [
-            { create_date: { gte: convert(startDt).toDate() } },
-            { create_date: { lte: convert(endDt).toDate() } },
-            { report_status: 'Published' },
-          ],
+          create_date: {
+            gte: convert(startDt).toDate(),
+            lte: convert(endDt).toDate(),
+          },
+          report_status: 'Published',
         },
         include: {
           naics_code_pay_transparency_report_naics_codeTonaics_code: true,
@@ -109,6 +117,7 @@ const externalConsumerService = {
               'report_start_date',
               'report_end_date',
               'report_status',
+              'reporting_year',
             ]),
             company_name: pay_transparency_company.company_name,
             company_province: pay_transparency_company.province,
