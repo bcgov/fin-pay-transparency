@@ -451,7 +451,8 @@
             <v-btn
               color="primary"
               type="button"
-              @click="($refs.uploadFile as VFileInput).click()"
+              @click="selectFile"
+              :loading="isSelectingFile"
             >
               Upload file
             </v-btn>
@@ -639,7 +640,9 @@ export default {
       return;
     }
 
-    const response = await (this.$refs as any).confirmBackDialog.open('Please Confirm');
+    const response = await (this.$refs as any).confirmBackDialog.open(
+      'Please Confirm',
+    );
     next(response);
   },
   data: () => ({
@@ -659,6 +662,7 @@ export default {
     comments: null,
     isSubmit: false, //whether or not the submit button has been pressed
     isProcessing: false,
+    isSelectingFile: false,
     uploadFileValue: undefined as File[] | undefined,
     maxFileUploadSize: '',
     minStartDate: LocalDate.now()
@@ -932,6 +936,11 @@ export default {
         obj?.hasOwnProperty('rowErrors') &&
         obj?.hasOwnProperty('generalErrors')
       );
+    },
+    async selectFile() {
+      this.isSelectingFile = true;
+      await (this.$refs.uploadFile as VFileInput).click();
+      this.isSelectingFile = false;
     },
     async submit() {
       this.isSubmit = true;
