@@ -601,14 +601,7 @@ export default {
       return;
     }
 
-    const response = await (this.$refs as any).confirmBackDialog.open(
-      'Please Confirm',
-      'Do you want to go back to the dashboard? Note that changes will not be saved after navigating back or logging out of the system.',
-      {
-        titleBold: true,
-        resolveText: 'Yes',
-      },
-    );
+    const response = await (this.$refs as any).confirmBackDialog.open('Please Confirm');
     next(response);
   },
   data: () => ({
