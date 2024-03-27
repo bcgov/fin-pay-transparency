@@ -240,8 +240,6 @@ describe('horizontalStackedBarChart', () => {
       (el) => el.map((x) => x.textContent),
     );
 
-    const renderedHtml = await page.content();
-
     const barLabel = (d) =>
       `${d.genderChartInfo.label} (${Math.round(d.value)}%)`;
 
@@ -281,7 +279,6 @@ describe('createLegend', () => {
 
     // Draw a bar chart in the page.
     await page.evaluate((mockLegendData) => {
-      const numberFormat = '1.0f';
       document.getElementById('legend').appendChild(
         // @ts-ignore
         createLegend(mockLegendData),
