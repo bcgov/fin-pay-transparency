@@ -301,11 +301,7 @@ describe('InputForm Edit Mode', () => {
     expect(wrapper.vm.comments).toBe(mockReport.user_comment);
   });
 
-  it('disables the Time Period fields', async () => {
-    expect(wrapper.find('#startMonth').element.disabled).toBeTruthy();
-    expect(wrapper.find('#startYear').element.disabled).toBeTruthy();
-    expect(wrapper.find('#endMonth').element.disabled).toBeTruthy();
-    expect(wrapper.find('#endYear').element.disabled).toBeTruthy();
+  it('disables the Reporting Year field', async () => {
     expect(wrapper.find('#reportYear').element.disabled).toBeTruthy();
   });
 });
