@@ -26,7 +26,7 @@ export default defineConfig({
   reporter: [
     ['line'],
     ['list', { printSteps: true }],
-    ['html', {open: 'always'}]
+    ['html', { open: 'always' }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -41,6 +41,13 @@ export default defineConfig({
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
+      name: 'teardown',
+      testMatch: /.*\.teardown\.ts/,
+      use: {
+        storageState: 'user.json',
+      },
+    },
+    {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
@@ -48,6 +55,7 @@ export default defineConfig({
         storageState: 'user.json',
       },
       dependencies: ['setup'],
+      teardown: 'teardown',
     },
     {
       name: 'Google Chrome',
@@ -58,6 +66,7 @@ export default defineConfig({
         storageState: 'user.json',
       },
       dependencies: ['setup'],
+      teardown: 'teardown',
     },
 
     {
@@ -68,6 +77,7 @@ export default defineConfig({
         storageState: 'user.json',
       },
       dependencies: ['setup'],
+      teardown: 'teardown',
     },
 
     {
@@ -78,6 +88,7 @@ export default defineConfig({
         storageState: 'user.json',
       },
       dependencies: ['setup'],
+      teardown: 'teardown',
     },
     {
       name: 'Microsoft Edge',
@@ -88,6 +99,7 @@ export default defineConfig({
         storageState: 'user.json',
       },
       dependencies: ['setup'],
+      teardown: 'teardown',
     },
   ],
 });

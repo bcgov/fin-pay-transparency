@@ -1,6 +1,5 @@
 import { Locator, expect } from '@playwright/test';
 import { PTPage } from './page';
-import { PagePaths, baseURL } from '../utils';
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale';
 
@@ -17,6 +16,7 @@ export class GenerateReportPage extends PTPage {
   public employeeCountInput: Locator;
 
   async setup() {
+    await super.setup();
     await this.instance.waitForLoadState('networkidle');
     this.naicsInput = await this.instance.getByLabel('NAICS Code');
     this.employeeCountInput = await this.instance.locator(

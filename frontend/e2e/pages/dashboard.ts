@@ -1,5 +1,5 @@
-import { expect, Response } from '@playwright/test';
-import { PTPage } from './page';
+import { expect } from '@playwright/test';
+import { PTPage, User } from './page';
 import { baseURL, PagePaths } from '../utils';
 
 export class DashboardPage extends PTPage {
@@ -7,6 +7,7 @@ export class DashboardPage extends PTPage {
   public generateReportButton;
 
   async setup() {
+    await super.setup();
     this.generateReportButton = await this.instance.getByRole('link', {
       name: /Generate Pay Transparency Report/i,
     });
@@ -15,7 +16,7 @@ export class DashboardPage extends PTPage {
   async gotoGenerateReport() {
     expect(this.generateReportButton).toBeVisible();
     await this.generateReportButton.click();
-    await this.instance.waitForURL(`${baseURL}${PagePaths.GENERATE_REPORT}`);
+    await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
     // await expect(
     //   this.instance.getByRole('heading', { name: 'Employer Details' }),
     // ).toBeVisible();
@@ -27,7 +28,7 @@ export class DashboardPage extends PTPage {
     );
     expect(viewReportButton).toBeVisible();
     await viewReportButton.click();
-    await this.instance.waitForURL(`${baseURL}${PagePaths.VIEW_REPORT}`);
+    await this.instance.waitForURL(PagePaths.VIEW_REPORT);
   }
 
   async gotoEditReport(id: string) {
@@ -36,6 +37,14 @@ export class DashboardPage extends PTPage {
     );
     expect(editReportButton).toBeVisible();
     await editReportButton.click();
-    await this.instance.waitForURL(`${baseURL}${PagePaths.GENERATE_REPORT}`);
+    await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
+  }
+
+  async verifyUser(user: User): Promise<void> {
+    const welcome = await this.instance.getByRole('heading', {
+      name: `Welcome, ${user.legalName}`,
+    });
+    await expect(welcome).toBeVisible();
+    await super.verifyUser(user);
   }
 }

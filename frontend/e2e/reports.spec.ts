@@ -1,10 +1,11 @@
 import { test } from '@playwright/test';
 import { DashboardPage } from './pages/dashboard';
 import { GenerateReportPage } from './pages/generate-report';
+import { PagePaths } from './utils';
 
 test('generate new report', async ({ page }) => {
   // 1: Click generate report button from the dashboard page
-  await page.goto('/dashboard');
+  await page.goto(PagePaths.DASHBOARD);
   const dashboard = new DashboardPage(page);
   await dashboard.setup();
   await dashboard.gotoGenerateReport();
