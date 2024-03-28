@@ -2,6 +2,7 @@ import { LocalDateTime, ZoneId } from '@js-joda/core';
 import prisma from '../prisma/prisma-client';
 import { enumReportStatus } from './report-service';
 import { logger } from '../../logger';
+import { Prisma } from '@prisma/client';
 
 const schedulerService = {
   /*
@@ -14,41 +15,24 @@ const schedulerService = {
 
     logger.info('deleteDraftReports older than : ' + delete_date);
 
-    const reports = await prisma.pay_transparency_report.findMany({
-      select: {
-        report_id: true,
+    const reportWhereClause: Prisma.pay_transparency_reportWhereInput = {
+      report_status: enumReportStatus.Draft,
+      create_date: {
+        lte: delete_date,
       },
-      where: {
-        report_status: enumReportStatus.Draft,
-        create_date: {
-          lte: delete_date,
-        },
-      },
-    });
+    };
 
-    if (!reports) return;
     await prisma.$transaction(async (tx) => {
       await tx.pay_transparency_calculated_data.deleteMany({
         where: {
-          report_id: {
-            in: reports.map(function (report) {
-              return report['report_id'];
-            }),
-          },
+          pay_transparency_report: reportWhereClause,
         },
       });
 
       await tx.pay_transparency_report.deleteMany({
-        where: {
-          report_id: {
-            in: reports.map(function (report) {
-              return report['report_id'];
-            }),
-          },
-        },
+        where: reportWhereClause,
       });
     });
-
   },
 };
 
