@@ -413,7 +413,7 @@
         <v-col>
           <div class="text-body-1 font-weight-bold">
             <label
-              for="naicsCode"
+              for="uploadFileButton"
               :class="{ 'text-error': isSubmit && !uploadFileValue }"
             >
               File Upload
@@ -428,6 +428,68 @@
           </div>
         </v-col>
       </v-row>
+
+      <!-- General Submission Errors -->
+      <v-row v-if="submissionErrors?.generalErrors" class="mb-3">
+        <v-col>
+          <v-alert
+            v-for="generalError in submissionErrors.generalErrors"
+            :key="generalError"
+            color="error"
+            icon="fa:fas fa-triangle-exclamation"
+            class="file-error font-weight-bold mb-3"
+            variant="outlined"
+          >
+            {{ generalError }}
+          </v-alert>
+        </v-col>
+      </v-row>
+
+      <!-- File Submission Errors -->
+      <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
+        <v-col>
+          <v-alert class="pa-0 file-error" color="error" variant="outlined">
+            <!-- errors related to the content of specific lines in the file -->
+            <div class="d-flex font-weight-bold">
+              <v-icon
+                icon="fa:fas fa-triangle-exclamation"
+                class="my-3 ml-3"
+              ></v-icon>
+              <p class="ma-3">
+                The submission contains errors which must be corrected. Please
+                review the following lines from the uploaded file:
+              </p>
+            </div>
+            <v-divider color="error" class="border-opacity-100" />
+            <v-table density="compact">
+              <thead>
+                <tr>
+                  <th id="line-num-header" class="text-left">Row</th>
+                  <th id="problem-desc-header" class="text-left">Problem(s)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="rowError in submissionErrors.rowErrors"
+                  :key="rowError.rowNum"
+                >
+                  <td class="text-left">{{ rowError.rowNum }}</td>
+                  <td class="text-left">
+                    <span
+                      v-for="errMsg in rowError.errorMsgs"
+                      :key="errMsg"
+                      class="mr-2"
+                    >
+                      {{ errMsg }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-alert>
+        </v-col>
+      </v-row>
+
       <v-row
         dense
         class="pa-5 d-flex align-center"
@@ -449,6 +511,7 @@
               {{ maxFileUploadSize }}.
             </p>
             <v-btn
+              id="uploadFileButton"
               color="primary"
               type="button"
               @click="selectFile"
@@ -480,65 +543,6 @@
           </div>
         </v-col>
       </v-row>
-      <!-- Submission Errors -->
-      <v-row v-if="submissionErrors" class="mt-3">
-        <v-col>
-          <v-alert class="bootstrap-error mb-3">
-            <h4 class="mb-3">
-              The submission contains errors which must be corrected.
-            </h4>
-
-            <!-- general errors related to the submission (either with the 
-                          form fields or with the file itself) -->
-            <v-table v-if="submissionErrors?.generalErrors" density="compact">
-              <tbody>
-                <tr
-                  v-for="generalError in submissionErrors.generalErrors"
-                  :key="generalError"
-                >
-                  <td class="text-left">
-                    {{ generalError }}
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-
-            <!-- errors related to the content of specific lines in the file -->
-            <div v-if="submissionErrors?.rowErrors">
-              <h4 class="mb-3">
-                Please review the following lines from the uploaded file:
-              </h4>
-              <v-table density="compact">
-                <thead>
-                  <tr>
-                    <th id="line-num-header" class="text-left">Line</th>
-                    <th id="problem-desc-header" class="text-left">
-                      Problem(s)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="rowError in submissionErrors.rowErrors"
-                    :key="rowError.rowNum"
-                  >
-                    <td class="text-left">{{ rowError.rowNum }}</td>
-                    <td class="text-left">
-                      <span
-                        v-for="errMsg in rowError.errorMsgs"
-                        :key="errMsg"
-                        class="mr-2"
-                      >
-                        {{ errMsg }}
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </div>
-          </v-alert>
-        </v-col>
-      </v-row>
 
       <v-row class="mt-6">
         <v-col class="d-flex justify-center">
@@ -565,6 +569,7 @@
           </v-alert>
         </v-col>
       </v-row>
+
       <v-overlay
         :persistent="true"
         :model-value="isProcessing"
@@ -1028,5 +1033,9 @@ textarea::placeholder {
 
 .file-success {
   background-color: #d9e7d8;
+}
+
+.file-error {
+  background-color: #f7d8da;
 }
 </style>
