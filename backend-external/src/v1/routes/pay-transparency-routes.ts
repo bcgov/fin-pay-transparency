@@ -96,7 +96,7 @@ const router = express.Router();
  *   name: Reports
  * /:
  *   get:
- *     summary: Get reports
+ *     summary: Get published reports within a date range (date range defaults to the last 30 days)
  *     tags: [Reports]
  *     security:
  *       - ApiKeyAuth: []
