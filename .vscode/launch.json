@@ -12,7 +12,8 @@
       "skipFiles": ["backend/<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/backend",
-      "preLaunchTask": "Launch and migrate database"
+      "preLaunchTask": "Launch and migrate database",
+      "outputCapture": "std"
     },
     {
       "name": "Backend-External",
@@ -21,7 +22,8 @@
       "runtimeExecutable": "npm",
       "skipFiles": ["backend-external/<node_internals>/**"],
       "type": "node",
-      "cwd": "${workspaceFolder}/backend-external"
+      "cwd": "${workspaceFolder}/backend-external",
+      "outputCapture": "std"
     },
     {
       "name": "DocGenService",
@@ -30,7 +32,8 @@
       "runtimeExecutable": "npm",
       "skipFiles": ["doc-gen-service/<node_internals>/**"],
       "type": "node",
-      "cwd": "${workspaceFolder}/doc-gen-service"
+      "cwd": "${workspaceFolder}/doc-gen-service",
+      "outputCapture": "std"
     },
     {
       "name": "Frontend",
