@@ -209,8 +209,9 @@
          <column autoUpdated="false" defaultValue="'Draft'::character varying" digits="0" id="12" name="report_status" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="revision" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="data_constraints" nullable="true" remarks="" size="3000" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="false" digits="0" id="15" name="is_unlocked" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="true" digits="0" id="15" name="is_unlocked" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="reporting_year" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="17" name="report_unlock_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_id" sequenceNumberInPK="1"/>
          <index name="report_id_pk" unique="true">
             <column ascending="true" name="report_id"/>
@@ -235,6 +236,10 @@
          <index name="pay_transparency_report_report_id_company_id_idx" unique="false">
             <column ascending="true" name="report_id"/>
             <column ascending="true" name="company_id"/>
+         </index>
+         <index name="pay_transparency_report_report_unlock_date_is_unlocked_idx" unique="false">
+            <column ascending="true" name="report_unlock_date"/>
+            <column ascending="true" name="is_unlocked"/>
          </index>
          <checkConstraint constraint="(((report_status)::text = ANY ((ARRAY['Draft'::character varying, 'Published'::character varying])::text[])))" name="report_status_check"/>
       </table>
@@ -286,8 +291,9 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="data_constraints" nullable="true" remarks="" size="3000" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="revision" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
-         <column autoUpdated="false" defaultValue="false" digits="0" id="16" name="is_unlocked" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="true" digits="0" id="16" name="is_unlocked" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="reporting_year" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="report_unlock_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
          <index name="report_history_pk" unique="true">
             <column ascending="true" name="report_history_id"/>
