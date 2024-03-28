@@ -5,7 +5,7 @@
         <v-alert
           v-if="mode == ReportMode.Edit"
           closable
-          text="You are now in edit mode. Please note that the reporting year and the time period are not editable in this mode."
+          text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
           class="text-error"
           type="info"
           variant="tonal"
@@ -185,7 +185,6 @@
                     !endMonth ||
                     !endYear ||
                     !reportYear),
-                'text-disabled': mode == ReportMode.Edit,
               }"
             >
               Time Period
@@ -214,11 +213,7 @@
           <v-row dense align="end">
             <!-- startMonth -->
             <v-col>
-              <span
-                class="text-grey-darken-1"
-                :class="{ 'text-disabled': mode == ReportMode.Edit }"
-                >From</span
-              >
+              <span class="text-grey-darken-1">From</span>
               <v-select
                 id="startMonth"
                 ref="startMonth"
@@ -227,7 +222,6 @@
                 :items="startMonthList"
                 :return-object="false"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
             <!-- startYear -->
@@ -239,7 +233,6 @@
                 label="Year"
                 :items="startYearList"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
           </v-row>
@@ -252,18 +245,12 @@
               cols="1"
               class="d-flex justify-center text-h3 text-grey-darken-1"
               align-self="center"
-              :class="{ 'text-disabled': mode == ReportMode.Edit }"
             >
               -
             </v-col>
             <!-- endMonth -->
             <v-col>
-              <span
-                class="text-grey-darken-1"
-                :class="{ 'text-disabled': mode == ReportMode.Edit }"
-              >
-                To
-              </span>
+              <span class="text-grey-darken-1"> To </span>
               <v-select
                 id="endMonth"
                 ref="endMonth"
@@ -272,7 +259,6 @@
                 :items="endMonthList"
                 :return-object="false"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
             <!-- endYear -->
@@ -284,7 +270,6 @@
                 label="Year"
                 :items="endYearList"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
           </v-row>
