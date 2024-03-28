@@ -43,6 +43,7 @@ const mockDraftReport: pay_transparency_report = {
   revision: new Prisma.Decimal(1),
   data_constraints: null,
   is_unlocked: true,
+  report_unlock_date: null,
 };
 
 const mockCalculatedDatasInDB = [
@@ -61,11 +62,9 @@ describe('deleteDraftReports', () => {
     );
     await schedulerService.deleteDraftReports();
 
-    expect(prisma.pay_transparency_report.findMany).toHaveBeenCalledTimes(1);
-
     //verify that it was called with one day previous
     const delete_date = LocalDate.now(ZoneId.UTC).minusDays(1).toString();
-    const call = (prisma.pay_transparency_report.findMany as jest.Mock).mock
+    const call = (prisma.pay_transparency_report.deleteMany as jest.Mock).mock
       .calls[0][0];
     const callDate = LocalDateTime.from(
       nativeJs(new Date(call.where.create_date.lte), ZoneId.UTC),

@@ -93,7 +93,7 @@
             </label>
             <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
-              text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer comprises of multiple sectors, select the code that covers the majority of employees."
+              text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer is composed of multiple sectors, select the code that covers the majority of employees."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -137,7 +137,7 @@
             </label>
             <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
-              text="Select the range that is closest to the number of employees who were employed as of January 1 of the year your report is being prepared for."
+              text="Select the range closest to the number of employees employed as of January 1st of the year for which your report is being prepared."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -302,7 +302,7 @@
                 </label>
                 <span class="text-error font-weight-bold text-h6">*</span>
                 <v-tooltip
-                  text="Employers must submit pay transparency reports by November 1 of each year. Select the year you are submitting a report for."
+                  text="Reporting employers are required to submit pay transparency reports by November 1st of each year. Select the year you are submitting a report for."
                   :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
                 >
                   <template #activator="{ props }">
@@ -374,7 +374,7 @@
           <div class="text-body-1 font-weight-bold">
             <label for="dataConstraints"> Data Constraints </label>
             <v-tooltip
-              text='Please share any information (e.g. Limitations, constraints, or dependencies) that may be helpful to explain your payroll data (e.g. "Bonus pay not offered by [employer name]").'
+              text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">

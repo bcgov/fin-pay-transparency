@@ -1,9 +1,10 @@
-export const baseURL = process.env.E2E_BASE_URL; //'https://dev.paytransparency.fin.gov.bc.ca';
+export const baseURL = process.env.E2E_BASE_URL;
 
 export const PagePaths = {
-    LOGIN: '/login',
-    DASHBOARD: '/dashboard',
-    GENERATE_REPORT: '/generate-report-form',
-    VIEW_REPORT: '/published-report',
-    DRAFT_REPORT: '/draft-report'
-}
+  LOGIN: `${baseURL}/login`,
+  LOGOUT: `${baseURL}/logout`,
+  DASHBOARD: `${baseURL}/dashboard`,
+  GENERATE_REPORT: `${baseURL}/generate-report-form`,
+  VIEW_REPORT: `${baseURL}/published-report`,
+  DRAFT_REPORT: `${baseURL}/draft-report`,
+};

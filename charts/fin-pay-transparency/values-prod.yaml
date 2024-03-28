@@ -27,6 +27,7 @@ global:
   config:
     upload_file_max_size: "8388608"
     report_edit_duration_in_days: "30"
+    report_unlock_duration_in_days: "1"
     template_path: "./dist/templates"
     delete_draft_report_cron_crontime: "0 0 0 * * *" # 12:00 AM PST/PDT
     delete_draft_report_cron_timezone: "America/Vancouver"
