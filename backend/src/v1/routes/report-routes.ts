@@ -32,8 +32,7 @@ reportRouter.get(
         null,
         {
           report_status?: enumReportStatus;
-          report_start_date?: string;
-          report_end_date?: string;
+          reporting_year: number;
         }
       >,
       res: Response,

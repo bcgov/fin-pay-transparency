@@ -175,6 +175,7 @@ describe('saveSubmissionAsReport', () => {
         reportId: '1',
         revision: 1,
         report_status: REPORT_STATUS.DRAFT,
+        reporting_year: new Date().getFullYear(),
       };
       (
         prisma.pay_transparency_report.findFirst as jest.Mock
@@ -184,6 +185,21 @@ describe('saveSubmissionAsReport', () => {
         mockUserInfo,
         prisma,
       );
+
+      // Confirm that the database fetch of the existing report
+      // filters by all the fields that are unique to a draft report
+      // (company_id, user_id, reporting_year, report_status).
+      const existingReportFilter = (
+        prisma.pay_transparency_report.findFirst as jest.Mock
+      ).mock.calls[0][0].where;
+      expect(existingReportFilter).toHaveProperty('company_id');
+      expect(existingReportFilter).toHaveProperty('user_id');
+      expect(existingReportFilter.reporting_year).toBe(
+        mockValidSubmission.reportingYear,
+      );
+      expect(existingReportFilter.report_status).toBe(REPORT_STATUS.DRAFT);
+
+      //Check that the existing report was updated
       expect(prisma.pay_transparency_report.update).toHaveBeenCalled();
     });
   });
