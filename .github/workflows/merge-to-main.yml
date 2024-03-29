@@ -131,7 +131,7 @@ jobs:
           allow_issue_writing: false
   deploys-test:
     name: Deploys (Test)
-    needs: [test-e2e, semantic-version]
+    needs: [test-e2e, zap, semantic-version]
     uses: ./.github/workflows/.deploy.yml
     secrets: inherit
     with:
@@ -143,7 +143,6 @@ jobs:
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
   image-promotions-to-test: # This is just for adding another tag to the image to reflect which docker tag is deployed to TEST.
     name: Image Promotions to TEST
-    needs: [deploys-test]
     runs-on: ubuntu-22.04
     permissions:
       packages: write
