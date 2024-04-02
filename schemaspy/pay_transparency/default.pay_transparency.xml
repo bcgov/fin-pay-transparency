@@ -216,17 +216,15 @@
          <index name="report_id_pk" unique="true">
             <column ascending="true" name="report_id"/>
          </index>
-         <index name="pay_transparency_report_company_id_create_date_report_start_idx" unique="false">
+         <index name="pay_transparency_report_company_id_create_date_report_year_idx" unique="false">
             <column ascending="true" name="company_id"/>
             <column ascending="true" name="create_date"/>
-            <column ascending="true" name="report_start_date"/>
-            <column ascending="true" name="report_end_date"/>
+            <column ascending="true" name="reporting_year"/>
             <column ascending="true" name="report_status"/>
          </index>
-         <index name="pay_transparency_report_company_id_report_start_date_report_idx" unique="false">
+         <index name="pay_transparency_report_company_id_reporting_year_report_idx" unique="false">
             <column ascending="true" name="company_id"/>
-            <column ascending="true" name="report_start_date"/>
-            <column ascending="true" name="report_end_date"/>
+            <column ascending="true" name="reporting_year"/>
             <column ascending="true" name="report_status"/>
          </index>
          <index name="pay_transparency_report_create_date_report_status_idx" unique="false">
@@ -240,6 +238,12 @@
          <index name="pay_transparency_report_report_unlock_date_is_unlocked_idx" unique="false">
             <column ascending="true" name="report_unlock_date"/>
             <column ascending="true" name="is_unlocked"/>
+         </index>
+         <index name="pay_transparency_report_uk" unique="true">
+            <column ascending="true" name="company_id"/>
+            <column ascending="true" name="user_id"/>
+            <column ascending="true" name="reporting_year"/>
+            <column ascending="true" name="report_status"/>
          </index>
          <checkConstraint constraint="(((report_status)::text = ANY ((ARRAY['Draft'::character varying, 'Published'::character varying])::text[])))" name="report_status_check"/>
       </table>
