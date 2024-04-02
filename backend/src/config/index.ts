@@ -33,6 +33,9 @@ config.defaults({
     reportEditDurationInDays: parseInt(
       process.env.REPORT_EDIT_DURATION_IN_DAYS || '30',
     ),
+    reportUnlockDurationInDays: parseInt(
+      process.env.REPORT_UNLOCK_DURATION_IN_DAYS || '1',
+    ),
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute

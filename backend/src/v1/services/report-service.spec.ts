@@ -139,6 +139,7 @@ const mockPublishedReportInDb: pay_transparency_report = {
   revision: new Prisma.Decimal(1),
   data_constraints: null,
   is_unlocked: true,
+  report_unlock_date: null
 };
 
 const mockPublishedReportInApi: Report =
@@ -914,6 +915,7 @@ describe('getReportFileName', () => {
       create_user: 'User',
       update_user: 'User',
       is_unlocked: false,
+      report_unlock_date: null
     };
     const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);
 

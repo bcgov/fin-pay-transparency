@@ -5,7 +5,7 @@
         <v-alert
           v-if="mode == ReportMode.Edit"
           closable
-          text="You are now in edit mode. Please note that the reporting year and the time period are not editable in this mode."
+          text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
           class="text-error"
           type="info"
           variant="tonal"
@@ -93,7 +93,7 @@
             </label>
             <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
-              text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer comprises of multiple sectors, select the code that covers the majority of employees."
+              text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer is composed of multiple sectors, select the code that covers the majority of employees."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -137,7 +137,7 @@
             </label>
             <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
-              text="Select the range that is closest to the number of employees who were employed as of January 1 of the year your report is being prepared for."
+              text="Select the range closest to the number of employees employed as of January 1st of the year for which your report is being prepared."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -185,7 +185,6 @@
                     !endMonth ||
                     !endYear ||
                     !reportYear),
-                'text-disabled': mode == ReportMode.Edit,
               }"
             >
               Time Period
@@ -214,11 +213,7 @@
           <v-row dense align="end">
             <!-- startMonth -->
             <v-col>
-              <span
-                class="text-grey-darken-1"
-                :class="{ 'text-disabled': mode == ReportMode.Edit }"
-                >From</span
-              >
+              <span class="text-grey-darken-1">From</span>
               <v-select
                 id="startMonth"
                 ref="startMonth"
@@ -227,7 +222,6 @@
                 :items="startMonthList"
                 :return-object="false"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
             <!-- startYear -->
@@ -239,7 +233,6 @@
                 label="Year"
                 :items="startYearList"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
           </v-row>
@@ -252,18 +245,12 @@
               cols="1"
               class="d-flex justify-center text-h3 text-grey-darken-1"
               align-self="center"
-              :class="{ 'text-disabled': mode == ReportMode.Edit }"
             >
               -
             </v-col>
             <!-- endMonth -->
             <v-col>
-              <span
-                class="text-grey-darken-1"
-                :class="{ 'text-disabled': mode == ReportMode.Edit }"
-              >
-                To
-              </span>
+              <span class="text-grey-darken-1"> To </span>
               <v-select
                 id="endMonth"
                 ref="endMonth"
@@ -272,7 +259,6 @@
                 :items="endMonthList"
                 :return-object="false"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
             <!-- endYear -->
@@ -284,7 +270,6 @@
                 label="Year"
                 :items="endYearList"
                 :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
               />
             </v-col>
           </v-row>
@@ -302,7 +287,7 @@
                 </label>
                 <span class="text-error font-weight-bold text-h6">*</span>
                 <v-tooltip
-                  text="Employers must submit pay transparency reports by November 1 of each year. Select the year you are submitting a report for."
+                  text="Reporting employers are required to submit pay transparency reports by November 1st of each year. Select the year you are submitting a report for."
                   :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
                 >
                   <template #activator="{ props }">
@@ -374,7 +359,7 @@
           <div class="text-body-1 font-weight-bold">
             <label for="dataConstraints"> Data Constraints </label>
             <v-tooltip
-              text='Please share any information (e.g. Limitations, constraints, or dependencies) that may be helpful to explain your payroll data (e.g. "Bonus pay not offered by [employer name]").'
+              text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
             >
               <template #activator="{ props }">
@@ -413,7 +398,7 @@
         <v-col>
           <div class="text-body-1 font-weight-bold">
             <label
-              for="naicsCode"
+              for="uploadFileButton"
               :class="{ 'text-error': isSubmit && !uploadFileValue }"
             >
               File Upload
@@ -428,6 +413,68 @@
           </div>
         </v-col>
       </v-row>
+
+      <!-- General Submission Errors -->
+      <v-row v-if="submissionErrors?.generalErrors" class="mb-3">
+        <v-col>
+          <v-alert
+            v-for="generalError in submissionErrors.generalErrors"
+            :key="generalError"
+            color="error"
+            icon="fa:fas fa-triangle-exclamation"
+            class="file-error font-weight-bold mb-3"
+            variant="outlined"
+          >
+            {{ generalError }}
+          </v-alert>
+        </v-col>
+      </v-row>
+
+      <!-- File Submission Errors -->
+      <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
+        <v-col>
+          <v-alert class="pa-0 file-error" color="error" variant="outlined">
+            <!-- errors related to the content of specific lines in the file -->
+            <div class="d-flex font-weight-bold">
+              <v-icon
+                icon="fa:fas fa-triangle-exclamation"
+                class="my-3 ml-3"
+              ></v-icon>
+              <p class="ma-3">
+                The submission contains errors which must be corrected. Please
+                review the following lines from the uploaded file:
+              </p>
+            </div>
+            <v-divider color="error" class="border-opacity-100" />
+            <v-table density="compact">
+              <thead>
+                <tr>
+                  <th id="line-num-header" class="text-left">Row</th>
+                  <th id="problem-desc-header" class="text-left">Problem(s)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="rowError in submissionErrors.rowErrors"
+                  :key="rowError.rowNum"
+                >
+                  <td class="text-left">{{ rowError.rowNum }}</td>
+                  <td class="text-left">
+                    <span
+                      v-for="errMsg in rowError.errorMsgs"
+                      :key="errMsg"
+                      class="mr-2"
+                    >
+                      {{ errMsg }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-alert>
+        </v-col>
+      </v-row>
+
       <v-row
         dense
         class="pa-5 d-flex align-center"
@@ -449,6 +496,7 @@
               {{ maxFileUploadSize }}.
             </p>
             <v-btn
+              id="uploadFileButton"
               color="primary"
               type="button"
               @click="selectFile"
@@ -480,65 +528,6 @@
           </div>
         </v-col>
       </v-row>
-      <!-- Submission Errors -->
-      <v-row v-if="submissionErrors" class="mt-3">
-        <v-col>
-          <v-alert class="bootstrap-error mb-3">
-            <h4 class="mb-3">
-              The submission contains errors which must be corrected.
-            </h4>
-
-            <!-- general errors related to the submission (either with the 
-                          form fields or with the file itself) -->
-            <v-table v-if="submissionErrors?.generalErrors" density="compact">
-              <tbody>
-                <tr
-                  v-for="generalError in submissionErrors.generalErrors"
-                  :key="generalError"
-                >
-                  <td class="text-left">
-                    {{ generalError }}
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-
-            <!-- errors related to the content of specific lines in the file -->
-            <div v-if="submissionErrors?.rowErrors">
-              <h4 class="mb-3">
-                Please review the following lines from the uploaded file:
-              </h4>
-              <v-table density="compact">
-                <thead>
-                  <tr>
-                    <th id="line-num-header" class="text-left">Line</th>
-                    <th id="problem-desc-header" class="text-left">
-                      Problem(s)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="rowError in submissionErrors.rowErrors"
-                    :key="rowError.rowNum"
-                  >
-                    <td class="text-left">{{ rowError.rowNum }}</td>
-                    <td class="text-left">
-                      <span
-                        v-for="errMsg in rowError.errorMsgs"
-                        :key="errMsg"
-                        class="mr-2"
-                      >
-                        {{ errMsg }}
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </div>
-          </v-alert>
-        </v-col>
-      </v-row>
 
       <v-row class="mt-6">
         <v-col class="d-flex justify-center">
@@ -565,6 +554,7 @@
           </v-alert>
         </v-col>
       </v-row>
+
       <v-overlay
         :persistent="true"
         :model-value="isProcessing"
@@ -1028,5 +1018,9 @@ textarea::placeholder {
 
 .file-success {
   background-color: #d9e7d8;
+}
+
+.file-error {
+  background-color: #f7d8da;
 }
 </style>
