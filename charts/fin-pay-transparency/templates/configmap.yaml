@@ -10,4 +10,5 @@ data:
   REPORT_EDIT_DURATION_IN_DAYS: {{ .Values.global.config.report_edit_duration_in_days | quote }}
   REPORT_UNLOCK_DURATION_IN_DAYS: {{ .Values.global.config.report_unlock_duration_in_days | quote }}
   DELETE_DRAFT_REPORT_CRON_CRONTIME: {{ .Values.global.config.delete_draft_report_cron_crontime | quote }}
-  DELETE_DRAFT_REPORT_CRON_TIMEZONE: {{ .Values.global.config.delete_draft_report_cron_timezone | quote }}
+  LOCK_REPORT_CRON_CRONTIME: {{ .Values.global.config.lock_report_cron_crontime | quote }}
+  REPORTS_SCHEDULER_CRON_TIMEZONE: {{ .Values.global.config.reports_scheduler_cron_timezone | quote }}

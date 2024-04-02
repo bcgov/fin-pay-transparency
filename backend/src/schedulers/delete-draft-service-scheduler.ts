@@ -9,7 +9,7 @@ try {
     'delete_draft_reports',
   );
   const crontime = config.get('server:schedulerDeleteDraftCronTime');
-  const timezone = config.get('server:schedulerDeleteDraftTimeZone');
+  const timezone = config.get('server:schedulerTimeZone');
 
   const job = new CronJob(
     crontime, // cronTime
