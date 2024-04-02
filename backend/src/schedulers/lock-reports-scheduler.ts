@@ -23,39 +23,40 @@ try {
         const unlock = await mutex.tryLock();
         if (unlock) {
           log.info('Starting report locking Schedule Job.');
-
-          await prisma.pay_transparency_report.updateMany({
-            data: { is_unlocked: false },
-            where: {
-              AND: [
-                { is_unlocked: true },
-                { report_status: 'Published' },
-                {
-                  OR: [
-                    {
-                      report_unlock_date: null,
-                      create_date: {
-                        lt: convert(
-                          LocalDateTime.now(ZoneId.UTC).minusDays(
-                            reportEditDurationInDays,
-                          ),
-                        ).toDate(),
+          await prisma.$transaction(async (tx) => {
+            await tx.pay_transparency_report.updateMany({
+              data: { is_unlocked: false },
+              where: {
+                AND: [
+                  { is_unlocked: true },
+                  { report_status: 'Published' },
+                  {
+                    OR: [
+                      {
+                        report_unlock_date: null,
+                        create_date: {
+                          lt: convert(
+                            LocalDateTime.now(ZoneId.UTC).minusDays(
+                              reportEditDurationInDays,
+                            ),
+                          ).toDate(),
+                        },
                       },
-                    },
-                    {
-                      report_unlock_date: {
-                        not: null,
-                        lt: convert(
-                          LocalDateTime.now(ZoneId.UTC).minusDays(
-                            reportUnlockDurationInDays,
-                          ),
-                        ).toDate(),
+                      {
+                        report_unlock_date: {
+                          not: null,
+                          lt: convert(
+                            LocalDateTime.now(ZoneId.UTC).minusDays(
+                              reportUnlockDurationInDays,
+                            ),
+                          ).toDate(),
+                        },
                       },
-                    },
-                  ],
-                },
-              ],
-            },
+                    ],
+                  },
+                ],
+              },
+            });
           });
 
           log.info('Report locking Schedule Job completed.');
