@@ -86,7 +86,7 @@ const fileUploadService = {
         );
       });
     } catch (err) {
-      if (err instanceof PayTransparencyUserError) {
+      if (err instanceof ValidationError) {
         throw err; //rethrow
       } else {
         log.error(err);
@@ -130,8 +130,8 @@ const fileUploadService = {
     const existingDraftReport = await tx.pay_transparency_report.findFirst({
       where: {
         company_id: payTransparencyCompany.company_id,
-        report_start_date: convert(startDate).toDate(),
-        report_end_date: convert(endDate).toDate(),
+        user_id: payTransparencyUser.user_id,
+        reporting_year: submission?.reportingYear,
         report_status: REPORT_STATUS.DRAFT,
       },
     });

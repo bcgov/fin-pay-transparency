@@ -8,6 +8,10 @@ import {
 import type { pay_transparency_report, report_history } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import stream from 'stream';
+import {
+  DISPLAY_REPORT_DATE_FORMAT,
+  JSON_REPORT_DATE_FORMAT,
+} from '../../constants';
 import prisma from '../prisma/prisma-client';
 import { CALCULATION_CODES } from './report-calc-service';
 import {
@@ -21,7 +25,6 @@ import {
   reportServicePrivate,
 } from './report-service';
 import { utils } from './utils-service';
-import { DISPLAY_REPORT_DATE_FORMAT, JSON_REPORT_DATE_FORMAT } from '../../constants';
 
 const actualMovePublishedReportToHistory =
   reportServicePrivate.movePublishedReportToHistory;
@@ -672,6 +675,7 @@ describe('getReports', () => {
           report_end_date: dateNow,
           create_date: dateNow,
           update_date: dateNow,
+          reporting_year: dateNow.getDate(),
           revision: 1,
         },
         {
@@ -680,6 +684,7 @@ describe('getReports', () => {
           report_end_date: dateNow,
           create_date: dateNow,
           update_date: dateNow,
+          reporting_year: dateNow.getDate(),
           revision: 4,
         },
       ],
@@ -687,8 +692,7 @@ describe('getReports', () => {
     mockCompanyFindFirst.mockResolvedValue(mockReportResults);
     const ret = await reportService.getReports(mockCompanyInDB.company_id, {
       report_status: enumReportStatus.Draft,
-      report_start_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
-      report_end_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
+      reporting_year: dateNow.getFullYear(),
     });
     expect(ret).toEqual(
       mockReportResults.pay_transparency_report.map((r) => ({

@@ -46,7 +46,7 @@ const intercept = apiAxios.interceptors.response.use(
   (error) => {
     const originalRequest = error.config;
     if (error.response.status !== 401) {
-      return Promise.reject(error);
+      return Promise.reject(new Error(error));
     }
     axios.interceptors.response.eject(intercept);
     return new Promise((resolve, reject) => {
@@ -74,7 +74,7 @@ const intercept = apiAxios.interceptors.response.use(
           processQueue(e, null);
           localStorage.removeItem('jwtToken');
           window.location.href = '/token-expired';
-          reject(e);
+          reject(new Error(e));
         });
     });
   },
@@ -159,15 +159,13 @@ export default {
    * @param {object} filters an object of this form:
    * {
    *   report_status?: string, //Optional.  If specified must be one of: 'Published' or 'Draft'
-   *   report_start_date?: string, //Optional.  If specified must be YYYY-MM format
-   *   report_end_date?: string //Optional.  If specified must be YYYY-MM format
+   *   reporting_year: number, //Optional
    * }
-   * @returns {Array.<{report_id: String, report_start_date: Date, report_end_date: Date, revision: Number}>}
+   * @returns {Array.<{report_id: String, reporting_year: number, revision: Number}>}
    */
   async getReports(filters?: {
     report_status?: string;
-    report_start_date?: string;
-    report_end_date?: string;
+    reporting_year?: number;
   }) {
     try {
       const resp = await apiAxios.get(ApiRoutes.REPORT, {

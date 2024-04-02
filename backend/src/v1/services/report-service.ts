@@ -7,12 +7,16 @@ import {
 } from '@js-joda/core';
 import type { pay_transparency_report } from '@prisma/client';
 import { config } from '../../config';
+import {
+  DISPLAY_REPORT_DATE_FORMAT,
+  FILENAME_REPORT_DATE_FORMAT,
+  JSON_REPORT_DATE_FORMAT,
+} from '../../constants';
 import { logger as log, logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { REPORT_STATUS } from './file-upload-service';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
-import { JSON_REPORT_DATE_FORMAT, DISPLAY_REPORT_DATE_FORMAT, FILENAME_REPORT_DATE_FORMAT } from '../../constants';
 
 const GENERIC_CHART_SUPPRESSED_MSG =
   'This measure cannot be displayed because there is insufficient data to meet disclosure requirements.';
@@ -83,8 +87,6 @@ const GENDERS = {
     color: '#444444',
   } as GenderChartInfo,
 };
-
-
 
 const reportServicePrivate = {
   /*
@@ -1075,31 +1077,15 @@ const reportService = {
 
   /**
    * Return a list of reports associated with the current user's
-   * business BCeID.  Allow filtering by report status and start/end date.
-   * If the filter object is provided, the report_start_date and
-   * report_end_date params must be given as "YYYY-MM-DD" strings.
+   * business BCeID.  Allow filtering by report status and reporting year.
    */
   async getReports(
     bceidBusinessGuid: string,
     filters?: {
       report_status?: enumReportStatus;
-      report_start_date?: string;
-      report_end_date?: string;
+      reporting_year?: number;
     },
   ) {
-    // Prisma queries require dates used in the 'where' clause to be specified
-    // in ISO-8601 format (i.e. date + time + timezone).  If datestrings
-    // were included in the filters parameter, convert those into the
-    // required format.
-    if (filters?.report_start_date) {
-      filters.report_start_date = new Date(
-        filters.report_start_date,
-      ).toISOString();
-    }
-    if (filters?.report_end_date) {
-      filters.report_end_date = new Date(filters.report_end_date).toISOString();
-    }
-
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -1155,14 +1141,13 @@ const reportService = {
 
     await prisma.$transaction(async (tx) => {
       // Check if there is an existing published report that
-      // corresponds to the same company_id and date range as
+      // corresponds to the same company_id and reporting year as
       // the draft "report_to_publish".  (Should be 1 published at most.)
       const existing_published_report =
         await tx.pay_transparency_report.findFirst({
           where: {
             company_id: report_to_publish.company_id,
-            report_start_date: new Date(report_to_publish.report_start_date),
-            report_end_date: new Date(report_to_publish.report_end_date),
+            reporting_year: report_to_publish.reporting_year,
             report_status: enumReportStatus.Published,
           },
         });

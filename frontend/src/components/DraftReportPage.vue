@@ -135,8 +135,7 @@ function nextStage() {
 
 async function tryGenerateReport() {
   const existingPublished = await ApiService.getReports({
-    report_start_date: ReportStepperStore.reportData.report_start_date,
-    report_end_date: ReportStepperStore.reportData.report_end_date,
+    reporting_year: ReportStepperStore.reportData.reporting_year,
     report_status: 'Published',
   });
 
