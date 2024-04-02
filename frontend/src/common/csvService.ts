@@ -28,7 +28,8 @@ export const REQUIRED_HEADER_COLUMNS = [
 const GENERIC_PARSE_ERROR_MSG = 'Unable to parse .csv file.';
 const PARSE_ABORTED_ERROR_MSG =
   'Parsing was aborted before reaching the end of the input.';
-const FILE_TOO_LARGE_ERROR_MSG = 'The selected file is too large';
+const FILE_TOO_LARGE_ERROR_MSG =
+  'File size too large. File cannot be larger than';
 const PARSE_INVALID_HEADER_ERROR_MSG =
   'The first line of the .csv file does not include the expected column names.';
 
@@ -131,7 +132,7 @@ export const CsvServicePrivate = {
       const maxUploadSizeMB = maxUploadSizeBytes / (1024 * 1024);
       return {
         status: ParseStatus.Error,
-        message: `${FILE_TOO_LARGE_ERROR_MSG}. Limit ${Math.floor(maxUploadSizeMB)}MB.`,
+        message: `${FILE_TOO_LARGE_ERROR_MSG} ${Math.floor(maxUploadSizeMB)}MB.`,
       };
     }
     return null;
