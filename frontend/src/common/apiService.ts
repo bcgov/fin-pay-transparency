@@ -46,7 +46,7 @@ const intercept = apiAxios.interceptors.response.use(
   (error) => {
     const originalRequest = error.config;
     if (error.response.status !== 401) {
-      return Promise.reject(error);
+      return Promise.reject(new Error(error));
     }
     axios.interceptors.response.eject(intercept);
     return new Promise((resolve, reject) => {
@@ -74,7 +74,7 @@ const intercept = apiAxios.interceptors.response.use(
           processQueue(e, null);
           localStorage.removeItem('jwtToken');
           window.location.href = '/token-expired';
-          reject(e);
+          reject(new Error(e));
         });
     });
   },
