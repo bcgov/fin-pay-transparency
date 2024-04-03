@@ -793,26 +793,31 @@ export default {
   watch: {
     reportYear: {
       handler(reportYear) {
-        //when report year changes, update the allowable start/end dates
+        // When report year changes, update the allowable start/end dates.
+        // (Does nothing in "edit mode")
+
+        if (this.reportId) {
+          //if edit mode, short-circuit
+          return;
+        }
+
+        const endOfReportingYear = LocalDate.of(reportYear, 12, 31);
         const minStartDate = LocalDate.of(reportYear, 1, 1)
           .minusYears(1)
           .with(TemporalAdjusters.firstDayOfMonth());
         let maxEndDate = LocalDate.now()
           .minusMonths(1)
           .with(TemporalAdjusters.lastDayOfMonth());
+        if (maxEndDate.isAfter(endOfReportingYear)) {
+          maxEndDate = endOfReportingYear;
+        }
 
         this.minStartDate = minStartDate;
         this.maxEndDate = maxEndDate;
         this.minEndDate = minStartDate.plusMonths(11);
         this.maxStartDate = maxEndDate.minusMonths(11);
 
-        console.log(`reporting year: ${reportYear}.`);
-        console.log(
-          `allowable start date range: ${this.minStartDate.format(dateFormatter)} - ${this.maxStartDate.format(dateFormatter)}`,
-        );
-        console.log(
-          `allowable end date range: ${this.minEndDate.format(dateFormatter)} - ${this.maxEndDate.format(dateFormatter)}`,
-        );
+        this.checkAndCorrectSelectedTimePeriod();
       },
       immediate: true,
     },
@@ -909,6 +914,43 @@ export default {
       'reset',
     ]),
     ...mapActions(useConfigStore, ['loadConfig']),
+    checkAndCorrectSelectedTimePeriod() {
+      // Check if the currently-selected start date and end date are in the allowable
+      // range.  If not, adjust them...
+      if (
+        !this.minStartDate ||
+        !this.maxStartDate ||
+        !this.minEndDate ||
+        !this.maxEndDate ||
+        !this.startMonth ||
+        !this.endMonth
+      ) {
+        return;
+      }
+      const selectedStartDate = LocalDate.of(
+        this.startYear,
+        this.startMonth,
+        1,
+      );
+      const selectedEndDate = LocalDate.of(this.endYear, this.endMonth, 1).with(
+        TemporalAdjusters.lastDayOfMonth(),
+      );
+
+      if (
+        selectedStartDate.isBefore(this.minStartDate) ||
+        selectedStartDate.isAfter(this.maxStartDate)
+      ) {
+        this.startYear = this.maxStartDate.year();
+        this.startMonth = this.maxStartDate.monthValue();
+      }
+      if (
+        selectedEndDate.isBefore(this.minEndDate) ||
+        selectedEndDate.isAfter(this.maxEndDate)
+      ) {
+        this.endYear = this.maxEndDate.year();
+        this.endMonth = this.maxEndDate.monthValue();
+      }
+    },
     removeDisabledMonths() {
       //if the selected startMonth is disabled, clear the field
       if (
@@ -1047,7 +1089,6 @@ export default {
     /* This function should be called either after a submission was
     successful, or after it errors out. */
     onSubmitComplete(submissionErrors: ISubmissionError | null) {
-      console.log(submissionErrors);
       if (submissionErrors) {
         this.setSuccessAlert(null);
         this.setErrorAlert(submissionErrors);
