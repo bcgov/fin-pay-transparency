@@ -4,7 +4,8 @@ import { render, waitFor, fireEvent } from '@testing-library/vue';
 import Dashboard from '../Dashboard.vue';
 import { createTestingPinia } from '@pinia/testing';
 import { authStore } from '../../store/modules/auth';
-import { useReportStepperStore } from '../../store/modules/reportStepper';
+import { DateTimeFormatter, LocalDate } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 
 const pinia = createTestingPinia();
 const mockRouterPush = vi.fn();
@@ -17,8 +18,8 @@ const wrappedRender = async () => {
     global: {
       plugins: [pinia],
       mocks: {
-        $router: mockRouter
-      }
+        $router: mockRouter,
+      },
     },
   });
 };
@@ -54,6 +55,7 @@ describe('Dashboard', () => {
         report_id: 'id1',
         report_start_date: '2023-01-01',
         report_end_date: '2023-02-01',
+        reporting_year: 2023,
         create_date: new Date().toISOString(),
       },
     ]);
@@ -62,11 +64,11 @@ describe('Dashboard', () => {
       expect(mockGetReports).toHaveBeenCalled();
     });
 
-    expect(getByTestId('report_start_date-id1')).toHaveTextContent(
-      'January 1, 2023',
-    );
-    expect(getByTestId('report_end_date-id1')).toHaveTextContent(
-      'February 1, 2023',
+    expect(getByTestId('reporting_year-id1')).toHaveTextContent('2023');
+    expect(getByTestId('report_published_date-id1')).toHaveTextContent(
+      LocalDate.now().format(
+        DateTimeFormatter.ofPattern('MMMM d, YYYY').withLocale(Locale.ENGLISH),
+      ),
     );
   });
   it('should open report details', async () => {
@@ -93,7 +95,7 @@ describe('Dashboard', () => {
         report_start_date: '2023-01-01',
         report_end_date: '2023-02-01',
         create_date: new Date().toISOString(),
-        is_unlocked: true
+        is_unlocked: true,
       },
     ]);
     const { getByTestId } = await wrappedRender();
@@ -104,10 +106,10 @@ describe('Dashboard', () => {
     const editReportButton = getByTestId('edit-report-id1');
     await waitFor(() => {
       expect(editReportButton).toBeInTheDocument();
-    })
+    });
     await fireEvent.click(editReportButton);
     expect(mockRouterPush).toHaveBeenCalledWith({
-      path: 'generate-report-form'
+      path: 'generate-report-form',
     });
   });
 });

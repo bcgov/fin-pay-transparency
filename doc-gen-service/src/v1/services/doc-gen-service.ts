@@ -39,6 +39,7 @@ request to generate a report.
 export type SubmittedReportData = {
   companyName: string;
   companyAddress: string;
+  reportingYear: number;
   reportStartDate: string;
   reportEndDate: string;
   naicsCode: string;
