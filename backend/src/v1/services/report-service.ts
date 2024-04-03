@@ -1175,6 +1175,7 @@ const reportService = {
         },
         data: {
           report_status: enumReportStatus.Published,
+          create_date: existing_published_report?.create_date || report_to_publish.create_date
         },
       });
     });
