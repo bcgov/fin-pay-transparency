@@ -46,7 +46,7 @@ const intercept = apiAxios.interceptors.response.use(
   (error) => {
     const originalRequest = error.config;
     if (error.response.status !== 401) {
-      return Promise.reject(new Error(error));
+      return Promise.reject(new Error('AxiosError', { cause: error }));
     }
     axios.interceptors.response.eject(intercept);
     return new Promise((resolve, reject) => {
@@ -74,7 +74,7 @@ const intercept = apiAxios.interceptors.response.use(
           processQueue(e, null);
           localStorage.removeItem('jwtToken');
           window.location.href = '/token-expired';
-          reject(new Error(e));
+          reject(new Error('token expired', { cause: e }));
         });
     });
   },
@@ -108,7 +108,7 @@ export default {
       }
       throw new Error('Unable to post the submission');
     } catch (e) {
-      console.log(`Failed to post the submission - ${e}`);
+      console.log(`Submission not successful`);
       throw e;
     }
   },
