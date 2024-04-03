@@ -3,13 +3,14 @@ import { Locale } from '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
-import InputForm, { ISubmissionError } from '../InputForm.vue';
 import { ReportMode } from '../../store/modules/reportStepper';
+import InputForm, { ISubmissionError } from '../InputForm.vue';
 
 const DATE_FORMAT = 'yyyy-MM-dd';
 const dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -43,7 +44,7 @@ const mockReport = {
     .minusMonths(1)
     .with(TemporalAdjusters.lastDayOfMonth())
     .format(dateFormatter),
-  reporting_year: LocalDate.now().year(),
+  reporting_year: LocalDate.now().minusYears(1).year(),
   data_constraints: 'test 123',
   is_unlocked: true,
 };
@@ -198,19 +199,15 @@ describe('InputForm', () => {
     const startMonthComponent = wrapper.findComponent({ ref: 'startMonth' });
     const startYearComponent = wrapper.findComponent({ ref: 'startYear' });
 
-    const testDate = LocalDate.now()
-      .minusYears(1)
-      .minusMonths(4)
-      .withDayOfMonth(1);
-    const expectedStartDate = testDate.format(dateFormatter);
-    const expectedEndDate = LocalDate.now()
-      .minusMonths(4)
-      .minusMonths(1)
+    const testStartDate = wrapper.vm.minStartDate as LocalDate;
+    const expectedStartDate = testStartDate.format(dateFormatter);
+    const expectedEndDate = testStartDate
+      .plusMonths(11)
       .with(TemporalAdjusters.lastDayOfMonth())
       .format(dateFormatter);
 
-    await startMonthComponent.setValue(testDate.monthValue());
-    await startYearComponent.setValue(testDate.year());
+    await startMonthComponent.setValue(testStartDate.monthValue());
+    await startYearComponent.setValue(testStartDate.year());
 
     expect(wrapper.vm.startDate).toBe(expectedStartDate);
     expect(wrapper.vm.endDate).toBe(expectedEndDate);
@@ -225,7 +222,7 @@ describe('InputForm', () => {
     expect((wrapper.vm.minStartDate as LocalDate).format(formatter)).toBe(
       dateNow
         .with(TemporalAdjusters.firstDayOfYear())
-        .minusYears(2)
+        .minusYears(1)
         .withDayOfMonth(1)
         .format(formatter),
     );
@@ -245,6 +242,30 @@ describe('InputForm', () => {
     expect((wrapper.vm.minEndDate as LocalDate).format(formatter)).toBe(
       (wrapper.vm.minStartDate as LocalDate).plusMonths(11).format(formatter),
     );
+  });
+
+  it('Range of allowable start and end dates is adjusted based on reporting year', async () => {
+    const reportYearComponent = wrapper.findComponent({ ref: 'reportYear' });
+    const reportYearOptions: number[] = [
+      LocalDate.now().minusYears(1).year(),
+      LocalDate.now().year(),
+    ];
+    for (const reportYear of reportYearOptions) {
+      reportYearComponent.setValue(reportYear);
+      await nextTick();
+      expect(wrapper.vm.minStartDate as LocalDate).toStrictEqual(
+        LocalDate.of(reportYear - 1, 1, 1),
+      );
+      //maxEndDate should always be in the past
+      expect(
+        (wrapper.vm.maxEndDate as LocalDate).isBefore(LocalDate.now()),
+      ).toBeTruthy();
+      //maxEndDate should never be after the last day of the reporting year
+      const endOfReportingYear = LocalDate.of(reportYear, 12, 31);
+      expect(
+        (wrapper.vm.maxEndDate as LocalDate).isAfter(endOfReportingYear),
+      ).toBeFalsy();
+    }
   });
 });
 
