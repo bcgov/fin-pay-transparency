@@ -13,6 +13,7 @@ const TEST_TIMEOUT_MS = 10000;
 const submittedReportData: SubmittedReportData = {
   companyName: 'Test company',
   companyAddress: 'Test',
+  reportingYear: 2024,
   reportStartDate: 'January 1, 2023',
   reportEndDate: 'January 31, 2024',
   naicsCode: '11',

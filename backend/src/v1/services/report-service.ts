@@ -993,6 +993,7 @@ const reportService = {
       companyName: report.pay_transparency_company.company_name,
       companyAddress:
         `${report.pay_transparency_company.address_line1} ${report.pay_transparency_company.address_line2}`.trim(),
+      reportingYear: report.reporting_year,
       reportStartDate: LocalDate.from(
         nativeJs(report.report_start_date, ZoneId.UTC),
       )

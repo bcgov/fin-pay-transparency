@@ -69,8 +69,7 @@
             <div v-if="!reports.length">No generated reports yet.</div>
             <div v-if="reports.length">
               <v-row>
-                <v-col class="font-weight-bold">Start Date</v-col>
-                <v-col class="font-weight-bold">End Date</v-col>
+                <v-col class="font-weight-bold">Reporting Year</v-col>
                 <v-col class="font-weight-bold">Submission Date</v-col>
                 <v-col class="font-weight-bold" cols="4">Action</v-col>
               </v-row>
@@ -78,12 +77,9 @@
               <template v-for="report in reports">
                 <v-row>
                   <v-col
-                    :data-testid="'report_start_date-' + report.report_id"
-                    >{{ formatDate(report.report_start_date) }}</v-col
+                    :data-testid="'reporting_year-' + report.report_id"
+                    >{{ report.reporting_year }}</v-col
                   >
-                  <v-col :data-testid="'report_end_date-' + report.report_id">{{
-                    formatDate(report.report_end_date)
-                  }}</v-col>
                   <v-col
                     :data-testid="'report_published_date-' + report.report_id"
                     >{{ formatDateTime(report.create_date) }}</v-col
