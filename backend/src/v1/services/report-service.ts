@@ -993,6 +993,7 @@ const reportService = {
       companyName: report.pay_transparency_company.company_name,
       companyAddress:
         `${report.pay_transparency_company.address_line1} ${report.pay_transparency_company.address_line2}`.trim(),
+      reportingYear: report.reporting_year,
       reportStartDate: LocalDate.from(
         nativeJs(report.report_start_date, ZoneId.UTC),
       )
@@ -1151,6 +1152,12 @@ const reportService = {
             report_status: enumReportStatus.Published,
           },
         });
+
+      if (existing_published_report && !existing_published_report.is_unlocked) {
+        throw new Error(
+          'A report for this time period already exists and cannot be updated.',
+        );
+      }
 
       // If there is an existing Published report, move it into
       // report_history

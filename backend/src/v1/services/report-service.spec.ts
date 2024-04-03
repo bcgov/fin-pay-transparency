@@ -139,7 +139,7 @@ const mockPublishedReportInDb: pay_transparency_report = {
   revision: new Prisma.Decimal(1),
   data_constraints: null,
   is_unlocked: true,
-  report_unlock_date: null
+  report_unlock_date: null,
 };
 
 const mockPublishedReportInApi: Report =
@@ -712,6 +712,7 @@ describe('publishReport', () => {
       ).rejects.toThrow();
     });
   });
+
   describe('if the given report has status=Draft, and there is no existing Published report', () => {
     it('changes the status from Draft to Published', async () => {
       mockReportFindFirst.mockResolvedValue(null);
@@ -784,6 +785,25 @@ describe('publishReport', () => {
       expect(updateStatement.data).toStrictEqual({
         report_status: enumReportStatus.Published,
       });
+    });
+  });
+  describe('if the given report has status=Draft, and there is an existing Published and locked report', () => {
+    it('should throw an error', async () => {
+      mockReportFindFirst.mockResolvedValue({
+        ...mockPublishedReportInDb,
+        is_unlocked: false,
+      });
+      jest
+        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .mockReturnValueOnce(null);
+
+        try {
+          await reportService.publishReport(mockDraftReportInApi);
+        } catch (error) {
+          expect(error.message).toBe(
+            'A report for this time period already exists and cannot be updated.',
+          );
+        }
     });
   });
 });
@@ -915,7 +935,7 @@ describe('getReportFileName', () => {
       create_user: 'User',
       update_user: 'User',
       is_unlocked: false,
-      report_unlock_date: null
+      report_unlock_date: null,
     };
     const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);
 
