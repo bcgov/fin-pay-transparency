@@ -93,6 +93,7 @@ describe('Dashboard', () => {
         report_start_date: '2023-01-01',
         report_end_date: '2023-02-01',
         create_date: new Date().toISOString(),
+        is_unlocked: true
       },
     ]);
     const { getByTestId } = await wrappedRender();
