@@ -141,6 +141,15 @@ async function tryGenerateReport() {
 
   let shouldGenerateReport = true;
   const reportAlreadyExists = existingPublished.length;
+  if (existingPublished.some((report) => !report.is_unlocked)) {
+    NotificationService.pushNotificationError(
+      'A report for this time period already exists and cannot be updated.',
+      undefined,
+      5000
+    );
+    return;
+  }
+
   if (reportAlreadyExists) {
     shouldGenerateReport = await confirmDialog.value?.open(
       'Please Confirm',

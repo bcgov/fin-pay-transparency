@@ -1152,6 +1152,12 @@ const reportService = {
           },
         });
 
+      if (existing_published_report && !existing_published_report.is_unlocked) {
+        throw new Error(
+          'A report for this time period already exists and cannot be updated.',
+        );
+      }
+
       // If there is an existing Published report, move it into
       // report_history
       if (existing_published_report) {

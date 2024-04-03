@@ -2,7 +2,7 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
-import { IConfigValue } from './types';
+import { IConfigValue, IReport } from './types';
 
 export enum REPORT_FORMATS {
   HTML = 'html',
@@ -168,7 +168,7 @@ export default {
     reporting_year?: number;
   }) {
     try {
-      const resp = await apiAxios.get(ApiRoutes.REPORT, {
+      const resp = await apiAxios.get<IReport[]>(ApiRoutes.REPORT, {
         params: filters,
       });
       if (resp?.data) {

@@ -106,6 +106,12 @@ reportRouter.put(
 
       try {
         await reportService.publishReport(report_to_publish);
+      } catch (error) {
+        logger.error(error);
+        return res.status(HttpStatus.BAD_REQUEST).send(error.message);
+      }
+
+      try {
         const reportHtml = await reportService.getReportHtml(req, reportId);
         res.type('html').status(200).send(reportHtml);
       } catch (e) {
