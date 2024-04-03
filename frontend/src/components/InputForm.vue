@@ -172,113 +172,12 @@
           </v-radio-group>
         </v-col>
       </v-row>
-      <!-- Time Period -->
+
       <v-row>
-        <v-col>
-          <div class="text-body-1 font-weight-bold">
-            <span
-              :class="{
-                'text-error':
-                  isSubmit &&
-                  (!startMonth ||
-                    !startYear ||
-                    !endMonth ||
-                    !endYear ||
-                    !reportYear),
-              }"
-            >
-              Time Period
-            </span>
-            <span class="text-error font-weight-bold text-h6">*</span>
-            <v-tooltip
-              text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
-              :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
-            >
-              <template #activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  icon="fa:fas fa-circle-info"
-                  size="x-small"
-                  color="primary"
-                  class="ml-1"
-                />
-              </template>
-            </v-tooltip>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row dense align="end">
-        <!-- startMonth, startYear -->
-        <v-col lg="4" sm="6" cols="12">
-          <v-row dense align="end">
-            <!-- startMonth -->
+        <v-col cols="12" sm="4" md="3">
+          <v-row>
             <v-col>
-              <span class="text-grey-darken-1">From</span>
-              <v-select
-                id="startMonth"
-                ref="startMonth"
-                v-model="startMonth"
-                label="Month"
-                :items="startMonthList"
-                :return-object="false"
-                :rules="requiredRules"
-              />
-            </v-col>
-            <!-- startYear -->
-            <v-col>
-              <v-select
-                id="startYear"
-                ref="startYear"
-                v-model="startYear"
-                label="Year"
-                :items="startYearList"
-                :rules="requiredRules"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-        <!-- endMonth, endYear -->
-        <v-col lg="4" sm="6" cols="12">
-          <v-row dense align="end">
-            <v-col
-              v-if="!$vuetify.display.xs"
-              cols="1"
-              class="d-flex justify-center text-h3 text-grey-darken-1"
-              align-self="center"
-            >
-              -
-            </v-col>
-            <!-- endMonth -->
-            <v-col>
-              <span class="text-grey-darken-1"> To </span>
-              <v-select
-                id="endMonth"
-                ref="endMonth"
-                v-model="endMonth"
-                label="Month"
-                :items="endMonthList"
-                :return-object="false"
-                :rules="requiredRules"
-              />
-            </v-col>
-            <!-- endYear -->
-            <v-col>
-              <v-select
-                id="endYear"
-                ref="endYear"
-                v-model="endYear"
-                label="Year"
-                :items="endYearList"
-                :rules="requiredRules"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-        <!-- reportYear -->
-        <v-col lg="4" sm="6" cols="12">
-          <v-row dense>
-            <v-col class="d-flex">
-              <div class="mt-2 mx-3">
+              <div class="text-body-1 font-weight-bold">
                 <label
                   for="reportYear"
                   :class="{ 'text-disabled': mode == ReportMode.Edit }"
@@ -301,6 +200,10 @@
                   </template>
                 </v-tooltip>
               </div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
               <v-select
                 id="reportYear"
                 ref="reportYear"
@@ -313,7 +216,111 @@
             </v-col>
           </v-row>
         </v-col>
+        <v-col cols="12" md="9">
+          <v-row>
+            <v-col class="pb-0">
+              <div class="text-body-1 font-weight-bold">
+                <span
+                  :class="{
+                    'text-error':
+                      isSubmit &&
+                      (!startMonth ||
+                        !startYear ||
+                        !endMonth ||
+                        !endYear ||
+                        !reportYear),
+                  }"
+                >
+                  Time Period
+                </span>
+                <span class="text-error font-weight-bold text-h6">*</span>
+                <v-tooltip
+                  text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
+                  :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
+                >
+                  <template #activator="{ props }">
+                    <v-icon
+                      v-bind="props"
+                      icon="fa:fas fa-circle-info"
+                      size="x-small"
+                      color="primary"
+                      class="ml-1"
+                    />
+                  </template>
+                </v-tooltip>
+              </div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col sm="6" cols="12" class="pt-0 pe-sm-0">
+              <v-row dense align="end">
+                <!-- startMonth -->
+                <v-col>
+                  <span class="text-grey-darken-1">From</span>
+                  <v-select
+                    id="startMonth"
+                    ref="startMonth"
+                    v-model="startMonth"
+                    label="Month"
+                    :items="startMonthList"
+                    :return-object="false"
+                    :rules="requiredRules"
+                  />
+                </v-col>
+                <!-- startYear -->
+                <v-col>
+                  <v-select
+                    id="startYear"
+                    ref="startYear"
+                    v-model="startYear"
+                    label="Year"
+                    :items="startYearList"
+                    :rules="requiredRules"
+                  />
+                </v-col>
+              </v-row>
+            </v-col>
+            <!-- endMonth, endYear -->
+            <v-col sm="6" cols="12" class="pt-0">
+              <v-row dense align="end">
+                <v-col
+                  v-if="!$vuetify.display.xs"
+                  cols="1"
+                  class="d-flex justify-center text-h3 text-grey-darken-1"
+                  align-self="center"
+                >
+                  -
+                </v-col>
+                <!-- endMonth -->
+                <v-col>
+                  <span class="text-grey-darken-1"> To </span>
+                  <v-select
+                    id="endMonth"
+                    ref="endMonth"
+                    v-model="endMonth"
+                    label="Month"
+                    :items="endMonthList"
+                    :return-object="false"
+                    :rules="requiredRules"
+                  />
+                </v-col>
+                <!-- endYear -->
+                <v-col>
+                  <v-select
+                    id="endYear"
+                    ref="endYear"
+                    v-model="endYear"
+                    label="Year"
+                    :items="endYearList"
+                    :rules="requiredRules"
+                  />
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </v-col>
       </v-row>
+
       <!-- Employer Statement -->
       <v-row>
         <v-col>
@@ -411,6 +418,22 @@
               for accurate processing.
             </div>
           </div>
+        </v-col>
+      </v-row>
+
+      <!-- Body Submission Errors -->
+      <v-row v-if="submissionErrors?.bodyErrors" class="mb-3">
+        <v-col>
+          <v-alert
+            v-for="bodyError in submissionErrors.bodyErrors"
+            :key="bodyError"
+            color="error"
+            icon="fa:fas fa-triangle-exclamation"
+            class="file-error font-weight-bold mb-3"
+            variant="outlined"
+          >
+            {{ bodyError }}
+          </v-alert>
         </v-col>
       </v-row>
 
@@ -612,6 +635,7 @@ export interface ISubmissionError {
 }
 
 const REPORT_DATE_FORMAT = 'yyyy-MM-dd';
+const DEFAULT_SUBMISSION_ERROR_MESSAGE = 'Something went wrong.';
 
 const dateFormatter = DateTimeFormatter.ofPattern(
   REPORT_DATE_FORMAT,
@@ -645,7 +669,8 @@ export default {
     employeeCountRange: null as any,
     startMonth: LocalDate.now().minusYears(1).monthValue() || undefined,
     startYear: LocalDate.now().minusYears(1).year(),
-    endMonth: LocalDate.now().minusMonths(1).monthValue() || undefined,
+    endMonth:
+      LocalDate.now().minusYears(1).minusMonths(1).monthValue() || undefined,
     endYear: LocalDate.now().minusMonths(1).year(),
     reportYear: LocalDate.now().year(),
     dataConstraints: null,
@@ -737,10 +762,10 @@ export default {
     },
     reportYearList() {
       const list = [
-        LocalDate.now().year(),
         LocalDate.now().minusYears(1).year(),
+        LocalDate.now().year(),
       ];
-      return list.filter((year) => year >= 2024);
+      return list;
     },
     startMonthList() {
       return this.months.map((month) => {
@@ -766,6 +791,31 @@ export default {
     },
   },
   watch: {
+    reportYear: {
+      handler(reportYear) {
+        //when report year changes, update the allowable start/end dates
+        const minStartDate = LocalDate.of(reportYear, 1, 1)
+          .minusYears(1)
+          .with(TemporalAdjusters.firstDayOfMonth());
+        let maxEndDate = LocalDate.now()
+          .minusMonths(1)
+          .with(TemporalAdjusters.lastDayOfMonth());
+
+        this.minStartDate = minStartDate;
+        this.maxEndDate = maxEndDate;
+        this.minEndDate = minStartDate.plusMonths(11);
+        this.maxStartDate = maxEndDate.minusMonths(11);
+
+        console.log(`reporting year: ${reportYear}.`);
+        console.log(
+          `allowable start date range: ${this.minStartDate.format(dateFormatter)} - ${this.maxStartDate.format(dateFormatter)}`,
+        );
+        console.log(
+          `allowable end date range: ${this.minEndDate.format(dateFormatter)} - ${this.maxEndDate.format(dateFormatter)}`,
+        );
+      },
+      immediate: true,
+    },
     startMonth() {
       //automatically update the endMonth and endYear to be one year later
       if (!this.startDate) return;
@@ -847,6 +897,9 @@ export default {
         typeof this.reportData.reporting_year === 'number'
           ? this.reportData.reporting_year
           : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
+    } else {
+      const reportYearList = this.reportYearList;
+      this.reportYear = Math.max(...reportYearList);
     }
   },
   methods: {
@@ -888,7 +941,7 @@ export default {
     that could be generated by the submission process, and the SubmissionErrors
     object that we ultimately display */
     toISubmissionError(
-      error: string | { message: string } | ISubmissionError,
+      error: string | { message: string } | Error | ISubmissionError,
     ): ISubmissionError {
       if (typeof error == 'string') {
         // The input error parameter is a string.
@@ -897,9 +950,21 @@ export default {
           rowErrors: null,
           generalErrors: [error],
         };
+      } else if (error instanceof Error && error?.cause) {
+        return this.toISubmissionError(error.cause as any);
       } else if (axios.isAxiosError(error)) {
-        return this.toISubmissionError(error?.response?.data?.error);
-      } else if (error.hasOwnProperty('message')) {
+        // If an axios error includes an embedded error object,
+        // make a recursive call to this method with the embedded error.
+        // This is the expected scenario when there is a validation error
+        // with the submitted data.
+        if (error?.response?.data?.error) {
+          return this.toISubmissionError(error?.response?.data?.error);
+        }
+        // For any other Axios error, assume it's low-level and
+        // not appropriate for the user to see. Just return a default,
+        // general - purpose error message.
+        return this.toISubmissionError(DEFAULT_SUBMISSION_ERROR_MESSAGE);
+      } else if (error?.hasOwnProperty('message')) {
         // The input error parameter is an object with a "message" property
         const errorWithMessage = error as { message: string };
         return {
@@ -917,7 +982,7 @@ export default {
       return {
         bodyErrors: null,
         rowErrors: null,
-        generalErrors: ['Something went wrong.'],
+        generalErrors: [DEFAULT_SUBMISSION_ERROR_MESSAGE],
       };
     },
     isISubmissionError(obj) {
@@ -974,7 +1039,6 @@ export default {
         await this.setReportInfo(draftReport);
         this.onSubmitComplete(null);
       } catch (error: any) {
-        console.log(error);
         // Handle different kinds of error objects by converting them
         // into a SubmissionError
         this.onSubmitComplete(this.toISubmissionError(error));
@@ -983,6 +1047,7 @@ export default {
     /* This function should be called either after a submission was
     successful, or after it errors out. */
     onSubmitComplete(submissionErrors: ISubmissionError | null) {
+      console.log(submissionErrors);
       if (submissionErrors) {
         this.setSuccessAlert(null);
         this.setErrorAlert(submissionErrors);
