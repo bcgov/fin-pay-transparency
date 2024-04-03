@@ -44,7 +44,7 @@ const mockReport = {
     .minusMonths(1)
     .with(TemporalAdjusters.lastDayOfMonth())
     .format(dateFormatter),
-  reporting_year: LocalDate.now().year(),
+  reporting_year: LocalDate.now().minusYears(1).year(),
   data_constraints: 'test 123',
   is_unlocked: true,
 };
