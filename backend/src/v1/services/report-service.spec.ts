@@ -747,6 +747,7 @@ describe('publishReport', () => {
       // Expect only one column to be updated (the report status_column)
       expect(updateStatement.data).toStrictEqual({
         report_status: enumReportStatus.Published,
+        create_date: mockDraftReportInApi.create_date
       });
     });
   });
@@ -784,6 +785,7 @@ describe('publishReport', () => {
       // Expect only one column to be updated (the report status_column)
       expect(updateStatement.data).toStrictEqual({
         report_status: enumReportStatus.Published,
+        create_date: mockPublishedReportInDb.create_date
       });
     });
   });
