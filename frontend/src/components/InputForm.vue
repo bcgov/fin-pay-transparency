@@ -794,13 +794,6 @@ export default {
     reportYear: {
       handler(reportYear) {
         // When report year changes, update the allowable start/end dates.
-        // (Does nothing in "edit mode")
-
-        if (this.reportId) {
-          //if edit mode, short-circuit
-          return;
-        }
-
         const endOfReportingYear = LocalDate.of(reportYear, 12, 31);
         const minStartDate = LocalDate.of(reportYear, 1, 1)
           .minusYears(1)
@@ -886,6 +879,10 @@ export default {
       this.comments = this.reportData.user_comment;
       this.employeeCountRange = this.reportData.employee_count_range_id;
       this.naicsCode = this.reportData.naics_code;
+      this.reportYear =
+        typeof this.reportData.reporting_year === 'number'
+          ? this.reportData.reporting_year
+          : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
       this.startMonth = LocalDate.parse(
         this.reportData.report_start_date,
       ).monthValue();
@@ -898,10 +895,6 @@ export default {
       this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
-      this.reportYear =
-        typeof this.reportData.reporting_year === 'number'
-          ? this.reportData.reporting_year
-          : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
     } else {
       const reportYearList = this.reportYearList;
       this.reportYear = Math.max(...reportYearList);
@@ -921,22 +914,23 @@ export default {
         !this.minStartDate ||
         !this.maxStartDate ||
         !this.minEndDate ||
-        !this.maxEndDate ||
-        !this.startMonth ||
-        !this.endMonth
+        !this.maxEndDate
       ) {
         return;
       }
-      const selectedStartDate = LocalDate.of(
-        this.startYear,
-        this.startMonth,
-        1,
-      );
-      const selectedEndDate = LocalDate.of(this.endYear, this.endMonth, 1).with(
-        TemporalAdjusters.lastDayOfMonth(),
-      );
+      const selectedStartDate =
+        this.startYear && this.startMonth
+          ? LocalDate.of(this.startYear, this.startMonth, 1)
+          : null;
+      const selectedEndDate =
+        this.endYear && this.endMonth
+          ? LocalDate.of(this.endYear, this.endMonth, 1).with(
+              TemporalAdjusters.lastDayOfMonth(),
+            )
+          : null;
 
       if (
+        !selectedStartDate ||
         selectedStartDate.isBefore(this.minStartDate) ||
         selectedStartDate.isAfter(this.maxStartDate)
       ) {
@@ -944,6 +938,7 @@ export default {
         this.startMonth = this.maxStartDate.monthValue();
       }
       if (
+        !selectedEndDate ||
         selectedEndDate.isBefore(this.minEndDate) ||
         selectedEndDate.isAfter(this.maxEndDate)
       ) {
