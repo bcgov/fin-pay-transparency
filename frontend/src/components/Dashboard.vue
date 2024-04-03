@@ -101,7 +101,7 @@
                     <a
                       :data-testid="'edit-report-' + report.report_id"
                       @click="editReport(report)"
-                      v-if="isEditable(report)"
+                      v-if="report.is_unlocked"
                     >
                       <v-icon color="#1976d2" icon="mdi-table-edit"></v-icon>
                       Edit
@@ -164,7 +164,6 @@ import {
   ReportMode,
 } from '../store/modules/reportStepper';
 import { IReport } from '../common/types';
-import { isReportEditable } from '../common/helpers';
 import { useConfigStore } from '../store/modules/config';
 
 type DashboardData = {
@@ -198,9 +197,6 @@ export default {
         Locale.ENGLISH,
       );
       return ZonedDateTime.parse(value).format(formatter);
-    },
-    isEditable(report) {
-      return isReportEditable(report, this.config?.reportEditDurationInDays);
     },
     async getReports() {
       this.reports = await ApiService.getReports({

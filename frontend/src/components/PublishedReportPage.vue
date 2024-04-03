@@ -45,7 +45,7 @@
         <v-btn
           v-if="
             !!reportData &&
-            isReportEditable(reportData!, config?.reportEditDurationInDays)
+            reportData.is_unlocked
           "
           id="editButton"
           color="primary"
@@ -78,7 +78,6 @@ import { onBeforeMount, ref } from 'vue';
 import ApiService from '../common/apiService';
 import { storeToRefs } from 'pinia';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
-import { isReportEditable } from '../common/helpers';
 import { useConfigStore } from '../store/modules/config';
 
 const router = useRouter();

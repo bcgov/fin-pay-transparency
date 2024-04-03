@@ -28,13 +28,14 @@ config.defaults({
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
     schedulerDeleteDraftCronTime: process.env.DELETE_DRAFT_REPORT_CRON_CRONTIME,
-    schedulerDeleteDraftTimeZone: process.env.DELETE_DRAFT_REPORT_CRON_TIMEZONE,
+    schedulerLockReportCronTime: process.env.LOCK_REPORT_CRON_CRONTIME,
+    schedulerTimeZone: process.env.REPORTS_SCHEDULER_CRON_TIMEZONE,
     databaseUrl: datasourceUrl,
     reportEditDurationInDays: parseInt(
       process.env.REPORT_EDIT_DURATION_IN_DAYS || '30',
     ),
     reportUnlockDurationInDays: parseInt(
-      process.env.REPORT_UNLOCK_DURATION_IN_DAYS || '1',
+      process.env.REPORT_UNLOCK_DURATION_IN_DAYS || '2',
     ),
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
