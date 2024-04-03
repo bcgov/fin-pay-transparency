@@ -144,6 +144,8 @@ async function tryGenerateReport() {
   if (existingPublished.some((report) => !report.is_unlocked)) {
     NotificationService.pushNotificationError(
       'A report for this time period already exists and cannot be updated.',
+      undefined,
+      5000
     );
     return;
   }
