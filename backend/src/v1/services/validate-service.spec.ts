@@ -1,15 +1,14 @@
-import { DateTimeFormatter, LocalDate, TemporalAdjusters } from '@js-joda/core';
+import { LocalDate, TemporalAdjusters } from '@js-joda/core';
+import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import {
   FIELD_DATA_CONSTRAINTS,
   GENDER_CODES,
   MAX_LEN_DATA_CONSTRAINTS,
   RowError,
   SUBMISSION_ROW_COLUMNS,
-  validateService,
   ValidationError,
+  validateService,
 } from './validate-service';
-import { Locale } from '@js-joda/locale_en';
-import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 
 // ----------------------------------------------------------------------------
 // Helper functions
@@ -324,7 +323,11 @@ describe('validate-service', () => {
     });
     describe('given a reporting year older than two years', () => {
       it('should return error', () => {
-        const errors = validateService.validateSubmissionBody(validSubmission);
+        const invalidSubmission = Object.assign({}, validSubmission, {
+          reportingYear: LocalDate.now().minusYears(2),
+        });
+        const errors =
+          validateService.validateSubmissionBody(invalidSubmission);
 
         expect(
           doesAnyStringContainAll(errors.bodyErrors, [
