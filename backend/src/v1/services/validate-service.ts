@@ -1,6 +1,6 @@
 import { LocalDate, TemporalAdjusters } from '@js-joda/core';
-import { ISubmission } from './file-upload-service';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
+import { ISubmission } from './file-upload-service';
 
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const SUBMISSION_ROW_COLUMNS = {
@@ -109,12 +109,12 @@ const validateService = {
       );
     }
 
-    const allowedReaportingYears = [
-      LocalDate.now().year(),
+    const allowedReportingYears = [
       LocalDate.now().year() - 1,
-    ].filter((val) => val >= 2024);
-    if (!allowedReaportingYears.includes(submission.reportingYear)) {
-      const text = allowedReaportingYears.join(' or ');
+      LocalDate.now().year(),
+    ];
+    if (!allowedReportingYears.includes(submission.reportingYear)) {
+      const text = allowedReportingYears.join(' or ');
       bodyErrors.push(`Reporting year must be ${text}.`);
     }
 
