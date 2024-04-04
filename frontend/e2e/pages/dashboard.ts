@@ -17,9 +17,9 @@ export class DashboardPage extends PTPage {
     expect(this.generateReportButton).toBeVisible();
     await this.generateReportButton.click();
     await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
-    // await expect(
-    //   this.instance.getByRole('heading', { name: 'Employer Details' }),
-    // ).toBeVisible();
+    await expect(
+      this.instance.getByText('Disclaimer: This tool relies on the employer supplying accurate and complete payroll data in order to calculate pay gaps.'),
+    ).toBeVisible();
   }
 
   async gotoReport(id: string) {
@@ -29,6 +29,13 @@ export class DashboardPage extends PTPage {
     expect(viewReportButton).toBeVisible();
     await viewReportButton.click();
     await this.instance.waitForURL(PagePaths.VIEW_REPORT);
+  }
+
+  async checkReport(id: string) {
+    const viewReportButton = await this.instance.getByTestId(
+      `view-report-${id}`,
+    );
+    expect(viewReportButton).toBeVisible();
   }
 
   async gotoEditReport(id: string) {
