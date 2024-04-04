@@ -13,6 +13,8 @@ bar showing the remaining 90%.
     },
     value: NUMERIC_VAL_HERE, //0-1
 */
+const DEFAULT_FONT_FAMILY = 'BCSans';
+
 function percentFilledHorizBarChart(data, options = {}) {
   const defaultOptions = {
     numberFormat: '1.0f',
@@ -23,13 +25,14 @@ function percentFilledHorizBarChart(data, options = {}) {
 
   const barHeight = 23;
   const marginTop = 0;
-  const marginRight = 110;
+  const marginRight = 180;
   const marginBottom = 10;
   const marginLeft = 0;
+  const nameLabelPaddingLeft = 6;
   const width = 400;
-  const valueFont = 'bold 18px sans-serif';
-  const labelFontSizePx = 14;
-  const labelFont = `${labelFontSizePx}px sans-serif`;
+  const valueFont = `bold 15px ${DEFAULT_FONT_FAMILY}`;
+  const labelFontSizePx = 13;
+  const labelFont = `${labelFontSizePx}px ${DEFAULT_FONT_FAMILY}`;
   const height =
     Math.ceil((data.length + 0.1) * barHeight) + marginTop + marginBottom;
 
@@ -85,7 +88,7 @@ function percentFilledHorizBarChart(data, options = {}) {
     .attr('width', (d) => x(options.maxX) - x(d.value))
     .attr('height', y.bandwidth());
 
-  // Append a label for each category.
+  // Append a value label for each category.
   svg
     .append('g')
     .attr('fill', 'white')
@@ -118,7 +121,10 @@ function percentFilledHorizBarChart(data, options = {}) {
     .append('g')
     .attr('text-anchor', 'center')
     //right-align
-    .attr('transform', `translate(${width - marginRight},0)`)
+    .attr(
+      'transform',
+      `translate(${width - marginRight + nameLabelPaddingLeft},0)`,
+    )
     //remove tick marks
     .call(d3.axisRight(y).tickSizeOuter(0).tickSize(0))
     //remove vertical axis line
@@ -150,15 +156,15 @@ Adapted from the example here:
 */
 function horizontalStackedBarChart(data, numberFormat = '1.0f') {
   // Specify the chart's dimensions (except for the height).
-  const width = 600;
+  const width = 500;
   const marginTop = 0;
-  const marginRight = 0;
+  const marginRight = 12;
   const marginBottom = 16;
   const marginLeft = 0;
   const barHeight = 23;
   const defaultStack = 'stack-1';
-  const primaryFont = '12px sans-serif';
-  const secondaryFont = '10px sans-serif';
+  const primaryFont = `13px ${DEFAULT_FONT_FAMILY}`;
+  const secondaryFont = `10px ${DEFAULT_FONT_FAMILY}`;
   const minBarWidthForLabel = 75; //px
 
   // Determine the series that need to be stacked.
@@ -260,7 +266,7 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
     .attr('text-anchor', 'end')
     .append('text')
     .attr('dy', height - marginBottom / 2)
-    .attr('dx', width)
+    .attr('dx', width - marginRight)
     .attr('style', `font: ${secondaryFont}; font-weight: normal`)
     .text((d) => unrenderedLabels.join(' '));
 
@@ -287,10 +293,10 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
   const marginRight = 110;
   const marginBottom = 10;
   const marginLeft = 0;
-  const width = 400;
-  const valueFont = 'bold 18px sans-serif';
-  const labelFontSizePx = 14;
-  const labelFont = `${labelFontSizePx}px sans-serif`;
+  const width = 350;
+  const valueFont = `bold 18px ${DEFAULT_FONT_FAMILY}`;
+  const labelFontSizePx = 13;
+  const labelFont = `${labelFontSizePx}px ${DEFAULT_FONT_FAMILY}`;
   const height =
     Math.ceil((data.length + 0.1) * barHeight) + marginTop + marginBottom;
 
@@ -390,10 +396,10 @@ data = [
 */
 function createLegend(data, options = {}) {
   const defaultOptions = {
-    width: 150,
+    width: 175,
     swatchSize: 10,
     swatchPadding: 3,
-    font: '11px sans-serif',
+    font: `12px ${DEFAULT_FONT_FAMILY}`,
   };
 
   options = { ...defaultOptions, ...options };
@@ -449,7 +455,7 @@ Determine the width and height of a given string rendered in the given font
 @param text is the text string to render.  
 @font is a CSS font string of this format: "<font-size><unit> <font-family>" e.g. "10px sans-serif"
 */
-function getTextSize(text, font = '10px sans-serif') {
+function getTextSize(text, font = `10px ${DEFAULT_FONT_FAMILY}`) {
   // Temporarily add a new svg element to the document.  Within
   // it create a text element with the given value and font
   const container = d3.select('body').append('svg');
