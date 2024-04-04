@@ -94,6 +94,7 @@ type SupplementaryReportData = {
     quartileGenderCategorySuppressed: string;
   };
   isGeneralSuppressedDataFootnoteVisible: boolean;
+  fonts: any;
 };
 
 /* Includes everything from SubmittedReportData and SupplementaryReportData */
@@ -634,15 +635,20 @@ const docGenServicePrivate = {
     );
   },
 
+  async toBase64(filePath) {
+    const data = await fs.readFile(filePath);
+    return data.toString('base64');
+  },
+
   /**
    * Creates a new ReportData object which includes
    * everything from the given SubmittedReportData, plus
    * some additional derived or default properties needed
    * to generate the report.
    */
-  addSupplementaryReportData(
+  async addSupplementaryReportData(
     submittedReportData: SubmittedReportData,
-  ): ReportData {
+  ): Promise<ReportData> {
     const supplementaryReportData: SupplementaryReportData = {
       pageSize: {
         margin: {
@@ -656,6 +662,14 @@ const docGenServicePrivate = {
         docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
           submittedReportData,
         ),
+      fonts: {
+        BCSansRegular: await this.toBase64(
+          './node_modules/@bcgov/bc-sans/fonts/BCSans-Regular.woff',
+        ),
+        BCSansBold: await this.toBase64(
+          './node_modules/@bcgov/bc-sans/fonts/BCSans-Bold.woff',
+        ),
+      },
     };
     const reportData: ReportData = {
       ...submittedReportData,
@@ -750,7 +764,7 @@ async function generateReport(
   logger.info('Begin generate report');
   let puppeteerPage: Page = null;
   const reportData =
-    docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+    await docGenServicePrivate.addSupplementaryReportData(submittedReportData);
 
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
