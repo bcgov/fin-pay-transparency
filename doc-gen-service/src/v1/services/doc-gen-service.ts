@@ -142,6 +142,8 @@ const docGenServicePrivate = {
     'report.script.js',
   ),
 
+  cachedFonts: null,
+
   /**
    * Builds an ejs template suitable for creating a report from
    * the given report data.
@@ -644,6 +646,30 @@ const docGenServicePrivate = {
   },
 
   /**
+   * Encodes the BCSansRegular and BCSansBold fonts as base64 strings.
+   * Implementation note: this process can be cpu and memory intensive, so
+   * we cache the result after the first run, allowing subsequent calls
+   * to be faster.
+   * @returns an object with base64-encoded fonts for BCSansRegular and BCSansBold
+   */
+  async getBase64Fonts() {
+    if (!this.cachedFonts) {
+      logger.info(
+        'Encoding fonts in base64, and adding the encoded fonts to cache',
+      );
+      this.cachedFonts = {
+        BCSansRegular: await docGenServicePrivate.encodeFileAsBase64(
+          './node_modules/@bcgov/bc-sans/fonts/BCSans-Regular.woff',
+        ),
+        BCSansBold: await docGenServicePrivate.encodeFileAsBase64(
+          './node_modules/@bcgov/bc-sans/fonts/BCSans-Bold.woff',
+        ),
+      };
+    }
+    return this.cachedFonts;
+  },
+
+  /**
    * Creates a new ReportData object which includes
    * everything from the given SubmittedReportData, plus
    * some additional derived or default properties needed
@@ -655,14 +681,7 @@ const docGenServicePrivate = {
   ): Promise<ReportData> {
     const fonts =
       reportFormat == REPORT_FORMAT.PDF
-        ? {
-            BCSansRegular: await docGenServicePrivate.encodeFileAsBase64(
-              './node_modules/@bcgov/bc-sans/fonts/BCSans-Regular.woff',
-            ),
-            BCSansBold: await docGenServicePrivate.encodeFileAsBase64(
-              './node_modules/@bcgov/bc-sans/fonts/BCSans-Bold.woff',
-            ),
-          }
+        ? await docGenServicePrivate.getBase64Fonts()
         : null;
     const supplementaryReportData: SupplementaryReportData = {
       pageSize: {
