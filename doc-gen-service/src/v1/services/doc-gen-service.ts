@@ -635,7 +635,10 @@ const docGenServicePrivate = {
     );
   },
 
-  async toBase64(filePath) {
+  /**
+   * Encodes the contents of the given file into a base64 string
+   */
+  async encodeFileAsBase64(filePath) {
     const data = await fs.readFile(filePath);
     return data.toString('base64');
   },
@@ -663,10 +666,10 @@ const docGenServicePrivate = {
           submittedReportData,
         ),
       fonts: {
-        BCSansRegular: await this.toBase64(
+        BCSansRegular: await docGenServicePrivate.encodeFileAsBase64(
           './node_modules/@bcgov/bc-sans/fonts/BCSans-Regular.woff',
         ),
-        BCSansBold: await this.toBase64(
+        BCSansBold: await docGenServicePrivate.encodeFileAsBase64(
           './node_modules/@bcgov/bc-sans/fonts/BCSans-Bold.woff',
         ),
       },

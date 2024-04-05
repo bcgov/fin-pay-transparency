@@ -68,15 +68,17 @@ const submittedReportData: SubmittedReportData = {
   genderCodes: ['M', 'W', 'X', 'U'],
   isDraft: true,
 };
-const reportData =
-  docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+let reportData: ReportData = null; //initialized in beforeEach(...) below
 
-beforeEach(() => {
+beforeEach(async () => {
   //extend from the default 5000 because many tests use puppeteer, which can
   //be slow if the host container isn't allocated sufficient resources
   jest.setTimeout(TEST_TIMEOUT_MS);
 
   jest.clearAllMocks();
+
+  reportData =
+    await docGenServicePrivate.addSupplementaryReportData(submittedReportData);
 });
 
 describe('generateReport', () => {
@@ -143,9 +145,11 @@ describe('buildEjsTemplate', () => {
 });
 
 describe('addSupplementaryReportData', () => {
-  it('returns a new object with props from the input object, plus some additional props', () => {
+  it('returns a new object with props from the input object, plus some additional props', async () => {
     const reportData: ReportData =
-      docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+      await docGenServicePrivate.addSupplementaryReportData(
+        submittedReportData,
+      );
 
     //Properties copied from the input object
     expect(reportData.companyName).toBe(submittedReportData.companyName);
