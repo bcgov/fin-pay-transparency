@@ -23,7 +23,7 @@ on:
       EXTERNAL_CONSUMER_API_KEY:
         required: true
     inputs:
-      frontend-url:
+      backend-external-url:
         description: "Frontend URL of the application"
         required: true
         type: string
