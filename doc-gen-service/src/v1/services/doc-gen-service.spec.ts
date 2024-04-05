@@ -77,8 +77,10 @@ beforeEach(async () => {
 
   jest.clearAllMocks();
 
-  reportData =
-    await docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+  reportData = await docGenServicePrivate.addSupplementaryReportData(
+    REPORT_FORMAT.HTML,
+    submittedReportData,
+  );
 });
 
 describe('generateReport', () => {
@@ -148,6 +150,7 @@ describe('addSupplementaryReportData', () => {
   it('returns a new object with props from the input object, plus some additional props', async () => {
     const reportData: ReportData =
       await docGenServicePrivate.addSupplementaryReportData(
+        REPORT_FORMAT.HTML,
         submittedReportData,
       );
 
