@@ -94,7 +94,7 @@ type SupplementaryReportData = {
     quartileGenderCategorySuppressed: string;
   };
   isGeneralSuppressedDataFootnoteVisible: boolean;
-  fonts: any;
+  fontsToEmbed: any;
 };
 
 /* Includes everything from SubmittedReportData and SupplementaryReportData */
@@ -679,7 +679,7 @@ const docGenServicePrivate = {
     reportFormat: string,
     submittedReportData: SubmittedReportData,
   ): Promise<ReportData> {
-    const fonts =
+    const fontsToEmbed =
       reportFormat == REPORT_FORMAT.PDF
         ? await docGenServicePrivate.getBase64Fonts()
         : null;
@@ -696,7 +696,7 @@ const docGenServicePrivate = {
         docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
           submittedReportData,
         ),
-      fonts: fonts,
+      fontsToEmbed: fontsToEmbed,
     };
     const reportData: ReportData = {
       ...submittedReportData,
@@ -912,9 +912,11 @@ async function generateReport(
     return result;
   } catch (e) {
     /* istanbul ignore next */
+    logger.silly('error while generating report');
     logger.error(e);
   } finally {
     if (puppeteerPage) {
+      logger.silly('closing page');
       await puppeteerPage.close();
     }
   }

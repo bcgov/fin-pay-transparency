@@ -5,7 +5,7 @@
   <title>Pay Transparency Report</title>
 </head>
 <style>
-  <% if (fonts) {
+  <% if (fontsToEmbed) {
     %>
 
     /*To force puppeteer to embed fonts into the PDF, we must define them
@@ -14,14 +14,14 @@
       font-family: "BCSans";
       font-style: normal;
       font-weight: 400;
-      src: url("data:font/ttf;base64,<%= fonts.BCSansRegular %>");
+      src: url("data:font/ttf;base64,<%= fontsToEmbed.BCSansRegular %>");
     }
 
     @font-face {
       font-family: "BCSans";
       font-style: normal;
       font-weight: 700;
-      src: url("data:font/ttf;base64,<%= fonts.BCSansBold %>");
+      src: url("data:font/ttf;base64,<%= fontsToEmbed.BCSansBold %>");
     }
 
     <%
