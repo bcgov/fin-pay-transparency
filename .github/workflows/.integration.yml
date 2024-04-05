@@ -62,7 +62,7 @@ jobs:
           BASE_URL: ${{ inputs.backend-external-url }}
           EXTERNAL_CONSUMER_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_API_KEY }}
         run: |
-          npm test:integration
+          npm run test:integration
 
       # - uses: actions/upload-artifact@v4
       #   if: always()
