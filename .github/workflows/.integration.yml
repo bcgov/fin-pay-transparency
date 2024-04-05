@@ -1,0 +1,75 @@
+name: .E2E
+env:
+  deployment_name: pay-transparency
+on:
+  workflow_dispatch:
+    inputs:
+      backend-external-url:
+        description: "Frontend URL of the application"
+        required: true
+        type: string
+      environment:
+        description: "Environment to read secrets from GitHub secrets"
+        required: false
+        default: dev
+        type: string
+      timeout-minutes:
+        description: "Timeout minutes"
+        default: 8
+        required: false
+        type: number
+  workflow_call:
+    secrets:
+      EXTERNAL_CONSUMER_API_KEY:
+        required: true
+    inputs:
+      frontend-url:
+        description: "Frontend URL of the application"
+        required: true
+        type: string
+      environment:
+        description: "Environment to read secrets from GitHub secrets"
+        required: false
+        default: dev
+        type: string
+      timeout-minutes:
+        description: "Timeout minutes"
+        default: 8
+        required: false
+        type: number
+
+jobs:
+  integration:
+    name: Backend-external
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: backend-external
+    runs-on: ubuntu-22.04
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+      - uses: actions/setup-node@v4
+        name: Setup Node
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Run Tests
+        env:
+          BASE_URL: ${{ inputs.backend-external-url }}
+          EXTERNAL_CONSUMER_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_API_KEY }}
+        run: |
+          npm test:integration
+
+      # - uses: actions/upload-artifact@v4
+      #   if: always()
+      #   name: upload results
+      #   env:
+      #     PW_TEST_HTML_REPORT_OPEN: always
+      #   with:
+      #     name: playwright-report-${{ matrix.project }}
+      #     path: "./frontend/playwright-report" # path from current folder
+      #     retention-days: 7

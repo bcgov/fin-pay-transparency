@@ -148,6 +148,13 @@ jobs:
       tag: pr-${{ github.event.number }}-${{ github.run_number }}
       values: "values-pr.yaml"
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+  test-integration:
+    name: Integration
+    needs: [builds, check-quota, deploys]
+    uses: ./.github/workflows/.integration.yml
+    secrets: inherit
+    with:
+      backend-external-url: https://pay-transparency-pr-${{ github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca/api
   test-e2e:
     name: E2E
     needs: [builds, check-quota, deploys]
