@@ -84,7 +84,8 @@ test('generate new report', async ({ page }) => {
     (res) => res.url().includes('/api/v1/report') && res.status() === 200,
   );
   await page.goto(PagePaths.DASHBOARD);
-  await getReportsRequest
+  const reportsResponse = await getReportsRequest
+  await reportsResponse.json()
   // Check if report is visible in the dashboard
   await dashboard.checkReport(validUploadResponse.report_id);
 });

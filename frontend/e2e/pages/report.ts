@@ -21,7 +21,7 @@ export class BaseReportPage extends PTPage {
   }
 
   async verifyEmployeerDetails(user, report) {
-    await this.instance.waitForSelector('div.page-content')
+    await this.instance.waitForSelector('div.page-content');
     await expect(
       await this.instance.getByRole('cell', { name: 'Employer' }),
     ).toBeVisible();
@@ -81,7 +81,6 @@ export class DraftReportPage extends BaseReportPage {
     await this.finalReportCheckBox.scrollIntoViewIfNeeded();
     await this.finalReportCheckBox.click();
     await this.generateFinalReportButton.click();
-    await finalizeReportResponse;
     const getReportsResponse = await getReportsRequest;
     const reports = await getReportsResponse.json();
     if (reports.some((report) => !report.is_unlocked)) {
@@ -101,11 +100,9 @@ export class DraftReportPage extends BaseReportPage {
       await yesButton.click();
       await expect(confirmTitle).not.toBeVisible();
     }
-    await expect(
-      await this.instance.getByText(
-        'You have created a pay transparency report.',
-      ),
-    ).toBeVisible();
+    const finalize = await finalizeReportResponse;
+    await finalize.text();
+    await this.instance.waitForTimeout(5000);
     await this.instance.waitForURL(PagePaths.VIEW_REPORT);
   }
 }

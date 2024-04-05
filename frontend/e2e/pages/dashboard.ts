@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { PTPage, User } from './page';
-import { baseURL, PagePaths } from '../utils';
+import { PagePaths } from '../utils';
 
 export class DashboardPage extends PTPage {
   static path = PagePaths.DASHBOARD;
@@ -35,7 +35,7 @@ export class DashboardPage extends PTPage {
     const viewReportButton = await this.instance.getByTestId(
       `view-report-${id}`,
     );
-    expect(viewReportButton).toBeVisible();
+    await expect(viewReportButton).toBeVisible();
   }
 
   async gotoEditReport(id: string) {
