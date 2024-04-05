@@ -21,6 +21,7 @@ export class BaseReportPage extends PTPage {
   }
 
   async verifyEmployeerDetails(user, report) {
+    await this.instance.waitForTimeout(5000)
     await expect(
       await this.instance.getByRole('cell', { name: 'Employer' }),
     ).toBeVisible();
