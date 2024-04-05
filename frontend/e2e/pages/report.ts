@@ -80,6 +80,7 @@ export class DraftReportPage extends BaseReportPage {
     await this.finalReportCheckBox.scrollIntoViewIfNeeded();
     await this.finalReportCheckBox.click();
     await this.generateFinalReportButton.click();
+    await finalizeReportResponse;
     const getReportsResponse = await getReportsRequest;
     const reports = await getReportsResponse.json();
     if (reports.some((report) => !report.is_unlocked)) {
