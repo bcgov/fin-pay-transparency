@@ -650,8 +650,20 @@ const docGenServicePrivate = {
    * to generate the report.
    */
   async addSupplementaryReportData(
+    reportFormat: string,
     submittedReportData: SubmittedReportData,
   ): Promise<ReportData> {
+    const fonts =
+      reportFormat == REPORT_FORMAT.PDF
+        ? {
+            BCSansRegular: await docGenServicePrivate.encodeFileAsBase64(
+              './node_modules/@bcgov/bc-sans/fonts/BCSans-Regular.woff',
+            ),
+            BCSansBold: await docGenServicePrivate.encodeFileAsBase64(
+              './node_modules/@bcgov/bc-sans/fonts/BCSans-Bold.woff',
+            ),
+          }
+        : null;
     const supplementaryReportData: SupplementaryReportData = {
       pageSize: {
         margin: {
@@ -665,14 +677,7 @@ const docGenServicePrivate = {
         docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
           submittedReportData,
         ),
-      fonts: {
-        BCSansRegular: await docGenServicePrivate.encodeFileAsBase64(
-          './node_modules/@bcgov/bc-sans/fonts/BCSans-Regular.woff',
-        ),
-        BCSansBold: await docGenServicePrivate.encodeFileAsBase64(
-          './node_modules/@bcgov/bc-sans/fonts/BCSans-Bold.woff',
-        ),
-      },
+      fonts: fonts,
     };
     const reportData: ReportData = {
       ...submittedReportData,
@@ -766,8 +771,10 @@ async function generateReport(
 ) {
   logger.info('Begin generate report');
   let puppeteerPage: Page = null;
-  const reportData =
-    await docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+  const reportData = await docGenServicePrivate.addSupplementaryReportData(
+    reportFormat,
+    submittedReportData,
+  );
 
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);

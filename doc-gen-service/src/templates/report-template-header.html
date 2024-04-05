@@ -5,23 +5,29 @@
   <title>Pay Transparency Report</title>
 </head>
 <style>
-  /*To force puppeteer to embed fonts into the PDF, we must define them
+  <% if (fonts) {
+    %>
+
+    /*To force puppeteer to embed fonts into the PDF, we must define them
   in base 64 format.*/
-  @font-face {
-    font-family: "BCSans";
-    font-style: normal;
-    font-weight: 400;
-    src: url("data:font/ttf;base64,<%= fonts.BCSansRegular %>");
+    @font-face {
+      font-family: "BCSans";
+      font-style: normal;
+      font-weight: 400;
+      src: url("data:font/ttf;base64,<%= fonts.BCSansRegular %>");
+    }
+
+    @font-face {
+      font-family: "BCSans";
+      font-style: normal;
+      font-weight: 700;
+      src: url("data:font/ttf;base64,<%= fonts.BCSansBold %>");
+    }
+
+    <%
   }
 
-  @font-face {
-    font-family: "BCSans";
-    font-style: normal;
-    font-weight: 700;
-    src: url("data:font/ttf;base64,<%= fonts.BCSansBold %>");
-  }
-
-  html {
+  %>html {
     -webkit-print-color-adjust: exact;
   }
 
