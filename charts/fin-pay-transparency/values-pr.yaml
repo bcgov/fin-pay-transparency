@@ -112,7 +112,7 @@ doc-gen-service:
   resources:
     limits:
       cpu: 300m
-      memory: 250Mi
+      memory: 350Mi
     requests:
       cpu: 30m
       memory: 50Mi
