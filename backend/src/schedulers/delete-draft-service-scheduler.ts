@@ -20,10 +20,11 @@ try {
         const unlock = await mutex.tryLock();
         if (unlock) {
           await retry(async () => {
-              log.info('Starting deleteDraftReports Schedule Job.');
+              /* log.info('Starting deleteDraftReports Schedule Job.');
               await schedulerService.deleteDraftReports();
               log.info('deleteDraftReports Schedule Job completed.');
-              await unlock();
+              await unlock();*/
+              throw new Error('Error in deleteDraftReports');
             },
             {
               retries: 3
