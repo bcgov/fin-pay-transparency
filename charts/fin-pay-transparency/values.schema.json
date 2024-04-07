@@ -399,6 +399,23 @@
             },
             "externalConsumerApiKey": {
               "type": "string"
+            },
+            "chestApiUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "chesClientID": {
+              "type": "string"
+            },
+            "chesTokenURL": {
+              "type": "string",
+              "format": "uri"
+            },
+            "chesClientSecret": {
+              "type": "string"
+            },
+            "chesEmailRecipients": {
+              "type": "string"
             }
           },
           "additionalProperties": true,
