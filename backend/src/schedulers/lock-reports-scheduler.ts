@@ -65,7 +65,7 @@ try {
               await unlock();
             },
             {
-              retries: 3
+              retries: 5
             }
           );
         }

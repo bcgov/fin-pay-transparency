@@ -27,7 +27,7 @@ try {
               throw new Error('Error in deleteDraftReports');
             },
             {
-              retries: 3
+              retries: 5
             });
         }
       } catch (e) {
