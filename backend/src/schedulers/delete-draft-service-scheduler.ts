@@ -35,7 +35,7 @@ try {
         log.error(e);
         const notificationEnabled = config.get('ches:enabled');
         if(notificationEnabled){
-          const email = emailService.generateHtmlEmail('Error in deleteDraftReports', config.get('ches:emailRecipients'), 'Error in Scheduled Job, deleteDraftReports', e.message);
+          const email = emailService.generateHtmlEmail('Error in deleteDraftReports', config.get('ches:emailRecipients'), 'Error in Scheduled Job, deleteDraftReports', e.stack);
           await emailService.sendEmailWithRetry(email);
         }
       }
