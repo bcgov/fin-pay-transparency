@@ -83,10 +83,10 @@ database:
   affinity: {}
   resources:
     limits:
-      cpu: 100m
+      cpu: 150m
       memory: 250Mi
     requests:
-      cpu: 50m
+      cpu: 30m
       memory: 100Mi
   persistence:
     enabled: true
