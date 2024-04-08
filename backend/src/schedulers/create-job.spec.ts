@@ -6,6 +6,12 @@ const runnable = jest.fn();
 const mock_generateHtmlEmail = jest.fn();
 const mock_sendEmailWithRetry = jest.fn();
 
+jest.mock('../v1/services/utils-service', () => ({
+  utils: {
+    delay: jest.fn()
+  }
+}));
+
 jest.mock('../external/services/ches', () => ({
   __esModule: true,
   default: {
@@ -33,6 +39,7 @@ jest.mock('../config', () => ({
         'server:schedulerTimeZone': 'Canada/Vancouver',
         'ches:enabled': true,
         'ches:emailRecipients': 'test@payt.io',
+        'retries:minTimeout': 100
       };
 
       return settings[key];
@@ -61,20 +68,24 @@ describe('create-job', () => {
     });
   });
 
-  it('should handle error and send email', async () => {
+  it('should retry and handle error and send email', async () => {
+    const error = new Error('Error Happened')
     mock_tryLock.mockReturnValue(mock_unlock);
-    runnable.mockImplementation(() => Promise.reject('Error happened'));
-    createJob('* * * * *', runnable, mutex as any, {
+    const fn = jest.fn(async () => {
+      throw error
+    })
+    createJob('* * * * *', fn, mutex as any, {
       title: 'Error title',
       message: 'Error details',
     }).start();
     await waitFor(() => {
       expect(mock_tryLock).toHaveBeenCalled();
+      expect(fn).toHaveBeenCalledTimes(6)
       expect(mock_generateHtmlEmail).toHaveBeenCalledWith(
         'Error title',
         'test@payt.io',
         'Error details',
-        undefined,
+        error.stack,
       );
       expect(mock_sendEmailWithRetry).toHaveBeenCalled();
       expect(mock_unlock).toHaveBeenCalled();

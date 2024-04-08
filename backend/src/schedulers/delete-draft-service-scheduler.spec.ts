@@ -1,6 +1,12 @@
 import waitFor from 'wait-for-expect';
 import deleteDraftReportsJob from './delete-draft-service-scheduler';
 
+jest.mock('../v1/services/utils-service', () => ({
+  utils: {
+    delay: jest.fn(),
+  },
+}));
+
 const mock_deleteDraftReports = jest.fn();
 jest.mock('../v1/services/scheduler-service', () => ({
   schedulerService: { deleteDraftReports: () => mock_deleteDraftReports() },

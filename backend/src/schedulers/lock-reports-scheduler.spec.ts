@@ -79,10 +79,10 @@ jest.mock('../v1/prisma/prisma-client', () => ({
   },
 }));
 
-const mock_asyncRetry = jest.fn((fn) => fn());
-jest.mock('async-retry', () => ({
-  __esModule: true,
-  default: async (fn) => mock_asyncRetry(fn),
+jest.mock('../v1/services/utils-service', () => ({
+  utils: {
+    delay: jest.fn(),
+  },
 }));
 
 const mock_generateHtmlEmail = jest.fn();

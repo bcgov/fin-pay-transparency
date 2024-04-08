@@ -4,6 +4,7 @@ import retry from 'async-retry';
 import { logger as log } from '../logger';
 import { config } from '../config';
 import emailService from '../external/services/ches';
+import { utils } from '../v1/services/utils-service';
 
 type CreateMutexFunction = ReturnType<typeof advisoryLock>;
 type AdvisoryLock = ReturnType<CreateMutexFunction>;
@@ -14,6 +15,7 @@ interface IErrorHandlerConfig {
 }
 
 const timezone = config.get('server:schedulerTimeZone');
+const retryTimeout = config.get('retry:minTimeout');
 
 export const createJob = (
   cronTime: string,
@@ -28,15 +30,12 @@ export const createJob = (
       try {
         if (unlock) {
           await retry(
-            async (bail) => {
-              try {
-                await callback();
-              } catch (error) {
-                bail(error);
-              }
+            async () => {
+              await callback();
             },
             {
               retries: 5,
+              minTimeout: retryTimeout,
             },
           );
         }
@@ -54,6 +53,7 @@ export const createJob = (
           await emailService.sendEmailWithRetry(email);
         }
       } finally {
+        await utils.delay(10000);
         await unlock?.();
       }
     }, // onTick
