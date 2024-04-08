@@ -23,7 +23,7 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-4 half-width">
+      <td class="pe-2 half-width">
         <h4 class="mb-2">Mean hourly pay gap<sup>1</sup></h4>
         <div id="mean-hourly-pay-gap">
           <% if (chartData.meanHourlyPayGap.length) { %>
@@ -41,7 +41,7 @@
               <% } %>
         </div>
       </td>
-      <td class="half-width">
+      <td class="ps-2 half-width">
         <h4 class="mb-2">Median hourly pay gap<sup>2</sup></h4>
         <div id="mean-hourly-pay-gap">
           <% if (chartData.medianHourlyPayGap.length) { %>
@@ -117,7 +117,7 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-4 half-width">
+      <td class="pe-2 half-width">
         <h4 class="mb-2">
           Mean overtime pay<sup>
             <%= explanatoryNotes.meanOvertimePayDiff.num %>
@@ -139,7 +139,7 @@
               <% } %>
         </div>
       </td>
-      <td class="half-width">
+      <td class="ps-2 half-width">
         <h4 class="mb-2">
           Median overtime pay<sup>
             <%= explanatoryNotes.medianOvertimePayDiff.num %>
@@ -332,7 +332,7 @@
 
   <table role="presentation">
     <tr>
-      <td class="pe-4 half-width">
+      <td class="pe-2 half-width">
         <h4 class="mb-2">
           Mean bonus pay<sup>
             <%= explanatoryNotes.meanBonusPayDiff.num %>
@@ -354,7 +354,7 @@
               <% } %>
         </div>
       </td>
-      <td class="half-width">
+      <td class="ps-2 half-width">
         <h4 class="mb-2">
           Median bonus pay<sup>
             <%= explanatoryNotes.medianBonusPayDiff.num %>
@@ -435,16 +435,18 @@
       </svg>
     </div>
     <div class="header-block-title flex-fill">
-      <h2>Percentage of each gender in each pay quartile</h2>
-      <sup>
-        <%= explanatoryNotes.payQuartiles.num %>
-      </sup>
+      <h2>Percentage of each gender in each pay quartile
+        <sup>
+          <%= explanatoryNotes.payQuartiles.num %>
+        </sup>
+      </h2>
+
     </div>
   </div>
 
   <table role="presentation" class="mb-2">
     <tr>
-      <td class="pe-2" style="width: 600px">
+      <td class="pe-2" style="width: 500px">
         <div id=" hourly-pay-quartiles">
           <div id="hourly-pay-quartile-4">
             <% var q4HasSuppressed=chartData.hourlyPayQuartile4.length < 4; %>
@@ -492,8 +494,8 @@
           </div>
         </div>
       </td>
-      <td class="pe-2">
-        <div id="hourly-pay-quartiles-legend" class="ml-6"></div>
+      <td>
+        <div id="hourly-pay-quartiles-legend" class="ms-6"></div>
       </td>
     </tr>
     <tr>

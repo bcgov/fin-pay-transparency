@@ -5,14 +5,36 @@
   <title>Pay Transparency Report</title>
 </head>
 <style>
-  html {
+  <% if (fontsToEmbed) {
+    %>
+
+    /*To force puppeteer to embed fonts into the PDF, we must define them
+  in base 64 format.*/
+    @font-face {
+      font-family: "BCSans";
+      font-style: normal;
+      font-weight: 400;
+      src: url("data:font/ttf;base64,<%= fontsToEmbed.BCSansRegular %>");
+    }
+
+    @font-face {
+      font-family: "BCSans";
+      font-style: normal;
+      font-weight: 700;
+      src: url("data:font/ttf;base64,<%= fontsToEmbed.BCSansBold %>");
+    }
+
+    <%
+  }
+
+  %>html {
     -webkit-print-color-adjust: exact;
   }
 
   svg {
     /*Prevent unexpected whitespace below SVG elements*/
     display: block;
-  } 
+  }
 
   a {
     /* overwrite the bootstrap value to prevent the page header from being modified */
@@ -42,7 +64,7 @@
   }
 
   .pay-transparency-report {
-    font-family: 'BC Sans', 'Noto Sans', Arial, Verdana, sans-serif;
+    font-family: 'BCSans', 'Noto Sans', Arial, Verdana, sans-serif;
     font-weight: 200;
   }
 
@@ -130,6 +152,10 @@
     font-weight: bold !important;
     color: #313131;
     margin: 0px;
+  }
+
+  .pay-transparency-report .w-100 {
+    width: 100%;
   }
 
   .pay-transparency-report .mb-0 {

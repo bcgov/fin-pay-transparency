@@ -63,19 +63,19 @@ database:
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
-  podAnnotations: { }
-  podSecurityContext: { }
-  securityContext: { }
-  imagePullSecrets: [ ]
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  imagePullSecrets: []
   autoscaling:
     enabled: false
   service:
     type: ClusterIP
     port: 5432
     targetPort: 5432
-  nodeSelector: { }
-  tolerations: [ ]
-  affinity: { }
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   resources:
     limits:
       cpu: 100m
@@ -111,15 +111,15 @@ doc-gen-service:
     targetPort: 3000
   resources:
     limits:
-      cpu: 100m
-      memory: 250Mi
+      cpu: 300m
+      memory: 350Mi
     requests:
       cpu: 30m
       memory: 50Mi
 
-  podSecurityContext: { }
-  securityContext: { }
-  imagePullSecrets: [ ]
-  nodeSelector: { }
-  tolerations: [ ]
+  podSecurityContext: {}
+  securityContext: {}
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
   pdb: false

@@ -32,27 +32,25 @@ export default {
     ...mapState(appStore, ['pageTitle']),
     isIE() {
       return /Trident\/|MSIE/.test(window.navigator.userAgent);
-    }
+    },
   },
   watch: {
-    '$route'(to, from) {
-      if (to.fullPath != "/error") {
+    $route(to, from) {
+      if (to.fullPath != '/error') {
         //Reset error page message back to the default
         NotificationService.setErrorPageMessage();
       }
-    }
+    },
   },
-  async created() {
-
-  },
+  async created() {},
   methods: {
     appStore,
-  }
+  },
 };
 </script>
 
 <style>
-@import '@bcgov/bc-sans/css/BC_Sans.css';
+@import '@bcgov/bc-sans/css/BCSans.css';
 
 a {
   color: #1976d2;
@@ -67,7 +65,7 @@ a:hover {
 }
 
 .v-application {
-  font-family: 'BC Sans', 'Noto Sans', Verdana, Arial, sans-serif !important;
+  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
 }
 
 .v-card--flat {
@@ -119,7 +117,6 @@ h1 {
 }
 
 @media screen and (max-width: 370px) {
-
   .v-toolbar__title {
     font-size: 0.9rem;
     line-height: 1;
@@ -170,6 +167,6 @@ h1 {
 }
 
 .theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
-  background-color: rgba(0, 0, 0, .12) !important;
+  background-color: rgba(0, 0, 0, 0.12) !important;
 }
 </style>

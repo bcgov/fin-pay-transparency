@@ -1,7 +1,9 @@
+import fs from 'node:fs/promises';
 import { Browser } from 'puppeteer';
 import {
   REPORT_FORMAT,
   ReportData,
+  ReportFonts,
   SubmittedReportData,
   docGenServicePrivate,
   generateReport,
@@ -68,15 +70,19 @@ const submittedReportData: SubmittedReportData = {
   genderCodes: ['M', 'W', 'X', 'U'],
   isDraft: true,
 };
-const reportData =
-  docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+let reportData: ReportData = null; //initialized in beforeEach(...) below
 
-beforeEach(() => {
+beforeEach(async () => {
   //extend from the default 5000 because many tests use puppeteer, which can
   //be slow if the host container isn't allocated sufficient resources
   jest.setTimeout(TEST_TIMEOUT_MS);
 
   jest.clearAllMocks();
+
+  reportData = await docGenServicePrivate.addSupplementaryReportData(
+    REPORT_FORMAT.HTML,
+    submittedReportData,
+  );
 });
 
 describe('generateReport', () => {
@@ -143,9 +149,12 @@ describe('buildEjsTemplate', () => {
 });
 
 describe('addSupplementaryReportData', () => {
-  it('returns a new object with props from the input object, plus some additional props', () => {
+  it('returns a new object with props from the input object, plus some additional props', async () => {
     const reportData: ReportData =
-      docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+      await docGenServicePrivate.addSupplementaryReportData(
+        REPORT_FORMAT.HTML,
+        submittedReportData,
+      );
 
     //Properties copied from the input object
     expect(reportData.companyName).toBe(submittedReportData.companyName);
@@ -651,6 +660,50 @@ describe('placeFootnotes', () => {
 
       expect(wasSuccessfullyAdded).toBeFalsy();
       expect(footnoteGroupOnPage).toBeNull();
+    });
+  });
+});
+
+describe('encodeFileAsBase64', () => {
+  it('reads the file, and returns a base64 encoding of it', async () => {
+    const mockFilePath = './mockfile.txt';
+    const mockFileContents = '1234abcd';
+    const expectedBase64Encoding = 'MTIzNGFiY2Q=';
+    const readFileSpy = jest
+      .spyOn(fs, 'readFile')
+      .mockResolvedValueOnce(Buffer.from(mockFileContents));
+    const result = await docGenServicePrivate.encodeFileAsBase64(mockFilePath);
+    expect(result).toBe(expectedBase64Encoding);
+  });
+});
+
+describe('getBase64Fonts', () => {
+  describe('when result is not already cached', () => {
+    it('prepares required fonts as base64-encoded strings', async () => {
+      const mockBase64EncodedString = 'mock base64';
+      const getBase64FontsSpy = jest
+        .spyOn(docGenServicePrivate, 'encodeFileAsBase64')
+        .mockResolvedValue(mockBase64EncodedString);
+      docGenServicePrivate.cachedFonts = null;
+      const fonts: ReportFonts = await docGenServicePrivate.getBase64Fonts();
+      expect(fonts.BCSansRegular).toContain(mockBase64EncodedString);
+      expect(fonts.BCSansBold).toContain(mockBase64EncodedString);
+      expect(getBase64FontsSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+  describe('when result is not already cached', () => {
+    it('prepares required fonts as base64-encoded strings', async () => {
+      const mockCachedFonts: ReportFonts = {
+        BCSansRegular: 'mock regular font',
+        BCSansBold: 'mock bold font',
+      };
+      const getBase64FontsSpy = jest
+        .spyOn(docGenServicePrivate, 'encodeFileAsBase64')
+        .mockResolvedValue(null);
+      docGenServicePrivate.cachedFonts = mockCachedFonts;
+      const fonts: ReportFonts = await docGenServicePrivate.getBase64Fonts();
+      expect(fonts).toBe(mockCachedFonts);
+      expect(getBase64FontsSpy).toHaveBeenCalledTimes(0);
     });
   });
 });
