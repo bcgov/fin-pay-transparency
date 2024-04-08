@@ -4,7 +4,6 @@
     "allowJs": true,
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": false,
     "noImplicitAny": false,
     "esModuleInterop": true,
@@ -13,7 +12,5 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "./src"
-  ]
+  "include": ["./src", "./tests/integration"]
 }

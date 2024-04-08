@@ -27,6 +27,7 @@
     "@types/lodash": "^4.14.202",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.10.4",
+    "@types/supertest": "^6.0.2",
     "@types/swagger-jsdoc": "^6.0.4",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
@@ -40,15 +41,16 @@
     "mock-req-res": "^1.2.1",
     "nodemon": "^3.0.2",
     "prettier": "^3.1.1",
-    "supertest": "^6.3.3",
+    "supertest": "^6.3.4",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "5.4.3"
   },
   "scripts": {
-    "test": "jest",
-    "test:cov": "jest --coverage --detectOpenHandles --forceExit",
+    "test": "jest --selectProjects unit",
+    "test:cov": "jest --selectProjects unit --coverage --detectOpenHandles --forceExit",
+    "test:integration": "jest --selectProjects integration",
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
@@ -56,16 +58,34 @@
     "prettier:write": "prettier src --write"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
+    "projects": [
+      {
+        "displayName": "unit",
+        "moduleFileExtensions": [
+          "js",
+          "json",
+          "ts"
+        ],
+        "rootDir": "src",
+        "testRegex": ".*\\.spec\\.(t|j)s$",
+        "transform": {
+          "^.+\\.(t|j)s$": "ts-jest"
+        }
+      },
+      {
+        "displayName": "integration",
+        "rootDir": "tests/integration",
+        "moduleFileExtensions": [
+          "js",
+          "json",
+          "ts"
+        ],
+        "testRegex": ".*\\.spec\\.(t|j)s$",
+        "transform": {
+          "^.+\\.(t|j)s$": "ts-jest"
+        }
+      }
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.(t|j)s$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
     "collectCoverage": true,
     "collectCoverageFrom": [
       "**/*.(t|j)s"
@@ -116,7 +136,19 @@
       "ecmaVersion": 2022,
       "sourceType": "module"
     },
-    "rules": {}
+    "rules": {
+      "jest/expect-expect": [
+        "error",
+        {
+          "assertFunctionNames": [
+            [
+              "expect",
+              "request.**.expect"
+            ]
+          ]
+        }
+      ]
+    }
   },
   "eslintIgnore": [],
   "prettier": {
