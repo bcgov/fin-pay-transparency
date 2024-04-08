@@ -97,7 +97,7 @@ jobs:
           dir: ${{ matrix.dir }}
           node_version: "20"
           sonar_args: >
-            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts
+            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/dist/**,**/ches/**
             -Dsonar.organization=bcgov-sonarcloud
             -Dsonar.project.monorepo.enabled=true
             -Dsonar.projectKey=${{ matrix.sonar_projectKey }}

@@ -140,6 +140,8 @@ spec:
               value: 'http://{{.Release.Name}}-doc-gen-service/api'
             - name: EXTERNAL_CONSUMER_PORT
               value: '3001'
+            - name: CHES_ENABLED
+              value: 'true'
 
           ports:
             - name: http

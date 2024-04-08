@@ -42,6 +42,9 @@ config.defaults({
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
       limit: process.env.RATE_LIMIT_LIMIT || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
     },
+    retries: {
+      minTimeout: 1000,
+    },
   },
   oidc: {
     keycloakUrl: process.env.KEYCLOAK_URL,
@@ -71,6 +74,14 @@ config.defaults({
   },
   backendExternal: {
     apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key', // this the API key for internal communication between services, backend-external will pass this api key in header.
+  },
+  ches: {
+    enabled: process.env.CHES_ENABLED || false, // Enable if CHES is required, helps in local not to set up CHES
+    tokenUrl: process.env.CHES_TOKEN_URL,
+    clientId: process.env.CHES_CLIENT_ID,
+    clientSecret: process.env.CHES_CLIENT_SECRET,
+    apiUrl: process.env.CHES_API_URL,
+    emailRecipients: process.env.CHES_EMAIL_RECIPIENTS?.split(','), // comma separated email addresses
   },
 });
 export { config };
