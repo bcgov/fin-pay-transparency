@@ -75,6 +75,11 @@ export type SubmittedReportData = {
   isDraft: boolean;
 };
 
+export type ReportFonts = {
+  BCSansRegular: string;
+  BCSansBold: string;
+};
+
 /*
 Defines properties that are not explicitly
 inlcuded in SubmittedReportData, but which are also needed
@@ -142,7 +147,7 @@ const docGenServicePrivate = {
     'report.script.js',
   ),
 
-  cachedFonts: null,
+  cachedFonts: null as ReportFonts | null,
 
   /**
    * Builds an ejs template suitable for creating a report from
@@ -646,13 +651,13 @@ const docGenServicePrivate = {
   },
 
   /**
-   * Encodes the BCSansRegular and BCSansBold fonts as base64 strings.
-   * Implementation note: this process can be cpu and memory intensive, so
-   * we cache the result after the first run, allowing subsequent calls
-   * to be faster.
+   * Encodes the fonts required by the report (BCSansRegular and BCSansBold)
+   * as base64 strings.
+   * Implementation note: we cache the result after the first run,
+   * allowing subsequent calls to be faster.
    * @returns an object with base64-encoded fonts for BCSansRegular and BCSansBold
    */
-  async getBase64Fonts() {
+  async getBase64Fonts(): Promise<ReportFonts> {
     if (!this.cachedFonts) {
       logger.info(
         'Encoding fonts in base64, and adding the encoded fonts to cache',
@@ -912,11 +917,9 @@ async function generateReport(
     return result;
   } catch (e) {
     /* istanbul ignore next */
-    logger.silly('error while generating report');
     logger.error(e);
   } finally {
     if (puppeteerPage) {
-      logger.silly('closing page');
       await puppeteerPage.close();
     }
   }
