@@ -75,6 +75,11 @@ export type SubmittedReportData = {
   isDraft: boolean;
 };
 
+export type ReportFonts = {
+  BCSansRegular: string;
+  BCSansBold: string;
+};
+
 /*
 Defines properties that are not explicitly
 inlcuded in SubmittedReportData, but which are also needed
@@ -94,6 +99,7 @@ type SupplementaryReportData = {
     quartileGenderCategorySuppressed: string;
   };
   isGeneralSuppressedDataFootnoteVisible: boolean;
+  fontsToEmbed: any;
 };
 
 /* Includes everything from SubmittedReportData and SupplementaryReportData */
@@ -140,6 +146,8 @@ const docGenServicePrivate = {
     config.get('server:templatePath') || '',
     'report.script.js',
   ),
+
+  cachedFonts: null as ReportFonts | null,
 
   /**
    * Builds an ejs template suitable for creating a report from
@@ -635,14 +643,51 @@ const docGenServicePrivate = {
   },
 
   /**
+   * Encodes the contents of the given file into a base64 string
+   */
+  async encodeFileAsBase64(filePath) {
+    const data = await fs.readFile(filePath);
+    return data.toString('base64');
+  },
+
+  /**
+   * Encodes the fonts required by the report (BCSansRegular and BCSansBold)
+   * as base64 strings.
+   * Implementation note: we cache the result after the first run,
+   * allowing subsequent calls to be faster.
+   * @returns an object with base64-encoded fonts for BCSansRegular and BCSansBold
+   */
+  async getBase64Fonts(): Promise<ReportFonts> {
+    if (!this.cachedFonts) {
+      logger.info(
+        'Encoding fonts in base64, and adding the encoded fonts to cache',
+      );
+      this.cachedFonts = {
+        BCSansRegular: await docGenServicePrivate.encodeFileAsBase64(
+          './node_modules/@bcgov/bc-sans/fonts/BCSans-Regular.woff',
+        ),
+        BCSansBold: await docGenServicePrivate.encodeFileAsBase64(
+          './node_modules/@bcgov/bc-sans/fonts/BCSans-Bold.woff',
+        ),
+      };
+    }
+    return this.cachedFonts;
+  },
+
+  /**
    * Creates a new ReportData object which includes
    * everything from the given SubmittedReportData, plus
    * some additional derived or default properties needed
    * to generate the report.
    */
-  addSupplementaryReportData(
+  async addSupplementaryReportData(
+    reportFormat: string,
     submittedReportData: SubmittedReportData,
-  ): ReportData {
+  ): Promise<ReportData> {
+    const fontsToEmbed =
+      reportFormat == REPORT_FORMAT.PDF
+        ? await docGenServicePrivate.getBase64Fonts()
+        : null;
     const supplementaryReportData: SupplementaryReportData = {
       pageSize: {
         margin: {
@@ -656,6 +701,7 @@ const docGenServicePrivate = {
         docGenServicePrivate.isGeneralSuppressedDataFootnoteVisible(
           submittedReportData,
         ),
+      fontsToEmbed: fontsToEmbed,
     };
     const reportData: ReportData = {
       ...submittedReportData,
@@ -749,8 +795,10 @@ async function generateReport(
 ) {
   logger.info('Begin generate report');
   let puppeteerPage: Page = null;
-  const reportData =
-    docGenServicePrivate.addSupplementaryReportData(submittedReportData);
+  const reportData = await docGenServicePrivate.addSupplementaryReportData(
+    reportFormat,
+    submittedReportData,
+  );
 
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
