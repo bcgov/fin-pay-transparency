@@ -17,7 +17,7 @@ const timezone = config.get('server:schedulerTimeZone');
 
 export const createJob = (
   cronTime: string,
-  callback: () => void,
+  callback: () => Promise<void>,
   mutex: AdvisoryLock,
   { title, message }: IErrorHandlerConfig,
 ) => {
