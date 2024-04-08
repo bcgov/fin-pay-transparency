@@ -1,7 +1,9 @@
+import fs from 'node:fs/promises';
 import { Browser } from 'puppeteer';
 import {
   REPORT_FORMAT,
   ReportData,
+  ReportFonts,
   SubmittedReportData,
   docGenServicePrivate,
   generateReport,
@@ -658,6 +660,50 @@ describe('placeFootnotes', () => {
 
       expect(wasSuccessfullyAdded).toBeFalsy();
       expect(footnoteGroupOnPage).toBeNull();
+    });
+  });
+});
+
+describe('encodeFileAsBase64', () => {
+  it('reads the file, and returns a base64 encoding of it', async () => {
+    const mockFilePath = './mockfile.txt';
+    const mockFileContents = '1234abcd';
+    const expectedBase64Encoding = 'MTIzNGFiY2Q=';
+    const readFileSpy = jest
+      .spyOn(fs, 'readFile')
+      .mockResolvedValueOnce(Buffer.from(mockFileContents));
+    const result = await docGenServicePrivate.encodeFileAsBase64(mockFilePath);
+    expect(result).toBe(expectedBase64Encoding);
+  });
+});
+
+describe('getBase64Fonts', () => {
+  describe('when result is not already cached', () => {
+    it('prepares required fonts as base64-encoded strings', async () => {
+      const mockBase64EncodedString = 'mock base64';
+      const getBase64FontsSpy = jest
+        .spyOn(docGenServicePrivate, 'encodeFileAsBase64')
+        .mockResolvedValue(mockBase64EncodedString);
+      docGenServicePrivate.cachedFonts = null;
+      const fonts: ReportFonts = await docGenServicePrivate.getBase64Fonts();
+      expect(fonts.BCSansRegular).toContain(mockBase64EncodedString);
+      expect(fonts.BCSansBold).toContain(mockBase64EncodedString);
+      expect(getBase64FontsSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+  describe('when result is not already cached', () => {
+    it('prepares required fonts as base64-encoded strings', async () => {
+      const mockCachedFonts: ReportFonts = {
+        BCSansRegular: 'mock regular font',
+        BCSansBold: 'mock bold font',
+      };
+      const getBase64FontsSpy = jest
+        .spyOn(docGenServicePrivate, 'encodeFileAsBase64')
+        .mockResolvedValue(null);
+      docGenServicePrivate.cachedFonts = mockCachedFonts;
+      const fonts: ReportFonts = await docGenServicePrivate.getBase64Fonts();
+      expect(fonts).toBe(mockCachedFonts);
+      expect(getBase64FontsSpy).toHaveBeenCalledTimes(0);
     });
   });
 });
