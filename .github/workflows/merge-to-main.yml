@@ -86,7 +86,14 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [ backend, database-migrations, frontend, doc-gen-service, backend-external ]
+        package:
+          [
+            backend,
+            database-migrations,
+            frontend,
+            doc-gen-service,
+            backend-external,
+          ]
     steps:
       - name: Tag Docker Images
         uses: shrink/actions-docker-registry-tag@v4
@@ -109,7 +116,15 @@ jobs:
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
       values: "values-dev.yaml"
-      
+
+  test-integration:
+    name: Integration
+    needs: [deploys]
+    uses: ./.github/workflows/.integration.yml
+    secrets: inherit
+    with:
+      backend-external-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api
+
   test-e2e:
     name: E2E (dev)
     needs: [deploys]
@@ -117,6 +132,7 @@ jobs:
     secrets: inherit
     with:
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
+
   zap:
     name: ZAP Scan
     needs: [deploys]
@@ -129,4 +145,3 @@ jobs:
           cmd_options: "-a"
           fail_action: false
           allow_issue_writing: false
-
