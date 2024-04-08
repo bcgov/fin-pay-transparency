@@ -73,9 +73,9 @@ export default new CronJob(
       const notificationEnabled = config.get('ches:enabled');
       if (notificationEnabled) {
         const email = emailService.generateHtmlEmail(
-          'Error in deleteDraftReports',
+          'Error in lockReports',
           config.get('ches:emailRecipients'),
-          'Error in Scheduled Job, deleteDraftReports',
+          'Error in Scheduled Job, lockReports',
           e.stack,
         );
         await emailService.sendEmailWithRetry(email);
