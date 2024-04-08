@@ -10,6 +10,17 @@ const request = require('supertest');
 const validFrontendToken = auth.generateUiToken();
 const invalidFrontendToken = 'invalid-token';
 
+jest.mock('./schedulers/delete-draft-service-scheduler', () => ({
+  default: {
+    start: jest.fn()
+  }
+}))
+jest.mock('./schedulers/lock-reports-scheduler', () => ({
+  default: {
+    start: jest.fn(),
+  },
+}));
+
 // In utils-service mock only those methods that make calls to remote services
 // (for all other methods in this module keep the original implementation)
 jest.mock('./v1/services/utils-service', () => {
