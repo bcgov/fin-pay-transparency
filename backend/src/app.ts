@@ -25,7 +25,8 @@ import userRouter from './v1/routes/user-info-routes';
 import { auth } from './v1/services/auth-service';
 import { utils } from './v1/services/utils-service';
 
-import './schedulers';
+import { run as startJobs } from './schedulers/run.all';
+startJobs();
 
 const MAX_CSV_FILE_SIZE_ON_DISK_BYTES =
   config.get('server:uploadFileMaxSizeBytes') || 8388608;

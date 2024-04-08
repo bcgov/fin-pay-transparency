@@ -134,6 +134,11 @@ jobs:
           --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
           --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
           --set-string global.secrets.externalConsumerApiKey="${{ secrets.EXTERNAL_CONSUMER_API_KEY }}"  \
+          --set-string global.secrets.chesTokenURL="${{ secrets.CHES_TOKEN_ENDPOINT }}" \
+          --set-string global.secrets.chesClientID="${{ secrets.CHES_CLIENT_ID }}" \
+          --set-string global.secrets.chesClientSecret="${{ secrets.CHES_CLIENT_SECRET }}"  \
+          --set-string global.secrets.chesAPIURL="${{ secrets.CHES_API_URL }}"  \
+          --set-string global.secrets.chesEmailRecipients="${{ secrets.CHES_EMAIL_RECIPIENTS }}"  \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
           --set-string crunchy.pgBackRest.s3.bucket="${{ secrets.S3_BUCKET }}"  \
           --set-string crunchy.pgBackRest.s3.endpoint="${{ secrets.S3_ENDPOINT }}"  \
