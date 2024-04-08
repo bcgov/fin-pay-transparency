@@ -6,6 +6,7 @@ import prisma from '../v1/prisma/prisma-client';
 import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
 import retry from 'async-retry';
 import emailService from '../external/services/ches';
+import { utils } from '../v1/services/utils-service';
 
 try {
   const mutex = advisoryLock(config.get('server:databaseUrl'))('lock_reports');
