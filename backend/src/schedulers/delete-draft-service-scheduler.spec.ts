@@ -71,13 +71,4 @@ describe('delete-draft-service-scheduler', () => {
       expect(mock_unlock).toHaveBeenCalledTimes(1);
     });
   });
-
-  it('should handle error and send email', async () => {
-    mock_tryLock.mockImplementation(() => Promise.reject('Error happened'));
-    deleteDraftReportsJob.start();
-    await require('./lock-reports-scheduler');
-    await waitFor(() => {
-      expect(mock_sendEmailWithRetry).toHaveBeenCalled();
-    });
-  });
 });

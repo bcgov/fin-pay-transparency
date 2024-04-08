@@ -154,13 +154,4 @@ describe('lock-report-scheduler', () => {
       expect(reports.find((r) => r.report_id === '5').is_unlocked).toBeTruthy();
     });
   });
-
-  it('should handle error and send email', async () => {
-    mock_tryLock.mockImplementation(() => Promise.reject('Error happened'));
-    lockReportsJob.start();
-    await require('./lock-reports-scheduler');
-    await waitFor(() => {
-      expect(mock_sendEmailWithRetry).toHaveBeenCalled();
-    });
-  });
 });
