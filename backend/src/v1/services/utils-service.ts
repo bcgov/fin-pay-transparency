@@ -97,7 +97,7 @@ async function postData(url, body, axiosConfig) {
     throw error;
   }
 }
-
+const delay = (ms:number) => new Promise(resolve => setTimeout(resolve, ms))
 const utils = {
   getOidcDiscovery,
   prettyStringify: (obj, indent = 2) => JSON.stringify(obj, null, indent),
@@ -108,6 +108,7 @@ const utils = {
   asyncHandler: (fn) => (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   },
+  delay
 };
 
 export { utils };

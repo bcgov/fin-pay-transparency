@@ -62,6 +62,7 @@ try {
                 });
               });
               log.info('Report locking Schedule Job completed.');
+              await utils.delay(10000); // wait for 10 seconds before releasing the lock, to see it is executed only once
               await unlock();
             },
             {

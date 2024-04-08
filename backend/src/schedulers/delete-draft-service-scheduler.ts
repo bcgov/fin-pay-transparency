@@ -5,6 +5,7 @@ import { logger as log } from '../logger';
 import advisoryLock from 'advisory-lock';
 import retry from 'async-retry';
 import emailService from '../external/services/ches';
+import { utils } from '../v1/services/utils-service';
 
 try {
   const mutex = advisoryLock(config.get('server:databaseUrl'))(
@@ -23,6 +24,7 @@ try {
               /* log.info('Starting deleteDraftReports Schedule Job.');
               await schedulerService.deleteDraftReports();
               log.info('deleteDraftReports Schedule Job completed.');
+              await utils.delay(10000); // wait for 10 seconds before releasing the lock, to see it is executed only once
               await unlock();*/
               throw new Error('Error in deleteDraftReports');
             },
