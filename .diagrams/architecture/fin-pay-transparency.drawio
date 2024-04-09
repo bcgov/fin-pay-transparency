@@ -1,11 +1,11 @@
-<mxfile modified="2024-03-21T22:25:56.875Z" host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" etag="gKrTYDCdVoWGZ5MXxHJN" version="24.0.1" type="device">
+<mxfile modified="2024-04-09T22:01:36.831Z" host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="DAa8ZSnHDzGKBhz9hxba" version="24.0.7" type="device">
   <diagram id="Ht1M8jgEwFfnCIfOTk4-" name="Page-1">
     <mxGraphModel dx="1674" dy="1573" grid="1" gridSize="11" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="Dejl1EHgX0Egc-d-bemE-26" value="`" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="284.38" y="-99" width="980.62" height="715" as="geometry" />
+          <mxGeometry x="264" y="-104.5" width="980.62" height="715" as="geometry" />
         </mxCell>
         <mxCell id="fdkoNqw9oe1VA67Y62dj-11" value="`" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8ad;strokeColor=#6c8ebf;" parent="1" vertex="1">
           <mxGeometry x="341" y="-88" width="748" height="682" as="geometry" />
@@ -145,17 +145,35 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="hui74Lmpu6167UNS3F5m-1" value="OCIO -&amp;nbsp;&lt;div&gt;Objectstore&lt;/div&gt;&lt;div&gt;(Used for database backups)&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="hui74Lmpu6167UNS3F5m-1" value="OCIO -&amp;nbsp;&lt;div&gt;Objectstore&lt;/div&gt;&lt;div&gt;(Used for database backups)&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
           <mxGeometry x="1292.5" y="53.89" width="110" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="hui74Lmpu6167UNS3F5m-2" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;" edge="1" parent="1" target="hui74Lmpu6167UNS3F5m-1">
+        <mxCell id="hui74Lmpu6167UNS3F5m-2" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;" parent="1" target="hui74Lmpu6167UNS3F5m-1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="1045" y="50" as="sourcePoint" />
             <mxPoint x="1095" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="hui74Lmpu6167UNS3F5m-3" value="HTTPS/TLS Termination" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="hui74Lmpu6167UNS3F5m-3" value="HTTPS/TLS Termination" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="1141.06" y="44" width="60" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="9eAqYbSVGCeYa9lg-SSC-1" value="CHES - Email Service&lt;div&gt;Common Components&lt;/div&gt;&lt;div&gt;on&lt;/div&gt;&lt;div&gt;Silver Cluster&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1111.06" y="297" width="120" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="9eAqYbSVGCeYa9lg-SSC-2" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="825" y="182" as="sourcePoint" />
+            <mxPoint x="875" y="132" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9eAqYbSVGCeYa9lg-SSC-4" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="SB_mpgMmpFjguFMvalku-5" target="9eAqYbSVGCeYa9lg-SSC-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="825" y="281" as="sourcePoint" />
+            <mxPoint x="875" y="231" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9eAqYbSVGCeYa9lg-SSC-7" value="over HTTPS" style="edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;" connectable="0" vertex="1" parent="1">
+          <mxGeometry x="912.9970687632891" y="315.44676928735714" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
