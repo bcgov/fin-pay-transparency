@@ -39,7 +39,7 @@ jest.mock('../config', () => ({
         'server:schedulerTimeZone': 'Canada/Vancouver',
         'ches:enabled': true,
         'ches:emailRecipients': 'test@payt.io',
-        'retries:minTimeout': 100,
+        'retries:minTimeout': 0,
         'server:openshiftEnv': 'local',
         'server:hostName': 'local',
       };
