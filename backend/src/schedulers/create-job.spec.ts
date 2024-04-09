@@ -39,7 +39,9 @@ jest.mock('../config', () => ({
         'server:schedulerTimeZone': 'Canada/Vancouver',
         'ches:enabled': true,
         'ches:emailRecipients': 'test@payt.io',
-        'retries:minTimeout': 100
+        'retries:minTimeout': 100,
+        'server:openshiftEnv': 'local',
+        'server:hostName': 'local',
       };
 
       return settings[key];
@@ -82,7 +84,7 @@ describe('create-job', () => {
       expect(mock_tryLock).toHaveBeenCalled();
       expect(fn).toHaveBeenCalledTimes(6)
       expect(mock_generateHtmlEmail).toHaveBeenCalledWith(
-        'Error title',
+        'Pay Transparency | Error title | local | local',
         'test@payt.io',
         'Error details',
         error.stack,

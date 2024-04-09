@@ -43,9 +43,12 @@ export const createJob = (
         log.error(`${title}.`);
         log.error(e);
         const notificationEnabled = config.get('ches:enabled');
+
         if (notificationEnabled) {
+          const env = config.get('server:openshiftEnv');
+          const hostname = config.get('server:hostName');
           const email = emailService.generateHtmlEmail(
-            'Pay Transparency - '+title,
+            'Pay Transparency | ' + title + ' | ' + env + ' | ' + hostname,
             config.get('ches:emailRecipients'),
             message,
             e.stack,

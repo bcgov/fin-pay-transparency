@@ -19,6 +19,8 @@ config.defaults({
   environment: env,
   siteMinder_logout_endpoint: process.env.SITEMINDER_LOGOUT_ENDPOINT,
   server: {
+    hostName: process.env.HOSTNAME || 'localhost',
+    openshiftEnv: process.env.OPENSHIFT_ENV || 'local',
     frontend: process.env.SERVER_FRONTEND,
     logLevel: process.env.LOG_LEVEL,
     morganFormat: 'dev',
