@@ -15,7 +15,7 @@ interface IErrorHandlerConfig {
 }
 
 const timezone = config.get('server:schedulerTimeZone');
-const retryTimeout = config.get('retries:minTimeout');
+const retryTimeout = config.get('server:retries:minTimeout');
 
 export const createJob = (
   cronTime: string,
