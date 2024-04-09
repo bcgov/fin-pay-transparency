@@ -142,6 +142,8 @@ spec:
               value: '3001'
             - name: CHES_ENABLED
               value: 'true'
+            - name: OPENSHIFT_ENV
+              value: {{ .Values.app.env.openshiftEnv }}
 
           ports:
             - name: http

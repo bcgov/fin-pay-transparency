@@ -15,7 +15,7 @@ interface IErrorHandlerConfig {
 }
 
 const timezone = config.get('server:schedulerTimeZone');
-const retryTimeout = config.get('retry:minTimeout');
+const retryTimeout = config.get('server:retries:minTimeout');
 
 export const createJob = (
   cronTime: string,
@@ -43,9 +43,12 @@ export const createJob = (
         log.error(`${title}.`);
         log.error(e);
         const notificationEnabled = config.get('ches:enabled');
+
         if (notificationEnabled) {
+          const env = config.get('server:openshiftEnv');
+          const hostname = config.get('server:hostName');
           const email = emailService.generateHtmlEmail(
-            title,
+            'Pay Transparency | ' + title + ' | ' + env + ' | ' + hostname,
             config.get('ches:emailRecipients'),
             message,
             e.stack,

@@ -84,7 +84,7 @@ backend:
     env:
       siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
       logLevel: info
-
+      openshiftEnv: TEST
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "3000"
