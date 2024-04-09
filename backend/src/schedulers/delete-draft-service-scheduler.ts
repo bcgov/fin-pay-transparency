@@ -13,7 +13,8 @@ export default createJob(
   crontime,
   async () => {
     log.info('Starting deleteDraftReports Schedule Job.');
-    await schedulerService.deleteDraftReports();
+    /*await schedulerService.deleteDraftReports();*/
+    throw new Error('Deliberate Error for Testing');
     log.info('deleteDraftReports Schedule Job completed.');
   },
   mutex,
