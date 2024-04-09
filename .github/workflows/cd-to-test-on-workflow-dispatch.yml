@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'The Docker Tag to deploy, it would be the latest tagged version that you want to deploy from dev to TEST.'
+        description: "The Docker Tag to deploy, it would be the latest tagged version that you want to deploy from dev to TEST."
         required: true
 
 concurrency:
@@ -21,7 +21,14 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [ backend, database-migrations, frontend, doc-gen-service, backend-external ]
+        package:
+          [
+            backend,
+            database-migrations,
+            frontend,
+            doc-gen-service,
+            backend-external,
+          ]
     steps:
       - uses: shrink/actions-docker-registry-tag@v4
         with:
@@ -31,7 +38,7 @@ jobs:
           tags: test
   deploys:
     name: Deploys (test)
-    needs: [ image-promotions-to-test ]
+    needs: [image-promotions-to-test]
     uses: ./.github/workflows/.deploy.yml
     secrets: inherit
     with:
@@ -41,6 +48,13 @@ jobs:
       frontend-url: https://test.paytransparency.fin.gov.bc.ca
       semver: ${{ github.event.inputs.tag }}
       values: "values-test.yaml"
+  test-integration:
+    name: Integration
+    needs: [deploys]
+    uses: ./.github/workflows/.integration.yml
+    secrets: inherit
+    with:
+      backend-external-url: https://pay-transparency-test-backend-external.apps.silver.devops.gov.bc.ca/api
   zap:
     name: ZAP Scan
     needs: [deploys]

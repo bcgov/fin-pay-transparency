@@ -1,11 +1,11 @@
-name: .E2E
+name: .Integration
 env:
   deployment_name: pay-transparency
 on:
   workflow_dispatch:
     inputs:
       backend-external-url:
-        description: "Frontend URL of the application"
+        description: "Backend-External URL of the application"
         required: true
         type: string
       environment:
@@ -24,7 +24,7 @@ on:
         required: true
     inputs:
       backend-external-url:
-        description: "Frontend URL of the application"
+        description: "Backend-External URL of the application"
         required: true
         type: string
       environment:
@@ -63,13 +63,3 @@ jobs:
           EXTERNAL_CONSUMER_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_API_KEY }}
         run: |
           npm run test:integration
-
-      # - uses: actions/upload-artifact@v4
-      #   if: always()
-      #   name: upload results
-      #   env:
-      #     PW_TEST_HTML_REPORT_OPEN: always
-      #   with:
-      #     name: playwright-report-${{ matrix.project }}
-      #     path: "./frontend/playwright-report" # path from current folder
-      #     retention-days: 7
