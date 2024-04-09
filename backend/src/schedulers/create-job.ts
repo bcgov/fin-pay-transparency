@@ -45,7 +45,7 @@ export const createJob = (
         const notificationEnabled = config.get('ches:enabled');
         if (notificationEnabled) {
           const email = emailService.generateHtmlEmail(
-            title,
+            'Pay Transparency - '+title,
             config.get('ches:emailRecipients'),
             message,
             e.stack,
