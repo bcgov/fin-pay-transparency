@@ -141,3 +141,6 @@ charts/fin-pay-transparency/values-local.yaml
 backend/session-path
 **/test-report.xml
 **/.DS_Store
+
+.scannerwork
+sonar-project.properties
