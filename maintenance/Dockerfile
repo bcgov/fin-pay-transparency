@@ -1,8 +1,10 @@
 FROM caddy:2.7-alpine
 
+WORKDIR /app
+
 # Copy static files and config
-COPY /src /app
 COPY Caddyfile /etc/caddy/Caddyfile
+COPY src /srv
 
 # Packages and caddy format
 RUN apk add --no-cache ca-certificates && \
