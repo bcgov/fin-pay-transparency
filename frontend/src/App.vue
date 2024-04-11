@@ -93,27 +93,27 @@ h1 {
 }
 
 .v-alert.bootstrap-success {
-  color: #234720;
-  background-color: #d9e7d8 !important;
-  border-color: #accbaa !important;
+  color: #2d4821;
+  background-color: #dff0d8 !important;
+  border-color: #d6e9c6 !important;
 }
 
 .v-alert.bootstrap-info {
   color: #4e6478;
-  background-color: #eaf2fa !important;
+  background-color: #d9eaf7 !important;
   border-color: #b8d4ee !important;
 }
 
 .v-alert.bootstrap-warning {
-  color: #81692c;
-  background-color: #fef4dd !important;
-  border-color: #fbdb8b !important;
+  color: #6c4a00;
+  background-color: #f9f1c6 !important;
+  border-color: #faebcc !important;
 }
 
 .v-alert.bootstrap-error {
-  color: #712024;
-  background-color: #f7d8da !important;
-  border-color: #eeaaad !important;
+  color: #a12622;
+  background-color: #f2dede !important;
+  border-color: #ebccd1 !important;
 }
 
 @media screen and (max-width: 370px) {
