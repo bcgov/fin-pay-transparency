@@ -5,7 +5,7 @@
         <v-alert data-testid="not-found-message" dense outlined class="bootstrap-error mb-3">
           This page cannot be found.
         </v-alert>
-        <v-btn data-testid="dashboard-button" color="primary" to="dashboard">Return to dashboard</v-btn>
+        <v-btn data-testid="dashboard-button" color="primary" to="/dashboard">Return to dashboard</v-btn>
       </v-col>
     </v-row>
   </v-container>
