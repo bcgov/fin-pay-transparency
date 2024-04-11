@@ -1103,10 +1103,7 @@ const reportService = {
           where: filters,
           orderBy: [
             {
-              report_start_date: 'desc',
-            },
-            {
-              update_date: 'desc',
+              reporting_year: 'desc',
             },
           ],
         },

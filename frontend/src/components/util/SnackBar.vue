@@ -8,9 +8,8 @@
       elevation="24"
       location="top"
       centered
-      :color="colour"
+      :content-class="styleClass"
       transition="slide-y-transition"
-      class="snackbar"
     >
       <span :if="activeNotification?.title" class="snackbar-title mr-1">{{
         activeNotification?.title
@@ -19,13 +18,13 @@
         activeNotification?.message
       }}</span>
       <template #actions>
-        <v-btn color="white" v-bind="$attrs" @click="processNextNotification()">
+        <a @click="processNextNotification()" :class="styleClass">
           {{
             notificationQueue.length > 0
               ? 'Next (' + notificationQueue.length + ')'
               : 'Close'
           }}
-        </v-btn>
+        </a>
       </template>
     </v-snackbar>
   </div>
@@ -43,7 +42,7 @@ export default {
   name: 'SnackBar',
   data() {
     return {
-      colour: '' as string | undefined,
+      styleClass: undefined as string | undefined,
       theme: null as any,
       polling: null as any,
       timeout: 5000,
@@ -88,23 +87,11 @@ export default {
         this.processNextNotification();
       }
     },
-    setSeverity(severity) {
-      if (!severity) {
-        severity = '';
-      }
-      switch (severity) {
-        case NotificationSeverity.ERROR:
-          this.colour = this.theme.current.colors.error;
-          break;
-        case NotificationSeverity.WARNING:
-          this.colour = this.theme.current.colors.warning;
-          break;
-        case NotificationSeverity.SUCCESS:
-          this.colour = this.theme.current.colors.success;
-          break;
-        default:
-          this.colour = this.theme.current.colors.secondary;
-      }
+    setSeverity(severity: NotificationSeverity | null) {
+      //set the notification style class that corresponds to the given severity
+      this.styleClass = severity
+        ? `v-alert bootstrap-${severity.valueOf()}`
+        : undefined;
     },
     setTimeoutMs(timeoutMs: number) {
       this.timeout = timeoutMs;
@@ -126,7 +113,7 @@ export default {
         document.addEventListener('keydown', this.onKeyPressed);
         this.timeoutCounter();
       } else {
-        this.colour = undefined;
+        this.styleClass = undefined;
       }
     },
     onKeyPressed(e) {
@@ -152,10 +139,20 @@ export default {
 </script>
 
 <style>
-.snackbar {
-  padding: 0 !important;
+.v-snackbar__wrapper {
+  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
 }
-.snackbar-title {
+.v-snackbar .snackbar-title {
   font-weight: bold;
+  font-size: 1rem;
+}
+.v-snackbar .snackbar-message {
+  font-weight: bold;
+  font-size: 1rem;
+}
+.v-snackbar a {
+  font-weight: bold;
+  text-decoration: underline;
+  font-size: 1rem;
 }
 </style>
