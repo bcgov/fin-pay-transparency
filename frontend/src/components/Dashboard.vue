@@ -88,10 +88,7 @@
                   >
                     {{ formatDateTime(report.create_date) }}
                   </td>
-                  <td
-                    :data-testid="'report_published_date-' + report.report_id"
-                    class="text-right"
-                  >
+                  <td class="text-right">
                     <v-btn
                       :data-testid="'view-report-' + report.report_id"
                       prepend-icon="mdi-eye-outline"
