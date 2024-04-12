@@ -73,9 +73,11 @@
             <v-table>
               <thead>
                 <tr>
-                  <th class="font-weight-bold">Reporting Year</th>
-                  <th class="font-weight-bold">Submission Date</th>
-                  <th class="font-weight-bold text-right pr-8">Action</th>
+                  <th scope="col" class="font-weight-bold">Reporting Year</th>
+                  <th scope="col" class="font-weight-bold">Submission Date</th>
+                  <th scope="col" class="font-weight-bold text-right pr-8">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
