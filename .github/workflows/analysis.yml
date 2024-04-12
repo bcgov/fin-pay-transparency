@@ -3,16 +3,16 @@ name: Analysis
 on:
   pull_request:
     paths-ignore:
-      - '*.md'
-      - 'docker-compose.yml'
-      - 'renovate.json'
-      - 'COMPLIANCE.yaml'
-      - '.gitignore'
-      - '.vscode/**'
-      - '.diagrams/**'
-      - '.graphics/**'
-      - 'sysdig/**'
-      - '.github/workflows/sysdig.yml'
+      - "*.md"
+      - "docker-compose.yml"
+      - "renovate.json"
+      - "COMPLIANCE.yaml"
+      - ".gitignore"
+      - ".vscode/**"
+      - ".diagrams/**"
+      - ".graphics/**"
+      - "sysdig/**"
+      - ".github/workflows/sysdig.yml"
     types:
       - opened
       - reopened
@@ -20,16 +20,16 @@ on:
       - ready_for_review
   push:
     paths-ignore:
-      - '*.md'
-      - 'docker-compose.yml'
-      - 'renovate.json'
-      - 'COMPLIANCE.yaml'
-      - '.gitignore'
-      - '.vscode/**'
-      - '.diagrams/**'
-      - '.graphics/**'
-      - 'sysdig/**'
-      - '.github/workflows/sysdig.yml'
+      - "*.md"
+      - "docker-compose.yml"
+      - "renovate.json"
+      - "COMPLIANCE.yaml"
+      - ".gitignore"
+      - ".vscode/**"
+      - ".diagrams/**"
+      - ".graphics/**"
+      - "sysdig/**"
+      - ".github/workflows/sysdig.yml"
     branches:
       - main
   workflow_dispatch:
@@ -60,7 +60,7 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dir: [backend, frontend, doc-gen-service]
+        dir: [backend, frontend, doc-gen-service, backend-external]
         include:
           - dir: backend
             sonar_projectKey: fin-pay-transparency_backend
@@ -74,6 +74,10 @@ jobs:
             sonar_projectKey: fin-pay-transparency_doc-gen-service
             token: SONAR_TOKEN_DOC_GEN_SERVICE
             triggers: ('doc-gen-service/')
+          - dir: backend-external
+            sonar_projectKey: fin-pay-transparency_backend-external
+            token: SONAR_TOKEN_BACKEND_EXTERNAL
+            triggers: ('backend-external/')
     steps:
       - name: expose private and public key as env var
         shell: bash
@@ -146,7 +150,7 @@ jobs:
           sarif_file: "trivy-results.sarif"
   results:
     name: Analysis Results
-    needs: [ tests, codeql, trivy ]
+    needs: [tests, codeql, trivy]
     runs-on: ubuntu-22.04
     steps:
       - run: echo "Workflow completed successfully!"
