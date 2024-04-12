@@ -18,7 +18,9 @@ export class DashboardPage extends PTPage {
     await this.generateReportButton.click();
     await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
     await expect(
-      this.instance.getByText('Disclaimer: This tool relies on the employer supplying accurate and complete payroll data in order to calculate pay gaps.'),
+      this.instance.getByText(
+        'Disclaimer: This tool relies on the employer supplying accurate and complete payroll data in order to calculate pay gaps.',
+      ),
     ).toBeVisible();
   }
 
@@ -36,6 +38,15 @@ export class DashboardPage extends PTPage {
       `view-report-${id}`,
     );
     await expect(viewReportButton).toBeVisible();
+  }
+
+  async canEditReport(id: string) {
+    const editReportButton = await this.instance.getByTestId(
+      `edit-report-${id}`,
+    );
+    await expect(editReportButton).toBeVisible();
+
+    return editReportButton;
   }
 
   async gotoEditReport(id: string) {
