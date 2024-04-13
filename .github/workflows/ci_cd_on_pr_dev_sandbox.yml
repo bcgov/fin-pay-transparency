@@ -47,7 +47,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        package: [backend, database-migrations, frontend, doc-gen-service, backend-external]
+        package: [backend, database-migrations, frontend, doc-gen-service, backend-external, maintenance]
         include:
           - package: backend
             triggers: ('backend/')
@@ -68,6 +68,9 @@ jobs:
           - package: backend-external
             build_file: ./backend-external/Dockerfile
             build_context: ./backend-external
+          - package: maintenance
+            build_file: ./maintenance/Dockerfile
+            build_context: ./maintenance
 
     steps:
       - uses: actions/checkout@v4
