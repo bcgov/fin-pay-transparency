@@ -27,7 +27,8 @@ spec:
       containers:
         - name: {{ include "maintenance.fullname" . }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            capabilities:
+              add: ["NET_BIND_SERVICE"]
           image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/fin-pay-transparency/maintenance:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
 
