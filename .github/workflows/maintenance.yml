@@ -13,20 +13,20 @@ on:
           - prod
       
       action:
-        description: "The action to take. Turn on or off"
+        description: "The action to take. Turn true or false"
         required: true
-        default: "on"
+        default: "true"
         type: choice
         options:
-          - on
-          - off
+          - true
+          - false
 
 jobs:
     maintenance_on:
       name: Turn On Maintenance Mode
       runs-on: ubuntu-22.04
       environment: ${{ github.event.inputs.environment }}
-      if: ${{ github.event.inputs.action == 'on' }}
+      if: ${{ github.event.inputs.action == 'true' }}
       steps:
         - name: Login to OpenShift
           shell: bash
@@ -51,7 +51,7 @@ jobs:
         name: Turn Off Maintenance Mode
         runs-on: ubuntu-22.04
         environment: ${{ github.event.inputs.environment }}
-        if: ${{ github.event.inputs.action == 'off' }}
+        if: ${{ github.event.inputs.action == 'false' }}
         steps:
             - name: Login to OpenShift
               shell: bash
