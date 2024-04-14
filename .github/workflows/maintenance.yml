@@ -1,0 +1,75 @@
+name: Maintenance Page
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "The environment where maintenance is being turned on or off."
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+      
+      action:
+        description: "The action to take. Turn on or off"
+        required: true
+        default: "on"
+        type: choice
+        options:
+          - on
+          - off
+
+jobs:
+    maintenance_on:
+      name: Turn On Maintenance Mode
+      runs-on: ubuntu-22.04
+      environment: ${{ github.event.inputs.environment }}
+      if: ${{ github.event.inputs.action == 'on' }}
+      steps:
+        - name: Login to OpenShift
+          shell: bash
+          run: |
+            # Allow pipefail, since we could be catching oc create errors
+            set +o pipefail
+
+            # Login to OpenShift (NOTE: project command is a safeguard)
+            oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+            oc project ${{ vars.oc_namespace }}
+        - name: Scale Maintenance Deployment from 0 to 2
+          shell: bash
+          run: |
+            oc patch deployment pay-transparency-${{ inputs.environment }}-maintenance --subresource=scale --type=merge -p {\"spec\":{\"replicas\":2}}
+            oc rollout status deployment/pay-transparency-${{ inputs.environment }}-maintenance -w
+        - name: Route Internet Traffic to Maintenance Page
+          shell: bash
+          run: |
+            oc patch route pay-transparency-${{ inputs.environment }}-frontend -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-maintenance\"}}}
+    
+    maintenance_off:
+        name: Turn Off Maintenance Mode
+        runs-on: ubuntu-22.04
+        environment: ${{ github.event.inputs.environment }}
+        if: ${{ github.event.inputs.action == 'off' }}
+        steps:
+            - name: Login to OpenShift
+              shell: bash
+              run: |
+                  # Allow pipefail, since we could be catching oc create errors
+                  set +o pipefail
+      
+                  # Login to OpenShift (NOTE: project command is a safeguard)
+                  oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+                  oc project ${{ vars.oc_namespace }}
+            
+            - name: Scale Maintenance Deployment from 2 to 0
+              shell: bash
+              run: |
+                  oc patch deployment pay-transparency-${{ inputs.environment }}-maintenance --subresource=scale --type=merge -p {\"spec\":{\"replicas\":0}}
+                  oc rollout status deployment/pay-transparency-${{ inputs.environment }}-maintenance -w
+            
+            - name: Route Internet Traffic to Frontend Page
+              shell: bash
+              run: |
+                  oc patch route pay-transparency-${{ inputs.environment }}-frontend -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-frontend\"}}}
