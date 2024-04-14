@@ -46,6 +46,7 @@ jobs:
           shell: bash
           run: |
             oc patch route pay-transparency-${{ inputs.environment }}-frontend -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-maintenance\"}}}
+            oc patch route pay-transparency-app-route -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-maintenance\"}}}
     
     maintenance_off:
         name: Turn Off Maintenance Mode
@@ -73,3 +74,4 @@ jobs:
               shell: bash
               run: |
                   oc patch route pay-transparency-${{ inputs.environment }}-frontend -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-frontend\"}}}
+                  oc patch route pay-transparency-app-route -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-frontend\"}}}
