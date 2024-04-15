@@ -126,6 +126,7 @@ const settings: FooterSettings = {
 <style scoped lang="scss">
 $font-size: 14px;
 $text-color: rgb(70, 67, 65);
+$border-color: rgb(252, 186, 25);
 
 a {
   color: rgb(32, 31, 30);
@@ -144,8 +145,8 @@ p {
 }
 
 .v-footer.bordered {
-  border-top: 4px solid rgb(252, 186, 25) !important;
-  border-bottom: 4px solid rgb(252, 186, 25) !important;
+  border-top: 4px solid $border-color !important;
+  border-bottom: 4px solid $border-color !important;
   overflow: hidden;
 
   &.margin-top {
