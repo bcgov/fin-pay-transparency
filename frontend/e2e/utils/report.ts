@@ -1,5 +1,5 @@
 import { GenerateReportPage } from '../pages/generate-report';
-import {Response} from '@playwright/test';
+import { Response, Page } from '@playwright/test';
 
 export const validateSubmitErrors = async (page: GenerateReportPage) => {
   await page.naicsInput.scrollIntoViewIfNeeded();
@@ -35,4 +35,21 @@ export const waitForApiResponses = async (
   return responses.reduce((acc, current) => {
     return { ...acc, ...current };
   }, {});
+};
+
+export const waitForUserAndReports = async (
+  page: Page,
+  action: () => Promise<any>,
+) => {
+  return waitForApiResponses(
+    {
+      user: page.waitForResponse(
+        (res) => res.url().includes('/api/user') && res.status() === 200,
+      ),
+      reports: page.waitForResponse(
+        (res) => res.url().includes('/api/v1/report') && res.status() === 200,
+      ),
+    },
+    action,
+  );
 };

@@ -3,6 +3,7 @@ import { PTPage, User } from './page';
 import path from 'path';
 import flatten from 'lodash/flatten';
 import { LocalDate } from '@js-joda/core';
+import { waitForApiResponses } from '../utils/report';
 
 export interface IReportDetails {
   report_id: string;
@@ -71,7 +72,9 @@ export class GenerateReportPage extends PTPage {
 
     this.commentsInput = await this.instance.locator('#comments');
     this.dataConstraintsInput = await this.instance.locator('#dataConstraints');
-    this.submitButton = await this.instance.getByRole('button', { name: 'Submit' });
+    this.submitButton = await this.instance.getByRole('button', {
+      name: 'Submit',
+    });
   }
 
   async setNaicsCode(label: string) {
@@ -198,12 +201,17 @@ export class GenerateReportPage extends PTPage {
   async submitForm(responseChecker?: (res: Response) => boolean) {
     await this.submitButton.scrollIntoViewIfNeeded();
     if (responseChecker) {
-      const uploadFileResponse = this.instance.waitForResponse(responseChecker);
-      await this.submitButton.click();
-      const response = await uploadFileResponse;
-      return await response.json();
+      const { report } = await waitForApiResponses(
+        {
+          report: this.instance.waitForResponse(responseChecker),
+        },
+        async () => {
+          await this.submitButton.click();
+        },
+      );
+      return report;
     } else {
-      await this.submitButton.click()
+      await this.submitButton.click();
     }
   }
 }

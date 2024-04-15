@@ -3,7 +3,11 @@ import { DashboardPage } from './pages/dashboard';
 import { GenerateReportPage } from './pages/generate-report';
 import { PagePaths } from './utils';
 import { DraftReportPage, PublishedReportPage } from './pages/report';
-import { validateSubmitErrors, waitForApiResponses } from './utils/report';
+import {
+  validateSubmitErrors,
+  waitForApiResponses,
+  waitForUserAndReports,
+} from './utils/report';
 
 test.describe.serial('report generation', () => {
   test('generate new report', async ({ page }) => {
@@ -12,12 +16,14 @@ test.describe.serial('report generation', () => {
     const dashboard = new DashboardPage(page);
     await dashboard.setup();
 
-    const getUserResponse = page.waitForResponse(
-      (res) => res.url().includes('/api/user') && res.status() === 200,
+    const { user } = await waitForApiResponses(
+      {
+        user: page.waitForResponse(
+          (res) => res.url().includes('/api/user') && res.status() === 200,
+        ),
+      },
+      async () => await dashboard.gotoGenerateReport(),
     );
-    await dashboard.gotoGenerateReport();
-    const response = await getUserResponse;
-    const user = await response.json();
 
     // verify employer details
     const generateReportPage = new GenerateReportPage(dashboard.instance, user);
@@ -63,19 +69,13 @@ test.describe.serial('report generation', () => {
 
   test('verify that reports in dashboard', async ({ page }) => {
     const dashboard = new DashboardPage(page);
-    const getUserResponse = dashboard.instance.waitForResponse(
-      (res) => res.url().includes('/api/user') && res.status() === 200,
+    const { user, reports } = await waitForUserAndReports(
+      dashboard.instance,
+      async () => {
+        await dashboard.instance.goto(PagePaths.DASHBOARD);
+        await dashboard.setup();
+      },
     );
-    const getReportsRequest = dashboard.instance.waitForResponse(
-      (res) => res.url().includes('/api/v1/report') && res.status() === 200,
-    );
-    await dashboard.instance.goto(PagePaths.DASHBOARD);
-    await dashboard.setup();
-
-    const response = await getUserResponse;
-    const user = await response.json();
-    const reportsResponse = await getReportsRequest;
-    const reports = await reportsResponse.json();
 
     await dashboard.verifyUser(user);
     const { report_id: reportId, reporting_year: year } = reports.find(
@@ -89,17 +89,10 @@ test.describe.serial('report generation', () => {
     await dashboard.canEditReport(reportId);
   });
 
-  test.only('edit report', async ({ page }) => {
+  test('edit report', async ({ page }) => {
     const dashboard = new DashboardPage(page);
-    const { user, reports } = await waitForApiResponses(
-      {
-        user: dashboard.instance.waitForResponse(
-          (res) => res.url().includes('/api/user') && res.status() === 200,
-        ),
-        reports: dashboard.instance.waitForResponse(
-          (res) => res.url().includes('/api/v1/report') && res.status() === 200,
-        ),
-      },
+    const { user, reports } = await waitForUserAndReports(
+      dashboard.instance,
       async () => {
         await dashboard.instance.goto(PagePaths.DASHBOARD);
         await dashboard.setup();
@@ -134,24 +127,21 @@ test.describe.serial('report generation', () => {
     await formPage.commentsInput.fill(comment);
     const dataConstraint = 'new data constraint edit';
     await formPage.dataConstraintsInput.fill(dataConstraint);
-    const validUploadFileResponse = formPage.instance.waitForResponse(
+
+    await formPage.selectFile('CsvGood.csv');
+    const report = await formPage.submitForm(
       (res) =>
         res.url().includes('/api/v1/file-upload') && res.status() === 200,
     );
-    await formPage.selectFile('CsvGood.csv');
-    await formPage.submitForm();
-    await formPage.instance.waitForURL(PagePaths.DRAFT_REPORT);
-    const validResponse = await validUploadFileResponse;
-    let validUploadResponse = await validResponse.json();
 
     const draftReportPage = new DraftReportPage(formPage.instance, user);
     await draftReportPage.setup();
     await draftReportPage.verifyEmployeerDetails(user, null);
-    await draftReportPage.finalizedReport(validUploadResponse.report_id);
+    await draftReportPage.finalizedReport(report.report_id);
 
     const publishedReportPage = new PublishedReportPage(page, user);
     await publishedReportPage.setup();
     await publishedReportPage.verifyUser(user);
-    await publishedReportPage.verifyEmployeerDetails(user, validUploadResponse);
+    await publishedReportPage.verifyEmployeerDetails(user, report);
   });
 });
