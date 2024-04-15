@@ -120,6 +120,7 @@ jobs:
           --set-string database.image.tag="${{ inputs.tag }}" \
           --set-string doc-gen-service.image.tag="${{ inputs.tag }}" \
           --set-string backend-external.image.tag="${{ inputs.tag }}" \
+          --set-string maintenance.image.tag="${{ inputs.tag }}" \
           --set global.autoscaling.enabled=${{ inputs.autoscaling }} \
           --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
           --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \

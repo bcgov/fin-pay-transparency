@@ -93,6 +93,7 @@ jobs:
             frontend,
             doc-gen-service,
             backend-external,
+            maintenance,
           ]
     steps:
       - name: Tag Docker Images
