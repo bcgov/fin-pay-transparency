@@ -1,5 +1,5 @@
 <template>
-  <v-footer color="#fff" dark absolute class="bordered margin-top" app>
+  <v-footer color="#fff" dark absolute class="margin-top" app>
     <v-row>
       <v-col class="justify-left" style="text-align: left">
         <v-row>
@@ -123,9 +123,18 @@ const settings: FooterSettings = {
 };
 </script>
 
-<style lang="scss">
-$font-size: 12px;
+<style scoped lang="scss">
+$font-size: 14px;
 $text-color: rgb(70, 67, 65);
+
+a {
+  color: rgb(32, 31, 30);
+  text-decoration: underline !important;
+}
+
+p {
+  line-height: 21px;
+}
 
 .v-footer {
   flex-direction: column;
@@ -136,6 +145,7 @@ $text-color: rgb(70, 67, 65);
 
 .v-footer.bordered {
   border-top: 4px solid rgb(252, 186, 25) !important;
+  border-bottom: 4px solid rgb(252, 186, 25) !important;
   overflow: hidden;
 
   &.margin-top {
@@ -159,10 +169,6 @@ $text-color: rgb(70, 67, 65);
       margin: auto;
     }
   }
-}
-a.contact-email {
-  color: rgb(32, 31, 30);
-  text-decoration: underline;
 }
 
 .v-list-item-title {
