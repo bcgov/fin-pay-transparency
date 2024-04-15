@@ -17,12 +17,15 @@ export class PTPage {
   public accountButton: Locator;
   public static naicsCodes: INaicsCode[] = [];
   public static employeeCountRanges: IEmployeeCountRange[] = [];
-  constructor(public readonly instance: Page) {}
+  constructor(public readonly instance: Page, public user = undefined) {}
 
   async setup() {
     this.accountButton = await this.instance.getByTestId(
       'header-account-button',
     );
+    if (this.user) {
+      await this.verifyUser(this.user);
+    }
   }
 
   async verifyUser(user: User) {

@@ -1,4 +1,4 @@
-import { Locator, expect } from '@playwright/test';
+import { Locator, Response, expect } from '@playwright/test';
 import { PTPage, User } from './page';
 import path from 'path';
 import flatten from 'lodash/flatten';
@@ -54,6 +54,7 @@ export class GenerateReportPage extends PTPage {
   public endYearInput: Locator;
   public commentsInput: Locator;
   public dataConstraintsInput: Locator;
+  public submitButton: Locator;
 
   async setup() {
     await super.setup();
@@ -70,9 +71,10 @@ export class GenerateReportPage extends PTPage {
 
     this.commentsInput = await this.instance.locator('#comments');
     this.dataConstraintsInput = await this.instance.locator('#dataConstraints');
+    this.submitButton = await this.instance.getByRole('button', { name: 'Submit' });
   }
 
-  async  setNaicsCode(label: string) {
+  async setNaicsCode(label: string) {
     await this.naicsInput.click();
     await this.instance.waitForTimeout(1000);
     const code = await this.instance.getByText(label);
@@ -128,7 +130,6 @@ export class GenerateReportPage extends PTPage {
 
   async fillOutForm(values: IFormValues) {
     // 2: Fill out the form in the generate report form page
-    await this.setup();
     await this.setNaicsCode(values.naicsCode);
     await this.setEmployeeCount(values.employeeCountRange);
 
@@ -177,7 +178,7 @@ export class GenerateReportPage extends PTPage {
       await expect(this.commentsInput).toBeEmpty();
     }
 
-    if(report.data_constraints) {
+    if (report.data_constraints) {
       await expect(this.dataConstraintsInput).toHaveValue(
         report.data_constraints,
       );
@@ -194,9 +195,15 @@ export class GenerateReportPage extends PTPage {
     await expect(yearLocator).toHaveValue(`${date.year()}`);
   }
 
-  async submitForm() {
-    const button = await this.instance.getByRole('button', { name: 'Submit' });
-    await button.scrollIntoViewIfNeeded();
-    await button.click();
+  async submitForm(responseChecker?: (res: Response) => boolean) {
+    await this.submitButton.scrollIntoViewIfNeeded();
+    if (responseChecker) {
+      const uploadFileResponse = this.instance.waitForResponse(responseChecker);
+      await this.submitButton.click();
+      const response = await uploadFileResponse;
+      return await response.json();
+    } else {
+      await this.submitButton.click()
+    }
   }
 }

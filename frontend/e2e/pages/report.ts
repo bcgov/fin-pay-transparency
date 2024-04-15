@@ -1,10 +1,15 @@
-import { Locator, expect } from '@playwright/test';
+import { Locator, expect, Page } from '@playwright/test';
 import { PTPage } from './page';
 import { PagePaths } from '../utils';
+import { IReportDetails } from './generate-report';
 
 export class BaseReportPage extends PTPage {
   public downloadPDFButton: Locator;
   public backButton: Locator;
+
+  constructor(page: Page, public user) {
+    super(page);
+  }
 
   async setup() {
     await super.setup();
@@ -14,6 +19,8 @@ export class BaseReportPage extends PTPage {
     this.backButton = (
       await this.instance.getByRole('link', { name: 'Back' })
     ).first();
+
+    await super.verifyUser(this.user);
   }
 
   async verifyUser(user) {
