@@ -6,7 +6,6 @@
           v-if="mode == ReportMode.Edit"
           closable
           text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
-          class="text-error"
           type="info"
           variant="tonal"
         >

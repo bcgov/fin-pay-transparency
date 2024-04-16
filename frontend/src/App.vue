@@ -98,8 +98,8 @@ h1 {
   border-color: #d6e9c6 !important;
 }
 
-.v-alert.bootstrap-info {
-  color: #4e6478;
+.v-alert.text-info {
+  color: #313132 !important;
   background-color: #d9eaf7 !important;
   border-color: #b8d4ee !important;
 }
