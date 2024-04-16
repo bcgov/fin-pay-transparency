@@ -3,7 +3,8 @@ import { PTPage, User } from './page';
 import path from 'path';
 import flatten from 'lodash/flatten';
 import { LocalDate } from '@js-joda/core';
-import { waitForApiResponses } from '../utils/report';
+import { validateSubmitErrors, waitForApiResponses } from '../utils/report';
+import { PagePaths } from '../utils';
 
 export interface IReportDetails {
   report_id: string;
@@ -80,7 +81,7 @@ export class GenerateReportPage extends PTPage {
   async setNaicsCode(label: string) {
     await this.naicsInput.click();
     await this.instance.waitForTimeout(1000);
-    const code = await this.instance.getByText(label);
+    const code = await this.instance.getByRole('option', {name: label});
     expect(code).toBeVisible();
     await code.click();
   }
@@ -213,5 +214,60 @@ export class GenerateReportPage extends PTPage {
     } else {
       await this.submitButton.click();
     }
+  }
+
+  async submitInvalidFormAndValidateErrors() {
+    await this.submitForm();
+    // Check form errors
+    await this.checkErrors();
+    // Check API errors
+    await validateSubmitErrors(this);
+  }
+
+  async submitValidFormAndGotoDraftPage() {
+    await this.naicsInput.scrollIntoViewIfNeeded();
+    await this.fillOutForm({
+      naicsCode: '11 - Agriculture, forestry, fishing and hunting',
+      employeeCountRange: '50-299',
+      comments: 'Example test comment',
+      dataConstraints: 'Example data constraint text',
+      fileName: 'CsvGood.csv',
+    });
+
+    const validUploadResponse = await this.submitForm(
+      (res) =>
+        res.url().includes('/api/v1/file-upload') && res.status() === 200,
+    );
+
+    await this.instance.waitForURL(PagePaths.DRAFT_REPORT);
+
+    return validUploadResponse;
+  }
+
+  async editReportAndSubmit(reportDetails: IReportDetails) {
+    // edit form and submit form
+    const naicsCode = PTPage.naicsCodes.find(
+      (n) => n.naics_code !== reportDetails.naics_code,
+    );
+    await this.naicsInput.click();
+    await this.setNaicsCode(
+      `${naicsCode!.naics_code} - ${naicsCode!.naics_label}`,
+    );
+    const employeeCountRange = PTPage.employeeCountRanges.find(
+      (n) =>
+        n.employee_count_range_id !== reportDetails.employee_count_range_id,
+    );
+
+    await this.setEmployeeCount(employeeCountRange!.employee_count_range);
+    const comment = 'new comment edit';
+    await this.commentsInput.fill(comment);
+    const dataConstraint = 'new data constraint edit';
+    await this.dataConstraintsInput.fill(dataConstraint);
+
+    await this.selectFile('CsvGood.csv');
+    return this.submitForm(
+      (res) =>
+        res.url().includes('/api/v1/file-upload') && res.status() === 200,
+    );
   }
 }

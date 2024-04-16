@@ -1,4 +1,4 @@
-import { Locator, expect } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 import { PTPage, User } from './page';
 import { PagePaths } from '../utils';
 import {
@@ -6,6 +6,7 @@ import {
   INaicsCode,
   IReportDetails,
 } from './generate-report';
+import { waitForCodes } from '../utils/report';
 
 export class DashboardPage extends PTPage {
   static path = PagePaths.DASHBOARD;
@@ -19,14 +20,16 @@ export class DashboardPage extends PTPage {
   }
 
   async gotoGenerateReport() {
-    expect(this.generateReportButton).toBeVisible();
-    await this.generateReportButton.click();
-    await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
-    await expect(
-      this.instance.getByText(
-        'Disclaimer: This tool relies on the employer supplying accurate and complete payroll data in order to calculate pay gaps.',
-      ),
-    ).toBeVisible();
+    await waitForCodes(this.instance, async () => {
+      expect(this.generateReportButton).toBeVisible();
+      await this.generateReportButton.click();
+      await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
+      await expect(
+        this.instance.getByText(
+          'Disclaimer: This tool relies on the employer supplying accurate and complete payroll data in order to calculate pay gaps.',
+        ),
+      ).toBeVisible();
+    });
   }
 
   async gotoReport(id: string) {
@@ -93,5 +96,12 @@ export class DashboardPage extends PTPage {
     });
     await expect(welcome).toBeVisible();
     await super.verifyUser(user);
+  }
+
+  static async visit(page: Page): Promise<DashboardPage> {
+    await page.goto(PagePaths.DASHBOARD);
+    const dashboard = new DashboardPage(page);
+    await dashboard.setup();
+    return dashboard;
   }
 }

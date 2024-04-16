@@ -53,3 +53,23 @@ export const waitForUserAndReports = async (
     action,
   );
 };
+
+export const waitForCodes = async (page: Page, action: () => Promise<void>) => {
+  const employeeCountRanges = page.waitForResponse(
+    (res) =>
+      res.url().includes('/api/v1/codes/employee-count-ranges') &&
+      res.status() === 200,
+  );
+  const naicsCodes = page.waitForResponse(
+    (res) =>
+      res.url().includes('/api/v1/codes/naics-codes') && res.status() === 200,
+  );
+
+  return waitForApiResponses(
+    {
+      employeeCountRanges,
+      naicsCodes,
+    },
+    action,
+  );
+};
