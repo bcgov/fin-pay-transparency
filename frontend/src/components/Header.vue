@@ -10,7 +10,7 @@
     }"
   >
     <!-- Navbar content -->
-    <a tabindex="-1" href="/">
+    <a tabindex="-1" href="/" class="d-flex align-center">
       <img
         tabindex="-1"
         src="../assets/images/bc-gov-logo-light.png"
@@ -18,8 +18,6 @@
         class="logo"
         alt="B.C. Government Logo"
       />
-    </a>
-    <a tabindex="-1" href="/">
       <v-toolbar-title
         ><h3
           data-testid="header-title"
@@ -45,22 +43,28 @@
           <v-btn
             color="rgb(32, 31, 30)"
             v-bind="props"
+            arial-label="User profile"
             icon="mdi-account"
             data-testid="header-account-button"
+            title="User profile"
           ></v-btn>
         </template>
         <v-card min-width="250">
           <template v-slot:prepend>
-            <v-list>
-              <v-list-item>
+            <v-list aria-label="Profile information">
+              <v-list-item :link="false" >
                 <v-list-item-title
                   data-testid="header-display-name"
                   class="styles-override"
+                  :title="userInfo?.displayName"
+                  :aria-label="userInfo?.displayName"
                   >{{ userInfo?.displayName }}</v-list-item-title
-                >
-                <v-list-item-subtitle
+                  >
+                  <v-list-item-subtitle
                   data-testid="header-legal-name"
                   class="styles-override"
+                  :title="userInfo?.legalName"
+                  :aria-label="userInfo?.legalName"
                   >{{ userInfo?.legalName }}</v-list-item-subtitle
                 >
               </v-list-item>
@@ -78,6 +82,8 @@
                   icon="mdi-logout"
                   data-testid="header-logout-button"
                   @click="redirectToLogout"
+                  title="Logout"
+                  aria-label="Logout"
                 ></v-btn>
               </template>
             </v-tooltip>
