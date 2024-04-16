@@ -6,9 +6,9 @@
           <v-row no-gutters>
             <v-col>
               <!-- begin -->  
-              <p class="text-welcome mt-14 mb-8 centered-text">
+              <h4 class="text-welcome mt-14 mb-8 centered-text">
                 Welcome to the Pay Transparency Reporting Tool
-              </p>
+              </h4>
               <p class="text-subtitle-2">
                 In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report on all your B.C. employees by November 1st of each year through a phased approach: 
                 <ul class="ml-8 mt-4 mb-4">
@@ -24,6 +24,7 @@
                 color="primary"
                 @click="clearStorageAndRedirectToLogin"
                 data-testid="login-button"
+                title="Login"
               >
                 Log In with Business BCeID<v-icon>mdi-login</v-icon>
               </v-btn>  
@@ -47,14 +48,14 @@
             <v-col class="w-100">
 
               <v-row>
-                <v-col class="d-flex justify-center align-center">                                    
-                  <div class="circle" :class="{ active: stage == 'UPLOAD', available: stage != 'UPLOAD'  }" v-on:click="changeStage('UPLOAD')">1</div>
+                <v-col class="d-flex justify-center align-center" >                                    
+                  <button aria-label="Upload" class="circle" :class="{ active: stage == 'UPLOAD', available: stage != 'UPLOAD'  }" @click="changeStage('UPLOAD')">1</button>
+                </v-col>
+                <v-col class="d-flex justify-center align-center" >
+                  <button aria-label="Review" class="circle" :class="{ active: stage == 'REVIEW', available: stage != 'REVIEW' }" @click="changeStage('REVIEW')">2</button>
                 </v-col>
                 <v-col class="d-flex justify-center align-center">
-                  <div class="circle" :class="{ active: stage == 'REVIEW', available: stage != 'REVIEW' }" v-on:click="changeStage('REVIEW')">2</div>
-                </v-col>
-                <v-col class="d-flex justify-center align-center">
-                  <div class="circle" :class="{ active: stage == 'GENERATE', available: stage != 'GENERATE' }" v-on:click="changeStage('GENERATE')">3</div>
+                  <button aria-label="Generate" class="circle" :class="{ active: stage == 'GENERATE', available: stage != 'GENERATE' }"  @click="changeStage('GENERATE')">3</button>
                 </v-col>
               </v-row>
 
@@ -175,6 +176,7 @@ export default {
       window.location.href = this.authRoutesLogin;
     },
     changeStage: function(newstage) {
+      debugger
       switch(newstage) {
         case 'GENERATE':
           this.stage = 'GENERATE';
