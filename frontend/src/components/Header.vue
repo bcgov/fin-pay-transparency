@@ -51,17 +51,19 @@
         </template>
         <v-card min-width="250">
           <template v-slot:prepend>
-            <v-list>
-              <v-list-item :link="false" arial-label="Profile information">
+            <v-list aria-label="Profile information">
+              <v-list-item :link="false" >
                 <v-list-item-title
                   data-testid="header-display-name"
                   class="styles-override"
+                  :title="userInfo?.displayName"
                   :aria-label="userInfo?.displayName"
                   >{{ userInfo?.displayName }}</v-list-item-title
-                >
-                <v-list-item-subtitle
+                  >
+                  <v-list-item-subtitle
                   data-testid="header-legal-name"
                   class="styles-override"
+                  :title="userInfo?.legalName"
                   :aria-label="userInfo?.legalName"
                   >{{ userInfo?.legalName }}</v-list-item-subtitle
                 >
