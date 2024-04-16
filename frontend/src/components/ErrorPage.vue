@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row align="center" justify="center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
-        <v-alert dense outlined class="bootstrap-error mb-3" v-if="errorMessage">
+        <v-alert dense outlined class="alert-error mb-3" v-if="errorMessage">
           {{ errorMessage }}
         </v-alert>
       </v-col>
@@ -11,18 +11,16 @@
 </template>
 
 <script lang="ts">
-
 import { NotificationService } from '../common/notificationService';
 
 export default {
   data: () => ({
-    errorMessage: null,
+    errorMessage: null as string | null,
   }),
   async created() {
-    this.errorMessage = NotificationService.getErrorPageMessage()
+    this.errorMessage = NotificationService.getErrorPageMessage();
   },
-  methods: {
-  }
+  methods: {},
 };
 </script>
 

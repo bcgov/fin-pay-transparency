@@ -32,7 +32,7 @@ const getThumbClassName = () => {
   }
 
   if (props.value === stage.value) {
-    thumbClass = `${thumbClass} active`
+    thumbClass = `${thumbClass} active`;
   }
 
   return thumbClass;

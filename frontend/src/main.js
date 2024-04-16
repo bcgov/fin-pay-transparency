@@ -23,14 +23,15 @@ const myCustomLightTheme = {
   colors: {
     primary: '#003366',
     secondary: '#385a8a',
-    error: '#712024',
+    error: '#ce3e39',
     warning: '#81692c',
     success: '#00A54F',
+    link: '#255A90',
   },
   variables: {
     'border-opacity': 0.24, //default 0.12
     'medium-emphasis-opacity': 0.8, //default 0.6
-    'theme-error': '#ff0000',
+    'theme-error': '#ce3e39',
   },
 };
 

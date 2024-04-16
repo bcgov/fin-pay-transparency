@@ -53,7 +53,7 @@ export default {
 @import '@bcgov/bc-sans/css/BCSans.css';
 
 a {
-  color: #1976d2;
+  color: #255a90;
 }
 
 a:hover {
@@ -92,28 +92,27 @@ h1 {
   padding-left: 0;
 }
 
-.v-alert.bootstrap-success {
-  color: #2d4821;
-  background-color: #dff0d8 !important;
-  border-color: #d6e9c6 !important;
+.v-alert {
+  color: #2d2d2d;
+}
+.v-alert.alert-success {
+  background-color: #f6fff8 !important;
+  border-color: #42814a !important;
 }
 
-.v-alert.bootstrap-info {
-  color: #4e6478;
-  background-color: #d9eaf7 !important;
-  border-color: #b8d4ee !important;
+.v-alert.alert-info {
+  background-color: #f7f9fc !important;
+  border-color: #053662 !important;
 }
 
-.v-alert.bootstrap-warning {
-  color: #6c4a00;
-  background-color: #f9f1c6 !important;
-  border-color: #faebcc !important;
+.v-alert.alert-warning {
+  background-color: #fef1d8 !important;
+  border-color: #f8bb47 !important;
 }
 
-.v-alert.bootstrap-error {
-  color: #a12622;
-  background-color: #f2dede !important;
-  border-color: #ebccd1 !important;
+.v-alert.alert-error {
+  background-color: #f4e1e2 !important;
+  border-color: #ce3e39 !important;
 }
 
 @media screen and (max-width: 370px) {
