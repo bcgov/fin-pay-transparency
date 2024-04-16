@@ -31,7 +31,7 @@
         file and generate a report.
       </p>
       <v-btn class="mb-4" color="primary" to="generate-report-form">
-        Generate Pay Transparency Report
+        Upload your CSV here
       </v-btn>
       <p class="text-caption mb-2">
         This application does not collect, record or publish personal
