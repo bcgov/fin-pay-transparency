@@ -6,7 +6,7 @@
           v-if="mode == ReportMode.Edit"
           closable
           text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
-          type="info"
+          class="alert-info"
           variant="tonal"
         >
         </v-alert>
@@ -956,7 +956,7 @@ export default {
     },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
-      this.alertType = 'bootstrap-success';
+      this.alertType = 'alert-success';
     },
     setErrorAlert(submissionErrors: ISubmissionError | null) {
       this.submissionErrors = submissionErrors;
