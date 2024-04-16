@@ -56,6 +56,7 @@ jobs:
     secrets: inherit
     with:
       backend-external-url: https://pay-transparency-test-backend-external.apps.silver.devops.gov.bc.ca/api
+      environment: test
   zap:
     name: ZAP Scan
     needs: [deploys]
