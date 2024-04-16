@@ -553,12 +553,7 @@
 
       <v-row class="mt-6">
         <v-col class="d-flex justify-center">
-          <v-btn
-            id="submitButton"
-            color="primary"
-            type="submit"
-            :append-icon="isSubmit && !formReady ? 'fa:fas fa-xmark' : ''"
-          >
+          <v-btn id="submitButton" color="primary" type="submit">
             Submit
           </v-btn>
         </v-col>

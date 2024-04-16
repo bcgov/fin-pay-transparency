@@ -330,3 +330,16 @@ backend-external:
   imagePullSecrets: []
   nodeSelector: {}
   tolerations: []
+maintenance:
+  enabled: true
+  deploymentStrategy: Recreate
+  replicaCount: 0
+  image:
+    tag: ~
+  resources:
+    limits:
+      cpu: 30m
+      memory: 100Mi
+    requests:
+      cpu: 10m
+      memory: 30Mi
