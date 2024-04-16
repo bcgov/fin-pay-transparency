@@ -95,7 +95,7 @@
                       :data-testid="'view-report-' + report.report_id"
                       prepend-icon="mdi-eye-outline"
                       variant="text"
-                      color="#1976d2"
+                      color="link"
                       @click="viewReport(report)"
                     >
                       View
@@ -105,7 +105,7 @@
                       :data-testid="'edit-report-' + report.report_id"
                       prepend-icon="mdi-eye-outline"
                       variant="text"
-                      color="#1976d2"
+                      color="link"
                       @click="editReport(report)"
                     >
                       Edit
