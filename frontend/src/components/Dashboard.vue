@@ -30,13 +30,13 @@
         Once your CSV file is ready, click on the button below to upload the
         file and generate a report.
       </p>
+      <v-btn class="mb-4" color="primary" to="generate-report-form">
+        Upload your CSV here
+      </v-btn>
       <p class="text-caption mb-2">
         This application does not collect, record or publish personal
         information.
       </p>
-      <v-btn class="mb-4" color="primary" to="generate-report-form">
-        Generate Pay Transparency Report
-      </v-btn>
     </v-col>
     <v-col md="4" cols="12">
       <v-card class="rounded-lg">
