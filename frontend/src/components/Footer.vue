@@ -60,7 +60,7 @@
   </v-footer>
   <v-footer dark absolute class="bordered first-nation-acknowledgement" app>
     <div>
-      The B.C. public Service acknowledges the territories of First Nations
+      The B.C. Public Service acknowledges the territories of First Nations
       around B.C. and is grateful to carry out our work on these lands. We
       acknowledge the rights, interests, priorities, and concerns of all
       Indigenous Peoples - First Nations, Métis, and Inuit - respecting and
