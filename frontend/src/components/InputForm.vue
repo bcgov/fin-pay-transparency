@@ -428,7 +428,7 @@
             :key="bodyError"
             color="error"
             icon="fa:fas fa-triangle-exclamation"
-            class="file-error font-weight-bold mb-3"
+            class="alert-error font-weight-bold mb-3"
             variant="outlined"
           >
             {{ bodyError }}
@@ -444,7 +444,7 @@
             :key="generalError"
             color="error"
             icon="fa:fas fa-triangle-exclamation"
-            class="file-error font-weight-bold mb-3"
+            class="alert-error font-weight-bold mb-3"
             variant="outlined"
           >
             {{ generalError }}
@@ -455,7 +455,7 @@
       <!-- File Submission Errors -->
       <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
         <v-col>
-          <v-alert class="pa-0 file-error" color="error" variant="outlined">
+          <v-alert class="pa-0 alert-error" variant="outlined">
             <!-- errors related to the content of specific lines in the file -->
             <div class="d-flex font-weight-bold">
               <v-icon
@@ -1112,10 +1112,6 @@ textarea::placeholder {
 }
 
 .file-success {
-  background-color: #d9e7d8;
-}
-
-.file-error {
-  background-color: #f7d8da;
+  background-color: #f6fff8;
 }
 </style>
