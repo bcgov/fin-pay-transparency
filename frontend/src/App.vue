@@ -93,28 +93,24 @@ h1 {
 }
 
 .v-alert {
-  border: 1px solid;
+  color: #2d2d2d;
 }
 .v-alert.alert-success {
-  color: #2d2d2d;
   background-color: #f6fff8 !important;
   border-color: #42814a !important;
 }
 
 .v-alert.alert-info {
-  color: #2d2d2d !important;
   background-color: #f7f9fc !important;
   border-color: #053662 !important;
 }
 
 .v-alert.alert-warning {
-  color: #2d2d2d;
   background-color: #fef1d8 !important;
   border-color: #f8bb47 !important;
 }
 
 .v-alert.alert-error {
-  color: #2d2d2d;
   background-color: #f4e1e2 !important;
   border-color: #ce3e39 !important;
 }
