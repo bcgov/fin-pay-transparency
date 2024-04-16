@@ -5,7 +5,7 @@
         <v-alert
           data-testid="not-found-message"
           dense
-          outlined
+          variant="outlined"
           class="alert-error mb-3"
         >
           This page cannot be found.
