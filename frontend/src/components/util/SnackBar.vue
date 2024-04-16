@@ -141,6 +141,7 @@ export default {
 <style>
 .v-snackbar__wrapper {
   font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
+  border: 1px solid;
 }
 .v-snackbar .snackbar-title {
   font-weight: bold;
@@ -154,5 +155,6 @@ export default {
   font-weight: bold;
   text-decoration: underline !important;
   font-size: 1rem;
+  border: none;
 }
 </style>
