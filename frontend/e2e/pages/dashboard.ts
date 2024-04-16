@@ -9,7 +9,7 @@ export class DashboardPage extends PTPage {
   async setup() {
     await super.setup();
     this.generateReportButton = await this.instance.getByRole('link', {
-      name: /Generate Pay Transparency Report/i,
+      name: /Upload your CSV here/i,
     });
   }
 
