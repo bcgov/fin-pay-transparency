@@ -90,7 +90,7 @@ export default {
     setSeverity(severity: NotificationSeverity | null) {
       //set the notification style class that corresponds to the given severity
       this.styleClass = severity
-        ? `v-alert bootstrap-${severity.valueOf()}`
+        ? `v-alert alert-${severity.valueOf()}`
         : undefined;
     },
     setTimeoutMs(timeoutMs: number) {
@@ -152,7 +152,7 @@ export default {
 }
 .v-snackbar a {
   font-weight: bold;
-  text-decoration: underline;
+  text-decoration: underline !important;
   font-size: 1rem;
 }
 </style>
