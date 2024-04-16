@@ -53,7 +53,7 @@ export default {
 @import '@bcgov/bc-sans/css/BCSans.css';
 
 a {
-  color: #1976d2;
+  color: #255a90;
 }
 
 a:hover {
@@ -92,6 +92,9 @@ h1 {
   padding-left: 0;
 }
 
+.v-alert {
+  border: 1px solid;
+}
 .v-alert.alert-success {
   color: #2d2d2d;
   background-color: #f6fff8 !important;
