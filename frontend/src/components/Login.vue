@@ -7,7 +7,7 @@
             <v-col>
               <!-- begin -->  
               <h4 class="text-welcome mt-14 mb-8 centered-text">
-                Welcome to the h4ay Transparency Reporting Tool
+                Welcome to the Pay Transparency Reporting Tool
               </h4>
               <p class="text-subtitle-2">
                 In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report on all your B.C. employees by November 1st of each year through a phased approach: 
