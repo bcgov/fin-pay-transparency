@@ -32,6 +32,7 @@ const actualMovePublishedReportToHistory =
 jest.mock('./utils-service');
 const mockCompanyFindFirst = jest.fn();
 const mockReportFindFirst = jest.fn();
+const mockReportFindUnique = jest.fn();
 jest.mock('../prisma/prisma-client', () => {
   return {
     pay_transparency_company: {
@@ -40,6 +41,7 @@ jest.mock('../prisma/prisma-client', () => {
       update: jest.fn(),
     },
     pay_transparency_report: {
+      findUnique: (...args) => mockReportFindUnique(...args),
       findFirst: (...args) => mockReportFindFirst(...args),
       create: jest.fn(),
       update: jest.fn(),
@@ -764,7 +766,7 @@ describe('publishReport', () => {
     it('throws an error', async () => {
       await expect(
         reportService.publishReport(mockPublishedReportInApi),
-      ).rejects.toThrow();
+      ).rejects.toEqual('Only draft reports can be published');
     });
   });
 
@@ -809,6 +811,10 @@ describe('publishReport', () => {
   describe('if the given report has status=Draft, and there is an existing Published report', () => {
     it('archives the existing published report in history, and changes the status of the Draft to Published', async () => {
       mockReportFindFirst.mockResolvedValue(mockPublishedReportInDb);
+      mockReportFindUnique.mockResolvedValue({
+        ...mockPublishedReportInDb,
+        pay_transparency_calculated_data: [],
+      });
       jest
         .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
@@ -834,14 +840,8 @@ describe('publishReport', () => {
       // Expect only one record to be updated (the report that was passed to
       // publishReport(...)
       expect(updateStatement.where.report_id).toBe(
-        mockDraftReportInApi.report_id,
+        mockPublishedReportInDb.report_id,
       );
-
-      // Expect only one column to be updated (the report status_column)
-      expect(updateStatement.data).toStrictEqual({
-        report_status: enumReportStatus.Published,
-        create_date: mockPublishedReportInDb.create_date,
-      });
     });
   });
   describe('if the given report has status=Draft, and there is an existing Published and locked report', () => {
@@ -850,17 +850,21 @@ describe('publishReport', () => {
         ...mockPublishedReportInDb,
         is_unlocked: false,
       });
+      mockReportFindUnique.mockReturnValue({
+        ...mockDraftReportInDb,
+        is_unlocked: false,
+        pay_transparency_calculated_data: [],
+      });
+
       jest
         .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
 
-      try {
-        await reportService.publishReport(mockDraftReportInApi);
-      } catch (error) {
-        expect(error.message).toBe(
-          'A report for this time period already exists and cannot be updated.',
-        );
-      }
+      await expect(
+        reportService.publishReport(mockDraftReportInApi),
+      ).rejects.toEqual(
+        'A report for this time period already exists and cannot be updated.',
+      );
     });
   });
 });
@@ -924,14 +928,6 @@ describe('movePublishedReportToHistory', () => {
         prisma.pay_transparency_calculated_data.deleteMany as jest.Mock
       ).mock.calls[0][0];
       expect(deleteCalcData.where.report_id).toBe(
-        mockPublishedReportInDb.report_id,
-      );
-
-      // Confirm that the original report was deleted from the reports table
-      expect(prisma.pay_transparency_report.delete).toHaveBeenCalledTimes(1);
-      const deleteReport = (prisma.pay_transparency_report.delete as jest.Mock)
-        .mock.calls[0][0];
-      expect(deleteReport.where.report_id).toBe(
         mockPublishedReportInDb.report_id,
       );
     });

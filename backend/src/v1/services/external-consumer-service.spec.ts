@@ -51,9 +51,10 @@ const testData = {
     {
       value: faker.number.float(),
       is_suppressed: false,
-      calculation_code: `${faker.number.int()}`,
+      calculation_code: { calculation_code: `${faker.number.int()}` },
     },
   ],
+  history: [],
 };
 
 describe('external-consumer-service', () => {
@@ -66,67 +67,89 @@ describe('external-consumer-service', () => {
     mockFindMany.mockReturnValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination();
     expect(results.page).toBe(0);
-    expect(results.pageSize).toBe(1000),
-    expect(results.totalRecords).toBe(1);
-    expect(results.records[0]).toEqual({
-       calculated_data: [
-         {
-           calculation_code: testData.pay_transparency_calculated_data[0].calculation_code,
-           is_suppressed: testData.pay_transparency_calculated_data[0].is_suppressed,
-           value: testData.pay_transparency_calculated_data[0].value,
-         },
-       ],
-       company_address_line1: testData.pay_transparency_company.address_line1,
-       company_address_line2: testData.pay_transparency_company.address_line2,
-       company_bceid_business_guid: testData.pay_transparency_company.bceid_business_guid,
-       company_city: testData.pay_transparency_company.city,
-       company_country: testData.pay_transparency_company.country,
-       company_id: testData.company_id,
-       company_name:testData.pay_transparency_company.company_name,
-       company_postal_code: testData.pay_transparency_company.postal_code,
-       company_province: testData.pay_transparency_company.province,
-       create_date: testData.create_date,
-       data_constraints: testData.data_constraints,
-       employee_count_range: testData.employee_count_range.employee_count_range,
-       naics_code: testData.naics_code_pay_transparency_report_naics_codeTonaics_code.naics_code,
-       naics_code_label: testData.naics_code_pay_transparency_report_naics_codeTonaics_code.naics_label,
-       report_end_date: testData.report_end_date,
-       report_id: testData.report_id,
-       report_start_date: testData.report_start_date,
-       report_status: testData.report_status,
-       revision: testData.revision,
-       update_date: testData.update_date,
-       user_comment: testData.user_comment,
-     })
+    expect(results.pageSize).toBe(1000), expect(results.totalRecords).toBe(1);
+    expect(results.records[0]).toStrictEqual({
+      calculated_data: [
+        {
+          is_suppressed:
+            testData.pay_transparency_calculated_data[0].is_suppressed,
+          value: testData.pay_transparency_calculated_data[0].value,
+          calculation_code:
+            testData.pay_transparency_calculated_data[0].calculation_code
+              .calculation_code,
+        },
+      ],
+      company_address_line1: testData.pay_transparency_company.address_line1,
+      company_address_line2: testData.pay_transparency_company.address_line2,
+      company_bceid_business_guid:
+        testData.pay_transparency_company.bceid_business_guid,
+      company_city: testData.pay_transparency_company.city,
+      company_country: testData.pay_transparency_company.country,
+      company_id: testData.company_id,
+      company_name: testData.pay_transparency_company.company_name,
+      company_postal_code: testData.pay_transparency_company.postal_code,
+      company_province: testData.pay_transparency_company.province,
+      create_date: testData.create_date,
+      data_constraints: testData.data_constraints,
+      employee_count_range: testData.employee_count_range.employee_count_range,
+      naics_code:
+        testData.naics_code_pay_transparency_report_naics_codeTonaics_code
+          .naics_code,
+      naics_code_label:
+        testData.naics_code_pay_transparency_report_naics_codeTonaics_code
+          .naics_label,
+      report_end_date: testData.report_end_date,
+      report_id: testData.report_id,
+      report_start_date: testData.report_start_date,
+      report_status: testData.report_status,
+      revision: testData.revision,
+      update_date: testData.update_date,
+      user_comment: testData.user_comment,
+      history: [],
+    });
   });
 
   it('should parse date strings', async () => {
     mockCount.mockReturnValue(1);
     mockFindMany.mockReturnValue([testData]);
-    const results = await externalConsumerService.exportDataWithPagination("2024-01-01", '2024-01-01', -1, -1);
+    const results = await externalConsumerService.exportDataWithPagination(
+      '2024-01-01',
+      '2024-01-01',
+      -1,
+      -1,
+    );
     expect(results.page).toBe(0);
-    expect(results.pageSize).toBe(1000),
-    expect(results.totalRecords).toBe(1);
+    expect(results.pageSize).toBe(1000), expect(results.totalRecords).toBe(1);
   });
 
   it('should fail parse invalid date strings', async () => {
     mockCount.mockReturnValue(1);
     mockFindMany.mockReturnValue([testData]);
     try {
-        await externalConsumerService.exportDataWithPagination("20241-01-01", '20241-01-01', -1, -1);
+      await externalConsumerService.exportDataWithPagination(
+        '20241-01-01',
+        '20241-01-01',
+        -1,
+        -1,
+      );
     } catch (error) {
-        expect(error.message).toBe(
-          'Failed to parse dates. Please use date format YYYY-MM-dd',
-        );
+      expect(error.message).toBe(
+        'Failed to parse dates. Please use date format YYYY-MM-dd',
+      );
     }
   });
   it('should fail when endDate is before the startDate', async () => {
     mockCount.mockReturnValue(1);
     mockFindMany.mockReturnValue([testData]);
     try {
-        await externalConsumerService.exportDataWithPagination("2024-01-01", '2023-01-01', -1, -1);
+      await externalConsumerService.exportDataWithPagination(
+        '2024-01-01',
+        '2023-01-01',
+        -1,
+        -1,
+      );
     } catch (error) {
-        expect(error.message).toBe('Start date must be before the end date.');
+      expect(error.message).toBe('Start date must be before the end date.');
     }
   });
 });

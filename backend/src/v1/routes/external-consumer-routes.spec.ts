@@ -55,9 +55,10 @@ const REPORT = {
     {
       value: faker.number.float(),
       is_suppressed: false,
-      calculation_code: `${faker.number.int()}`,
+      calculation_code: { calculation_code: `${faker.number.int()}` },
     },
   ],
+  history: [],
 };
 
 describe('external-consumer-routes', () => {
@@ -84,7 +85,7 @@ describe('external-consumer-routes', () => {
                   {
                     calculation_code:
                       REPORT.pay_transparency_calculated_data[0]
-                        .calculation_code,
+                        .calculation_code.calculation_code,
                     is_suppressed:
                       REPORT.pay_transparency_calculated_data[0].is_suppressed,
                     value: REPORT.pay_transparency_calculated_data[0].value,
@@ -122,6 +123,7 @@ describe('external-consumer-routes', () => {
                 revision: REPORT.revision,
                 update_date: REPORT.update_date.toISOString(),
                 user_comment: REPORT.user_comment,
+                history: [],
               },
             ],
             totalRecords: 1,
