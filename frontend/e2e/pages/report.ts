@@ -81,7 +81,7 @@ export class DraftReportPage extends BaseReportPage {
 
   async finalizedReport(reportId: string) {
     const publishReportRequest = this.instance.waitForResponse(res => 
-      res.url().includes('/api/v1/report') && && res.request().method().toLowerCase() === 'put'
+      res.url().includes('/api/v1/report') && res.request().method().toLowerCase() === 'put'
     )
     const finalizeReportResponse = this.instance.waitForResponse((res) =>
       res.url().includes(`/api/v1/report/${reportId}`) && res.request().method().toLowerCase() === 'get',
