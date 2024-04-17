@@ -330,11 +330,12 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
   // Create the SVG container.
   const svg = d3
     .create('svg')
-    .attr('role', 'img')
     .attr('width', width)
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
-    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`);
+    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`)
+    .attr('role', 'img')
+    .attr('aria-label', 'This graph describes that');
 
   const color = (i) => colors[i];
 
