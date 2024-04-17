@@ -568,6 +568,7 @@
               <v-btn
                 variant="text"
                 icon="fa:fas fa-xmark"
+                aria-label="Remove CSV"
                 @click="uploadFileValue = undefined"
               />
             </div>
