@@ -1,4 +1,4 @@
-import { LocalDate, TemporalAdjusters } from '@js-joda/core';
+import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import {
   FIELD_DATA_CONSTRAINTS,
@@ -183,6 +183,14 @@ const mockValidSubmission = {
 };
 
 // ----------------------------------------------------------------------------
+// Other test init
+// ----------------------------------------------------------------------------
+
+beforeEach(() => {
+  jest.useRealTimers();
+});
+
+// ----------------------------------------------------------------------------
 // Tests
 // ----------------------------------------------------------------------------
 describe('validate-service', () => {
@@ -334,6 +342,48 @@ describe('validate-service', () => {
             `Reporting year must be`,
           ]),
         ).toBeTruthy();
+      });
+    });
+    describe('if the current year is before 2025 (system time), and the submission has reporting year of [currentYear - 1]', () => {
+      it('should return error', () => {
+        jest.useFakeTimers();
+        const currentYear = 2024;
+        jest.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
+        const reportingYear = currentYear - 1;
+        const invalidSubmission = Object.assign({}, validSubmission, {
+          reportingYear: reportingYear,
+          startDate: `${reportingYear}-01-01`,
+          endDate: `${reportingYear}-12-31`,
+        });
+        const errors =
+          validateService.validateSubmissionBody(invalidSubmission);
+
+        expect(
+          doesAnyStringContainAll(errors.bodyErrors, [
+            `Reporting year must be`,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+    describe('if the current year is 2025 or later (system time), and the submission has reporting year of [currentYear - 1]', () => {
+      it('returns no error messages related to data constraints', () => {
+        jest.useFakeTimers();
+        const currentYear = 2025;
+        jest.setSystemTime(convert(LocalDate.of(currentYear, 1, 1)).toDate());
+        const reportingYear = currentYear - 1;
+        const invalidSubmission = Object.assign({}, validSubmission, {
+          reportingYear: reportingYear,
+          startDate: `${reportingYear}-01-01`,
+          endDate: `${reportingYear}-12-31`,
+        });
+        const errors =
+          validateService.validateSubmissionBody(invalidSubmission);
+
+        expect(
+          doesAnyStringContainAll(errors?.bodyErrors, [
+            `Reporting year must be`,
+          ]),
+        ).toBeFalsy();
       });
     });
   });

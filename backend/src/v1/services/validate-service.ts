@@ -109,10 +109,11 @@ const validateService = {
       );
     }
 
-    const allowedReportingYears = [
-      LocalDate.now().year() - 1,
-      LocalDate.now().year(),
-    ];
+    const currentYear = LocalDate.now().year();
+    const allowedReportingYears = [currentYear];
+    if (currentYear >= 2025) {
+      allowedReportingYears.push(currentYear - 1);
+    }
     if (!allowedReportingYears.includes(submission.reportingYear)) {
       const text = allowedReportingYears.join(' or ');
       bodyErrors.push(`Reporting year must be ${text}.`);
