@@ -779,10 +779,14 @@ export default {
         .format(dateFormatter);
     },
     reportYearList() {
-      const list = [
-        LocalDate.now().minusYears(1).year(),
-        LocalDate.now().year(),
-      ];
+      const list = [] as number[];
+      const yearNow = LocalDate.now().year();
+      if (yearNow >= 2025) {
+        //only include last year if the current year is at least 2025
+        list.push(LocalDate.now().minusYears(1).year());
+      }
+      //always include the current year
+      list.push(LocalDate.now().year());
       return list;
     },
     startMonthList() {
