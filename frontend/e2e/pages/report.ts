@@ -1,10 +1,18 @@
-import { Locator, expect } from '@playwright/test';
+import { Locator, expect, Page } from '@playwright/test';
 import { PTPage } from './page';
 import { PagePaths } from '../utils';
+import { GenerateReportPage, IReportDetails } from './generate-report';
 
 export class BaseReportPage extends PTPage {
   public downloadPDFButton: Locator;
   public backButton: Locator;
+
+  constructor(
+    page: Page,
+    public user,
+  ) {
+    super(page);
+  }
 
   async setup() {
     await super.setup();
@@ -14,6 +22,8 @@ export class BaseReportPage extends PTPage {
     this.backButton = (
       await this.instance.getByRole('link', { name: 'Back' })
     ).first();
+
+    await super.verifyUser(this.user);
   }
 
   async verifyUser(user) {
@@ -104,6 +114,21 @@ export class DraftReportPage extends BaseReportPage {
     await finalize.text();
     await this.instance.waitForTimeout(5000);
     await this.instance.waitForURL(PagePaths.VIEW_REPORT);
+  }
+
+  async validateCanGoBack(generateReportPage: GenerateReportPage) {
+    await this.backButton.scrollIntoViewIfNeeded();
+    await this.goBack();
+    await generateReportPage.selectFile('CsvGood.csv');
+    await generateReportPage.submitForm();
+    await this.instance.waitForURL(PagePaths.DRAFT_REPORT);
+  }
+
+  static async initialize(page: Page, user): Promise<DraftReportPage> {
+    const draftPage = new DraftReportPage(page, user);
+    await draftPage.setup();
+
+    return draftPage;
   }
 }
 

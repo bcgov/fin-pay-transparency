@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row align="center" justify="center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
-        <v-alert dense outlined class="mb-3">
+        <v-alert dense variant="outlined" class="mb-3 alert-info">
           You have logged out.
         </v-alert>
         <v-btn color="primary" @click="redirectToLogin">Login Again</v-btn>
@@ -21,7 +21,7 @@ export default {
 
   data() {
     return {
-      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID)
+      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
     };
   },
   mounted() {
@@ -31,20 +31,18 @@ export default {
     redirectToLogin() {
       authStore().setJwtToken();
       window.location.href = this.authRoutesLogin;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-
-  .full-height{
-    height: 100%;
-  }
-  .session-expired-card{
-    margin-top: 15rem;
-    width: 100%;
-    background: #D9E7D8;
-  }
-
+.full-height {
+  height: 100%;
+}
+.session-expired-card {
+  margin-top: 15rem;
+  width: 100%;
+  background: #d9e7d8;
+}
 </style>
