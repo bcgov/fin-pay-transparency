@@ -88,6 +88,7 @@
               for="naicsCode"
               color="error"
               :class="{ 'text-error': isSubmit && !naicsCode }"
+              tabindex="0"
             >
               NAICS Code
             </label>
@@ -95,6 +96,7 @@
             <v-tooltip
               text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer is composed of multiple sectors, select the code that covers the majority of employees."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
+              id="naics-tooltip"
             >
               <template #activator="{ props }">
                 <v-icon
@@ -103,6 +105,9 @@
                   size="x-small"
                   color="primary"
                   class="ml-1"
+                  tabindex="0"
+                  role="tooltip"
+                  aria-labeledby="naics-tooltip"
                 />
               </template>
             </v-tooltip>
@@ -129,16 +134,18 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label
-              for="employeeCountRange"
+            <span
+              id="employeeCountRange-label"
               :class="{ 'text-error': isSubmit && !employeeCountRange }"
+              tabindex="0"
             >
               Employee Count Range
-            </label>
+            </span>
             <span class="text-error font-weight-bold text-h6">*</span>
             <v-tooltip
               text="Select the range closest to the number of employees employed as of January 1st of the year for which your report is being prepared."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
+              id="employee-count-tooltip"
             >
               <template #activator="{ props }">
                 <v-icon
@@ -147,6 +154,9 @@
                   size="x-small"
                   color="primary"
                   class="ml-1"
+                  tabindex="0"
+                  role="tooltip"
+                  aria-labeledby="employee-count-tooltip"
                 />
               </template>
             </v-tooltip>
@@ -181,6 +191,7 @@
                 <label
                   for="reportYear"
                   :class="{ 'text-disabled': mode == ReportMode.Edit }"
+                  tabindex="0"
                 >
                   Reporting Year:
                 </label>
@@ -188,6 +199,7 @@
                 <v-tooltip
                   text="Reporting employers are required to submit pay transparency reports by November 1st of each year. Select the year you are submitting a report for."
                   :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
+                  id="reporting-year-tooltip"
                 >
                   <template #activator="{ props }">
                     <v-icon
@@ -196,6 +208,9 @@
                       size="x-small"
                       color="primary"
                       class="ml-1"
+                      tabindex="0"
+                      role="tooltip"
+                      aria-labeledby="reporting-year-tooltip"
                     />
                   </template>
                 </v-tooltip>
@@ -230,6 +245,7 @@
                         !endYear ||
                         !reportYear),
                   }"
+                  tabindex="0"
                 >
                   Time Period
                 </span>
@@ -237,6 +253,7 @@
                 <v-tooltip
                   text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
                   :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
+                  id="time-period-tooltip"
                 >
                   <template #activator="{ props }">
                     <v-icon
@@ -245,6 +262,9 @@
                       size="x-small"
                       color="primary"
                       class="ml-1"
+                      tabindex="0"
+                      role="tooltip"
+                      aria-labeledby="time-period-tooltip"
                     />
                   </template>
                 </v-tooltip>
@@ -325,9 +345,10 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label for="comments"> Employer Statement </label>
+            <label for="comments" tabindex="0"> Employer Statement </label>
             <v-tooltip
               text="Please share any general information about your employer."
+              id="employer-statement-tooltip"
             >
               <template #activator="{ props }">
                 <v-icon
@@ -336,6 +357,9 @@
                   size="x-small"
                   color="primary"
                   class="mr-1"
+                  tabindex="0"
+                  role="tooltip"
+                  aria-labeledby="employer-statement-tooltip"
                 />
               </template>
             </v-tooltip>
@@ -364,10 +388,11 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label for="dataConstraints"> Data Constraints </label>
+            <label for="dataConstraints" tabindex="0"> Data Constraints </label>
             <v-tooltip
               text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
+              id="data-constraints-tooltip"
             >
               <template #activator="{ props }">
                 <v-icon
@@ -376,6 +401,9 @@
                   size="x-small"
                   color="primary"
                   class="mr-1"
+                  tabindex="0"
+                  role="tooltip"
+                  aria-labeledby="data-constraints-tooltip"
                 />
               </template>
             </v-tooltip>
@@ -405,8 +433,9 @@
         <v-col>
           <div class="text-body-1 font-weight-bold">
             <label
-              for="uploadFileButton"
+              for="csvFile"
               :class="{ 'text-error': isSubmit && !uploadFileValue }"
+              tabindex="0"
             >
               File Upload
             </label>
