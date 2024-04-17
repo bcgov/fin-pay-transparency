@@ -1,6 +1,12 @@
-import { expect } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 import { PTPage, User } from './page';
 import { PagePaths } from '../utils';
+import {
+  IEmployeeCountRange,
+  INaicsCode,
+  IReportDetails,
+} from './generate-report';
+import { waitForCodes } from '../utils/report';
 
 export class DashboardPage extends PTPage {
   static path = PagePaths.DASHBOARD;
@@ -14,12 +20,16 @@ export class DashboardPage extends PTPage {
   }
 
   async gotoGenerateReport() {
-    expect(this.generateReportButton).toBeVisible();
-    await this.generateReportButton.click();
-    await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
-    await expect(
-      this.instance.getByText('Disclaimer: This tool relies on the employer supplying accurate and complete payroll data in order to calculate pay gaps.'),
-    ).toBeVisible();
+    await waitForCodes(this.instance, async () => {
+      expect(this.generateReportButton).toBeVisible();
+      await this.generateReportButton.click();
+      await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
+      await expect(
+        this.instance.getByText(
+          'Disclaimer: This tool relies on the employer supplying accurate and complete payroll data in order to calculate pay gaps.',
+        ),
+      ).toBeVisible();
+    });
   }
 
   async gotoReport(id: string) {
@@ -38,13 +48,46 @@ export class DashboardPage extends PTPage {
     await expect(viewReportButton).toBeVisible();
   }
 
-  async gotoEditReport(id: string) {
+  async canEditReport(id: string) {
     const editReportButton = await this.instance.getByTestId(
       `edit-report-${id}`,
     );
-    expect(editReportButton).toBeVisible();
-    await editReportButton.click();
+    await expect(editReportButton).toBeVisible();
+
+    return editReportButton;
+  }
+
+  async gotoEditReport(reportId: string, button: Locator) {
+    const getReportDetailsRequest = this.instance.waitForResponse(
+      (res) =>
+        res.url().includes(`/api/v1/report/${reportId}`) &&
+        res.status() === 200,
+    );
+    const getEmployeeCountRangesRequest = this.instance.waitForResponse(
+      (res) =>
+        res.url().includes('/api/v1/codes/employee-count-ranges') &&
+        res.status() === 200,
+    );
+    const getNaicsCodesRequest = this.instance.waitForResponse(
+      (res) =>
+        res.url().includes('/api/v1/codes/naics-codes') && res.status() === 200,
+    );
+
+    expect(button).toBeVisible();
+    await button.click();
     await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
+    const getReportDetailsResponse = await getReportDetailsRequest;
+    const reportDetails: IReportDetails = await getReportDetailsResponse.json();
+    const getEmployeeCountRangesResponse = await getEmployeeCountRangesRequest;
+    const employeeCountRanges: IEmployeeCountRange[] =
+      await getEmployeeCountRangesResponse.json();
+    const getNaicsCodesResponse = await getNaicsCodesRequest;
+    const naicsCodes: INaicsCode[] = await getNaicsCodesResponse.json();
+
+    PTPage.employeeCountRanges = employeeCountRanges;
+    PTPage.naicsCodes = naicsCodes;
+
+    return { reportDetails, naicsCodes, employeeCountRanges };
   }
 
   async verifyUser(user: User): Promise<void> {
@@ -53,5 +96,12 @@ export class DashboardPage extends PTPage {
     });
     await expect(welcome).toBeVisible();
     await super.verifyUser(user);
+  }
+
+  static async visit(page: Page): Promise<DashboardPage> {
+    await page.goto(PagePaths.DASHBOARD);
+    const dashboard = new DashboardPage(page);
+    await dashboard.setup();
+    return dashboard;
   }
 }

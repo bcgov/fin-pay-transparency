@@ -1,5 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { PagePaths } from '../utils';
+import { IEmployeeCountRange, INaicsCode } from './generate-report';
 
 export type User = {
   displayName: string;
@@ -14,12 +15,17 @@ export type User = {
 
 export class PTPage {
   public accountButton: Locator;
-  constructor(public readonly instance: Page) {}
+  public static naicsCodes: INaicsCode[] = [];
+  public static employeeCountRanges: IEmployeeCountRange[] = [];
+  constructor(public readonly instance: Page, public user = undefined) {}
 
   async setup() {
     this.accountButton = await this.instance.getByTestId(
       'header-account-button',
     );
+    if (this.user) {
+      await this.verifyUser(this.user);
+    }
   }
 
   async verifyUser(user: User) {
