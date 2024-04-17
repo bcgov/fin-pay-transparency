@@ -28,8 +28,8 @@ export const generateReport = async (page: Page) => {
     await draftReportPage.verifyEmployeerDetails(user, reportDetails);
     await draftReportPage.validateCanGoBack(generateReportPage);
 
-    await draftReportPage.finalizedReport(reportDetails.report_id);
+    const report = await draftReportPage.finalizedReport(reportDetails.report_id);
     const publishedReportPage = new PublishedReportPage(page, user);
     await publishedReportPage.setup();
-    await publishedReportPage.verifyEmployeerDetails(user, reportDetails);
+    await publishedReportPage.verifyEmployeerDetails(user, report);
 }

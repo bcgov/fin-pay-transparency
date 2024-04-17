@@ -1,9 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { DashboardPage } from './pages/dashboard';
-import { GenerateReportPage } from './pages/generate-report';
-import { PagePaths } from './utils';
-import { DraftReportPage, PublishedReportPage } from './pages/report';
-import { waitForApiResponses, waitForUserAndReports } from './utils/report';
+import { test } from '@playwright/test';
 import { generateReport } from './utils/generate-report';
 import { checkDashboardReports } from './utils/check-dashboard-reports';
 import { editReport } from './utils/edit-report';

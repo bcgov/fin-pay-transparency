@@ -111,9 +111,10 @@ export class DraftReportPage extends BaseReportPage {
       await expect(confirmTitle).not.toBeVisible();
     }
     const finalize = await finalizeReportResponse;
-    await finalize.text();
+    const reportData = await finalize.json();
     await this.instance.waitForTimeout(5000);
     await this.instance.waitForURL(PagePaths.VIEW_REPORT);
+    return reportData;
   }
 
   async validateCanGoBack(generateReportPage: GenerateReportPage) {
