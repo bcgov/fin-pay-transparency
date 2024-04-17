@@ -229,6 +229,37 @@ const reportServicePrivate = {
 
   /*
     This method converts the raw data that could be used to draw a bar chart
+    of gender pay gaps into a text summary of the data.  The text summary 
+    will be of a form similar to:
+      "This graph describes that in this organization 
+      4 percent of Men receive overtime pay, 1 percent 
+      of women receive overtime pay, 0% of non-binary 
+      people receive overtime pay, and 0% of prefer 
+      not to say slash unknown receive overtime pay."
+    @param chartDataRecords: an array of chart data records that are to be summarized
+    @param measureName: the name of the pay category being summarized 
+    (e.g. "receive overtime pay" or "receive bonus pay")
+    */
+  getPercentSummary(chartDataRecords: ChartDataRecord[], measureName: string) {
+    if (chartDataRecords.length == 0) {
+      return null;
+    }
+
+    const summaries = chartDataRecords.map(
+      (d) =>
+        `${d.value}% of ${d.genderChartInfo.extendedLabel.toLowerCase()} ${measureName}`,
+    );
+
+    let result = '';
+    if (chartDataRecords.length == 1)
+      result = `This graph describes that in this organization ${summaries[0]}.`;
+    else
+      result = `This graph describes that in this organization ${summaries.slice(0, -1).join(', ')}, and ${summaries[summaries.length - 1]}.`;
+    return result;
+  },
+
+  /*
+    This method converts the raw data that could be used to draw a bar chart
     of gaps in hours worked between gender groups into a text summary of the 
     data.  The text summary 
     will be of a form similar to:
@@ -957,6 +988,10 @@ const reportService = {
           'bonus pay',
           false,
         ),
+        percentBonusPay: reportServicePrivate.getPercentSummary(
+          tableData.percentReceivingBonusPay,
+          'receive bonus pay',
+        ),
         meanOvertimeHoursGap: reportServicePrivate.getHoursGapTextSummary(
           referenceGenderCode,
           tableData.meanOvertimeHoursGap,
@@ -968,6 +1003,10 @@ const reportService = {
           tableData.medianOvertimeHoursGap,
           'median',
           'overtime hours',
+        ),
+        percentOvertimePay: reportServicePrivate.getPercentSummary(
+          tableData.percentReceivingOvertimePay,
+          'receive overtime pay',
         ),
         hourlyPayQuartiles:
           reportServicePrivate.getHourlyPayQuartilesTextSummary(
