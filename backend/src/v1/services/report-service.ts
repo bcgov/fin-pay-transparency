@@ -161,7 +161,8 @@ const reportServicePrivate = {
     This method converts the raw data that could be used to draw a bar chart
     of gender pay gaps into a text summary of the data.  The text summary 
     will be of a form similar to:
-      "In this company, women’s average hourly wages 
+      "This graph describes that in this 
+      company, women’s average hourly wages 
       are 9% less than men while non-binary people’s  
       average hourly wages are 7% less than men. For every 
       dollar a man earns on average, women earn 91 cents on 
@@ -220,7 +221,7 @@ const reportServicePrivate = {
     });
 
     const result = `
-    In this organization ${typeASummaries.join(' and ')}.  
+    This graph describes that in this organization ${typeASummaries.join(' and ')}.  
     For every dollar ${refChartDataRecord.genderChartInfo.extendedLabel.toLowerCase()} earn in ${statisticName} ${measureName}, 
     ${typeBSummaries.join(' and ')} in ${statisticName} ${measureName}.`;
     return result;
@@ -1172,7 +1173,9 @@ const reportService = {
         },
         data: {
           report_status: enumReportStatus.Published,
-          create_date: existing_published_report?.create_date || report_to_publish.create_date
+          create_date:
+            existing_published_report?.create_date ||
+            report_to_publish.create_date,
         },
       });
     });

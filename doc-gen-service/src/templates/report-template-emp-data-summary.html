@@ -178,7 +178,7 @@
           <div class="mb-2 text-normal">
             Difference as compared to reference group (<%= referenceGenderCategory %>)
           </div>
-          <table id="mean-overtime-hours-table" class="table" role="presentation">
+          <table id="mean-overtime-hours-table" class="table" role="table">
             <% for(var i=0; i < tableData.meanOvertimeHoursGap.length; i++) { %>
               <tr>
                 <td class="text-normal">
@@ -212,8 +212,7 @@
           <div class="mb-2 text-normal">
             Difference as compared to reference group (<%= referenceGenderCategory %>)
           </div>
-          <table id="median-overtime-hours-table" class="table" role="table"
-            aria-describedby="Median difference in overtime hours">
+          <table id="median-overtime-hours-table" class="table" role="table">
             <tr style="display: none" aria-hidden="true">
               <th scope="col">Gender Category</th>
               <th scope="col">Difference (hours)</th>
