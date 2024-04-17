@@ -229,7 +229,7 @@ const reportServicePrivate = {
 
   /*
     This method converts the raw data that could be used to draw a bar chart
-    of gender pay gaps into a text summary of the data.  The text summary 
+    of percentages into a text summary of the data.  The text summary 
     will be of a form similar to:
       "This graph describes that in this organization 
       4 percent of Men receive overtime pay, 1 percent 
@@ -241,13 +241,13 @@ const reportServicePrivate = {
     (e.g. "receive overtime pay" or "receive bonus pay")
     */
   getPercentSummary(chartDataRecords: ChartDataRecord[], measureName: string) {
-    if (chartDataRecords.length == 0) {
+    if (chartDataRecords?.length == 0) {
       return null;
     }
 
     const summaries = chartDataRecords.map(
       (d) =>
-        `${d.value}% of ${d.genderChartInfo.extendedLabel.toLowerCase()} ${measureName}`,
+        `${Math.min(Math.round(d.value), 100)}% of ${d.genderChartInfo.extendedLabel.toLowerCase()} ${measureName}`,
     );
 
     let result = '';
@@ -989,7 +989,7 @@ const reportService = {
           false,
         ),
         percentBonusPay: reportServicePrivate.getPercentSummary(
-          tableData.percentReceivingBonusPay,
+          chartData.percentReceivingBonusPay,
           'receive bonus pay',
         ),
         meanOvertimeHoursGap: reportServicePrivate.getHoursGapTextSummary(
@@ -1005,7 +1005,7 @@ const reportService = {
           'overtime hours',
         ),
         percentOvertimePay: reportServicePrivate.getPercentSummary(
-          tableData.percentReceivingOvertimePay,
+          chartData.percentReceivingOvertimePay,
           'receive overtime pay',
         ),
         hourlyPayQuartiles:

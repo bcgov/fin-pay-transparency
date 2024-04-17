@@ -55,11 +55,6 @@ function percentFilledHorizBarChart(data, options = {}) {
   // Create a value format.
   const format = (d) => `${x.tickFormat(1, options.numberFormat)(d)}%`;
 
-  // Create accessibility text for the visually impaired
-  // const ariaLabel = data
-  //   .map((d) => `${format(d.value)} of ${d.genderChartInfo.label}.`)
-  //   .join(' ');
-
   // Create the SVG container.
   const svg = d3
     .create('svg')
@@ -67,8 +62,9 @@ function percentFilledHorizBarChart(data, options = {}) {
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
     .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`)
-    .attr('role', 'img')
-    .attr('aria-label', options.ariaLabel);
+    .attr('role', 'img');
+
+  if (options.ariaLabel) svg.attr('aria-label', options.ariaLabel);
 
   const color = (i) => colors[i];
 
