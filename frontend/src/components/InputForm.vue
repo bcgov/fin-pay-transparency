@@ -87,7 +87,6 @@
               for="naicsCode"
               color="error"
               :class="{ 'text-error': isSubmit && !naicsCode }"
-              tabindex="0"
             >
               NAICS Code
             </label>
@@ -136,7 +135,6 @@
             <span
               id="employeeCountRange-label"
               :class="{ 'text-error': isSubmit && !employeeCountRange }"
-              tabindex="0"
             >
               Employee Count Range
             </span>
@@ -190,7 +188,6 @@
                 <label
                   for="reportYear"
                   :class="{ 'text-disabled': mode == ReportMode.Edit }"
-                  tabindex="0"
                 >
                   Reporting Year:
                 </label>
@@ -244,7 +241,6 @@
                         !endYear ||
                         !reportYear),
                   }"
-                  tabindex="0"
                 >
                   Time Period
                 </span>
@@ -344,7 +340,7 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label for="comments" tabindex="0"> Employer Statement </label>
+            <label for="comments"> Employer Statement </label>
             <v-tooltip
               text="Please share any general information about your employer."
               id="employer-statement-tooltip"
@@ -387,7 +383,7 @@
       <v-row>
         <v-col>
           <div class="text-body-1 font-weight-bold">
-            <label for="dataConstraints" tabindex="0"> Data Constraints </label>
+            <label for="dataConstraints"> Data Constraints </label>
             <v-tooltip
               text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
               :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
@@ -434,7 +430,6 @@
             <label
               for="csvFile"
               :class="{ 'text-error': isSubmit && !uploadFileValue }"
-              tabindex="0"
             >
               File Upload
             </label>
