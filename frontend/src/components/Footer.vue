@@ -1,5 +1,5 @@
 <template>
-  <v-footer color="#fff" dark absolute class="bordered margin-top" app>
+  <v-footer color="#fff" dark absolute class="margin-top" app>
     <v-row>
       <v-col class="justify-left" style="text-align: left">
         <v-row>
@@ -60,7 +60,7 @@
   </v-footer>
   <v-footer dark absolute class="bordered first-nation-acknowledgement" app>
     <div>
-      The B.C. public Service acknowledges the territories of First Nations
+      The B.C. Public Service acknowledges the territories of First Nations
       around B.C. and is grateful to carry out our work on these lands. We
       acknowledge the rights, interests, priorities, and concerns of all
       Indigenous Peoples - First Nations, Métis, and Inuit - respecting and
@@ -123,9 +123,19 @@ const settings: FooterSettings = {
 };
 </script>
 
-<style lang="scss">
-$font-size: 12px;
+<style scoped lang="scss">
+$font-size: 14px;
 $text-color: rgb(70, 67, 65);
+$border-color: rgb(252, 186, 25);
+
+a {
+  color: rgb(32, 31, 30);
+  text-decoration: underline !important;
+}
+
+p {
+  line-height: 21px;
+}
 
 .v-footer {
   flex-direction: column;
@@ -135,7 +145,8 @@ $text-color: rgb(70, 67, 65);
 }
 
 .v-footer.bordered {
-  border-top: 4px solid rgb(252, 186, 25) !important;
+  border-top: 4px solid $border-color !important;
+  border-bottom: 4px solid $border-color !important;
   overflow: hidden;
 
   &.margin-top {
@@ -159,10 +170,6 @@ $text-color: rgb(70, 67, 65);
       margin: auto;
     }
   }
-}
-a.contact-email {
-  color: rgb(32, 31, 30);
-  text-decoration: underline;
 }
 
 .v-list-item-title {

@@ -1,8 +1,13 @@
-import { DateTimeFormatter, LocalDate, TemporalAdjusters } from '@js-joda/core';
+import {
+  DateTimeFormatter,
+  LocalDate,
+  TemporalAdjusters,
+  convert,
+} from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
@@ -53,7 +58,17 @@ describe('InputForm', () => {
   let wrapper;
   let pinia;
 
-  beforeEach(() => {
+  const initWrapper = (options: any = {}) => {
+    const defaultOptions = { date: null };
+    options = { ...defaultOptions, ...options };
+
+    if (options.date) {
+      vi.useFakeTimers();
+      vi.setSystemTime(options.date);
+    } else {
+      vi.useRealTimers();
+    }
+
     //create an instances of vuetify and pinia so we can inject them
     //into the mounted component, allowing it to behave as it would
     //in a browser
@@ -73,12 +88,17 @@ describe('InputForm', () => {
         plugins: [vuetify, pinia],
       },
     });
+  };
+
+  beforeEach(() => {
+    initWrapper();
   });
 
   afterEach(() => {
     if (wrapper) {
       wrapper.unmount();
     }
+    vi.useRealTimers();
   });
 
   describe('submit', () => {
@@ -266,6 +286,23 @@ describe('InputForm', () => {
         (wrapper.vm.maxEndDate as LocalDate).isAfter(endOfReportingYear),
       ).toBeFalsy();
     }
+  });
+
+  describe('reportYearList', () => {
+    describe('when the current year is before 2025', () => {
+      it('the current year is the only reporting year option', () => {
+        initWrapper({ date: convert(LocalDate.of(2024, 12, 31)).toDate() });
+        const list = wrapper.vm.reportYearList;
+        expect(list).toStrictEqual([2024]);
+      });
+    });
+    describe('when the current year is after 2024', () => {
+      it('there are two reporting year options: [previous year, current year]', () => {
+        initWrapper({ date: convert(LocalDate.of(2025, 1, 1)).toDate() });
+        const list = wrapper.vm.reportYearList;
+        expect(list).toStrictEqual([2024, 2025]);
+      });
+    });
   });
 });
 

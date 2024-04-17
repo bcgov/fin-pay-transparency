@@ -6,8 +6,7 @@
           v-if="mode == ReportMode.Edit"
           closable
           text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
-          class="text-error"
-          type="info"
+          class="alert-info"
           variant="tonal"
         >
         </v-alert>
@@ -429,7 +428,7 @@
             :key="bodyError"
             color="error"
             icon="fa:fas fa-triangle-exclamation"
-            class="file-error font-weight-bold mb-3"
+            class="alert-error font-weight-bold mb-3"
             variant="outlined"
           >
             {{ bodyError }}
@@ -445,7 +444,7 @@
             :key="generalError"
             color="error"
             icon="fa:fas fa-triangle-exclamation"
-            class="file-error font-weight-bold mb-3"
+            class="alert-error font-weight-bold mb-3"
             variant="outlined"
           >
             {{ generalError }}
@@ -456,7 +455,7 @@
       <!-- File Submission Errors -->
       <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
         <v-col>
-          <v-alert class="pa-0 file-error" color="error" variant="outlined">
+          <v-alert class="pa-0 alert-error" variant="outlined">
             <!-- errors related to the content of specific lines in the file -->
             <div class="d-flex font-weight-bold">
               <v-icon
@@ -545,6 +544,7 @@
               <v-btn
                 variant="text"
                 icon="fa:fas fa-xmark"
+                aria-label="Remove CSV"
                 @click="uploadFileValue = undefined"
               />
             </div>
@@ -756,10 +756,14 @@ export default {
         .format(dateFormatter);
     },
     reportYearList() {
-      const list = [
-        LocalDate.now().minusYears(1).year(),
-        LocalDate.now().year(),
-      ];
+      const list = [] as number[];
+      const yearNow = LocalDate.now().year();
+      if (yearNow >= 2025) {
+        //only include last year if the current year is at least 2025
+        list.push(LocalDate.now().minusYears(1).year());
+      }
+      //always include the current year
+      list.push(LocalDate.now().year());
       return list;
     },
     startMonthList() {
@@ -957,7 +961,7 @@ export default {
     },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
-      this.alertType = 'bootstrap-success';
+      this.alertType = 'alert-success';
     },
     setErrorAlert(submissionErrors: ISubmissionError | null) {
       this.submissionErrors = submissionErrors;
@@ -1113,10 +1117,6 @@ textarea::placeholder {
 }
 
 .file-success {
-  background-color: #d9e7d8;
-}
-
-.file-error {
-  background-color: #f7d8da;
+  background-color: #f6fff8;
 }
 </style>

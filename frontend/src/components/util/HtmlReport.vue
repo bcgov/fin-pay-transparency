@@ -9,7 +9,7 @@
       v-if="loadReportError && !reportHtml && !loading"
       class="load-report-error"
     >
-      <v-alert dense outlined class="bootstrap-error mb-3">
+      <v-alert dense variant="outlined" class="alert-error mb-3">
         Unable to load the report. This may be a temporary problem. Please
         re-try. If the problem persists, please report it to a system
         administrator
