@@ -1234,6 +1234,9 @@ const reportService = {
             report_end_date: full_report_to_publish.report_end_date,
             user_comment: full_report_to_publish.user_comment,
             data_constraints: full_report_to_publish.data_constraints,
+            revision: parseInt(existing_published_report.revision as any) + 1,
+            update_date: full_report_to_publish.update_date,
+            update_user: full_report_to_publish.update_user,
             pay_transparency_calculated_data: {
               createMany: {
                 data: full_report_to_publish.pay_transparency_calculated_data,
