@@ -766,7 +766,7 @@ describe('publishReport', () => {
     it('throws an error', async () => {
       await expect(
         reportService.publishReport(mockPublishedReportInApi),
-      ).rejects.toEqual('Only draft reports can be published');
+      ).rejects.toEqual(new Error('Only draft reports can be published'));
     });
   });
 
@@ -862,9 +862,9 @@ describe('publishReport', () => {
 
       await expect(
         reportService.publishReport(mockDraftReportInApi),
-      ).rejects.toEqual(
+      ).rejects.toEqual(new Error(
         'A report for this time period already exists and cannot be updated.',
-      );
+      ));
     });
   });
 });
