@@ -170,7 +170,6 @@ model report_history {
   revision                                         Decimal                   @db.Decimal
   is_unlocked                                      Boolean                   @default(true)
   reporting_year                                   Decimal                   @db.Decimal
-  report_lock_date                                 DateTime?                 @db.Timestamp(6)
   report_unlock_date                               DateTime?                 @db.Timestamp(6)
   calculated_data_history                          calculated_data_history[]
   pay_transparency_company                         pay_transparency_company  @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_company_id_fk")
