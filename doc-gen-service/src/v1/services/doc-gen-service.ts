@@ -842,7 +842,10 @@ async function generateReport(
           .getElementById('percent-receiving-overtime-pay-chart')
           ?.appendChild(
             // @ts-ignore
-            percentFilledHorizBarChart(chartData.percentReceivingOvertimePay),
+            percentFilledHorizBarChart(chartData.percentReceivingOvertimePay, {
+              // @ts-ignore
+              ariaLabel: reportData.chartSummaryText.percentOvertimePay,
+            }),
           );
         document.getElementById('mean-bonus-pay-gap-chart')?.appendChild(
           // @ts-ignore
@@ -856,7 +859,10 @@ async function generateReport(
           .getElementById('percent-receiving-bonus-pay-chart')
           ?.appendChild(
             // @ts-ignore
-            percentFilledHorizBarChart(chartData.percentReceivingBonusPay),
+            percentFilledHorizBarChart(chartData.percentReceivingBonusPay, {
+              // @ts-ignore
+              ariaLabel: reportData.chartSummaryText.percentBonusPay,
+            }),
           );
         document.getElementById('hourly-pay-quartile-4-chart')?.appendChild(
           // @ts-ignore

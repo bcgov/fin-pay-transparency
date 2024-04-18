@@ -20,6 +20,7 @@ function percentFilledHorizBarChart(data, options = {}) {
     numberFormat: '1.0f',
     maxX: 100,
     unfilledColor: '#eeeeee',
+    ariaLabel: null,
   };
   options = { ...defaultOptions, ...options };
 
@@ -60,7 +61,10 @@ function percentFilledHorizBarChart(data, options = {}) {
     .attr('width', width)
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
-    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`);
+    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`)
+    .attr('role', 'img');
+
+  if (options.ariaLabel) svg.attr('aria-label', options.ariaLabel);
 
   const color = (i) => colors[i];
 
@@ -216,13 +220,18 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
   // A function to format the value in the tooltip.
   const formatValue = (x) => (isNaN(x) ? 'N/A' : x.toLocaleString('en'));
 
+  // Create accessibility text for the visually impaired
+  const ariaLabel = data.map((d) => label(d.genderChartInfo.code)).join(' ');
+
   // Create the SVG container.
   const svg = d3
     .create('svg')
     .attr('width', width)
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
-    .attr('style', 'max-width: 100%; height: auto;');
+    .attr('style', 'max-width: 100%; height: auto;')
+    .attr('role', 'img')
+    .attr('aria-label', ariaLabel);
 
   const barGroup = svg.append('g').append('g').selectAll().data(stacks);
 
@@ -324,7 +333,9 @@ function horizontalBarChart(data, numberFormat = '$0.2f') {
     .attr('width', width)
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
-    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`);
+    .attr('style', `max-width: 100%; height: auto; font: ${valueFont};`)
+    .attr('role', 'img')
+    .attr('aria-label', 'This graph describes that');
 
   const color = (i) => colors[i];
 
@@ -411,7 +422,9 @@ function createLegend(data, options = {}) {
     .attr('width', options.width)
     .attr('height', height)
     .attr('viewBox', [0, 0, options.width, height])
-    .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
+    .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
+    .attr('role', 'img')
+    .attr('aria-label', 'Legend');
 
   svg
     .append('g')
