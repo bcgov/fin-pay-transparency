@@ -88,7 +88,7 @@ export class DraftReportPage extends BaseReportPage {
     );
     const getReportsRequest = this.instance.waitForResponse(
       (res) =>
-        res.url().includes('/api/v1/report/?reporting_year=') &&
+        res.url().includes('reporting_year=') &&
         res.status() === 200,
     );
     await this.finalReportCheckBox.scrollIntoViewIfNeeded();
@@ -117,6 +117,7 @@ export class DraftReportPage extends BaseReportPage {
     const finalize = await finalizeReportResponse;
     await finalize.text();
     const reportData = await publishReportResponse.json();
+    console.log(reportData)
     await this.instance.waitForTimeout(5000);
     await this.instance.waitForURL(PagePaths.VIEW_REPORT);
     return reportData;

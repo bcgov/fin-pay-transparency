@@ -54,7 +54,45 @@ const testData = {
       calculation_code: { calculation_code: `${faker.number.int()}` },
     },
   ],
-  history: [],
+  history: [
+    {
+      report_id: faker.string.uuid(),
+      company_id: faker.string.uuid(),
+      naics_code: '11',
+      create_date: faker.date.past(),
+      update_date: faker.date.past(),
+      data_constraints: faker.lorem.sentence(),
+      user_comment: faker.lorem.sentence(),
+      revision: '12',
+      report_start_date: faker.date.past(),
+      report_end_date: faker.date.past(),
+      report_status: 'Published',
+      pay_transparency_company: {
+        company_name: faker.company.name(),
+        province: faker.location.state(),
+        bceid_business_guid: faker.string.uuid(),
+        country: faker.location.country(),
+        city: faker.location.city(),
+        postal_code: faker.location.zipCode(),
+        address_line1: faker.location.streetAddress(),
+        address_line2: faker.location.streetAddress(),
+      },
+      employee_count_range: {
+        employee_count_range: '50-299',
+      },
+      naics_code_report_history_naics_codeTonaics_code: {
+        naics_code: '11',
+        naics_label: faker.lorem.words(3),
+      },
+      calculated_data_history: [
+        {
+          value: faker.number.float(),
+          is_suppressed: false,
+          calculation_code: { calculation_code: `${faker.number.int()}` },
+        },
+      ],
+    },
+  ],
 };
 
 describe('external-consumer-service', () => {
@@ -105,7 +143,49 @@ describe('external-consumer-service', () => {
       revision: testData.revision,
       update_date: testData.update_date,
       user_comment: testData.user_comment,
-      history: [],
+      history: [
+        {
+          calculated_data: [
+            {
+              is_suppressed:
+                testData.history[0].calculated_data_history[0].is_suppressed,
+              value: testData.history[0].calculated_data_history[0].value,
+              calculation_code:
+                testData.history[0].calculated_data_history[0].calculation_code
+                  .calculation_code,
+            },
+          ],
+          company_address_line1:
+            testData.history[0].pay_transparency_company.address_line1,
+          company_address_line2:
+            testData.history[0].pay_transparency_company.address_line2,
+          company_bceid_business_guid:
+            testData.history[0].pay_transparency_company.bceid_business_guid,
+          company_city: testData.history[0].pay_transparency_company.city,
+          company_country: testData.history[0].pay_transparency_company.country,
+          company_id: testData.history[0].company_id,
+          company_name: testData.history[0].pay_transparency_company.company_name,
+          company_postal_code: testData.history[0].pay_transparency_company.postal_code,
+          company_province: testData.history[0].pay_transparency_company.province,
+          create_date: testData.history[0].create_date,
+          data_constraints: testData.history[0].data_constraints,
+          employee_count_range:
+            testData.history[0].employee_count_range.employee_count_range,
+          naics_code:
+            testData.history[0].naics_code_report_history_naics_codeTonaics_code
+              .naics_code,
+          naics_code_label:
+            testData.history[0].naics_code_report_history_naics_codeTonaics_code
+              .naics_label,
+          report_end_date: testData.history[0].report_end_date,
+          report_id: testData.history[0].report_id,
+          report_start_date: testData.history[0].report_start_date,
+          report_status: testData.history[0].report_status,
+          revision: testData.history[0].revision,
+          update_date: testData.history[0].update_date,
+          user_comment: testData.history[0].user_comment,
+        },
+      ],
     });
   });
 

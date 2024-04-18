@@ -28,12 +28,12 @@ export const editReport = async (page: Page) => {
   await formPage.checkDefaultFormValues(reportDetails);
 
   // edit form and submit form
-  const report = await formPage.editReportAndSubmit(reportDetails);
+  let report = await formPage.editReportAndSubmit(reportDetails);
 
   const draftReportPage = new DraftReportPage(formPage.instance, user);
   await draftReportPage.setup();
   await draftReportPage.verifyEmployeerDetails(user, null);
-  await draftReportPage.finalizedReport(report.report_id);
+  report = await draftReportPage.finalizedReport(reportId);
 
   const publishedReportPage = new PublishedReportPage(page, user);
   await publishedReportPage.setup();
