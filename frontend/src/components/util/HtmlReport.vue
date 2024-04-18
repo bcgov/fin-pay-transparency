@@ -1,9 +1,9 @@
 <template>
-  <div class="mb-8">
+  <div class="mb-8 html-report">
     <div
       v-if="reportHtml"
-      v-dompurify-html="reportHtml"
       class="report-preview"
+      v-dompurify-html="reportHtml"
     ></div>
     <div
       v-if="loadReportError && !reportHtml && !loading"
@@ -66,3 +66,11 @@ onBeforeMount(async () => {
   await loadReport();
 });
 </script>
+<style scoped lang="scss">
+.html-report {
+  overflow-x: auto;
+}
+.report-preview {
+  min-width: 754px;
+}
+</style>
