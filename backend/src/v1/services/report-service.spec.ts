@@ -509,6 +509,61 @@ describe('getWageGapTextSummary', () => {
   });
 });
 
+describe('getPercentSummary', () => {
+  describe('when a valid chartDataRecords array is provided', () => {
+    it('returns an object containing info about how the gender category should be depicted on charts', () => {
+      const mockChartData = [
+        {
+          genderChartInfo: {
+            code: 'M',
+            label: 'Men',
+            extendedLabel: 'Men',
+            color: '#1c3664',
+          },
+          value: 3.9049394221808016,
+        },
+        {
+          genderChartInfo: {
+            code: 'F',
+            label: 'Women',
+            extendedLabel: 'Women',
+            color: '#1b75bb',
+          },
+          value: 1.1846344485749691,
+        },
+        {
+          genderChartInfo: {
+            code: 'X',
+            label: 'Non-binary',
+            extendedLabel: 'Non-binary people',
+            color: '#00a54f',
+          },
+          value: 0.11838989739542227,
+        },
+        {
+          genderChartInfo: {
+            code: 'U',
+            label: 'Prefer not to say / Unknown',
+            extendedLabel: 'Prefer not to say / Unknown',
+            color: '#444444',
+          },
+          value: 0.41911984831853105,
+        },
+      ];
+
+      const text: string = reportServicePrivate.getPercentSummary(
+        mockChartData,
+        'receive overtime pay',
+      );
+
+      expect(text).not.toBeNull();
+      expect(text).toContain(
+        'This graph describes that in this organization 4% of men receive overtime pay, 1% of women receive overtime pay, 0% of non-binary people receive overtime pay, and 0% of prefer not to say / unknown receive overtime pay.',
+      );
+    });
+  });
+});
+
 describe('getHoursGapTextSummary', () => {
   describe('where no gender categories are suppressed', () => {
     it('returns summary text describing the OT hours data', () => {
@@ -747,7 +802,7 @@ describe('publishReport', () => {
       // Expect only one column to be updated (the report status_column)
       expect(updateStatement.data).toStrictEqual({
         report_status: enumReportStatus.Published,
-        create_date: mockDraftReportInApi.create_date
+        create_date: mockDraftReportInApi.create_date,
       });
     });
   });
@@ -785,7 +840,7 @@ describe('publishReport', () => {
       // Expect only one column to be updated (the report status_column)
       expect(updateStatement.data).toStrictEqual({
         report_status: enumReportStatus.Published,
-        create_date: mockPublishedReportInDb.create_date
+        create_date: mockPublishedReportInDb.create_date,
       });
     });
   });
@@ -799,13 +854,13 @@ describe('publishReport', () => {
         .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
 
-        try {
-          await reportService.publishReport(mockDraftReportInApi);
-        } catch (error) {
-          expect(error.message).toBe(
-            'A report for this time period already exists and cannot be updated.',
-          );
-        }
+      try {
+        await reportService.publishReport(mockDraftReportInApi);
+      } catch (error) {
+        expect(error.message).toBe(
+          'A report for this time period already exists and cannot be updated.',
+        );
+      }
     });
   });
 });
