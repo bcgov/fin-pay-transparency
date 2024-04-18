@@ -71,6 +71,6 @@ onBeforeMount(async () => {
   overflow-x: auto;
 }
 .report-preview {
-  width: 754px;
+  min-width: 754px;
 }
 </style>
