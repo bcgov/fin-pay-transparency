@@ -1169,7 +1169,7 @@ const reportService = {
       throw new Error('Only draft reports can be published');
     }
 
-    let reportId = report_to_publish.user_id;
+    let reportId = report_to_publish.report_id;
     await prisma.$transaction(async (tx) => {
       // Check if there is an existing published report that
       // corresponds to the same company_id and reporting year as
