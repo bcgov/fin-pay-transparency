@@ -132,7 +132,7 @@ const externalConsumerService = {
             },
           },
           pay_transparency_company: true,
-          history: {
+          report_history: {
             include: {
               naics_code_report_history_naics_codeTonaics_code: true,
               employee_count_range: true,
@@ -160,7 +160,7 @@ const externalConsumerService = {
             (r) => r.naics_code_pay_transparency_report_naics_codeTonaics_code,
             (r) => r.pay_transparency_calculated_data,
           ),
-          history: report.history.map((report) => {
+          history: report.report_history.map((report) => {
             return denormalizeReport(
               report,
               (r) => r.naics_code_report_history_naics_codeTonaics_code,

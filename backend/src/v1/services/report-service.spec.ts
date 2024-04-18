@@ -149,6 +149,7 @@ const mockPublishedReportInApi: Report =
 
 const mockHistoryReport: report_history = {
   report_history_id: '567',
+  report_lock_date: new Date(),
   ...mockPublishedReportInDb,
 };
 

@@ -58,7 +58,7 @@ const REPORT = {
       calculation_code: { calculation_code: `${faker.number.int()}` },
     },
   ],
-  history: [],
+  report_history: [],
 };
 
 describe('external-consumer-routes', () => {
