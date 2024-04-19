@@ -70,19 +70,15 @@ jobs:
           - dir: backend
             sonar_projectKey: fin-pay-transparency_backend
             token: SONAR_TOKEN_BACKEND
-            triggers: ('backend/')
           - dir: frontend
             sonar_projectKey: fin-pay-transparency_frontend
             token: SONAR_TOKEN_FRONTEND
-            triggers: ('frontend/')
           - dir: doc-gen-service
             sonar_projectKey: fin-pay-transparency_doc-gen-service
             token: SONAR_TOKEN_DOC_GEN_SERVICE
-            triggers: ('doc-gen-service/')
           - dir: backend-external
             sonar_projectKey: fin-pay-transparency_backend-external
             token: SONAR_TOKEN_BACKEND_EXTERNAL
-            triggers: ('backend-external/')
     steps:
       - uses: bcgov-nr/action-test-and-analyse@v1.2.0
         with:
