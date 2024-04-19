@@ -1143,4 +1143,8 @@ textarea::placeholder {
 .file-success {
   background-color: #f6fff8;
 }
+
+.fa-circle-info {
+  color: #255A90 !important;
+}
 </style>
