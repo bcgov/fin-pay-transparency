@@ -62,6 +62,11 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ inputs.timeout-minutes }}
+    env:
+      UI_PUBLIC_KEY: |
+        ${{ secrets.UI_PUBLIC_KEY }}
+      UI_PRIVATE_KEY: |
+        ${{ secrets.UI_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - name: generate private and public key
@@ -125,8 +130,8 @@ jobs:
           --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
           --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \
           --set-string global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" \
-          --set-string global.secrets.uiPrivateKey="${{ steps.generateKey.outputs.UI_PRIVATE_KEY }}" \
-          --set-string global.secrets.uiPublicKey="${{ steps.generateKey.outputs.UI_PUBLIC_KEY }}" \
+          --set-string global.secrets.uiPrivateKey="${{ env.UI_PRIVATE_KEY }}" \
+          --set-string global.secrets.uiPublicKey="${{ env.UI_PUBLIC_KEY }}" \
           --set-string global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" \
           --set-string global.secrets.databaseUser="${{ secrets.DATABASE_USER }}" \
           --set-string global.secrets.databaseName="${{ secrets.DATABASE_NAME }}"  \
