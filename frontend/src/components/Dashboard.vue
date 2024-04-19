@@ -30,7 +30,7 @@
         Once your CSV file is ready, click on the button below to upload the
         file and generate a report.
       </p>
-      <v-btn class="mb-4" color="primary" to="generate-report-form">
+      <v-btn class="mb-4 btn-primary" to="generate-report-form">
         Upload your CSV here
       </v-btn>
       <p class="text-caption mb-2">
@@ -128,7 +128,7 @@
             View a sample comma-separated value (CSV) file showing the required
             format for pay transparency data uploads.
           </p>
-          <v-btn color="tertiary" href="SampleCsv.csv" download>
+          <v-btn class="btn-secondary" href="SampleCsv.csv" download>
             Download sample CSV
           </v-btn>
         </v-card-text>

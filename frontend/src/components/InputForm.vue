@@ -21,7 +21,7 @@
     style="z-index: 190"
     density="compact"
   >
-    <v-btn to="/">Back</v-btn>
+    <v-btn class="btn-secondary" to="/">Back</v-btn>
   </v-banner>
   <v-container fluid>
     <v-form ref="inputForm" @submit.prevent="submit">
@@ -543,7 +543,7 @@
             </p>
             <v-btn
               id="uploadFileButton"
-              color="primary"
+              class="btn-secondary"
               type="button"
               @click="selectFile"
               :loading="isSelectingFile"
@@ -578,7 +578,7 @@
 
       <v-row class="mt-6">
         <v-col class="d-flex justify-center">
-          <v-btn id="submitButton" color="primary" type="submit">
+          <v-btn id="submitButton" class="btn-primary" type="submit">
             Submit
           </v-btn>
         </v-col>

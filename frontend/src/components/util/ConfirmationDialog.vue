@@ -39,18 +39,16 @@
       </v-card-text>
       <v-card-actions class="pt-0">
         <v-spacer />
-        <PrimaryButton
-          id="rejectBtn"
-          secondary
-          :text="options.rejectText || 'Cancel'"
-          :click-action="cancel"
-        />
-        <PrimaryButton
+        <v-btn id="rejectBtn" class="btn-secondary" @click="cancel">{{
+          options.rejectText || 'Cancel'
+        }}</v-btn>
+        <v-btn
           id="resolveBtn"
-          :text="options.resolveText || 'Yes'"
+          class="btn-primary"
           :disabled="options.resolveDisabled"
-          :click-action="agree"
-        />
+          @click="agree"
+          >{{ options.resolveText || 'Yes' }}</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>

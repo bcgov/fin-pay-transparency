@@ -8,7 +8,7 @@
         bg-color="rgba(255, 255, 255, 0)"
         style="z-index: 190"
       >
-        <v-btn to="/generate-report-form">Back</v-btn>
+        <v-btn class="btn-secondary" to="/generate-report-form">Back</v-btn>
       </v-banner>
       <v-row class="d-flex justify-center w-100">
         <v-col sm="10" md="8" class="w-100">
@@ -32,8 +32,7 @@
               <div class="d-flex justify-center w-100 mt-4">
                 <v-btn
                   id="backButton"
-                  color="primary"
-                  class="mr-2"
+                  class="btn-secondary mr-2"
                   to="./generate-report-form"
                 >
                   Back
@@ -41,8 +40,7 @@
 
                 <v-btn
                   id="downloadDraftPdfButton"
-                  color="primary"
-                  class="mr-2"
+                  class="btn-primary mr-2"
                   :loading="isDownloadingPdf"
                   :disabled="isDownloadingPdf"
                   @click="downloadPdf(ReportStepperStore.reportId)"
@@ -52,8 +50,7 @@
 
                 <v-btn
                   id="generateReportButton"
-                  color="primary"
-                  class="mr-2"
+                  class="btn-primary mr-2"
                   :disabled="!isReadyToGenerate"
                   @click="tryGenerateReport()"
                 >
@@ -145,7 +142,7 @@ async function tryGenerateReport() {
     NotificationService.pushNotificationError(
       'A report for this time period already exists and cannot be updated.',
       undefined,
-      5000
+      5000,
     );
     return;
   }

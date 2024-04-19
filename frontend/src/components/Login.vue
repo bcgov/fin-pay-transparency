@@ -21,7 +21,7 @@
               <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" href="https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-laws-in-bc">Pay Transparency Laws in B.C.</a></p>
               <v-btn
                 id="login-button"
-                color="primary"
+                class="btn-primary"
                 @click="clearStorageAndRedirectToLogin"
                 data-testid="login-button"
                 title="Login"
@@ -103,7 +103,7 @@
                     <p class="mb-8">
                       Please review the <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting-nov-03-2023.pdf">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
                     </p>
-                    <v-btn color="tertiary" href="SampleCsv.csv" download>
+                    <v-btn class="btn-secondary" href="SampleCsv.csv" download>
                       Download sample CSV
                     </v-btn>
                   </div>
@@ -118,7 +118,7 @@
                     <p class="mb-8">
                       You will now be able to download and review a draft version of your report. Draft reports are not saved in the system. Once your report is finalized, it will be available in the system in your employer profile for retrieval and distribution.
                     </p>
-                    <v-btn color="tertiary" href="SampleReport.pdf" download>
+                    <v-btn class="btn-secondary" href="SampleReport.pdf" download>
                       View sample report
                     </v-btn>
                   </p>                                    

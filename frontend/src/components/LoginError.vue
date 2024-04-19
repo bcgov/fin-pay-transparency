@@ -5,7 +5,7 @@
         <v-alert dense variant="outlined" class="alert-error mb-3">
           Something went wrong during the login process.
         </v-alert>
-        <v-btn color="primary" to="Login">Try logging in again</v-btn>
+        <v-btn class="btn-primary" to="Login">Try logging in again</v-btn>
       </v-col>
     </v-row>
   </v-container>
