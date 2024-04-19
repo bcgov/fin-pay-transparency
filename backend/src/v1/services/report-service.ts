@@ -417,13 +417,6 @@ const reportServicePrivate = {
         report_id: report.report_id,
       },
     });
-
-    // Delete the original report
-    await tx.pay_transparency_report.delete({
-      where: {
-        report_id: report.report_id,
-      },
-    });
   },
 
   /**
@@ -1170,16 +1163,18 @@ const reportService = {
     return reportsAdjusted;
   },
 
-  async publishReport(report_to_publish: Report) {
+  async publishReport(report_to_publish: Report): Promise<string> {
     // Check preconditions
     if (report_to_publish.report_status != enumReportStatus.Draft) {
       throw new Error('Only draft reports can be published');
     }
 
+    let reportId = report_to_publish.report_id;
     await prisma.$transaction(async (tx) => {
       // Check if there is an existing published report that
       // corresponds to the same company_id and reporting year as
       // the draft "report_to_publish".  (Should be 1 published at most.)
+
       const existing_published_report =
         await tx.pay_transparency_report.findFirst({
           where: {
@@ -1191,32 +1186,82 @@ const reportService = {
 
       if (existing_published_report && !existing_published_report.is_unlocked) {
         throw new Error(
-          'A report for this time period already exists and cannot be updated.',
-        );
+            'A report for this time period already exists and cannot be updated.',
+          );
       }
 
       // If there is an existing Published report, move it into
       // report_history
       if (existing_published_report) {
+        const full_report_to_publish =
+          await tx.pay_transparency_report.findUnique({
+            where: { report_id: report_to_publish.report_id },
+            include: {
+              pay_transparency_calculated_data: {
+                select: {
+                  calculation_code_id: true,
+                  value: true,
+                  is_suppressed: true,
+                  create_date: true,
+                  update_date: true,
+                  create_user: true,
+                  update_user: true,
+                },
+              },
+            },
+          });
         await reportServicePrivate.movePublishedReportToHistory(
           tx,
           existing_published_report,
         );
-      }
 
-      // Change report's status to Published
-      await tx.pay_transparency_report.update({
-        where: {
-          report_id: report_to_publish.report_id,
-        },
-        data: {
-          report_status: enumReportStatus.Published,
-          create_date:
-            existing_published_report?.create_date ||
-            report_to_publish.create_date,
-        },
-      });
+        // Update existing report
+        await tx.pay_transparency_report.update({
+          where: { report_id: existing_published_report.report_id },
+          data: {
+            naics_code_pay_transparency_report_naics_codeTonaics_code: {
+              connect: {
+                naics_code: full_report_to_publish.naics_code,
+              },
+            },
+            employee_count_range: {
+              connect: {
+                employee_count_range_id:
+                  full_report_to_publish.employee_count_range_id,
+              },
+            },
+            report_start_date: full_report_to_publish.report_start_date,
+            report_end_date: full_report_to_publish.report_end_date,
+            user_comment: full_report_to_publish.user_comment,
+            data_constraints: full_report_to_publish.data_constraints,
+            revision: parseInt(existing_published_report.revision as any) + 1,
+            update_date: full_report_to_publish.update_date,
+            update_user: full_report_to_publish.update_user,
+            pay_transparency_calculated_data: {
+              createMany: {
+                data: full_report_to_publish.pay_transparency_calculated_data,
+              },
+            },
+          },
+        });
+        reportId = existing_published_report.report_id;
+      } else {
+        // Change report's status to Published
+        await tx.pay_transparency_report.update({
+          where: {
+            report_id: report_to_publish.report_id,
+          },
+          data: {
+            report_status: enumReportStatus.Published,
+            create_date:
+              existing_published_report?.create_date ||
+              report_to_publish.create_date,
+          },
+        });
+      }
     });
+
+    return reportId;
   },
 
   /**

@@ -10,8 +10,8 @@
       >
         <v-btn class="btn-secondary" to="/generate-report-form">Back</v-btn>
       </v-banner>
-      <v-row class="d-flex justify-center w-100">
-        <v-col sm="10" md="8" class="w-100">
+      <v-row no-gutters justify="center" class="w-100">
+        <v-col cols="12" sm="11" md="11" lg="8" xl="6">
           <v-row class="mb-4 d-flex justify-center w-100">
             <v-col cols="12" class="w-100">
               <ReportStepper />
@@ -161,7 +161,8 @@ async function tryGenerateReport() {
   if (shouldGenerateReport) {
     isProcessing.value = true;
     try {
-      await ApiService.publishReport(ReportStepperStore.reportId ?? '');
+      const reportData = await ApiService.publishReport(ReportStepperStore.reportId ?? '');
+      await ReportStepperStore.setReportInfo(reportData);
       NotificationService.pushNotificationSuccess(
         'You have created a pay transparency report.',
       );

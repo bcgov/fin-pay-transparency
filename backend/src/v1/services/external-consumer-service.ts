@@ -1,10 +1,56 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import {
-  LocalDate,
-  convert,
-} from '@js-joda/core';
+import { LocalDate, convert } from '@js-joda/core';
 import pick from 'lodash/pick';
 import { PayTransparencyUserError } from './file-upload-service';
+
+const denormalizeCompany = (company) => {
+  return {
+    company_name: company.company_name,
+    company_province: company.province,
+    company_bceid_business_guid: company.bceid_business_guid,
+    company_city: company.city,
+    company_country: company.country,
+    company_postal_code: company.postal_code,
+    company_address_line1: company.address_line1,
+    company_address_line2: company.address_line2,
+  };
+};
+
+const denormalizeReport = (
+  report,
+  getNaicsCode: (report) => { naics_code: string; naics_label: string },
+  getCalculatedData: (report) => {
+    value: string;
+    is_suppressed: string;
+    calculation_code: any;
+  }[],
+) => {
+  return {
+    ...pick(report, [
+      'report_id',
+      'company_id',
+      'naics_code',
+      'create_date',
+      'update_date',
+      'data_constraints',
+      'user_comment',
+      'revision',
+      'report_start_date',
+      'report_end_date',
+      'report_status',
+      'reporting_year',
+    ]),
+    ...denormalizeCompany(report.pay_transparency_company),
+    employee_count_range: report.employee_count_range.employee_count_range,
+    naics_code: getNaicsCode(report).naics_code,
+    naics_code_label: getNaicsCode(report).naics_label,
+    calculated_data: getCalculatedData(report).map((data) => ({
+      value: data.value,
+      is_suppressed: data.is_suppressed,
+      calculation_code: data.calculation_code.calculation_code,
+    })),
+  };
+};
 
 const externalConsumerService = {
   /**
@@ -27,8 +73,7 @@ const externalConsumerService = {
     offset?: number,
     limit?: number,
   ) {
-    let startDt = LocalDate.now()
-      .minusMonths(1);
+    let startDt = LocalDate.now().minusMonths(1);
     let endDt = LocalDate.now().plusDays(1);
     if (limit > 1000 || !limit || limit <= 0) {
       limit = 1000;
@@ -87,6 +132,18 @@ const externalConsumerService = {
             },
           },
           pay_transparency_company: true,
+          report_history: {
+            include: {
+              naics_code_report_history_naics_codeTonaics_code: true,
+              employee_count_range: true,
+              calculated_data_history: {
+                include: {
+                  calculation_code: true,
+                },
+              },
+              pay_transparency_company: true,
+            },
+          },
         },
         skip: offset,
         take: limit,
@@ -96,51 +153,22 @@ const externalConsumerService = {
       totalRecords: totalCount,
       page: offset,
       pageSize: limit,
-      records: results.map(
-        ({
-          naics_code_pay_transparency_report_naics_codeTonaics_code,
-          pay_transparency_calculated_data,
-          employee_count_range,
-          pay_transparency_company,
-          ...report
-        }) => {
-          return {
-            ...pick(report, [
-              'report_id',
-              'company_id',
-              'naics_code',
-              'create_date',
-              'update_date',
-              'data_constraints',
-              'user_comment',
-              'revision',
-              'report_start_date',
-              'report_end_date',
-              'report_status',
-              'reporting_year',
-            ]),
-            company_name: pay_transparency_company.company_name,
-            company_province: pay_transparency_company.province,
-            company_bceid_business_guid:
-              pay_transparency_company.bceid_business_guid,
-            company_city: pay_transparency_company.city,
-            company_country: pay_transparency_company.country,
-            company_postal_code: pay_transparency_company.postal_code,
-            company_address_line1: pay_transparency_company.address_line1,
-            company_address_line2: pay_transparency_company.address_line2,
-            employee_count_range: employee_count_range.employee_count_range,
-            naics_code:
-              naics_code_pay_transparency_report_naics_codeTonaics_code.naics_code,
-            naics_code_label:
-              naics_code_pay_transparency_report_naics_codeTonaics_code.naics_label,
-            calculated_data: pay_transparency_calculated_data.map((data) => ({
-              value: data.value,
-              is_suppressed: data.is_suppressed,
-              calculation_code: data.calculation_code,
-            })),
-          };
-        },
-      ),
+      records: results.map((report) => {
+        return {
+          ...denormalizeReport(
+            report,
+            (r) => r.naics_code_pay_transparency_report_naics_codeTonaics_code,
+            (r) => r.pay_transparency_calculated_data,
+          ),
+          history: report.report_history.map((report) => {
+            return denormalizeReport(
+              report,
+              (r) => r.naics_code_report_history_naics_codeTonaics_code,
+              (r) => r.calculated_data_history,
+            );
+          }),
+        };
+      }),
     };
   },
 };

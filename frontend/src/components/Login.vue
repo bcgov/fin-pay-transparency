@@ -176,7 +176,6 @@ export default {
       window.location.href = this.authRoutesLogin;
     },
     changeStage: function(newstage) {
-      debugger
       switch(newstage) {
         case 'GENERATE':
           this.stage = 'GENERATE';
