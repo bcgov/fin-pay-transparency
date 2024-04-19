@@ -80,12 +80,15 @@ export class DraftReportPage extends BaseReportPage {
   }
 
   async finalizedReport(reportId: string) {
+    const publishReportRequest = this.instance.waitForResponse(res => 
+      res.url().includes('/api/v1/report') && res.request().method().toLowerCase() === 'put'
+    )
     const finalizeReportResponse = this.instance.waitForResponse((res) =>
-      res.url().includes(`/api/v1/report/${reportId}`),
+      res.url().includes(`/api/v1/report/${reportId}`) && res.request().method().toLowerCase() === 'get',
     );
     const getReportsRequest = this.instance.waitForResponse(
       (res) =>
-        res.url().includes('/api/v1/report/?reporting_year=') &&
+        res.url().includes('reporting_year=') &&
         res.status() === 200,
     );
     await this.finalReportCheckBox.scrollIntoViewIfNeeded();
@@ -110,10 +113,13 @@ export class DraftReportPage extends BaseReportPage {
       await yesButton.click();
       await expect(confirmTitle).not.toBeVisible();
     }
+    const publishReportResponse = await publishReportRequest;
     const finalize = await finalizeReportResponse;
     await finalize.text();
+    const reportData = await publishReportResponse.json();
     await this.instance.waitForTimeout(5000);
     await this.instance.waitForURL(PagePaths.VIEW_REPORT);
+    return reportData;
   }
 
   async validateCanGoBack(generateReportPage: GenerateReportPage) {

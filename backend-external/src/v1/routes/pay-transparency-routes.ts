@@ -21,7 +21,7 @@ const router = express.Router();
  *           type: boolean
  *         calculation_code:
  *           type: string
- *     Report:
+ *     ReportItem:
  *       type: object
  *       properties:
  *         report_id:
@@ -70,6 +70,15 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/CalculatedData"
+ *     Report:
+ *       allOf: 
+ *       - $ref: "#/components/schemas/ReportItem"
+ *       - type: object
+ *         properties:
+ *           history:
+ *             type: array
+ *             items:
+ *               $ref: "#/components/schemas/ReportItem"
  *
  *     PaginatedReports:
  *       type: object

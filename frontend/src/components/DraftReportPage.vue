@@ -164,7 +164,8 @@ async function tryGenerateReport() {
   if (shouldGenerateReport) {
     isProcessing.value = true;
     try {
-      await ApiService.publishReport(ReportStepperStore.reportId ?? '');
+      const reportData = await ApiService.publishReport(ReportStepperStore.reportId ?? '');
+      await ReportStepperStore.setReportInfo(reportData);
       NotificationService.pushNotificationSuccess(
         'You have created a pay transparency report.',
       );
