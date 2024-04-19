@@ -44,6 +44,11 @@ jobs:
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-22.04
     environment: unit-test
+    env:
+      PUBLIC_KEY: |
+        ${{ secrets.PUBLIC_KEY }}
+      PRIVATE_KEY: |
+        ${{ secrets.PRIVATE_KEY }}
     services:
       postgres:
         image: postgres
@@ -65,34 +70,16 @@ jobs:
           - dir: backend
             sonar_projectKey: fin-pay-transparency_backend
             token: SONAR_TOKEN_BACKEND
-            triggers: ('backend/')
           - dir: frontend
             sonar_projectKey: fin-pay-transparency_frontend
             token: SONAR_TOKEN_FRONTEND
-            triggers: ('frontend/')
           - dir: doc-gen-service
             sonar_projectKey: fin-pay-transparency_doc-gen-service
             token: SONAR_TOKEN_DOC_GEN_SERVICE
-            triggers: ('doc-gen-service/')
           - dir: backend-external
             sonar_projectKey: fin-pay-transparency_backend-external
             token: SONAR_TOKEN_BACKEND_EXTERNAL
-            triggers: ('backend-external/')
     steps:
-      - name: expose private and public key as env var
-        shell: bash
-        run: |
-          EOF=" "
-          PRIVATE_KEY_VAL="${{ vars.PRIVATE_KEY }}"
-          echo "PRIVATE_KEY<<$EOF" >> $GITHUB_ENV
-          echo "$PRIVATE_KEY_VAL" >> $GITHUB_ENV
-          echo "$EOF" >> $GITHUB_ENV
-          echo $PRIVATE_KEY # test the env var was set or not
-          PUBLIC_KEY_VAL="${{ vars.PUBLIC_KEY }}"
-          echo "PUBLIC_KEY<<$EOF" >> $GITHUB_ENV
-          echo "$PUBLIC_KEY_VAL" >> $GITHUB_ENV
-          echo "$EOF" >> $GITHUB_ENV
-          echo $PUBLIC_KEY # test the env var was set or not
       - uses: bcgov-nr/action-test-and-analyse@v1.2.0
         with:
           commands: |

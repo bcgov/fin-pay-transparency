@@ -22,23 +22,6 @@ concurrency:
 
 jobs:
 
-  pr-description-add:
-    name: PR Description Add
-    runs-on: ubuntu-22.04
-    permissions:
-      pull-requests: write
-    timeout-minutes: 1
-    steps:
-      - uses: bcgov-nr/action-pr-description-add@v1.1.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          add_markdown: |
-            ---
-            Thanks for the PR!
-            
-            Deployments, as required, will be available below:
-            - [Frontend](https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca)
-
   builds:
     if: '!github.event.pull_request.head.repo.fork'
     name: Builds
