@@ -40,7 +40,7 @@
     </v-col>
     <v-col md="4" cols="12">
       <v-card class="rounded-lg">
-        <v-toolbar color="primary">
+        <v-toolbar color="tab">
           <v-toolbar-title>Updates</v-toolbar-title>
         </v-toolbar>
         <v-card-text class="mt-4 mb-4">
@@ -64,7 +64,7 @@
   <v-row class="mt-8 mb-8">
     <v-col>
       <v-card class="rounded-lg" min-height="100%">
-        <v-toolbar color="primary">
+        <v-toolbar color="tab">
           <v-toolbar-title>Submitted Reports</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
@@ -120,7 +120,7 @@
     </v-col>
     <v-col md="4" cols="12">
       <v-card class="rounded-lg">
-        <v-toolbar color="primary">
+        <v-toolbar color="tab">
           <v-toolbar-title>Sample CSV</v-toolbar-title>
         </v-toolbar>
         <v-card-text class="mt-4 mb-4">
