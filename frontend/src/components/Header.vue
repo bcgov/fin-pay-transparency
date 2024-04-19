@@ -45,24 +45,31 @@
             v-bind="props"
             arial-label="User profile"
             icon="mdi-account"
+            id="header-account-button"
             data-testid="header-account-button"
             title="User profile"
           ></v-btn>
         </template>
-        <v-card min-width="250">
+        <v-card
+          role="listbox"
+          aria-labelledby="header-account-button"
+          min-width="250"
+        >
           <template v-slot:prepend>
-            <v-list aria-label="Profile information">
-              <v-list-item :link="false" >
+            <v-list role="presentation" aria-labelledby="header-account-button">
+              <v-list-item role="presentation" :link="false">
                 <v-list-item-title
                   data-testid="header-display-name"
                   class="styles-override"
+                  role="menuitem"
                   :title="userInfo?.displayName"
                   :aria-label="userInfo?.displayName"
                   >{{ userInfo?.displayName }}</v-list-item-title
-                  >
-                  <v-list-item-subtitle
+                >
+                <v-list-item-subtitle
                   data-testid="header-legal-name"
                   class="styles-override"
+                  role="menuitem"
                   :title="userInfo?.legalName"
                   :aria-label="userInfo?.legalName"
                   >{{ userInfo?.legalName }}</v-list-item-subtitle
