@@ -68,6 +68,10 @@ jobs:
         id: generateKey
         shell: bash
         run: |
+          UI_PUBLIC_KEY=
+          UI_PRIVATE_KEY=
+          echo "::add-mask::$UI_PRIVATE_KEY"
+          echo "::add-mask::$UI_PUBLIC_KEY"
           EOF=" "
           ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key -q -N ""
           openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
@@ -75,6 +79,8 @@ jobs:
           UI_PUBLIC_KEY_VAL=$(cat jwtRS256.key.pub)
           echo "::add-mask::$UI_PRIVATE_KEY_VAL"
           echo "::add-mask::$UI_PUBLIC_KEY_VAL"
+          echo "::add-mask::$UI_PRIVATE_KEY"
+          echo "::add-mask::$UI_PUBLIC_KEY"
           echo "UI_PUBLIC_KEY<<$EOF" >> $GITHUB_OUTPUT
           echo "$UI_PUBLIC_KEY_VAL" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT

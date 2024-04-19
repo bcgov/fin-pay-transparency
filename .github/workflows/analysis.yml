@@ -82,6 +82,10 @@ jobs:
       - name: expose private and public key as env var
         shell: bash
         run: |
+          UI_PUBLIC_KEY=
+          UI_PRIVATE_KEY=
+          echo "::add-mask::$UI_PRIVATE_KEY"
+          echo "::add-mask::$UI_PUBLIC_KEY"
           EOF=" "
           PRIVATE_KEY_VAL="${{ vars.PRIVATE_KEY }}"
           echo "::add-mask::$PRIVATE_KEY_VAL"
@@ -93,6 +97,7 @@ jobs:
           echo "PUBLIC_KEY<<$EOF" >> $GITHUB_ENV
           echo "$PUBLIC_KEY_VAL" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
+
       - uses: bcgov-nr/action-test-and-analyse@v1.2.0
         with:
           commands: |
