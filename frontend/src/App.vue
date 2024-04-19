@@ -107,11 +107,7 @@ h1 {
 .v-btn.btn-secondary:hover {
   background-color: #edebe9 !important;
 }
-/*
-.v-btn.btn-disabled {
-  opacity: 0.3 !important;
-}
-*/
+
 .v-alert .v-icon {
   padding-left: 0;
 }
