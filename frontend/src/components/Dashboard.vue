@@ -30,7 +30,7 @@
         Once your CSV file is ready, click on the button below to upload the
         file and generate a report.
       </p>
-      <v-btn class="mb-4" color="primary" to="generate-report-form">
+      <v-btn class="mb-4 btn-primary" to="generate-report-form">
         Upload your CSV here
       </v-btn>
       <p class="text-caption mb-2">
@@ -40,7 +40,7 @@
     </v-col>
     <v-col md="4" cols="12">
       <v-card class="rounded-lg">
-        <v-toolbar color="primary">
+        <v-toolbar color="tab">
           <v-toolbar-title>Updates</v-toolbar-title>
         </v-toolbar>
         <v-card-text class="mt-4 mb-4">
@@ -64,7 +64,7 @@
   <v-row class="mt-8 mb-8">
     <v-col>
       <v-card class="rounded-lg" min-height="100%">
-        <v-toolbar color="primary">
+        <v-toolbar color="tab">
           <v-toolbar-title>Submitted Reports</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
@@ -120,7 +120,7 @@
     </v-col>
     <v-col md="4" cols="12">
       <v-card class="rounded-lg">
-        <v-toolbar color="primary">
+        <v-toolbar color="tab">
           <v-toolbar-title>Sample CSV</v-toolbar-title>
         </v-toolbar>
         <v-card-text class="mt-4 mb-4">
@@ -128,7 +128,7 @@
             View a sample comma-separated value (CSV) file showing the required
             format for pay transparency data uploads.
           </p>
-          <v-btn color="tertiary" href="SampleCsv.csv" download>
+          <v-btn class="btn-secondary" href="SampleCsv.csv" download>
             Download sample CSV
           </v-btn>
         </v-card-text>

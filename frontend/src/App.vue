@@ -88,6 +88,26 @@ h1 {
   text-transform: none !important;
 }
 
+.v-btn.btn-primary {
+  background-color: #053662 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.v-btn.btn-primary:hover {
+  background-color: #1e5189 !important;
+}
+
+.v-btn.btn-secondary {
+  background-color: #ffffff !important;
+  color: #2d2d2d !important;
+  border: 1px solid #323130 !important;
+}
+
+.v-btn.btn-secondary:hover {
+  background-color: #edebe9 !important;
+}
+
 .v-alert .v-icon {
   padding-left: 0;
 }

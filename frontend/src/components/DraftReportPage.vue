@@ -8,7 +8,7 @@
         bg-color="rgba(255, 255, 255, 0)"
         style="z-index: 190"
       >
-        <v-btn to="/generate-report-form">Back</v-btn>
+        <v-btn class="btn-secondary" to="/generate-report-form">Back</v-btn>
       </v-banner>
       <v-row no-gutters justify="center" class="w-100">
         <v-col cols="12" sm="11" md="11" lg="8" xl="6">
@@ -32,8 +32,7 @@
               <div class="d-flex justify-center w-100 mt-4">
                 <v-btn
                   id="backButton"
-                  color="primary"
-                  class="mr-2"
+                  class="btn-secondary mr-2"
                   to="./generate-report-form"
                 >
                   Back
@@ -41,8 +40,7 @@
 
                 <v-btn
                   id="downloadDraftPdfButton"
-                  color="primary"
-                  class="mr-2"
+                  class="btn-primary mr-2"
                   :loading="isDownloadingPdf"
                   :disabled="isDownloadingPdf"
                   @click="downloadPdf(ReportStepperStore.reportId)"
@@ -52,8 +50,7 @@
 
                 <v-btn
                   id="generateReportButton"
-                  color="primary"
-                  class="mr-2"
+                  class="btn-primary mr-2"
                   :disabled="!isReadyToGenerate"
                   @click="tryGenerateReport()"
                 >

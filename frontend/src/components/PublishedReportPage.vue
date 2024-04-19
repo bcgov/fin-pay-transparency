@@ -8,7 +8,7 @@
         bg-color="rgba(255, 255, 255, 0)"
         class="sticky-top"
       >
-        <v-btn to="/">Back</v-btn>
+        <v-btn class="btn-secondary" to="/">Back</v-btn>
       </v-banner>
       <v-row no-gutters justify="center" class="w-100">
         <v-col cols="12" sm="11" md="11" lg="8" xl="6">
@@ -34,8 +34,7 @@
       >
         <v-btn
           id="downloadPdfButton"
-          color="primary"
-          class="mr-2"
+          class="mr-2 btn-primary"
           :loading="isDownloadingPdf"
           :disabled="isDownloadingPdf"
           @click="downloadPdf(reportId)"
@@ -45,7 +44,7 @@
         <v-btn
           v-if="!!reportData && reportData.is_unlocked"
           id="editButton"
-          color="primary"
+          class="btn-primary"
           data-testid="published-report-edit-button"
           @click="editReport()"
         >
