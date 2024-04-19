@@ -84,15 +84,15 @@ jobs:
         run: |
           EOF=" "
           PRIVATE_KEY_VAL="${{ vars.PRIVATE_KEY }}"
+          echo "::add-mask::$PRIVATE_KEY_VAL"
           echo "PRIVATE_KEY<<$EOF" >> $GITHUB_ENV
           echo "$PRIVATE_KEY_VAL" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
-          echo $PRIVATE_KEY # test the env var was set or not
           PUBLIC_KEY_VAL="${{ vars.PUBLIC_KEY }}"
+          echo "::add-mask::$PUBLIC_KEY_VAL"
           echo "PUBLIC_KEY<<$EOF" >> $GITHUB_ENV
           echo "$PUBLIC_KEY_VAL" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
-          echo $PUBLIC_KEY # test the env var was set or not
       - uses: bcgov-nr/action-test-and-analyse@v1.2.0
         with:
           commands: |
