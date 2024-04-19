@@ -11,7 +11,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "report_history":"company_id":w -> "pay_transparency_company":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"employee_count_range_id":w -> "employee_count_range":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"naics_code":w -> "naics_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "report_history":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "report_history":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"user_id":w -> "pay_transparency_user":"user_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "calculated_data_history" [
    label=<

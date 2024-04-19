@@ -6,7 +6,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "calculated_data_history":"report_id":w -> "pay_transparency_report":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "pay_transparency_calculated_data":"calculation_code_id":w -> "calculation_code":"calculation_code_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_calculated_data":"report_id":w -> "pay_transparency_report":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "report_history":"elipses":w -> "pay_transparency_report":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "report_history":"elipses":w -> "pay_transparency_report":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "calculated_data_history" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">

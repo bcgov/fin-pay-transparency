@@ -185,7 +185,7 @@
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
             <child column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
-            <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+            <child column="report_id" foreignKey="report_history_report_id" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="company_id" foreignKey="report_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
@@ -271,7 +271,7 @@
             <child column="report_history_id" foreignKey="calculated_data_history_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
-            <parent column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+            <parent column="report_id" foreignKey="report_history_report_id" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="company_id" foreignKey="report_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
