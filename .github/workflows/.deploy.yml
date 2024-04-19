@@ -73,13 +73,13 @@ jobs:
           openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
           UI_PRIVATE_KEY_VAL=$(cat jwtRS256.key)
           UI_PUBLIC_KEY_VAL=$(cat jwtRS256.key.pub)
-          echo "::add-mask::UI_PUBLIC_KEY<<$EOF" >> $GITHUB_OUTPUT
+          echo "UI_PUBLIC_KEY<<$EOF" >> $GITHUB_OUTPUT
           echo "::add-mask::$UI_PUBLIC_KEY_VAL" >> $GITHUB_OUTPUT
-          echo "::add-mask::$EOF" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
-          echo "::add-mask::UI_PRIVATE_KEY<<$EOF" >> $GITHUB_OUTPUT
+          echo "UI_PRIVATE_KEY<<$EOF" >> $GITHUB_OUTPUT
           echo "::add-mask::$UI_PRIVATE_KEY_VAL" >> $GITHUB_OUTPUT
-          echo "::add-mask::$EOF" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Login to OpenShift
         shell: bash
