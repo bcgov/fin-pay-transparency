@@ -72,7 +72,7 @@ export default {
     message: null,
     title: null,
     options: {
-      color: 'primary',
+      color: 'tab',
       width: 290,
       zIndex: 200,
       dark: true,
