@@ -11,6 +11,11 @@ jest.mock('axios');
 
 jest.mock('../prisma/prisma-client', () => {
   return {
+    company_history: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     pay_transparency_company: {
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -498,13 +503,14 @@ describe('storeUserInfo', () => {
     (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
       mockUserInDB,
     );
-    await auth.storeUserInfo(req, userInfo);
+    await auth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.update).toHaveBeenCalled();
+    expect(prisma.company_history.create).toHaveBeenCalled();
   });
 
   it('should call createPayTransparencyCompany and createPayTransparencyUser if session data is present and data is not present in DB', async () => {
@@ -515,15 +521,16 @@ describe('storeUserInfo', () => {
     (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
       undefined,
     );
-    await auth.storeUserInfo(req, userInfo);
+    await auth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.create).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.create).toHaveBeenCalled();
+    expect(prisma.company_history.create).not.toHaveBeenCalled();
   });
-  it('should throw error if db transaction fails ', async () => {
+  it('should throw error if db transaction fails', async () => {
     // when findFirst is called on mock, it will return the mock objects.
     (
       prisma.pay_transparency_company.findFirst as jest.Mock
@@ -601,6 +608,7 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.pay_transparency_user.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.update).toHaveBeenCalled();
+    expect(prisma.company_history.create).toHaveBeenCalled();
   });
 
   it('should redirect to error if db call was error', async () => {
@@ -626,6 +634,7 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
+    expect(prisma.company_history.create).toHaveBeenCalled();
   });
 
   it('should redirect to error if not all company details exist', async () => {
