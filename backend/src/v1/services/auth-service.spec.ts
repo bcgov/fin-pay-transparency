@@ -450,6 +450,7 @@ const mockCompanyInSession = {
 };
 const mockCompanyInDB = {
   company_id: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
+  bceid_business_guid: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
   company_name: 'Test Company',
   address_line1: '123 Main St',
   address_line2: 'Suite 100',
@@ -664,5 +665,75 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.$transaction).toHaveBeenCalledTimes(0);
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalledTimes(0);
     expect(prisma.pay_transparency_company.update).toHaveBeenCalledTimes(0);
+  });
+});
+
+describe('isCompanyDetailsEqual', () => {
+  it('should return true if details are identical', () => {
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, mockCompanyInDB),
+    ).toBeTruthy();
+  });
+  it('should return false if any of the details are different', () => {
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        address_line1: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        address_line2: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        city: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        company_name: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        country: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        postal_code: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        province: 'different',
+      }),
+    ).toBeFalsy();
+  });
+});
+
+describe('companyDetailsToRecord', () => {
+  it('should return a pay_transparency_company record', () => {
+    const record = auth.companyDetailsToRecord(mockCompanyInSession);
+
+    expect(record.bceid_business_guid).toBeNull();
+    expect(record.company_id).toBeNull();
+    expect(record.address_line1).toBe(mockCompanyInSession.addressLine1);
+    expect(record.address_line2).toBe(mockCompanyInSession.addressLine2);
+    expect(record.city).toBe(mockCompanyInSession.city);
+    expect(record.company_name).toBe(mockCompanyInSession.legalName);
+    expect(record.country).toBe(mockCompanyInSession.country);
+    expect(record.postal_code).toBe(mockCompanyInSession.postal);
+    expect(record.province).toBe(mockCompanyInSession.province);
+    expect(record.create_date).toBeNull();
+    expect(record.update_date).toBeNull();
   });
 });
