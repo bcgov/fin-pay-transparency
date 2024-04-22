@@ -70,7 +70,17 @@
         "testRegex": ".*\\.spec\\.(t|j)s$",
         "transform": {
           "^.+\\.(t|j)s$": "ts-jest"
-        }
+        },
+        "collectCoverageFrom": [
+          "**/*.(t|j)s"
+        ],
+        "coverageDirectory": "../coverage",
+        "coveragePathIgnorePatterns": [
+          "/node_modules/",
+          "/test/",
+          "./src/server.ts"
+        ],
+        "testEnvironment": "node"
       },
       {
         "displayName": "integration",
@@ -83,18 +93,18 @@
         "testRegex": ".*\\.spec\\.(t|j)s$",
         "transform": {
           "^.+\\.(t|j)s$": "ts-jest"
-        }
+        },
+        "collectCoverageFrom": [
+          "**/*.(t|j)s"
+        ],
+        "coverageDirectory": "../coverage",
+        "coveragePathIgnorePatterns": [
+          "/node_modules/",
+          "/test/",
+          "./src/server.ts"
+        ],
+        "testEnvironment": "node"
       }
-    ],
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/test/",
-      "./src/server.ts"
     ],
     "coverageReporters": [
       "text",
@@ -102,7 +112,6 @@
       "cobertura",
       "jest-badges"
     ],
-    "testEnvironment": "node",
     "testResultsProcessor": "jest-sonar-reporter"
   },
   "eslintConfig": {
