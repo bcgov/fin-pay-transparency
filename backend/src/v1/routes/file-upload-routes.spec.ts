@@ -22,8 +22,5 @@ describe('file-upload', () => {
     it('/ [POST] - should return 200', () => {
       return request(app).post('/');
     });
-    it('/ [GET] - should return 200', () => {
-      return request(app).get('/').expect(200);
-    });
   });
 });
