@@ -1,6 +1,5 @@
 SET search_path TO pay_transparency;
 
-alter table company_history alter column company_id set default gen_random_uuid();
 alter table company_history drop column company_address;
 alter table company_history add column address_line1 varchar(255);
 alter table company_history add column address_line2 varchar(255);

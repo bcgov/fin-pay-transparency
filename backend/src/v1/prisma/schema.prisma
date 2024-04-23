@@ -10,7 +10,7 @@ datasource db {
 
 model company_history {
   company_history_id       String                   @id(map: "company_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  company_id               String                   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id               String                   @db.Uuid
   bceid_business_guid      String                   @db.Uuid
   company_name             String                   @db.VarChar(255)
   create_date              DateTime                 @default(now()) @db.Timestamp(6)
