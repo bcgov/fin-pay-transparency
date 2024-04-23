@@ -154,8 +154,8 @@ crunchy:
   # Clone From Backups Stored in S3 / GCS / Azure Blob Storage
   # TESTED SUCCESSFULLY
   clone:
-    enabled: true
-    path: /backups/cluster/version/1 # provide the proper path to source the cluster. ex: /backups/cluster/version/1, if current new cluster being created, this should be current cluster version -1, ideally
+    enabled: false
+    path: ~ # provide the proper path to source the cluster. ex: /backups/cluster/version/1, if current new cluster being created, this should be current cluster version -1, ideally
   # enable this to go back to a specific timestamp in history in the current cluster.
   # follow https://access.crunchydata.com/documentation/postgres-operator/5.2.0/tutorial/disaster-recovery/
   # Perform an In-Place Point-in-time-Recovery (PITR)
@@ -190,7 +190,7 @@ crunchy:
 
   pgBackRest:
     backupPath: /backups/cluster/version
-    clusterCounter: 2 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
+    clusterCounter: 1 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
     image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
     # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
     # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
