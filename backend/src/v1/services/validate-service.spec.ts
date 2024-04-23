@@ -1,4 +1,5 @@
 import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
+import { config } from '../../config';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import {
   FIELD_DATA_CONSTRAINTS,
@@ -194,6 +195,38 @@ beforeEach(() => {
 // Tests
 // ----------------------------------------------------------------------------
 describe('validate-service', () => {
+  describe('getValidReportingYears', () => {
+    describe('when current year < server:firstYearWithPrevReportingYearOption', () => {
+      it('returns an array of [currentYear]', () => {
+        jest.useFakeTimers();
+        const firstYearWithPrevReportingYearOption = 2025;
+        const currentYear = 2024;
+        jest.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
+        const configSpy = jest
+          .spyOn(config, 'get')
+          .mockReturnValueOnce(firstYearWithPrevReportingYearOption);
+        const validReportingYears = validateService.getValidReportingYears();
+        expect(validReportingYears).toStrictEqual([currentYear]);
+      });
+    });
+    describe('when current year >= server:firstYearWithPrevReportingYearOption', () => {
+      it('returns an array of [previousYear, currentYear]', () => {
+        jest.useFakeTimers();
+        const firstYearWithPrevReportingYearOption = 2024;
+        const currentYear = 2024;
+        jest.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
+        const configSpy = jest
+          .spyOn(config, 'get')
+          .mockReturnValueOnce(firstYearWithPrevReportingYearOption);
+        const validReportingYears = validateService.getValidReportingYears();
+        expect(validReportingYears).toStrictEqual([
+          currentYear - 1,
+          currentYear,
+        ]);
+      });
+    });
+  });
+
   describe('cleanRow', () => {
     describe('given an array of strings', () => {
       it('removes leading and trailing whitespace for each element', () => {
@@ -329,27 +362,12 @@ describe('validate-service', () => {
         );
       });
     });
-    describe('given a reporting year older than two years', () => {
+    describe('if the reporting year is outside the allowable range', () => {
       it('should return error', () => {
-        const invalidSubmission = Object.assign({}, validSubmission, {
-          reportingYear: LocalDate.now().minusYears(2),
-        });
-        const errors =
-          validateService.validateSubmissionBody(invalidSubmission);
-
-        expect(
-          doesAnyStringContainAll(errors.bodyErrors, [
-            `Reporting year must be`,
-          ]),
-        ).toBeTruthy();
-      });
-    });
-    describe('if the current year is before 2025 (system time), and the submission has reporting year of [currentYear - 1]', () => {
-      it('should return error', () => {
-        jest.useFakeTimers();
-        const currentYear = 2024;
-        jest.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
-        const reportingYear = currentYear - 1;
+        jest
+          .spyOn(validateService, 'getValidReportingYears')
+          .mockReturnValueOnce([2024]);
+        const reportingYear = 2023;
         const invalidSubmission = Object.assign({}, validSubmission, {
           reportingYear: reportingYear,
           startDate: `${reportingYear}-01-01`,
@@ -365,12 +383,12 @@ describe('validate-service', () => {
         ).toBeTruthy();
       });
     });
-    describe('if the current year is 2025 or later (system time), and the submission has reporting year of [currentYear - 1]', () => {
-      it('returns no error messages related to data constraints', () => {
-        jest.useFakeTimers();
-        const currentYear = 2025;
-        jest.setSystemTime(convert(LocalDate.of(currentYear, 1, 1)).toDate());
-        const reportingYear = currentYear - 1;
+    describe('if the reporting year is within the allowable range', () => {
+      it('returns no error messages related to reporting year', () => {
+        jest
+          .spyOn(validateService, 'getValidReportingYears')
+          .mockReturnValueOnce([2023, 2024]);
+        const reportingYear = 2023;
         const invalidSubmission = Object.assign({}, validSubmission, {
           reportingYear: reportingYear,
           startDate: `${reportingYear}-01-01`,
