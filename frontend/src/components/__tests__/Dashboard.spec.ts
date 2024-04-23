@@ -151,7 +151,6 @@ describe('Dashboard', () => {
 
       const gotoPage2Button = getByRole('button', { name: 'Go to page 2' });
       await fireEvent.click(gotoPage2Button);
-      debug();
       [0, 1, 2, 3, 4].forEach((index) => {
         expect(queryByTestId(`view-report-id${index}`)).not.toBeInTheDocument();
         expect(getByTestId(`view-report-id${index + 5}`)).toBeInTheDocument();
