@@ -220,7 +220,7 @@
                 ref="reportYear"
                 v-model="reportYear"
                 label="Year"
-                :items="reportYearList"
+                :items="reportingYearOptions"
                 :rules="requiredRules"
                 :disabled="mode == ReportMode.Edit"
               />
@@ -736,6 +736,7 @@ export default {
     submissionErrors: null as ISubmissionError | null,
     approvedRoute: null as string | null,
     reportStatus: null,
+    reportingYearOptions: [] as number[],
   }),
   computed: {
     ...mapState(useConfigStore, ['config']),
@@ -779,17 +780,6 @@ export default {
         .with(TemporalAdjusters.lastDayOfMonth())
         .format(dateFormatter);
     },
-    reportYearList() {
-      const list = [] as number[];
-      const yearNow = LocalDate.now().year();
-      if (yearNow >= 2025) {
-        //only include last year if the current year is at least 2025
-        list.push(LocalDate.now().minusYears(1).year());
-      }
-      //always include the current year
-      list.push(LocalDate.now().year());
-      return list;
-    },
     startMonthList() {
       return this.months.map((month) => {
         const selected = LocalDate.of(this.startYear, month.value, 1);
@@ -811,6 +801,9 @@ export default {
     },
     endYearList() {
       return _.range(this.minEndDate.year(), this.maxEndDate.year() + 1);
+    },
+    isEditMode() {
+      return this.reportId != null;
     },
   },
   watch: {
@@ -879,26 +872,46 @@ export default {
         this.companyAddress = address;
       },
     },
-    config(data) {
-      this.setMaxFileUploadSize(data);
+    config: {
+      immediate: true,
+      handler(data) {
+        // copy some of the config properties into properties
+        // of the component
+        this.setMaxFileUploadSize(data);
+        this.reportingYearOptions = data?.reportingYearOptions
+          ? data?.reportingYearOptions
+          : [LocalDate.now().year()];
+
+        // populate form fields that depend on the config
+        if (!this.isEditMode) {
+          this.initFormInNonEditMode();
+        }
+      },
     },
     formReady(newVal) {
       if (newVal) this.isSubmit = false;
     },
   },
-  beforeMount() {
+  async mounted() {
     this.setStage('UPLOAD');
-    this.loadConfig()
-      ?.then((data) => {
-        this.setMaxFileUploadSize(data as IConfigValue);
-      })
-      .catch(() => {
-        NotificationService.pushNotificationError(
-          'Failed to load application settings. Please reload the page.',
-        );
-      });
-
-    if (this.reportId) {
+    this.loadConfig()?.catch(() => {
+      NotificationService.pushNotificationError(
+        'Failed to load application settings. Please reload the page.',
+      );
+    });
+    if (this.isEditMode) {
+      this.initFormInEditMode();
+    }
+  },
+  methods: {
+    ...mapActions(useReportStepperStore, [
+      'setStage',
+      'setReportInfo',
+      'reset',
+    ]),
+    ...mapActions(useConfigStore, ['loadConfig']),
+    initFormInEditMode() {
+      //if edit mode
       this.comments = this.reportData.user_comment;
       this.employeeCountRange = this.reportData.employee_count_range_id;
       this.naicsCode = this.reportData.naics_code;
@@ -906,6 +919,7 @@ export default {
         typeof this.reportData.reporting_year === 'number'
           ? this.reportData.reporting_year
           : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
+      this.reportingYearOptions = [this.reportYear];
       this.startMonth = LocalDate.parse(
         this.reportData.report_start_date,
       ).monthValue();
@@ -918,18 +932,14 @@ export default {
       this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
-    } else {
-      const reportYearList = this.reportYearList;
-      this.reportYear = Math.max(...reportYearList);
-    }
-  },
-  methods: {
-    ...mapActions(useReportStepperStore, [
-      'setStage',
-      'setReportInfo',
-      'reset',
-    ]),
-    ...mapActions(useConfigStore, ['loadConfig']),
+    },
+    initFormInNonEditMode() {
+      console.log('initFormInNonEditMode');
+      const reportYearList = this.reportingYearOptions;
+      if (reportYearList?.length) {
+        this.reportYear = Math.max(...reportYearList);
+      }
+    },
     checkAndCorrectSelectedTimePeriod() {
       // Check if the currently-selected start date and end date are in the allowable
       // range.  If not, adjust them...
@@ -1145,6 +1155,6 @@ textarea::placeholder {
 }
 
 .fa-circle-info {
-  color: #255A90 !important;
+  color: #255a90 !important;
 }
 </style>

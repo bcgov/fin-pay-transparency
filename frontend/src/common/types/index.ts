@@ -1,6 +1,7 @@
 export interface IConfigValue {
   maxUploadFileSize: number;
   reportEditDurationInDays: number;
+  reportingYearOptions: number[];
 }
 
 export interface IReport {
