@@ -2,7 +2,6 @@ import { logger } from '../../logger';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { config } from '../../config';
 
-
 const prisma: PrismaClient<
   Prisma.PrismaClientOptions,
   'query' | 'info' | 'warn' | 'error'
@@ -21,5 +20,10 @@ prisma.$on('query', (e) => {
     `Query: ${e.query}- Params: ${e.params} - Duration: ${e.duration}ms`,
   );
 });
+
+// Transaction type
+export type PrismaTransactionalClient = Parameters<
+  Parameters<PrismaClient['$transaction']>[0]
+>[0];
 
 export default prisma;

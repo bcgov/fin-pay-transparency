@@ -37,12 +37,4 @@ fileUploadRouter.post(
   ),
 );
 
-fileUploadRouter.get(
-  '/',
-  utils.asyncHandler(async (_req: Request, res: Response) => {
-    const companies = await fileUploadService.getCompanies();
-    res.status(200).json(companies);
-  }),
-);
-
 export { fileUploadRouter };

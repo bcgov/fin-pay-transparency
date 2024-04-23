@@ -11,6 +11,11 @@ jest.mock('axios');
 
 jest.mock('../prisma/prisma-client', () => {
   return {
+    company_history: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     pay_transparency_company: {
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -445,6 +450,7 @@ const mockCompanyInSession = {
 };
 const mockCompanyInDB = {
   company_id: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
+  bceid_business_guid: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
   company_name: 'Test Company',
   address_line1: '123 Main St',
   address_line2: 'Suite 100',
@@ -498,13 +504,14 @@ describe('storeUserInfo', () => {
     (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
       mockUserInDB,
     );
-    await auth.storeUserInfo(req, userInfo);
+    await auth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.update).toHaveBeenCalled();
+    expect(prisma.company_history.create).toHaveBeenCalled();
   });
 
   it('should call createPayTransparencyCompany and createPayTransparencyUser if session data is present and data is not present in DB', async () => {
@@ -515,15 +522,16 @@ describe('storeUserInfo', () => {
     (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
       undefined,
     );
-    await auth.storeUserInfo(req, userInfo);
+    await auth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.create).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.create).toHaveBeenCalled();
+    expect(prisma.company_history.create).not.toHaveBeenCalled();
   });
-  it('should throw error if db transaction fails ', async () => {
+  it('should throw error if db transaction fails', async () => {
     // when findFirst is called on mock, it will return the mock objects.
     (
       prisma.pay_transparency_company.findFirst as jest.Mock
@@ -601,6 +609,7 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.pay_transparency_user.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
     expect(prisma.pay_transparency_user.update).toHaveBeenCalled();
+    expect(prisma.company_history.create).toHaveBeenCalled();
   });
 
   it('should redirect to error if db call was error', async () => {
@@ -626,6 +635,7 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
+    expect(prisma.company_history.create).toHaveBeenCalled();
   });
 
   it('should redirect to error if not all company details exist', async () => {
@@ -655,5 +665,75 @@ describe('handleCallBackBusinessBceid', () => {
     expect(prisma.$transaction).toHaveBeenCalledTimes(0);
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalledTimes(0);
     expect(prisma.pay_transparency_company.update).toHaveBeenCalledTimes(0);
+  });
+});
+
+describe('isCompanyDetailsEqual', () => {
+  it('should return true if details are identical', () => {
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, mockCompanyInDB),
+    ).toBeTruthy();
+  });
+  it('should return false if any of the details are different', () => {
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        address_line1: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        address_line2: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        city: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        company_name: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        country: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        postal_code: 'different',
+      }),
+    ).toBeFalsy();
+    expect(
+      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+        ...mockCompanyInDB,
+        province: 'different',
+      }),
+    ).toBeFalsy();
+  });
+});
+
+describe('companyDetailsToRecord', () => {
+  it('should return a pay_transparency_company record', () => {
+    const record = auth.companyDetailsToRecord(mockCompanyInSession);
+
+    expect(record.bceid_business_guid).toBeNull();
+    expect(record.company_id).toBeNull();
+    expect(record.address_line1).toBe(mockCompanyInSession.addressLine1);
+    expect(record.address_line2).toBe(mockCompanyInSession.addressLine2);
+    expect(record.city).toBe(mockCompanyInSession.city);
+    expect(record.company_name).toBe(mockCompanyInSession.legalName);
+    expect(record.country).toBe(mockCompanyInSession.country);
+    expect(record.postal_code).toBe(mockCompanyInSession.postal);
+    expect(record.province).toBe(mockCompanyInSession.province);
+    expect(record.create_date).toBeNull();
+    expect(record.update_date).toBeNull();
   });
 });

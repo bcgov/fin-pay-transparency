@@ -5,9 +5,10 @@ import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'querystring';
 import { utils } from './utils-service';
 import HttpStatus from 'http-status-codes';
-import prisma from '../prisma/prisma-client';
+import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
 import { getCompanyDetails } from '../../external/services/bceid-service';
 import { Request, NextFunction, Response } from 'express';
+import { pay_transparency_company } from '@prisma/client';
 
 let kcPublicKey: string;
 const auth = {
@@ -188,52 +189,46 @@ const auth = {
     return res.status(HttpStatus.OK).json(userInfoFrontend);
   },
 
-  createOrUpdatePayTransparencyCompany: async function (userInfo, req, tx) {
-    const existing_pay_transparency_company =
-      await tx.pay_transparency_company.findFirst({
-        where: {
-          bceid_business_guid: userInfo._json.bceid_business_guid,
-        },
-      });
-    if (existing_pay_transparency_company) {
-      existing_pay_transparency_company.update_date = new Date();
-      existing_pay_transparency_company.company_name =
-        req.session.companyDetails.legalName;
-      existing_pay_transparency_company.address_line1 =
-        req.session.companyDetails.addressLine1;
-      existing_pay_transparency_company.address_line2 =
-        req.session.companyDetails.addressLine2;
-      existing_pay_transparency_company.city = req.session.companyDetails.city;
-      existing_pay_transparency_company.province =
-        req.session.companyDetails.province;
-      existing_pay_transparency_company.country =
-        req.session.companyDetails.country;
-      existing_pay_transparency_company.postal_code =
-        req.session.companyDetails.postal;
+  /**
+   * Creates new record if this bceid is not in db.
+   * Or, updates an existing recored if the details are different
+   * and makes a copy of the old record in the history table
+   * @param company - The logged in user's company (including bceid)
+   * @param tx
+   */
+  createOrUpdatePayTransparencyCompany: async function (
+    company: pay_transparency_company,
+    tx: PrismaTransactionalClient,
+  ) {
+    const { company_id, create_date, update_date, ...data } = company; // remove some properties
+
+    const existingCompany = await tx.pay_transparency_company.findFirst({
+      where: { bceid_business_guid: company.bceid_business_guid },
+    });
+
+    // If there is no existing company, create one
+    if (!existingCompany) {
+      await tx.pay_transparency_company.create({ data: data });
+    }
+
+    // If there is an existing company and the company details are different,
+    // copy the record to the history and update the company
+    else if (!this.isCompanyDetailsEqual(company, existingCompany)) {
+      await tx.company_history.create({ data: existingCompany });
+
       await tx.pay_transparency_company.update({
         where: {
-          company_id: existing_pay_transparency_company.company_id,
+          company_id: existingCompany.company_id,
         },
-        data: existing_pay_transparency_company,
-      });
-    } else {
-      await tx.pay_transparency_company.create({
-        data: {
-          bceid_business_guid: userInfo._json.bceid_business_guid,
-          company_name: req.session.companyDetails.legalName,
-          address_line1: req.session.companyDetails.addressLine1,
-          address_line2: req.session.companyDetails.addressLine2,
-          city: req.session.companyDetails.city,
-          province: req.session.companyDetails.province,
-          country: req.session.companyDetails.country,
-          postal_code: req.session.companyDetails.postal,
-          create_date: new Date(),
-          update_date: new Date(),
-        },
+        data: { ...data, create_date: new Date(), update_date: new Date() },
       });
     }
   },
-  createOrUpdatePayTransparencyUser: async function (userInfo, tx) {
+
+  createOrUpdatePayTransparencyUser: async function (
+    userInfo,
+    tx: PrismaTransactionalClient,
+  ) {
     const existingPayTransparencyUser =
       await tx.pay_transparency_user.findFirst({
         where: {
@@ -262,13 +257,58 @@ const auth = {
       });
     }
   },
-  async storeUserInfo(req: Request, userInfo: any) {
+  /**
+   * Convert the details returned from the BCeID SAOP service into
+   * a pay_transparency_company database object
+   */
+  companyDetailsToRecord: function (
+    details,
+    bceid_guid = null,
+  ): pay_transparency_company {
+    return {
+      bceid_business_guid: bceid_guid,
+      company_id: null,
+      address_line1: details.addressLine1,
+      address_line2: details.addressLine2,
+      city: details.city,
+      company_name: details.legalName,
+      country: details.country,
+      postal_code: details.postal,
+      province: details.province,
+      create_date: null,
+      update_date: null,
+    };
+  },
+  /**
+   * Check if the name and address of two company records are the same
+   */
+  isCompanyDetailsEqual: function (
+    comp1: pay_transparency_company,
+    comp2: pay_transparency_company,
+  ): boolean {
+    return (
+      comp1.address_line1 === comp2.address_line1 &&
+      comp1.address_line2 === comp2.address_line2 &&
+      comp1.city === comp2.city &&
+      comp1.company_name === comp2.company_name &&
+      comp1.country === comp2.country &&
+      comp1.postal_code === comp2.postal_code &&
+      comp1.province === comp2.province
+    );
+  },
+
+  async storeUserInfo(companyDetails, userInfo) {
     if (!userInfo?.jwt || !userInfo?._json) {
       throw new Error('No session data');
     }
     try {
       await prisma.$transaction(async (tx) => {
-        await this.createOrUpdatePayTransparencyCompany(userInfo, req, tx);
+        const companyRecord: pay_transparency_company =
+          this.companyDetailsToRecord(
+            companyDetails,
+            userInfo._json.bceid_business_guid,
+          );
+        await this.createOrUpdatePayTransparencyCompany(companyRecord, tx);
         await this.createOrUpdatePayTransparencyUser(userInfo, tx);
       });
     } catch (e) {
@@ -276,6 +316,7 @@ const auth = {
       throw new Error('Error while storing user info');
     }
   },
+
   async handleCallBackBusinessBceid(req: Request, res: Response) {
     const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
@@ -318,7 +359,7 @@ const auth = {
       }
 
       session.companyDetails = details;
-      await auth.storeUserInfo(req, userInfo);
+      await auth.storeUserInfo(session.companyDetails, userInfo);
     } catch (e) {
       log.error(
         `Error happened while getting company details from BCEID for user ${userGuid}`,
