@@ -137,7 +137,7 @@ describe('Dashboard', () => {
           create_date: new Date().toISOString(),
         })),
       );
-      const { debug, getByTestId, queryByTestId, getByRole } = await wrappedRender();
+      const { getByTestId, queryByTestId, getByRole } = await wrappedRender();
       await waitFor(() => {
         expect(mockGetReports).toHaveBeenCalled();
       });
