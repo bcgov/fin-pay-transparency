@@ -81,7 +81,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="report in reports" :key="report.report_id">
+                <tr v-for="report in getPageReports()" :key="report.report_id">
                   <td :data-testid="'reporting_year-' + report.report_id">
                     {{ report.reporting_year }}
                   </td>
@@ -114,6 +114,12 @@
                 </tr>
               </tbody>
             </v-table>
+            <v-pagination
+              variant="outlined"
+              v-model="page"
+              size="x-small"
+              :length="totalPages"
+            ></v-pagination>
           </div>
         </v-card-text>
       </v-card>
@@ -146,6 +152,7 @@ import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
 import { DateTimeFormatter, LocalDate, ZonedDateTime } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
+import chunk from 'lodash/chunk';
 import {
   useReportStepperStore,
   ReportMode,
@@ -156,12 +163,18 @@ import { useConfigStore } from '../store/modules/config';
 type DashboardData = {
   reports: IReport[];
   userInfo?: any;
+  page: number;
+  totalPages: number;
 };
+
+const PAGE_SIZE = 5;
 
 export default {
   components: { ReportSelectionManager },
   data: (): DashboardData => ({
     reports: [],
+    page: 1,
+    totalPages: 0,
   }),
   computed: {
     ...mapState(useReportStepperStore, ['reportId']),
@@ -193,6 +206,8 @@ export default {
       this.reports = await ApiService.getReports({
         report_status: REPORT_STATUS.PUBLISHED,
       });
+
+      this.totalPages = Math.ceil(this.reports.length / PAGE_SIZE);
     },
     async viewReport(report: IReport) {
       this.setMode(ReportMode.View);
@@ -202,6 +217,10 @@ export default {
       this.setMode(ReportMode.Edit);
       await this.setReportInfo(report);
       await this.$router.push({ path: 'generate-report-form' });
+    },
+    getPageReports() {
+      const pages = chunk(this.reports, PAGE_SIZE);
+      return pages[this.page - 1];
     },
   },
 };
