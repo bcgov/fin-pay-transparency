@@ -53,14 +53,6 @@ class PayTransparencyUserError extends Error {
 }
 
 const fileUploadService = {
-  async saveFileUpload(fileUpload) {
-    return prisma.pay_transparency_company.create({ data: { ...fileUpload } });
-  },
-
-  async getCompanies() {
-    return prisma.pay_transparency_company.findMany();
-  },
-
   /* save the report body and the calculated amounts to the database */
   async saveDraftReport(
     userInfo: any,
