@@ -1,13 +1,8 @@
-import {
-  DateTimeFormatter,
-  LocalDate,
-  TemporalAdjusters,
-  convert,
-} from '@js-joda/core';
+import { DateTimeFormatter, LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
-import { mount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { flushPromises, mount } from '@vue/test-utils';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
@@ -54,21 +49,17 @@ const mockReport = {
   is_unlocked: true,
 };
 
+const mockConfig = {
+  maxUploadFileSize: 8388608, //bytes
+  reportEditDurationInDays: 30,
+  reportingYearOptions: [2023, 2024],
+};
+
 describe('InputForm', () => {
   let wrapper;
   let pinia;
 
-  const initWrapper = (options: any = {}) => {
-    const defaultOptions = { date: null };
-    options = { ...defaultOptions, ...options };
-
-    if (options.date) {
-      vi.useFakeTimers();
-      vi.setSystemTime(options.date);
-    } else {
-      vi.useRealTimers();
-    }
-
+  const initWrapper = async (options: any = {}) => {
     //create an instances of vuetify and pinia so we can inject them
     //into the mounted component, allowing it to behave as it would
     //in a browser
@@ -80,6 +71,7 @@ describe('InputForm', () => {
     pinia = createTestingPinia({
       initialState: {
         code: {},
+        config: { config: mockConfig },
       },
     });
 
@@ -88,17 +80,17 @@ describe('InputForm', () => {
         plugins: [vuetify, pinia],
       },
     });
+    await flushPromises();
   };
 
-  beforeEach(() => {
-    initWrapper();
+  beforeEach(async () => {
+    await initWrapper();
   });
 
   afterEach(() => {
     if (wrapper) {
       wrapper.unmount();
     }
-    vi.useRealTimers();
   });
 
   describe('submit', () => {
@@ -287,23 +279,6 @@ describe('InputForm', () => {
       ).toBeFalsy();
     }
   });
-
-  describe('reportYearList', () => {
-    describe('when the current year is before 2025', () => {
-      it('the current year is the only reporting year option', () => {
-        initWrapper({ date: convert(LocalDate.of(2024, 12, 31)).toDate() });
-        const list = wrapper.vm.reportYearList;
-        expect(list).toStrictEqual([2024]);
-      });
-    });
-    describe('when the current year is after 2024', () => {
-      it('there are two reporting year options: [previous year, current year]', () => {
-        initWrapper({ date: convert(LocalDate.of(2025, 1, 1)).toDate() });
-        const list = wrapper.vm.reportYearList;
-        expect(list).toStrictEqual([2024, 2025]);
-      });
-    });
-  });
 });
 
 describe('InputForm Edit Mode', () => {
@@ -331,6 +306,8 @@ describe('InputForm Edit Mode', () => {
           reportData: mockReport,
           reportId: mockReport.report_id,
         },
+
+        config: { config: mockConfig },
       },
     });
 
@@ -339,6 +316,7 @@ describe('InputForm Edit Mode', () => {
         plugins: [vuetify, pinia],
       },
     });
+    await flushPromises();
   });
 
   afterEach(() => {

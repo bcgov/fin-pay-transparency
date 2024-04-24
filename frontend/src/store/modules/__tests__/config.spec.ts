@@ -1,7 +1,7 @@
-import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { setActivePinia, createPinia } from 'pinia';
-import { useConfigStore } from '../config';
+import { createPinia, setActivePinia } from 'pinia';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { IConfigValue } from '../../../common/types';
+import { useConfigStore } from '../config';
 
 const mockGetConfig = vi.fn();
 
@@ -14,8 +14,11 @@ vi.mock('../../../common/apiService', () => ({
 describe('useConfigStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+  });
+  afterEach(() => {
     vi.clearAllMocks();
   });
+
   describe('defaults', () => {
     it('should default to undefined config value', () => {
       const store = useConfigStore();
