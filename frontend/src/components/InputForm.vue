@@ -934,7 +934,6 @@ export default {
       this.reportStatus = this.reportData.report_status;
     },
     initFormInNonEditMode() {
-      console.log('initFormInNonEditMode');
       const reportYearList = this.reportingYearOptions;
       if (reportYearList?.length) {
         this.reportYear = Math.max(...reportYearList);
