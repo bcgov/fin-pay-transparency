@@ -2,7 +2,7 @@ import http from 'http';
 import { config } from './config/index';
 import { logger } from './logger';
 import { app } from './app';
-import { browser, initBrowser } from './v1/services/puppeteer-service';
+import { getBrowser, initBrowser } from './v1/services/puppeteer-service';
 
 // run inside `async` function
 const port = config.get('server:port');
@@ -18,15 +18,22 @@ if (env === 'local') {
   logger.info(`Running in ${env} environment`);
   initBrowser()
     .then(() => {
-      logger.info('Browser initialized')
-      browser
-      .disconnect()
-      .then(() => {
-          logger.info('Browser disconnected')
-          app.set('port', port);
-          server.listen(port);
-          server.on('error', onError);
-          server.on('listening', onListening);
+      logger.info('Browser initialized');
+      getBrowser()
+        .then((browser) => {
+          browser
+            .disconnect()
+            .then(() => {
+              logger.info('Browser disconnected');
+              app.set('port', port);
+              server.listen(port);
+              server.on('error', onError);
+              server.on('listening', onListening);
+            })
+            .catch((e) => {
+              logger.error(e);
+              process.exit(1);
+            });
         })
         .catch((e) => {
           logger.error(e);
@@ -38,7 +45,6 @@ if (env === 'local') {
       process.exit(1);
     });
 }
-
 
 /**
  * Event listener for HTTP server "error" event.
@@ -96,7 +102,7 @@ process.on(
 // Prevent unhandled promise errors from crashing application
 process.on(
   'unhandledRejection',
-  /* istanbul ignore next */ 
+  /* istanbul ignore next */
   (err: Error) => {
     if (err?.stack) {
       logger.error(err);
