@@ -1,609 +1,627 @@
 <template>
-  <v-container class="pb-0">
-    <v-row no-gutters>
-      <v-col>
-        <v-alert
-          v-if="mode == ReportMode.Edit"
-          closable
-          text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
-          class="alert-info"
-          variant="tonal"
-        >
-        </v-alert>
-      </v-col>
-    </v-row>
-  </v-container>
-  <v-banner
-    sticky
-    width=" fit-content"
-    border="none"
-    bg-color="rgba(255, 255, 255, 0)"
-    style="z-index: 190"
-    density="compact"
-  >
-    <v-btn class="btn-secondary" to="/">Back</v-btn>
-  </v-banner>
-  <v-container fluid>
-    <v-form ref="inputForm" @submit.prevent="submit">
-      <v-row class="justify-center" no-gutters>
-        <v-col cols="12" class="w-100">
-          <ReportStepper />
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="12">
-          <v-banner border class="text-grey-darken-1 justify-center">
-            Disclaimer: This tool relies on the employer supplying accurate and
-            complete payroll data in order to calculate pay gaps.
-          </v-banner>
-        </v-col>
-      </v-row>
-      <v-row class="mt-6" dense>
-        <v-col class="text-body-1 font-weight-bold"> Employer </v-col>
-      </v-row>
-      <v-row dense>
-        <v-col
-          id="companyName"
-          class="font-weight-bold text-h5 d-flex align-center"
-        >
-          <v-icon
-            icon="fa:fas fa-user"
-            size="small"
-            color="primary"
-            class="mr-3"
-          />
-          {{ companyName }}
-        </v-col>
-      </v-row>
-      <v-row dense>
-        <v-col id="companyAddress" class="text-h5 d-flex align-center">
-          <v-icon
-            icon="fa:fas fa-location-dot"
-            color="primary"
-            size="small"
-            class="mr-3"
-          />
-          {{ companyAddress }}
-        </v-col>
-      </v-row>
-      <v-row class="my-7">
-        <v-col>
-          <v-divider />
-        </v-col>
-      </v-row>
+  <v-container class="d-flex justify-center h-100">
+    <v-form ref="inputForm" @submit.prevent="submit" class="w-100 h-100">
       <v-row no-gutters>
-        <v-col class="text-subtitle-2">
-          Fields marked
-          <span class="text-error font-weight-bold text-h6">*</span>
-          are required.
-        </v-col>
-      </v-row>
-      <!-- NAICS Code -->
-      <v-row>
-        <v-col>
-          <div class="text-body-1 font-weight-bold">
-            <label
-              for="naicsCode"
-              color="error"
-              :class="{ 'text-error': isSubmit && !naicsCode }"
-            >
-              NAICS Code
-            </label>
-            <span class="text-error font-weight-bold text-h6">*</span>
-            <v-tooltip
-              text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer is composed of multiple sectors, select the code that covers the majority of employees."
-              :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
-              id="naics-tooltip"
-            >
-              <template #activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  icon="fa:fas fa-circle-info"
-                  size="x-small"
-                  color="primary"
-                  class="ml-1"
-                  tabindex="0"
-                  role="tooltip"
-                  aria-labeledby="naics-tooltip"
-                />
-              </template>
-            </v-tooltip>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row dense>
-        <v-col>
-          <v-autocomplete
-            id="naicsCode"
-            ref="naicsCode"
-            v-model="naicsCode"
-            :rules="requiredRules"
-            :items="naicsCodes"
-            :item-title="(n: any) => `${n.naics_code} - ${n.naics_label}`"
-            item-value="naics_code"
-            label="Select"
-            required
-          >
-          </v-autocomplete>
-        </v-col>
-      </v-row>
-      <!-- Employee Count Range -->
-      <v-row>
-        <v-col>
-          <div class="text-body-1 font-weight-bold">
-            <span
-              id="employeeCountRange-label"
-              :class="{ 'text-error': isSubmit && !employeeCountRange }"
-            >
-              Employee Count Range
-            </span>
-            <span class="text-error font-weight-bold text-h6">*</span>
-            <v-tooltip
-              text="Select the range closest to the number of employees employed as of January 1st of the year for which your report is being prepared."
-              :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
-              id="employee-count-tooltip"
-            >
-              <template #activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  icon="fa:fas fa-circle-info"
-                  size="x-small"
-                  color="primary"
-                  class="ml-1"
-                  tabindex="0"
-                  role="tooltip"
-                  aria-labeledby="employee-count-tooltip"
-                />
-              </template>
-            </v-tooltip>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row dense>
-        <v-col>
-          <v-radio-group
-            id="employeeCountRange"
-            ref="employeeCountRange"
-            v-model="employeeCountRange"
-            :rules="requiredRules"
-            inline
-            required
-          >
-            <v-radio
-              v-for="range in employeeCountRanges"
-              :key="range.employee_count_range_id"
-              :label="range.employee_count_range"
-              :value="range.employee_count_range_id"
-            ></v-radio>
-          </v-radio-group>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="12" sm="4" md="3">
-          <v-row>
-            <v-col>
-              <div class="text-body-1 font-weight-bold">
-                <label
-                  for="reportYear"
-                  :class="{ 'text-disabled': mode == ReportMode.Edit }"
-                >
-                  Reporting Year:
-                </label>
-                <span class="text-error font-weight-bold text-h6">*</span>
-                <v-tooltip
-                  text="Reporting employers are required to submit pay transparency reports by November 1st of each year. Select the year you are submitting a report for."
-                  :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
-                  id="reporting-year-tooltip"
-                >
-                  <template #activator="{ props }">
-                    <v-icon
-                      v-bind="props"
-                      icon="fa:fas fa-circle-info"
-                      size="x-small"
-                      color="primary"
-                      class="ml-1"
-                      tabindex="0"
-                      role="tooltip"
-                      aria-labeledby="reporting-year-tooltip"
-                    />
-                  </template>
-                </v-tooltip>
-              </div>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-select
-                id="reportYear"
-                ref="reportYear"
-                v-model="reportYear"
-                label="Year"
-                :items="reportingYearOptions"
-                :rules="requiredRules"
-                :disabled="mode == ReportMode.Edit"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col cols="12" md="9">
-          <v-row>
-            <v-col class="pb-0">
-              <div class="text-body-1 font-weight-bold">
-                <span
-                  :class="{
-                    'text-error':
-                      isSubmit &&
-                      (!startMonth ||
-                        !startYear ||
-                        !endMonth ||
-                        !endYear ||
-                        !reportYear),
-                  }"
-                >
-                  Time Period
-                </span>
-                <span class="text-error font-weight-bold text-h6">*</span>
-                <v-tooltip
-                  text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
-                  :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
-                  id="time-period-tooltip"
-                >
-                  <template #activator="{ props }">
-                    <v-icon
-                      v-bind="props"
-                      icon="fa:fas fa-circle-info"
-                      size="x-small"
-                      color="primary"
-                      class="ml-1"
-                      tabindex="0"
-                      role="tooltip"
-                      aria-labeledby="time-period-tooltip"
-                    />
-                  </template>
-                </v-tooltip>
-              </div>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col sm="6" cols="12" class="pt-0 pe-sm-0">
-              <v-row dense align="end">
-                <!-- startMonth -->
-                <v-col>
-                  <span class="text-grey-darken-1">From</span>
-                  <v-select
-                    id="startMonth"
-                    ref="startMonth"
-                    v-model="startMonth"
-                    label="Month"
-                    :items="startMonthList"
-                    :return-object="false"
-                    :rules="requiredRules"
-                  />
-                </v-col>
-                <!-- startYear -->
-                <v-col>
-                  <v-select
-                    id="startYear"
-                    ref="startYear"
-                    v-model="startYear"
-                    label="Year"
-                    :items="startYearList"
-                    :rules="requiredRules"
-                  />
-                </v-col>
-              </v-row>
-            </v-col>
-            <!-- endMonth, endYear -->
-            <v-col sm="6" cols="12" class="pt-0">
-              <v-row dense align="end">
-                <v-col
-                  v-if="!$vuetify.display.xs"
-                  cols="1"
-                  class="d-flex justify-center text-h3 text-grey-darken-1"
-                  align-self="center"
-                >
-                  -
-                </v-col>
-                <!-- endMonth -->
-                <v-col>
-                  <span class="text-grey-darken-1"> To </span>
-                  <v-select
-                    id="endMonth"
-                    ref="endMonth"
-                    v-model="endMonth"
-                    label="Month"
-                    :items="endMonthList"
-                    :return-object="false"
-                    :rules="requiredRules"
-                  />
-                </v-col>
-                <!-- endYear -->
-                <v-col>
-                  <v-select
-                    id="endYear"
-                    ref="endYear"
-                    v-model="endYear"
-                    label="Year"
-                    :items="endYearList"
-                    :rules="requiredRules"
-                  />
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-
-      <!-- Employer Statement -->
-      <v-row>
-        <v-col>
-          <div class="text-body-1 font-weight-bold">
-            <label for="comments"> Employer Statement </label>
-            <v-tooltip
-              text="Please share any general information about your employer."
-              id="employer-statement-tooltip"
-            >
-              <template #activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  icon="fa:fas fa-circle-info"
-                  size="x-small"
-                  color="primary"
-                  class="mr-1"
-                  tabindex="0"
-                  role="tooltip"
-                  aria-labeledby="employer-statement-tooltip"
-                />
-              </template>
-            </v-tooltip>
-            <span class="text-subtitle-2 text-grey">
-              (Optional: you can return to this page to complete it after
-              viewing your draft report.)
-            </span>
-          </div>
-          <div class="text-subtitle-2 text-grey-darken-1">
-            This will appear at the top of your pay transparency report.
-          </div>
-        </v-col>
-      </v-row>
-      <v-row dense>
-        <v-col>
-          <v-textarea
-            id="comments"
-            v-model="comments"
-            placeholder="Maximum 4,000 characters"
-            maxlength="4000"
-            counter
-          />
-        </v-col>
-      </v-row>
-      <!-- Data Constraints -->
-      <v-row>
-        <v-col>
-          <div class="text-body-1 font-weight-bold">
-            <label for="dataConstraints"> Data Constraints </label>
-            <v-tooltip
-              text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
-              :width="$vuetify.display.xs ? $vuetify.display.width : '50%'"
-              id="data-constraints-tooltip"
-            >
-              <template #activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  icon="fa:fas fa-circle-info"
-                  size="x-small"
-                  color="primary"
-                  class="mr-1"
-                  tabindex="0"
-                  role="tooltip"
-                  aria-labeledby="data-constraints-tooltip"
-                />
-              </template>
-            </v-tooltip>
-            <span class="text-subtitle-2 text-grey">
-              (Optional: you can return to this page to complete it after
-              viewing your draft report.)
-            </span>
-          </div>
-          <div class="text-subtitle-2 text-grey-darken-1">
-            This will appear at the bottom of your pay transparency report.
-          </div>
-        </v-col>
-      </v-row>
-      <v-row dense>
-        <v-col>
-          <v-textarea
-            id="dataConstraints"
-            v-model="dataConstraints"
-            placeholder="Maximum 3,000 characters"
-            maxlength="3000"
-            counter
-          />
-        </v-col>
-      </v-row>
-      <!-- File Upload -->
-      <v-row>
-        <v-col>
-          <div class="text-body-1 font-weight-bold">
-            <label
-              for="csvFile"
-              :class="{ 'text-error': isSubmit && !uploadFileValue }"
-            >
-              File Upload
-            </label>
-            <span class="text-error font-weight-bold text-h6">*</span>
-            <div class="text-subtitle-2 text-grey-darken-1">
-              To proceed, upload your employee data in comma-separated value
-              (CSV) format. Ensure the CSV file follows the provided
-              <a href="SampleCsv.csv" download>CSV Sample</a>
-              for accurate processing.
-            </div>
-          </div>
-        </v-col>
-      </v-row>
-
-      <!-- Body Submission Errors -->
-      <v-row v-if="submissionErrors?.bodyErrors" class="mb-3">
         <v-col>
           <v-alert
-            v-for="bodyError in submissionErrors.bodyErrors"
-            :key="bodyError"
-            color="error"
-            icon="fa:fas fa-triangle-exclamation"
-            class="alert-error font-weight-bold mb-3"
-            variant="outlined"
+            v-if="mode == ReportMode.Edit"
+            closable
+            text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
+            class="alert-info"
+            variant="tonal"
           >
-            {{ bodyError }}
           </v-alert>
         </v-col>
       </v-row>
+      <v-banner
+        sticky
+        width="fit-content"
+        border="none"
+        bg-color="rgba(255, 255, 255, 0)"
+        style="z-index: 190"
+        density="compact"
+      >
+        <v-btn class="btn-secondary" to="/">Back</v-btn>
+      </v-banner>
 
-      <!-- General Submission Errors -->
-      <v-row v-if="submissionErrors?.generalErrors" class="mb-3">
-        <v-col>
-          <v-alert
-            v-for="generalError in submissionErrors.generalErrors"
-            :key="generalError"
-            color="error"
-            icon="fa:fas fa-triangle-exclamation"
-            class="alert-error font-weight-bold mb-3"
-            variant="outlined"
-          >
-            {{ generalError }}
-          </v-alert>
-        </v-col>
-      </v-row>
-
-      <!-- File Submission Errors -->
-      <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
-        <v-col>
-          <v-alert class="pa-0 alert-error" variant="outlined">
-            <!-- errors related to the content of specific lines in the file -->
-            <div class="d-flex font-weight-bold">
-              <v-icon
-                icon="fa:fas fa-triangle-exclamation"
-                class="my-3 ml-3"
-              ></v-icon>
-              <p class="ma-3">
-                The submission contains errors which must be corrected. Please
-                review the following lines from the uploaded file:
-              </p>
-            </div>
-            <v-divider color="error" class="border-opacity-100" />
-            <v-table density="compact">
-              <thead>
-                <tr>
-                  <th id="line-num-header" class="text-left">Row</th>
-                  <th id="problem-desc-header" class="text-left">Problem(s)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="rowError in submissionErrors.rowErrors"
-                  :key="rowError.rowNum"
+      <v-row no-gutters justify="center" class="w-100">
+        <v-col cols="12" sm="11" md="11" lg="8" xl="6">
+          <v-row class="mb-4 d-flex justify-center w-100">
+            <v-col cols="12" class="w-100">
+              <ReportStepper />
+            </v-col>
+          </v-row>
+          <div>
+            <v-row>
+              <v-col cols="12">
+                <v-banner border class="text-grey-darken-1 justify-center">
+                  Disclaimer: This tool relies on the employer supplying
+                  accurate and complete payroll data in order to calculate pay
+                  gaps.
+                </v-banner>
+              </v-col>
+            </v-row>
+            <v-row class="mt-6" dense>
+              <v-col class="text-body-1 font-weight-bold"> Employer </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col
+                id="companyName"
+                class="font-weight-bold text-h5 d-flex align-center"
+              >
+                <v-icon
+                  icon="fa:fas fa-user"
+                  size="small"
+                  color="primary"
+                  class="mr-3"
+                />
+                {{ companyName }}
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col id="companyAddress" class="text-h5 d-flex align-center">
+                <v-icon
+                  icon="fa:fas fa-location-dot"
+                  color="primary"
+                  size="small"
+                  class="mr-3"
+                />
+                {{ companyAddress }}
+              </v-col>
+            </v-row>
+            <v-row class="my-7">
+              <v-col>
+                <v-divider />
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col class="text-subtitle-2">
+                Fields marked
+                <span class="text-error font-weight-bold text-h6">*</span>
+                are required.
+              </v-col>
+            </v-row>
+            <!-- NAICS Code -->
+            <v-row>
+              <v-col>
+                <div class="text-body-1 font-weight-bold">
+                  <label
+                    for="naicsCode"
+                    color="error"
+                    :class="{ 'text-error': isSubmit && !naicsCode }"
+                  >
+                    NAICS Code
+                  </label>
+                  <span class="text-error font-weight-bold text-h6">*</span>
+                  <v-tooltip
+                    text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer is composed of multiple sectors, select the code that covers the majority of employees."
+                    :width="
+                      $vuetify.display.xs ? $vuetify.display.width : '50%'
+                    "
+                    id="naics-tooltip"
+                  >
+                    <template #activator="{ props }">
+                      <v-icon
+                        v-bind="props"
+                        icon="fa:fas fa-circle-info"
+                        size="x-small"
+                        color="primary"
+                        class="ml-1"
+                        tabindex="0"
+                        role="tooltip"
+                        aria-labeledby="naics-tooltip"
+                      />
+                    </template>
+                  </v-tooltip>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col>
+                <v-autocomplete
+                  id="naicsCode"
+                  ref="naicsCode"
+                  v-model="naicsCode"
+                  :rules="requiredRules"
+                  :items="naicsCodes"
+                  :item-title="(n: any) => `${n.naics_code} - ${n.naics_label}`"
+                  item-value="naics_code"
+                  label="Select"
+                  required
                 >
-                  <td class="text-left">{{ rowError.rowNum }}</td>
-                  <td class="text-left">
-                    <span
-                      v-for="errMsg in rowError.errorMsgs"
-                      :key="errMsg"
-                      class="mr-2"
-                    >
-                      {{ errMsg }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-alert>
-        </v-col>
-      </v-row>
+                </v-autocomplete>
+              </v-col>
+            </v-row>
+            <!-- Employee Count Range -->
+            <v-row>
+              <v-col>
+                <div class="text-body-1 font-weight-bold">
+                  <span
+                    id="employeeCountRange-label"
+                    :class="{ 'text-error': isSubmit && !employeeCountRange }"
+                  >
+                    Employee Count Range
+                  </span>
+                  <span class="text-error font-weight-bold text-h6">*</span>
+                  <v-tooltip
+                    text="Select the range closest to the number of employees employed as of January 1st of the year for which your report is being prepared."
+                    :width="
+                      $vuetify.display.xs ? $vuetify.display.width : '50%'
+                    "
+                    id="employee-count-tooltip"
+                  >
+                    <template #activator="{ props }">
+                      <v-icon
+                        v-bind="props"
+                        icon="fa:fas fa-circle-info"
+                        size="x-small"
+                        color="primary"
+                        class="ml-1"
+                        tabindex="0"
+                        role="tooltip"
+                        aria-labeledby="employee-count-tooltip"
+                      />
+                    </template>
+                  </v-tooltip>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col>
+                <v-radio-group
+                  id="employeeCountRange"
+                  ref="employeeCountRange"
+                  v-model="employeeCountRange"
+                  :rules="requiredRules"
+                  inline
+                  required
+                >
+                  <v-radio
+                    v-for="range in employeeCountRanges"
+                    :key="range.employee_count_range_id"
+                    :label="range.employee_count_range"
+                    :value="range.employee_count_range_id"
+                  ></v-radio>
+                </v-radio-group>
+              </v-col>
+            </v-row>
 
-      <v-row
-        dense
-        class="pa-5 d-flex align-center"
-        style="
-          border-style: dashed;
-          border: 3px dashed #666666;
-          border-radius: 10px;
-          min-height: 7em;
-        "
-        :class="{ 'file-success': !!uploadFileValue }"
-      >
-        <v-col>
-          <div
-            v-if="!uploadFileValue"
-            class="d-flex justify-center align-center"
-          >
-            <p class="text-subtitle-2 text-grey-darken-1 mr-2">
-              Supported format: CSV. Maximum file size:
-              {{ maxFileUploadSize }}.
-            </p>
-            <v-btn
-              id="uploadFileButton"
-              class="btn-secondary"
-              type="button"
-              @click="selectFile"
-              :loading="isSelectingFile"
+            <v-row>
+              <v-col cols="12" sm="4" md="3">
+                <v-row>
+                  <v-col>
+                    <div class="text-body-1 font-weight-bold">
+                      <label
+                        for="reportYear"
+                        :class="{ 'text-disabled': mode == ReportMode.Edit }"
+                      >
+                        Reporting Year:
+                      </label>
+                      <span class="text-error font-weight-bold text-h6">*</span>
+                      <v-tooltip
+                        text="Reporting employers are required to submit pay transparency reports by November 1st of each year. Select the year you are submitting a report for."
+                        :width="
+                          $vuetify.display.xs ? $vuetify.display.width : '50%'
+                        "
+                        id="reporting-year-tooltip"
+                      >
+                        <template #activator="{ props }">
+                          <v-icon
+                            v-bind="props"
+                            icon="fa:fas fa-circle-info"
+                            size="x-small"
+                            color="primary"
+                            class="ml-1"
+                            tabindex="0"
+                            role="tooltip"
+                            aria-labeledby="reporting-year-tooltip"
+                          />
+                        </template>
+                      </v-tooltip>
+                    </div>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col>
+                    <v-select
+                      id="reportYear"
+                      ref="reportYear"
+                      v-model="reportYear"
+                      label="Year"
+                      :items="reportingYearOptions"
+                      :rules="requiredRules"
+                      :disabled="mode == ReportMode.Edit"
+                    />
+                  </v-col>
+                </v-row>
+              </v-col>
+              <v-col cols="12" md="9">
+                <v-row>
+                  <v-col class="pb-0">
+                    <div class="text-body-1 font-weight-bold">
+                      <span
+                        :class="{
+                          'text-error':
+                            isSubmit &&
+                            (!startMonth ||
+                              !startYear ||
+                              !endMonth ||
+                              !endYear ||
+                              !reportYear),
+                        }"
+                      >
+                        Time Period
+                      </span>
+                      <span class="text-error font-weight-bold text-h6">*</span>
+                      <v-tooltip
+                        text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
+                        :width="
+                          $vuetify.display.xs ? $vuetify.display.width : '50%'
+                        "
+                        id="time-period-tooltip"
+                      >
+                        <template #activator="{ props }">
+                          <v-icon
+                            v-bind="props"
+                            icon="fa:fas fa-circle-info"
+                            size="x-small"
+                            color="primary"
+                            class="ml-1"
+                            tabindex="0"
+                            role="tooltip"
+                            aria-labeledby="time-period-tooltip"
+                          />
+                        </template>
+                      </v-tooltip>
+                    </div>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col sm="6" cols="12" class="pt-0 pe-sm-0">
+                    <v-row dense align="end">
+                      <!-- startMonth -->
+                      <v-col>
+                        <span class="text-grey-darken-1">From</span>
+                        <v-select
+                          id="startMonth"
+                          ref="startMonth"
+                          v-model="startMonth"
+                          label="Month"
+                          :items="startMonthList"
+                          :return-object="false"
+                          :rules="requiredRules"
+                        />
+                      </v-col>
+                      <!-- startYear -->
+                      <v-col>
+                        <v-select
+                          id="startYear"
+                          ref="startYear"
+                          v-model="startYear"
+                          label="Year"
+                          :items="startYearList"
+                          :rules="requiredRules"
+                        />
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                  <!-- endMonth, endYear -->
+                  <v-col sm="6" cols="12" class="pt-0">
+                    <v-row dense align="end">
+                      <v-col
+                        v-if="!$vuetify.display.xs"
+                        cols="1"
+                        class="d-flex justify-center text-h3 text-grey-darken-1"
+                        align-self="center"
+                      >
+                        -
+                      </v-col>
+                      <!-- endMonth -->
+                      <v-col>
+                        <span class="text-grey-darken-1"> To </span>
+                        <v-select
+                          id="endMonth"
+                          ref="endMonth"
+                          v-model="endMonth"
+                          label="Month"
+                          :items="endMonthList"
+                          :return-object="false"
+                          :rules="requiredRules"
+                        />
+                      </v-col>
+                      <!-- endYear -->
+                      <v-col>
+                        <v-select
+                          id="endYear"
+                          ref="endYear"
+                          v-model="endYear"
+                          label="Year"
+                          :items="endYearList"
+                          :rules="requiredRules"
+                        />
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+
+            <!-- Employer Statement -->
+            <v-row>
+              <v-col>
+                <div class="text-body-1 font-weight-bold">
+                  <label for="comments"> Employer Statement </label>
+                  <v-tooltip
+                    text="Please share any general information about your employer."
+                    id="employer-statement-tooltip"
+                  >
+                    <template #activator="{ props }">
+                      <v-icon
+                        v-bind="props"
+                        icon="fa:fas fa-circle-info"
+                        size="x-small"
+                        color="primary"
+                        class="mr-1"
+                        tabindex="0"
+                        role="tooltip"
+                        aria-labeledby="employer-statement-tooltip"
+                      />
+                    </template>
+                  </v-tooltip>
+                  <span class="text-subtitle-2 text-grey">
+                    (Optional: you can return to this page to complete it after
+                    viewing your draft report.)
+                  </span>
+                </div>
+                <div class="text-subtitle-2 text-grey-darken-1">
+                  This will appear at the top of your pay transparency report.
+                </div>
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col>
+                <v-textarea
+                  id="comments"
+                  v-model="comments"
+                  placeholder="Maximum 4,000 characters"
+                  maxlength="4000"
+                  counter
+                />
+              </v-col>
+            </v-row>
+            <!-- Data Constraints -->
+            <v-row>
+              <v-col>
+                <div class="text-body-1 font-weight-bold">
+                  <label for="dataConstraints"> Data Constraints </label>
+                  <v-tooltip
+                    text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
+                    :width="
+                      $vuetify.display.xs ? $vuetify.display.width : '50%'
+                    "
+                    id="data-constraints-tooltip"
+                  >
+                    <template #activator="{ props }">
+                      <v-icon
+                        v-bind="props"
+                        icon="fa:fas fa-circle-info"
+                        size="x-small"
+                        color="primary"
+                        class="mr-1"
+                        tabindex="0"
+                        role="tooltip"
+                        aria-labeledby="data-constraints-tooltip"
+                      />
+                    </template>
+                  </v-tooltip>
+                  <span class="text-subtitle-2 text-grey">
+                    (Optional: you can return to this page to complete it after
+                    viewing your draft report.)
+                  </span>
+                </div>
+                <div class="text-subtitle-2 text-grey-darken-1">
+                  This will appear at the bottom of your pay transparency
+                  report.
+                </div>
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col>
+                <v-textarea
+                  id="dataConstraints"
+                  v-model="dataConstraints"
+                  placeholder="Maximum 3,000 characters"
+                  maxlength="3000"
+                  counter
+                />
+              </v-col>
+            </v-row>
+            <!-- File Upload -->
+            <v-row>
+              <v-col>
+                <div class="text-body-1 font-weight-bold">
+                  <label
+                    for="csvFile"
+                    :class="{ 'text-error': isSubmit && !uploadFileValue }"
+                  >
+                    File Upload
+                  </label>
+                  <span class="text-error font-weight-bold text-h6">*</span>
+                  <div class="text-subtitle-2 text-grey-darken-1">
+                    To proceed, upload your employee data in comma-separated
+                    value (CSV) format. Ensure the CSV file follows the provided
+                    <a href="SampleCsv.csv" download>CSV Sample</a>
+                    for accurate processing.
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+
+            <!-- Body Submission Errors -->
+            <v-row v-if="submissionErrors?.bodyErrors" class="mb-3">
+              <v-col>
+                <v-alert
+                  v-for="bodyError in submissionErrors.bodyErrors"
+                  :key="bodyError"
+                  color="error"
+                  icon="fa:fas fa-triangle-exclamation"
+                  class="alert-error font-weight-bold mb-3"
+                  variant="outlined"
+                >
+                  {{ bodyError }}
+                </v-alert>
+              </v-col>
+            </v-row>
+
+            <!-- General Submission Errors -->
+            <v-row v-if="submissionErrors?.generalErrors" class="mb-3">
+              <v-col>
+                <v-alert
+                  v-for="generalError in submissionErrors.generalErrors"
+                  :key="generalError"
+                  color="error"
+                  icon="fa:fas fa-triangle-exclamation"
+                  class="alert-error font-weight-bold mb-3"
+                  variant="outlined"
+                >
+                  {{ generalError }}
+                </v-alert>
+              </v-col>
+            </v-row>
+
+            <!-- File Submission Errors -->
+            <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
+              <v-col>
+                <v-alert class="pa-0 alert-error" variant="outlined">
+                  <!-- errors related to the content of specific lines in the file -->
+                  <div class="d-flex font-weight-bold">
+                    <v-icon
+                      icon="fa:fas fa-triangle-exclamation"
+                      class="my-3 ml-3"
+                    ></v-icon>
+                    <p class="ma-3">
+                      The submission contains errors which must be corrected.
+                      Please review the following lines from the uploaded file:
+                    </p>
+                  </div>
+                  <v-divider color="error" class="border-opacity-100" />
+                  <v-table density="compact">
+                    <thead>
+                      <tr>
+                        <th id="line-num-header" class="text-left">Row</th>
+                        <th id="problem-desc-header" class="text-left">
+                          Problem(s)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="rowError in submissionErrors.rowErrors"
+                        :key="rowError.rowNum"
+                      >
+                        <td class="text-left">{{ rowError.rowNum }}</td>
+                        <td class="text-left">
+                          <span
+                            v-for="errMsg in rowError.errorMsgs"
+                            :key="errMsg"
+                            class="mr-2"
+                          >
+                            {{ errMsg }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </v-alert>
+              </v-col>
+            </v-row>
+
+            <v-row
+              dense
+              class="pa-5 d-flex align-center"
+              style="
+                border-style: dashed;
+                border: 3px dashed #666666;
+                border-radius: 10px;
+                min-height: 7em;
+              "
+              :class="{ 'file-success': !!uploadFileValue }"
             >
-              Upload file
-            </v-btn>
-            <v-file-input
-              v-show="false"
-              id="csvFile"
-              ref="uploadFile"
-              v-model="uploadFileValue"
-              :accept="fileAccept"
-              :error-messages="fileInputError"
-              :rules="requiredRules"
-            />
+              <v-col>
+                <div
+                  v-if="!uploadFileValue"
+                  class="d-flex justify-center align-center"
+                >
+                  <p class="text-subtitle-2 text-grey-darken-1 mr-2">
+                    Supported format: CSV. Maximum file size:
+                    {{ maxFileUploadSize }}.
+                  </p>
+                  <v-btn
+                    id="uploadFileButton"
+                    class="btn-secondary"
+                    type="button"
+                    @click="selectFile"
+                    :loading="isSelectingFile"
+                  >
+                    Upload file
+                  </v-btn>
+                  <v-file-input
+                    v-show="false"
+                    id="csvFile"
+                    ref="uploadFile"
+                    v-model="uploadFileValue"
+                    :accept="fileAccept"
+                    :error-messages="fileInputError"
+                    :rules="requiredRules"
+                  />
+                </div>
+                <div v-if="uploadFileValue" class="d-flex align-center">
+                  <div class="d-flex justify-center" style="flex: 1">
+                    {{ uploadFileValue[0].name }} ({{ uploadFileSize }})
+                  </div>
+                  <div>
+                    <v-btn
+                      variant="text"
+                      icon="fa:fas fa-xmark"
+                      aria-label="Remove CSV"
+                      @click="uploadFileValue = undefined"
+                    />
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+
+            <v-row class="mt-6">
+              <v-col class="d-flex justify-center">
+                <v-btn id="submitButton" class="btn-primary" type="submit">
+                  Submit
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-row v-if="isSubmit && !formReady" dense>
+              <v-col class="text-error d-flex justify-center">
+                Please check the form and correct all errors before submitting.
+              </v-col>
+            </v-row>
+
+            <v-row class="mt-3">
+              <v-col>
+                <v-alert v-if="alertMessage" :class="alertType" class="mb-3">
+                  {{ alertMessage }}
+                </v-alert>
+              </v-col>
+            </v-row>
+
+            <v-overlay
+              :persistent="true"
+              :model-value="isProcessing"
+              class="align-center justify-center"
+            >
+              <spinner />
+            </v-overlay>
           </div>
-          <div v-if="uploadFileValue" class="d-flex align-center">
-            <div class="d-flex justify-center" style="flex: 1">
-              {{ uploadFileValue[0].name }} ({{ uploadFileSize }})
-            </div>
-            <div>
-              <v-btn
-                variant="text"
-                icon="fa:fas fa-xmark"
-                aria-label="Remove CSV"
-                @click="uploadFileValue = undefined"
-              />
-            </div>
-          </div>
         </v-col>
       </v-row>
-
-      <v-row class="mt-6">
-        <v-col class="d-flex justify-center">
-          <v-btn id="submitButton" class="btn-primary" type="submit">
-            Submit
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row v-if="isSubmit && !formReady" dense>
-        <v-col class="text-error d-flex justify-center">
-          Please check the form and correct all errors before submitting.
-        </v-col>
-      </v-row>
-
-      <v-row class="mt-3">
-        <v-col>
-          <v-alert v-if="alertMessage" :class="alertType" class="mb-3">
-            {{ alertMessage }}
-          </v-alert>
-        </v-col>
-      </v-row>
-
-      <v-overlay
-        :persistent="true"
-        :model-value="isProcessing"
-        class="align-center justify-center"
-      >
-        <spinner />
-      </v-overlay>
     </v-form>
 
     <!-- dialogs -->
@@ -1140,10 +1158,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.v-container {
-  max-width: 1080px;
-}
-
 textarea::placeholder {
   text-align: right;
   transform: translateY(95px);
