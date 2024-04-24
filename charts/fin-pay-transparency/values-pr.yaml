@@ -25,8 +25,6 @@ global:
   domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
   autoscaling:
     enabled: false
-  config:
-    first_year_with_prev_reporting_year_option: "2024"
   crunchyEnabled: false
 
 backend:
