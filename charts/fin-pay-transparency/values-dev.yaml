@@ -37,6 +37,8 @@ global:
     delete_draft_report_cron_crontime: "0 0 0 * * *" # 12:00 AM PST/PDT
     lock_report_cron_crontime: "0 15 0 * * *" # 12:15 AM PST/PDT
     reports_scheduler_cron_timezone: "America/Vancouver"
+    first_year_with_prev_reporting_year_option: "2024"
+
   crunchyEnabled: true
 backend:
   enabled: true

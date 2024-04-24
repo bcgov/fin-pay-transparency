@@ -33,6 +33,9 @@ config.defaults({
     schedulerLockReportCronTime: process.env.LOCK_REPORT_CRON_CRONTIME,
     schedulerTimeZone: process.env.REPORTS_SCHEDULER_CRON_TIMEZONE,
     databaseUrl: datasourceUrl,
+    firstYearWithPrevReportingYearOption: parseInt(
+      process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',
+    ),
     reportEditDurationInDays: parseInt(
       process.env.REPORT_EDIT_DURATION_IN_DAYS || '30',
     ),

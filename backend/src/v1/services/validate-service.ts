@@ -1,4 +1,5 @@
 import { LocalDate, TemporalAdjusters } from '@js-joda/core';
+import { config } from '../../config';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import { ISubmission } from './file-upload-service';
 
@@ -109,13 +110,9 @@ const validateService = {
       );
     }
 
-    const currentYear = LocalDate.now().year();
-    const allowedReportingYears = [currentYear];
-    if (currentYear >= 2025) {
-      allowedReportingYears.push(currentYear - 1);
-    }
-    if (!allowedReportingYears.includes(submission.reportingYear)) {
-      const text = allowedReportingYears.join(' or ');
+    const validReportingYears = this.getValidReportingYears();
+    if (!validReportingYears.includes(submission.reportingYear)) {
+      const text = validReportingYears.join(' or ');
       bodyErrors.push(`Reporting year must be ${text}.`);
     }
 
@@ -128,6 +125,21 @@ const validateService = {
       return new ValidationError(bodyErrors, null, null);
     }
     return null;
+  },
+
+  /**
+   * Gets an array of valid values for reporting year (sorted from low to high).
+   */
+  getValidReportingYears() {
+    const currentYear = LocalDate.now().year();
+    const validReportingYears = [];
+    if (
+      currentYear >= config.get('server:firstYearWithPrevReportingYearOption')
+    ) {
+      validReportingYears.push(currentYear - 1);
+    }
+    validReportingYears.push(currentYear);
+    return validReportingYears;
   },
 
   /**
