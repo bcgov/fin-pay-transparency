@@ -577,7 +577,7 @@
                 </div>
                 <div v-if="uploadFileValue" class="d-flex align-center">
                   <div class="d-flex justify-center" style="flex: 1">
-                    {{ uploadFileValue[0].name }} ({{ uploadFileSize }})
+                    {{ uploadFileValue.name }} ({{ uploadFileSize }})
                   </div>
                   <div>
                     <v-btn
@@ -715,7 +715,7 @@ export default {
     isSubmit: false, //whether or not the submit button has been pressed
     isProcessing: false,
     isSelectingFile: false,
-    uploadFileValue: undefined as File[] | undefined,
+    uploadFileValue: undefined as File | undefined,
     maxFileUploadSize: '',
     minStartDate: LocalDate.now()
       .with(TemporalAdjusters.firstDayOfYear())
@@ -777,13 +777,11 @@ export default {
         !!this.endMonth &&
         !!this.endYear &&
         !!this.reportYear &&
-        !!this.uploadFileValue &&
-        this.uploadFileValue.length == 1
+        !!this.uploadFileValue
       );
     },
     uploadFileSize() {
-      if (this.uploadFileValue?.length)
-        return humanFileSize(this.uploadFileValue[0].size);
+      if (this.uploadFileValue) return humanFileSize(this.uploadFileValue.size);
       return '';
     },
     startDate() {
@@ -1095,26 +1093,27 @@ export default {
       try {
         // Parse the csv file, convert it into a json array, and perform
         // preliminary validation.
-        const parseResponse: IParseSuccessResponse = await CsvService.parse(
-          this.uploadFileValue![0],
-        );
-
-        // Preliminary validation of the input file passed, so prepare
-        // the submission
-        submission = {
-          companyName: this.companyName,
-          companyAddress: this.companyAddress,
-          naicsCode: this.naicsCode,
-          employeeCountRangeId: this.employeeCountRange,
-          startDate: this.startDate!,
-          endDate: this.endDate!,
-          reportingYear: this.reportYear,
-          dataConstraints: this.dataConstraints,
-          comments: this.comments,
-          rows: parseResponse.data,
-        };
-        if (this.reportId) {
-          submission['id'] = this.reportId;
+        if (this.uploadFileValue) {
+          const parseResponse: IParseSuccessResponse = await CsvService.parse(
+            this.uploadFileValue,
+          );
+          // Preliminary validation of the input file passed, so prepare
+          // the submission
+          submission = {
+            companyName: this.companyName,
+            companyAddress: this.companyAddress,
+            naicsCode: this.naicsCode,
+            employeeCountRangeId: this.employeeCountRange,
+            startDate: this.startDate!,
+            endDate: this.endDate!,
+            reportingYear: this.reportYear,
+            dataConstraints: this.dataConstraints,
+            comments: this.comments,
+            rows: parseResponse.data,
+          };
+          if (this.reportId) {
+            submission['id'] = this.reportId;
+          }
         }
       } catch (error: any) {
         this.onSubmitComplete(this.toISubmissionError(error));
@@ -1122,9 +1121,13 @@ export default {
       }
 
       try {
-        const draftReport = await ApiService.postSubmission(submission);
-        await this.setReportInfo(draftReport);
-        this.onSubmitComplete(null);
+        if (submission) {
+          const draftReport = await ApiService.postSubmission(submission);
+          await this.setReportInfo(draftReport);
+          this.onSubmitComplete(null);
+        } else {
+          throw new Error(DEFAULT_SUBMISSION_ERROR_MESSAGE);
+        }
       } catch (error: any) {
         // Handle different kinds of error objects by converting them
         // into a SubmissionError
