@@ -123,7 +123,6 @@ describe('external-consumer-routes', () => {
                 revision: REPORT.revision,
                 update_date: REPORT.update_date.toISOString(),
                 user_comment: REPORT.user_comment,
-                history: [],
               },
             ],
             totalRecords: 1,
