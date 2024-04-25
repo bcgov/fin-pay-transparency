@@ -37,9 +37,14 @@
           </v-col>
         </v-row>
       </v-col>
-      <v-col class="justify-right" role="listbox" aria-label="More information links">
+      <v-col
+        class="justify-right"
+        role="listbox"
+        id="more-info"
+        aria-label="More information links"
+      >
         <p class="more-info-title">MORE INFO</p>
-        <v-row role="presentation" aria-labelledby="">
+        <v-row role="presentation" aria-labelledby="more-info">
           <v-col class="links" style="text-align: left">
             <v-list>
               <v-list-item
@@ -49,7 +54,6 @@
                 :data-testid="link.id"
                 role="listitem"
                 :aria-label="link.label"
-                tabindex="0"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
               </v-list-item>
@@ -61,8 +65,8 @@
                 class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.right"
                 v-bind:href="sanitizeUrl(link.to)"
+                :aria-label="link.label"
                 :data-testid="link.id"
-                tabindex="0"
               >
                 <v-list-item-title v-text="link.label"></v-list-item-title>
               </v-list-item>
