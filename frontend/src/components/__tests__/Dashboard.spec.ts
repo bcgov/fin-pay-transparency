@@ -11,6 +11,14 @@ const mockRouter = {
   push: (...args) => mockRouterPush(...args),
 };
 
+vi.mock('../../common/apiService', () => ({
+  default: {
+    getReports: async () => {
+      return [];
+    },
+  },
+}));
+
 const wrappedRender = async () => {
   return render(Dashboard, {
     global: {
