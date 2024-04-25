@@ -1,5 +1,6 @@
 import { Application } from 'express';
 import EventEmitter from 'node:events';
+import WaitFor from 'wait-for-expect';
 
 jest.mock('./app', () => ({
   app: {
@@ -41,9 +42,9 @@ const mock_initBrowser = jest.fn();
 const mock_browserDisconnect = jest.fn();
 jest.mock('./v1/services/puppeteer-service', () => ({
   initBrowser: () => mock_initBrowser(),
-  browser: {
-    disconnect: () => mock_browserDisconnect(),
-  },
+  getBrowser: jest.fn().mockResolvedValue({
+    disconnect: mock_browserDisconnect,
+  }),
 }));
 
 const mock_loggerInfo = jest.fn();
@@ -59,11 +60,6 @@ jest.mock('./logger', () => ({
 let configMap: any;
 const mock_getConfig = jest.fn();
 
-// jest.mock('./config', () => ({
-//   config: {
-//     get: jest.fn((key) => mock_getConfig(key)),
-//   },
-// }));
 jest.mock('./config', () => ({
   config: {
     get: (key) => {
@@ -74,7 +70,7 @@ jest.mock('./config', () => ({
 describe('server', () => {
   beforeEach(() => {
     jest.resetModules();
-  })
+  });
 
   describe('Start server on specified environment', () => {
     describe('local', () => {
@@ -139,34 +135,34 @@ describe('server', () => {
         configMap = {
           'server:apiKey': 'api-key',
           'server:port': 3000,
-          'environment': 'prod',
+          environment: 'prod',
         };
       });
       it('should start listening on the port and use puppeteer', async () => {
-        mock_initBrowser.mockImplementation(() => Promise.resolve());
-        mock_browserDisconnect.mockImplementation(() => Promise.resolve());
+        mock_initBrowser.mockResolvedValue(0);
+        mock_browserDisconnect.mockResolvedValue(0);
         mock_listen.mockImplementation((port) => {
           expect(port).toBe(3000);
         });
         await require('./server');
         expect(mock_initBrowser).toHaveBeenCalled();
-        expect(mock_browserDisconnect).toHaveBeenCalled();
+        await WaitFor(() => {
+          expect(mock_browserDisconnect).toHaveBeenCalled();
+        });
       });
       it('should handle initBrowser catch', async () => {
-        mock_initBrowser.mockImplementation(() => Promise.reject());
-        mock_browserDisconnect.mockImplementation(() => Promise.resolve());
-        jest.spyOn(process, 'exit').mockImplementation()
+        mock_initBrowser.mockResolvedValue(0);
+        mock_browserDisconnect.mockResolvedValue(0);
+        jest.spyOn(process, 'exit').mockImplementation();
         await require('./server');
         expect(mock_initBrowser).toHaveBeenCalled();
       });
       it('should handle browser disconnect catch', async () => {
-        mock_initBrowser.mockImplementation(() => Promise.resolve());
-        mock_browserDisconnect.mockImplementation(() => Promise.reject());
-        jest.spyOn(process, 'exit').mockImplementation()
+        mock_initBrowser.mockResolvedValue(0);
+        mock_browserDisconnect.mockResolvedValue(0);
+        jest.spyOn(process, 'exit').mockImplementation();
         await require('./server');
       });
     });
   });
-
-  
 });

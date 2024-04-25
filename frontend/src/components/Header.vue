@@ -31,66 +31,49 @@
 
     <v-spacer />
 
-    <template v-slot:append>
+    <template #append>
       <v-menu
-        v-model="menu"
         v-if="isAuthenticated"
+        v-model="menu"
         :close-on-content-click="false"
-        location="bottom"
         data-testid="header-account-menu"
       >
-        <template v-slot:activator="{ props }">
+        <template #activator="{ props }">
           <v-btn
+            id="header-account-button"
             color="rgb(32, 31, 30)"
             v-bind="props"
             arial-label="User profile"
             icon="mdi-account"
-            id="header-account-button"
             data-testid="header-account-button"
             title="User profile"
           ></v-btn>
         </template>
         <v-card
-          role="listbox"
-          aria-labelledby="header-account-button"
+          :titlex="userInfo?.displayName"
+          :subtitlex="userInfo?.legalName"
           min-width="250"
         >
-          <template v-slot:prepend>
-            <v-list role="presentation" aria-labelledby="header-account-button">
-              <v-list-item role="presentation" :link="false">
-                <v-list-item-title
-                  data-testid="header-display-name"
-                  class="styles-override"
-                  role="menuitem"
-                  :title="userInfo?.displayName"
-                  :aria-label="userInfo?.displayName"
-                  >{{ userInfo?.displayName }}</v-list-item-title
-                >
-                <v-list-item-subtitle
-                  data-testid="header-legal-name"
-                  class="styles-override"
-                  role="menuitem"
-                  :title="userInfo?.legalName"
-                  :aria-label="userInfo?.legalName"
-                  >{{ userInfo?.legalName }}</v-list-item-subtitle
-                >
-              </v-list-item>
-            </v-list>
-          </template>
+          <v-card-title data-testid="header-display-name">
+            {{ userInfo?.displayName }}
+          </v-card-title>
+          <v-card-subtitle data-testid="header-legal-name">
+            {{ userInfo?.legalName }}
+          </v-card-subtitle>
 
-          <v-divider></v-divider>
+          <v-divider class="mt-4" />
 
           <v-card-actions>
             <v-tooltip text="Logout" location="bottom">
-              <template v-slot:activator="{ props }">
-                <v-spacer></v-spacer>
+              <template #activator="{ props }">
+                <v-spacer />
                 <v-btn
                   v-bind="props"
                   icon="mdi-logout"
                   data-testid="header-logout-button"
-                  @click="redirectToLogout"
                   title="Logout"
                   aria-label="Logout"
+                  @click="redirectToLogout"
                 ></v-btn>
               </template>
             </v-tooltip>
