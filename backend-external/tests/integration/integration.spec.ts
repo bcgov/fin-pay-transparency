@@ -29,7 +29,7 @@ describe('/v1/pay-transparency/ GET', () => {
   it('returns data if secret key is provided', () => {
     //note: this test requires both backend-external and backend to be running.
     return request
-      .get('/v1/pay-transparency')
+      .get('/v1/pay-transparency?pageSize=1')
       .set('x-api-key', config.get('server:apiKey'))
       .retry(3)
       .expect(200)
