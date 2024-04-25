@@ -1,5 +1,11 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { LocalDate, convert } from '@js-joda/core';
+import {
+  LocalDate,
+  LocalDateTime,
+  ZoneId,
+  convert,
+  nativeJs,
+} from '@js-joda/core';
 import pick from 'lodash/pick';
 import flatten from 'lodash/flatten';
 import { PayTransparencyUserError } from './file-upload-service';
@@ -26,7 +32,6 @@ const denormalizeReport = (
     calculation_code: any;
   }[],
 ) => {
-
   return {
     ...pick(report, [
       'report_id',
@@ -75,8 +80,14 @@ const externalConsumerService = {
     offset?: number,
     limit?: number,
   ) {
-    let startDt = LocalDate.now().minusMonths(1);
-    let endDt = LocalDate.now().plusDays(1);
+    let startDt = LocalDateTime.now(ZoneId.UTC)
+      .minusMonths(1)
+      .withHour(0)
+      .withMinute(0);
+    let endDt = LocalDateTime.now(ZoneId.UTC)
+      .plusDays(1)
+      .withHour(0)
+      .withMinute(0);
     if (limit > 1000 || !limit || limit <= 0) {
       limit = 1000;
     }
@@ -85,11 +96,17 @@ const externalConsumerService = {
     }
     try {
       if (startDate) {
-        startDt = LocalDate.parse(startDate);
+        const date = convert(LocalDate.parse(startDate)).toDate();
+        startDt = LocalDateTime.from(nativeJs(date, ZoneId.UTC))
+          .withHour(0)
+          .withMinute(0);
       }
 
       if (endDate) {
-        endDt = LocalDate.parse(endDate);
+        const date = convert(LocalDate.parse(endDate)).toDate();
+        endDt = LocalDateTime.from(nativeJs(date, ZoneId.UTC))
+          .withHour(23)
+          .withMinute(59);
       }
     } catch (error) {
       throw new PayTransparencyUserError(
@@ -102,18 +119,6 @@ const externalConsumerService = {
         'Start date must be before the end date.',
       );
     }
-
-    const totalCount = await prismaReadOnlyReplica
-      .$replica()
-      .pay_transparency_report.count({
-        where: {
-          create_date: {
-            gte: convert(startDt).toDate(),
-            lte: convert(endDt).toDate(),
-          },
-          report_status: 'Published',
-        },
-      });
 
     const results = await prismaReadOnlyReplica
       .$replica()
@@ -158,7 +163,6 @@ const externalConsumerService = {
       });
 
     return {
-      totalRecords: totalCount,
       page: offset,
       pageSize: limit,
       records: [
