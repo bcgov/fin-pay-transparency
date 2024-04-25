@@ -57,8 +57,7 @@ describe('ReportsTable', () => {
         create_date: new Date().toISOString(),
       },
     ]);
-    const { getByTestId, debug } = await wrappedRender();
-    debug();
+    const { getByTestId } = await wrappedRender();
     await waitFor(() => {
       expect(mockGetReports).toHaveBeenCalled();
     });
