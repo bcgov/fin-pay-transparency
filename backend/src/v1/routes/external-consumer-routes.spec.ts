@@ -125,14 +125,13 @@ describe('external-consumer-routes', () => {
                 user_comment: REPORT.user_comment,
               },
             ],
-            totalRecords: 1,
           });
         });
     });
     it('should fail if page or pageSize are not numbers', () => {
       return request(app)
         .get('')
-        .query({ page: 'one', pageSize: '1oooo' })
+        .query({ offset: 'one', limit: '1oooo' })
         .expect(400)
         .expect(({ body }) => {
           expect(body).toEqual({

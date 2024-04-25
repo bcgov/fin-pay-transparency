@@ -105,7 +105,6 @@ describe('external-consumer-service', () => {
     mockFindMany.mockReturnValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination();
     expect(results.page).toBe(0);
-    expect(results.pageSize).toBe(1000), expect(results.totalRecords).toBe(1);
     expect(results.records[0]).toStrictEqual({
       calculated_data: [
         {
@@ -202,7 +201,6 @@ describe('external-consumer-service', () => {
       -1,
     );
     expect(results.page).toBe(0);
-    expect(results.pageSize).toBe(1000), expect(results.totalRecords).toBe(1);
   });
 
   it('should fail parse invalid date strings', async () => {

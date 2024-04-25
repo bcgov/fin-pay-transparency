@@ -10,8 +10,8 @@ router.get(
     try {
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();
-      const offset = Number((req.query.page || '0').toString());
-      const limit = Number((req.query.pageSize || '1000').toString());
+      const offset = Number((req.query.offset || '0').toString());
+      const limit = Number((req.query.limit || '1000').toString());
       if (isNaN(offset) || isNaN(limit)) {
         return res.status(400).json({ error: 'Invalid offset or limit' });
       }
