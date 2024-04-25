@@ -1,12 +1,15 @@
 import express, { Request, Response } from 'express';
 import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
+import {} from 'lodash'
 
 const router = express.Router();
 
 router.get(
   '/',
   utils.asyncHandler(async (req: Request, res: Response) => {
+
+
     try {
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();

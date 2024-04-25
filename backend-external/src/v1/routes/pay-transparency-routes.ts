@@ -73,12 +73,6 @@ const router = express.Router();
  *     Report:
  *       allOf: 
  *       - $ref: "#/components/schemas/ReportItem"
- *       - type: object
- *         properties:
- *           history:
- *             type: array
- *             items:
- *               $ref: "#/components/schemas/ReportItem"
  *
  *     PaginatedReports:
  *       type: object
