@@ -24,4 +24,4 @@ async function getBrowser() {
   return browser;
 }
 
-export { browser, initBrowser, getBrowser };
+export { initBrowser, getBrowser };
