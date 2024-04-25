@@ -26,9 +26,9 @@ describe('SnackBar', () => {
         plugins: [vuetify],
       },
       template: `
-    <v-app>
-      <SnackBar />
-    </v-app>
+      <v-layout>
+        <SnackBar />
+      </v-layout>
   `,
     });
   });
