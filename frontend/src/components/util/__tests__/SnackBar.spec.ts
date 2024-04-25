@@ -1,7 +1,9 @@
 import { mount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { h } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
+import { VApp } from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import {
   INotification,
@@ -9,8 +11,19 @@ import {
 } from '../../../common/notificationService';
 import SnackBar from '../SnackBar.vue';
 
+// Mock the ResizeObserver
+const ResizeObserverMock = vi.fn(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Stub the global ResizeObserver
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
 describe('SnackBar', () => {
   let wrapper;
+  let snackbar;
 
   beforeEach(() => {
     //create an instance of vuetify so we can inject it
@@ -21,16 +34,16 @@ describe('SnackBar', () => {
       directives,
     });
 
-    wrapper = mount(SnackBar, {
+    //mount the SnackBar within a VApp wrapper
+    wrapper = mount(VApp, {
+      slots: {
+        default: h(SnackBar),
+      },
       global: {
         plugins: [vuetify],
       },
-      template: `
-      <v-layout>
-        <SnackBar />
-      </v-layout>
-  `,
     });
+    snackbar = wrapper.findComponent(SnackBar);
   });
 
   afterEach(() => {
@@ -47,26 +60,26 @@ describe('SnackBar', () => {
         timeoutMs: 5000,
       };
 
-      expect(wrapper.vm.isVisible).toBeFalsy();
+      expect(snackbar.vm.isVisible).toBeFalsy();
 
-      wrapper.vm.onNotificationEvent(notification);
+      snackbar.vm.onNotificationEvent(notification);
 
       // Check that data values in the component were correctly modified
-      expect(wrapper.vm.activeNotification).toStrictEqual(notification);
-      expect(wrapper.vm.isVisible).toBeTruthy();
+      expect(snackbar.vm.activeNotification).toStrictEqual(notification);
+      expect(snackbar.vm.isVisible).toBeTruthy();
     });
   });
 
   describe('when close() is called', () => {
     it('the snackbar becomes hidden', async () => {
-      wrapper.vm.isVisible = true;
-      wrapper.vm.message = 'a message';
+      snackbar.vm.isVisible = true;
+      snackbar.vm.message = 'a message';
 
-      wrapper.vm.close();
+      snackbar.vm.close();
 
       // Check that data values in the component were correctly modified
-      expect(wrapper.vm.activeNotification).toBe(null);
-      expect(wrapper.vm.isVisible).toBeFalsy();
+      expect(snackbar.vm.activeNotification).toBe(null);
+      expect(snackbar.vm.isVisible).toBeFalsy();
     });
   });
 
@@ -84,28 +97,28 @@ describe('SnackBar', () => {
       };
 
       // Simulate receiving two notifications in quick succession
-      wrapper.vm.onNotificationEvent(notification1);
-      wrapper.vm.onNotificationEvent(notification2);
+      snackbar.vm.onNotificationEvent(notification1);
+      snackbar.vm.onNotificationEvent(notification2);
 
       // Check that the first notification is displayed
-      expect(wrapper.vm.activeNotification).toStrictEqual(notification1);
-      expect(wrapper.vm.isVisible).toBeTruthy();
+      expect(snackbar.vm.activeNotification).toStrictEqual(notification1);
+      expect(snackbar.vm.isVisible).toBeTruthy();
 
       // Simulate the first notification expiring
       // (normally this happens after a few seconds,
       // but we trigger it immediately here)
-      wrapper.vm.onNotificationExpired();
+      snackbar.vm.onNotificationExpired();
 
       // Check that the first notification is displayed
-      expect(wrapper.vm.activeNotification).toStrictEqual(notification2);
-      expect(wrapper.vm.isVisible).toBeTruthy();
+      expect(snackbar.vm.activeNotification).toStrictEqual(notification2);
+      expect(snackbar.vm.isVisible).toBeTruthy();
 
       // Cause the second notification to expire
-      wrapper.vm.onNotificationExpired();
+      snackbar.vm.onNotificationExpired();
 
       // Confirm that no more notifications are displayed
-      expect(wrapper.vm.activeNotification).toBe(null);
-      expect(wrapper.vm.isVisible).toBeFalsy();
+      expect(snackbar.vm.activeNotification).toBe(null);
+      expect(snackbar.vm.isVisible).toBeFalsy();
     });
   });
 });
