@@ -25,6 +25,11 @@ describe('SnackBar', () => {
       global: {
         plugins: [vuetify],
       },
+      template: `
+    <v-app>
+      <SnackBar />
+    </v-app>
+  `,
     });
   });
 
