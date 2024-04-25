@@ -3,7 +3,7 @@
   <v-data-table
     :headers="headers"
     :items="reports"
-    :items-per-page="5"
+    :items-per-page="1"
     no-data-text="No generated reports yet."
     :loading="isLoading"
     loading-text="Loading reports..."
