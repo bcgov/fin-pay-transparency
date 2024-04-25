@@ -1,6 +1,7 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { LocalDate, convert } from '@js-joda/core';
 import pick from 'lodash/pick';
+import flatten from 'lodash/flatten';
 import { PayTransparencyUserError } from './file-upload-service';
 
 const denormalizeCompany = (company) => {
@@ -25,6 +26,7 @@ const denormalizeReport = (
     calculation_code: any;
   }[],
 ) => {
+
   return {
     ...pick(report, [
       'report_id',
@@ -143,6 +145,12 @@ const externalConsumerService = {
               },
               pay_transparency_company: true,
             },
+            where: {
+              create_date: {
+                gte: convert(startDt).toDate(),
+                lte: convert(endDt).toDate(),
+              },
+            },
           },
         },
         skip: offset,
@@ -153,22 +161,27 @@ const externalConsumerService = {
       totalRecords: totalCount,
       page: offset,
       pageSize: limit,
-      records: results.map((report) => {
-        return {
-          ...denormalizeReport(
-            report,
-            (r) => r.naics_code_pay_transparency_report_naics_codeTonaics_code,
-            (r) => r.pay_transparency_calculated_data,
-          ),
-          history: report.report_history.map((report) => {
-            return denormalizeReport(
+      records: [
+        ...results.map((report) => {
+          return {
+            ...denormalizeReport(
+              report,
+              (r) =>
+                r.naics_code_pay_transparency_report_naics_codeTonaics_code,
+              (r) => r.pay_transparency_calculated_data,
+            ),
+          };
+        }),
+        ...flatten(results.map((r) => r.report_history)).map((report) => {
+          return {
+            ...denormalizeReport(
               report,
               (r) => r.naics_code_report_history_naics_codeTonaics_code,
               (r) => r.calculated_data_history,
-            );
-          }),
-        };
-      }),
+            ),
+          };
+        }),
+      ],
     };
   },
 };

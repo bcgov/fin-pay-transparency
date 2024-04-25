@@ -143,49 +143,52 @@ describe('external-consumer-service', () => {
       revision: testData.revision,
       update_date: testData.update_date,
       user_comment: testData.user_comment,
-      history: [
+    });
+
+    expect(results.records[1]).toStrictEqual({
+      calculated_data: [
         {
-          calculated_data: [
-            {
-              is_suppressed:
-                testData.report_history[0].calculated_data_history[0].is_suppressed,
-              value: testData.report_history[0].calculated_data_history[0].value,
-              calculation_code:
-                testData.report_history[0].calculated_data_history[0].calculation_code
-                  .calculation_code,
-            },
-          ],
-          company_address_line1:
-            testData.report_history[0].pay_transparency_company.address_line1,
-          company_address_line2:
-            testData.report_history[0].pay_transparency_company.address_line2,
-          company_bceid_business_guid:
-            testData.report_history[0].pay_transparency_company.bceid_business_guid,
-          company_city: testData.report_history[0].pay_transparency_company.city,
-          company_country: testData.report_history[0].pay_transparency_company.country,
-          company_id: testData.report_history[0].company_id,
-          company_name: testData.report_history[0].pay_transparency_company.company_name,
-          company_postal_code: testData.report_history[0].pay_transparency_company.postal_code,
-          company_province: testData.report_history[0].pay_transparency_company.province,
-          create_date: testData.report_history[0].create_date,
-          data_constraints: testData.report_history[0].data_constraints,
-          employee_count_range:
-            testData.report_history[0].employee_count_range.employee_count_range,
-          naics_code:
-            testData.report_history[0].naics_code_report_history_naics_codeTonaics_code
-              .naics_code,
-          naics_code_label:
-            testData.report_history[0].naics_code_report_history_naics_codeTonaics_code
-              .naics_label,
-          report_end_date: testData.report_history[0].report_end_date,
-          report_id: testData.report_history[0].report_id,
-          report_start_date: testData.report_history[0].report_start_date,
-          report_status: testData.report_history[0].report_status,
-          revision: testData.report_history[0].revision,
-          update_date: testData.report_history[0].update_date,
-          user_comment: testData.report_history[0].user_comment,
+          is_suppressed:
+            testData.report_history[0].calculated_data_history[0].is_suppressed,
+          value: testData.report_history[0].calculated_data_history[0].value,
+          calculation_code:
+            testData.report_history[0].calculated_data_history[0]
+              .calculation_code.calculation_code,
         },
       ],
+      company_address_line1:
+        testData.report_history[0].pay_transparency_company.address_line1,
+      company_address_line2:
+        testData.report_history[0].pay_transparency_company.address_line2,
+      company_bceid_business_guid:
+        testData.report_history[0].pay_transparency_company.bceid_business_guid,
+      company_city: testData.report_history[0].pay_transparency_company.city,
+      company_country:
+        testData.report_history[0].pay_transparency_company.country,
+      company_id: testData.report_history[0].company_id,
+      company_name:
+        testData.report_history[0].pay_transparency_company.company_name,
+      company_postal_code:
+        testData.report_history[0].pay_transparency_company.postal_code,
+      company_province:
+        testData.report_history[0].pay_transparency_company.province,
+      create_date: testData.report_history[0].create_date,
+      data_constraints: testData.report_history[0].data_constraints,
+      employee_count_range:
+        testData.report_history[0].employee_count_range.employee_count_range,
+      naics_code:
+        testData.report_history[0]
+          .naics_code_report_history_naics_codeTonaics_code.naics_code,
+      naics_code_label:
+        testData.report_history[0]
+          .naics_code_report_history_naics_codeTonaics_code.naics_label,
+      report_end_date: testData.report_history[0].report_end_date,
+      report_id: testData.report_history[0].report_id,
+      report_start_date: testData.report_history[0].report_start_date,
+      report_status: testData.report_history[0].report_status,
+      revision: testData.report_history[0].revision,
+      update_date: testData.report_history[0].update_date,
+      user_comment: testData.report_history[0].user_comment,
     });
   });
 
