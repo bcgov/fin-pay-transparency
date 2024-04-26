@@ -17,7 +17,10 @@ export class PTPage {
   public accountButton: Locator;
   public static naicsCodes: INaicsCode[] = [];
   public static employeeCountRanges: IEmployeeCountRange[] = [];
-  constructor(public readonly instance: Page, public user = undefined) {}
+  constructor(
+    public readonly instance: Page,
+    public user = undefined,
+  ) {}
 
   async setup() {
     this.accountButton = await this.instance.getByTestId(
@@ -37,6 +40,7 @@ export class PTPage {
     const legalName = await this.instance.getByTestId('header-legal-name');
     await expect(legalName).toBeVisible();
     await expect(legalName).toContainText(user.legalName);
+    await this.accountButton.click();
   }
 
   async logout() {

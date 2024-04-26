@@ -37,6 +37,5 @@ export const editReport = async (page: Page) => {
 
   const publishedReportPage = new PublishedReportPage(page, user);
   await publishedReportPage.setup();
-  await publishedReportPage.verifyUser(user);
   await publishedReportPage.verifyEmployeerDetails(user, report);
 };
