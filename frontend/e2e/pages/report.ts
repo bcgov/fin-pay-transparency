@@ -22,12 +22,6 @@ export class BaseReportPage extends PTPage {
     this.backButton = (
       await this.instance.getByRole('link', { name: 'Back' })
     ).first();
-
-    await super.verifyUser(this.user);
-  }
-
-  async verifyUser(user) {
-    await super.verifyUser(user);
   }
 
   async verifyEmployeerDetails(user, report) {
@@ -80,16 +74,18 @@ export class DraftReportPage extends BaseReportPage {
   }
 
   async finalizedReport(reportId: string) {
-    const publishReportRequest = this.instance.waitForResponse(res => 
-      res.url().includes('/api/v1/report') && res.request().method().toLowerCase() === 'put'
-    )
-    const finalizeReportResponse = this.instance.waitForResponse((res) =>
-      res.url().includes(`/api/v1/report/${reportId}`) && res.request().method().toLowerCase() === 'get',
+    const publishReportRequest = this.instance.waitForResponse(
+      (res) =>
+        res.url().includes('/api/v1/report') &&
+        res.request().method().toLowerCase() === 'put',
+    );
+    const finalizeReportResponse = this.instance.waitForResponse(
+      (res) =>
+        res.url().includes(`/api/v1/report/${reportId}`) &&
+        res.request().method().toLowerCase() === 'get',
     );
     const getReportsRequest = this.instance.waitForResponse(
-      (res) =>
-        res.url().includes('reporting_year=') &&
-        res.status() === 200,
+      (res) => res.url().includes('reporting_year=') && res.status() === 200,
     );
     await this.finalReportCheckBox.scrollIntoViewIfNeeded();
     await this.finalReportCheckBox.click();
