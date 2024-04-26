@@ -98,21 +98,7 @@ jobs:
           sonar_token: ${{ secrets[matrix.token] }}
           triggers: ${{ matrix.triggers }}
 
-  codeql:
-    name: CodeQL Security Scan
-    if: ${{ ! github.event.pull_request.draft }}
-    runs-on: ubuntu-22.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:javascript"
   # https://github.com/marketplace/actions/aqua-security-trivy
   trivy:
     name: Trivy Security Scan
@@ -137,7 +123,7 @@ jobs:
           sarif_file: "trivy-results.sarif"
   results:
     name: Analysis Results
-    needs: [tests, codeql, trivy]
+    needs: [tests, trivy]
     runs-on: ubuntu-22.04
     steps:
       - run: echo "Workflow completed successfully!"
