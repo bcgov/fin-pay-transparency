@@ -12,8 +12,9 @@ const DB_PWD = encodeURIComponent(
 const DB_PORT = process.env.POSTGRESQL_PORT || 5432;
 const DB_NAME = process.env.POSTGRESQL_DATABASE || 'postgres';
 const DB_SCHEMA = process.env.DB_SCHEMA || 'pay_transparency';
+const DB_CONNECTION_POOL_SIZE = process.env.DB_CONNECTION_POOL_SIZE || 5;
 
-const datasourceUrl = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=5`;
+const datasourceUrl = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
 logger.silly(`Connecting to ${datasourceUrl}`);
 config.defaults({
   environment: env,

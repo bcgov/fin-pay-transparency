@@ -13,3 +13,4 @@ data:
   LOCK_REPORT_CRON_CRONTIME: {{ .Values.global.config.lock_report_cron_crontime | quote }}
   REPORTS_SCHEDULER_CRON_TIMEZONE: {{ .Values.global.config.reports_scheduler_cron_timezone | quote }}
   FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION: {{ .Values.global.config.first_year_with_prev_reporting_year_option | quote }}
+  DB_CONNECTION_POOL_SIZE: {{ .Values.global.config.db_connection_pool_size | quote }}
