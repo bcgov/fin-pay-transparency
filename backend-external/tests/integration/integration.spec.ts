@@ -34,7 +34,7 @@ describe('/v1/pay-transparency/ GET', () => {
       .retry(3)
       .expect(200)
       .expect(({ body }) => {
-        expect(body).toHaveProperty('totalRecords');
+        expect(body).toHaveProperty('records');
       });
   });
 });
