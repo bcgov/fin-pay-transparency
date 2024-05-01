@@ -1,11 +1,35 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
+import { logger } from '../../logger';
+import { config } from '../../config';
+import passport from 'passport';
+import { auth } from '../services/auth-service';
+
+const validateToken =
+  (validApiKey: string) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header('x-api-key');
+    if (apiKey) {
+      if (validApiKey === apiKey) {
+        next();
+      } else {
+        logger.error('Invalid API Key');
+        res.status(401).send({ message: 'Invalid API Key' });
+      }
+    } else {
+      logger.error('API Key is missing in the request header');
+      res.status(400).send({
+        message: 'API Key is missing in the request header',
+      });
+    }
+  };
 
 const router = express.Router();
 
 router.get(
   '/',
+  validateToken(config.get('backendExternal:apiKey')),
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
       const startDate = req.query.startDate?.toString();
@@ -23,8 +47,22 @@ router.get(
       );
       res.status(200).json(results);
     } catch (e) {
-      res.json({error: true, message: e.message });
+      res.json({ error: true, message: e.message });
     }
   }),
 );
+
+router.delete(
+  '/delete-reports',
+  validateToken(config.get('backendExternal:apiDeleteReportsKey')),
+  passport.authenticate('jwt', { session: false }),
+  (req: Request, res: Response, next: NextFunction) => {
+    auth.isValidBackendToken()(req, res, next);
+  },
+  async (req, res) => {
+    const { bceid_business_guid } = utils.getSessionUser(req)?._json;
+    
+  },
+);
+
 export default router;

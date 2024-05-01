@@ -80,6 +80,7 @@ config.defaults({
   },
   backendExternal: {
     apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key', // this the API key for internal communication between services, backend-external will pass this api key in header.
+    apiDeleteReportsKey: process.env.BACKEND_EXTERNAL_API_DELETE_REPORTS_KEY || 'api-key', // this the API key for internal communication between services, backend-external will pass this api key in header.
   },
   ches: {
     enabled: process.env.CHES_ENABLED || false, // Enable if CHES is required, helps in local not to set up CHES

@@ -128,5 +128,46 @@ const externalConsumerService = {
       records,
     };
   },
+  async deleteReports(bceid_business_guid: string) {
+    await prismaReadOnlyReplica.$replica().$transaction(async (tx) => {
+      await tx.pay_transparency_calculated_data.deleteMany({
+        where: {
+          pay_transparency_report: {
+            pay_transparency_company: {
+              bceid_business_guid,
+            },
+          },
+        },
+      });
+
+      await tx.calculated_data_history.deleteMany({
+        where: {
+          report_history: {
+            pay_transparency_report: {
+              pay_transparency_company: {
+                bceid_business_guid,
+              },
+            },
+          },
+        },
+      });
+
+      await tx.report_history.deleteMany({
+        where: {
+          pay_transparency_report: {
+            pay_transparency_company: {
+              bceid_business_guid,
+            },
+          },
+        },
+      });
+
+      await tx.pay_transparency_report.deleteMany({
+        where: {
+          pay_transparency_company: {},
+        },
+      });
+    });
+  },
 };
 export { externalConsumerService };
