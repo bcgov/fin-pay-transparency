@@ -89,6 +89,15 @@ router.get(
                 '&id_token_hint=' +
                 idToken,
             );
+          } else if (req.query?.contactError) {
+            retUrl = encodeURIComponent(
+              discovery.end_session_endpoint +
+                '?post_logout_redirect_uri=' +
+                config.get('server:frontend') +
+                '/contact-error' +
+                '&id_token_hint=' +
+                idToken,
+            );
           } else {
             retUrl = encodeURIComponent(
               discovery.end_session_endpoint +
@@ -132,7 +141,7 @@ router.post(
           `${MISSING_COMPANY_DETAILS_ERROR} in session. No correlation id found.`,
         );
       }
-      
+
       return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
     }
 

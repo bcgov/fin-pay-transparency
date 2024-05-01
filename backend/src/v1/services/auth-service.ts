@@ -324,14 +324,18 @@ const auth = {
     const userGuid = jwtPayload?.bceid_user_guid;
     if (!userGuid) {
       log.error(`no bceid_user_guid found in the jwt token`, userInfo.jwt);
-      return res.redirect(config.get('server:frontend') + '/login-error');
+      return res.redirect(
+        config.get('server:frontend') + '/api/auth/logout?loginError=true',
+      );
     }
 
     try {
       auth.validateClaims(userInfo.jwt);
     } catch (e) {
       log.error('invalid claims in token', e);
-      return res.redirect(config.get('server:frontend') + '/login-error');
+      return res.redirect(
+        config.get('server:frontend') + '/api/auth/logout?loginError=true',
+      );
     }
 
     // companyDetails already saved - success
@@ -355,17 +359,21 @@ const auth = {
         log.error(
           `Required company details missing from BCEID for user ${userGuid}`,
         );
-        return res.redirect(config.get('server:frontend') + '/contact-error');
+        return res.redirect(
+          config.get('server:frontend') + '/api/auth/logout?contactError=true',
+        );
       }
 
+      await auth.storeUserInfo(details, userInfo);
       session.companyDetails = details;
-      await auth.storeUserInfo(session.companyDetails, userInfo);
     } catch (e) {
       log.error(
         `Error happened while getting company details from BCEID for user ${userGuid}`,
         e,
       );
-      return res.redirect(config.get('server:frontend') + '/login-error');
+      return res.redirect(
+        config.get('server:frontend') + '/api/auth/logout?loginError=true',
+      );
     }
 
     return res.redirect(config.get('server:frontend'));
