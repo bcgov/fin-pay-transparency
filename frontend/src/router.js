@@ -156,4 +156,11 @@ router.beforeEach((to, _from, next) => {
     });
 });
 
+router.afterEach((to, from) => {
+  // Tell snowplow that the URL changed.  Snowplow will
+  // record the event as a 'PageView' associated with the
+  // new URL (which it reads from document.referrer).
+  window.snowplow('trackPageView');
+});
+
 export default router;
