@@ -18,6 +18,9 @@ import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 
+import { initializeSnowplow } from './snowplow';
+initializeSnowplow(import.meta.env.VITE_SNOWPLOW_URL);
+
 const myCustomLightTheme = {
   dark: false,
   colors: {

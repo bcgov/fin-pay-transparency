@@ -40,6 +40,8 @@ jobs:
             triggers: ('frontend/')
             build_file: ./frontend/Dockerfile
             build_context: ./frontend
+            build_args: | 
+              VITE_SNOWPLOW_URL=${{ secrets.VITE_SNOWPLOW_URL }}
           - package: database-migrations
             triggers: ('backend/db')
             build_file: ./backend/db/Dockerfile
