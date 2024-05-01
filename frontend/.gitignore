@@ -27,4 +27,3 @@ local.*
 /playwright/
 .env.playwright
 user.json
-public/snowplow.js
