@@ -16,10 +16,11 @@ spec:
       {{- include "frontend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3003"
+        prometheus.io/path: "/metrics"
+        rollme: {{ randAlphaNum 5 | quote }}
       labels:
         {{- include "frontend.selectorLabels" . | nindent 8 }}
     spec:
