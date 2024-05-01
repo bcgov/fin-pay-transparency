@@ -88,10 +88,6 @@ backend:
       logLevel: info
       openshiftEnv: PROD
 
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3000"
-    prometheus.io/path: "/metrics"
   podSecurityContext: {}
   securityContext: {}
   imagePullSecrets: []
@@ -133,10 +129,7 @@ frontend:
     minReplicas: 3
     maxReplicas: 5
     targetCPUUtilizationPercentage: 80 # this percentage from request cpu
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3003"
-    prometheus.io/path: "/metrics"
+
   podSecurityContext: {}
   securityContext:
     capabilities:
@@ -285,10 +278,6 @@ doc-gen-service:
       cpu: 100m
       memory: 50Mi
 
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3000"
-    prometheus.io/path: "/metrics"
   podSecurityContext: {}
   securityContext: {}
   imagePullSecrets: []
@@ -323,10 +312,6 @@ backend-external:
     env:
       logLevel: info
 
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3000"
-    prometheus.io/path: "/prom-metrics"
   podSecurityContext: {}
   securityContext: {}
   imagePullSecrets: []

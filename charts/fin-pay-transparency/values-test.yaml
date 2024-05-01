@@ -87,10 +87,6 @@ backend:
       siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
       logLevel: info
       openshiftEnv: TEST
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3000"
-    prometheus.io/path: "/metrics"
   podSecurityContext: {}
   securityContext: {}
   imagePullSecrets: []
@@ -132,10 +128,6 @@ frontend:
     minReplicas: 3
     maxReplicas: 5
     targetCPUUtilizationPercentage: 80 # this percentage from request cpu
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3003"
-    prometheus.io/path: "/metrics"
   podSecurityContext: {}
   securityContext:
     capabilities:
@@ -284,10 +276,6 @@ doc-gen-service:
       cpu: 100m
       memory: 50Mi
 
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3000"
-    prometheus.io/path: "/metrics"
   podSecurityContext: {}
   securityContext: {}
   imagePullSecrets: []
@@ -322,10 +310,6 @@ backend-external:
     env:
       logLevel: info
 
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3000"
-    prometheus.io/path: "/prom-metrics"
   podSecurityContext: {}
   securityContext: {}
   imagePullSecrets: []
