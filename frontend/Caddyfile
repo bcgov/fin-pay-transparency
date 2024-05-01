@@ -15,7 +15,7 @@
     level {$LOG_LEVEL}
   }
   handle /env.js {
-    header Content-Type text/javascript
+    header Content-Type "text/javascript"
     respond `window.config = {"SNOWPLOW_URL":"{$SNOWPLOW_URL}"};`
   }
   root * /app/dist
