@@ -18,6 +18,7 @@ import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 
+
 const myCustomLightTheme = {
   dark: false,
   colors: {
