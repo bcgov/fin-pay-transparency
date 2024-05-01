@@ -1,9 +1,7 @@
 # Build static files
 FROM node:lts-alpine AS build
-ARG VITE_SNOWPLOW_URL
 WORKDIR /app
 COPY . .
-ENV VITE_SNOWPLOW_URL=$VITE_SNOWPLOW_URL
 RUN npm ci --ignore-scripts && \
     npm run build
 
