@@ -126,15 +126,4 @@ jobs:
     with:
       backend-external-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api
       
-  zap:
-    name: ZAP Scan
-    needs: [deploys]
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Penetration Test
-        uses: zaproxy/action-full-scan@v0.10.0
-        with:
-          target: https://dev.paytransparency.fin.gov.bc.ca
-          cmd_options: "-a"
-          fail_action: false
-          allow_issue_writing: false
+

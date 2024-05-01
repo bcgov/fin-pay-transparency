@@ -1,0 +1,21 @@
+name: Scheduled Jobs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 11 * * 6' # 3 AM PST = 12 PM UDT, Saturdays
+
+jobs:
+
+  zap:
+    name: ZAP Scan
+    needs: [deploys]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Penetration Test
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: https://paytransparency.fin.gov.bc.ca
+          cmd_options: "-a"
+          fail_action: false
+          allow_issue_writing: false
