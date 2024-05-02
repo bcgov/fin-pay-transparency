@@ -5,6 +5,7 @@ import { auth } from './auth-service';
 import { utils } from './utils-service';
 import prisma from '../prisma/prisma-client';
 import * as bceidService from '../../external/services/bceid-service';
+import { LogoutReason } from '../routes/auth-routes';
 //Mock the entire axios module so we never inadvertently make real
 //HTTP calls to remote services
 jest.mock('axios');
@@ -575,15 +576,10 @@ describe('handleCallBackBusinessBceid', () => {
     });
   });
   it('should handle the callback successfully', async () => {
-    // Mock any dependencies and set up the expected behavior
+    const result = await auth.handleCallBackBusinessBceid(req);
 
-    // Act
-    await auth.handleCallBackBusinessBceid(req, res);
-
-    expect(res.redirect).toHaveBeenCalled();
+    expect(result).toBe(LogoutReason.Login);
     expect(req.session.companyDetails).toStrictEqual(mockCompanyInSession);
-    // Assert
-    // Verify the function behaved as expected
   });
 
   it('should Add the company details to session if it is not present  and add it to db', async () => {
@@ -601,8 +597,8 @@ describe('handleCallBackBusinessBceid', () => {
       ...req,
     };
     modifiedReq.session.companyDetails = undefined;
-    await auth.handleCallBackBusinessBceid(modifiedReq, res);
-    expect(res.redirect).toHaveBeenCalled();
+    const result = await auth.handleCallBackBusinessBceid(modifiedReq);
+    expect(result).toBe(LogoutReason.Login);
     expect(req.session.companyDetails).toStrictEqual(mockCompanyInSession);
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
@@ -629,9 +625,9 @@ describe('handleCallBackBusinessBceid', () => {
       ...req,
     };
     modifiedReq.session.companyDetails = undefined;
-    await auth.handleCallBackBusinessBceid(modifiedReq, res);
-    expect(res.redirect).toHaveBeenCalled();
-    expect(req.session.companyDetails).toStrictEqual(mockCompanyInSession);
+    const result = await auth.handleCallBackBusinessBceid(modifiedReq);
+    expect(result).toBe(LogoutReason.LoginError);
+    expect(req.session.companyDetails).toBeUndefined();
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.update).toHaveBeenCalled();
@@ -659,8 +655,8 @@ describe('handleCallBackBusinessBceid', () => {
       ...req,
     };
     modifiedReq.session.companyDetails = undefined;
-    await auth.handleCallBackBusinessBceid(modifiedReq, res);
-    expect(res.redirect).toHaveBeenCalled();
+    const result = await auth.handleCallBackBusinessBceid(modifiedReq);
+    expect(result).toBe(LogoutReason.ContactError);
     expect(req.session.companyDetails).toBeUndefined();
     expect(prisma.$transaction).toHaveBeenCalledTimes(0);
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalledTimes(0);

@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import router from './auth-routes';
+import router, { LogoutReason } from './auth-routes';
 import request from 'supertest';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
 let app: Application;
@@ -66,16 +66,38 @@ describe('auth-routes', () => {
   });
 
   describe('/callback_business_bceid [GET]', () => {
-    it('should execute handleCallBackBusinessBceid', () => {
+    it('should redirect to frontend if successful', () => {
       mockAuthenticate.mockImplementation((_, __, next) => {
         next();
       });
 
-      mockHandleCallbackBusinessBceid.mockImplementation((req, res) => {
-        return res.status(200).send({ success: true });
+      mockHandleCallbackBusinessBceid.mockImplementation((req) => {
+        return LogoutReason.Login;
       });
 
-      return request(app).get('/callback_business_bceid').expect(200);
+      return request(app).get('/callback_business_bceid').expect(302);
+    });
+    it('should log out if error', () => {
+      mockLogout.mockImplementation((cb) => cb());
+      mockGetOidcDiscovery.mockResolvedValue({
+        end_session_endpoint: 'http://test.com/',
+      });
+      app.use((req: any, res, next) => {
+        req.session = mockRequest.session;
+        req.user = mockRequest.user;
+        req.logout = mockRequest.logout;
+        next();
+      });
+      app.use('/auth', router);
+      mockAuthenticate.mockImplementation((_, __, next) => {
+        next();
+      });
+
+      mockHandleCallbackBusinessBceid.mockImplementation((req) => {
+        return LogoutReason.ContactError;
+      });
+
+      return request(app).get('/auth/callback_business_bceid').expect(302);
     });
   });
 
@@ -118,6 +140,24 @@ describe('auth-routes', () => {
       return request(app)
         .get('/auth/logout')
         .query({ sessionExpired: true })
+        .expect(302);
+    });
+    it('should handle contact error', () => {
+      mockLogout.mockImplementation((cb) => cb());
+      mockGetOidcDiscovery.mockResolvedValue({
+        end_session_endpoint: 'http://test.com/',
+      });
+      app.use((req: any, res, next) => {
+        req.session = mockRequest.session;
+        req.user = mockRequest.user;
+        req.logout = mockRequest.logout;
+        next();
+      });
+      app.use('/auth', router);
+
+      return request(app)
+        .get('/auth/logout')
+        .query({ contactError: true })
         .expect(302);
     });
     it('should handle loginBceid', () => {

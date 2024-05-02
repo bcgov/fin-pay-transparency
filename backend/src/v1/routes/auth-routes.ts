@@ -19,11 +19,17 @@ router.get(
   passport.authenticate('oidcBusinessBceid', {
     failureMessage: true,
   }),
-  utils.asyncHandler(async (req: Request, res: Response) => {
-    log.debug(`Login flow callback business bceid is called.`);
-    await auth.handleCallBackBusinessBceid(req, res);
-  }),
+  utils.asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      log.debug(`Login flow callback business bceid is called.`);
+      const logoutReason = await auth.handleCallBackBusinessBceid(req);
+      if (logoutReason == LogoutReason.Login)
+        return res.redirect(config.get('server:frontend'));
+      else return logoutHandler(req, res, next, logoutReason);
+    },
+  ),
 );
+
 //a prettier way to handle errors
 router.get('/error', (req, res) => {
   log.error(`Login flow Error happened`);
@@ -41,69 +47,70 @@ function addBaseRouterGet(strategyName, callbackURI) {
 
 addBaseRouterGet('oidcBusinessBceid', '/login_bceid');
 
+export enum LogoutReason {
+  Login = 'login', // ie. don't log out
+  Default = 'default',
+  SessionExpired = 'sessionExpired',
+  LoginError = 'loginError',
+  LoginBceid = 'loginBceid',
+  ContactError = 'contactError',
+}
+
 //removes tokens and destroys session
+async function logoutHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  reason: LogoutReason,
+) {
+  // @ts-expect-error, it is given by passport lib.
+  const idToken: string = req['user']?.idToken;
+  const discovery = await utils.getOidcDiscovery();
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        log.error(`Logout failed - ${err.message}`);
+        return next(err);
+      }
+    });
+
+    if (idToken) {
+      let url = '';
+
+      if (reason == 'sessionExpired') url = '/session-expired';
+      else if (reason == 'loginError') url = '/login-error';
+      else if (reason == 'loginBceid') url = '/api/auth/login_bceid';
+      else if (reason == 'contactError') url = '/contact-error';
+      else url = '/logout';
+
+      const retUrl = encodeURIComponent(
+        discovery.end_session_endpoint +
+          '?post_logout_redirect_uri=' +
+          config.get('server:frontend') +
+          url +
+          '&id_token_hint=' +
+          idToken,
+      );
+      res.redirect(config.get('siteMinder_logout_endpoint') + retUrl);
+    } else {
+      res.redirect(config.get('server:frontend') + '/api/auth/login_bceid');
+    }
+  });
+}
+
 router.get(
   '/logout',
   utils.asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-      // @ts-ignore, it is given by passport lib.
-      const idToken: string = req['user']?.idToken;
-      const discovery = await utils.getOidcDiscovery();
-      req.logout(function (err) {
-        if (err) {
-          return next(err);
-        }
-        req.session.destroy((err) => {
-          if (err) {
-            log.error(`Logout failed - ${err.message}`);
-            return next(err);
-          }
-        });
-
-        let retUrl;
-        if (idToken) {
-          if (req.query?.sessionExpired) {
-            retUrl = encodeURIComponent(
-              discovery.end_session_endpoint +
-                '?post_logout_redirect_uri=' +
-                config.get('server:frontend') +
-                '/session-expired' +
-                '&id_token_hint=' +
-                idToken,
-            );
-          } else if (req.query?.loginError) {
-            retUrl = encodeURIComponent(
-              discovery.end_session_endpoint +
-                '?post_logout_redirect_uri=' +
-                config.get('server:frontend') +
-                '/login-error' +
-                '&id_token_hint=' +
-                idToken,
-            );
-          } else if (req.query?.loginBceid) {
-            retUrl = encodeURIComponent(
-              discovery.end_session_endpoint +
-                '?post_logout_redirect_uri=' +
-                config.get('server:frontend') +
-                '/api/auth/login_bceid' +
-                '&id_token_hint=' +
-                idToken,
-            );
-          } else {
-            retUrl = encodeURIComponent(
-              discovery.end_session_endpoint +
-                '?post_logout_redirect_uri=' +
-                config.get('server:frontend') +
-                '/logout' +
-                '&id_token_hint=' +
-                idToken,
-            );
-          }
-          res.redirect(config.get('siteMinder_logout_endpoint') + retUrl);
-        } else {
-          res.redirect(config.get('server:frontend') + '/api/auth/login_bceid');
-        }
-      });
+      let reason: LogoutReason = LogoutReason.Default;
+      if (req.query?.sessionExpired) reason = LogoutReason.SessionExpired;
+      else if (req.query?.loginError) reason = LogoutReason.LoginError;
+      else if (req.query?.loginBceid) reason = LogoutReason.LoginBceid;
+      else if (req.query?.contactError) reason = LogoutReason.ContactError;
+      await logoutHandler(req, res, next, reason);
     },
   ),
 );
@@ -132,7 +139,7 @@ router.post(
           `${MISSING_COMPANY_DETAILS_ERROR} in session. No correlation id found.`,
         );
       }
-      
+
       return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
     }
 
