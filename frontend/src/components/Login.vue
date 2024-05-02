@@ -2,7 +2,7 @@
   <v-container class="undized">
     <v-row no-gutters>
       <v-col cols="12">
-        <v-container class="justify-center">
+        <v-container class="justify-center narrow">
           <v-row no-gutters>
             <v-col>
               <!-- begin -->  
@@ -36,7 +36,7 @@
     </v-row>
     <v-row no-gutters class="grey-div">
       <v-col>
-        <v-container class="justify-center">
+        <v-container class="justify-center narrow">
           <v-row no-gutters>
             <v-col>
               <h3 class="centered-text mt-14 mb-8">
@@ -196,6 +196,12 @@ export default {
 </script>
 
 <style scoped>
+
+  .narrow {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+  }
   .image-monitor {
     border-style: none;
     margin-left: auto;   
