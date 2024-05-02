@@ -80,29 +80,13 @@ app.use(/(\/api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
 });
-const globalMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const apiKey = req.header('x-api-key');
-  if (apiKey) {
-    if (config.get('server:apiKey') === apiKey) {
-      next();
-    } else {
-      logger.error('Invalid API Key');
-      res.status(401).send({ message: 'Invalid API Key' });
-    }
-  } else {
-    logger.error('API Key is missing in the request header');
-    res.status(400).send({
-      message: 'API Key is missing in the request header',
-    });
-  }
-};
+
 const specs = swaggerJsdoc(utils.swaggerDocsOptions);
 apiRouter.use(
   '/v1/docs',
   swaggerUi.serve,
   swaggerUi.setup(specs, { explorer: true }),
 );
-apiRouter.use(globalMiddleware);
 apiRouter.use('/v1/pay-transparency', payTransparencyRouter);
 // Handle 500
 

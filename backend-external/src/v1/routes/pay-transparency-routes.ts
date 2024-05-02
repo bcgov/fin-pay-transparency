@@ -1,8 +1,28 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { payTransparencyService } from '../services/pay-transparency-service';
 import { utils } from '../../utils';
+import { logger } from '../../logger';
+import { config } from '../../config';
 
 const router = express.Router();
+const validateApiKey =
+  (validKey: string) => (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header('x-api-key');
+    if (apiKey) {
+      if (validKey === apiKey) {
+        next();
+      } else {
+        logger.error('Invalid API Key');
+        res.status(401).send({ message: 'Invalid API Key' });
+      }
+    } else {
+      logger.error('API Key is missing in the request header');
+      res.status(400).send({
+        message: 'API Key is missing in the request header',
+      });
+    }
+  };
+
 /**
  * @swagger
  * components:
@@ -71,7 +91,7 @@ const router = express.Router();
  *           items:
  *             $ref: "#/components/schemas/CalculatedData"
  *     Report:
- *       allOf: 
+ *       allOf:
  *       - $ref: "#/components/schemas/ReportItem"
  *
  *     PaginatedReports:
@@ -144,6 +164,7 @@ const router = express.Router();
  */
 router.get(
   '/',
+  validateApiKey(config.get('server:apiKey')),
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
       const startDate = req.query.startDate?.toString();
@@ -170,4 +191,49 @@ router.get(
     }
   }),
 );
+
+/**
+ * @swagger
+ * tags:
+ *   name: Reports
+ * /delete-reports:
+ *   delete:
+ *     summary: Delete reports
+ *     tags: [Reports]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: companyId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully deleted reports
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.delete(
+  '/delete-reports',
+  validateApiKey(config.get('server:deleteReportsApiKey')),
+  async (req, res) => {
+    try {
+      const { data } = await payTransparencyService.deleteReports(req);
+      if (data.error) {
+        return res.status(400).json({ message: data.message });
+      }
+
+      return res.status(200).json({ message: data.message });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+);
+
 export default router;

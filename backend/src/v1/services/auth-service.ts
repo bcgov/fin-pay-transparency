@@ -185,6 +185,7 @@ const auth = {
     }
     const userInfoFrontend = {
       displayName: userInfo._json.display_name,
+      businessId: userInfo._json.bceid_business_guid,
       ...session.companyDetails,
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);

@@ -164,7 +164,9 @@ const externalConsumerService = {
 
       await tx.pay_transparency_report.deleteMany({
         where: {
-          pay_transparency_company: {},
+          pay_transparency_company: {
+            bceid_business_guid,
+          },
         },
       });
     });

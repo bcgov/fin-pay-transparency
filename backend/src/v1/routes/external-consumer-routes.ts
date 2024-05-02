@@ -3,8 +3,6 @@ import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
 import { logger } from '../../logger';
 import { config } from '../../config';
-import passport from 'passport';
-import { auth } from '../services/auth-service';
 
 const validateToken =
   (validApiKey: string) =>
@@ -54,14 +52,14 @@ router.get(
 
 router.delete(
   '/delete-reports',
-  validateToken(config.get('backendExternal:apiDeleteReportsKey')),
-  passport.authenticate('jwt', { session: false }),
-  (req: Request, res: Response, next: NextFunction) => {
-    auth.isValidBackendToken()(req, res, next);
-  },
   async (req, res) => {
-    const { bceid_business_guid } = utils.getSessionUser(req)?._json;
     
+    try {
+      await externalConsumerService.deleteReports(req.query.companyId as string);
+      res.status(200).json({ error: false, message: 'Reports deleted' });
+    } catch (error) {
+      res.json({ error: true, message: error.message });
+    }
   },
 );
 
