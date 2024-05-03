@@ -11,7 +11,7 @@ config.defaults({
     morganFormat: 'dev',
     apiKey: process.env.EXTERNAL_CONSUMER_API_KEY || 'api-key',
     deleteReportsApiKey:
-      process.env.EXTERNAL_API_DELETE_REPORTS_KEY || 'api-key',
+      process.env.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY || 'api-delete-reports-key',
     port: process.env.PORT || 3002,
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
@@ -23,7 +23,7 @@ config.defaults({
   backend: {
     apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key',
     deleteReportsApiKey:
-      process.env.BACKEND_EXTERNAL_DELETE_REPORTS_API_KEY || 'api-key',
+      process.env.BACKEND_EXTERNAL_DELETE_REPORTS_API_KEY || 'api-delete-reports-key',
     url: process.env.BACKEND_URL || 'http://localhost:3010',
   },
 });

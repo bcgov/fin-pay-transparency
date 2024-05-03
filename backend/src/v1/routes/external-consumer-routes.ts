@@ -52,10 +52,12 @@ router.get(
 
 router.delete(
   '/delete-reports',
+  validateToken(config.get('backendExternal:apiDeleteReportsKey')),
   async (req, res) => {
-    
     try {
-      await externalConsumerService.deleteReports(req.query.companyId as string);
+      await externalConsumerService.deleteReports(
+        req.query.companyId as string,
+      );
       res.status(200).json({ error: false, message: 'Reports deleted' });
     } catch (error) {
       res.json({ error: true, message: error.message });

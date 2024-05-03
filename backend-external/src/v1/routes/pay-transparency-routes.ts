@@ -6,8 +6,9 @@ import { config } from '../../config';
 
 const router = express.Router();
 const validateApiKey =
-  (validKey: string) => (req: Request, res: Response, next: NextFunction) => {
-    const apiKey = req.header('x-api-key');
+  (validKey: string, headerKey: string = 'x-api-key') =>
+  (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header(headerKey);
     if (apiKey) {
       if (validKey === apiKey) {
         next();
@@ -31,6 +32,10 @@ const validateApiKey =
  *       type: apiKey
  *       in: header
  *       name: x-api-key
+ *     DeleteReportsApiKeyAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: x-api-delete-reports-key
  *   schemas:
  *     CalculatedData:
  *       type: object
@@ -201,7 +206,7 @@ router.get(
  *     summary: Delete reports
  *     tags: [Reports]
  *     security:
- *       - ApiKeyAuth: []
+ *       - DeleteReportsApiKeyAuth: []
  *     parameters:
  *       - in: query
  *         name: companyId
@@ -221,7 +226,10 @@ router.get(
  */
 router.delete(
   '/delete-reports',
-  validateApiKey(config.get('server:deleteReportsApiKey')),
+  validateApiKey(
+    config.get('server:deleteReportsApiKey'),
+    'x-api-delete-reports-key',
+  ),
   async (req, res) => {
     try {
       const { data } = await payTransparencyService.deleteReports(req);

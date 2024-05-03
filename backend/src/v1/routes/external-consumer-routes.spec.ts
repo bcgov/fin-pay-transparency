@@ -21,6 +21,15 @@ jest.mock('../prisma/prisma-client-readonly-replica', () => {
   };
 });
 
+const mockDeleteReports = jest.fn();
+jest.mock('../services/external-consumer-service', () => ({
+  externalConsumerService: {
+    ...jest.requireActual('../services/external-consumer-service')
+      .externalConsumerService,
+    deleteReports: (...args) => mockDeleteReports(...args),
+  },
+}));
+
 let app: Application;
 const REPORT = {
   report_id: faker.string.uuid(),
@@ -67,6 +76,7 @@ describe('external-consumer-routes', () => {
       mockReportsViewFindMany.mockReturnValue([REPORT]);
       return request(app)
         .get('')
+        .set('x-api-key', 'api-key')
         .expect(200)
         .expect(({ body }) => {
           expect(body).toEqual({
@@ -113,6 +123,7 @@ describe('external-consumer-routes', () => {
       return request(app)
         .get('')
         .query({ offset: 'one', limit: '1oooo' })
+        .set('x-api-key', 'api-key')
         .expect(400)
         .expect(({ body }) => {
           expect(body).toEqual({

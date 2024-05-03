@@ -124,12 +124,83 @@ describe('external-consumer-service', () => {
     try {
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01',
-        '2023-01-01',
         -1,
         -1,
       );
-    } catch (error) {
-      expect(error.message).toBe('Start date must be before the end date.');
-    }
+      expect(results.page).toBe(0);
+    });
+
+    it('should fail parse invalid date strings', async () => {
+      mockCount.mockReturnValue(1);
+      mockReportsFindMany.mockReturnValue([testData]);
+      try {
+        await externalConsumerService.exportDataWithPagination(
+          '20241-01-01',
+          '20241-01-01',
+          -1,
+          -1,
+        );
+      } catch (error) {
+        expect(error.message).toBe(
+          'Failed to parse dates. Please use date format YYYY-MM-dd',
+        );
+      }
+    });
+    it('should fail when endDate is before the startDate', async () => {
+      mockCount.mockReturnValue(1);
+      mockReportsFindMany.mockReturnValue([testData]);
+      try {
+        await externalConsumerService.exportDataWithPagination(
+          '2024-01-01',
+          '2023-01-01',
+          -1,
+          -1,
+        );
+      } catch (error) {
+        expect(error.message).toBe('Start date must be before the end date.');
+      }
+    });
+  });
+  describe('deleteReports', () => {
+    it('should delete reports', async () => {
+      const bceid_business_guid = '1234567890';
+      await externalConsumerService.deleteReports(bceid_business_guid);
+      expect(mockCalculatedDataDeleteMany).toHaveBeenCalledWith({
+        where: {
+          pay_transparency_report: {
+            pay_transparency_company: {
+              bceid_business_guid,
+            },
+          },
+        },
+      });
+      expect(mockCalculatedHistoryDataDeleteMany).toHaveBeenCalledWith({
+        where: {
+          report_history: {
+            pay_transparency_report: {
+              pay_transparency_company: {
+                bceid_business_guid,
+              },
+            },
+          },
+        },
+      });
+      expect(mockReportHistoryDeleteMany).toHaveBeenCalledWith({
+        where: {
+          pay_transparency_report: {
+            pay_transparency_company: {
+              bceid_business_guid,
+            },
+          },
+        },
+      });
+      expect(mockReportsDeleteMany).toHaveBeenCalledWith({
+        where: {
+          pay_transparency_company: {
+            bceid_business_guid,
+          },
+        },
+      });
+    });
   });
 });
