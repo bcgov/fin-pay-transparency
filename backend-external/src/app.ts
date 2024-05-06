@@ -1,4 +1,4 @@
-import express, { json, NextFunction, Request, Response } from 'express';
+import express, { json, Request, Response } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import helmet from 'helmet';
