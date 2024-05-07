@@ -1167,6 +1167,13 @@ export default {
 
 .back-button-banner {
   width: 90% !important;
+  padding-left: 0;
+  padding-right: 0;
+  @include layout-margins;
+} 
+
+.alert-info {
+  width: 90% !important;
   @include layout-margins;
 }
 

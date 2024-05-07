@@ -115,6 +115,8 @@ const editReport = async () => {
 .sticky-top {
   @include layout-margins;
   width: 90% !important;
+  padding-left: 0;
+  padding-right: 0;
   z-index: 190;
   bottom: none !important;
   top: 0px !important;
