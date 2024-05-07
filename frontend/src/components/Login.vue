@@ -2,7 +2,10 @@
   <v-container class="undized">
     <v-row no-gutters>
       <v-col cols="12">
-        <v-container class="justify-center narrow">
+        <v-container :class="{
+          'justify-center': true, 
+          narrow: true,
+          }">
           <v-row no-gutters>
             <v-col>
               <!-- begin -->  
@@ -195,13 +198,13 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+  @import "../scss/_common.scss";
 
   .narrow {
-    width: 85%;
-    margin-left: auto;
-    margin-right: auto;
+    @include layout-margins;
   }
+
   .image-monitor {
     border-style: none;
     margin-left: auto;   

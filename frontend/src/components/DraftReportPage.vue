@@ -7,6 +7,7 @@
         border="none"
         bg-color="rgba(255, 255, 255, 0)"
         style="z-index: 190"
+        class="back-button-banner"
       >
         <v-btn class="btn-secondary" to="/generate-report-form">Back</v-btn>
       </v-banner>
@@ -180,3 +181,12 @@ async function downloadPdf(reportId: string | undefined) {
   isDownloadingPdf.value = false;
 }
 </script>
+
+<style scoped lang="scss">
+@import "../scss/_common.scss";
+
+.back-button-banner {
+  width: 90% !important;
+  @include layout-margins;
+}
+</style>

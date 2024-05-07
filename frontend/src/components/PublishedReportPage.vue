@@ -110,7 +110,11 @@ const editReport = async () => {
 </script>
 
 <style lang="scss">
+@import '../scss/_common.scss';
+
 .sticky-top {
+  @include layout-margins;
+  width: 90% !important;
   z-index: 190;
   bottom: none !important;
   top: 0px !important;

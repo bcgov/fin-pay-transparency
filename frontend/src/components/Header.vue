@@ -2,12 +2,7 @@
   <v-app-bar
     absolute
     style="z-index: 1002"
-    :class="{
-      'pl-2': $vuetify.display.smAndDown,
-      'pl-10': $vuetify.display.mdAndUp,
-      'pr-2': $vuetify.display.smAndDown,
-      'pr-10': $vuetify.display.mdAndUp,
-    }"
+    class="pt-header"
   >
     <!-- Navbar content -->
     <a tabindex="-1" href="/" class="d-flex align-center">
@@ -113,7 +108,15 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+  @import "../scss/_common.scss";
+
+.pt-header {
+  .v-toolbar__content {
+    @include layout-margins;
+  }
+}
+
 .gov-header .v-icon {
   padding-left: 10px;
 }
