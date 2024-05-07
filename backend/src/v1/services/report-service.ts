@@ -442,6 +442,41 @@ const reportServicePrivate = {
 
     return report;
   },
+
+  /**
+   *
+   * @param report Combines several address-related properties from
+   * the pay_transparency_company object (such as address_line1, address_line2,
+   * city, and province) into a full civic address string.  If all address-related
+   * properties are missing, returns an empty string.
+   * @returns a formatted civic address string
+   */
+  formatCompanyAddress(pay_transparency_company: any): string {
+    if (!pay_transparency_company) {
+      return '';
+    }
+    const streetAddressLines: string[] = [];
+    if (pay_transparency_company?.address_line1) {
+      streetAddressLines.push(pay_transparency_company?.address_line1.trim());
+    }
+    if (pay_transparency_company?.address_line2) {
+      streetAddressLines.push(pay_transparency_company?.address_line2.trim());
+    }
+    const streetAddress = streetAddressLines.join(' ').trim();
+
+    const fullAddressParts: string[] = [];
+    if (streetAddress) {
+      fullAddressParts.push(streetAddress);
+    }
+    if (pay_transparency_company?.city) {
+      fullAddressParts.push(pay_transparency_company?.city.trim());
+    }
+    if (pay_transparency_company?.province) {
+      fullAddressParts.push(pay_transparency_company?.province.trim());
+    }
+
+    return fullAddressParts.join(', ').trim();
+  },
 };
 
 const reportService = {
@@ -1023,8 +1058,9 @@ const reportService = {
 
     const reportData = {
       companyName: report.pay_transparency_company.company_name,
-      companyAddress:
-        `${report.pay_transparency_company.address_line1} ${report.pay_transparency_company.address_line2}`.trim(),
+      companyAddress: reportServicePrivate.formatCompanyAddress(
+        report?.pay_transparency_company,
+      ),
       reportingYear: report.reporting_year,
       reportStartDate: LocalDate.from(
         nativeJs(report.report_start_date, ZoneId.UTC),
@@ -1186,8 +1222,8 @@ const reportService = {
 
       if (existing_published_report && !existing_published_report.is_unlocked) {
         throw new Error(
-            'A report for this time period already exists and cannot be updated.',
-          );
+          'A report for this time period already exists and cannot be updated.',
+        );
       }
 
       // If there is an existing Published report, move it into

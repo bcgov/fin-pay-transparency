@@ -359,6 +359,52 @@ describe('getReportData', () => {
   });
 });
 
+describe('formatCompanyAddress', () => {
+  describe('when the company object provides values for all address-related properties', () => {
+    it('the formatted address includes all address-related properties in the correct order', () => {
+      const mockCompany = {
+        address_line1: 'A1',
+        address_line2: 'A2',
+        city: 'C',
+        province: 'P',
+      };
+      const address = reportServicePrivate.formatCompanyAddress(mockCompany);
+      expect(address).toBe('A1 A2, C, P');
+    });
+  });
+  describe('when the company object is null', () => {
+    it('the formatted address is an empty string', () => {
+      const mockCompany = null;
+      const address = reportServicePrivate.formatCompanyAddress(mockCompany);
+      expect(address).toBe('');
+    });
+  });
+  describe('when the company contains values for all properties except addres_line2', () => {
+    it('the formatted address omits address_line2', () => {
+      const mockCompany = {
+        address_line1: 'A1',
+        address_line2: null,
+        city: 'C',
+        province: 'P',
+      };
+      const address = reportServicePrivate.formatCompanyAddress(mockCompany);
+      expect(address).toBe('A1, C, P');
+    });
+  });
+  describe("when the company's address-related properties start or end with extra whitespace", () => {
+    it('the extra whitespace is trimmed from the formatted address', () => {
+      const mockCompany = {
+        address_line1: ' A1',
+        address_line2: 'A2 ',
+        city: 'C ',
+        province: ' P',
+      };
+      const address = reportServicePrivate.formatCompanyAddress(mockCompany);
+      expect(address).toBe('A1 A2, C, P');
+    });
+  });
+});
+
 describe('getReportHtml', () => {
   describe('when a valid report id is provided', () => {
     it('returns an HTML string of the report', async () => {
@@ -862,9 +908,11 @@ describe('publishReport', () => {
 
       await expect(
         reportService.publishReport(mockDraftReportInApi),
-      ).rejects.toEqual(new Error(
-        'A report for this time period already exists and cannot be updated.',
-      ));
+      ).rejects.toEqual(
+        new Error(
+          'A report for this time period already exists and cannot be updated.',
+        ),
+      );
     });
   });
 });

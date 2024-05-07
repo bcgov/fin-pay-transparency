@@ -1,7 +1,7 @@
-import { Locator, expect, Page } from '@playwright/test';
-import { PTPage } from './page';
+import { Locator, Page, expect } from '@playwright/test';
 import { PagePaths } from '../utils';
-import { GenerateReportPage, IReportDetails } from './generate-report';
+import { GenerateReportPage } from './generate-report';
+import { PTPage } from './page';
 
 export class BaseReportPage extends PTPage {
   public downloadPDFButton: Locator;
@@ -35,9 +35,21 @@ export class BaseReportPage extends PTPage {
     await expect(
       await this.instance.getByRole('cell', { name: 'Address' }),
     ).toBeVisible();
-    await expect(
-      await this.instance.getByRole('cell', { name: user.addressLine1 }),
-    ).toBeVisible();
+
+    const addressValue = await this.instance.getByRole('cell', {
+      name: user.addressLine1,
+    });
+    await expect(addressValue).toBeVisible();
+
+    if (user.addressLine2) {
+      await expect(addressValue).toContainText(user.addressLine2);
+    }
+    if (user.city) {
+      await expect(addressValue).toContainText(user.city);
+    }
+    if (user.province) {
+      await expect(addressValue).toContainText(user.province);
+    }
   }
 
   async downloadPDF() {
