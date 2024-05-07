@@ -45,6 +45,8 @@ spec:
               value: http://{{ .Release.Name }}-backend
             - name: LOG_LEVEL
               value: {{ .Values.env.logLevel }}
+            - name: SNOWPLOW_URL
+              value: {{ .Values.env.snowplowUrl }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

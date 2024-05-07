@@ -150,7 +150,19 @@
       "ecmaVersion": 2022,
       "sourceType": "module"
     },
-    "rules": {}
+    "rules": {
+      "jest/expect-expect": [
+        "error",
+        {
+          "assertFunctionNames": [
+            [
+              "expect",
+              "request.**.expect"
+            ]
+          ]
+        }
+      ]
+    }
   },
   "eslintIgnore": [],
   "prettier": {

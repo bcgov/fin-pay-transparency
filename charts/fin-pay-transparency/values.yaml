@@ -124,6 +124,7 @@ frontend:
       memory: 50Mi
   env:
     logLevel: info
+    snowplowUrl: spm.apps.gov.bc.ca
   autoscaling:
     enabled: true
     minReplicas: 3

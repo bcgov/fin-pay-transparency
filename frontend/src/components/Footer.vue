@@ -10,7 +10,7 @@
         governments.
       </div>
     </div>
-    <v-row>
+    <v-row class="bottom-padding">
       <v-col class="justify-left" style="text-align: left">
         <v-row>
           <v-col class="justify-left" style="text-align: left">
@@ -38,37 +38,39 @@
         </v-row>
       </v-col>
       <v-col
-        class="justify-right"
-        role="listbox"
         id="more-info"
+        class="justify-right"
         aria-label="More information links"
+        sm="6"
+        cols="12"
       >
         <p class="more-info-title">MORE INFO</p>
-        <v-row role="presentation" aria-labelledby="more-info">
+        <v-row aria-labelledby="more-info">
           <v-col class="links" style="text-align: left">
             <v-list>
               <v-list-item
-                class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.left"
-                v-bind:href="sanitizeUrl(link.to)"
+                :key="link.id"
+                class="footer-btn pl-1 pr-1"
+                :href="sanitizeUrl(link.to)"
                 :data-testid="link.id"
-                role="listitem"
                 :aria-label="link.label"
               >
-                <v-list-item-title v-text="link.label"></v-list-item-title>
+                <v-list-item-title>{{ link.label }}</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-col>
           <v-col class="links" style="text-align: left">
             <v-list>
               <v-list-item
-                class="footer-btn pl-1 pr-1"
                 v-for="link in settings.links.right"
-                v-bind:href="sanitizeUrl(link.to)"
+                :key="link.id"
+                class="footer-btn pl-1 pr-1"
+                :href="sanitizeUrl(link.to)"
                 :aria-label="link.label"
                 :data-testid="link.id"
               >
-                <v-list-item-title v-text="link.label"></v-list-item-title>
+                <v-list-item-title>{{ link.label }}</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-col>
@@ -174,6 +176,11 @@ p {
       margin: auto;
     }
   }
+}
+
+.bottom-padding {
+  padding-left: 32px;
+  padding-right: 32px;
 }
 
 .v-list-item-title {
