@@ -455,16 +455,16 @@ const reportServicePrivate = {
     if (!pay_transparency_company) {
       return '';
     }
-    let streetAddressLines: string[] = [];
+    const streetAddressLines: string[] = [];
     if (pay_transparency_company?.address_line1) {
       streetAddressLines.push(pay_transparency_company?.address_line1.trim());
     }
     if (pay_transparency_company?.address_line2) {
       streetAddressLines.push(pay_transparency_company?.address_line2.trim());
     }
-    var streetAddress = streetAddressLines.join(' ').trim();
+    const streetAddress = streetAddressLines.join(' ').trim();
 
-    let fullAddressParts: string[] = [];
+    const fullAddressParts: string[] = [];
     if (streetAddress) {
       fullAddressParts.push(streetAddress);
     }
@@ -475,8 +475,7 @@ const reportServicePrivate = {
       fullAddressParts.push(pay_transparency_company?.province.trim());
     }
 
-    let fullAddress = fullAddressParts.join(', ').trim();
-    return fullAddress;
+    return fullAddressParts.join(', ').trim();
   },
 };
 
