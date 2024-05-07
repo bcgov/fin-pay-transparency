@@ -9,6 +9,7 @@ import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
 import { getCompanyDetails } from '../../external/services/bceid-service';
 import { Request, NextFunction, Response } from 'express';
 import { pay_transparency_company } from '@prisma/client';
+import { LogoutReason } from '../routes/auth-routes';
 
 let kcPublicKey: string;
 const auth = {
@@ -317,32 +318,31 @@ const auth = {
     }
   },
 
-  async handleCallBackBusinessBceid(req: Request, res: Response) {
+  async handleCallBackBusinessBceid(req: Request): Promise<LogoutReason> {
     const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
     const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
     const userGuid = jwtPayload?.bceid_user_guid;
     if (!userGuid) {
       log.error(`no bceid_user_guid found in the jwt token`, userInfo.jwt);
-      return res.redirect(config.get('server:frontend') + '/login-error');
+      return LogoutReason.LoginError;
     }
 
     try {
       auth.validateClaims(userInfo.jwt);
     } catch (e) {
       log.error('invalid claims in token', e);
-      return res.redirect(config.get('server:frontend') + '/login-error');
+      return LogoutReason.LoginError;
     }
 
     // companyDetails already saved - success
     if (session?.companyDetails) {
-      return res.redirect(config.get('server:frontend'));
+      return LogoutReason.Login;
     }
 
     // companyDetails haven't been saved - get them
-    let details;
     try {
-      details = await getCompanyDetails(userGuid);
+      const details = await getCompanyDetails(userGuid);
 
       if (
         !details.legalName ||
@@ -355,20 +355,20 @@ const auth = {
         log.error(
           `Required company details missing from BCEID for user ${userGuid}`,
         );
-        return res.redirect(config.get('server:frontend') + '/contact-error');
+        return LogoutReason.ContactError;
       }
 
+      await auth.storeUserInfo(details, userInfo);
       session.companyDetails = details;
-      await auth.storeUserInfo(session.companyDetails, userInfo);
     } catch (e) {
       log.error(
         `Error happened while getting company details from BCEID for user ${userGuid}`,
         e,
       );
-      return res.redirect(config.get('server:frontend') + '/login-error');
+      return LogoutReason.LoginError;
     }
 
-    return res.redirect(config.get('server:frontend'));
+    return LogoutReason.Login;
   },
 };
 
