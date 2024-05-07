@@ -48,7 +48,7 @@ describe('pay-transparency-service', () => {
         {
           params: { companyId: '1234567890' },
           headers: {
-            'x-api-key': 'api-delete-reports-key',
+            'x-api-key': 'api-key',
           },
         },
       );

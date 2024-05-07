@@ -6,9 +6,9 @@ import { config } from '../../config';
 
 const router = express.Router();
 const validateApiKey =
-  (validKey: string, headerKey: string = 'x-api-key') =>
+  (validKey: string) =>
   (req: Request, res: Response, next: NextFunction) => {
-    const apiKey = req.header(headerKey);
+    const apiKey = req.header('x-api-key');
     if (apiKey) {
       if (validKey === apiKey) {
         next();
@@ -201,7 +201,7 @@ router.get(
  * @swagger
  * tags:
  *   name: Reports
- * /delete-reports:
+ * /reports:
  *   delete:
  *     summary: Delete reports
  *     tags: [Reports]
@@ -225,10 +225,9 @@ router.get(
  *                   type: string
  */
 router.delete(
-  '/delete-reports',
+  '/reports',
   validateApiKey(
     config.get('server:deleteReportsApiKey'),
-    'x-api-delete-reports-key',
   ),
   async (req, res) => {
     try {

@@ -27,7 +27,7 @@ export const payTransparencyService = {
     const axiosConfig: AxiosRequestConfig = {
       params: req.params,
       headers: {
-        'x-api-key': config.get('backend:deleteReportsApiKey'),
+        'x-api-key': config.get('backend:apiKey'),
       },
     };
     const { status, data } = await utils.backendAxios().delete<{

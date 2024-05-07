@@ -53,11 +53,25 @@ externalConsumerApp.use(
   /(\/external-consumer-api)?/,
   externalConsumerApiRouter,
 );
-
 externalConsumerApiRouter.use(
-  '/v1',
-  externalConsumerRouter,
+  (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header('x-api-key');
+    if (apiKey) {
+      if (config.get('backendExternal:apiKey') === apiKey) {
+        next();
+      } else {
+        logger.error('Invalid API Key');
+        res.status(401).send({ message: 'Invalid API Key' });
+      }
+    } else {
+      logger.error('API Key is missing in the request header');
+      res.status(400).send({
+        message: 'API Key is missing in the request header',
+      });
+    }
+  },
 );
+externalConsumerApiRouter.use('/v1', externalConsumerRouter);
 // Handle 500
 // 404
 externalConsumerApp.use(

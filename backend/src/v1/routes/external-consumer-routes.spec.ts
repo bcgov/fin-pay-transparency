@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import request from 'supertest';
 import router from './external-consumer-routes';
 import { faker } from '@faker-js/faker';
+import { reportService } from '../services/report-service';
 
 const mockCount = jest.fn();
 const mockReportsViewFindMany = jest.fn();
@@ -26,6 +27,12 @@ jest.mock('../services/external-consumer-service', () => ({
   externalConsumerService: {
     ...jest.requireActual('../services/external-consumer-service')
       .externalConsumerService,
+    deleteReports: (...args) => mockDeleteReports(...args),
+  },
+}));
+
+jest.mock('../services/report-service', () => ({
+  reportService: {
     deleteReports: (...args) => mockDeleteReports(...args),
   },
 }));

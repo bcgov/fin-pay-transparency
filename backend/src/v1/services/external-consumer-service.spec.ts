@@ -161,46 +161,4 @@ describe('external-consumer-service', () => {
       }
     });
   });
-  describe('deleteReports', () => {
-    it('should delete reports', async () => {
-      const bceid_business_guid = '1234567890';
-      await externalConsumerService.deleteReports(bceid_business_guid);
-      expect(mockCalculatedDataDeleteMany).toHaveBeenCalledWith({
-        where: {
-          pay_transparency_report: {
-            pay_transparency_company: {
-              bceid_business_guid,
-            },
-          },
-        },
-      });
-      expect(mockCalculatedHistoryDataDeleteMany).toHaveBeenCalledWith({
-        where: {
-          report_history: {
-            pay_transparency_report: {
-              pay_transparency_company: {
-                bceid_business_guid,
-              },
-            },
-          },
-        },
-      });
-      expect(mockReportHistoryDeleteMany).toHaveBeenCalledWith({
-        where: {
-          pay_transparency_report: {
-            pay_transparency_company: {
-              bceid_business_guid,
-            },
-          },
-        },
-      });
-      expect(mockReportsDeleteMany).toHaveBeenCalledWith({
-        where: {
-          pay_transparency_company: {
-            bceid_business_guid,
-          },
-        },
-      });
-    });
-  });
 });

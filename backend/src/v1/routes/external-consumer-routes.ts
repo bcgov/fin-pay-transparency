@@ -1,33 +1,12 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
-import { logger } from '../../logger';
-import { config } from '../../config';
-
-const validateToken =
-  (validApiKey: string) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    const apiKey = req.header('x-api-key');
-    if (apiKey) {
-      if (validApiKey === apiKey) {
-        next();
-      } else {
-        logger.error('Invalid API Key');
-        res.status(401).send({ message: 'Invalid API Key' });
-      }
-    } else {
-      logger.error('API Key is missing in the request header');
-      res.status(400).send({
-        message: 'API Key is missing in the request header',
-      });
-    }
-  };
+import { reportService } from '../services/report-service';
 
 const router = express.Router();
 
 router.get(
   '/',
-  validateToken(config.get('backendExternal:apiKey')),
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
       const startDate = req.query.startDate?.toString();
@@ -50,19 +29,13 @@ router.get(
   }),
 );
 
-router.delete(
-  '/delete-reports',
-  validateToken(config.get('backendExternal:apiDeleteReportsKey')),
-  async (req, res) => {
-    try {
-      await externalConsumerService.deleteReports(
-        req.query.companyId as string,
-      );
-      res.status(200).json({ error: false, message: 'Reports deleted' });
-    } catch (error) {
-      res.json({ error: true, message: error.message });
-    }
-  },
-);
+router.delete('/delete-reports', async (req, res) => {
+  try {
+    await reportService.deleteReports(req.query.companyId as string);
+    res.status(200).json({ error: false, message: 'Reports deleted' });
+  } catch (error) {
+    res.json({ error: true, message: error.message });
+  }
+});
 
 export default router;

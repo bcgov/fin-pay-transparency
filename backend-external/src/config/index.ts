@@ -22,8 +22,6 @@ config.defaults({
   },
   backend: {
     apiKey: process.env.BACKEND_EXTERNAL_API_KEY || 'api-key',
-    deleteReportsApiKey:
-      process.env.BACKEND_EXTERNAL_DELETE_REPORTS_API_KEY || 'api-delete-reports-key',
     url: process.env.BACKEND_URL || 'http://localhost:3010',
   },
 });
