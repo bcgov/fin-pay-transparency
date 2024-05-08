@@ -1,9 +1,9 @@
 <template>
-  <v-container class="d-flex justify-center h-100">
+  <v-container class="d-flex justify-center h-100 narrow">
     <v-form ref="inputForm" class="w-100 h-100">
       <v-banner
         sticky
-        width=" fit-content"
+        width="fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0)"
         class="sticky-top"
@@ -112,15 +112,20 @@ const editReport = async () => {
 <style lang="scss">
 @import '../scss/_common.scss';
 
-.sticky-top {
-  @include layout-margins;
-  width: 90% !important;
+.narrow {
+  width: 85% !important;
   padding-left: 0;
   padding-right: 0;
+  @include layout-margins;
+} 
+
+.sticky-top {
+  padding-left: 0;
   z-index: 190;
   bottom: none !important;
   top: 0px !important;
 }
+
 .sticky-bottom {
   z-index: 191;
   bottom: 0px !important;

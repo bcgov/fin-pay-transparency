@@ -1,5 +1,5 @@
 <template>
-  <v-container class="d-flex justify-center h-100">
+  <v-container class="d-flex justify-center h-100 narrow">
     <v-form ref="inputForm" @submit.prevent="submit" class="w-100 h-100">
       <v-row no-gutters>
         <v-col>
@@ -1165,17 +1165,17 @@ export default {
 
 @import "../scss/_common.scss";
 
-.back-button-banner {
-  width: 90% !important;
+.narrow {
+  width: 85% !important;
   padding-left: 0;
   padding-right: 0;
   @include layout-margins;
 } 
 
-.alert-info {
-  width: 90% !important;
-  @include layout-margins;
+.back-button-banner {
+  padding-left: 0;
 }
+
 
 textarea::placeholder {
   text-align: right;
