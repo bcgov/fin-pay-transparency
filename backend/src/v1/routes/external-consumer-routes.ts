@@ -29,7 +29,7 @@ router.get(
   }),
 );
 
-router.delete('/delete-reports', async (req, res) => {
+router.delete('/', async (req, res) => {
   try {
     await reportService.deleteReports(req.query.companyId as string);
     res.status(200).json({ error: false, message: 'Reports deleted' });

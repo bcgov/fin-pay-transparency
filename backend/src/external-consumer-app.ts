@@ -71,7 +71,7 @@ externalConsumerApiRouter.use(
     }
   },
 );
-externalConsumerApiRouter.use('/v1', externalConsumerRouter);
+externalConsumerApiRouter.use('/v1/reports', externalConsumerRouter);
 // Handle 500
 // 404
 externalConsumerApp.use(

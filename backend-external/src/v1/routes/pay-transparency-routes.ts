@@ -201,7 +201,7 @@ router.get(
  * @swagger
  * tags:
  *   name: Reports
- * /reports:
+ * /:
  *   delete:
  *     summary: Delete reports
  *     tags: [Reports]
@@ -225,7 +225,7 @@ router.get(
  *                   type: string
  */
 router.delete(
-  '/reports',
+  '/',
   validateApiKey(
     config.get('server:deleteReportsApiKey'),
   ),
