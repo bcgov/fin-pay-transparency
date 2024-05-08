@@ -143,6 +143,10 @@ a {
     gap: 48px;
     li {
       margin-bottom: 16px;
+      width: 160px;
+      @media (max-width: 1280px) {
+        width: unset;
+      }
     }
   }
 }
