@@ -206,7 +206,7 @@ router.get(
  *     summary: Delete reports
  *     tags: [Reports]
  *     security:
- *       - DeleteReportsApiKeyAuth: []
+ *       - ApiKeyAuth: []
  *     parameters:
  *       - in: query
  *         name: companyId

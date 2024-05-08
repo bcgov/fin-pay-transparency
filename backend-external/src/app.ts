@@ -87,6 +87,11 @@ apiRouter.use(
   swaggerUi.serve,
   swaggerUi.setup(specs, { explorer: true }),
 );
+apiRouter.use(
+  '/v2/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true }),
+);
 apiRouter.use('/v1/pay-transparency', payTransparencyRouter);
 // Handle 500
 
