@@ -56,6 +56,12 @@ a {
   color: #255a90;
 }
 
+.v-container {
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 a:hover {
   cursor: pointer;
 }

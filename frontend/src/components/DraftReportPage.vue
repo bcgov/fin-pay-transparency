@@ -1,5 +1,5 @@
 <template>
-  <v-container class="d-flex justify-center h-100 narrow">
+  <v-container class="d-flex justify-center h-100">
     <v-form ref="inputForm" class="w-100 h-100">
       <v-banner
         sticky
@@ -183,14 +183,6 @@ async function downloadPdf(reportId: string | undefined) {
 </script>
 
 <style scoped lang="scss">
-@import "../scss/_common.scss";
-
-.narrow {
-  width: 85% !important;
-  padding-left: 0;
-  padding-right: 0;
-  @include layout-margins;
-} 
 
 .back-button-banner {
   padding-left: 0;

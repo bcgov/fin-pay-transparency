@@ -1,11 +1,7 @@
 <template>
-  <v-container class="undized">
     <v-row no-gutters>
       <v-col cols="12">
-        <v-container :class="{
-          'justify-center': true, 
-          narrow: true,
-          }">
+        <v-container>
           <v-row no-gutters>
             <v-col>
               <!-- begin -->  
@@ -39,7 +35,7 @@
     </v-row>
     <v-row no-gutters class="grey-div">
       <v-col>
-        <v-container class="justify-center narrow">
+        <v-container class="justify-center">
           <v-row no-gutters>
             <v-col>
               <h3 class="centered-text mt-14 mb-8">
@@ -144,7 +140,7 @@
 
       </v-col>
     </v-row>  
-  </v-container>
+  <!-- </v-container> -->
 </template>
 
 <script>
@@ -199,11 +195,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  @import "../scss/_common.scss";
-
-  .narrow {
-    @include layout-margins;
-  }
+  
 
   .image-monitor {
     border-style: none;
@@ -303,13 +295,5 @@ export default {
     height: 100%;
   }
 
-  .undized {
-    margin: 0;
-    padding: 0;
-    min-width: 100%;
-    max-width: 100%;
-    height: 100%;
-    overflow: hidden; 
-    word-wrap: break-word;
-  }
+  
 </style>
