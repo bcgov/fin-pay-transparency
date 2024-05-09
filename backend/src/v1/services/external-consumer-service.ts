@@ -151,7 +151,7 @@ const externalConsumerService = {
               pay_transparency_company: true,
             },
             where: {
-              create_date: {
+              update_date: {
                 gte: convert(startDt).toDate(),
                 lte: convert(endDt).toDate(),
               },
