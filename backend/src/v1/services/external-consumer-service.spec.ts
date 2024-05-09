@@ -144,7 +144,7 @@ describe('external-consumer-service', () => {
       user_comment: testData.user_comment,
     });
 
-    expect(results.records[1]).toStrictEqual({
+    expect(results.history[0]).toStrictEqual({
       calculated_data: [
         {
           is_suppressed:
