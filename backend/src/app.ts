@@ -64,6 +64,7 @@ const metricsMiddleware = promBundle({
   promRegistry: register,
 });
 const app = express();
+app.set('trust proxy', 1);
 const apiRouter = express.Router();
 
 const JWTStrategy = passportJWT.Strategy;
@@ -90,9 +91,13 @@ app.use(
 );
 
 const cookie = {
+  secure: true,
   httpOnly: true,
   maxAge: 1800000, //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
 };
+if ('local' === config.get('environment')) {
+  cookie.secure = false;
+}
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
 const sess = {
@@ -108,9 +113,6 @@ const sess = {
     },
   }),
 };
-if ('production' === config.get('environment')) {
-  app.set('trust proxy', 1);
-}
 app.use(session(sess));
 //initialize routing and session. Cookies are now only reachable via requests (not js)
 app.use(passport.initialize());
