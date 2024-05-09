@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <v-container>
     <v-row align="center" justify="center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
         <v-alert dense variant="outlined" class="alert-error mb-3">

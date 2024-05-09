@@ -3,7 +3,7 @@
     <v-form ref="inputForm" class="w-100 h-100">
       <v-banner
         sticky
-        width=" fit-content"
+        width="fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0)"
         class="sticky-top"
@@ -11,7 +11,7 @@
         <v-btn class="btn-secondary" to="/">Back</v-btn>
       </v-banner>
       <v-row no-gutters justify="center" class="w-100">
-        <v-col cols="12" sm="11" md="11" lg="8" xl="6">
+        <v-col cols="12" sm="11" md="11" lg="9" xl="6">
           <v-row
             v-if="mode != ReportMode.View"
             class="mb-4 d-flex justify-center w-100"
@@ -111,10 +111,12 @@ const editReport = async () => {
 
 <style lang="scss">
 .sticky-top {
+  padding-left: 0;
   z-index: 190;
   bottom: none !important;
   top: 0px !important;
 }
+
 .sticky-bottom {
   z-index: 191;
   bottom: 0px !important;

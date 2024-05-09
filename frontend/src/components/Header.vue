@@ -1,37 +1,27 @@
 <template>
-  <v-app-bar
-    absolute
-    style="z-index: 1002"
-    :class="{
-      'pl-2': $vuetify.display.smAndDown,
-      'pl-10': $vuetify.display.mdAndUp,
-      'pr-2': $vuetify.display.smAndDown,
-      'pr-10': $vuetify.display.mdAndUp,
-    }"
-  >
-    <!-- Navbar content -->
-    <a tabindex="-1" href="/" class="d-flex align-center">
-      <img
-        tabindex="-1"
-        src="../assets/images/bc-gov-logo-light.png"
-        width="155"
-        class="logo"
-        alt="B.C. Government Logo"
-      />
-      <v-toolbar-title
-        ><h3
-          data-testid="header-title"
-          class="mainTitle"
-          style="color: rgb(32, 31, 30)"
+  <v-app-bar absolute style="z-index: 1002">
+    <v-container class="d-flex">
+      <a tabindex="-1" href="/" class="d-flex align-center">
+        <img
+          tabindex="-1"
+          src="../assets/images/bc-gov-logo-light.png"
+          width="155"
+          class="logo"
+          alt="B.C. Government Logo"
+        />
+        <v-toolbar-title
+          ><h3
+            data-testid="header-title"
+            class="mainTitle"
+            style="color: rgb(32, 31, 30)"
+          >
+            {{ appTitle }}
+          </h3></v-toolbar-title
         >
-          {{ appTitle }}
-        </h3></v-toolbar-title
-      >
-    </a>
+      </a>
 
-    <v-spacer />
+      <v-spacer />
 
-    <template #append>
       <v-menu
         v-if="isAuthenticated"
         v-model="menu"
@@ -80,7 +70,8 @@
           </v-card-actions>
         </v-card>
       </v-menu>
-    </template>
+    </v-container>
+    <!-- Navbar content -->
   </v-app-bar>
 </template>
 
@@ -113,7 +104,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .gov-header .v-icon {
   padding-left: 10px;
 }

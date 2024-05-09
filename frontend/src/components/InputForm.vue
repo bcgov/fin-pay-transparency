@@ -20,6 +20,7 @@
         bg-color="rgba(255, 255, 255, 0)"
         style="z-index: 190"
         density="compact"
+        class="back-button-banner"
       >
         <v-btn class="btn-secondary" to="/">Back</v-btn>
       </v-banner>
@@ -1161,6 +1162,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.back-button-banner {
+  padding-left: 0;
+}
+
+
 textarea::placeholder {
   text-align: right;
   transform: translateY(95px);
