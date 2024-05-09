@@ -87,6 +87,10 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/Report"
+ *         history:
+ *           type: array
+ *           items:
+ *             $ref: "#/components/schemas/Report"
  *
  */
 

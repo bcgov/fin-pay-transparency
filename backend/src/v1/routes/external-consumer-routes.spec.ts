@@ -79,6 +79,7 @@ describe('external-consumer-routes', () => {
           expect(body).toEqual({
             page: 0,
             pageSize: 1000,
+            history: [],
             records: [
               {
                 calculated_data: [

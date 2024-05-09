@@ -165,6 +165,15 @@ const externalConsumerService = {
     return {
       page: offset,
       pageSize: limit,
+      history: flatten(results.map((r) => r.report_history)).map((report) => {
+        return {
+          ...denormalizeReport(
+            report,
+            (r) => r.naics_code_report_history_naics_codeTonaics_code,
+            (r) => r.calculated_data_history,
+          ),
+        };
+      }),
       records: [
         ...results.map((report) => {
           return {
@@ -173,15 +182,6 @@ const externalConsumerService = {
               (r) =>
                 r.naics_code_pay_transparency_report_naics_codeTonaics_code,
               (r) => r.pay_transparency_calculated_data,
-            ),
-          };
-        }),
-        ...flatten(results.map((r) => r.report_history)).map((report) => {
-          return {
-            ...denormalizeReport(
-              report,
-              (r) => r.naics_code_report_history_naics_codeTonaics_code,
-              (r) => r.calculated_data_history,
             ),
           };
         }),
