@@ -96,7 +96,7 @@ const router = express.Router();
  *   name: Reports
  * /:
  *   get:
- *     summary: Get published reports within a date range (date range defaults to the last 30 days)
+ *     summary: Get published reports with update date within a date range (date range defaults to the last 30 days)
  *     tags: [Reports]
  *     security:
  *       - ApiKeyAuth: []
@@ -118,13 +118,13 @@ const router = express.Router();
  *         type: date
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
  *         required: false
- *         description: "Start date for the date range filter (format: YYYY-MM-dd) - optional"
+ *         description: "Start date for the update date range filter (format: YYYY-MM-dd) - optional"
  *       - in: query
  *         name: endDate
  *         type: string
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
  *         required: false
- *         description: "End date for the date range filter (format: YYYY-MM-dd) - optional"
+ *         description: "End date for the update date range filter (format: YYYY-MM-dd) - optional"
  *
  *
  *     responses:

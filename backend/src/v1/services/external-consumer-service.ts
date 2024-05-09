@@ -124,7 +124,7 @@ const externalConsumerService = {
       .$replica()
       .pay_transparency_report.findMany({
         where: {
-          create_date: {
+          update_date: {
             gte: convert(startDt).toDate(),
             lte: convert(endDt).toDate(),
           },
