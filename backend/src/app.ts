@@ -104,7 +104,7 @@ const sess = {
   name: 'fin_pay_transparency_cookie',
   secret: config.get('oidc:clientSecret'),
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: cookie,
   store: new fileSession({
     path: resolve('./', config.get('server:sessionPath')),
