@@ -6,55 +6,79 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
-import pick from 'lodash/pick';
-import flatten from 'lodash/flatten';
+import groupBy from 'lodash/groupBy';
+import keys from 'lodash/keys';
 import { PayTransparencyUserError } from './file-upload-service';
+import { Prisma } from '@prisma/client';
 
-const denormalizeCompany = (company) => {
-  return {
-    company_name: company.company_name,
-    company_province: company.province,
-    company_bceid_business_guid: company.bceid_business_guid,
-    company_city: company.city,
-    company_country: company.country,
-    company_postal_code: company.postal_code,
-    company_address_line1: company.address_line1,
-    company_address_line2: company.address_line2,
-  };
+type RawQueryResult = {
+  report_id: string;
+  report_change_id: string;
+  company_id: string;
+  user_id: string;
+  user_comment: any;
+  employee_count_range_id: string;
+  naics_code: string;
+  report_start_date: string;
+  report_end_date: string;
+  create_date: string;
+  update_date: string;
+  create_user: string;
+  update_user: string;
+  report_status: string;
+  revision: number;
+  data_constraints: any;
+  is_unlocked: boolean;
+  reporting_year: number;
+  report_unlock_date: any;
+  naics_label: string;
+  effective_date: string;
+  expiry_date: any;
+  naics_year: string;
+  employee_count_range: string;
+  calculation_code_id: string;
+  value: string;
+  is_suppressed: boolean;
+  calculation_code: string;
+  company_name: string;
+  province: string;
+  bceid_business_guid: string;
+  city: string;
+  country: string;
+  postal_code: string;
+  address_line1: string;
+  address_line2: string;
 };
 
-const denormalizeReport = (
-  report,
-  getNaicsCode: (report) => { naics_code: string; naics_label: string },
-  getCalculatedData: (report) => {
-    value: string;
-    is_suppressed: string;
-    calculation_code: any;
-  }[],
-) => {
+const buildReport = (data: RawQueryResult[]) => {
+  const first = data[0];
   return {
-    ...pick(report, [
-      'report_id',
-      'company_id',
-      'naics_code',
-      'create_date',
-      'update_date',
-      'data_constraints',
-      'user_comment',
-      'revision',
-      'report_start_date',
-      'report_end_date',
-      'report_status',
-      'reporting_year',
-    ]),
-    ...denormalizeCompany(report.pay_transparency_company),
-    employee_count_range: report.employee_count_range.employee_count_range,
-    naics_code: getNaicsCode(report).naics_code,
-    naics_code_label: getNaicsCode(report).naics_label,
-    calculated_data: getCalculatedData(report).map((data) => ({
-      value: data.value,
-      is_suppressed: data.is_suppressed,
-      calculation_code: data.calculation_code.calculation_code,
+    report_id: first.report_id,
+    company_id: first.company_id,
+    naics_code: first.naics_code,
+    create_date: first.create_date,
+    update_date: first.update_date,
+    data_constraints: first.data_constraints,
+    user_comment: first.user_comment,
+    revision: first.revision,
+    report_start_date: first.report_start_date,
+    report_end_date: first.report_end_date,
+    report_status: first.report_status,
+    reporting_year: first.reporting_year,
+    company_name: first.company_name,
+    company_province: first.province,
+    company_bceid_business_guid: first.bceid_business_guid,
+    company_city: first.city,
+    company_country: first.country,
+    company_postal_code: first.postal_code,
+    company_address_line1: first.address_line1,
+    company_address_line2: first.address_line2,
+    employee_count_range: first.employee_count_range,
+    naics_code_label: first.naics_label,
+    calculated_data: data.map((item) => ({
+      value: item.value,
+      is_suppressed: item.is_suppressed,
+      calculation_code: item.calculation_code,
     })),
   };
 };
@@ -120,72 +144,96 @@ const externalConsumerService = {
       );
     }
 
+    /**
+     * 1) Create a union of the pay_transparency_report and report_history table as reports
+     * 2) Create a union of the pay_transparency_calculated_data and calculated_data_history as calculated
+     * 3) Paginate the reports
+     * 4) Join reports and calculated_data based on report_change_id
+     */
+    const getReportsQuery = Prisma.sql`select * from ((select 
+      report.report_id,
+      report.report_id as report_change_id,
+      report.company_id,
+      report.user_id,
+      report.user_comment,
+      report.employee_count_range_id,
+      report.naics_code,
+      report.report_start_date,
+      report.report_end_date,
+      report.create_date,
+      report.update_date,
+      report.create_user,
+      report.update_user,
+      report.report_status,
+      report.revision,
+      report.data_constraints,
+      report.is_unlocked,
+      report.reporting_year,
+      report.report_unlock_date
+      from pay_transparency_report as report where report_status = 'Published' and (report.update_date >= ${convert(startDt).toDate()} and report.update_date < ${convert(endDt).toDate()})
+    union (select 
+        report.report_id,
+        report.report_history_id as report_change_id,
+      report.company_id,
+      report.user_id,
+      report.user_comment,
+      report.employee_count_range_id,
+      report.naics_code,
+      report.report_start_date,
+      report.report_end_date,
+      report.create_date,
+      report.update_date,
+      report.create_user,
+      report.update_user,
+      report.report_status,
+      report.revision,
+      report.data_constraints,
+      report.is_unlocked,
+      report.reporting_year,
+      report.report_unlock_date
+      from report_history as report where report_status = 'Published' and (report.update_date >= ${convert(startDt).toDate()} and report.update_date < ${convert(endDt).toDate()}))) order by update_date offset ${offset} limit ${limit}) as reports 
+    left join naics_code as naics_code on naics_code.naics_code = reports.naics_code
+    left join pay_transparency_company as company on company.company_id = reports.company_id
+    left join employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = reports.employee_count_range_id
+    left join (select 
+      data.report_id,
+      data.calculation_code_id,
+      data.value,
+      data.is_suppressed,
+      code.calculation_code
+    from (select 
+      data.report_id,
+      data.calculation_code_id,
+      data.value,
+      data.is_suppressed
+      from pay_transparency_calculated_data as data
+    union (select 
+      data.report_history_id as report_id,
+      data.calculation_code_id,
+      data.value,
+      data.is_suppressed
+      from calculated_data_history as data)) as data
+      left join calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.report_id = reports.report_change_id`;
+
     const results = await prismaReadOnlyReplica
       .$replica()
-      .pay_transparency_report.findMany({
-        where: {
-          update_date: {
-            gte: convert(startDt).toDate(),
-            lte: convert(endDt).toDate(),
-          },
-          report_status: 'Published',
-        },
-        include: {
-          naics_code_pay_transparency_report_naics_codeTonaics_code: true,
-          employee_count_range: true,
-          pay_transparency_calculated_data: {
-            include: {
-              calculation_code: true,
-            },
-          },
-          pay_transparency_company: true,
-          report_history: {
-            include: {
-              naics_code_report_history_naics_codeTonaics_code: true,
-              employee_count_range: true,
-              calculated_data_history: {
-                include: {
-                  calculation_code: true,
-                },
-              },
-              pay_transparency_company: true,
-            },
-            where: {
-              update_date: {
-                gte: convert(startDt).toDate(),
-                lte: convert(endDt).toDate(),
-              },
-            },
-          },
-        },
-        skip: offset,
-        take: limit,
-      });
+      .$queryRaw<RawQueryResult[]>(getReportsQuery);
+    const uniqueReports: Record<string, RawQueryResult[]> = groupBy(
+      results,
+      (x) => x.report_change_id,
+    );
+
+    const uniqueReportIds: string[] = keys(uniqueReports);
+
+    const reports = uniqueReportIds.map((id_rev) => {
+      const data = uniqueReports[id_rev];
+      return buildReport(data);
+    });
 
     return {
       page: offset,
       pageSize: limit,
-      history: flatten(results.map((r) => r.report_history)).map((report) => {
-        return {
-          ...denormalizeReport(
-            report,
-            (r) => r.naics_code_report_history_naics_codeTonaics_code,
-            (r) => r.calculated_data_history,
-          ),
-        };
-      }),
-      records: [
-        ...results.map((report) => {
-          return {
-            ...denormalizeReport(
-              report,
-              (r) =>
-                r.naics_code_pay_transparency_report_naics_codeTonaics_code,
-              (r) => r.pay_transparency_calculated_data,
-            ),
-          };
-        }),
-      ],
+      records: reports,
     };
   },
 };
