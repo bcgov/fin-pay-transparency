@@ -1,102 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name='Description' content='BC Ministry of Finance'>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="theme-color" content="#003366">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="apple-touch-icon" href="bcid-apple-touch-icon.png">
-  <link rel="stylesheet" href="/assets/css/styles.css">
-  <title>FIN Pay Transparency</title>
-</head>
-
-<body>
-  <div class="header">
-    <div class="toolbar" style="height: 64px;">
-      <a tabindex="-1" href="/" class="d-flex title">
-        <img tabindex="-1" src="/assets/images/bc-gov-logo-light.png" width="155" class="logo"
-          alt="B.C. Government Logo">
-        <div class="toolbar-title">
-          <h3 data-testid="header-title" class="mainTitle">Pay Transparency Reporting
-          </h3>
-        </div>
-      </a>
-      <div class="v-spacer"></div>
-      <div class="v-toolbar__append"></div>
-    </div>
-  </div>
-  <div class="content container my-3 d-flex justify-center">
-    <div class="alert alert-error">Application is under maintenance. Please check back later.</div>
-  </div>
-
-  <footer style="bottom: 0px; z-index: 1004; transform: translateY(0%); position: absolute; left: 0px; width: calc(100% +
-      0px);">
-    <div class="first-nation-acknowledgement">
-      <div> The B.C. Public Service acknowledges the territories of First Nations around B.C. and is grateful to carry
-        out
-        our work on these lands. We acknowledge the rights, interests, priorities, and concerns of all Indigenous
-        Peoples
-        -
-        First Nations, Métis, and Inuit - respecting and acknowledging their distinct cultures, histories, rights, laws,
-        and
-        governments. </div>
-    </div>
-
-    <div class="more-info">
-      <div class="row">
-        <div class="col w-50 px-3" style="text-align: left;">
-          <div class="row pb-3">
-            <div class="col" style="text-align: left;"><img tabindex="-1" src="/assets/images/bc-gov-logo-light.png"
-                width="155" class="logo" alt="B.C. Government Logo"></div>
-          </div>
-          <div class="row pt-3">
-            <div class="col" data-testid="footer-message" style="text-align: left;"> For questions or
-              assistance with creating a report please contact the Pay Transparency Unit - <a class="contact-email"
-                href="mailto:paytransparency@gov.bc.ca"> PayTransparency@gov.bc.ca </a></div>
-          </div>
-        </div>
-        <div class="col w-50 px-3">
-          <div class="more-info-title">MORE INFO</div>
-          <div class="row w-100">
-            <div class="col w-50 d-flex d-flex-col px-1" style="text-align: left;">
-              <a class="footer-btn" href="https://www.gov.bc.ca/" tabindex="-2" data-testid="footer-link-home">
-                <div class="footer-btn-label">Home</div>
-              </a>
-              <a class="footer-btn" href="https://www2.gov.bc.ca/gov/content/about-gov-bc-ca" tabindex="-2"
-                data-testid="footer-link-about">
-                <div class="footer-btn-label">About gov.bc.ca</div>
-              </a>
-              <a class="footer-btn" href="https://www.gov.bc.ca/disclaimer" tabindex="-2"
-                data-testid="footer-link-disclaimer">
-                <div class="footer-btn-label">Disclaimer</div>
-              </a>
-              <a class="footer-btn" href="https://www.gov.bc.ca/privacy" tabindex="-2"
-                data-testid="footer-link-privacy">
-                <div class="footer-btn-label">Privacy</div>
-              </a>
-
+  <head>
+    <meta charset="utf-8" />
+    <meta name="Description" content="BC Ministry of Finance" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#003366" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel="apple-touch-icon" href="bcid-apple-touch-icon.png" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <title>FIN Pay Transparency</title>
+  </head>
+  <body>
+    <div id="app" data-v-app="">
+      <div
+        class="v-application v-theme--myCustomLightTheme v-layout v-layout--full-height v-locale--is-ltr"
+        id="app"
+      >
+        <div class="v-application__wrap">
+          <header
+            class="v-toolbar v-toolbar--absolute v-toolbar--density-default v-theme--myCustomLightTheme v-locale--is-ltr v-app-bar"
+            style="
+              top: 0px;
+              z-index: 1002;
+              transform: translateY(0px);
+              position: absolute;
+              left: 0px;
+              width: calc(100% + 0px);
+            "
+          >
+            <div class="v-toolbar__content" style="height: 64px">
+              <div class="v-container v-locale--is-ltr d-flex">
+                <a tabindex="-1" href="/" class="d-flex align-center"
+                  ><img
+                    tabindex="-1"
+                    src="/assets/images/bc-gov-logo-light.png"
+                    width="155"
+                    class="logo"
+                    alt="B.C. Government Logo"
+                  />
+                  <div class="v-toolbar-title">
+                    <div class="v-toolbar-title__placeholder">
+                      <h3
+                        data-testid="header-title"
+                        class="mainTitle"
+                        style="color: rgb(32, 31, 30)"
+                      >
+                        Pay Transparency Reporting
+                      </h3>
+                    </div>
+                  </div></a
+                >
+                <div class="v-spacer"></div>
+              </div>
             </div>
-            <div class="col w-50 d-flex d-flex-col px-3" style="text-align: left;">
-              <a class="footer-btn" href="https://www.gov.bc.ca/webaccessibility" tabindex="-2"
-                data-testid="footer-link-accessibility">
-                <div class="footer-btn-label">Accessibility</div>
-              </a>
-              <a class="footer-btn" href="https://www.gov.bc.ca/copyright" tabindex="-2"
-                data-testid="footer-link-copyright">
-                <div class="footer-btn-label">Copyright</div>
-              </a>
-              <a class="footer-btn" href="https://www2.gov.bc.ca/gov/content/home/contact-us" tabindex="-2"
-                data-testid="footer-link-contact-us">
-                <div class="footer-btn-label">Contact Us</div>
-              </a>
+          </header>
+          <div></div>
+
+          <main
+            class="v-main align-start"
+            fluid=""
+            style="
+              --v-layout-left: 0px;
+              --v-layout-right: 0px;
+              --v-layout-top: 64px;
+              --v-layout-bottom: 405px;
+            "
+          >
+            <div class="v-container v-locale--is-ltr">
+              <div class="v-row align-center justify-center">
+                <div class="v-col-8">
+                  <div
+                    class="v-alert v-theme--myCustomLightTheme v-alert--density-default v-alert--variant-outlined alert-error mb-10"
+                    role="alert"
+                    dense=""
+                  >
+                    <span class="v-alert__underlay"></span>
+                    <div class="v-alert__content">
+                      Application is under maintenance. Please check back later.
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          </main>
+          <footer
+            data-v-43dec5c7=""
+            class="v-footer v-theme--myCustomLightTheme margin-top"
+            dark=""
+            style="
+              background-color: rgb(255, 255, 255);
+              color: rgb(0, 0, 0);
+              caret-color: rgb(0, 0, 0);
+              bottom: 0px;
+              z-index: 1004;
+              transform: translateY(0px);
+              position: absolute;
+              left: 0px;
+              width: calc(100% + 0px);
+            "
+          >
+            <div data-v-43dec5c7="" class="first-nation-acknowledgement">
+              <div data-v-43dec5c7="" class="v-container v-locale--is-ltr">
+                <div data-v-43dec5c7="" class="v-row">
+                  <div data-v-43dec5c7="" class="v-col">
+                    The B.C. Public Service acknowledges the territories of
+                    First Nations around B.C. and is grateful to carry out our
+                    work on these lands. We acknowledge the rights, interests,
+                    priorities, and concerns of all Indigenous Peoples - First
+                    Nations, Métis, and Inuit - respecting and acknowledging
+                    their distinct cultures, histories, rights, laws, and
+                    governments.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div data-v-43dec5c7="" class="v-container v-locale--is-ltr">
+              <div data-v-43dec5c7="" class="v-row">
+                <div
+                  data-v-43dec5c7=""
+                  class="v-col d-sm-flex justify-space-between"
+                >
+                  <div data-v-43dec5c7="" class="contact">
+                    <img
+                      data-v-43dec5c7=""
+                      tabindex="-1"
+                      src="/assets/images/bc-gov-logo-light.png"
+                      width="155"
+                      alt="B.C. Government Logo"
+                    />
+                    <p
+                      data-v-43dec5c7=""
+                      class="mt-4"
+                      data-testid="footer-message"
+                    >
+                      For questions or assistance with creating a report please
+                      contact the Pay Transparency Unit -
+                      <a
+                        data-v-43dec5c7=""
+                        class="contact-email"
+                        href="mailto:paytransparency@gov.bc.ca"
+                      >
+                        PayTransparency@gov.bc.ca
+                      </a>
+                    </p>
+                  </div>
+                  <div data-v-43dec5c7="" class="more-info">
+                    <p
+                      data-v-43dec5c7=""
+                      class="font-weight-bold mb-4 mt-6 mt-sm-4"
+                    >
+                      MORE INFO
+                    </p>
+                    <ul data-v-43dec5c7="">
+                      <li data-v-43dec5c7="" class="footer-btn pl-1 pr-1">
+                        <a
+                          data-v-43dec5c7=""
+                          href="https://www.gov.bc.ca/"
+                          data-testid="footer-link-home"
+                          >Home</a
+                        >
+                      </li>
+                      <li data-v-43dec5c7="" class="footer-btn pl-1 pr-1">
+                        <a
+                          data-v-43dec5c7=""
+                          href="https://www2.gov.bc.ca/gov/content/about-gov-bc-ca"
+                          data-testid="footer-link-about"
+                          >About gov.bc.ca</a
+                        >
+                      </li>
+                      <li data-v-43dec5c7="" class="footer-btn pl-1 pr-1">
+                        <a
+                          data-v-43dec5c7=""
+                          href="https://www.gov.bc.ca/disclaimer"
+                          data-testid="footer-link-disclaimer"
+                          >Disclaimer</a
+                        >
+                      </li>
+                      <li data-v-43dec5c7="" class="footer-btn pl-1 pr-1">
+                        <a
+                          data-v-43dec5c7=""
+                          href="https://www.gov.bc.ca/privacy"
+                          data-testid="footer-link-privacy"
+                          >Privacy</a
+                        >
+                      </li>
+                      <li data-v-43dec5c7="" class="footer-btn pl-1 pr-1">
+                        <a
+                          data-v-43dec5c7=""
+                          href="https://www.gov.bc.ca/webaccessibility"
+                          data-testid="footer-link-accessibility"
+                          >Accessibility</a
+                        >
+                      </li>
+                      <li data-v-43dec5c7="" class="footer-btn pl-1 pr-1">
+                        <a
+                          data-v-43dec5c7=""
+                          href="https://www.gov.bc.ca/copyright"
+                          data-testid="footer-link-copyright"
+                          >Copyright</a
+                        >
+                      </li>
+                      <li data-v-43dec5c7="" class="footer-btn pl-1 pr-1">
+                        <a
+                          data-v-43dec5c7=""
+                          href="https://www2.gov.bc.ca/gov/content/home/contact-us"
+                          data-testid="footer-link-contact-us"
+                          >Contact Us</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
         </div>
       </div>
-  </footer>
-
-</body>
-
+    </div>
+  </body>
 </html>
