@@ -150,70 +150,105 @@ const externalConsumerService = {
      * 3) Paginate the reports
      * 4) Join reports and calculated_data based on report_change_id
      */
-    const getReportsQuery = Prisma.sql`select * from ((select 
-      report.report_id,
-      report.report_id as report_change_id,
-      report.company_id,
-      report.user_id,
-      report.user_comment,
-      report.employee_count_range_id,
-      report.naics_code,
-      report.report_start_date,
-      report.report_end_date,
-      report.create_date,
-      report.update_date,
-      report.create_user,
-      report.update_user,
-      report.report_status,
-      report.revision,
-      report.data_constraints,
-      report.is_unlocked,
-      report.reporting_year,
-      report.report_unlock_date
-      from pay_transparency_report as report where report_status = 'Published' and (report.update_date >= ${convert(startDt).toDate()} and report.update_date < ${convert(endDt).toDate()})
-    union (select 
-        report.report_id,
-        report.report_history_id as report_change_id,
-      report.company_id,
-      report.user_id,
-      report.user_comment,
-      report.employee_count_range_id,
-      report.naics_code,
-      report.report_start_date,
-      report.report_end_date,
-      report.create_date,
-      report.update_date,
-      report.create_user,
-      report.update_user,
-      report.report_status,
-      report.revision,
-      report.data_constraints,
-      report.is_unlocked,
-      report.reporting_year,
-      report.report_unlock_date
-      from report_history as report where report_status = 'Published' and (report.update_date >= ${convert(startDt).toDate()} and report.update_date < ${convert(endDt).toDate()}))) order by update_date offset ${offset} limit ${limit}) as reports 
-    left join naics_code as naics_code on naics_code.naics_code = reports.naics_code
-    left join pay_transparency_company as company on company.company_id = reports.company_id
-    left join employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = reports.employee_count_range_id
-    left join (select 
-      data.report_id,
-      data.calculation_code_id,
-      data.value,
-      data.is_suppressed,
-      code.calculation_code
-    from (select 
-      data.report_id,
-      data.calculation_code_id,
-      data.value,
-      data.is_suppressed
-      from pay_transparency_calculated_data as data
-    union (select 
-      data.report_history_id as report_id,
-      data.calculation_code_id,
-      data.value,
-      data.is_suppressed
-      from calculated_data_history as data)) as data
-      left join calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.report_id = reports.report_change_id`;
+    const getReportsQuery = Prisma.sql`select *
+     from ((select report.report_id,
+                  report.report_id as report_change_id,
+                  report.company_id,
+                  report.user_id,
+                  report.user_comment,
+                  report.employee_count_range_id,
+                  report.naics_code,
+                  report.report_start_date,
+                  report.report_end_date,
+                  report.create_date,
+                  report.update_date,
+                  report.create_user,
+                  report.update_user,
+                  report.report_status,
+                  report.revision,
+                  report.data_constraints,
+                  report.is_unlocked,
+                  report.reporting_year,
+                  report.report_unlock_date,
+                  naics_code.naics_label,
+                  company.company_id,
+                  company.company_name,
+                  company.bceid_business_guid,
+                  company.address_line1,
+                  company.address_line2,
+                  company.city,
+                  company.province,
+                  company.country,
+                  company.postal_code,
+                  employee_count_range.employee_count_range
+           from pay_transparency_report as report
+		       left join pay_transparency.naics_code as naics_code on naics_code.naics_code = report.naics_code
+           left join pay_transparency.pay_transparency_company as company on company.company_id = report.company_id
+           left join pay_transparency.employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = report.employee_count_range_id
+           where report_status = 'Published'
+               and (report.update_date >= ${convert(startDt).toDate()}
+                    and report.update_date < ${convert(endDt).toDate()})
+           union
+               (select report.report_id,
+                       report.report_history_id as report_change_id,
+                       report.company_id,
+                       report.user_id,
+                       report.user_comment,
+                       report.employee_count_range_id,
+                       report.naics_code,
+                       report.report_start_date,
+                       report.report_end_date,
+                       report.create_date,
+                       report.update_date,
+                       report.create_user,
+                       report.update_user,
+                       report.report_status,
+                       report.revision,
+                       report.data_constraints,
+                       report.is_unlocked,
+                       report.reporting_year,
+                       report.report_unlock_date,
+                       naics_code.naics_label,
+                       company.company_id,
+                       company.company_name,
+                       company.bceid_business_guid,
+                       company.address_line1,
+                       company.address_line2,
+                       company.city,
+                       company.province,
+                       company.country,
+                       company.postal_code,
+                       employee_count_range.employee_count_range
+                from pay_transparency.report_history as report
+				        left join pay_transparency.naics_code as naics_code on naics_code.naics_code = report.naics_code
+                left join pay_transparency.pay_transparency_company as company on company.company_id = report.company_id
+                left join pay_transparency.employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = report.employee_count_range_id
+                where report_status = 'Published'
+                    and (report.update_date >= ${convert(startDt).toDate()}
+                         and report.update_date < ${convert(endDt).toDate()})))
+      order by update_date
+      offset ${offset}
+      limit ${limit}) as reports
+
+left join
+    (select data.report_id,
+            data.calculation_code_id,
+            data.value,
+            data.is_suppressed,
+            code.calculation_code
+     from
+         (select data.report_id,
+                 data.calculation_code_id,
+                 data.value,
+                 data.is_suppressed
+          from pay_transparency.pay_transparency_calculated_data as data
+          union
+              (select data.report_history_id as report_id,
+                      data.calculation_code_id,
+                      data.value,
+                      data.is_suppressed
+               from pay_transparency.calculated_data_history as data)) as data
+     left join pay_transparency.calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.report_id = reports.report_change_id`;
 
     const results = await prismaReadOnlyReplica
       .$replica()
