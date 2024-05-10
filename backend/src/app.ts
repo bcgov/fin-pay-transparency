@@ -64,7 +64,7 @@ const metricsMiddleware = promBundle({
   promRegistry: register,
 });
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 const apiRouter = express.Router();
 
 const JWTStrategy = passportJWT.Strategy;
