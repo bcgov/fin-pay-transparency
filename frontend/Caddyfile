@@ -46,8 +46,9 @@
     Feature-Policy "fullscreen 'self'; camera 'none'; microphone 'none'"
   }
   # Proxy requests to API service
-  reverse_proxy /api/* {$BACKEND_URL}
-}
+  reverse_proxy /api/* {$BACKEND_URL}{
+    header_up X-Forwarded-Proto https
+  }
 :3001 {
   handle /health {
     respond "OK"
