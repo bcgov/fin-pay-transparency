@@ -42,7 +42,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: BACKEND_URL
-              value: "{{ .Release.Name }}-backend.{{.Release.Namespace}}.svc.cluster.local:80"
+              value: "{{ .Release.Name }}-backend"
             - name: LOG_LEVEL
               value: {{ .Values.env.logLevel }}
             - name: SNOWPLOW_URL

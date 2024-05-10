@@ -137,9 +137,8 @@ function addLoginPassportUse(
         clientID: config.get('oidc:clientId'),
         clientSecret: config.get('oidc:clientSecret'),
         callbackURL: callbackURI,
-        scope: 'bceidbusiness',
+        scope: discovery.scopes_supported,
         kc_idp_hint: kc_idp_hint,
-        sessionKey: 'fin-pay-transparency',
       },
       (
         _issuer,
