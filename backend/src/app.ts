@@ -89,7 +89,7 @@ app.use(
     limit: `${MAX_NETWORK_TRANSFER_SIZE_BYTES}b`,
   }),
 );
-
+let proxy = true;
 const cookie = {
   secure: true,
   httpOnly: true,
@@ -97,6 +97,7 @@ const cookie = {
 };
 if ('local' === config.get('environment')) {
   cookie.secure = false;
+  proxy = false;
 }
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
@@ -106,6 +107,7 @@ const sess = {
   resave: false,
   saveUninitialized: true,
   cookie: cookie,
+  proxy,
   store: new fileSession({
     path: resolve('./', config.get('server:sessionPath')),
     logFn: (msg: string) => {
