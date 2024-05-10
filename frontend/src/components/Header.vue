@@ -122,7 +122,7 @@ a {
 }
 
 .logo {
-  padding-right: 15px;
+  padding-right: 30px;
 }
 
 .gov-header .title {
