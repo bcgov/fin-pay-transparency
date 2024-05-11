@@ -94,7 +94,7 @@ const cookie = {
   secure: true,
   httpOnly: true,
   maxAge: 1800000, //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
-  sameSite: true
+  
 };
 if ('local' === config.get('environment')) {
   cookie.secure = false;
