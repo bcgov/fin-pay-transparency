@@ -50,7 +50,6 @@
     Referrer-Policy "no-referrer, strict-origin-when-cross-origin"
     Feature-Policy "fullscreen 'self'; camera 'none'; microphone 'none'"
     -Server
-    Set-Cookie "Secure; HttpOnly; SameSite='strict';"
   }
   # Proxy requests to API service
   reverse_proxy /api/* {$BACKEND_URL}{
