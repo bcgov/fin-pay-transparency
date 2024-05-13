@@ -109,12 +109,15 @@ const router = express.Router();
  *         name: page
  *         schema:
  *           type: integer
+ *           minimum: 0
  *         required: false
  *         description: The page offset number to retrive reports - optional
  *       - in: query
  *         name: pageSize
  *         schema:
  *           type: integer
+ *           minimum: 1
+ *           maximum: 50
  *         required: false
  *         description: The number of records/reports per page (max 50, default 50) - optional
  *       - in: query
