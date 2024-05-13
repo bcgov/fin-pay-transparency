@@ -52,6 +52,7 @@ type RawQueryResult = {
 
 const buildReport = (data: RawQueryResult[]) => {
   const first = data[0];
+  console.log(first)
   return {
     report_id: first.report_id,
     company_id: first.company_id,
@@ -231,7 +232,7 @@ const externalConsumerService = {
       limit ${limit}) as reports
 
 left join
-    (select data.report_id,
+    (select data.report_id as calculated_data_report_id,
             data.calculation_code_id,
             data.value,
             data.is_suppressed,
@@ -248,7 +249,7 @@ left join
                       data.value,
                       data.is_suppressed
                from pay_transparency.calculated_data_history as data)) as data
-     left join pay_transparency.calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.report_id = reports.report_change_id`;
+     left join pay_transparency.calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.calculated_data_report_id = reports.report_change_id`;
 
     const results = await prismaReadOnlyReplica
       .$replica()
