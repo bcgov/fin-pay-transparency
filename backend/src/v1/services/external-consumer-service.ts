@@ -115,7 +115,7 @@ const externalConsumerService = {
       .plusDays(1)
       .withHour(0)
       .withMinute(0);
-    if (limit > DEFAULT_PAGE_SIZE || !limit || limit <= 0) {
+    if (!limit || limit <= 0 || limit > DEFAULT_PAGE_SIZE) {
       limit = DEFAULT_PAGE_SIZE;
     }
     if (!offset || offset < 0) {
