@@ -9,7 +9,7 @@
                 Welcome to the Pay Transparency Reporting Tool
               </h4>
               <p class="text-subtitle-2">
-                In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report on all your B.C. employees by November 1st of each year through a phased approach: 
+                In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report by November 1st of each year through a phased approach: 
                 <ul class="ml-8 mt-4 mb-4">
                   <li>2024: all employers with 1,000 employees or more</li>
                   <li>2025: all employers with 300 employees or more</li>
