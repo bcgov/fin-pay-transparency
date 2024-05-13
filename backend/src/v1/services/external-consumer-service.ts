@@ -242,13 +242,15 @@ left join
                  data.calculation_code_id,
                  data.value,
                  data.is_suppressed
-          from pay_transparency.pay_transparency_calculated_data as data
+          from pay_transparency.pay_transparency_calculated_data as data where data.update_date >= ${convert(startDt).toDate()}
+                         and data.update_date < ${convert(endDt).toDate()}
           union
               (select data.report_history_id as report_id,
                       data.calculation_code_id,
                       data.value,
                       data.is_suppressed
-               from pay_transparency.calculated_data_history as data)) as data
+               from pay_transparency.calculated_data_history as data where data.update_date >= ${convert(startDt).toDate()}
+                         and data.update_date < ${convert(endDt).toDate()})) as data
      left join pay_transparency.calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.calculated_data_report_id = reports.report_change_id`;
 
     const results = await prismaReadOnlyReplica
