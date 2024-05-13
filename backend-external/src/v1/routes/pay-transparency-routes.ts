@@ -87,11 +87,6 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/Report"
- *         history:
- *           type: array
- *           items:
- *             $ref: "#/components/schemas/Report"
- *
  */
 
 /**
@@ -109,14 +104,17 @@ const router = express.Router();
  *         name: page
  *         schema:
  *           type: integer
+ *           minimum: 0
  *         required: false
  *         description: The page offset number to retrive reports - optional
  *       - in: query
  *         name: pageSize
  *         schema:
  *           type: integer
+ *           minimum: 1
+ *           maximum: 50
  *         required: false
- *         description: The number of records/reports per page (max 1000) - optional
+ *         description: The number of records/reports per page (max 50, default 50) - optional
  *       - in: query
  *         name: startDate
  *         type: date
@@ -147,17 +145,17 @@ router.get(
     try {
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();
-      const offset = Number((req.query.page || '0')?.toString());
-      const limit = Number((req.query.pageSize || '1000')?.toString());
-      if (isNaN(offset) || isNaN(limit)) {
+      const page = Number((req.query.page || '0')?.toString());
+      const pageSize = Number((req.query.pageSize || '50')?.toString());
+      if (isNaN(page) || isNaN(pageSize)) {
         return res.status(400).json({ error: 'Invalid offset or limit' });
       }
       const { status, data } =
         await payTransparencyService.getPayTransparencyData(
           startDate,
           endDate,
-          offset,
-          limit,
+          page * pageSize,
+          pageSize,
         );
 
       if (data.error) {
