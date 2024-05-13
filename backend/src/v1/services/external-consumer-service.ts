@@ -271,7 +271,7 @@ left join
     });
 
     return {
-      page: offset,
+      page: offset / limit,
       pageSize: limit,
       records: reports,
     };
