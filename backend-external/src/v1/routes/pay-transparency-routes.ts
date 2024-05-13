@@ -116,7 +116,7 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *         required: false
- *         description: The number of records/reports per page (max 1000) - optional
+ *         description: The number of records/reports per page (max 50, default 50) - optional
  *       - in: query
  *         name: startDate
  *         type: date
