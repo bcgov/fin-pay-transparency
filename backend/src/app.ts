@@ -297,8 +297,12 @@ app.use(function (
   err: Error,
   req: Request,
   res: Response,
-  _next: NextFunction,
+  next: NextFunction,
 ) {
+  logger.error(err);
+  if (res.headersSent) {
+    return next(err);
+  }
   return res.status(500).send({ error: err });
 });
 export { app };
