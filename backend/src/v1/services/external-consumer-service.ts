@@ -52,7 +52,7 @@ type RawQueryResult = {
 
 const buildReport = (data: RawQueryResult[]) => {
   const first = data[0];
-  console.log(first)
+
   return {
     report_id: first.report_id,
     company_id: first.company_id,
@@ -183,9 +183,9 @@ const externalConsumerService = {
                   company.postal_code,
                   employee_count_range.employee_count_range
            from pay_transparency_report as report
-		       left join pay_transparency.naics_code as naics_code on naics_code.naics_code = report.naics_code
-           left join pay_transparency.pay_transparency_company as company on company.company_id = report.company_id
-           left join pay_transparency.employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = report.employee_count_range_id
+		       left join naics_code as naics_code on naics_code.naics_code = report.naics_code
+           left join pay_transparency_company as company on company.company_id = report.company_id
+           left join employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = report.employee_count_range_id
            where report_status = 'Published'
                and (report.update_date >= ${convert(startDt).toDate()}
                     and report.update_date < ${convert(endDt).toDate()})
@@ -220,10 +220,10 @@ const externalConsumerService = {
                        company.country,
                        company.postal_code,
                        employee_count_range.employee_count_range
-                from pay_transparency.report_history as report
-				        left join pay_transparency.naics_code as naics_code on naics_code.naics_code = report.naics_code
-                left join pay_transparency.pay_transparency_company as company on company.company_id = report.company_id
-                left join pay_transparency.employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = report.employee_count_range_id
+                from report_history as report
+				        left join naics_code as naics_code on naics_code.naics_code = report.naics_code
+                left join pay_transparency_company as company on company.company_id = report.company_id
+                left join employee_count_range as employee_count_range on employee_count_range.employee_count_range_id = report.employee_count_range_id
                 where report_status = 'Published'
                     and (report.update_date >= ${convert(startDt).toDate()}
                          and report.update_date < ${convert(endDt).toDate()})))
@@ -242,16 +242,16 @@ left join
                  data.calculation_code_id,
                  data.value,
                  data.is_suppressed
-          from pay_transparency.pay_transparency_calculated_data as data where data.update_date >= ${convert(startDt).toDate()}
+          from pay_transparency_calculated_data as data where data.update_date >= ${convert(startDt).toDate()}
                          and data.update_date < ${convert(endDt).toDate()}
           union
               (select data.report_history_id as report_id,
                       data.calculation_code_id,
                       data.value,
                       data.is_suppressed
-               from pay_transparency.calculated_data_history as data where data.update_date >= ${convert(startDt).toDate()}
+               from calculated_data_history as data where data.update_date >= ${convert(startDt).toDate()}
                          and data.update_date < ${convert(endDt).toDate()})) as data
-     left join pay_transparency.calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.calculated_data_report_id = reports.report_change_id`;
+     left join calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.calculated_data_report_id = reports.report_change_id`;
 
     const results = await prismaReadOnlyReplica
       .$replica()
