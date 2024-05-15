@@ -25,7 +25,7 @@ describe('pay-transparency-service', () => {
         0,
         1000,
       );
-      expect(mockGet).toHaveBeenCalledWith('/external-consumer-api/v1/', {
+      expect(mockGet).toHaveBeenCalledWith('/external-consumer-api/v1/reports', {
         params: {
           startDate: 'start',
           endDate: 'end',
@@ -44,7 +44,7 @@ describe('pay-transparency-service', () => {
       } as any);
 
       expect(mockDelete).toHaveBeenCalledWith(
-        '/external-consumer-api/v1/delete-reports',
+        '/external-consumer-api/v1/reports',
         {
           params: { companyId: '1234567890' },
           headers: {
