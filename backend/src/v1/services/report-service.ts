@@ -1,5 +1,6 @@
 import {
   LocalDate,
+  LocalDateTime,
   TemporalAdjusters,
   ZoneId,
   convert,
@@ -379,6 +380,14 @@ const reportServicePrivate = {
     return `$${amountDollars.toFixed(2)}`;
   },
 
+  /**
+   * Copies the report and calculated data to the history table.
+   * Copies the report to the report history with a report_history_id.
+   * Copies the calculated data to the history associated with a report_history_id.
+   * Removes the calculated data.
+   * @param tx
+   * @param report - The entire report which should be moved
+   */
   async movePublishedReportToHistory(tx, report: pay_transparency_report) {
     if (report.report_status != enumReportStatus.Published) {
       throw new Error(
@@ -1271,7 +1280,7 @@ const reportService = {
             user_comment: full_report_to_publish.user_comment,
             data_constraints: full_report_to_publish.data_constraints,
             revision: parseInt(existing_published_report.revision as any) + 1,
-            update_date: full_report_to_publish.update_date,
+            update_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
             update_user: full_report_to_publish.update_user,
             pay_transparency_calculated_data: {
               createMany: {
