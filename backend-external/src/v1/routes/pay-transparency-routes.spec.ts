@@ -69,7 +69,7 @@ describe('pay-transparency-routes', () => {
         data: { message },
       });
       return request(app)
-        .delete('/reports')
+        .delete('/')
         .query({ companyId: '1234567890' })
         .set('x-api-key', 'api-delete-reports-key')
         .expect(200)
@@ -82,7 +82,7 @@ describe('pay-transparency-routes', () => {
         data: { message: 'Failed to delete reports', error: true },
       });
       return request(app)
-        .delete('/reports')
+        .delete('/')
         .query({ companyId: '1234567890' })
         .set('x-api-key', 'api-delete-reports-key')
         .query({ companyId: '' })
@@ -91,7 +91,7 @@ describe('pay-transparency-routes', () => {
     it('should fail if request fails to get reports', () => {
       mockDeleteReports.mockRejectedValue({ message: 'Error happened' });
       return request(app)
-        .delete('/reports')
+        .delete('/')
         .query({ companyId: '1234567890' })
         .set('x-api-key', 'api-delete-reports-key')
         .expect(500);

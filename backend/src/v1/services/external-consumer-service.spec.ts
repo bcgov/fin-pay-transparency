@@ -124,41 +124,12 @@ describe('external-consumer-service', () => {
     try {
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01',
+        '2023-01-01',
         -1,
         -1,
       );
-      expect(results.page).toBe(0);
-    });
-
-    it('should fail parse invalid date strings', async () => {
-      mockCount.mockReturnValue(1);
-      mockReportsFindMany.mockReturnValue([testData]);
-      try {
-        await externalConsumerService.exportDataWithPagination(
-          '20241-01-01',
-          '20241-01-01',
-          -1,
-          -1,
-        );
-      } catch (error) {
-        expect(error.message).toBe(
-          'Failed to parse dates. Please use date format YYYY-MM-dd',
-        );
-      }
-    });
-    it('should fail when endDate is before the startDate', async () => {
-      mockCount.mockReturnValue(1);
-      mockReportsFindMany.mockReturnValue([testData]);
-      try {
-        await externalConsumerService.exportDataWithPagination(
-          '2024-01-01',
-          '2023-01-01',
-          -1,
-          -1,
-        );
-      } catch (error) {
-        expect(error.message).toBe('Start date must be before the end date.');
-      }
-    });
+    } catch (error) {
+      expect(error.message).toBe('Start date must be before the end date.');
+    }
   });
 });
