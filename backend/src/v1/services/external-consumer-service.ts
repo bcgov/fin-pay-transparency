@@ -149,9 +149,10 @@ const externalConsumerService = {
 
     /**
      * 1) Create a union of the pay_transparency_report and report_history table as reports
-     * 2) Create a union of the pay_transparency_calculated_data and calculated_data_history as calculated
-     * 3) Paginate the reports
-     * 4) Join reports and calculated_data based on report_change_id
+     * 2) Sort by update date, then by revision (have to sort by revision too because reports in version PT1.2 all share the same update date )
+     * 3) Create a union of the pay_transparency_calculated_data and calculated_data_history as calculated
+     * 4) Paginate the reports
+     * 5) Join reports and calculated_data based on report_change_id
      */
     const getReportsQuery = Prisma.sql`select *
      from ((select report.report_id,
@@ -229,7 +230,7 @@ const externalConsumerService = {
                 where report_status = 'Published'
                     and (report.update_date >= ${convert(startDt).toDate()}
                          and report.update_date < ${convert(endDt).toDate()})))
-      order by update_date
+      order by update_date, revision
       offset ${offset}
       limit ${limit}) as reports
 
