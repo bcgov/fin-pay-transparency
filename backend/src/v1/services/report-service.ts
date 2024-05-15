@@ -1,5 +1,6 @@
 import {
   LocalDate,
+  LocalDateTime,
   TemporalAdjusters,
   ZoneId,
   convert,
@@ -1279,7 +1280,7 @@ const reportService = {
             user_comment: full_report_to_publish.user_comment,
             data_constraints: full_report_to_publish.data_constraints,
             revision: parseInt(existing_published_report.revision as any) + 1,
-            update_date: new Date(),
+            update_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
             update_user: full_report_to_publish.update_user,
             pay_transparency_calculated_data: {
               createMany: {
