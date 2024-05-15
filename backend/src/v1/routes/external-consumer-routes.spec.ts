@@ -143,4 +143,30 @@ describe('external-consumer-routes', () => {
       return request(app).get('').expect(200);
     });
   });
+
+  describe('/ DELETE', () => {
+    it('should delete reports', () => {
+      return request(app)
+        .delete('/')
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: false,
+            message: 'Reports deleted'
+          });
+        });
+    });
+    it('should fail delete reports and return error', () => {
+      mockDeleteReports.mockRejectedValue({message: 'Failed to delete reports'})
+      return request(app)
+        .delete('/')
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: true,
+            message: 'Failed to delete reports',
+          });
+        });
+    });
+  })
 });

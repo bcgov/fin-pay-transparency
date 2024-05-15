@@ -32,10 +32,6 @@ const validateApiKey =
  *       type: apiKey
  *       in: header
  *       name: x-api-key
- *     DeleteReportsApiKeyAuth:
- *       type: apiKey
- *       in: header
- *       name: x-api-delete-reports-key
  *   schemas:
  *     CalculatedData:
  *       type: object

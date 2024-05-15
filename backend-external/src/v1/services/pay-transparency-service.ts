@@ -20,7 +20,7 @@ export const payTransparencyService = {
     };
     const { status, data } = await utils
       .backendAxios()
-      .get('/external-consumer-api/v1/', axiosConfig);
+      .get('/external-consumer-api/v1/reports', axiosConfig);
     return { status, data };
   },
   async deleteReports(req: Request) {
@@ -33,7 +33,7 @@ export const payTransparencyService = {
     const { status, data } = await utils.backendAxios().delete<{
       error: boolean;
       message: string;
-    }>('/external-consumer-api/v1/delete-reports', axiosConfig);
+    }>('/external-consumer-api/v1/reports', axiosConfig);
     return { status, data };
   },
 };
