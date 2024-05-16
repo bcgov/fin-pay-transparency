@@ -47,6 +47,14 @@ spec:
               value: {{ .Values.env.logLevel }}
             - name: SNOWPLOW_URL
               value: {{ .Values.env.snowplowUrl }}
+            - name: GEO_PAY_TRANSPARENCY_HOME_URL
+              value: {{ .Values.env.geoPayTransparencyHomeUrl }}
+            - name: PAY_TRANSPARENCY_ACT_URL
+              value: {{ .Values.env.payTransparencyActUrl }}
+            - name: PAY_TRANSPARENCY_REGULATION_URL
+              value: {{ .Values.env.payTransparencyRegulationUrl }}
+            - name: GUIDANCE_FOR_REPORTING_URL
+              value: {{ .Values.env.guidanceForReportingUrl }}      
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

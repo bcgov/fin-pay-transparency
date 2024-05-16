@@ -96,11 +96,11 @@
 
               <v-row class="mt-8 mb-2">
                 <v-col class="d-flex justify-center pt-10">
-                  
+                  {{window?.config}}
                   <div v-show="stage == 'UPLOAD'">
                     <h3 class="mb-4">Upload your company's data</h3>
                     <p class="mb-8">
-                      Please review the <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting.pdf">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
+                      Please review the <a target="_blank" rel="noopener" :href="window.config.GUIDANCE_FOR_REPORTING_URL">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
                     </p>                                                        
                     <v-btn class="btn-secondary" href="SampleCsv.csv" download>
                       Download sample CSV
