@@ -17,7 +17,7 @@
                 </ul>
               </p>
               <p class="text-subtitle-2 mb-2">This tool enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018">Pay Transparency Act</a> and <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023">Regulation</a>.</p>
-              <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" href="https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-laws-in-bc">Pay Transparency Laws in B.C.</a></p>
+              <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" href="https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-in-bc">Pay Transparency in B.C.</a></p>
               <v-btn
                 id="login-button"
                 class="btn-primary"
@@ -109,7 +109,7 @@
                   <p v-show="stage == 'REVIEW'">
                     <h3 class="mb-4">Review and validate</h3>
                     <p class="mb-8">
-                      Please carefully review any error messages and confirm the information you provided is accurate before moving forward.  The <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting-nov-03-2023.pdf">Guidance for Preparing Pay Transparency Reports</a> details what must be included in your report.
+                      Please carefully review any error messages and confirm the information you provided is accurate before moving forward.  The <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting.pdf">Guidance for Preparing Pay Transparency Reports</a> details what must be included in your report.
                     </P>
                   </p>
                   <p v-show="stage == 'GENERATE'">
