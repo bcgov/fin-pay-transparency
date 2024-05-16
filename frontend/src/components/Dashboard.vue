@@ -13,14 +13,14 @@
         <a
           target="_blank"
           rel="noopener noreferrer"
-          :href="frontendConfig.PAY_TRANSPARENCY_ACT_URL"
+          :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_ACT_URL)"
           >Pay Transparency Act (gov.bc.ca)</a
         >
         and the
         <a
           target="_blank"
           rel="noopener noreferrer"
-          :href="frontendConfig.PAY_TRANSPARENCY_REGULATION_URL"
+          :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_REGULATION_URL)"
           >Pay Transparency Regulation (gov.bc.ca)</a
         >. The report can be saved for posting on your webpage or in your
         workplace.
@@ -49,7 +49,9 @@
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                :href="frontendConfig.GUIDANCE_FOR_REPORTING_WEB_URL"
+                :href="
+                  sanitizeUrl(frontendConfig.GUIDANCE_FOR_REPORTING_WEB_URL)
+                "
               >
                 Guidance for preparing pay transparency reports - Province of
                 British Columbia (gov.bc.ca)</a
@@ -94,6 +96,7 @@
 import ReportsTable from './util/ReportsTable.vue';
 import { mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 type DashboardData = {
   userInfo?: any;
@@ -107,6 +110,9 @@ export default {
   }),
   computed: {
     ...mapState(authStore, ['userInfo']),
+  },
+  methods: {
+    sanitizeUrl: sanitizeUrl,
   },
 };
 </script>

@@ -16,8 +16,8 @@
                   <li>2026: all employers with 50 employees or more</li>
                 </ul>
               </p>
-              <p class="text-subtitle-2 mb-2">This tool enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener noreferrer" :href="frontendConfig.PAY_TRANSPARENCY_ACT_URL">Pay Transparency Act</a> and <a target="_blank" rel="noopener noreferrer" :href="frontendConfig.PAY_TRANSPARENCY_REGULATION_URL">Regulation</a>.</p>
-              <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" :href="frontendConfig.PAY_TRANSPARENCY_HOME_URL">Pay Transparency in B.C.</a></p>
+              <p class="text-subtitle-2 mb-2">This tool enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_ACT_URL)">Pay Transparency Act</a> and <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_REGULATION_URL)">Regulation</a>.</p>
+              <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_HOME_URL)">Pay Transparency in B.C.</a></p>
               <v-btn
                 id="login-button"
                 class="btn-primary"
@@ -99,7 +99,7 @@
                   <div v-show="stage == 'UPLOAD'">
                     <h3 class="mb-4">Upload your company's data</h3>
                     <p class="mb-8">
-                      Please review the <a target="_blank" rel="noopener" :href="frontendConfig.GUIDANCE_FOR_REPORTING_PDF_URL">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
+                      Please review the <a target="_blank" rel="noopener" :href="sanitizeUrl(frontendConfig.GUIDANCE_FOR_REPORTING_PDF_URL)">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
                     </p>                                                        
                     <v-btn class="btn-secondary" href="SampleCsv.csv" download>
                       Download sample CSV
@@ -108,7 +108,7 @@
                   <p v-show="stage == 'REVIEW'">
                     <h3 class="mb-4">Review and validate</h3>
                     <p class="mb-8">
-                      Please carefully review any error messages and confirm the information you provided is accurate before moving forward.  The <a target="_blank" rel="noopener" :href="frontendConfig.GUIDANCE_FOR_REPORTING_PDF_URL">Guidance for Preparing Pay Transparency Reports</a> details what must be included in your report.
+                      Please carefully review any error messages and confirm the information you provided is accurate before moving forward.  The <a target="_blank" rel="noopener" :href="sanitizeUrl(frontendConfig.GUIDANCE_FOR_REPORTING_PDF_URL)">Guidance for Preparing Pay Transparency Reports</a> details what must be included in your report.
                     </P>
                   </p>
                   <p v-show="stage == 'GENERATE'">
@@ -170,6 +170,7 @@ export default {
     ...mapState(authStore, ['isAuthenticated']),
   },
   methods: {
+    sanitizeUrl: sanitizeUrl,
     clearStorageAndRedirectToLogin() {
       authStore().setJwtToken();
       window.location.href = this.authRoutesLogin;
