@@ -18,7 +18,14 @@
     header {
       Content-Type text/javascript
     }
-    respond `window.config = {"SNOWPLOW_URL":"{$SNOWPLOW_URL}"};`
+    respond `window.config = {
+      "SNOWPLOW_URL":"{$SNOWPLOW_URL}",      
+      "PAY_TRANSPARENCY_HOME_URL":"{$PAY_TRANSPARENCY_HOME_URL}", 
+      "PAY_TRANSPARENCY_ACT_URL":"{$PAY_TRANSPARENCY_ACT_URL}", 
+      "PAY_TRANSPARENCY_REGULATION_URL":"{$PAY_TRANSPARENCY_REGULATION_URL}", 
+      "GUIDANCE_FOR_REPORTING_WEB_URL":"{$GUIDANCE_FOR_REPORTING_WEB_URL}",
+      "GUIDANCE_FOR_REPORTING_PDF_URL":"{$GUIDANCE_FOR_REPORTING_PDF_URL}"
+      };`
   }
   root * /app/dist
   encode zstd gzip

@@ -14,14 +14,14 @@
         <a
           target="_blank"
           rel="noopener noreferrer"
-          href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018"
+          :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_ACT_URL)"
           >Pay Transparency Act (gov.bc.ca)</a
         >
         and the
         <a
           target="_blank"
           rel="noopener noreferrer"
-          href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023"
+          :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_REGULATION_URL)"
           >Pay Transparency Regulation (gov.bc.ca)</a
         >. The report can be saved for posting on your webpage or in your
         workplace.
@@ -50,7 +50,9 @@
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports"
+                :href="
+                  sanitizeUrl(frontendConfig.GUIDANCE_FOR_REPORTING_WEB_URL)
+                "
               >
                 Guidance for preparing pay transparency reports - Province of
                 British Columbia (gov.bc.ca)</a
@@ -141,6 +143,7 @@
 import ReportSelectionManager from './util/DasboardReportManager.vue';
 import { mapActions, mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
@@ -156,12 +159,14 @@ import { useConfigStore } from '../store/modules/config';
 type DashboardData = {
   reports: IReport[];
   userInfo?: any;
+  frontendConfig: any;
 };
 
 export default {
   components: { ReportSelectionManager },
   data: (): DashboardData => ({
     reports: [],
+    frontendConfig: (window as any).config,
   }),
   computed: {
     ...mapState(useReportStepperStore, ['reportId']),
@@ -175,6 +180,7 @@ export default {
     this.getReports();
   },
   methods: {
+    sanitizeUrl: sanitizeUrl,
     ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
     ...mapActions(useConfigStore, ['loadConfig']),
     formatDate(value, format = 'MMMM d, YYYY') {
