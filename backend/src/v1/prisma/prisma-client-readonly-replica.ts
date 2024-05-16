@@ -24,6 +24,6 @@ const prismaReadOnlyReplica = prisma.$extends(
   readReplicas({
     url: readReplicaUrl
   }),
-);
+)
 
 export default prismaReadOnlyReplica;

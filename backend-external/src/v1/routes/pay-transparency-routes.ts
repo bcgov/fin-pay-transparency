@@ -66,7 +66,7 @@ const router = express.Router();
  *           type: number
  *         employee_count_range:
  *           type: string
- *         calculated_data:
+ *         data:
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/CalculatedData"

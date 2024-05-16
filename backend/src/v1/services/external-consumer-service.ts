@@ -256,25 +256,37 @@ left join
                          and data.update_date < ${convert(endDt).toDate()})) as data
      left join calculation_code as code on code.calculation_code_id = data.calculation_code_id) as calculated_data on calculated_data.calculated_data_report_id = reports.report_change_id`;
 
-    const results = await prismaReadOnlyReplica
-      .$replica()
-      .$queryRaw<RawQueryResult[]>(getReportsQuery);
-    const uniqueReports: Record<string, RawQueryResult[]> = groupBy(
-      results,
-      (x) => x.report_change_id,
-    );
+    // const results = await prismaReadOnlyReplica
+    //   .$replica()
+    //   .$queryRaw<RawQueryResult[]>(getReportsQuery);
+    // const uniqueReports: Record<string, RawQueryResult[]> = groupBy(
+    //   results,
+    //   (x) => x.report_change_id,
+    // );
 
-    const uniqueReportIds: string[] = keys(uniqueReports);
+    // const uniqueReportIds: string[] = keys(uniqueReports);
 
-    const reports = uniqueReportIds.map((id_rev) => {
-      const data = uniqueReports[id_rev];
-      return buildReport(data);
-    });
+    // const reports = uniqueReportIds.map((id_rev) => {
+    //   const data = uniqueReports[id_rev];
+    //   return buildReport(data);
+    // });
 
     return {
       page: offset / limit,
       pageSize: limit,
-      records: reports,
+      records: await prismaReadOnlyReplica.reports.findMany({
+        include: {
+          calculated_data: {
+            select: {
+              value: true,
+              is_suppressed: true,
+              calculation_code: true
+            }
+          }
+        },
+        take: limit,
+        skip: offset
+      }),
     };
   },
 };
