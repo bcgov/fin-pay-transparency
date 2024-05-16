@@ -125,10 +125,11 @@ frontend:
   env:
     logLevel: info
     snowplowUrl: spm.apps.gov.bc.ca
-    geoPayTransparencyHomeUrl: https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-in-bc
+    payTransparencyHomeUrl: https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-in-bc
     payTransparencyActUrl: https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018
     payTransparencyRegulationUrl: https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023
-    guidanceForReportingUrl: https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports
+    guidanceForReportingWebUrl: https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports
+    guidanceForReportingPdfUrl: https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting.pdf
   autoscaling:
     enabled: true
     minReplicas: 3
