@@ -62,10 +62,10 @@ backend:
   resources:
     limits:
       cpu: 150m
-      memory: 250Mi
+      memory: 500Mi
     requests:
       cpu: 50m
-      memory: 100Mi
+      memory: 250Mi
   initResources:
     limits:
       cpu: 350m
@@ -81,7 +81,7 @@ backend:
     targetCPUUtilizationPercentage: 60 # this percentage from request cpu
   storage:
     enabled: true
-    size: 50Mi
+    size: 120Mi
     accessMode: ReadWriteMany
   app:
     env:

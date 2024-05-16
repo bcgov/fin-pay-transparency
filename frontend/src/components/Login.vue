@@ -9,15 +9,15 @@
                 Welcome to the Pay Transparency Reporting Tool
               </h4>
               <p class="text-subtitle-2">
-                In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report on all your B.C. employees by November 1st of each year through a phased approach: 
+                In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report by November 1st of each year through a phased approach: 
                 <ul class="ml-8 mt-4 mb-4">
                   <li>2024: all employers with 1,000 employees or more</li>
                   <li>2025: all employers with 300 employees or more</li>
                   <li>2026: all employers with 50 employees or more</li>
                 </ul>
               </p>
-              <p class="text-subtitle-2 mb-2">This tool enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018">Pay Transparency Act</a> and <a target="_blank" rel="noopener noreferrer" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023">Regulation</a>.</p>
-              <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" href="https://www2.gov.bc.ca/gov/content/gender-equity/pay-transparency-laws-in-bc">Pay Transparency Laws in B.C.</a></p>
+              <p class="text-subtitle-2 mb-2">This tool enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_ACT_URL)">Pay Transparency Act</a> and <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_REGULATION_URL)">Regulation</a>.</p>
+              <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_HOME_URL)">Pay Transparency in B.C.</a></p>
               <v-btn
                 id="login-button"
                 class="btn-primary"
@@ -96,12 +96,11 @@
 
               <v-row class="mt-8 mb-2">
                 <v-col class="d-flex justify-center pt-10">
-                  
                   <div v-show="stage == 'UPLOAD'">
                     <h3 class="mb-4">Upload your company's data</h3>
                     <p class="mb-8">
-                      Please review the <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting-nov-03-2023.pdf">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
-                    </p>
+                      Please review the <a target="_blank" rel="noopener" :href="sanitizeUrl(frontendConfig.GUIDANCE_FOR_REPORTING_PDF_URL)">Guidance for Preparing Pay Transparency Reports</a> to ensure you understand what must be in your report. You will also be able to include general information about your organization and any constraints or limitations with your data (For example: At ____, no overtime hours are permitted).  When you are ready, upload a file of your employee data in comma-separated value (CSV) format.  
+                    </p>                                                        
                     <v-btn class="btn-secondary" href="SampleCsv.csv" download>
                       Download sample CSV
                     </v-btn>
@@ -109,7 +108,7 @@
                   <p v-show="stage == 'REVIEW'">
                     <h3 class="mb-4">Review and validate</h3>
                     <p class="mb-8">
-                      Please carefully review any error messages and confirm the information you provided is accurate before moving forward.  The <a target="_blank" rel="noopener" href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting-nov-03-2023.pdf">Guidance for Preparing Pay Transparency Reports</a> details what must be included in your report.
+                      Please carefully review any error messages and confirm the information you provided is accurate before moving forward.  The <a target="_blank" rel="noopener" :href="sanitizeUrl(frontendConfig.GUIDANCE_FOR_REPORTING_PDF_URL)">Guidance for Preparing Pay Transparency Reports</a> details what must be included in your report.
                     </P>
                   </p>
                   <p v-show="stage == 'GENERATE'">
@@ -163,13 +162,15 @@ export default {
       appTitle: 'Pay Transparency Reporting',
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
       stage: "UPLOAD",
-      imageSource: uploadpng
+      imageSource: uploadpng,
+      frontendConfig: window.config
     };
   },
   computed: {
     ...mapState(authStore, ['isAuthenticated']),
   },
   methods: {
+    sanitizeUrl: sanitizeUrl,
     clearStorageAndRedirectToLogin() {
       authStore().setJwtToken();
       window.location.href = this.authRoutesLogin;

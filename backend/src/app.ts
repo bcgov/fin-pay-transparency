@@ -64,6 +64,7 @@ const metricsMiddleware = promBundle({
   promRegistry: register,
 });
 const app = express();
+app.set('trust proxy', 1);
 const apiRouter = express.Router();
 
 const JWTStrategy = passportJWT.Strategy;
@@ -88,19 +89,26 @@ app.use(
     limit: `${MAX_NETWORK_TRANSFER_SIZE_BYTES}b`,
   }),
 );
-
+let proxy = true;
 const cookie = {
+  secure: true,
   httpOnly: true,
   maxAge: 1800000, //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
+  
 };
+if ('local' === config.get('environment')) {
+  cookie.secure = false;
+  proxy = false;
+}
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
 const sess = {
   name: 'fin_pay_transparency_cookie',
   secret: config.get('oidc:clientSecret'),
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: cookie,
+  proxy,
   store: new fileSession({
     path: resolve('./', config.get('server:sessionPath')),
     logFn: (msg: string) => {
@@ -108,9 +116,6 @@ const sess = {
     },
   }),
 };
-if ('production' === config.get('environment')) {
-  app.set('trust proxy', 1);
-}
 app.use(session(sess));
 //initialize routing and session. Cookies are now only reachable via requests (not js)
 app.use(passport.initialize());
@@ -137,7 +142,6 @@ function addLoginPassportUse(
         callbackURL: callbackURI,
         scope: 'bceidbusiness',
         kc_idp_hint: kc_idp_hint,
-        sessionKey: 'fin-pay-transparency',
       },
       (
         _issuer,
@@ -293,8 +297,12 @@ app.use(function (
   err: Error,
   req: Request,
   res: Response,
-  _next: NextFunction,
+  next: NextFunction,
 ) {
+  logger.error(err);
+  if (res.headersSent) {
+    return next(err);
+  }
   return res.status(500).send({ error: err });
 });
 export { app };

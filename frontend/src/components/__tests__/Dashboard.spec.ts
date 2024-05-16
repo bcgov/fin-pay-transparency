@@ -1,11 +1,16 @@
-import { expect, describe, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { render, waitFor, fireEvent } from '@testing-library/vue';
-import Dashboard from '../Dashboard.vue';
-import { createTestingPinia } from '@pinia/testing';
-import { authStore } from '../../store/modules/auth';
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
+import { createTestingPinia } from '@pinia/testing';
+import { fireEvent, render, waitFor } from '@testing-library/vue';
+import { authStore } from '../../store/modules/auth';
+import Dashboard from '../Dashboard.vue';
+
+//mock window.config
+Object.defineProperty(window, 'config', {
+  value: {},
+});
 
 const pinia = createTestingPinia();
 const mockRouterPush = vi.fn();

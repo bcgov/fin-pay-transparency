@@ -1,0 +1,9 @@
+deployments:
+  environmentMapping:
+    development:
+      - "dev"
+    testing:
+      - "test"
+    production:
+      - "prod"
+

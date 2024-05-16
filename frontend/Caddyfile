@@ -18,7 +18,14 @@
     header {
       Content-Type text/javascript
     }
-    respond `window.config = {"SNOWPLOW_URL":"{$SNOWPLOW_URL}"};`
+    respond `window.config = {
+      "SNOWPLOW_URL":"{$SNOWPLOW_URL}",      
+      "PAY_TRANSPARENCY_HOME_URL":"{$PAY_TRANSPARENCY_HOME_URL}", 
+      "PAY_TRANSPARENCY_ACT_URL":"{$PAY_TRANSPARENCY_ACT_URL}", 
+      "PAY_TRANSPARENCY_REGULATION_URL":"{$PAY_TRANSPARENCY_REGULATION_URL}", 
+      "GUIDANCE_FOR_REPORTING_WEB_URL":"{$GUIDANCE_FOR_REPORTING_WEB_URL}",
+      "GUIDANCE_FOR_REPORTING_PDF_URL":"{$GUIDANCE_FOR_REPORTING_PDF_URL}"
+      };`
   }
   root * /app/dist
   encode zstd gzip
@@ -32,7 +39,7 @@
   rewrite @spa_router {http.matchers.file.relative}
 
   header {
-    X-Frame-Options "SAMEORIGIN"
+    X-Frame-Options "DENY"
     X-XSS-Protection "1;mode=block"
     Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate"
     X-Content-Type-Options "nosniff"
@@ -41,12 +48,20 @@
      script-src 'self' 'unsafe-eval' https://www2.gov.bc.ca https://spm.apps.gov.bc.ca/com.snowplowanalytics.snowplow/tp2 ;
      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com;
      font-src 'self' https://fonts.gstatic.com;
-     img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca"
-    Referrer-Policy "same-origin"
+     img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca;
+     frame-src 'none'; 
+     manifest-src 'self'; 
+     worker-src 'self'; 
+     upgrade-insecure-requests; 
+     block-all-mixed-content;"
+    Referrer-Policy "no-referrer, strict-origin-when-cross-origin"
     Feature-Policy "fullscreen 'self'; camera 'none'; microphone 'none'"
+    -Server
   }
   # Proxy requests to API service
-  reverse_proxy /api/* {$BACKEND_URL}
+  reverse_proxy /api/* {$BACKEND_URL}{
+    header_up X-Forwarded-Proto https
+  }
 }
 :3001 {
   handle /health {
