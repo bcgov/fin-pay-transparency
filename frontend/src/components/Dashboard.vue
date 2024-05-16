@@ -13,14 +13,14 @@
         <a
           target="_blank"
           rel="noopener noreferrer"
-          href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/23018"
+          :href="frontendConfig.PAY_TRANSPARENCY_ACT_URL"
           >Pay Transparency Act (gov.bc.ca)</a
         >
         and the
         <a
           target="_blank"
           rel="noopener noreferrer"
-          href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023"
+          :href="frontendConfig.PAY_TRANSPARENCY_REGULATION_URL"
           >Pay Transparency Regulation (gov.bc.ca)</a
         >. The report can be saved for posting on your webpage or in your
         workplace.
@@ -49,7 +49,7 @@
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports"
+                :href="frontendConfig.GUIDANCE_FOR_REPORTING_WEB_URL"
               >
                 Guidance for preparing pay transparency reports - Province of
                 British Columbia (gov.bc.ca)</a
@@ -97,14 +97,17 @@ import { authStore } from '../store/modules/auth';
 
 type DashboardData = {
   userInfo?: any;
+  frontendConfig: any;
 };
 
 export default {
   components: { ReportsTable },
-  data: (): DashboardData => ({}),
+  data: (): DashboardData => ({
+    frontendConfig: (window as any).config,
+  }),
   computed: {
     ...mapState(authStore, ['userInfo']),
-  }
+  },
 };
 </script>
 
