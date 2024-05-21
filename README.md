@@ -1,6 +1,6 @@
 [![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/fin-pay-transparency)
 
-| Mono-repo Service | SonarCloud                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Service in Monorepo | SonarCloud                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | frontend          | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_frontend&metric=alert_status)](https://sonarcloud.io/project/overview?id=fin-pay-transparency_frontend) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fin-pay-transparency_frontend)                                 |
 | backend           | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_backend&metric=alert_status)](https://sonarcloud.io/project/overview?id=fin-pay-transparency_backend) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_backend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fin-pay-transparency_backend)                                     |
@@ -59,15 +59,21 @@ Pay Transparency Reporting Tool is a webapp that employers use to generate a pdf
 1. (Optional) A VSCode workspace is provided in .vscode/fin-pay-transparency.code-workspace which can easily install npm packages and launch all services.
 
 1. Install npm packages for each project in repo
+
    `npm -C backend install`
+
    `npm -C backend-external install`
+
    `npm -C doc-gen-service install`
+
    `npm -C frontend install`
 
 1. Build and start the database container
+
    `podman-compose up --build -d database`
 
 1. Run the database migrations to create/update the database for this project
+
    `podman-compose up -d database-migrations`
 
 ### Start servers
@@ -77,8 +83,11 @@ Pay Transparency Reporting Tool is a webapp that employers use to generate a pdf
 - The frontend requires the backend to be running in order to login.
 
 `npm -C backend run dev`
+
 `npm -C backend-external run dev`
+
 `npm -C doc-gen-service run dev`
+
 `npm -C frontend run serve`
 
 ### Tests
@@ -86,11 +95,13 @@ Pay Transparency Reporting Tool is a webapp that employers use to generate a pdf
 #### Unit
 
 All projects have unit tests and can be run with
+
 `npm run test`
 
 #### Integration
 
 Only backend-external has integration tests. Requires that backend-external and backend services be running.
+
 `npm run test:integration`
 
 #### End-to-end
@@ -98,7 +109,9 @@ Only backend-external has integration tests. Requires that backend-external and 
 The frontend end-to-end test is performed by playwright.
 
 First install playwright tools:
+
 `npx playwright install --with-deps`
 
 Then run the tests:
+
 `npm run e2e`
