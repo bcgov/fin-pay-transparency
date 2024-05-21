@@ -1,14 +1,18 @@
 import { faker } from '@faker-js/faker';
 import { externalConsumerService } from './external-consumer-service';
 
-const mockQueryRaw = jest.fn();
+const mockReportsViewFindMany = jest.fn();
+const mockReportsViewCount = jest.fn();
 jest.mock('../prisma/prisma-client-readonly-replica', () => {
   return {
     __esModule: true,
     default: {
       $replica: () => {
         return {
-          $queryRaw: (...args) => mockQueryRaw(...args),
+          reports_view: {
+            count: (...args) => mockReportsViewCount(...args),
+            findMany: (...args) => mockReportsViewFindMany(...args),
+          },
         };
       },
     },
@@ -29,18 +33,22 @@ const testData = {
   report_status: 'Published',
   reporting_year: 2024,
   company_name: faker.company.name(),
-  province: faker.location.state(),
-  bceid_business_guid: faker.string.uuid(),
-  country: faker.location.country(),
-  city: faker.location.city(),
-  postal_code: faker.location.zipCode(),
-  address_line1: faker.location.streetAddress(),
-  address_line2: faker.location.streetAddress(),
+  company_province: faker.location.state(),
+  company_bceid_business_guid: faker.string.uuid(),
+  company_country: faker.location.country(),
+  company_city: faker.location.city(),
+  company_postal_code: faker.location.zipCode(),
+  company_address_line1: faker.location.streetAddress(),
+  company_address_line2: faker.location.streetAddress(),
   employee_count_range: '50-299',
-  naics_label: faker.lorem.words(3),
-  value: faker.number.float(),
-  is_suppressed: false,
-  calculation_code: faker.number.int()
+  naics_code_label: faker.lorem.words(3),
+  calculated_data: [
+    {
+      value: faker.number.float(),
+      is_suppressed: false,
+      calculation_code: faker.number.int(),
+    },
+  ],
 };
 
 describe('external-consumer-service', () => {
@@ -49,38 +57,31 @@ describe('external-consumer-service', () => {
   });
 
   it('should return reports with defaults values', async () => {
-    mockQueryRaw.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockReturnValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination();
     expect(results.page).toBe(0);
     expect(results.records[0]).toStrictEqual({
       calculated_data: [
         {
-          is_suppressed:
-            testData.is_suppressed,
-          value: testData.value,
-          calculation_code:
-            testData.calculation_code,
+          is_suppressed: testData.calculated_data[0].is_suppressed,
+          value: testData.calculated_data[0].value,
+          calculation_code: testData.calculated_data[0].calculation_code,
         },
       ],
-      company_address_line1: testData.address_line1,
-      company_address_line2: testData.address_line2,
-      company_bceid_business_guid:
-        testData.bceid_business_guid,
-      company_city: testData.city,
-      company_country: testData.country,
+      company_address_line1: testData.company_address_line1,
+      company_address_line2: testData.company_address_line2,
+      company_bceid_business_guid: testData.company_bceid_business_guid,
+      company_city: testData.company_city,
+      company_country: testData.company_country,
       company_id: testData.company_id,
       company_name: testData.company_name,
-      company_postal_code: testData.postal_code,
-      company_province: testData.province,
+      company_postal_code: testData.company_postal_code,
+      company_province: testData.company_province,
       create_date: testData.create_date,
       data_constraints: testData.data_constraints,
       employee_count_range: testData.employee_count_range,
-      naics_code:
-        testData
-          .naics_code,
-      naics_code_label:
-        testData
-          .naics_label,
+      naics_code: testData.naics_code,
+      naics_code_label: testData.naics_code_label,
       report_end_date: testData.report_end_date,
       report_id: testData.report_id,
       report_start_date: testData.report_start_date,
@@ -93,7 +94,7 @@ describe('external-consumer-service', () => {
   });
 
   it('should parse date strings', async () => {
-    mockQueryRaw.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockReturnValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination(
       '2024-01-01',
       '2024-01-01',
@@ -104,7 +105,7 @@ describe('external-consumer-service', () => {
   });
 
   it('should fail parse invalid date strings', async () => {
-    mockQueryRaw.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
         '20241-01-01',
@@ -119,7 +120,7 @@ describe('external-consumer-service', () => {
     }
   });
   it('should fail when endDate is before the startDate', async () => {
-    mockQueryRaw.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01',

@@ -77,6 +77,9 @@ const router = express.Router();
  *     PaginatedReports:
  *       type: object
  *       properties:
+ *         totalRecords:
+ *           type: number
+ *           description: total number of records in the database
  *         page:
  *           type: number
  *           description: Current page offset

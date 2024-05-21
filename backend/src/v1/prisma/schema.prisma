@@ -209,44 +209,44 @@ model calculated_data_history {
   @@unique([report_history_id, calculation_code_id])
 }
 
-view reports {
-  report_id               String?   @db.Uuid
-  report_change_id        String    @id @db.Uuid
-  company_id              String?   @db.Uuid
-  user_id                 String?   @db.Uuid
-  user_comment            String?   @db.VarChar(4000)
-  employee_count_range_id String?   @db.Uuid
-  naics_code              String?   @db.VarChar(5)
-  report_start_date       DateTime? @db.Date
-  report_end_date         DateTime? @db.Date
-  create_date             DateTime? @db.Timestamp(6)
-  update_date             DateTime? @db.Timestamp(6)
-  create_user             String?   @db.VarChar(255)
-  update_user             String?   @db.VarChar(255)
-  report_status           String?   @db.VarChar(255)
-  revision                Decimal?  @db.Decimal
-  data_constraints        String?   @db.VarChar(3000)
-  is_unlocked             Boolean?
-  reporting_year          Decimal?  @db.Decimal
-  report_unlock_date      DateTime? @db.Timestamp(6)
-  naics_label             String?   @db.VarChar(255)
-  company_name            String?   @db.VarChar(255)
-  bceid_business_guid     String?   @db.Uuid
-  address_line1           String?   @db.VarChar(255)
-  address_line2           String?   @db.VarChar(255)
-  city                    String?   @db.VarChar(255)
-  province                String?   @db.VarChar(255)
-  country                 String?   @db.VarChar(255)
-  postal_code             String?   @db.VarChar(255)
-  employee_count_range    String?   @db.VarChar(255)
-  calculated_data         data[]
+view reports_view {
+  report_id                   String?                @db.Uuid
+  report_change_id            String                 @id @db.Uuid
+  company_id                  String?                @db.Uuid
+  user_id                     String?                @db.Uuid
+  user_comment                String?                @db.VarChar(4000)
+  employee_count_range_id     String?                @db.Uuid
+  naics_code                  String?                @db.VarChar(5)
+  report_start_date           DateTime?              @db.Date
+  report_end_date             DateTime?              @db.Date
+  create_date                 DateTime?              @db.Timestamp(6)
+  update_date                 DateTime?              @db.Timestamp(6)
+  create_user                 String?                @db.VarChar(255)
+  update_user                 String?                @db.VarChar(255)
+  report_status               String?                @db.VarChar(255)
+  revision                    Decimal?               @db.Decimal
+  data_constraints            String?                @db.VarChar(3000)
+  reporting_year              Decimal?               @db.Decimal
+  report_unlock_date          DateTime?              @db.Timestamp(6)
+  naics_code_label            String?                @db.VarChar(255)
+  company_name                String?                @db.VarChar(255)
+  company_bceid_business_guid String?                @db.Uuid
+  company_address_line1       String?                @db.VarChar(255)
+  company_address_line2       String?                @db.VarChar(255)
+  company_city                String?                @db.VarChar(255)
+  company_province            String?                @db.VarChar(255)
+  company_country             String?                @db.VarChar(255)
+  company_postal_code         String?                @db.VarChar(255)
+  employee_count_range        String?                @db.VarChar(255)
+  calculated_data             calculated_data_view[]
 }
 
-view data {
-  report_id           String   @id @db.Uuid
-  calculation_code_id String?  @db.Uuid
-  value               String?  @db.VarChar(50)
+view calculated_data_view {
+  calculated_data_id  String        @id @db.Uuid
+  report_id           String       @db.Uuid
+  calculation_code_id String?       @db.Uuid
+  value               String?       @db.VarChar(50)
   is_suppressed       Boolean?
-  calculation_code    String?  @db.VarChar(255)
-  report              reports  @relation(fields: [report_id], references: [report_change_id])
+  calculation_code    String?       @db.VarChar(255)
+  report              reports_view @relation(fields: [report_id], references: [report_change_id])
 }

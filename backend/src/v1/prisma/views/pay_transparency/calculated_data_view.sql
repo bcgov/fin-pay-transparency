@@ -1,4 +1,5 @@
 SELECT
+  data.calculated_data_id,
   data.report_id,
   data.calculation_code_id,
   data.value,
@@ -8,6 +9,7 @@ FROM
   (
     (
       SELECT
+        data_1.calculated_data_id,
         data_1.report_id,
         data_1.calculation_code_id,
         data_1.value,
@@ -16,6 +18,7 @@ FROM
         pay_transparency_calculated_data data_1
       UNION
       SELECT
+        data_1.calculated_data_history_id AS calculated_data_id,
         data_1.report_history_id AS report_id,
         data_1.calculation_code_id,
         data_1.value,
