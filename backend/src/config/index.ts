@@ -30,6 +30,7 @@ config.defaults({
     externalConsumerPort: process.env.EXTERNAL_CONSUMER_PORT || 3010,
     adminPort: process.env.ADMIN_PORT || 3002,
     sessionPath: process.env.SESSION_PATH,
+    adminSessionPath: process.env.ADMIN_SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
     schedulerDeleteDraftCronTime: process.env.DELETE_DRAFT_REPORT_CRON_CRONTIME,

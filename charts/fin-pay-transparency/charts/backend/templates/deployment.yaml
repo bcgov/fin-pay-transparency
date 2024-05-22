@@ -144,6 +144,8 @@ spec:
               value: {{ .Values.app.env.siteminderLogoutEndpoint }}
             - name: SESSION_PATH
               value: '/app/sessions'
+            - name: ADMIN_SESSION_PATH
+              value: '/app/sessions-admin'              
             - name: DOC_GEN_SERVICE_URL
               value: 'http://{{.Release.Name}}-doc-gen-service/api'
             - name: EXTERNAL_CONSUMER_PORT

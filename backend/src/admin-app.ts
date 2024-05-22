@@ -86,7 +86,7 @@ const sess = {
   cookie: cookie,
   proxy,
   store: new fileSession({
-    path: resolve('./', config.get('server:sessionPath')),
+    path: resolve('./', config.get('server:adminSessionPath')),
     logFn: (msg: string) => {
       logger.silly(msg);
     },
