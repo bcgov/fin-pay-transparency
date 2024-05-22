@@ -248,7 +248,7 @@ adminApp.get(
   }),
 );
 
-adminApp.use(/(\/api)?/, apiRouter);
+adminApp.use(/(\/admin-api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
 });
