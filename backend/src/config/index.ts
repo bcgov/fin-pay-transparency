@@ -22,11 +22,13 @@ config.defaults({
   server: {
     hostName: process.env.HOSTNAME || 'localhost', // Available by default to each pod in OpenShift.
     openshiftEnv: process.env.OPENSHIFT_ENV || 'local', // Set by HELM values-$env.yaml
+    adminFrontend: process.env.SERVER_ADMIN_FRONTEND,
     frontend: process.env.SERVER_FRONTEND,
     logLevel: process.env.LOG_LEVEL,
     morganFormat: 'dev',
     port: process.env.PORT || 3000,
     externalConsumerPort: process.env.EXTERNAL_CONSUMER_PORT || 3010,
+    adminPort: process.env.ADMIN_PORT || 3002,
     sessionPath: process.env.SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
@@ -53,6 +55,12 @@ config.defaults({
     },
   },
   oidc: {
+    adminKeycloakUrl: process.env.ADMIN_KEYCLOAK_URL,
+    adminClientId: process.env.ADMIN_KEYCLOAK_CLIENT_ID,
+    adminClientSecret: process.env.ADMIN_KEYCLOAK_CLIENT_SECRET,
+    adminDiscovery:
+      process.env.ADMIN_KEYCLOAK_URL +
+      '/realms/standard/.well-known/openid-configuration',
     keycloakUrl: process.env.KEYCLOAK_URL,
     clientId: process.env.KEYCLOAK_CLIENT_ID,
     clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,

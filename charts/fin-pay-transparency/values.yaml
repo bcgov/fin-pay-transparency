@@ -8,6 +8,9 @@ global:
     databasePassword: ~
     databaseName: ~
     databaseUser: ~
+    adminKeycloakUrl: ~
+    adminKeycloakClientId: ~
+    adminKeycloakClientSecret: ~
     keycloakClientId: ~
     keycloakClientSecret: ~
     keycloakUrl: ~
@@ -134,6 +137,49 @@ frontend:
     enabled: true
     minReplicas: 3
     maxReplicas: 5
+    targetCPUUtilizationPercentage: 80 # this percentage from request cpu
+  podSecurityContext: {}
+  securityContext:
+    capabilities:
+      add: ["NET_BIND_SERVICE"]
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  pdb: true
+admin-frontend:
+  enabled: true
+  deploymentStrategy: RollingUpdate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/admin-frontend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  route:
+    enabled: true
+    host: ""
+    verificationPath: ""
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    limits:
+      cpu: 50m
+      memory: 150Mi
+    requests:
+      cpu: 15m
+      memory: 50Mi
+  env:
+    logLevel: info
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
     targetCPUUtilizationPercentage: 80 # this percentage from request cpu
   podSecurityContext: {}
   securityContext:

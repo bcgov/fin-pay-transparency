@@ -25,6 +25,7 @@ jobs:
           [
             backend,
             database-migrations,
+            admin-frontend,
             frontend,
             doc-gen-service,
             backend-external,
@@ -47,6 +48,7 @@ jobs:
       environment: test
       tag: ${{ github.event.inputs.tag }}
       frontend-url: https://test.paytransparency.fin.gov.bc.ca
+      admin-frontend-url: https://test.paytransparency-admin.fin.gov.bc.ca
       semver: ${{ github.event.inputs.tag }}
       values: "values-test.yaml"
   test-integration:
@@ -57,4 +59,3 @@ jobs:
     with:
       backend-external-url: https://pay-transparency-test-backend-external.apps.silver.devops.gov.bc.ca/api
       environment: test
-

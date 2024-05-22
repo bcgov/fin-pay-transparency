@@ -19,19 +19,19 @@ parameters:
   - name: DOMAIN
     value: apps.silver.devops.gov.bc.ca
   - name: CPU_REQUEST
-    value: "25m"
+    value: '25m'
   - name: MEMORY_REQUEST
-    value: "150Mi"
+    value: '150Mi'
   - name: CPU_LIMIT
-    value: "75m"
+    value: '75m'
   - name: MEMORY_LIMIT
-    value: "300Mi"
+    value: '300Mi'
   - name: MIN_REPLICAS
     description: The minimum amount of replicas for the horizontal pod autoscaler.
-    value: "1"
+    value: '1'
   - name: MAX_REPLICAS
     description: The maximum amount of replicas for the horizontal pod autoscaler.
-    value: "1"
+    value: '1'
   - name: REGISTRY
     description: Container registry to import from (internal is image-registry.openshift-image-registry.svc:5000)
     value: ghcr.io
@@ -49,14 +49,12 @@ parameters:
     value: database-migrations
   - name: SESSION_PVC_SIZE
     description: Size of the session PVC
-    value: "75Mi"
+    value: '75Mi'
   - name: LOG_LEVEL
     description: Node Express logging level DEBUG, INFO, WARN, ERROR, PANIC, and FATAL
-    value: "info"
+    value: 'info'
   - name: SM_LOGOUT_ENDPOINT
-    value: "https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl="
-
-
+    value: 'https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl='
 
 objects:
   - apiVersion: v1
@@ -171,6 +169,21 @@ objects:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}
                       key: ui-private-key
+                - name: ADMIN_KEYCLOAK_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: admin-keycloak-client-id
+                - name: ADMIN_KEYCLOAK_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: admin-keycloak-client-secret
+                - name: ADMIN_KEYCLOAK_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}
+                      key: admin-keycloak-url
                 - name: KEYCLOAK_CLIENT_ID
                   valueFrom:
                     secretKeyRef:
@@ -242,7 +255,7 @@ objects:
               image: ${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}:${IMAGE_TAG}
               env:
                 - name: FLYWAY_URL
-                  value: "jdbc:postgresql://${NAME}-${ZONE}-database:5432/${NAME}"
+                  value: 'jdbc:postgresql://${NAME}-${ZONE}-database:5432/${NAME}'
                 - name: FLYWAY_USER
                   valueFrom:
                     secretKeyRef:
@@ -254,9 +267,9 @@ objects:
                       name: ${NAME}-${ZONE}
                       key: database-password
                 - name: FLYWAY_BASELINE_ON_MIGRATE
-                  value: "true"
+                  value: 'true'
                 - name: FLYWAY_DEFAULT_SCHEMA
-                  value: "pay_transparency"
+                  value: 'pay_transparency'
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
