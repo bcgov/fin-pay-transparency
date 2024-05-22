@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "frontend.name" -}}
+{{- define "admin-frontend.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,8 +10,8 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "frontend.fullname" -}}
-{{- $componentName := include "frontend.name" .  }}
+{{- define "admin-frontend.fullname" -}}
+{{- $componentName := include "admin-frontend.name" .  }}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -22,19 +22,19 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "frontend.chart" -}}
+{{- define "admin-frontend.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "frontend.labels" -}}
-helm.sh/chart: {{ include "frontend.chart" . }}
-{{ include "frontend.selectorLabels" . }}
+{{- define "admin-frontend.labels" -}}
+helm.sh/chart: {{ include "admin-frontend.chart" . }}
+{{ include "admin-frontend.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-app.kubernetes.io/short-name: {{ include "frontend.name" . }}
+app.kubernetes.io/short-name: {{ include "admin-frontend.name" . }}
 {{- end }}
 app.kubernetes.io/image-version: {{ .Values.image.tag | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -43,8 +43,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "frontend.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "frontend.fullname" . }}
+{{- define "admin-frontend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "admin-frontend.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
