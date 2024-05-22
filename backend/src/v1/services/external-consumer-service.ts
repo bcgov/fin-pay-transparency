@@ -79,7 +79,9 @@ const externalConsumerService = {
       },
     };
 
-    const records = await prismaReadOnlyReplica.$replica().reports_view.findMany({
+    const records = await prismaReadOnlyReplica
+      .$replica()
+      .reports_view.findMany({
         where: whereClause,
         include: {
           calculated_data: {
@@ -92,11 +94,14 @@ const externalConsumerService = {
         },
         take: limit,
         skip: offset,
-      })
+        orderBy: { update_date: 'asc', revision: 'asc' },
+      });
 
-    const totalRecordsCount = await prismaReadOnlyReplica.$replica().reports_view.count({
-      where: whereClause,
-    });
+    const totalRecordsCount = await prismaReadOnlyReplica
+      .$replica()
+      .reports_view.count({
+        where: whereClause,
+      });
 
     return {
       totalRecords: totalRecordsCount,

@@ -1,7 +1,7 @@
 SET search_path TO pay_transparency;
 
 
-CREATE VIEW reports_view
+CREATE OR REPLACE VIEW reports_view
 AS
     SELECT 
         report.report_id,
@@ -74,7 +74,7 @@ UNION
   WHERE report.report_status::text = 'Published'::text;
 
 
-CREATE VIEW calculated_data_view
+CREATE OR REPLACE VIEW calculated_data_view
 AS
    SELECT 
         data.calculated_data_id,
