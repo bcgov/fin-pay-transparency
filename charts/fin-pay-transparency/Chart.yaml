@@ -32,7 +32,7 @@ dependencies:
     condition: frontend.enabled
     version: 0.1.0
   - name: admin-frontend
-    condition: frontend.enabled
+    condition: admin-frontend.enabled
     version: 0.1.0
   - name: database
     condition: database.enabled
