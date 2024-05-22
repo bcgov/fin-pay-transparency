@@ -92,14 +92,10 @@ jobs:
             helm uninstall ${{ env.deployment_name }}-${{ inputs.target }} || true
           fi
 
-      - name: Package HELM Chart
+      - name: Package HELM Chart and Deploy to OpenShift
         shell: bash
         run: |
           helm package -u --app-version="${{ inputs.tag }}" --version=${{ inputs.semver }} ./${{ inputs.directory }}
-
-      - name: Deploy to OpenShift
-        shell: bash
-        run: |
 
           # 1 minute less for HELM to do atomic deployment and rollback if not completed within the time.
           DEPLOY_TIMEOUT=$((${{ inputs.timeout-minutes }}-1)) 
