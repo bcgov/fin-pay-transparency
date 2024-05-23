@@ -24,7 +24,7 @@
   encode zstd gzip
   file_server
   @spa_router {
-    not path /api/* /env.js
+    not path /admin-api/* /env.js
     file {
         try_files {path} /index.html
     }
@@ -52,7 +52,7 @@
     -Server
   }
   # Proxy requests to API service
-  reverse_proxy /api/* {$BACKEND_URL}{
+  reverse_proxy /admin-api/* {$BACKEND_URL}{
     header_up X-Forwarded-Proto https
   }
 }
