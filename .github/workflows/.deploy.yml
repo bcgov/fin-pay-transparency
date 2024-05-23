@@ -104,7 +104,6 @@ jobs:
           helm upgrade --debug --install --wait --atomic ${{ env.deployment_name }}-${{ inputs.target }} \
           --values ${{ inputs.directory }}/${{ inputs.values }} \
           --set-string backend.image.tag="${{ inputs.tag }}" \
-          --set-string admin-frontend.image.tag="${{ inputs.tag }}" \
           --set-string frontend.image.tag="${{ inputs.tag }}" \
           --set-string database.image.tag="${{ inputs.tag }}" \
           --set-string doc-gen-service.image.tag="${{ inputs.tag }}" \
@@ -113,10 +112,7 @@ jobs:
           --set global.autoscaling.enabled=${{ inputs.autoscaling }} \
           --set-string global.secrets.keycloakClientId="${{ secrets.KEYCLOAK_CLIENT_ID }}" \
           --set-string global.secrets.keycloakClientSecret="${{ secrets.KEYCLOAK_CLIENT_SECRET }}" \
-          --set-string global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" \
-          --set-string global.secrets.adminKeycloakUrl="${{ secrets.ADMIN_KEYCLOAK_URL }}" \
-          --set-string global.secrets.adminKeycloakClientId="${{ secrets.ADMIN_KEYCLOAK_CLIENT_ID }}" \
-          --set-string global.secrets.adminKeycloakClientSecret="${{ secrets.ADMIN_KEYCLOAK_CLIENT_SECRET }}" \          
+          --set-string global.secrets.keycloakUrl="${{ secrets.KEYCLOAK_URL }}" \                 
           --set-string global.secrets.uiPrivateKey="${{ env.UI_PRIVATE_KEY }}" \
           --set-string global.secrets.uiPublicKey="${{ env.UI_PUBLIC_KEY }}" \
           --set-string global.secrets.databasePassword="${{ secrets.DATABASE_PWD }}" \
@@ -132,7 +128,6 @@ jobs:
           --set-string global.secrets.chesClientSecret="${{ secrets.CHES_CLIENT_SECRET }}"  \
           --set-string global.secrets.chesAPIURL="${{ secrets.CHES_API_URL }}"  \
           --set-string global.secrets.chesEmailRecipients="${{ secrets.CHES_EMAIL_RECIPIENTS }}"  \
-          --set-string global.serverAdminFrontend="${{ inputs.admin-frontend-url }}" \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
           --set-string crunchy.pgBackRest.s3.bucket="${{ secrets.S3_BUCKET }}"  \
           --set-string crunchy.pgBackRest.s3.endpoint="${{ secrets.S3_ENDPOINT }}"  \
