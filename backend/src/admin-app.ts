@@ -14,24 +14,24 @@ import { resolve } from 'path';
 import prom from 'prom-client';
 import fileSessionStore from 'session-file-store';
 import { config } from './config';
+import {
+  KEYCLOAK_IDP_HINT_IDIR,
+  OIDC_IDIR_CALLBACK_NAME,
+  OIDC_IDIR_SCOPE,
+  OIDC_IDIR_STRATEGY_NAME,
+} from './constants';
 import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
-import authRouter from './v1/routes/auth-routes';
-import codeRouter from './v1/routes/code-routes';
+import adminAuthRouter from './v1/routes/admin-auth-routes';
 import { router as configRouter } from './v1/routes/config-routes';
-import { fileUploadRouter } from './v1/routes/file-upload-routes';
-import { reportRouter } from './v1/routes/report-routes';
 import userRouter from './v1/routes/user-info-routes';
-import { auth } from './v1/services/auth-service';
+import { adminAuth } from './v1/services/admin-auth-service';
 import { utils } from './v1/services/utils-service';
+
+export const OIDC_IDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_IDIR_CALLBACK_NAME}`;
 
 import { run as startJobs } from './schedulers/run.all';
 startJobs();
-
-const KEYCLOAK_IDP_HINT = 'azureidir';
-const OIDC_STRATEGY_NAME = KEYCLOAK_IDP_HINT;
-const OIDC_CALLBACK_URL = `${config.get('server:adminFrontend')}/api/auth/callback_${KEYCLOAK_IDP_HINT}`;
-const OIDC_SCOPE = KEYCLOAK_IDP_HINT;
 
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
@@ -137,7 +137,7 @@ function addLoginPassportUse(
         }
 
         //set access and refresh tokens
-        profile.jwtFrontend = auth.generateUiToken();
+        profile.jwtFrontend = adminAuth.generateUiToken();
         profile.jwt = accessToken;
         profile._json = parseJwt(accessToken);
         profile.refreshToken = refreshToken;
@@ -161,10 +161,10 @@ utils.getOidcDiscovery().then((oicdDiscoveryDocument) => {
   //OIDC Strategy is used for authorization
   addLoginPassportUse(
     oicdDiscoveryDocument,
-    OIDC_STRATEGY_NAME,
-    OIDC_CALLBACK_URL,
-    OIDC_SCOPE,
-    KEYCLOAK_IDP_HINT,
+    OIDC_IDIR_STRATEGY_NAME,
+    OIDC_IDIR_CALLBACK_URL,
+    OIDC_IDIR_SCOPE,
+    KEYCLOAK_IDP_HINT_IDIR,
   );
   //JWT strategy is used for authorization
   passport.use(
@@ -175,7 +175,7 @@ utils.getOidcDiscovery().then((oicdDiscoveryDocument) => {
         // Keycloak 7.3.0 no longer automatically supplies matching client_id audience.
         // If audience checking is needed, check the following SO to update Keycloak first.
         // Ref: https://stackoverflow.com/a/53627747
-        audience: config.get('server:admin-frontend'),
+        audience: config.get('server:adminFrontend'),
         issuer: config.get('tokenGenerate:issuer'),
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: config.get('tokenGenerate:publicKey'),
@@ -252,20 +252,17 @@ adminApp.use(/(\/admin-api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
 });
-apiRouter.use('/auth', authRouter);
+apiRouter.use('/auth', adminAuthRouter);
 
 // check for valid passport session and backend token for all routes below.
 apiRouter.use(
   passport.authenticate('jwt', { session: false }),
   (req: Request, res: Response, next: NextFunction) => {
-    auth.isValidBackendToken()(req, res, next);
+    adminAuth.isValidBackendToken()(req, res, next);
   },
 );
 apiRouter.use('/user', userRouter);
 apiRouter.use('/config', configRouter);
-apiRouter.use('/v1/file-upload', fileUploadRouter);
-apiRouter.use('/v1/codes', codeRouter);
-apiRouter.use('/v1/report', reportRouter);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });

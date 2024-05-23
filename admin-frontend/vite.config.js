@@ -21,8 +21,8 @@ export default defineConfig({
   server: {
     port: 8082,
     proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
+      '/admin-api': {
+        target: 'http://localhost:3002',
         changeOrigin: true,
       },
     },

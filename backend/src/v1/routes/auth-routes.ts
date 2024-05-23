@@ -1,9 +1,9 @@
-import { config } from '../../config';
-import passport from 'passport';
 import express, { NextFunction, Request, Response } from 'express';
-import { auth } from '../services/auth-service';
-import { logger as log } from '../../logger';
+import passport from 'passport';
 import { v4 as uuidv4 } from 'uuid';
+import { config } from '../../config';
+import { logger as log } from '../../logger';
+import { LogoutReason, auth } from '../services/auth-service';
 import { utils } from '../services/utils-service';
 
 import { body, validationResult } from 'express-validator';
@@ -46,15 +46,6 @@ function addBaseRouterGet(strategyName, callbackURI) {
 }
 
 addBaseRouterGet('oidcBusinessBceid', '/login_bceid');
-
-export enum LogoutReason {
-  Login = 'login', // ie. don't log out
-  Default = 'default',
-  SessionExpired = 'sessionExpired',
-  LoginError = 'loginError',
-  LoginBceid = 'loginBceid',
-  ContactError = 'contactError',
-}
 
 //removes tokens and destroys session
 async function logoutHandler(

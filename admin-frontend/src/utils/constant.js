@@ -1,4 +1,4 @@
-const baseRoot = '/api';
+const baseRoot = '/admin-api';
 const authRoot = baseRoot + '/auth';
 const fileUploadRoot = baseRoot + '/file-upload';
 let object;
@@ -6,7 +6,7 @@ let object;
 object = {
   LOGIN: authRoot + '/login',
   DASHBOARD: '/',
-  LOGIN_BCEID: authRoot + '/logout?loginBceid=true',
+  LOGIN_IDIR: authRoot + '/logout?loginIdir=true',
   LOGOUT: authRoot + '/logout',
   SESSION_EXPIRED: authRoot + '/logout?sessionExpired=true',
   LOGIN_FAILED: authRoot + '/logout?loginError=true',

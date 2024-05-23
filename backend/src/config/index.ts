@@ -68,6 +68,7 @@ config.defaults({
     discovery:
       process.env.KEYCLOAK_URL +
       '/realms/standard/.well-known/openid-configuration',
+    logoutUrl: process.env.LOGOUT_ENDPOINT,
   },
   tokenGenerate: {
     privateKey: process.env.PRIVATE_KEY,

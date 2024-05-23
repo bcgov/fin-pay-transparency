@@ -94,7 +94,6 @@ const cookie = {
   secure: true,
   httpOnly: true,
   maxAge: 1800000, //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
-  
 };
 if ('local' === config.get('environment')) {
   cookie.secure = false;
@@ -293,12 +292,7 @@ app.use(function (req: Request, res: Response, _next: NextFunction) {
 });
 
 // 500 - Any server error
-app.use(function (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+app.use(function (err: Error, req: Request, res: Response, next: NextFunction) {
   logger.error(err);
   if (res.headersSent) {
     return next(err);
