@@ -1164,35 +1164,38 @@ const reportService = {
       reporting_year?: number;
     },
   ) {
-    const reports = await prisma.pay_transparency_company.findFirst({
-      select: {
-        pay_transparency_report: {
-          select: {
-            report_id: true,
-            report_start_date: true,
-            report_end_date: true,
-            reporting_year: true,
-            report_status: true,
-            revision: true,
-            is_unlocked: true,
-            create_date: true,
-          },
-          where: filters,
-          orderBy: [
-            {
-              reporting_year: 'desc',
-            },
-          ],
-        },
-      },
-      where: {
-        bceid_business_guid: bceidBusinessGuid,
-      },
-    });
+    // const reports = await prisma.pay_transparency_company.findFirst({
+    //   select: {
+    //     pay_transparency_report: {
+    //       select: {
+    //         report_id: true,
+    //         report_start_date: true,
+    //         report_end_date: true,
+    //         reporting_year: true,
+    //         report_status: true,
+    //         revision: true,
+    //         is_unlocked: true,
+    //         create_date: true,
+    //       },
+    //       where: filters,
+    //       orderBy: [
+    //         {
+    //           reporting_year: 'desc',
+    //         },
+    //       ],
+    //     },
+    //   },
+    //   where: {
+    //     bceid_business_guid: bceidBusinessGuid,
+    //   },
+    // });
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
-    const reportsAdjusted = reports?.pay_transparency_report.map((r) => {
+    const reports = await prisma.pay_transparency_report.findMany({
+      where: {report_status: 'Published'}
+    })
+    const reportsAdjusted = reports?.map((r) => {
       const report = {
         ...r,
       } as any;

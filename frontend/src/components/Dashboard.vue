@@ -68,9 +68,7 @@
         <v-toolbar color="tab">
           <v-toolbar-title>Submitted Reports</v-toolbar-title>
         </v-toolbar>
-        <v-card-text>
-          <ReportsTable />
-        </v-card-text>
+        <ReportsTable/>
       </v-card>
     </v-col>
     <v-col md="4" cols="12">
@@ -93,21 +91,77 @@
 </template>
 
 <script lang="ts">
+import ReportSelectionManager from './util/DasboardReportManager.vue';
 import ReportsTable from './util/ReportsTable.vue';
-import { mapState } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
+import { sanitizeUrl } from '@braintree/sanitize-url';
+import { useCodeStore } from '../store/modules/codeStore';
+import { REPORT_STATUS } from '../utils/constant';
+import ApiService from '../common/apiService';
+import { DateTimeFormatter, LocalDate, ZonedDateTime } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
+import {
+  useReportStepperStore,
+  ReportMode,
+} from '../store/modules/reportStepper';
+import { IReport } from '../common/types';
+import { useConfigStore } from '../store/modules/config';
 
 type DashboardData = {
+  reports: IReport[];
   userInfo?: any;
   frontendConfig: any;
 };
 
 export default {
   components: { ReportsTable },
-  data: (): DashboardData => ({}),
+  data: (): DashboardData => ({
+    reports: [],
+    frontendConfig: (window as any).config,
+  }),
   computed: {
+    ...mapState(useReportStepperStore, ['reportId']),
     ...mapState(authStore, ['userInfo']),
-  }
+    ...mapState(useCodeStore, ['naicsCodes']),
+    ...mapState(useConfigStore, ['config']),
+  },
+  async beforeMount() {
+    this.reset();
+    this.loadConfig();
+    this.getReports();
+  },
+  methods: {
+    sanitizeUrl: sanitizeUrl,
+    ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
+    ...mapActions(useConfigStore, ['loadConfig']),
+    formatDate(value, format = 'MMMM d, YYYY') {
+      const formatter = DateTimeFormatter.ofPattern(format).withLocale(
+        Locale.ENGLISH,
+      );
+      return LocalDate.parse(value).format(formatter);
+    },
+    formatDateTime(value, format = 'MMMM d, YYYY') {
+      const formatter = DateTimeFormatter.ofPattern(format).withLocale(
+        Locale.ENGLISH,
+      );
+      return ZonedDateTime.parse(value).format(formatter);
+    },
+    async getReports() {
+      this.reports = await ApiService.getReports({
+        report_status: REPORT_STATUS.PUBLISHED,
+      });
+    },
+    async viewReport(report: IReport) {
+      this.setMode(ReportMode.View);
+      await this.setReportInfo(report);
+    },
+    async editReport(report: IReport) {
+      this.setMode(ReportMode.Edit);
+      await this.setReportInfo(report);
+      await this.$router.push({ path: 'generate-report-form' });
+    },
+  },
 };
 </script>
 

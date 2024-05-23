@@ -3,7 +3,7 @@
   <v-data-table
     :headers="headers"
     :items="reports"
-    :items-per-page="5"
+    :items-per-page="2"
     no-data-text="No generated reports yet."
     :loading="isLoading"
     loading-text="Loading reports..."
@@ -114,5 +114,6 @@ const editReport = async (report: IReport) => {
 .actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
 </style>
