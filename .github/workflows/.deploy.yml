@@ -26,7 +26,7 @@ on:
         type: string
       timeout-minutes:
         description: "Timeout minutes"
-        default: 8
+        default: 10
         required: false
         type: number
       values:
