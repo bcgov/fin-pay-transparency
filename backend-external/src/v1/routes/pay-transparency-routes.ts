@@ -123,13 +123,13 @@ const router = express.Router();
  *         type: date
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
  *         required: false
- *         description: "Start date for the update date range filter (format: YYYY-MM-dd) - optional"
+ *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-dd) - optional"
  *       - in: query
  *         name: endDate
  *         type: string
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
  *         required: false
- *         description: "End date for the update date range filter (format: YYYY-MM-dd) - optional"
+ *         description: "End date in UTC for the update date range filter (format: YYYY-MM-dd) - optional"
  *
  *
  *     responses:
