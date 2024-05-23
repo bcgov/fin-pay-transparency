@@ -79,6 +79,20 @@ const externalConsumerService = {
       },
     };
 
+    /**
+     * Querying the reports and their data uses 2 sql views (reports_view, calculated_data_view) that
+     * are included in the Prisma schema by enabling views feature and running a db pull. The 2 views in the 
+     * schema were modified to add unique columns keys and relations between the projects_view and the calculated_data_view
+     * 
+     * 
+     * The prisma views
+     * is still in preview and we must monitor its status to mitigate risk using the following links:
+     * 1) https://www.prisma.io/docs/orm/prisma-schema/data-model/views
+     * 2) https://github.com/prisma/prisma/issues/17335
+     *
+     * The views are added to the database using a database migration script (V1.0.24__add_reports_views.sql). The
+     */
+
     const records = await prismaReadOnlyReplica
       .$replica()
       .reports_view.findMany({

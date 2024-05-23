@@ -242,11 +242,11 @@ view reports_view {
 }
 
 view calculated_data_view {
-  calculated_data_id  String        @id @db.Uuid
+  calculated_data_id  String       @id @db.Uuid
   report_id           String       @db.Uuid
-  calculation_code_id String?       @db.Uuid
-  value               String?       @db.VarChar(50)
+  calculation_code_id String?      @db.Uuid
+  value               String?      @db.VarChar(50)
   is_suppressed       Boolean?
-  calculation_code    String?       @db.VarChar(255)
+  calculation_code    String?      @db.VarChar(255)
   report              reports_view @relation(fields: [report_id], references: [report_change_id])
 }
