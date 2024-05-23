@@ -241,6 +241,7 @@ const reportServicePrivate = {
     (e.g. "receive overtime pay" or "receive bonus pay")
     */
   getPercentSummary(chartDataRecords: ChartDataRecord[], measureName: string) {
+    console.log('getPercentSummary');
     if (chartDataRecords?.length == 0) {
       return null;
     }
