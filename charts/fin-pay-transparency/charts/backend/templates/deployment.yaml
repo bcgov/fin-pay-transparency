@@ -29,6 +29,9 @@ spec:
         - name: {{ include "backend.fullname" . }}
           persistentVolumeClaim:
             claimName: {{ include "backend.fullname" . }}
+        - name: {{ include "backend.fullname" . }}-admin-session
+          persistentVolumeClaim:
+            claimName: {{ include "backend.fullname" . }}-admin-session
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
@@ -188,6 +191,8 @@ spec:
           volumeMounts:
             - mountPath: /app/sessions
               name: {{ include "backend.fullname" . }}
+            - mountPath: /app/sessions-admin
+              name: {{ include "backend.fullname" . }}-admin-session
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
