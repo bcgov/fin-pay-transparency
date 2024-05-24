@@ -8,6 +8,7 @@ import {
 } from '@js-joda/core';
 import { PayTransparencyUserError } from './file-upload-service';
 import { Prisma } from '@prisma/client';
+import omit from 'lodash/omit';
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -121,7 +122,7 @@ const externalConsumerService = {
       totalRecords: totalRecordsCount,
       page: offset / limit,
       pageSize: limit,
-      records,
+      records: records.map(report => omit(report, 'report_change_id')),
     };
   },
 };

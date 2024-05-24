@@ -1,5 +1,7 @@
 SET search_path TO pay_transparency;
 
+--- Follow this link to learn about views and Prisma
+--- https://www.prisma.io/docs/orm/prisma-schema/data-model/views
 
 CREATE OR REPLACE VIEW reports_view
 AS
