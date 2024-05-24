@@ -117,7 +117,7 @@ const validateApiKey =
  * @swagger
  * tags:
  *   name: Reports
- * /:
+ * /reports:
  *   get:
  *     summary: Get published reports with update date within a date range (date range defaults to the last 30 days)
  *     tags: [Reports]
@@ -198,7 +198,7 @@ router.get(
  * tags:
  *   name: End to end testing utils
  *   description: This endpoint is used by developers to teardown test data after end to end tests. Only developers can access this endpoint
- * /:
+ * /reports:
  *   delete:
  *     summary: Delete reports
  *     tags: ["End to end testing utils"]
