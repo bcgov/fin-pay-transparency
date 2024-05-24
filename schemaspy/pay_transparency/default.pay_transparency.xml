@@ -29,9 +29,24 @@
             <column ascending="true" name="calculation_code_id"/>
          </index>
       </table>
+      <table name="calculated_data_view" numRows="0" remarks="" schema="pay_transparency" type="VIEW" viewSql=" SELECT data.calculated_data_id,&#10;    data.report_id,&#10;    data.calculation_code_id,&#10;    data.value,&#10;    data.is_suppressed,&#10;    code.calculation_code&#10;   FROM (( SELECT data_1.calculated_data_id,&#10;            data_1.report_id,&#10;            data_1.calculation_code_id,&#10;            data_1.value,&#10;            data_1.is_suppressed&#10;           FROM pay_transparency.pay_transparency_calculated_data data_1&#10;        UNION&#10;         SELECT data_1.calculated_data_history_id AS calculated_data_id,&#10;            data_1.report_history_id AS report_id,&#10;            data_1.calculation_code_id,&#10;            data_1.value,&#10;            data_1.is_suppressed&#10;           FROM pay_transparency.calculated_data_history data_1) data&#10;     LEFT JOIN pay_transparency.calculation_code code ON ((code.calculation_code_id = data.calculation_code_id)));">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="calculated_data_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="calculated_data_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="calculation_code_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="calculation_code_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculation_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="value" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="is_suppressed" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="calculation_code" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+      </table>
       <table name="calculation_code" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="calculation_code_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="calculation_code_id" foreignKey="calculated_data_history_calculation_code_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
+            <child column="calculation_code_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_view"/>
             <child column="calculation_code_id" foreignKey="calculation_code_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="calculation_code" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
@@ -70,6 +85,7 @@
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="employee_count_range_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="employee_count_range_id" foreignKey="report_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="employee_count_range_id" foreignKey="report_history_employee_count_range_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+            <child column="employee_count_range_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="reports_view"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="employee_count_range" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="2" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
@@ -110,6 +126,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="naics_code" nullable="false" remarks="" size="5" type="varchar" typeCode="12">
             <child column="naics_code" foreignKey="pay_transparency_report_naics_code_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="naics_code" foreignKey="report_history_naics_code_fkey" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+            <child column="naics_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="reports_view"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="naics_label" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_DATE" digits="0" id="2" name="effective_date" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
@@ -131,6 +148,7 @@
       <table name="pay_transparency_calculated_data" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="calculated_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="calculated_data_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
+            <child column="calculated_data_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_view"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
@@ -165,6 +183,7 @@
             <child column="company_id" foreignKey="company_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="company_history"/>
             <child column="company_id" foreignKey="report_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="company_id" foreignKey="report_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+            <child column="company_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="reports_view"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="bceid_business_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
@@ -190,8 +209,10 @@
       <table name="pay_transparency_report" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="report_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_history"/>
+            <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="calculated_data_view"/>
             <child column="report_id" foreignKey="calculated_data_report_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_calculated_data"/>
             <child column="report_id" foreignKey="report_history_report_id" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+            <child column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="reports_view"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="company_id" foreignKey="report_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
@@ -257,6 +278,7 @@
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="user_id" foreignKey="report_pt_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="user_id" foreignKey="report_history_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
+            <child column="user_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="reports_view"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="bceid_user_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="bceid_business_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
@@ -309,6 +331,46 @@
             <column ascending="true" name="report_history_id"/>
          </index>
          <checkConstraint constraint="(((report_status)::text = ANY ((ARRAY['Draft'::character varying, 'Published'::character varying])::text[])))" name="report_status_check"/>
+      </table>
+      <table name="reports_view" numRows="0" remarks="" schema="pay_transparency" type="VIEW" viewSql=" SELECT report.report_id,&#10;    report.report_id AS report_change_id,&#10;    report.company_id,&#10;    report.user_id,&#10;    report.user_comment,&#10;    report.employee_count_range_id,&#10;    report.naics_code,&#10;    report.report_start_date,&#10;    report.report_end_date,&#10;    report.create_date,&#10;    report.update_date,&#10;    report.create_user,&#10;    report.update_user,&#10;    report.report_status,&#10;    report.revision,&#10;    report.data_constraints,&#10;    report.reporting_year,&#10;    report.report_unlock_date,&#10;    naics_code.naics_label AS naics_code_label,&#10;    company.company_name,&#10;    company.bceid_business_guid AS company_bceid_business_guid,&#10;    company.address_line1 AS company_address_line1,&#10;    company.address_line2 AS company_address_line2,&#10;    company.city AS company_city,&#10;    company.province AS company_province,&#10;    company.country AS company_country,&#10;    company.postal_code AS company_postal_code,&#10;    employee_count_range.employee_count_range&#10;   FROM (((pay_transparency.pay_transparency_report report&#10;     LEFT JOIN pay_transparency.naics_code naics_code ON (((naics_code.naics_code)::text = (report.naics_code)::text)))&#10;     LEFT JOIN pay_transparency.pay_transparency_company company ON ((company.company_id = report.company_id)))&#10;     LEFT JOIN pay_transparency.employee_count_range employee_count_range ON ((employee_count_range.employee_count_range_id = report.employee_count_range_id)))&#10;  WHERE ((report.report_status)::text = 'Published'::text)&#10;UNION&#10; SELECT report.report_id,&#10;    report.report_history_id AS report_change_id,&#10;    report.company_id,&#10;    report.user_id,&#10;    report.user_comment,&#10;    report.employee_count_range_id,&#10;    report.naics_code,&#10;    report.report_start_date,&#10;    report.report_end_date,&#10;    report.create_date,&#10;    report.update_date,&#10;    report.create_user,&#10;    report.update_user,&#10;    report.report_status,&#10;    report.revision,&#10;    report.data_constraints,&#10;    report.reporting_year,&#10;    report.report_unlock_date,&#10;    naics_code.naics_label AS naics_code_label,&#10;    company.company_name,&#10;    company.bceid_business_guid AS company_bceid_business_guid,&#10;    company.address_line1 AS company_address_line1,&#10;    company.address_line2 AS company_address_line2,&#10;    company.city AS company_city,&#10;    company.province AS company_province,&#10;    company.country AS company_country,&#10;    company.postal_code AS company_postal_code,&#10;    employee_count_range.employee_count_range&#10;   FROM (((pay_transparency.report_history report&#10;     LEFT JOIN pay_transparency.naics_code naics_code ON (((naics_code.naics_code)::text = (report.naics_code)::text)))&#10;     LEFT JOIN pay_transparency.pay_transparency_company company ON ((company.company_id = report.company_id)))&#10;     LEFT JOIN pay_transparency.employee_count_range employee_count_range ON ((employee_count_range.employee_count_range_id = report.employee_count_range_id)))&#10;  WHERE ((report.report_status)::text = 'Published'::text);">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="report_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="report_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="report_change_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="company_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="user_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="user_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="user_comment" nullable="true" remarks="" size="4000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="employee_count_range_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="employee_count_range_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="employee_count_range"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="naics_code" nullable="true" remarks="" size="5" type="varchar" typeCode="12">
+            <parent column="naics_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="naics_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="report_start_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="report_end_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="9" name="create_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="10" name="update_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="create_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="update_user" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="report_status" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="revision" nullable="true" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="data_constraints" nullable="true" remarks="" size="3000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="reporting_year" nullable="true" remarks="" size="0" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="17" name="report_unlock_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="naics_code_label" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="company_name" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="company_bceid_business_guid" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="company_address_line1" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="company_address_line2" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="company_city" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="24" name="company_province" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="25" name="company_country" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="company_postal_code" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="27" name="employee_count_range" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
       </table>
    </tables>
 </database>

@@ -123,6 +123,11 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="calculated_data_view.calculation_code_id&#39;s name implies that it&#39;s a child of calculation_code.calculation_code_id, but it doesn&#39;t reference that column."><a href='calculated_data_view.html'>calculated_data_view</a><span class='relatedKey'>.calculation_code_id</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="pay_transparency_calculated_data.calculation_code_id references calculation_code.calculation_code_id via calculation_code_id_fk"><a href='pay_transparency_calculated_data.html'>pay_transparency_calculated_data</a><span class='relatedKey'>.calculation_code_id</span></td>
                                                 <td class="constraint detail">calculation_code_id_fk</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -237,19 +242,21 @@
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="784,24,1052,259">
-<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,5,740,211">
-<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,124,343,252">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="784,5,1052,240">
+<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,181,740,387">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,237,343,365">
+<area shape="rect" id="node4" href="calculated_data_view.html" target="_top" title="calculated_data_view" alt="" coords="796,273,1040,425">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/calculation_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="784,119,1052,207">
-<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,64,740,152">
-<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,5,343,133">
-<area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="467,169,660,257">
-<area shape="rect" id="node5" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="35,169,313,257">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="784,90,1052,178">
+<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="387,230,740,318">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="5,222,343,350">
+<area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="467,53,660,141">
+<area shape="rect" id="node5" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="35,85,313,173">
+<area shape="rect" id="node6" href="calculated_data_view.html" target="_top" title="calculated_data_view" alt="" coords="796,242,1040,306">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/calculation_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

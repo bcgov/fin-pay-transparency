@@ -150,10 +150,41 @@ digraph "compactImpliedRelationshipsDiagram" {
     target="_top"
     tooltip="report_history"
   ];
+  "reports_view" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="76" HEIGHT="16"><B>reports_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="report_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">report_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="company_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">company_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="user_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">user_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="employee_count_range_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">employee_count_range_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="naics_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">naics_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+    </TABLE>>
+    URL="tables/reports_view.html"
+    target="_top"
+    tooltip="reports_view"
+  ];
+  "calculated_data_view" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="126" HEIGHT="16"><B>calculated_data_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="calculated_data_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="126" HEIGHT="16">calculated_data_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="report_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="126" HEIGHT="16">report_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="calculation_code_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="126" HEIGHT="16">calculation_code_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+    </TABLE>>
+    URL="tables/calculated_data_view.html"
+    target="_top"
+    tooltip="calculated_data_view"
+  ];
   "calculated_data_history":"calculated_data_id":w -> "pay_transparency_calculated_data":"calculated_data_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "calculated_data_history":"calculation_code_id":w -> "calculation_code":"calculation_code_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "calculated_data_history":"report_history_id":w -> "report_history":"report_history_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "calculated_data_history":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "calculated_data_view":"calculated_data_id":w -> "pay_transparency_calculated_data":"calculated_data_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "calculated_data_view":"calculation_code_id":w -> "calculation_code":"calculation_code_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "calculated_data_view":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "company_history":"company_id":w -> "pay_transparency_company":"company_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_calculated_data":"calculation_code_id":w -> "calculation_code":"calculation_code_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_calculated_data":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -166,4 +197,9 @@ digraph "compactImpliedRelationshipsDiagram" {
   "report_history":"naics_code":w -> "naics_code":"naics_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"user_id":w -> "pay_transparency_user":"user_id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "reports_view":"company_id":w -> "pay_transparency_company":"company_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_view":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_view":"naics_code":w -> "naics_code":"naics_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_view":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_view":"user_id":w -> "pay_transparency_user":"user_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
 }
