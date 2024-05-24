@@ -196,11 +196,12 @@ router.get(
 /**
  * @swagger
  * tags:
- *   name: Reports
+ *   name: End to end testing utils
+ *   description: This endpoint is used by developers to teardown test data after end to end tests. Only developers can access this endpoint
  * /:
  *   delete:
  *     summary: Delete reports
- *     tags: [Reports]
+ *     tags: ["End to end testing utils"]
  *     security:
  *       - ApiKeyAuth: []
  *     parameters:
