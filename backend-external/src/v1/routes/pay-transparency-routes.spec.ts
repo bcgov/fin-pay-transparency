@@ -70,7 +70,7 @@ describe('pay-transparency-routes', () => {
       });
       return request(app)
         .delete('/')
-        .query({ companyId: '1234567890' })
+        .query({ companyName: '1234567890' })
         .set('x-api-key', 'api-delete-reports-key')
         .expect(200)
         .expect(({ body }) => {
@@ -83,16 +83,15 @@ describe('pay-transparency-routes', () => {
       });
       return request(app)
         .delete('/')
-        .query({ companyId: '1234567890' })
         .set('x-api-key', 'api-delete-reports-key')
-        .query({ companyId: '' })
+        .query({ companyName: '' })
         .expect(400);
     });
     it('should fail if request fails to get reports', () => {
       mockDeleteReports.mockRejectedValue({ message: 'Error happened' });
       return request(app)
         .delete('/')
-        .query({ companyId: '1234567890' })
+        .query({ companyName: '1234567890' })
         .set('x-api-key', 'api-delete-reports-key')
         .expect(500);
     });

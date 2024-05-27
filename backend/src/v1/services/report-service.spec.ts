@@ -1088,13 +1088,13 @@ describe('shouldPreventReportOverride', () => {
 
 describe('deleteReports', () => {
   it('should delete reports', async () => {
-    const bceid_business_guid = '1234567890';
-    await reportService.deleteReports(bceid_business_guid);
+    const company_name = '1234567890';
+    await reportService.deleteReports(company_name);
     expect(mockCalculatedDataDeleteMany).toHaveBeenCalledWith({
       where: {
         pay_transparency_report: {
           pay_transparency_company: {
-            bceid_business_guid,
+            company_name,
           },
         },
       },
@@ -1104,7 +1104,7 @@ describe('deleteReports', () => {
         report_history: {
           pay_transparency_report: {
             pay_transparency_company: {
-              bceid_business_guid,
+              company_name,
             },
           },
         },
@@ -1114,7 +1114,7 @@ describe('deleteReports', () => {
       where: {
         pay_transparency_report: {
           pay_transparency_company: {
-            bceid_business_guid,
+            company_name,
           },
         },
       },
@@ -1122,7 +1122,7 @@ describe('deleteReports', () => {
     expect(mockReportsDeleteMany).toHaveBeenCalledWith({
       where: {
         pay_transparency_company: {
-          bceid_business_guid,
+          company_name,
         },
       },
     });

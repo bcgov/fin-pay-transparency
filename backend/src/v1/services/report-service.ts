@@ -1311,15 +1311,15 @@ const reportService = {
 
   /**
    * Delete all reports for the given company
-   * @param bceid_business_guid - the business guid
+   * @param company_name - the name of the company
    */
-  async deleteReports(bceid_business_guid: string) {
+  async deleteReports(company_name: string) {
     await prisma.$transaction(async (tx) => {
       await tx.pay_transparency_calculated_data.deleteMany({
         where: {
           pay_transparency_report: {
             pay_transparency_company: {
-              bceid_business_guid,
+              company_name,
             },
           },
         },
@@ -1330,7 +1330,7 @@ const reportService = {
           report_history: {
             pay_transparency_report: {
               pay_transparency_company: {
-                bceid_business_guid,
+                company_name,
               },
             },
           },
@@ -1341,7 +1341,7 @@ const reportService = {
         where: {
           pay_transparency_report: {
             pay_transparency_company: {
-              bceid_business_guid,
+              company_name,
             },
           },
         },
@@ -1350,7 +1350,7 @@ const reportService = {
       await tx.pay_transparency_report.deleteMany({
         where: {
           pay_transparency_company: {
-            bceid_business_guid,
+            company_name,
           },
         },
       });

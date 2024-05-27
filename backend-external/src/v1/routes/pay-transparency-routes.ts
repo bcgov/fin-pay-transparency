@@ -206,7 +206,7 @@ router.get(
  *       - ApiKeyAuth: []
  *     parameters:
  *       - in: query
- *         name: companyId
+ *         name: companyName
  *         required: true
  *         schema:
  *           type: string

@@ -40,13 +40,13 @@ describe('pay-transparency-service', () => {
     it('should delete reports', async () => {
       mockDelete.mockReturnValue({});
       await payTransparencyService.deleteReports({
-        params: { companyId: '1234567890' },
+        params: { companyName: '1234567890' },
       } as any);
 
       expect(mockDelete).toHaveBeenCalledWith(
         '/external-consumer-api/v1/reports',
         {
-          params: { companyId: '1234567890' },
+          params: { companyName: '1234567890' },
           headers: {
             'x-api-key': 'api-key',
           },
