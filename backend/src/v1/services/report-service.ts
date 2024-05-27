@@ -1192,7 +1192,7 @@ const reportService = {
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
-    const reportsAdjusted = reports.pay_transparency_report?.map((r) => {
+    const reportsAdjusted = reports?.pay_transparency_report.map((r) => {
       const report = {
         ...r,
       } as any;
