@@ -30,9 +30,15 @@ const actualMovePublishedReportToHistory =
   reportServicePrivate.movePublishedReportToHistory;
 
 jest.mock('./utils-service');
+
 const mockCompanyFindFirst = jest.fn();
 const mockReportFindFirst = jest.fn();
 const mockReportFindUnique = jest.fn();
+const mockReportsDeleteMany = jest.fn();
+const mockCalculatedDataDeleteMany = jest.fn();
+const mockCalculatedHistoryDataDeleteMany = jest.fn();
+const mockReportHistoryDeleteMany = jest.fn();
+
 jest.mock('../prisma/prisma-client', () => {
   return {
     pay_transparency_company: {
@@ -43,21 +49,24 @@ jest.mock('../prisma/prisma-client', () => {
     pay_transparency_report: {
       findUnique: (...args) => mockReportFindUnique(...args),
       findFirst: (...args) => mockReportFindFirst(...args),
+      deleteMany: (...args) => mockReportsDeleteMany(...args),
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     },
     report_history: {
       create: jest.fn(),
+      deleteMany: (...args) => mockReportHistoryDeleteMany(...args),
     },
     pay_transparency_calculated_data: {
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
-      deleteMany: jest.fn(),
+      deleteMany: (...args) => mockCalculatedDataDeleteMany(...args),
     },
     calculated_data_history: {
       createMany: jest.fn(),
+      deleteMany: (...args) => mockCalculatedHistoryDataDeleteMany(...args),
     },
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
   };
@@ -970,11 +979,9 @@ describe('movePublishedReportToHistory', () => {
 
       // Confirm that the calculated datas were deleted
       expect(
-        prisma.pay_transparency_calculated_data.deleteMany,
+        mockCalculatedDataDeleteMany,
       ).toHaveBeenCalledTimes(1);
-      const deleteCalcData = (
-        prisma.pay_transparency_calculated_data.deleteMany as jest.Mock
-      ).mock.calls[0][0];
+      const deleteCalcData = mockCalculatedDataDeleteMany.mock.calls[0][0];
       expect(deleteCalcData.where.report_id).toBe(
         mockPublishedReportInDb.report_id,
       );
@@ -1075,6 +1082,49 @@ describe('shouldPreventReportOverride', () => {
         '',
       );
       expect(result).toBeFalsy();
+    });
+  });
+});
+
+describe('deleteReports', () => {
+  it('should delete reports', async () => {
+    const company_name = '1234567890';
+    await reportService.deleteReports(company_name);
+    expect(mockCalculatedDataDeleteMany).toHaveBeenCalledWith({
+      where: {
+        pay_transparency_report: {
+          pay_transparency_company: {
+            company_name,
+          },
+        },
+      },
+    });
+    expect(mockCalculatedHistoryDataDeleteMany).toHaveBeenCalledWith({
+      where: {
+        report_history: {
+          pay_transparency_report: {
+            pay_transparency_company: {
+              company_name,
+            },
+          },
+        },
+      },
+    });
+    expect(mockReportHistoryDeleteMany).toHaveBeenCalledWith({
+      where: {
+        pay_transparency_report: {
+          pay_transparency_company: {
+            company_name,
+          },
+        },
+      },
+    });
+    expect(mockReportsDeleteMany).toHaveBeenCalledWith({
+      where: {
+        pay_transparency_company: {
+          company_name,
+        },
+      },
     });
   });
 });

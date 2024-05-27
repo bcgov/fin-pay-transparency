@@ -55,7 +55,7 @@ describe('app', () => {
     });
   });
 
-  describe('/api/v1/pay-transparency GET', () => {
+  describe('/api/v1/pay-transparency/reports GET', () => {
     describe('with API Key', () => {
       it('should get reports when api key is valid', async () => {
         mockGetPayTransparencyData.mockReturnValue({
@@ -63,22 +63,23 @@ describe('app', () => {
           data: [{ id: 1 }],
         });
         const response = await request(app)
-          .get('/api/v1/pay-transparency')
+          .get('/api/v1/pay-transparency/reports')
           .set('x-api-key', 'api-key');
         expect(response.status).toBe(200);
         expect(response.body).toEqual([{ id: 1 }]);
       });
       it('should fail when api key is valid', async () => {
         const response = await request(app)
-          .get('/api/v1/pay-transparency')
+          .get('/api/v1/pay-transparency/reports')
           .set('x-api-key', 'api-key-invalid');
         expect(response.status).toBe(401);
       });
     });
     describe('without API Key', () => {
       it('should fail when api key is not available', async () => {
-        const response = await request(app)
-          .get('/api/v1/pay-transparency')
+        const response = await request(app).get(
+          '/api/v1/pay-transparency/reports',
+        );
         expect(response.status).toBe(400);
       });
     });

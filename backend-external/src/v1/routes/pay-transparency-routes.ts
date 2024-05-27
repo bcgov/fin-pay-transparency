@@ -1,8 +1,29 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { payTransparencyService } from '../services/pay-transparency-service';
 import { utils } from '../../utils';
+import { logger } from '../../logger';
+import { config } from '../../config';
 
 const router = express.Router();
+const validateApiKey =
+  (validKey: string) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header('x-api-key');
+    if (apiKey) {
+      if (validKey === apiKey) {
+        next();
+      } else {
+        logger.error('Invalid API Key');
+        res.status(401).send({ message: 'Invalid API Key' });
+      }
+    } else {
+      logger.error('API Key is missing in the request header');
+      res.status(400).send({
+        message: 'API Key is missing in the request header',
+      });
+    }
+  };
+
 /**
  * @swagger
  * components:
@@ -71,12 +92,15 @@ const router = express.Router();
  *           items:
  *             $ref: "#/components/schemas/CalculatedData"
  *     Report:
- *       allOf: 
+ *       allOf:
  *       - $ref: "#/components/schemas/ReportItem"
  *
  *     PaginatedReports:
  *       type: object
  *       properties:
+ *         totalRecords:
+ *           type: number
+ *           description: total number of records in the database
  *         page:
  *           type: number
  *           description: Current page offset
@@ -93,7 +117,7 @@ const router = express.Router();
  * @swagger
  * tags:
  *   name: Reports
- * /:
+ * /reports:
  *   get:
  *     summary: Get published reports with update date within a date range (date range defaults to the last 30 days)
  *     tags: [Reports]
@@ -120,13 +144,13 @@ const router = express.Router();
  *         type: date
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
  *         required: false
- *         description: "Start date for the update date range filter (format: YYYY-MM-dd) - optional"
+ *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-dd) - optional"
  *       - in: query
  *         name: endDate
  *         type: string
  *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
  *         required: false
- *         description: "End date for the update date range filter (format: YYYY-MM-dd) - optional"
+ *         description: "End date in UTC for the update date range filter (format: YYYY-MM-dd) - optional"
  *
  *
  *     responses:
@@ -141,6 +165,7 @@ const router = express.Router();
  */
 router.get(
   '/',
+  validateApiKey(config.get('server:apiKey')),
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
       const startDate = req.query.startDate?.toString();
@@ -167,4 +192,52 @@ router.get(
     }
   }),
 );
+
+/**
+ * @swagger
+ * tags:
+ *   name: End to end testing utils
+ *   description: This endpoint is used by developers to teardown test data after end to end tests. Only developers can access this endpoint
+ * /reports:
+ *   delete:
+ *     summary: Delete reports
+ *     tags: ["End to end testing utils"]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: companyName
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully deleted reports
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.delete(
+  '/',
+  validateApiKey(
+    config.get('server:deleteReportsApiKey'),
+  ),
+  async (req, res) => {
+    try {
+      const { data } = await payTransparencyService.deleteReports(req);
+      if (data.error) {
+        return res.status(400).json({ message: data.message });
+      }
+
+      return res.status(200).json({ message: data.message });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+);
+
 export default router;

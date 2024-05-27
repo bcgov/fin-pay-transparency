@@ -17,11 +17,11 @@ describe('/v1/docs/ GET', () => {
 
 describe('/v1/pay-transparency/ GET', () => {
   it('returns error if secret key is not set', () => {
-    return request.get('/v1/pay-transparency').retry(3).expect(400);
+    return request.get('/v1/pay-transparency/reports').retry(3).expect(400);
   });
   it('returns error if secret key is wrong', () => {
     return request
-      .get('/v1/pay-transparency')
+      .get('/v1/pay-transparency/reports')
       .set('x-api-key', 'wrong_key')
       .retry(3)
       .expect(401);
@@ -29,7 +29,7 @@ describe('/v1/pay-transparency/ GET', () => {
   it('returns data if secret key is provided', () => {
     //note: this test requires both backend-external and backend to be running.
     return request
-      .get('/v1/pay-transparency?pageSize=1')
+      .get('/v1/pay-transparency/reports?pageSize=1')
       .set('x-api-key', config.get('server:apiKey'))
       .retry(3)
       .expect(200)

@@ -1,16 +1,39 @@
+import { AxiosRequestConfig } from 'axios';
 import { utils } from '../../utils';
+import { config } from '../../config';
+import { Request } from 'express';
 
 export const payTransparencyService = {
-  async getPayTransparencyData(startDate: string, endDate: string, offset: number, limit: number) {
+  async getPayTransparencyData(
+    startDate: string,
+    endDate: string,
+    offset: number,
+    limit: number,
+  ) {
     const axiosConfig = {
       params: {
         startDate,
         endDate,
         offset,
-        limit
-      }
+        limit,
+      },
     };
-    const { status, data } = await utils.backendAxios().get('/external-consumer-api/v1/', axiosConfig);
+    const { status, data } = await utils
+      .backendAxios()
+      .get('/external-consumer-api/v1/reports', axiosConfig);
     return { status, data };
-  }
+  },
+  async deleteReports(req: Request) {
+    const axiosConfig: AxiosRequestConfig = {
+      params: req.params,
+      headers: {
+        'x-api-key': config.get('backend:apiKey'),
+      },
+    };
+    const { status, data } = await utils.backendAxios().delete<{
+      error: boolean;
+      message: string;
+    }>('/external-consumer-api/v1/reports', axiosConfig);
+    return { status, data };
+  },
 };
