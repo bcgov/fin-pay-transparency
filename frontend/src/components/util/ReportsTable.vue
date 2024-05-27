@@ -87,7 +87,7 @@ const getReports = async () => {
     report_status: REPORT_STATUS.PUBLISHED,
   });
 
-  reports.value = flatten(range(1, 10).map(() => [...items]));
+  reports.value = items;
   isLoading.value = false;
 };
 

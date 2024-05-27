@@ -5,6 +5,11 @@ import Dashboard from '../Dashboard.vue';
 import { createTestingPinia } from '@pinia/testing';
 import { authStore } from '../../store/modules/auth';
 
+//mock window.config
+Object.defineProperty(window, 'config', {
+  value: {},
+});
+
 const pinia = createTestingPinia();
 const mockRouterPush = vi.fn();
 const mockRouter = {
