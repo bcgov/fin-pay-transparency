@@ -1,5 +1,4 @@
 <template>
-  <ReportSelectionManager />
   <v-row class="mt-3">
     <v-col>
       <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
@@ -69,55 +68,7 @@
         <v-toolbar color="tab">
           <v-toolbar-title>Submitted Reports</v-toolbar-title>
         </v-toolbar>
-        <v-card-text>
-          <div v-if="!reports.length">No generated reports yet.</div>
-          <div v-if="reports.length">
-            <v-table>
-              <thead>
-                <tr>
-                  <th scope="col" class="font-weight-bold">Reporting Year</th>
-                  <th scope="col" class="font-weight-bold">Submission Date</th>
-                  <th scope="col" class="font-weight-bold text-right pr-8">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="report in reports" :key="report.report_id">
-                  <td :data-testid="'reporting_year-' + report.report_id">
-                    {{ report.reporting_year }}
-                  </td>
-                  <td
-                    :data-testid="'report_published_date-' + report.report_id"
-                  >
-                    {{ formatDateTime(report.create_date) }}
-                  </td>
-                  <td class="text-right">
-                    <v-btn
-                      :data-testid="'view-report-' + report.report_id"
-                      prepend-icon="mdi-eye-outline"
-                      variant="text"
-                      color="link"
-                      @click="viewReport(report)"
-                    >
-                      View
-                    </v-btn>
-                    <v-btn
-                      v-if="report.is_unlocked"
-                      :data-testid="'edit-report-' + report.report_id"
-                      prepend-icon="mdi-eye-outline"
-                      variant="text"
-                      color="link"
-                      @click="editReport(report)"
-                    >
-                      Edit
-                    </v-btn>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-          </div>
-        </v-card-text>
+        <ReportsTable/>
       </v-card>
     </v-col>
     <v-col md="4" cols="12">
@@ -140,7 +91,7 @@
 </template>
 
 <script lang="ts">
-import ReportSelectionManager from './util/DasboardReportManager.vue';
+import ReportsTable from './util/ReportsTable.vue';
 import { mapActions, mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
 import { sanitizeUrl } from '@braintree/sanitize-url';
@@ -163,7 +114,7 @@ type DashboardData = {
 };
 
 export default {
-  components: { ReportSelectionManager },
+  components: { ReportsTable },
   data: (): DashboardData => ({
     reports: [],
     frontendConfig: (window as any).config,
