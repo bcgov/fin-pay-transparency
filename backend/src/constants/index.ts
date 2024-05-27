@@ -9,10 +9,10 @@ export const REPORT_STATUS_NOT_VALID_ERROR = 'Report status not valid';
 export const BAD_REQUEST =
   'Bad request, the information provided is not i=enough or invalid';
 
-export const KEYCLOAK_IDP_HINT_IDIR = 'azureidir';
-export const OIDC_IDIR_STRATEGY_NAME = KEYCLOAK_IDP_HINT_IDIR;
-export const OIDC_IDIR_CALLBACK_NAME = `callback_${KEYCLOAK_IDP_HINT_IDIR}`;
-export const OIDC_IDIR_SCOPE = KEYCLOAK_IDP_HINT_IDIR;
+export const KEYCLOAK_IDP_HINT_AZUREIDIR = 'azureidir';
+export const OIDC_AZUREIDIR_STRATEGY_NAME = KEYCLOAK_IDP_HINT_AZUREIDIR;
+export const OIDC_AZUREIDIR_CALLBACK_NAME = `callback_${KEYCLOAK_IDP_HINT_AZUREIDIR}`;
+export const OIDC_AZUREIDIR_SCOPE = KEYCLOAK_IDP_HINT_AZUREIDIR;
 
 export const JSON_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
   'YYYY-MM-dd',

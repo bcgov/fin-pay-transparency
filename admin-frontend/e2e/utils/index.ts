@@ -1,4 +1,4 @@
-export const baseURL = process.env.E2E_BASE_URL;
+export const baseURL = process.env.E2E_ADMIN_BASE_URL;
 
 export const PagePaths = {
   LOGIN: `${baseURL}/login`,

@@ -1,7 +1,8 @@
 import express, { Application } from 'express';
-import router, { LogoutReason } from './auth-routes';
 import request from 'supertest';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
+import { LogoutReason } from '../services/auth-service';
+import router from './auth-routes';
 let app: Application;
 
 const mockHandleCallbackBusinessBceid = jest.fn();
@@ -9,17 +10,23 @@ const mockIsTokenExpired = jest.fn();
 const mockIsRenewable = jest.fn();
 const mockRenew = jest.fn();
 const mockGenerateUiToken = jest.fn();
-jest.mock('../services/auth-service', () => ({
-  auth: {
-    handleCallBackBusinessBceid: (...args) =>
-      mockHandleCallbackBusinessBceid(...args),
-    refreshJWT: jest.fn((req, res, next) => mockRefreshJWT(req, res, next)),
-    isTokenExpired: () => mockIsTokenExpired(),
-    isRenewable: () => mockIsRenewable(),
-    renew: () => mockRenew(),
-    generateUiToken: () => mockGenerateUiToken(),
-  },
-}));
+jest.mock('../services/auth-service', () => {
+  const actualLogoutReason = jest.requireActual(
+    '../services/auth-service',
+  ).LogoutReason;
+  return {
+    auth: {
+      handleCallBackBusinessBceid: (...args) =>
+        mockHandleCallbackBusinessBceid(...args),
+      refreshJWT: jest.fn((req, res, next) => mockRefreshJWT(req, res, next)),
+      isTokenExpired: () => mockIsTokenExpired(),
+      isRenewable: () => mockIsRenewable(),
+      renew: () => mockRenew(),
+      generateUiToken: () => mockGenerateUiToken(),
+    },
+    LogoutReason: actualLogoutReason,
+  };
+});
 
 const mockGetOidcDiscovery = jest.fn();
 jest.mock('../services/utils-service', () => ({

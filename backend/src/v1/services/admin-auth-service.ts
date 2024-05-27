@@ -5,7 +5,7 @@ import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'querystring';
 import { config } from '../../config';
-import { KEYCLOAK_IDP_HINT_IDIR } from '../../constants';
+import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants';
 import { logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { utils } from './utils-service';
@@ -15,7 +15,7 @@ enum LogoutReason {
   Default = 'default',
   SessionExpired = 'sessionExpired',
   LoginError = 'loginError',
-  LoginIdir = 'loginIdir',
+  LoginAzureIdir = 'loginAzureIdir',
   ContactError = 'contactError',
 }
 
@@ -142,14 +142,12 @@ const adminAuth = {
    */
   validateClaims: function (jwt: any) {
     const payload: JwtPayload = jsonwebtoken.decode(jwt) as JwtPayload;
-    if (payload?.identity_provider !== KEYCLOAK_IDP_HINT_IDIR) {
+    if (payload?.identity_provider !== KEYCLOAK_IDP_HINT_AZUREIDIR) {
       throw new Error(
-        `backend token invalid, identity_provider is not ${KEYCLOAK_IDP_HINT_IDIR}`,
+        `backend token invalid, identity_provider is not ${KEYCLOAK_IDP_HINT_AZUREIDIR}`,
         jwt,
       );
     }
-    console.log(`oicd:adminClientId:` + config.get('oidc:adminClientId'));
-    console.log(payload?.aud);
     if (payload?.aud !== config.get('oidc:adminClientId')) {
       throw new Error(
         'backend token invalid, aud claim validation failed',

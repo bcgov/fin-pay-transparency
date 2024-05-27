@@ -33,6 +33,7 @@ jest.mock('../prisma/prisma-client', () => {
 //in this module keep the original implementation)
 jest.mock('./auth-service', () => {
   const actualAuth = jest.requireActual('./auth-service').auth;
+  const actualLogoutReason = jest.requireActual('./auth-service').LogoutReason;
   const mockedAuth = (jest.genMockFromModule('./auth-service') as any).auth;
 
   return {
@@ -41,6 +42,7 @@ jest.mock('./auth-service', () => {
       ...actualAuth,
       renew: jest.fn((refreshToken) => {}),
     },
+    LogoutReason: actualLogoutReason,
   };
 });
 

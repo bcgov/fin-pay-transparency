@@ -9,15 +9,15 @@ import { utils } from '../services/utils-service';
 import { body, validationResult } from 'express-validator';
 import {
   MISSING_TOKENS_ERROR,
-  OIDC_IDIR_CALLBACK_NAME,
-  OIDC_IDIR_STRATEGY_NAME,
+  OIDC_AZUREIDIR_CALLBACK_NAME,
+  OIDC_AZUREIDIR_STRATEGY_NAME,
 } from '../../constants';
 
 const router = express.Router();
 
 router.get(
-  `/${OIDC_IDIR_CALLBACK_NAME}`,
-  passport.authenticate(OIDC_IDIR_STRATEGY_NAME, {
+  `/${OIDC_AZUREIDIR_CALLBACK_NAME}`,
+  passport.authenticate(OIDC_AZUREIDIR_STRATEGY_NAME, {
     failureMessage: true,
   }),
   utils.asyncHandler(
@@ -46,7 +46,7 @@ function addBaseRouterGet(strategyName, callbackURI) {
   );
 }
 
-addBaseRouterGet(OIDC_IDIR_STRATEGY_NAME, '/login_idir');
+addBaseRouterGet(OIDC_AZUREIDIR_STRATEGY_NAME, '/login-azureidir');
 
 //removes tokens and destroys session
 async function logoutHandler(
@@ -59,7 +59,6 @@ async function logoutHandler(
   const idToken: string = req['user']?.idToken;
   const discovery = await utils.getOidcDiscovery();
   req.logout(function (err) {
-    console.log('admin logout');
     if (err) {
       return next(err);
     }
@@ -75,8 +74,8 @@ async function logoutHandler(
 
       if (reason == 'sessionExpired') url = '/session-expired';
       else if (reason == 'loginError') url = '/login-error';
-      else if (reason == LogoutReason.LoginIdir)
-        url = '/admin-api/auth/login_idir';
+      else if (reason == LogoutReason.LoginAzureIdir)
+        url = '/admin-api/auth/login-azureidir';
       else if (reason == 'contactError') url = '/contact-error';
       else url = '/logout';
 
@@ -93,7 +92,7 @@ async function logoutHandler(
       res.redirect(config.get('siteMinder_logout_endpoint') + retUrl);
     } else {
       res.redirect(
-        config.get('server:adminFrontend') + '/admin-api/auth/login_idir',
+        config.get('server:adminFrontend') + '/admin-api/auth/login-azureidir',
       );
     }
   });
@@ -106,7 +105,7 @@ router.get(
       let reason: LogoutReason = LogoutReason.Default;
       if (req.query?.sessionExpired) reason = LogoutReason.SessionExpired;
       else if (req.query?.loginError) reason = LogoutReason.LoginError;
-      else if (req.query?.loginIdir) reason = LogoutReason.LoginIdir;
+      else if (req.query?.loginIdir) reason = LogoutReason.LoginAzureIdir;
       else if (req.query?.contactError) reason = LogoutReason.ContactError;
       await logoutHandler(req, res, next, reason);
     },
@@ -157,7 +156,6 @@ router.get(
   '/token',
   utils.asyncHandler(adminAuth.refreshJWT),
   (req: Request, res: Response) => {
-    console.log('/admin-api/auth/token');
     const user: any = req.user;
     const session: any = req.session;
     if (user?.jwtFrontend && user?.refreshToken) {
@@ -200,7 +198,7 @@ async function generateTokens(req: Request, res: Response) {
 //redirects to the SSO login screen
 router.get(
   '/login',
-  passport.authenticate(OIDC_IDIR_STRATEGY_NAME, {
+  passport.authenticate(OIDC_AZUREIDIR_STRATEGY_NAME, {
     failureRedirect: 'error',
   }),
 );

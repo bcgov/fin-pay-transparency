@@ -15,10 +15,10 @@ import prom from 'prom-client';
 import fileSessionStore from 'session-file-store';
 import { config } from './config';
 import {
-  KEYCLOAK_IDP_HINT_IDIR,
-  OIDC_IDIR_CALLBACK_NAME,
-  OIDC_IDIR_SCOPE,
-  OIDC_IDIR_STRATEGY_NAME,
+  KEYCLOAK_IDP_HINT_AZUREIDIR,
+  OIDC_AZUREIDIR_CALLBACK_NAME,
+  OIDC_AZUREIDIR_SCOPE,
+  OIDC_AZUREIDIR_STRATEGY_NAME,
 } from './constants';
 import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
@@ -28,7 +28,7 @@ import userRouter from './v1/routes/user-info-routes';
 import { adminAuth } from './v1/services/admin-auth-service';
 import { utils } from './v1/services/utils-service';
 
-export const OIDC_IDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_IDIR_CALLBACK_NAME}`;
+export const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
 
 import { run as startJobs } from './schedulers/run.all';
 startJobs();
@@ -161,10 +161,10 @@ utils.getOidcDiscovery().then((oicdDiscoveryDocument) => {
   //OIDC Strategy is used for authorization
   addLoginPassportUse(
     oicdDiscoveryDocument,
-    OIDC_IDIR_STRATEGY_NAME,
-    OIDC_IDIR_CALLBACK_URL,
-    OIDC_IDIR_SCOPE,
-    KEYCLOAK_IDP_HINT_IDIR,
+    OIDC_AZUREIDIR_STRATEGY_NAME,
+    OIDC_AZUREIDIR_CALLBACK_URL,
+    OIDC_AZUREIDIR_SCOPE,
+    KEYCLOAK_IDP_HINT_AZUREIDIR,
   );
   //JWT strategy is used for authorization
   passport.use(

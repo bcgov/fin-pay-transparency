@@ -6,7 +6,7 @@ let object;
 object = {
   LOGIN: authRoot + '/login',
   DASHBOARD: '/',
-  LOGIN_IDIR: authRoot + '/logout?loginIdir=true',
+  LOGIN_AZUREIDIR: authRoot + '/logout?loginAzureIdir=true',
   LOGOUT: authRoot + '/logout',
   SESSION_EXPIRED: authRoot + '/logout?sessionExpired=true',
   LOGIN_FAILED: authRoot + '/logout?loginError=true',

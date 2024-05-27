@@ -27,7 +27,7 @@ export default {
   data() {
     return {
       appTitle: 'Pay Transparency Admin Dashboard',
-      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_IDIR),
+      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_AZUREIDIR),
     };
   },
   computed: {},

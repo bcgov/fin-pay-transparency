@@ -23,7 +23,7 @@ export default {
   data() {
     return {
       appTitle: 'Pay Transparency Reporting',
-      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
+      authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_AZUREIDIR),
     };
   },
   computed: {
