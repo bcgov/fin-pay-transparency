@@ -18,7 +18,6 @@ import prisma from '../prisma/prisma-client';
 import { REPORT_STATUS } from './file-upload-service';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
-import {flatten, range} from 'lodash';
 
 const GENERIC_CHART_SUPPRESSED_MSG =
   'This measure cannot be displayed because there is insufficient data to meet disclosure requirements.';
@@ -1206,7 +1205,7 @@ const reportService = {
       return report;
     });
 
-    return flatten(range(0, 10).map(() => reportsAdjusted));
+    return reportsAdjusted;
   },
 
   async publishReport(report_to_publish: Report): Promise<string> {

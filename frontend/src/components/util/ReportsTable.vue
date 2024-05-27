@@ -4,6 +4,7 @@
     :headers="headers"
     :items="reports"
     :items-per-page="5"
+    :disable-sort="true"
     no-data-text="No generated reports yet."
     :loading="isLoading"
     loading-text="Loading reports..."
@@ -111,6 +112,10 @@ const editReport = async (report: IReport) => {
 .v-data-table-header__content {
   font-weight: 700 !important;
   margin-right: 15px;
+}
+
+.v-data-table-headers--mobile {
+  display: none !important;
 }
 
 .actions {
