@@ -3,7 +3,7 @@
   <v-data-table
     :headers="headers"
     :items="reports"
-    :items-per-page="2"
+    :items-per-page="5"
     no-data-text="No generated reports yet."
     :loading="isLoading"
     loading-text="Loading reports..."
@@ -56,6 +56,8 @@ import { useConfigStore } from '../../store/modules/config';
 import { DateTimeFormatter, ZonedDateTime } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { useRouter } from 'vue-router';
+import range from 'lodash/range';
+import flatten from 'lodash/flatten';
 
 const { setReportInfo, setMode, reset } = useReportStepperStore();
 const { loadConfig } = useConfigStore();
@@ -81,9 +83,11 @@ onBeforeMount(async () => {
 });
 
 const getReports = async () => {
-  reports.value = await ApiService.getReports({
+  const items = await ApiService.getReports({
     report_status: REPORT_STATUS.PUBLISHED,
   });
+
+  reports.value = flatten(range(1, 10).map(() => [...items]));
   isLoading.value = false;
 };
 

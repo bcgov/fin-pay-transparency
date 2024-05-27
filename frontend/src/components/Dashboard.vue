@@ -91,7 +91,6 @@
 </template>
 
 <script lang="ts">
-import ReportSelectionManager from './util/DasboardReportManager.vue';
 import ReportsTable from './util/ReportsTable.vue';
 import { mapActions, mapState } from 'pinia';
 import { authStore } from '../store/modules/auth';
