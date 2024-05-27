@@ -23,8 +23,7 @@ import {
 import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
 import adminAuthRouter from './v1/routes/admin-auth-routes';
-import { router as configRouter } from './v1/routes/config-routes';
-import userRouter from './v1/routes/user-info-routes';
+import adminUserRouter from './v1/routes/admin-user-info-routes';
 import { adminAuth } from './v1/services/admin-auth-service';
 import { utils } from './v1/services/utils-service';
 
@@ -261,8 +260,7 @@ apiRouter.use(
     adminAuth.isValidBackendToken()(req, res, next);
   },
 );
-apiRouter.use('/user', userRouter);
-apiRouter.use('/config', configRouter);
+apiRouter.use('/user', adminUserRouter);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });
