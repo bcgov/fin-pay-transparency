@@ -167,6 +167,9 @@ spec:
             - name: external-http
               containerPort: 3001
               protocol: TCP
+            - name: admin-http
+              containerPort: 3002
+              protocol: TCP
           readinessProbe:
             httpGet:
               path: /health
