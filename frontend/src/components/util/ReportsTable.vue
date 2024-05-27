@@ -56,8 +56,6 @@ import { useConfigStore } from '../../store/modules/config';
 import { DateTimeFormatter, ZonedDateTime } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { useRouter } from 'vue-router';
-import range from 'lodash/range';
-import flatten from 'lodash/flatten';
 
 const { setReportInfo, setMode, reset } = useReportStepperStore();
 const { loadConfig } = useConfigStore();
