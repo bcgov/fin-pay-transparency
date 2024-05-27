@@ -1,11 +1,13 @@
 import { payTransparencyService } from './pay-transparency-service';
 
 const mockGet = jest.fn();
+const mockDelete = jest.fn();
 
 jest.mock('../../utils', () => ({
   utils: {
     backendAxios: () => ({
       get: (...args) => mockGet(...args),
+      delete: (...args) => mockDelete(...args),
     }),
   },
 }));
@@ -23,7 +25,7 @@ describe('pay-transparency-service', () => {
         0,
         1000,
       );
-      expect(mockGet).toHaveBeenCalledWith('/external-consumer-api/v1/', {
+      expect(mockGet).toHaveBeenCalledWith('/external-consumer-api/v1/reports', {
         params: {
           startDate: 'start',
           endDate: 'end',
@@ -31,6 +33,25 @@ describe('pay-transparency-service', () => {
           limit: 1000,
         },
       });
+    });
+  });
+
+  describe('deleteReports', () => {
+    it('should delete reports', async () => {
+      mockDelete.mockReturnValue({});
+      await payTransparencyService.deleteReports({
+        params: { companyName: '1234567890' },
+      } as any);
+
+      expect(mockDelete).toHaveBeenCalledWith(
+        '/external-consumer-api/v1/reports',
+        {
+          params: { companyName: '1234567890' },
+          headers: {
+            'x-api-key': 'api-key',
+          },
+        },
+      );
     });
   });
 });

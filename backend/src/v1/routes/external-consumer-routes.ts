@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
+import { reportService } from '../services/report-service';
 
 const router = express.Router();
 
@@ -23,8 +24,19 @@ router.get(
       );
       res.status(200).json(results);
     } catch (e) {
-      res.json({error: true, message: e.message });
+      res.json({ error: true, message: e.message });
     }
   }),
 );
+
+router.delete('/', async (req, res) => {
+  try {
+    const { companyName } = req.query;
+    await reportService.deleteReports(companyName as string);
+    res.status(200).json({ error: false, message: 'Reports deleted' });
+  } catch (error) {
+    res.json({ error: true, message: error.message });
+  }
+});
+
 export default router;

@@ -5,7 +5,8 @@ import { externalConsumerApp } from './external-consumer-app';
 const mockExportDataWithPagination = jest.fn();
 jest.mock('./v1/services/external-consumer-service', () => ({
   externalConsumerService: {
-    exportDataWithPagination: (...args) => mockExportDataWithPagination(...args),
+    exportDataWithPagination: (...args) =>
+      mockExportDataWithPagination(...args),
   },
 }));
 
@@ -44,23 +45,22 @@ describe('external-consumer-app', () => {
   describe('/api/v1 GET', () => {
     describe('with API Key', () => {
       it('should get reports when api key is valid', async () => {
-        mockExportDataWithPagination.mockReturnValue({data: []});
+        mockExportDataWithPagination.mockReturnValue({ data: [] });
         const response = await request(externalConsumerApp)
-          .get('/external-consumer-api/v1/')
+          .get('/external-consumer-api/v1/reports')
           .set('x-api-key', 'api-key');
         expect(response.status).toBe(200);
       });
       it('should fail when api key is valid', async () => {
         const response = await request(externalConsumerApp)
-          .get('/api/v1')
+          .get('/api/v1/reports')
           .set('x-api-key', 'api-key-invalid');
         expect(response.status).toBe(401);
       });
     });
     describe('without API Key', () => {
       it('should fail when api key is not available', async () => {
-        const response = await request(externalConsumerApp)
-          .get('/api/v1')
+        const response = await request(externalConsumerApp).get('/api/v1/reports');
         expect(response.status).toBe(400);
       });
     });

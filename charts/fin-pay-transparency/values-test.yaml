@@ -18,6 +18,7 @@ global:
     bceidWsUrl: ~
     bceidWsOnlineServiceId: ~
     externalConsumerApiKey: ~
+    externalConsumerDeleteReportsApiKey: ~
     chesClientID: ~
     chesTokenURL: ~
     chesClientSecret: ~

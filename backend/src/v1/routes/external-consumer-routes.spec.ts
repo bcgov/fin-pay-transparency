@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import request from 'supertest';
 import router from './external-consumer-routes';
 import { faker } from '@faker-js/faker';
+import { reportService } from '../services/report-service';
 
 const mockCount = jest.fn();
 const mockReportsViewFindMany = jest.fn();
@@ -20,6 +21,21 @@ jest.mock('../prisma/prisma-client-readonly-replica', () => {
     },
   };
 });
+
+const mockDeleteReports = jest.fn();
+jest.mock('../services/external-consumer-service', () => ({
+  externalConsumerService: {
+    ...jest.requireActual('../services/external-consumer-service')
+      .externalConsumerService,
+    deleteReports: (...args) => mockDeleteReports(...args),
+  },
+}));
+
+jest.mock('../services/report-service', () => ({
+  reportService: {
+    deleteReports: (...args) => mockDeleteReports(...args),
+  },
+}));
 
 let app: Application;
 const REPORT = {
@@ -67,6 +83,7 @@ describe('external-consumer-routes', () => {
       mockReportsViewFindMany.mockReturnValue([REPORT]);
       return request(app)
         .get('')
+        .set('x-api-key', 'api-key')
         .expect(200)
         .expect(({ body }) => {
           expect(body).toEqual({
@@ -113,6 +130,7 @@ describe('external-consumer-routes', () => {
       return request(app)
         .get('')
         .query({ offset: 'one', limit: '1oooo' })
+        .set('x-api-key', 'api-key')
         .expect(400)
         .expect(({ body }) => {
           expect(body).toEqual({
@@ -125,4 +143,30 @@ describe('external-consumer-routes', () => {
       return request(app).get('').expect(200);
     });
   });
+
+  describe('/ DELETE', () => {
+    it('should delete reports', () => {
+      return request(app)
+        .delete('/')
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: false,
+            message: 'Reports deleted'
+          });
+        });
+    });
+    it('should fail delete reports and return error', () => {
+      mockDeleteReports.mockRejectedValue({message: 'Failed to delete reports'})
+      return request(app)
+        .delete('/')
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toEqual({
+            error: true,
+            message: 'Failed to delete reports',
+          });
+        });
+    });
+  })
 });
