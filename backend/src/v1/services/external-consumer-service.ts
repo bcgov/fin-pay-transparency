@@ -54,7 +54,9 @@ const externalConsumerService = {
         const date = convert(LocalDate.parse(startDate)).toDate();
         startDt = LocalDateTime.from(nativeJs(date, ZoneId.UTC))
           .withHour(0)
-          .withMinute(0);
+          .withMinute(0)
+          .withSecond(0)
+          .withNano(0);
       }
 
       if (endDate) {
@@ -68,10 +70,6 @@ const externalConsumerService = {
       throw new PayTransparencyUserError(
         'Failed to parse dates. Please use date format YYYY-MM-dd',
       );
-    }
-
-    if (endDt.isAfter(currentTime)) {
-      throw new PayTransparencyUserError('End date cannot be in the future.');
     }
 
     if (startDt.isAfter(endDt)) {
