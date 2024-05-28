@@ -8,9 +8,15 @@ on:
         required: true
       E2E_PASSWORD:
         required: true
+      EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY:
+        required: true
     inputs:
       frontend-url:
         description: "Frontend URL of the application"
+        required: true
+        type: string
+      external-api-base-url:
+        description: "Base URL to the external service API"
         required: true
         type: string
       environment:
@@ -28,6 +34,8 @@ on:
       E2E_USERNAME:
         required: true
       E2E_PASSWORD:
+        required: true
+      EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY:
         required: true
     inputs:
       frontend-url:
@@ -74,6 +82,8 @@ jobs:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
+          EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
           npx playwright test --project="${{ matrix.project }}" --reporter=html
 
