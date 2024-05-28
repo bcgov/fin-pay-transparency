@@ -41,8 +41,7 @@ const externalConsumerService = {
     limit?: number,
   ) {
     const currentTime = LocalDateTime.now(ZoneId.UTC);
-    let startDt = withStartOfDay(LocalDateTime.now(ZoneId.UTC).minusMonths(1));
-
+    let startDt = withStartOfDay(currentTime.minusDays(1));
     let endDt = withEndOfDay(currentTime.minusDays(1));
 
     if (!limit || limit <= 0 || limit > DEFAULT_PAGE_SIZE) {
