@@ -17,7 +17,7 @@ spec:
       targetPort: external-http
       protocol: TCP
       name: external-http
-    - port: 3002
+    - port: 3004
       targetPort: admin-http
       protocol: TCP
       name: admin-http

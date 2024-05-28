@@ -4,6 +4,8 @@ import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 import { IConfigValue, IReport } from './types';
 
+export const LOCAL_STORAGE_KEY_JWT = 'pay-transparency-admin-jwt';
+
 export enum REPORT_FORMATS {
   HTML = 'html',
   PDF = 'pdf',
@@ -51,12 +53,12 @@ const intercept = apiAxios.interceptors.response.use(
     axios.interceptors.response.eject(intercept);
     return new Promise((resolve, reject) => {
       AuthService.refreshAuthToken(
-        localStorage.getItem('jwtToken'),
+        localStorage.getItem(LOCAL_STORAGE_KEY_JWT),
         localStorage.getItem('correlationID'),
       )
         .then((response) => {
           if (response.jwtFrontend) {
-            localStorage.setItem('jwtToken', response.jwtFrontend);
+            localStorage.setItem(LOCAL_STORAGE_KEY_JWT, response.jwtFrontend);
             localStorage.setItem('correlationID', response.correlationID);
             apiAxios.defaults.headers.common['Authorization'] =
               `Bearer ${response.jwtFrontend}`;
@@ -72,7 +74,7 @@ const intercept = apiAxios.interceptors.response.use(
         })
         .catch((e) => {
           processQueue(e, null);
-          localStorage.removeItem('jwtToken');
+          localStorage.removeItem(LOCAL_STORAGE_KEY_JWT);
           window.location.href = '/token-expired';
           reject(new Error('token expired', { cause: e }));
         });
