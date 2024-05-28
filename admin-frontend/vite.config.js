@@ -19,10 +19,10 @@ export default defineConfig({
     exclude: ['./e2e/**'],
   },
   server: {
-    port: 8082,
+    port: 8084,
     proxy: {
       '/admin-api': {
-        target: 'http://localhost:3002',
+        target: 'http://localhost:3004',
         changeOrigin: true,
       },
     },
