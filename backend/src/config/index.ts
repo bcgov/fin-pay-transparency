@@ -28,7 +28,7 @@ config.defaults({
     morganFormat: 'dev',
     port: process.env.PORT || 3000,
     externalConsumerPort: process.env.EXTERNAL_CONSUMER_PORT || 3010,
-    adminPort: process.env.ADMIN_PORT || 3002,
+    adminPort: process.env.ADMIN_PORT || 3004,
     sessionPath: process.env.SESSION_PATH,
     adminSessionPath: process.env.ADMIN_SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
