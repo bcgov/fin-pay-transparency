@@ -21,10 +21,13 @@ test('logout', async ({ page, request }) => {
   const instance = new PTPage(page);
   await instance.setup();
 
-  await request.delete(`${EXTERNAL_API_BASE_URL}/reports`, {
-    params: { companyName: (user as User).legalName },
-    headers: { 'x-api-key': EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY },
-  });
+  await request.delete(
+    `${EXTERNAL_API_BASE_URL}/api/v1/pay-transparency/reports`,
+    {
+      params: { companyName: (user as User).legalName },
+      headers: { 'x-api-key': EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY },
+    },
+  );
 
   await instance.logout();
 });

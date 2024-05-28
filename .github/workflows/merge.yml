@@ -133,5 +133,5 @@ jobs:
     secrets: inherit
     with:
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
-      external-api-base-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api/v1/pay-transparency     
+      external-api-base-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca    
 
