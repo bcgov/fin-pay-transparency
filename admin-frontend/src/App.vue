@@ -1,13 +1,13 @@
 <template>
   <v-app id="app">
     <MsieBanner v-if="isIE" />
-    <Header />
+    <Header v-if="isHeaderFooterVisible" />
     <SnackBar />
-    <NavBar v-if="pageTitle" :title="pageTitle" />
+    isHeaderFooterVisible:{{ isHeaderFooterVisible }}
     <v-main fluid class="align-start">
       <router-view />
     </v-main>
-    <Footer />
+    <Footer v-if="isHeaderFooterVisible" />
   </v-app>
 </template>
 
@@ -19,6 +19,7 @@ import Footer from './components/Footer.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
 import { NotificationService } from './common/notificationService';
+import { authStore } from './store/modules/auth';
 
 export default {
   name: 'App',
@@ -30,6 +31,7 @@ export default {
   },
   computed: {
     ...mapState(appStore, ['pageTitle']),
+    ...mapState(authStore, ['isAuthenticated']),
     isIE() {
       return /Trident\/|MSIE/.test(window.navigator.userAgent);
     },
@@ -40,6 +42,9 @@ export default {
         //Reset error page message back to the default
         NotificationService.setErrorPageMessage();
       }
+      console.log(to);
+      console.log(authStore.isAuthenticated);
+      isHeaderFooterVisible = this.isAuthenticated;
     },
   },
   async created() {},
