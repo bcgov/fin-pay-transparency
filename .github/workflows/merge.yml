@@ -116,6 +116,7 @@ jobs:
       target: dev
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}
       frontend-url: https://dev.paytransparency.fin.gov.bc.ca
+      admin-frontend-url: https://dev-admin.paytransparency.fin.gov.bc.ca
       semver: ${{ needs.semantic-version.outputs.semanticVersion }}
       values: "values-dev.yaml"
 
