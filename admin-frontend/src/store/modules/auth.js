@@ -1,4 +1,4 @@
-import ApiService from '../../common/apiService';
+import ApiService, { LOCAL_STORAGE_KEY_JWT } from '../../common/apiService';
 import AuthService from '../../common/authService';
 import { defineStore } from 'pinia';
 
@@ -22,7 +22,7 @@ export const authStore = defineStore('auth', {
     error: false,
     isLoading: true,
     loginError: false,
-    jwtToken: localStorage.getItem('jwtToken'),
+    jwtToken: localStorage.getItem(LOCAL_STORAGE_KEY_JWT),
   }),
   getters: {
     acronymsGet: (state) => state.acronyms,
@@ -40,11 +40,11 @@ export const authStore = defineStore('auth', {
       if (token) {
         this.isAuthenticated = true;
         this.jwtToken = token;
-        localStorage.setItem('jwtToken', token);
+        localStorage.setItem(LOCAL_STORAGE_KEY_JWT, token);
       } else {
         this.isAuthenticated = false;
         this.jwtToken = null;
-        localStorage.removeItem('jwtToken');
+        localStorage.removeItem(LOCAL_STORAGE_KEY_JWT);
       }
     },
     setCorrelationID(correlationID) {
