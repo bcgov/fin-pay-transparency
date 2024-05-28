@@ -11,14 +11,22 @@ import { Prisma } from '@prisma/client';
 
 const DEFAULT_PAGE_SIZE = 50;
 
+const withStartOfDay = (input: LocalDateTime): LocalDateTime => {
+  return input.withHour(0).withMinute(0).withSecond(0).withNano(0);
+};
+
+const withEndOfDay = (input: LocalDateTime): LocalDateTime => {
+  return input.withHour(23).withMinute(59).withSecond(59);
+};
+
 const externalConsumerService = {
   /**
    * This function returns a list of objects with pagination details to support the analytics team.
-   * this endpoint should not return more than 1000 records at a time.
-   * if limit is greater than 1000, it will default to 1000.
-   * calling this endpoint with no limit will default to 1000.
+   * this endpoint should not return more than 50 records at a time.
+   * if limit is greater than 50, it will default to 50.
+   * calling this endpoint with no limit will default to 50.
    * calling this endpoint with no offset will default to 0.
-   * calling this endpoint with no start date will default to 30 days ago.
+   * calling this endpoint with no start date will default to yesterday.
    * calling this endpoint with no end date will default to today.
    * consumer is responsible for making the api call in a loop to get all the records.
    * @param startDate from when records needs to be fetched
@@ -33,37 +41,28 @@ const externalConsumerService = {
     limit?: number,
   ) {
     const currentTime = LocalDateTime.now(ZoneId.UTC);
-    let startDt = LocalDateTime.now(ZoneId.UTC)
-      .minusMonths(1)
-      .withHour(0)
-      .withMinute(0)
-      .withSecond(0)
-      .withNano(0);
+    let startDt = withStartOfDay(LocalDateTime.now(ZoneId.UTC).minusMonths(1));
 
-      
-    let endDt = currentTime;
-      
+    let endDt = withEndOfDay(currentTime.minusDays(1));
+
     if (!limit || limit <= 0 || limit > DEFAULT_PAGE_SIZE) {
       limit = DEFAULT_PAGE_SIZE;
     }
     if (!offset || offset < 0) {
       offset = 0;
     }
+
     try {
       if (startDate) {
         const date = convert(LocalDate.parse(startDate)).toDate();
-        startDt = LocalDateTime.from(nativeJs(date, ZoneId.UTC))
-          .withHour(0)
-          .withMinute(0)
-          .withSecond(0)
-          .withNano(0);
+        startDt = withStartOfDay(
+          LocalDateTime.from(nativeJs(date, ZoneId.UTC)),
+        );
       }
 
       if (endDate) {
         const date = convert(LocalDate.parse(endDate)).toDate();
-        endDt = LocalDateTime.from(nativeJs(date, ZoneId.UTC))
-          .withHour(23)
-          .withMinute(59);
+        endDt = withEndOfDay(LocalDateTime.from(nativeJs(date, ZoneId.UTC)));
       }
     } catch (error) {
       console.log(error);
@@ -78,6 +77,11 @@ const externalConsumerService = {
       );
     }
 
+    if (endDt.isAfter(withStartOfDay(currentTime))) {
+      throw new PayTransparencyUserError(
+        'End date must always be before the current date.',
+      );
+    }
     const whereClause: Prisma.reports_viewWhereInput = {
       update_date: {
         gte: convert(startDt).toDate(),

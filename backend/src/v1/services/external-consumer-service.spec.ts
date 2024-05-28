@@ -1,5 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { externalConsumerService } from './external-consumer-service';
+import { DateTimeFormatter, LocalDate } from '@js-joda/core';
+import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 
 const mockReportsViewFindMany = jest.fn();
 const mockReportsViewCount = jest.fn();
@@ -132,17 +134,21 @@ describe('external-consumer-service', () => {
       expect(error.message).toBe('Start date must be before the end date.');
     }
   });
-  it('should fail when endDate is in the future', async () => {
+  it('should fail when endDate after yesterday', async () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
+
+    const endDate = LocalDate.now().format(JSON_REPORT_DATE_FORMAT);
     try {
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01',
-        '2025-01-01',
+        endDate,
         -1,
         -1,
       );
     } catch (error) {
-      expect(error.message).toBe('End date cannot be in the future.');
+      expect(error.message).toBe(
+        'End date must always be before the current date.',
+      );
     }
   });
 });
