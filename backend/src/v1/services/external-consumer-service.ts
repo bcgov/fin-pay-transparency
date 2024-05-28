@@ -32,14 +32,17 @@ const externalConsumerService = {
     offset?: number,
     limit?: number,
   ) {
+    const currentTime = LocalDateTime.now(ZoneId.UTC);
     let startDt = LocalDateTime.now(ZoneId.UTC)
       .minusMonths(1)
       .withHour(0)
-      .withMinute(0);
-    let endDt = LocalDateTime.now(ZoneId.UTC)
-      .plusDays(1)
-      .withHour(0)
-      .withMinute(0);
+      .withMinute(0)
+      .withSecond(0)
+      .withNano(0);
+
+      
+    let endDt = currentTime;
+      
     if (!limit || limit <= 0 || limit > DEFAULT_PAGE_SIZE) {
       limit = DEFAULT_PAGE_SIZE;
     }
@@ -61,9 +64,14 @@ const externalConsumerService = {
           .withMinute(59);
       }
     } catch (error) {
+      console.log(error);
       throw new PayTransparencyUserError(
         'Failed to parse dates. Please use date format YYYY-MM-dd',
       );
+    }
+
+    if (endDt.isAfter(currentTime)) {
+      throw new PayTransparencyUserError('End date cannot be in the future.');
     }
 
     if (startDt.isAfter(endDt)) {
@@ -81,10 +89,10 @@ const externalConsumerService = {
 
     /**
      * Querying the reports and their data uses 2 sql views (reports_view, calculated_data_view) that
-     * are included in the Prisma schema by enabling views feature and running a db pull. The 2 views in the 
+     * are included in the Prisma schema by enabling views feature and running a db pull. The 2 views in the
      * schema were modified to add unique columns keys and relations between the projects_view and the calculated_data_view
-     * 
-     * 
+     *
+     *
      * The prisma views
      * is still in preview and we must monitor its status to mitigate risk using the following links:
      * 1) https://www.prisma.io/docs/orm/prisma-schema/data-model/views
@@ -117,9 +125,9 @@ const externalConsumerService = {
         where: whereClause,
       });
 
-    records.forEach(report => {
+    records.forEach((report) => {
       delete report.report_change_id;
-    })
+    });
 
     return {
       totalRecords: totalRecordsCount,
