@@ -90,6 +90,7 @@ jobs:
           [
             backend,
             database-migrations,
+            admin-frontend,
             frontend,
             doc-gen-service,
             backend-external,
@@ -125,5 +126,3 @@ jobs:
     secrets: inherit
     with:
       backend-external-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api
-      
-

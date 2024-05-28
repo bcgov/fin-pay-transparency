@@ -8,6 +8,9 @@ global:
     databasePassword: ~
     databaseName: ~
     databaseUser: ~
+    adminKeycloakUrl: ~
+    adminKeycloakClientId: ~
+    adminKeycloakClientSecret: ~
     keycloakClientId: ~
     keycloakClientSecret: ~
     keycloakUrl: ~

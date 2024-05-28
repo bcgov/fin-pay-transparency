@@ -16,6 +16,7 @@ jobs:
     with:
       markdown_links: |
         - [Frontend](https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca)
+        - [Admin Frontend](https://pay-transparency-pr-${{ github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca)
 
   results:
     name: Validate Results

@@ -11,7 +11,7 @@ services:
       POSTGRES_DB: postgres
     hostname: database
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      test: ["CMD", "pg_isready", "-U", "postgres"]
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -50,7 +50,7 @@ services:
     environment:
       NODE_ENV: development
       POSTGRESQL_HOST: database
-      PORT: '3000'
+      PORT: "3000"
       DOC_GEN_SERVICE_URL: http://doc-gen-service:3000
     hostname: backend
     links:
@@ -73,11 +73,11 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: development
-      PORT: '3000'
+      PORT: "3000"
     hostname: doc-gen-service
     ports:
       - "3001:3000"
-    user: '1001'
+    user: "1001"
     depends_on:
       backend:
         condition: service_started
@@ -90,11 +90,11 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: development
-      PORT: '3000'
+      PORT: "3000"
     hostname: backend-external
     ports:
       - "3002:3000"
-    user: '1001'
+    user: "1001"
     depends_on:
       backend:
         condition: service_started
@@ -109,6 +109,29 @@ services:
       NODE_ENV: development
       BACKEND_URL: backend
     hostname: frontend
+    links:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app:z
+      - /app/node_modules
+    user: root
+    working_dir: "/app"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - default
+  admin-frontend:
+    container_name: admin-frontend
+    build:
+      context: admin-frontend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      BACKEND_URL: backend
+    hostname: admin-frontend
     links:
       - backend
     ports:

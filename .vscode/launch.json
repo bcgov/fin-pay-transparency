@@ -7,9 +7,14 @@
     {
       "name": "Backend",
       "request": "launch",
-      "runtimeArgs": ["run-script", "dev"],
+      "runtimeArgs": [
+        "run-script",
+        "dev"
+      ],
       "runtimeExecutable": "npm",
-      "skipFiles": ["backend/<node_internals>/**"],
+      "skipFiles": [
+        "backend/<node_internals>/**"
+      ],
       "type": "node",
       "cwd": "${workspaceFolder}/backend",
       "preLaunchTask": "Launch and migrate database",
@@ -18,9 +23,14 @@
     {
       "name": "Backend-External",
       "request": "launch",
-      "runtimeArgs": ["run-script", "dev"],
+      "runtimeArgs": [
+        "run-script",
+        "dev"
+      ],
       "runtimeExecutable": "npm",
-      "skipFiles": ["backend-external/<node_internals>/**"],
+      "skipFiles": [
+        "backend-external/<node_internals>/**"
+      ],
       "type": "node",
       "cwd": "${workspaceFolder}/backend-external",
       "outputCapture": "std"
@@ -28,19 +38,43 @@
     {
       "name": "DocGenService",
       "request": "launch",
-      "runtimeArgs": ["run-script", "dev"],
+      "runtimeArgs": [
+        "run-script",
+        "dev"
+      ],
       "runtimeExecutable": "npm",
-      "skipFiles": ["doc-gen-service/<node_internals>/**"],
+      "skipFiles": [
+        "doc-gen-service/<node_internals>/**"
+      ],
       "type": "node",
       "cwd": "${workspaceFolder}/doc-gen-service",
       "outputCapture": "std"
     },
     {
+      "name": "Admin-Frontend",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "serve"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "admin-frontend/<node_internals>/**"
+      ],
+      "type": "node",
+      "cwd": "${workspaceFolder}/admin-frontend"
+    },
+    {
       "name": "Frontend",
       "request": "launch",
-      "runtimeArgs": ["run-script", "serve"],
+      "runtimeArgs": [
+        "run-script",
+        "serve"
+      ],
       "runtimeExecutable": "npm",
-      "skipFiles": ["frontend/<node_internals>/**"],
+      "skipFiles": [
+        "frontend/<node_internals>/**"
+      ],
       "type": "node",
       "cwd": "${workspaceFolder}/frontend"
     },

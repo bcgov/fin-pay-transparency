@@ -1066,10 +1066,14 @@ const reportService = {
     }
 
     const reportData = {
+      companyName: 'ABC Company',
+      companyAddress: '555 Main St, Victoria, BC',
+      /*
       companyName: report.pay_transparency_company.company_name,
       companyAddress: reportServicePrivate.formatCompanyAddress(
         report?.pay_transparency_company,
       ),
+      */
       reportingYear: report.reporting_year,
       reportStartDate: LocalDate.from(
         nativeJs(report.report_start_date, ZoneId.UTC),

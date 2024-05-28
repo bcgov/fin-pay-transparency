@@ -13,4 +13,18 @@ spec:
       requests:
         storage: {{ .Values.storage.size }}
     storageClassName: netapp-file-standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "backend.fullname" . }}-admin-session
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.storage.accessMode }}
+  resources:
+    requests:
+      storage: 25Mi
+  storageClassName: netapp-file-standard
 {{- end }}

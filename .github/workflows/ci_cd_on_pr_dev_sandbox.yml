@@ -2,16 +2,16 @@ name: Build And Deploy to Sandbox in Dev namespace
 on:
   pull_request:
     paths-ignore:
-      - '*.md'
-      - 'docker-compose.yml'
-      - 'renovate.json'
-      - 'COMPLIANCE.yaml'
-      - '.gitignore'
-      - '.vscode/**'
-      - '.diagrams/**'
-      - '.graphics/**'
-      - 'sysdig/**'
-      - '.github/workflows/sysdig.yml'
+      - "*.md"
+      - "docker-compose.yml"
+      - "renovate.json"
+      - "COMPLIANCE.yaml"
+      - ".gitignore"
+      - ".vscode/**"
+      - ".diagrams/**"
+      - ".graphics/**"
+      - "sysdig/**"
+      - ".github/workflows/sysdig.yml"
     branches:
       - main
 
@@ -21,21 +21,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   builds:
-    if: '!github.event.pull_request.head.repo.fork'
+    if: "!github.event.pull_request.head.repo.fork"
     name: Builds
     runs-on: ubuntu-22.04
     permissions:
       packages: write
     strategy:
       matrix:
-        package: [backend, database-migrations, frontend, doc-gen-service, backend-external, maintenance]
+        package:
+          [
+            backend,
+            database-migrations,
+            admin-frontend,
+            frontend,
+            doc-gen-service,
+            backend-external,
+            maintenance,
+          ]
         include:
           - package: backend
             triggers: ('backend/')
             build_file: ./backend/Dockerfile
             build_context: ./backend
+          - package: admin-frontend
+            triggers: ('admin-frontend/')
+            build_file: ./admin-frontend/Dockerfile
+            build_context: ./admin-frontend
           - package: frontend
             triggers: ('frontend/')
             build_file: ./frontend/Dockerfile
@@ -78,14 +90,14 @@ jobs:
       - name: Check Quota For Deployment
         shell: bash
         run: |
-          
+
           # Allow pipefail, since we could be catching oc create errors
           set +o pipefail
 
           # Login to OpenShift (NOTE: project command is a safeguard)
           oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
           oc project ${{ vars.oc_namespace }}
-          
+
           #check helm status to see if this is an already deployed PR or a new PR
           DEPLOYMENT_STATUS=$(helm status pay-transparency-pr-${{ github.event.number }} -o json | jq .info.status || false)
           echo "DEPLOYMENT_STATUS is '$DEPLOYMENT_STATUS'"
@@ -134,6 +146,7 @@ jobs:
       tag: pr-${{ github.event.number }}-${{ github.run_number }}
       values: "values-pr.yaml"
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+      admin-frontend-url: https://pay-transparency-pr-${{ github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca
   test-integration:
     name: Integration
     needs: [builds, check-quota, deploys]
@@ -148,3 +161,10 @@ jobs:
     secrets: inherit
     with:
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+  test-e2e-admin:
+    name: E2E-Admin
+    needs: [builds, check-quota, deploys]
+    uses: ./.github/workflows/.e2e-admin.yml
+    secrets: inherit
+    with:
+      admin-frontend-url: https://pay-transparency-pr-${{ github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca

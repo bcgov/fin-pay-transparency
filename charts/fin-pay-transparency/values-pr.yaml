@@ -7,6 +7,9 @@ global:
     databaseName: ~
     databaseUser: ~
     databasePassword: ~
+    adminKeycloakUrl: ~
+    adminKeycloakClientId: ~
+    adminKeycloakClientSecret: ~
     keycloakClientId: ~
     keycloakClientSecret: ~
     keycloakUrl: ~
@@ -51,6 +54,19 @@ backend:
   pdb: false
 
 frontend:
+  deploymentStrategy: Recreate
+  resources:
+    limits:
+      cpu: 30m
+      memory: 150Mi
+    requests:
+      cpu: 15m
+      memory: 50Mi
+  env:
+    logLevel: info
+  pdb: false
+
+admin-frontend:
   deploymentStrategy: Recreate
   resources:
     limits:

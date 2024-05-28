@@ -1,11 +1,10 @@
 import axios from 'axios';
 import jsonwebtoken from 'jsonwebtoken';
 import { config } from '../../config';
-import { auth } from './auth-service';
-import { utils } from './utils-service';
-import prisma from '../prisma/prisma-client';
 import * as bceidService from '../../external/services/bceid-service';
-import { LogoutReason } from '../routes/auth-routes';
+import prisma from '../prisma/prisma-client';
+import { auth, LogoutReason } from './auth-service';
+import { utils } from './utils-service';
 //Mock the entire axios module so we never inadvertently make real
 //HTTP calls to remote services
 jest.mock('axios');
@@ -34,6 +33,7 @@ jest.mock('../prisma/prisma-client', () => {
 //in this module keep the original implementation)
 jest.mock('./auth-service', () => {
   const actualAuth = jest.requireActual('./auth-service').auth;
+  const actualLogoutReason = jest.requireActual('./auth-service').LogoutReason;
   const mockedAuth = (jest.genMockFromModule('./auth-service') as any).auth;
 
   return {
@@ -42,6 +42,7 @@ jest.mock('./auth-service', () => {
       ...actualAuth,
       renew: jest.fn((refreshToken) => {}),
     },
+    LogoutReason: actualLogoutReason,
   };
 });
 

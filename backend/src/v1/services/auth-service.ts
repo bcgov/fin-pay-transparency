@@ -1,15 +1,23 @@
+import { pay_transparency_company } from '@prisma/client';
 import axios from 'axios';
-import { config } from '../../config';
-import { logger as log } from '../../logger';
+import { NextFunction, Request, Response } from 'express';
+import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'querystring';
-import { utils } from './utils-service';
-import HttpStatus from 'http-status-codes';
-import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
+import { config } from '../../config';
 import { getCompanyDetails } from '../../external/services/bceid-service';
-import { Request, NextFunction, Response } from 'express';
-import { pay_transparency_company } from '@prisma/client';
-import { LogoutReason } from '../routes/auth-routes';
+import { logger as log } from '../../logger';
+import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
+import { utils } from './utils-service';
+
+enum LogoutReason {
+  Login = 'login', // ie. don't log out
+  Default = 'default',
+  SessionExpired = 'sessionExpired',
+  LoginError = 'loginError',
+  LoginBceid = 'loginBceid',
+  ContactError = 'contactError',
+}
 
 let kcPublicKey: string;
 const auth = {
@@ -372,4 +380,4 @@ const auth = {
   },
 };
 
-export { auth };
+export { LogoutReason, auth };

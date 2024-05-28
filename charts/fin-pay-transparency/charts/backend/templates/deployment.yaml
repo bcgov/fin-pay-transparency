@@ -29,6 +29,9 @@ spec:
         - name: {{ include "backend.fullname" . }}
           persistentVolumeClaim:
             claimName: {{ include "backend.fullname" . }}
+        - name: {{ include "backend.fullname" . }}-admin-session
+          persistentVolumeClaim:
+            claimName: {{ include "backend.fullname" . }}-admin-session
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
@@ -120,13 +123,20 @@ spec:
               value: '60000'
             - name: RATE_LIMIT_LIMIT
               value: '1000'
+            {{- if .Values.global.serverAdminFrontend }}
+            - name: SERVER_ADMIN_FRONTEND
+              value: {{ tpl .Values.global.serverAdminFrontend $ }}
+            {{- else }}
+            - name: SERVER_ADMIN_FRONTEND
+              value: https://{{.Release.Name}}-admin-frontend.{{.Values.global.domain}}
+            {{- end }}
             {{- if .Values.global.serverFrontend }}
             - name: SERVER_FRONTEND
               value: {{ tpl .Values.global.serverFrontend $ }}
             {{- else }}
             - name: SERVER_FRONTEND
               value: https://{{.Release.Name}}-frontend.{{.Values.global.domain}}
-            {{- end }}
+            {{- end }}            
             - name: LOG_LEVEL
               value: {{ .Values.app.env.logLevel }}
             - name: AUDIENCE
@@ -137,10 +147,14 @@ spec:
               value: {{ .Values.app.env.siteminderLogoutEndpoint }}
             - name: SESSION_PATH
               value: '/app/sessions'
+            - name: ADMIN_SESSION_PATH
+              value: '/app/sessions-admin'              
             - name: DOC_GEN_SERVICE_URL
               value: 'http://{{.Release.Name}}-doc-gen-service/api'
             - name: EXTERNAL_CONSUMER_PORT
               value: '3001'
+            - name: ADMIN_PORT
+              value: '3002'              
             - name: CHES_ENABLED
               value: 'true'
             - name: OPENSHIFT_ENV
@@ -152,6 +166,9 @@ spec:
               protocol: TCP
             - name: external-http
               containerPort: 3001
+              protocol: TCP
+            - name: admin-http
+              containerPort: 3002
               protocol: TCP
           readinessProbe:
             httpGet:
@@ -177,6 +194,8 @@ spec:
           volumeMounts:
             - mountPath: /app/sessions
               name: {{ include "backend.fullname" . }}
+            - mountPath: /app/sessions-admin
+              name: {{ include "backend.fullname" . }}-admin-session
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

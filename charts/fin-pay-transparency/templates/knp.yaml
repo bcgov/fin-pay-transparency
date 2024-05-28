@@ -65,3 +65,22 @@ spec:
               network.openshift.io/policy-group: ingress
   policyTypes:
     - Ingress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-openshift-ingress-to-admin-frontend
+  labels: {{- include "selectorLabels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-admin-frontend
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: ingress
+  policyTypes:
+    - Ingress

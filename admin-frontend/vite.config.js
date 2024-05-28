@@ -1,0 +1,31 @@
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [vue()],
+  test: {
+    environment: 'jsdom',
+    deps: {
+      inline: ['vuetify'],
+    },
+    globals: true,
+    coverage: {
+      reporter: ['lcov', 'text-summary', 'text', 'json', 'html'],
+      exclude: ['src/**/index.ts'],
+    },
+    include: ['./src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    setupFiles: ['./src/vitest.setup.ts'],
+    exclude: ['./e2e/**'],
+  },
+  server: {
+    port: 8082,
+    proxy: {
+      '/admin-api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+      },
+    },
+  },
+  publicDir: 'public',
+});

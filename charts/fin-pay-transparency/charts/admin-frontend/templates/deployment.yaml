@@ -1,0 +1,89 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "admin-frontend.fullname" . }}
+  labels:
+    {{- include "admin-frontend.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.deploymentStrategy }}
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "admin-frontend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3003"
+        prometheus.io/path: "/metrics"
+        rollme: {{ randAlphaNum 5 | quote }}
+      labels:
+        {{- include "admin-frontend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "admin-frontend.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.global.isEnabled }}
+          image: "image-registry.openshift-image-registry.svc:5000/{{.Release.Namespace}}/{{ include "admin-frontend.fullname" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/fin-pay-transparency/admin-frontend:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: BACKEND_URL
+              value: "http://{{ .Release.Name }}-backend:3002" #3002 is the port used for the backend's admin API
+            - name: LOG_LEVEL
+              value: {{ .Values.env.logLevel }}    
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+            - name: metrics
+              containerPort: 3003
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+              scheme: HTTP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+              scheme: HTTP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "admin-frontend.fullname" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+{{- end }}
