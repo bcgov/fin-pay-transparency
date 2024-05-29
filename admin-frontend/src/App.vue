@@ -46,7 +46,7 @@ export default {
         //Reset error page message back to the default
         NotificationService.setErrorPageMessage();
       }
-      this.areHeaderAndSidebarVisible = this.isAuthenticated;
+      this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
     },
   },
   async created() {},
@@ -56,11 +56,13 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 @import '@bcgov/bc-sans/css/BCSans.css';
 
+$link-color: #255a90;
+
 a {
-  color: #255a90;
+  color: $link-color;
 }
 
 .v-container {
@@ -119,6 +121,11 @@ h1 {
 
 .v-btn.btn-secondary:hover {
   background-color: #edebe9 !important;
+}
+
+.v-btn.btn-link {
+  text-decoration: underline;
+  color: $link-color;
 }
 
 .v-alert .v-icon {
@@ -200,5 +207,9 @@ h1 {
 
 .theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
   background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.v-main {
+  margin: 24px;
 }
 </style>

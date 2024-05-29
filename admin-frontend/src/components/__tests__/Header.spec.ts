@@ -1,9 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/vue';
-import Header from '../Header.vue';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createTestingPinia } from '@pinia/testing';
-import { authStore } from '../../store/modules/auth';
+import { render, screen } from '@testing-library/vue';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createVuetify } from 'vuetify';
+import { authStore } from '../../store/modules/auth';
+import Header from '../Header.vue';
 
 const pinia = createTestingPinia();
 const vuetify = createVuetify();
@@ -15,6 +15,11 @@ const wrappedRender = async () => {
   });
 };
 
+const mockUserInfo = {
+  displayName: 'Test user',
+  legalName: 'Test legal',
+};
+
 const auth = authStore();
 
 describe('Header', () => {
@@ -22,20 +27,18 @@ describe('Header', () => {
     beforeEach(() => {
       auth.$patch({
         isAuthenticated: true,
-        userInfo: {
-          displayName: 'Test user',
-          legalName: 'Test legal',
-        },
+        userInfo: mockUserInfo,
       });
       vi.clearAllMocks();
     });
 
     it('should render correctly', async () => {
       await wrappedRender();
-      screen.debug()
-      expect(screen.getByTestId('header-title')).toHaveTextContent(
-        'Pay Transparency Reporting',
+      screen.debug();
+      expect(screen.getByTestId('account-info')).toHaveTextContent(
+        mockUserInfo.displayName,
       );
+      expect(screen.getByTestId('logout-btn')).toHaveTextContent('Logout');
     });
   });
 });

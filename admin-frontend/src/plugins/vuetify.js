@@ -8,7 +8,7 @@ Vue.use(Vuetify);
 export default new Vuetify({
   theme: {
     light: true,
-    dark: false 
+    dark: false,
   },
   icons: {
     iconfont: 'fa',
@@ -25,7 +25,7 @@ export default new Vuetify({
       error: 'fas fa-exclamation-triangle',
       lock: 'fas fa-lock',
       info2: 'fas fa-info-circle fa-10x',
-      question: 'fas fa-question-circle fa-10x'
-    }
-  }
+      question: 'fas fa-question-circle fa-10x',
+    },
+  },
 });

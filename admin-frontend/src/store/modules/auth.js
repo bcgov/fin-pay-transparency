@@ -36,7 +36,6 @@ export const authStore = defineStore('auth', {
   actions: {
     //sets Json web token and determines whether user is authenticated
     async setJwtToken(token = null) {
-      console.log(token);
       if (token) {
         this.isAuthenticated = true;
         this.jwtToken = token;

@@ -30,12 +30,12 @@ export const ApiRoutes = Object.freeze({
 });
 
 export const PAGE_TITLES = Object.freeze({
-  ADMINISTRATION: 'Administration',
   DASHBOARD: 'Dashboard',
+  REPORTS: 'Reports',
+  ANNOUNCEMENTS: 'Announcements',
+  USER_MANAGEMENT: 'User Management',
+  ANALYTICS: 'Analytics',
   LOGIN: 'Login',
-  REPORT: 'Generated Report',
-  PUBLISHED_REPORT: 'Published Report',
-  DRAFT_REPORT: 'Draft Report',
   TOKEN_EXPIRED: 'Token Expired',
 });
 

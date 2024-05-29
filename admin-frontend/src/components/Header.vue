@@ -1,57 +1,24 @@
 <template>
-  <v-app-bar absolute style="z-index: 1002">
-    <v-container class="d-flex">
-      <v-spacer />
+  <v-app-bar absolute style="z-index: 1002" class="d-flex justify-center">
+    <v-spacer />
 
-      <v-menu
-        v-if="isAuthenticated"
-        v-model="menu"
-        :close-on-content-click="false"
-        data-testid="header-account-menu"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            id="header-account-button"
-            color="rgb(32, 31, 30)"
-            v-bind="props"
-            arial-label="User profile"
-            icon="mdi-account"
-            data-testid="header-account-button"
-            title="User profile"
-          ></v-btn>
-        </template>
-        <v-card
-          :titlex="userInfo?.displayName"
-          :subtitlex="userInfo?.legalName"
-          min-width="250"
-        >
-          <v-card-title data-testid="header-display-name">
-            {{ userInfo?.displayName }}
-          </v-card-title>
-          <v-card-subtitle data-testid="header-legal-name">
-            {{ userInfo?.legalName }}
-          </v-card-subtitle>
+    <v-btn
+      prepend-icon="mdi-account"
+      v-if="isAuthenticated"
+      data-testid="account-info"
+    >
+      {{ userInfo?.displayName }}
+    </v-btn>
 
-          <v-divider class="mt-4" />
+    <v-btn
+      class="btn-link"
+      v-if="isAuthenticated"
+      @click="redirectToLogout()"
+      data-testid="logout-btn"
+    >
+      Logout
+    </v-btn>
 
-          <v-card-actions>
-            <v-tooltip text="Logout" location="bottom">
-              <template #activator="{ props }">
-                <v-spacer />
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-logout"
-                  data-testid="header-logout-button"
-                  title="Logout"
-                  aria-label="Logout"
-                  @click="redirectToLogout"
-                ></v-btn>
-              </template>
-            </v-tooltip>
-          </v-card-actions>
-        </v-card>
-      </v-menu>
-    </v-container>
     <!-- Navbar content -->
   </v-app-bar>
 </template>

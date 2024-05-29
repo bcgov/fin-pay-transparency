@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from './components/Home.vue';
+import DashboardPage from './components/DashboardPage.vue';
+import ReportsPage from './components/ReportsPage.vue';
+import AnnouncementsPage from './components/AnnouncementsPage.vue';
+import UserManagementPage from './components/UserManagementPage.vue';
+import AnalyticsPage from './components/AnalyticsPage.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import NotFoundPage from './components/NotFound.vue';
-import PublishedReportPage from './components/PublishedReportPage.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
 import ContactError from './components/ContactError.vue';
@@ -30,9 +33,45 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Home,
+      component: DashboardPage,
       meta: {
         pageTitle: PAGE_TITLES.DASHBOARD,
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: ReportsPage,
+      meta: {
+        pageTitle: PAGE_TITLES.REPORTS,
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/announcements',
+      name: 'announcements',
+      component: AnnouncementsPage,
+      meta: {
+        pageTitle: PAGE_TITLES.ANNOUNCEMENTS,
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/user-management',
+      name: 'user-management',
+      component: UserManagementPage,
+      meta: {
+        pageTitle: PAGE_TITLES.USER_MANAGEMENT,
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/analytics',
+      name: 'analytics',
+      component: AnalyticsPage,
+      meta: {
+        pageTitle: PAGE_TITLES.ANALYTICS,
         requiresAuth: true,
       },
     },
@@ -75,15 +114,6 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.TOKEN_EXPIRED,
         requiresAuth: false,
-      },
-    },
-    {
-      path: '/published-report',
-      name: 'PublishedReportPage',
-      component: PublishedReportPage,
-      meta: {
-        pageTitle: PAGE_TITLES.REPORT,
-        requiresAuth: true,
       },
     },
     {
