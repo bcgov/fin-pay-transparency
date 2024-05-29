@@ -26,8 +26,8 @@ const externalConsumerService = {
    * if limit is greater than 50, it will default to 50.
    * calling this endpoint with no limit will default to 50.
    * calling this endpoint with no offset will default to 0.
-   * calling this endpoint with no start date will default to -1 days.
-   * calling this endpoint with no end date will default to today.
+   * calling this endpoint with no start date will default to - 31 days.
+   * calling this endpoint with no end date will default to  - 1 day.
    * consumer is responsible for making the api call in a loop to get all the records.
    * @param startDate from when records needs to be fetched
    * @param endDate till when records needs to be fetched
@@ -41,7 +41,7 @@ const externalConsumerService = {
     limit?: number,
   ) {
     const currentTime = LocalDateTime.now(ZoneId.UTC);
-    let startDt = withStartOfDay(currentTime.minusDays(1));
+    let startDt = withStartOfDay(currentTime.minusDays(31));
     let endDt = withEndOfDay(currentTime.minusDays(1));
 
     if (!limit || limit <= 0 || limit > DEFAULT_PAGE_SIZE) {
