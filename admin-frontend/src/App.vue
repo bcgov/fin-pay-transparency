@@ -1,13 +1,12 @@
 <template>
   <v-app id="app">
     <MsieBanner v-if="isIE" />
-    <Header v-if="isHeaderFooterVisible" />
+    <Header v-if="areHeaderAndSidebarVisible" />
     <SnackBar />
-    isHeaderFooterVisible:{{ isHeaderFooterVisible }}
+    <SideBar v-if="areHeaderAndSidebarVisible" />
     <v-main fluid class="align-start">
       <router-view />
     </v-main>
-    <Footer v-if="isHeaderFooterVisible" />
   </v-app>
 </template>
 
@@ -15,7 +14,7 @@
 import { appStore } from './store/modules/app';
 import { mapState } from 'pinia';
 import Header from './components/Header.vue';
-import Footer from './components/Footer.vue';
+import SideBar from './components/SideBar.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
 import { NotificationService } from './common/notificationService';
@@ -25,9 +24,14 @@ export default {
   name: 'App',
   components: {
     Header,
-    Footer,
+    SideBar,
     MsieBanner,
     SnackBar,
+  },
+  data() {
+    return {
+      areHeaderAndSidebarVisible: false,
+    };
   },
   computed: {
     ...mapState(appStore, ['pageTitle']),
@@ -42,9 +46,7 @@ export default {
         //Reset error page message back to the default
         NotificationService.setErrorPageMessage();
       }
-      console.log(to);
-      console.log(authStore.isAuthenticated);
-      isHeaderFooterVisible = this.isAuthenticated;
+      this.areHeaderAndSidebarVisible = this.isAuthenticated;
     },
   },
   async created() {},

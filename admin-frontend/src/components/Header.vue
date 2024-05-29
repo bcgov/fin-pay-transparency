@@ -1,25 +1,6 @@
 <template>
   <v-app-bar absolute style="z-index: 1002">
     <v-container class="d-flex">
-      <a tabindex="-1" href="/" class="d-flex align-center">
-        <img
-          tabindex="-1"
-          src="../assets/images/bc-gov-logo-light.png"
-          width="155"
-          class="logo"
-          alt="B.C. Government Logo"
-        />
-        <v-toolbar-title
-          ><h3
-            data-testid="header-title"
-            class="mainTitle"
-            style="color: rgb(32, 31, 30)"
-          >
-            {{ appTitle }}
-          </h3></v-toolbar-title
-        >
-      </a>
-
       <v-spacer />
 
       <v-menu
