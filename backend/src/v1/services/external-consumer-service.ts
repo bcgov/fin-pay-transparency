@@ -26,7 +26,7 @@ const externalConsumerService = {
    * if limit is greater than 50, it will default to 50.
    * calling this endpoint with no limit will default to 50.
    * calling this endpoint with no offset will default to 0.
-   * calling this endpoint with no start date will default to yesterday.
+   * calling this endpoint with no start date will default to -1 days.
    * calling this endpoint with no end date will default to today.
    * consumer is responsible for making the api call in a loop to get all the records.
    * @param startDate from when records needs to be fetched
@@ -61,10 +61,21 @@ const externalConsumerService = {
 
       if (endDate) {
         const date = convert(LocalDate.parse(endDate)).toDate();
-        endDt = withEndOfDay(LocalDateTime.from(nativeJs(date, ZoneId.UTC)));
+        endDt = withEndOfDay(
+          LocalDateTime.from(nativeJs(date, ZoneId.UTC))
+        );
+
+        if (!endDt.isBefore(withStartOfDay(currentTime))) {
+          throw new PayTransparencyUserError(
+            'End date cannot be later than current - 1 days.',
+          );
+        }
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof PayTransparencyUserError) {
+        throw error;
+      }
+
       throw new PayTransparencyUserError(
         'Failed to parse dates. Please use date format YYYY-MM-dd',
       );
@@ -76,11 +87,6 @@ const externalConsumerService = {
       );
     }
 
-    if (endDt.isAfter(withStartOfDay(currentTime))) {
-      throw new PayTransparencyUserError(
-        'End date must always be before the current date.',
-      );
-    }
     const whereClause: Prisma.reports_viewWhereInput = {
       update_date: {
         gte: convert(startDt).toDate(),
