@@ -36,7 +36,9 @@ dependencies:
     version: 0.1.0
   - name: database
     condition: database.enabled
-    version: 0.1.0
+    version: 15.4.0
+    repository: https://charts.bitnami.com/bitnami
+    alias: database
   - name: crunchy-postgres
     condition: crunchy.enabled
     version: 0.5.1
