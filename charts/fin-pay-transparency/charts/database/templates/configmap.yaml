@@ -5,5 +5,5 @@ metadata:
   labels:
     {{- include "database.labels" . | nindent 4 }}
 data:
-  seed.sql: |-
-    {{ .Files.Glob "seed.sql"  }}
+  seed.sql: {{ range .Files.Lines "seed.txt" }}
+    {{ . }}{{ end }}
