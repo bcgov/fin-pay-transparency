@@ -6,4 +6,4 @@ metadata:
     {{- include "database.labels" . | nindent 4 }}
 data:
   seed.sql: |-
-    {{ .Files.Get "seed.sql" | indent 4  }}
+    {{ .Files.Glob "seed.sql" | indent 4  }}
