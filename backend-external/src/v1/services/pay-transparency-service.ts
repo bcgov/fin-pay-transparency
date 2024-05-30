@@ -25,7 +25,7 @@ export const payTransparencyService = {
   },
   async deleteReports(req: Request) {
     const axiosConfig: AxiosRequestConfig = {
-      params: req.params,
+      params: req.query,
       headers: {
         'x-api-key': config.get('backend:apiKey'),
       },

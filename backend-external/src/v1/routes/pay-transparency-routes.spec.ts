@@ -84,9 +84,10 @@ describe('pay-transparency-routes', () => {
       return request(app)
         .delete('/')
         .set('x-api-key', 'api-delete-reports-key')
-        .query({ companyName: '' })
+        .query({ companyName: "1234567890" })
         .expect(400);
     });
+    
     it('should fail if request fails to get reports', () => {
       mockDeleteReports.mockRejectedValue({ message: 'Error happened' });
       return request(app)
@@ -94,6 +95,14 @@ describe('pay-transparency-routes', () => {
         .query({ companyName: '1234567890' })
         .set('x-api-key', 'api-delete-reports-key')
         .expect(500);
+    });
+
+    it('should fail if company name is not supplied', () => {
+      mockDeleteReports.mockRejectedValue({ message: 'Error happened' });
+      return request(app)
+        .delete('/')
+        .set('x-api-key', 'api-delete-reports-key')
+        .expect(404);
     });
   });
 });

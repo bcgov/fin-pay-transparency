@@ -40,7 +40,7 @@ describe('pay-transparency-service', () => {
     it('should delete reports', async () => {
       mockDelete.mockReturnValue({});
       await payTransparencyService.deleteReports({
-        params: { companyName: '1234567890' },
+        query: { companyName: '1234567890' },
       } as any);
 
       expect(mockDelete).toHaveBeenCalledWith(
