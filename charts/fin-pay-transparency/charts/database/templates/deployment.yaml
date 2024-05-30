@@ -75,6 +75,10 @@ spec:
               mountPath: /var/lib/postgresql
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
+      volumes:
+        - name: {{ include "database.fullname" . }}
+          configMap:
+            name: {{ include "database.fullname" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
