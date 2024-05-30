@@ -1,30 +1,9 @@
 import axios from 'axios';
-import { saveAs } from 'file-saver';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
-import { IConfigValue, IReport } from './types';
+import { IConfigValue } from './types';
 
 export const LOCAL_STORAGE_KEY_JWT = 'pay-transparency-admin-jwt';
-
-export enum REPORT_FORMATS {
-  HTML = 'html',
-  PDF = 'pdf',
-  JSON = 'json',
-}
-
-export interface ISubmission {
-  id?: string;
-  companyName: string;
-  companyAddress: string;
-  naicsCode: string;
-  employeeCountRangeId: string;
-  startDate: string;
-  endDate: string;
-  reportingYear: number;
-  dataConstraints: string | null;
-  comments: string | null;
-  rows: any[];
-}
 
 // Buffer concurrent requests while refresh token is being acquired
 let failedQueue = [];
@@ -102,42 +81,6 @@ export default {
       delete apiAxios.defaults.headers.common['x-correlation-id'];
     }
   },
-  async postSubmission(data: ISubmission) {
-    try {
-      const resp = await apiAxios.post(ApiRoutes.POST_SUBMISSION, data);
-      if (resp?.data) {
-        return resp.data;
-      }
-      throw new Error('Unable to post the submission');
-    } catch (e) {
-      console.log(`Submission not successful`);
-      throw e;
-    }
-  },
-  async getEmployeeCountRanges() {
-    try {
-      const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
-      if (resp?.data) {
-        return resp.data;
-      }
-      throw new Error('Unable to fetch employee count ranges from API');
-    } catch (e) {
-      console.log(`Failed to get employee count ranges from API - ${e}`);
-      throw e;
-    }
-  },
-  async getNaicsCodes() {
-    try {
-      const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
-      if (resp?.data) {
-        return resp.data;
-      }
-      throw new Error('Unable to fetch NAICS codes from API');
-    } catch (e) {
-      console.log(`Failed to get NAICS from API - ${e}`);
-      throw e;
-    }
-  },
   async getUserInfo() {
     try {
       return await apiAxios.get(ApiRoutes.USER);
@@ -153,125 +96,6 @@ export default {
       return data;
     } catch (e) {
       console.log(`Failed to do get from Nodejs getConfig API - ${e}`);
-      throw e;
-    }
-  },
-  /**
-   * Returns all published or draft reports for the current employer.
-   * @param {object} filters an object of this form:
-   * {
-   *   report_status?: string, //Optional.  If specified must be one of: 'Published' or 'Draft'
-   *   reporting_year: number, //Optional
-   * }
-   * @returns {Array.<{report_id: String, reporting_year: number, revision: Number}>}
-   */
-  async getReports(filters?: {
-    report_status?: string;
-    reporting_year?: number;
-  }) {
-    try {
-      const resp = await apiAxios.get<IReport[]>(ApiRoutes.REPORT, {
-        params: filters,
-      });
-      if (resp?.data) {
-        return resp.data;
-      }
-      throw new Error('Unable to fetch reports from API');
-    } catch (e) {
-      console.log(`Failed to get reports from API - ${e}`);
-      throw e;
-    }
-  },
-
-  /**
-   * Get the form details of an existing report
-   * @param {string} reportId
-   * @returns {report_id, user_comment, employee_count_range_id, naics_code, report_start_date, report_end_date, report_status, revision, data_constraints}
-   */
-  async getReport(reportId): Promise<ISubmission> {
-    try {
-      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId);
-      if (resp?.data) {
-        return resp.data;
-      }
-      throw new Error('Unable to fetch report from API');
-    } catch (e) {
-      console.log(`Failed to get report from API - ${e}`);
-      throw e;
-    }
-  },
-
-  /**
-   * Get the report as HTML
-   * @param {string} reportId
-   * @returns {string} HTML version of the report
-   */
-  async getHtmlReport(reportId) {
-    try {
-      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId, {
-        headers: { accept: 'text/html' },
-        responseType: 'text',
-      });
-      if (resp?.data) {
-        return resp.data;
-      }
-      throw new Error('Unable to fetch html report from API');
-    } catch (e) {
-      console.log(`Failed to get html report from API - ${e}`);
-      throw e;
-    }
-  },
-
-  /**
-   * Download the report in a PDF format.
-   * @param {string} reportId
-   */
-  async getPdfReport(reportId) {
-    try {
-      const resp = await apiAxios.get(ApiRoutes.REPORT + reportId, {
-        headers: { accept: 'application/pdf' },
-        responseType: 'blob',
-      });
-
-      if (resp?.data) {
-        //get/create filename
-        let fileName = '';
-        if (resp?.headers['content-disposition']) {
-          const startFileNameIndex =
-            resp.headers['content-disposition'].indexOf('filename=') + 9;
-          const endFileNameIndex =
-            resp.headers['content-disposition'].lastIndexOf('.pdf') + 4;
-          fileName = resp.headers['content-disposition'].substring(
-            startFileNameIndex,
-            endFileNameIndex,
-          );
-        }
-        if (!fileName) fileName = 'pay_transparency_report.pdf';
-
-        //make the browser save the file
-        saveAs(resp.data, fileName, { type: 'application/pdf' } as any);
-      } else {
-        throw new Error('Unable to fetch pdf report from API');
-      }
-    } catch (e) {
-      console.log(`Failed to get pdf report from API - ${e}`);
-      throw e;
-    }
-  },
-
-  /**
-   * Change the status of an existing report from Draft to Published.
-   * @param {string} reportId  The id of a Draft report that should be Published
-   */
-  async publishReport(reportId: string): Promise<any> {
-    try {
-      const resp = await apiAxios.put(`${ApiRoutes.REPORT}/${reportId}`);
-      if (resp?.data) {
-        return resp.data;
-      }
-      throw new Error('Unexpected response from publishReport API');
-    } catch (e) {
-      console.log(`Failed to get reports from API - ${e}`);
       throw e;
     }
   },

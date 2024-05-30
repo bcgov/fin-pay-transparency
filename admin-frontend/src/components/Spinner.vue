@@ -3,7 +3,7 @@
     :size="70"
     :width="7"
     color="primary"
-    indeterminate='disable-shrink' 
+    indeterminate="disable-shrink"
   />
 </template>
 
@@ -13,15 +13,15 @@ export default {
   props: {
     flat: {
       type: Boolean,
-      default: false
+      default: false,
     },
-  }
+  },
 };
 </script>
 
 <style scoped>
 .v-card--variant-elevated {
-    box-shadow: none;
-    height: 100% !important;
+  box-shadow: none;
+  height: 100% !important;
 }
 </style>

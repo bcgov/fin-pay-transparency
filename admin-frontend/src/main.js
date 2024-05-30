@@ -6,7 +6,7 @@ import router from './router';
 import 'regenerator-runtime/runtime';
 import { createPinia } from 'pinia';
 import * as colors from 'vuetify/lib/util/colors';
-import styles from 'vuetify/styles';
+import 'vuetify/styles';
 import * as labs from 'vuetify/labs/components';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -18,7 +18,6 @@ import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 
-
 const myCustomLightTheme = {
   dark: false,
   colors: {
@@ -29,6 +28,7 @@ const myCustomLightTheme = {
     success: '#00A54F',
     link: '#255A90',
     tab: '#1E5189',
+    sidebar: '#39598a',
   },
   variables: {
     'border-opacity': 0.24, //default 0.12
@@ -59,7 +59,7 @@ const vuetify = createVuetify({
     ...labs,
     ...components,
     ...directives,
-    ...styles,
+    //...styles,
     ...colors,
   },
 });

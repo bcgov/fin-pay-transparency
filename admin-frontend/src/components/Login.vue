@@ -1,7 +1,7 @@
 <template>
-  <v-container>
+  <v-container class="justify-center fill-height">
     <v-row align="center" justify="center">
-      <v-col xs="4" sm="4" md="4" lg="4" xl="4">
+      <v-col xs="4" sm="4" md="4" lg="4" xl="4" class="d-flex justify-center">
         <v-btn
           id="login-button"
           class="btn-primary"
