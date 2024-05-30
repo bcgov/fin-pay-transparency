@@ -5,8 +5,5 @@ metadata:
   labels:
     {{- include "database.labels" . | nindent 4 }}
 data:
-  {{- $files := .Files }}
-  {{- range tuple "seed.sql" }}
-  {{ . }}: |-
-        {{ $files.Get . }}
-  {{- end }}
+  seed.sql: |-
+           {{ .Files.Get "seed.sql"  }}
