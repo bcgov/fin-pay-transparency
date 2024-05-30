@@ -1,12 +1,14 @@
 <template>
   <v-app id="app">
     <MsieBanner v-if="isIE" />
-    <Header v-if="areHeaderAndSidebarVisible" />
-    <SnackBar />
-    <SideBar v-if="areHeaderAndSidebarVisible" />
-    <v-main fluid class="align-start">
-      <router-view />
-    </v-main>
+    <div v-if="!isIE">
+      <Header v-if="areHeaderAndSidebarVisible" />
+      <SnackBar />
+      <SideBar v-if="areHeaderAndSidebarVisible" />
+      <v-main fluid class="align-start">
+        <router-view />
+      </v-main>
+    </div>
   </v-app>
 </template>
 

@@ -1,7 +1,7 @@
 // Import the necessary modules
-import authService from '../authService.js';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import axios, { AxiosError } from 'axios';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import authService from '../authService.js';
 
 vi.mock('axios', async () => {
   const actual: any = await vi.importActual('axios');
@@ -49,7 +49,10 @@ describe('Auth Service', () => {
           correlationID: 'testCorrelationID',
         },
       });
-      const data = await authService.refreshAuthToken('testToken', 'testCorrelationID');
+      const data = await authService.refreshAuthToken(
+        'testToken',
+        'testCorrelationID',
+      );
       expect(data.jwtFrontend).toBe('testToken');
       expect(data.correlationID).toBe('testCorrelationID');
     });
@@ -60,7 +63,10 @@ describe('Auth Service', () => {
           error_description: 'refresh token expired.',
         },
       });
-      const  data  = await authService.refreshAuthToken('testToken', 'testCorrelationID');
+      const data = await authService.refreshAuthToken(
+        'testToken',
+        'testCorrelationID',
+      );
       expect(data.error).toBe('refresh token expired.');
     });
     it('should reject if api respond is unauthorized.', async () => {

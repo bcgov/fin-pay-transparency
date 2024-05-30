@@ -8,7 +8,6 @@ import ErrorPage from './components/ErrorPage.vue';
 import NotFoundPage from './components/NotFound.vue';
 import LoginError from './components/LoginError.vue';
 import TokenExpired from './components/TokenExpired.vue';
-import ContactError from './components/ContactError.vue';
 import { appStore } from './store/modules/app';
 import { PAGE_TITLES } from './utils/constant';
 import Login from './components/Login.vue';
@@ -80,12 +79,6 @@ const router = createRouter({
       path: '/error',
       name: 'error',
       component: ErrorPage,
-    },
-    {
-      // A route to show an error when the user must contact support
-      path: '/contact-error',
-      name: 'contact-error',
-      component: ContactError,
     },
     {
       // A route to show an error specifically related to failed logins

@@ -1,36 +1,13 @@
 <template>
-  <v-alert
-    id="banner"
-    variant="outlined"
-    class="alert-error"
-    dense
-    type="error"
-    dismissible
-  >
-    Your current web browser, Microsoft Internet Explorer, is not supported for
-    this service. Use one of these web browsers: Microsoft Edge, Mozilla
-    Firefox, Google Chrome, or Apple Safari.
-  </v-alert>
+  <v-container>
+    <v-row align="center" justify="center">
+      <v-col xs="4" sm="4" md="4" lg="4" xl="4">
+        <v-alert dense outlined class="alert-error mb-3">
+          Your current web browser, Microsoft Internet Explorer, is not
+          supported for this service. Use one of these web browsers: Microsoft
+          Edge, Mozilla Firefox, Google Chrome, or Apple Safari.
+        </v-alert>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
-
-<style scoped>
-#banner {
-  color: #81692c;
-  background-color: #fef4dd !important;
-}
-
-#banner /deep/ .v-icon {
-  color: #81692c;
-}
-
-#banner /deep/ .v-btn {
-  padding-top: 32px;
-}
-
-#banner /deep/ .v-alert__wrapper {
-  align-items: flex-start;
-  width: 800px;
-  margin: 0 auto;
-  max-width: 100vw;
-}
-</style>

@@ -1,6 +1,6 @@
 import { render } from '@testing-library/vue';
+import { describe, expect, it } from 'vitest';
 import NotFound from '../NotFound.vue';
-import { describe, it, expect } from 'vitest';
 
 const wrappedRender = () => {
   return render(NotFound);
