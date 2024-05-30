@@ -1,4 +1,3 @@
--- PRE SEED
 DELETE FROM pay_transparency.calculated_data_history;
 DELETE FROM pay_transparency.pay_transparency_calculated_data;
 DELETE FROM pay_transparency.report_history;
@@ -16,8 +15,6 @@ INSERT INTO pay_transparency.pay_transparency_company VALUES ('c066d0df-fb18-41f
 
 INSERT INTO pay_transparency.pay_transparency_user VALUES ('b424d365-873c-4f48-b64d-242c825bb599', '92f4d75e-115f-436e-a521-ac7475b854e0', 'f824969c-0b39-41ba-a9ad-1e867d211b74', 'Bruce Bigelow', '2024-05-07 17:21:45.639', '2024-05-07 17:21:45.639');
 INSERT INTO pay_transparency.pay_transparency_user VALUES ('f84407a9-8bf1-42e6-99ce-4c751eee9c9a', '845c0d85-12ff-4765-9fef-d14e49725089', '8ecaaa63-bbb6-4fc1-9e37-73c1b3f1b263', 'Sukanya Rath', '2024-03-24 18:47:29.682', '2024-05-13 17:42:04.825');
-
-
 
 INSERT INTO pay_transparency.calculation_code VALUES ('1edfc34a-917a-481d-8011-2015aa1ff37b', 'PERCENT_RECEIVING_BONUS_PAY_U');
 INSERT INTO pay_transparency.calculation_code VALUES ('da9111c0-aa64-4174-88ea-8e322aa62a91', 'MEAN_HOURLY_PAY_DIFF_M');
@@ -77,26 +74,9 @@ INSERT INTO pay_transparency.calculation_code VALUES ('bd0d0905-2373-44fe-917f-d
 INSERT INTO pay_transparency.calculation_code VALUES ('021619ef-e363-4156-9d4f-90096b9499ec', 'PERCENT_RECEIVING_BONUS_PAY_W');
 INSERT INTO pay_transparency.calculation_code VALUES ('e3dc6bb4-4583-409e-8d9a-eb80f2e2de4b', 'PERCENT_RECEIVING_BONUS_PAY_X');
 
-
---
--- TOC entry 3546 (class 0 OID 49409)
--- Dependencies: 229
--- Data for Name: company_history; Type: TABLE DATA; Schema: pay_transparency; Owner: postgres
---
-
-
-
---
--- TOC entry 3541 (class 0 OID 49294)
--- Dependencies: 224
--- Data for Name: employee_count_range; Type: TABLE DATA; Schema: pay_transparency; Owner: postgres
---
-
 INSERT INTO pay_transparency.employee_count_range VALUES ('995f21ef-5bd2-41fc-b4c0-8bc595a3c1ab', '50-299', '2024-03-24 18:34:40.068024', '2024-03-24 18:34:40.068024', '2024-03-24 18:34:40.068024', NULL, 'fin-pay-transparency', 'fin-pay-transparency');
 INSERT INTO pay_transparency.employee_count_range VALUES ('4492feff-99d7-4b2b-8896-12a59a75d4e1', '300-999', '2024-03-24 18:34:40.068024', '2024-03-24 18:34:40.068024', '2024-03-24 18:34:40.068024', NULL, 'fin-pay-transparency', 'fin-pay-transparency');
 INSERT INTO pay_transparency.employee_count_range VALUES ('979e498c-af14-4ba4-b04e-8dd7bb44bdcc', '1000 or more', '2024-03-24 18:34:40.068024', '2024-03-24 18:34:40.068024', '2024-03-24 18:34:40.068024', NULL, 'fin-pay-transparency', 'fin-pay-transparency');
-
-
 
 INSERT INTO pay_transparency.naics_code VALUES ('11', 'Agriculture, forestry, fishing and hunting', '2024-03-24', NULL, '2024-03-24 18:34:40.366464', '2024-03-24 18:34:40.366464', 'System', 'System', '2022');
 INSERT INTO pay_transparency.naics_code VALUES ('21', 'Mining, quarrying, and oil and gas extraction', '2024-03-24', NULL, '2024-03-24 18:34:40.366464', '2024-03-24 18:34:40.366464', 'System', 'System', '2022');
