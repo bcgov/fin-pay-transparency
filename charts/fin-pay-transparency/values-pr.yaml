@@ -114,7 +114,7 @@ doc-gen-service:
   tolerations: []
   pdb: false
 
-bitnami-pg:
+database:
   enabled: true
   image:
     registry: ghcr.io

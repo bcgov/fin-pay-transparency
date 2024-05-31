@@ -318,7 +318,7 @@
       },
       "additionalProperties": true
     },
-    "bitnami-pg": {
+    "database": {
       "properties": {
         "enabled": {
           "type": "boolean"
@@ -453,6 +453,6 @@
       "additionalProperties": true
     }
   },
-  "required": ["backend", "frontend", "bitnami-pg", "global"],
+  "required": ["backend", "frontend", "database", "global"],
   "additionalProperties": true
 }

@@ -140,7 +140,7 @@ frontend:
   nodeSelector: {}
   tolerations: []
   pdb: true
-bitnami-pg:
+database:
   enabled: false
 crunchy:
   enabled: true
