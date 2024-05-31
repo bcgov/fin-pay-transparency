@@ -5,7 +5,7 @@ import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'querystring';
 import { config } from '../../config';
-import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants';
+import { KEYCLOAK_IDP_HINT_AZUREIDIR, OIDC_AZUREIDIR_SCOPE } from '../../constants';
 import { logger as log } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { utils } from './utils-service';
@@ -20,6 +20,7 @@ enum LogoutReason {
 }
 
 let kcPublicKey: string;
+// TODO look at all the methods in this file, make them reusable from utils with parameters.
 const adminAuth = {
   // Check if JWT Access Token has expired
   isTokenExpired(token: string) {
@@ -52,11 +53,11 @@ const adminAuth = {
       const response = await axios.post(
         discovery.token_endpoint,
         qs.stringify({
-          client_id: config.get('oidc:clientId'),
-          client_secret: config.get('oidc:clientSecret'),
+          client_id: config.get('oidc:adminClientId'),
+          client_secret: config.get('oidc:adminClientSecret'),
           grant_type: 'refresh_token',
           refresh_token: refreshToken,
-          scope: 'bceidbusiness',
+          scope: OIDC_AZUREIDIR_SCOPE,
         }),
         {
           headers: {
@@ -114,7 +115,7 @@ const adminAuth = {
     }
     next();
   },
-
+  // TODO make this an util method with parameters which can be reused for both admin and public site.
   generateUiToken() {
     const i = config.get('tokenGenerate:issuer');
     const s = 'user@finpaytransparency.ca';
@@ -199,28 +200,9 @@ const adminAuth = {
     return res.status(HttpStatus.OK).json(userInfoFrontend);
   },
 
-  async storeUserInfo(companyDetails, userInfo) {
-    if (!userInfo?.jwt || !userInfo?._json) {
-      throw new Error('No session data');
-    }
-    try {
-      await prisma.$transaction(async (tx) => {
-        const companyRecord: pay_transparency_company =
-          this.companyDetailsToRecord(
-            companyDetails,
-            userInfo._json.bceid_business_guid,
-          );
-        await this.createOrUpdatePayTransparencyCompany(companyRecord, tx);
-        await this.createOrUpdatePayTransparencyUser(userInfo, tx);
-      });
-    } catch (e) {
-      log.error(e);
-      throw new Error('Error while storing user info');
-    }
-  },
+
 
   async handleCallBackIdir(req: Request): Promise<LogoutReason> {
-    const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
     const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
     const idirUserGuid = jwtPayload?.idir_user_guid;
