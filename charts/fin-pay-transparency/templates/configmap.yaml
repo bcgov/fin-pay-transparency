@@ -15,9 +15,9 @@ data:
   FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION: {{ .Values.global.config.first_year_with_prev_reporting_year_option | quote }}
   DB_CONNECTION_POOL_SIZE: {{ .Values.global.config.db_connection_pool_size | quote }}
 
+---
 {{- if .Values.database.enabled }}
 {{- $databaseConfigMapName := printf "%s-database" .Release.Name -}}
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
