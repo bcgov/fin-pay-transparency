@@ -124,6 +124,8 @@ database:
     tag: 15.7.0
   auth:
     existingSecret: '{{ .Release.Name }}'
+    username: fin-pay-transparency
+    database: fin-pay-transparency
   shmVolume:
     enabled: false
   backup:
@@ -141,6 +143,9 @@ database:
       accessModes:
         - ReadWriteOnce
       size: 100Mi
+    persistentVolumeClaimRetentionPolicy:
+      enabled: true
+      whenDeleted: Delete
     containerSecurityContext:
       enabled: false
     podSecurityContext:
