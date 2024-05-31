@@ -35,10 +35,10 @@ dependencies:
     condition: admin-frontend.enabled
     version: 0.1.0
   - name: postgresql
-    condition: bitnami-pg.enabled
+    condition: postgresql.enabled
     version: 15.4.0
     repository: https://charts.bitnami.com/bitnami
-    alias: bitnami-pg
+    alias: postgresql
   - name: crunchy-postgres
     condition: crunchy.enabled
     version: 0.5.1
