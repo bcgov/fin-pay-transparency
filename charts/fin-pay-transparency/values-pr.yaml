@@ -151,7 +151,7 @@ database:
     podSecurityContext:
       enabled: false
     initdb:
-      scriptsConfigMap: {{ printf "%s-database" .Release.Name | quote }} 
+      scriptsConfigMap: "{{ .Release.Name }}-database"
     resources:
       requests:
         cpu: 50m
