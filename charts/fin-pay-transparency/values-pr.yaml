@@ -124,8 +124,6 @@ database:
     tag: 15.7.0
   auth:
     existingSecret: '{{ .Release.Name }}'
-    username: 'quickstart'
-    database: quickstart
   shmVolume:
     enabled: false
   backup:
