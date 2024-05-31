@@ -78,7 +78,7 @@ if ('local' === config.get('environment')) {
 
 //sets cookies for security purposes (prevent cookie access, allow secure connections only, etc)
 const sess = {
-  name: 'fin_pay_transparency_cookie',
+  name: 'fin_pay_transparency_admin_cookie',
   secret: config.get('oidc:adminClientSecret'),
   resave: false,
   saveUninitialized: true,
