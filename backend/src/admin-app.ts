@@ -167,7 +167,7 @@ utils.getOidcDiscovery().then((oicdDiscoveryDocument) => {
   );
   //JWT strategy is used for authorization
   passport.use(
-    'jwt',
+    'jwt_admin',
     new JWTStrategy(
       {
         algorithms: ['RS256'],
@@ -255,7 +255,7 @@ apiRouter.use('/auth', adminAuthRouter);
 
 // check for valid passport session and backend token for all routes below.
 apiRouter.use(
-  passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt_admin', { session: false }),
   (req: Request, res: Response, next: NextFunction) => {
     adminAuth.isValidBackendToken()(req, res, next);
   },
