@@ -16,12 +16,12 @@ data:
   DB_CONNECTION_POOL_SIZE: {{ .Values.global.config.db_connection_pool_size | quote }}
 
 {{- if .Values.database.enabled }}
-{{- $configMapName = print .Release.Name  "-database" -}}
+{{- $databaseConfigMapName := printf "%s-database" .Release.Name -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ $configMapName | quote }}
+  name: {{ $databaseConfigMapName | quote }}
   labels: {{- include "labels" . | nindent 4 }}
 data:
   seed.sql: |-
