@@ -25,7 +25,8 @@
   "settings": {
     "jest.disabledWorkspaceFolders": [
       "fin-pay-transparency",
-      "frontend"
+      "frontend",
+      "admin-frontend"
     ],
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
@@ -33,6 +34,7 @@
     "files.exclude": {
       "backend": true,
       "frontend": true,
+      "admin-frontend": true,
       "doc-gen-service": true,
       "backend-external": true,
       "coverage": true
