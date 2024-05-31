@@ -34,7 +34,7 @@ dependencies:
   - name: admin-frontend
     condition: admin-frontend.enabled
     version: 0.1.0
-  - name: database
+  - name: postgresql
     condition: bitnami-pg.enabled
     version: 15.4.0
     repository: https://charts.bitnami.com/bitnami

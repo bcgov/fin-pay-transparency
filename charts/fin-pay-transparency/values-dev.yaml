@@ -141,7 +141,7 @@ frontend:
   nodeSelector: {}
   tolerations: []
   pdb: true
-database:
+postgresql:
   enabled: false
 crunchy:
   enabled: true
