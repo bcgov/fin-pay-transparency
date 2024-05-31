@@ -30,7 +30,7 @@ global:
   autoscaling:
     enabled: false
   crunchyEnabled: false
-  databaseAlias: bitnami-pg
+  databaseAlias: database
 
 
 backend:
@@ -116,7 +116,7 @@ doc-gen-service:
   tolerations: []
   pdb: false
 
-postgresql:
+database:
   enabled: true
   image:
     registry: ghcr.io

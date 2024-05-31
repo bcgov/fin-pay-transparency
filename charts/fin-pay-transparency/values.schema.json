@@ -339,7 +339,7 @@
       },
       "additionalProperties": true
     },
-    "postgresql": {
+    "database": {
       "properties": {
         "enabled": {
           "type": "boolean"
@@ -486,7 +486,7 @@
   "required": [
     "backend",
     "frontend",
-    "postgresql",
+    "database",
     "global"
   ],
   "additionalProperties": true
