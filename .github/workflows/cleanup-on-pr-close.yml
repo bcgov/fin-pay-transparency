@@ -39,4 +39,7 @@ jobs:
 
           helm status ${{ env.release }} && helm uninstall --no-hooks ${{ env.release }} || \
             echo "Not found: ${{ env.release }}"
+          # Remove Bitnami Postgres PVCs
+          oc delete pvc data-${{ env.release }}-database-0 || \
+            echo "Not found: pvc data-${{ env.release }}-database-0"
 

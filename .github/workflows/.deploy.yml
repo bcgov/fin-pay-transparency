@@ -90,6 +90,9 @@ jobs:
           # If inputs.target starts with 'pr-', uninstall the helm chart first to ensure a clean install
           if [[ "${{ inputs.target }}" == pr-* ]]; then
             helm uninstall ${{ env.deployment_name }}-${{ inputs.target }} || true
+            # Remove Bitnami Postgres PVCs
+            oc delete pvc data-${{ env.deployment_name }}-${{ inputs.target }}-database-0 || \
+              echo "Not found: pvc data-${{ env.deployment_name }}-${{ inputs.target }}-database-0"
           fi
 
       - name: Package HELM Chart
