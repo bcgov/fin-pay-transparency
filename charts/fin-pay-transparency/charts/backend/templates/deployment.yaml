@@ -77,11 +77,9 @@ spec:
               value: "10"
         {{- if .Values.global.seedData }}
         - name: {{ include "backend.fullname" . }}-seed
-          image: "artifacts.developer.gov.bc.ca/docker-remote/bcgov/flyway/flyway:10-alpine"
-          command:
-            - info
-            - migrate
-            - info
+          image: "artifacts.developer.gov.bc.ca/docker-remote/flyway/flyway:10-alpine"
+          command: ["flyway"]
+          args: ["info", "migrate", "info"]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.initResources | nindent 12 }}
