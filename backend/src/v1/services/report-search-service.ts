@@ -4,7 +4,7 @@ const reportSearchService = {
   /**
    * Search reports, with pagination, sorting and filtering by connecting to read replica of crunchy.
    * This gives flexibility to query with pagination and filter without any modification to this service.
-   *
+   * // TODO handle filters for child entities, do we need it?
    * @param page the page number to retrieve , UI page 1 is database page 0
    * @param limit the number of records to retrieve, default to 10
    * @param sort string value of JSON Array to store sort key and sort value, ex: [{"revision":"desc"},{"create_date":"asc"}]
@@ -47,6 +47,13 @@ const reportSearchService = {
       totalPages: Math.ceil(count / limit)
     };
   },
+  /**
+   * Convert JSON object to Prisma specific query object
+   * TODO support child entities if needed, move constants to Enum
+   * 
+   * @param filterObj 
+   * @returns 
+   */
   convertFiltersToPrismaFormat(filterObj): any {
 
     let prismaFilterObj = {};
