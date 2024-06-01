@@ -32,6 +32,11 @@ spec:
         - name: {{ include "backend.fullname" . }}-admin-session
           persistentVolumeClaim:
             claimName: {{ include "backend.fullname" . }}-admin-session
+        {{- if .Values.global.seedData }}
+        - name: {{ include "backend.fullname" . }}-seed-data-config
+          configMap:
+            name: {{ .Release.Name }}-seed-data-config
+        {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
@@ -70,6 +75,30 @@ spec:
               value: "pay_transparency"
             - name: FLYWAY_CONNECT_RETRIES
               value: "10"
+        {{- if .Values.global.seedData }}
+        - name: {{ include "backend.fullname" . }}-seed
+          image: "artifacts.developer.gov.bc.ca/docker-remote/bcgov/flyway/flyway:10-alpine"
+          command:
+            - info
+            - migrate
+            - info
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.initResources | nindent 12 }}
+          envFrom:
+            - secretRef:
+                name: {{.Release.Name}}
+          env:
+            - name: FLYWAY_URL
+              value: "jdbc:postgresql://{{.Release.Name}}-database:5432/{{ .Values.global.secrets.databaseName}}"
+            - name: FLYWAY_DEFAULT_SCHEMA
+              value: "pay_transparency"
+            - name: FLYWAY_CONNECT_RETRIES
+              value: "10"
+          volumeMounts:
+            - name: {{ include "backend.fullname" . }}-seed-data-config
+              mountPath: /flyway/sql
+        {{- end }}
       containers:
         - name: {{ include "backend.fullname" . }}
           securityContext:
