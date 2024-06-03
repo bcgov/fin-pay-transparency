@@ -44,6 +44,7 @@ global:
     first_year_with_prev_reporting_year_option: "2025"
     db_connection_pool_size: "5"
   crunchyEnabled: true
+  seedData: false # this controls whether the seed data should be loaded or not, mostly used for PR deployments.
 backend:
   enabled: true
   deploymentStrategy: RollingUpdate

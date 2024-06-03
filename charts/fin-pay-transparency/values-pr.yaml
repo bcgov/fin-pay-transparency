@@ -30,7 +30,7 @@ global:
   autoscaling:
     enabled: false
   crunchyEnabled: false
-
+  seedData: true
 backend:
   deploymentStrategy: Recreate
   initResources:
