@@ -1,13 +1,14 @@
-import { pay_transparency_company } from '@prisma/client';
 import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'querystring';
 import { config } from '../../config';
-import { KEYCLOAK_IDP_HINT_AZUREIDIR, OIDC_AZUREIDIR_SCOPE } from '../../constants';
+import {
+  KEYCLOAK_IDP_HINT_AZUREIDIR,
+  OIDC_AZUREIDIR_SCOPE,
+} from '../../constants';
 import { logger as log } from '../../logger';
-import prisma from '../prisma/prisma-client';
 import { utils } from './utils-service';
 
 enum LogoutReason {
@@ -119,7 +120,7 @@ const adminAuth = {
   generateUiToken() {
     const i = config.get('tokenGenerate:issuer');
     const s = 'user@finpaytransparency.ca';
-    const a = config.get('server:frontend');
+    const a = config.get('server:adminFrontend');
     const signOptions: SignOptions = {
       issuer: i,
       subject: s,
@@ -199,8 +200,6 @@ const adminAuth = {
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);
   },
-
-
 
   async handleCallBackIdir(req: Request): Promise<LogoutReason> {
     const userInfo = utils.getSessionUser(req);
