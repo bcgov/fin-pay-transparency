@@ -1,13 +1,26 @@
 <template>
-  <v-navigation-drawer mobile-breakpoint="0" color="sidebar">
+  <v-navigation-drawer
+    mobile-breakpoint="0"
+    color="sidebar"
+    :rail="isInRailMode"
+    rail-width="75"
+    permanent
+  >
+    <div class="d-flex justify-end mb-6">
+      <v-btn
+        :icon="isInRailMode ? 'mdi-chevron-right' : 'mdi-chevron-left'"
+        variant="text"
+        @click.stop="isInRailMode = !isInRailMode"
+      ></v-btn>
+    </div>
     <div class="justify-center text-center">
       <img
         src="../assets/images/bc-gov-logo.svg"
-        width="155"
+        :width="isInRailMode ? 138 : 155"
         alt="B.C. Government Logo"
         class="mb-8"
       />
-      <div class="d-flex justify-center mb-8 title">
+      <div class="d-flex justify-center mb-8 title" v-if="!isInRailMode">
         Pay Transparency Admin Portal
       </div>
     </div>
@@ -70,6 +83,7 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const activeRoute = ref();
+const isInRailMode = ref(false);
 
 watch(
   route,
@@ -82,7 +96,7 @@ watch(
 
 <style lang="scss">
 .v-navigation-drawer {
-  padding: 64px 10px 10px 10px;
+  padding: 10px;
 }
 .title {
   font-size: 1.5em;
