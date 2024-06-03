@@ -5,8 +5,21 @@
       <Header v-if="areHeaderAndSidebarVisible" />
       <SnackBar />
       <SideBar v-if="areHeaderAndSidebarVisible" />
-      <v-main fluid class="align-start">
-        <router-view />
+      <v-main fluid class="d-flex flex-column align-start">
+        <div class="mb-2" v-if="currentRoute?.name != 'dashboard'">
+          <v-btn
+            id="back-button"
+            class="btn-secondary"
+            data-testid="login-button"
+            to="dashboard"
+            title="Back"
+          >
+            Back
+          </v-btn>
+        </div>
+        <div>
+          <router-view />
+        </div>
       </v-main>
     </div>
   </v-app>
@@ -33,6 +46,7 @@ export default {
   data() {
     return {
       areHeaderAndSidebarVisible: false,
+      currentRoute: null,
     };
   },
   computed: {
@@ -49,6 +63,7 @@ export default {
         NotificationService.setErrorPageMessage();
       }
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
+      this.currentRoute = to;
     },
   },
   async created() {},
