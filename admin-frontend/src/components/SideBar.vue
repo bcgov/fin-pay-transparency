@@ -1,13 +1,27 @@
 <template>
-  <v-navigation-drawer mobile-breakpoint="0" color="sidebar">
+  <v-navigation-drawer
+    mobile-breakpoint="0"
+    color="sidebar"
+    :rail="!isExpanded"
+    rail-width="75"
+    permanent
+  >
+    <div class="d-flex justify-end mb-6">
+      <v-btn
+        :icon="isExpanded ? 'mdi-chevron-left' : 'mdi-chevron-right'"
+        variant="text"
+        @click.stop="toggleIsExpanded()"
+        id="sidebar-rail-toggle-btn"
+      ></v-btn>
+    </div>
     <div class="justify-center text-center">
       <img
         src="../assets/images/bc-gov-logo.svg"
-        width="155"
+        :width="isExpanded ? 155 : 138"
         alt="B.C. Government Logo"
         class="mb-8"
       />
-      <div class="d-flex justify-center mb-8 title">
+      <div class="d-flex justify-center mb-8 title" v-if="isExpanded">
         Pay Transparency Admin Portal
       </div>
     </div>
@@ -64,17 +78,29 @@
   </v-navigation-drawer>
 </template>
 
+<script>
+export default {
+  name: 'SideBar',
+  suspensible: false,
+};
+</script>
+
 <script setup>
 import { watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const activeRoute = ref();
+const isExpanded = ref(true);
+
+const toggleIsExpanded = () => {
+  isExpanded.value = !isExpanded.value;
+};
 
 watch(
-  route,
-  () => {
-    activeRoute.value = route.name;
+  () => route?.name,
+  (newVal, oldVal) => {
+    activeRoute.value = newVal;
   },
   { immediate: true },
 );
@@ -82,7 +108,7 @@ watch(
 
 <style lang="scss">
 .v-navigation-drawer {
-  padding: 64px 10px 10px 10px;
+  padding: 10px;
 }
 .title {
   font-size: 1.5em;
