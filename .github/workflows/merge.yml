@@ -133,6 +133,5 @@ jobs:
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
     with:
-      frontend-url: https://dev.paytransparency.fin.gov.bc.ca
       external-api-base-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca    
 
