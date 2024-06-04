@@ -11,6 +11,7 @@
         :icon="isInRailMode ? 'mdi-chevron-right' : 'mdi-chevron-left'"
         variant="text"
         @click.stop="isInRailMode = !isInRailMode"
+        data-testid="sidebar-rail-toggle-btn"
       ></v-btn>
     </div>
     <div class="justify-center text-center">
@@ -77,6 +78,13 @@
   </v-navigation-drawer>
 </template>
 
+<script>
+export default {
+  name: 'SideBar',
+  suspensible: false,
+};
+</script>
+
 <script setup>
 import { watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -86,9 +94,9 @@ const activeRoute = ref();
 const isInRailMode = ref(false);
 
 watch(
-  route,
-  () => {
-    activeRoute.value = route.name;
+  () => route.name,
+  (_, newVal) => {
+    activeRoute.value = newVal;
   },
   { immediate: true },
 );
