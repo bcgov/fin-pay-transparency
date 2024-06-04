@@ -65,7 +65,7 @@ jobs:
       run:
         working-directory: frontend
     runs-on: ubuntu-22.04
-    timeout-minutes: ${{ inputs.timeout-minutes }}
+    timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     strategy:
       max-parallel: 3
       matrix:

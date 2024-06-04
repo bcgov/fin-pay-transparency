@@ -1280,6 +1280,9 @@ const reportService = {
             user_comment: full_report_to_publish.user_comment,
             data_constraints: full_report_to_publish.data_constraints,
             revision: parseInt(existing_published_report.revision as any) + 1,
+            pay_transparency_user: {
+              connect: { user_id: full_report_to_publish.user_id },
+            },
             update_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
             update_user: full_report_to_publish.update_user,
             pay_transparency_calculated_data: {
