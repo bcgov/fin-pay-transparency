@@ -2,26 +2,26 @@
   <v-navigation-drawer
     mobile-breakpoint="0"
     color="sidebar"
-    :rail="isInRailMode"
+    :rail="!isExpanded"
     rail-width="75"
     permanent
   >
     <div class="d-flex justify-end mb-6">
       <v-btn
-        :icon="isInRailMode ? 'mdi-chevron-right' : 'mdi-chevron-left'"
+        :icon="isExpanded ? 'mdi-chevron-left' : 'mdi-chevron-right'"
         variant="text"
-        @click.stop="isInRailMode = !isInRailMode"
-        data-testid="sidebar-rail-toggle-btn"
+        @click.stop="toggleIsExpanded()"
+        id="sidebar-rail-toggle-btn"
       ></v-btn>
     </div>
     <div class="justify-center text-center">
       <img
         src="../assets/images/bc-gov-logo.svg"
-        :width="isInRailMode ? 138 : 155"
+        :width="isExpanded ? 155 : 138"
         alt="B.C. Government Logo"
         class="mb-8"
       />
-      <div class="d-flex justify-center mb-8 title" v-if="!isInRailMode">
+      <div class="d-flex justify-center mb-8 title" v-if="isExpanded">
         Pay Transparency Admin Portal
       </div>
     </div>
@@ -91,10 +91,14 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const activeRoute = ref();
-const isInRailMode = ref(false);
+const isExpanded = ref(true);
+
+const toggleIsExpanded = () => {
+  isExpanded.value = !isExpanded.value;
+};
 
 watch(
-  () => route.name,
+  () => route?.name,
   (_, newVal) => {
     activeRoute.value = newVal;
   },
