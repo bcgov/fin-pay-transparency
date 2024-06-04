@@ -99,7 +99,7 @@ const toggleIsExpanded = () => {
 
 watch(
   () => route?.name,
-  (_, newVal) => {
+  (newVal, oldVal) => {
     activeRoute.value = newVal;
   },
   { immediate: true },
