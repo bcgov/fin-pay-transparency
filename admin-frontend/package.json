@@ -97,6 +97,7 @@
       "sourceType": "module"
     },
     "rules": {
+      "no-var": "error",
       "vue/max-attributes-per-line": "off",
       "vue/first-attribute-linebreak": "off"
     }
