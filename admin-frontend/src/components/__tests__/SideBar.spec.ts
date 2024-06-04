@@ -1,6 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRouter, createWebHistory } from 'vue-router';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -26,66 +25,11 @@ describe('SideBar', () => {
       directives,
     });
 
-    const mockRoute = {
-      name: 'dashboard',
-    };
-    const mockRouter = {
-      push: vi.fn(),
-    };
-
-    const router = createRouter({
-      history: createWebHistory(),
-      routes: [
-        {
-          path: '',
-          component: {
-            template: 'home',
-          },
-        },
-        {
-          path: '/',
-          component: {
-            template: 'home',
-          },
-        },
-        {
-          path: '/dashboard',
-          component: {
-            template: 'Dashboard placeholder',
-          },
-        },
-        {
-          path: '/analytics',
-          component: {
-            template: 'analytics',
-          },
-        },
-        {
-          path: '/user-management',
-          component: {
-            template: 'user-management',
-          },
-        },
-        {
-          path: '/announcements',
-          component: {
-            template: 'announcements',
-          },
-        },
-        {
-          path: '/reports',
-          component: {
-            template: 'reports',
-          },
-        },
-      ],
-    });
-
     wrapper = mount(
       {
         //SideBar depends on vuetify components, so it must be mounted within a v-layout.
-        //It is also an async component (because one of its dependencies,v-navigation-drawer,
-        //is async), so it must be mounted with a Suspense component.  Some
+        //It is also an async component because one of its dependencies (v-navigation-drawer)
+        //is async, so it must be mounted with a Suspense component.  Some
         //additional info about using the Suspense component are in the vue-test-utils docs
         //here:
         //https://test-utils.vuejs.org/guide/advanced/async-suspense.html#Testing-asynchronous-setup
