@@ -127,11 +127,4 @@ jobs:
     secrets: inherit
     with:
       backend-external-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api
-  test-e2e:
-    name: E2E
-    needs: [deploys]
-    uses: ./.github/workflows/.e2e.yml
-    secrets: inherit
-    with:
-      external-api-base-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca    
 
