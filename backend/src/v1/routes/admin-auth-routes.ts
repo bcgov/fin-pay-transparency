@@ -131,7 +131,7 @@ router.post(
       res.status(401).json(UnauthorizedRsp);
     } else if (adminAuth.isTokenExpired(user.jwt)) {
       if (user?.refreshToken && adminAuth.isRenewable(user.refreshToken)) {
-        return generateTokens(req, res);
+        return adminAuth.renewBackendAndFrontendTokens(req, res);
       } else {
         res.status(401).json(UnauthorizedRsp);
       }
@@ -151,24 +151,6 @@ router.get(
   utils.asyncHandler(adminAuth.refreshJWT),
   adminAuth.handleGetToken,
 );
-
-async function generateTokens(req: Request, res: Response) {
-  const user: any = req.user;
-  const session: any = req.session;
-  const result = await adminAuth.renew(user.refreshToken);
-  if (result?.jwt && result?.refreshToken) {
-    user.jwt = result.jwt;
-    user.refreshToken = result.refreshToken;
-    user.jwtFrontend = adminAuth.generateUiToken();
-    const responseJson = {
-      jwtFrontend: user.jwtFrontend,
-      correlationID: session.correlationID,
-    };
-    res.status(200).json(responseJson);
-  } else {
-    res.status(401).json(UnauthorizedRsp);
-  }
-}
 
 //redirects to the SSO login screen
 router.get(

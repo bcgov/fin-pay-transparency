@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import request from 'supertest';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
+import { authUtils } from '../services/auth-utils-service';
 import { LogoutReason } from '../services/public-auth-service';
 import router from './public-auth-routes';
 let app: Application;
@@ -24,6 +25,14 @@ jest.mock('../services/public-auth-service', () => {
       isRenewable: () => mockIsRenewable(),
       renew: () => mockRenew(),
       generateUiToken: () => mockGenerateUiToken(),
+      renewBackendAndFrontendTokens: (req, res) => {
+        return authUtils.renewBackendAndFrontendTokens(
+          req,
+          res,
+          mockRenew,
+          mockGenerateUiToken,
+        );
+      },
     },
     LogoutReason: actualPublicAuth.LogoutReason,
   };

@@ -139,7 +139,7 @@ router.post(
       res.status(401).json(UnauthorizedRsp);
     } else if (publicAuth.isTokenExpired(user.jwt)) {
       if (user?.refreshToken && publicAuth.isRenewable(user.refreshToken)) {
-        return generateTokens(req, res);
+        return publicAuth.renewBackendAndFrontendTokens(req, res);
       } else {
         res.status(401).json(UnauthorizedRsp);
       }
@@ -158,54 +158,7 @@ router.get(
   '/token',
   utils.asyncHandler(publicAuth.refreshJWT),
   publicAuth.handleGetToken,
-
-  /*
-  (req: Request, res: Response) => {
-    const user: any = req.user;
-    const session: any = req.session;
-    if (!session?.companyDetails) {
-      log.error(
-        `${MISSING_COMPANY_DETAILS_ERROR} for user: ${session?.correlationID}`,
-      );
-      return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
-    }
-    if (user?.jwtFrontend && user?.refreshToken) {
-      if (session?.passport?.user?._json) {
-        req.session['correlationID'] = uuidv4();
-        log.info(
-          `created correlation id and stored in session for user guid: ${session?.passport?.user?._json?.bceid_user_guid}, user name: ${session?.passport?.user?._json?.bceid_username}, correlation_id:  ${session.correlationID}`,
-        );
-      }
-      const responseJson = {
-        jwtFrontend: user.jwtFrontend,
-        correlationID: session.correlationID,
-      };
-      res.status(200).json(responseJson);
-    } else {
-      log.error(JSON.stringify(UnauthorizedRsp));
-      res.status(401).json(UnauthorizedRsp);
-    }
-  },
-  */
 );
-
-async function generateTokens(req: Request, res: Response) {
-  const user: any = req.user;
-  const session: any = req.session;
-  const result = await publicAuth.renew(user.refreshToken);
-  if (result?.jwt && result?.refreshToken) {
-    user.jwt = result.jwt;
-    user.refreshToken = result.refreshToken;
-    user.jwtFrontend = publicAuth.generateUiToken();
-    const responseJson = {
-      jwtFrontend: user.jwtFrontend,
-      correlationID: session.correlationID,
-    };
-    res.status(200).json(responseJson);
-  } else {
-    res.status(401).json(UnauthorizedRsp);
-  }
-}
 
 //redirects to the SSO login screen
 router.get(

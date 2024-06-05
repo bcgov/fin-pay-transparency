@@ -43,6 +43,15 @@ const publicAuth = {
     return authUtils.generateUiToken(audience);
   },
 
+  async renewBackendAndFrontendTokens(req: Request, res: Response) {
+    return authUtils.renewBackendAndFrontendTokens(
+      req,
+      res,
+      publicAuth.renew,
+      publicAuth.generateUiToken,
+    );
+  },
+
   isValidBackendToken() {
     return authUtils.isValidBackendToken(publicAuth.validateClaims);
   },

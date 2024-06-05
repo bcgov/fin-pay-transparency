@@ -44,6 +44,15 @@ const adminAuth = {
     return authUtils.generateUiToken(audience);
   },
 
+  async renewBackendAndFrontendTokens(req: Request, res: Response) {
+    return authUtils.renewBackendAndFrontendTokens(
+      req,
+      res,
+      adminAuth.renew,
+      adminAuth.generateUiToken,
+    );
+  },
+
   isValidBackendToken() {
     return authUtils.isValidBackendToken(adminAuth.validateClaims);
   },

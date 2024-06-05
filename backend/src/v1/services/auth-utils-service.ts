@@ -165,6 +165,29 @@ const authUtils = {
     return uiToken;
   },
 
+  async renewBackendAndFrontendTokens(
+    req: Request,
+    res: Response,
+    renew: Function,
+    generateFrontendToken: Function,
+  ) {
+    const user: any = req.user;
+    const session: any = req.session;
+    const result = await renew(user.refreshToken);
+    if (result?.jwt && result?.refreshToken) {
+      user.jwt = result.jwt;
+      user.refreshToken = result.refreshToken;
+      user.jwtFrontend = generateFrontendToken();
+      const responseJson = {
+        jwtFrontend: user.jwtFrontend,
+        correlationID: session.correlationID,
+      };
+      res.status(200).json(responseJson);
+    } else {
+      res.status(401).json(UnauthorizedRsp);
+    }
+  },
+
   isValidBackendToken(validateClaims: Function) {
     return async function (req: Request, res: Response, next: NextFunction) {
       const session: any = req.session;
