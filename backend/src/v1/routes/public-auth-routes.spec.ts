@@ -1,8 +1,8 @@
 import express, { Application } from 'express';
 import request from 'supertest';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
-import { LogoutReason } from '../services/auth-service';
-import router from './auth-routes';
+import { LogoutReason } from '../services/public-auth-service';
+import router from './public-auth-routes';
 let app: Application;
 
 const mockHandleCallbackBusinessBceid = jest.fn();
@@ -10,12 +10,12 @@ const mockIsTokenExpired = jest.fn();
 const mockIsRenewable = jest.fn();
 const mockRenew = jest.fn();
 const mockGenerateUiToken = jest.fn();
-jest.mock('../services/auth-service', () => {
+jest.mock('../services/public-auth-service', () => {
   const actualLogoutReason = jest.requireActual(
-    '../services/auth-service',
+    '../services/public-auth-service',
   ).LogoutReason;
   return {
-    auth: {
+    publicAuth: {
       handleCallBackBusinessBceid: (...args) =>
         mockHandleCallbackBusinessBceid(...args),
       refreshJWT: jest.fn((req, res, next) => mockRefreshJWT(req, res, next)),
@@ -65,7 +65,7 @@ const mockRequest = {
   },
 };
 
-describe('auth-routes', () => {
+describe('public-auth-routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     app = express();

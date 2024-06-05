@@ -1,13 +1,12 @@
 import { pay_transparency_company } from '@prisma/client';
-import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
-import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
-import qs from 'querystring';
+import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
 import { getCompanyDetails } from '../../external/services/bceid-service';
 import { logger as log } from '../../logger';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
+import { authUtils } from './auth-utils-service';
 import { utils } from './utils-service';
 
 enum LogoutReason {
@@ -19,118 +18,33 @@ enum LogoutReason {
   ContactError = 'contactError',
 }
 
-let kcPublicKey: string;
-const auth = {
-  // Check if JWT Access Token has expired
+const publicAuth = {
   isTokenExpired(token: string) {
-    const now = Date.now().valueOf() / 1000;
-    const payload = jsonwebtoken.decode(token);
-
-    return !!payload['exp'] && payload['exp'] < now + 30; // Add 30 seconds to make sure , edge case is avoided and token is refreshed.
+    return authUtils.isTokenExpired(token);
   },
 
-  // Check if JWT Refresh Token has expired
   isRenewable(token: string) {
-    const now = Date.now().valueOf() / 1000;
-    const payload: JwtPayload = jsonwebtoken.decode(token) as JwtPayload;
-
-    // Check if expiration exists, or lacks expiration
-    return (
-      (typeof payload.exp !== 'undefined' &&
-        payload.exp !== null &&
-        payload.exp === 0) ||
-      payload.exp > now
-    );
+    return authUtils.isRenewable(token);
   },
 
-  // Get new JWT and Refresh tokens
   async renew(refreshToken: string) {
-    let result: any = {};
-
-    try {
-      const discovery = await utils.getOidcDiscovery();
-      const response = await axios.post(
-        discovery.token_endpoint,
-        qs.stringify({
-          client_id: config.get('oidc:clientId'),
-          client_secret: config.get('oidc:clientSecret'),
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken,
-          scope: 'bceidbusiness',
-        }),
-        {
-          headers: {
-            Accept: 'application/json',
-            'Cache-Control': 'no-cache',
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        },
-      );
-
-      log.verbose('renew', utils.prettyStringify(response.data));
-      if (response.data?.access_token && response.data?.refresh_token) {
-        result.jwt = response.data.access_token;
-        result.refreshToken = response.data.refresh_token;
-        result.idToken = response.data.id_token;
-      } else {
-        log.error('Access token or refresh token not retrieved properly');
-      }
-    } catch (error) {
-      log.error('renew', error.message);
-      result = error.response?.data;
-    }
-
-    return result;
+    const clientId = config.get('oidc:clientId');
+    const clientSecret = config.get('oidc:clientSecret');
+    const scope = 'bceidbusiness';
+    return authUtils.renew(refreshToken, clientId, clientSecret, scope);
   },
 
-  // Update or remove token based on JWT and user state
   async refreshJWT(req: Request, _res: Response, next: NextFunction) {
-    const user: any = req.user;
-    try {
-      if (user?.jwt) {
-        log.verbose('refreshJWT', 'User & JWT exists');
-
-        if (auth.isTokenExpired(user.jwt)) {
-          log.verbose('refreshJWT', 'JWT has expired');
-
-          if (!!user.refreshToken && auth.isRenewable(user.refreshToken)) {
-            log.verbose('refreshJWT', 'Can refresh JWT token');
-
-            // Get new JWT and Refresh Tokens and update the request
-            const result: any = await auth.renew(user.refreshToken);
-            user.jwt = result.jwt; // eslint-disable-line require-atomic-updates
-            user.refreshToken = result.refreshToken; // eslint-disable-line require-atomic-updates
-          } else {
-            log.verbose('refreshJWT', 'Cannot refresh JWT token');
-            delete req.user;
-          }
-        }
-      } else {
-        log.verbose('refreshJWT', 'No existing User or JWT');
-        delete req.user;
-      }
-    } catch (error) {
-      log.error('refreshJWT', error.message);
-    }
-    next();
+    return authUtils.refreshJWT(req, _res, next, publicAuth.renew);
   },
 
   generateUiToken() {
-    const i = config.get('tokenGenerate:issuer');
-    const s = 'user@finpaytransparency.ca';
-    const a = config.get('server:frontend');
-    const signOptions: SignOptions = {
-      issuer: i,
-      subject: s,
-      audience: a,
-      expiresIn: '30m',
-      algorithm: 'RS256',
-    };
+    const audience = config.get('server:frontend');
+    return authUtils.generateUiToken(audience);
+  },
 
-    const privateKey = config.get('tokenGenerate:privateKey');
-    const uiToken = jsonwebtoken.sign({}, privateKey, signOptions);
-    log.verbose('Generated JWT', uiToken);
-    return uiToken;
+  isValidBackendToken() {
+    return authUtils.isValidBackendToken(publicAuth.validateClaims);
   },
 
   /**
@@ -156,36 +70,10 @@ const auth = {
     }
     return true;
   },
-  isValidBackendToken() {
-    return async function (req: Request, res: Response, next: NextFunction) {
-      const session: any = req.session;
-      if (!kcPublicKey) {
-        kcPublicKey = await utils.getKeycloakPublicKey();
-        if (!kcPublicKey) {
-          log.error('error is from getKeycloakPublicKey');
-          return res.status(HttpStatus.UNAUTHORIZED).json();
-        }
-      }
-      if (session?.passport?.user?.jwt) {
-        const jwt = session.passport.user.jwt;
-        try {
-          jsonwebtoken.verify(jwt, kcPublicKey);
-          auth.validateClaims(jwt);
-          return next();
-        } catch (e) {
-          log.error('error is from verify', e);
-          return res.status(HttpStatus.UNAUTHORIZED).json();
-        }
-      } else {
-        log.silly(req.session);
-        log.silly('no jwt responding back 401');
-        return res.status(HttpStatus.UNAUTHORIZED).json();
-      }
-    };
-  },
-  async getUserInfo(req: Request, res: Response) {
+
+  async handleGetUserInfo(req: Request, res: Response) {
     const session: any = req.session;
-    const userInfo = session?.passport?.user;
+    const userInfo = utils.getSessionUser(req);
     if (!userInfo?.jwt || !userInfo?._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         message: 'No session data',
@@ -203,7 +91,6 @@ const auth = {
    * Or, updates an existing recored if the details are different
    * and makes a copy of the old record in the history table
    * @param company - The logged in user's company (including bceid)
-   * @param tx
    */
   createOrUpdatePayTransparencyCompany: async function (
     company: pay_transparency_company,
@@ -337,7 +224,7 @@ const auth = {
     }
 
     try {
-      auth.validateClaims(userInfo.jwt);
+      publicAuth.validateClaims(userInfo.jwt);
     } catch (e) {
       log.error('invalid claims in token', e);
       return LogoutReason.LoginError;
@@ -366,7 +253,7 @@ const auth = {
         return LogoutReason.ContactError;
       }
 
-      await auth.storeUserInfo(details, userInfo);
+      await publicAuth.storeUserInfo(details, userInfo);
       session.companyDetails = details;
     } catch (e) {
       log.error(
@@ -380,4 +267,4 @@ const auth = {
   },
 };
 
-export { LogoutReason, auth };
+export { LogoutReason, publicAuth };

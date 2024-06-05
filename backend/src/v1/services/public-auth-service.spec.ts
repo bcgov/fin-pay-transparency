@@ -3,7 +3,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import { config } from '../../config';
 import * as bceidService from '../../external/services/bceid-service';
 import prisma from '../prisma/prisma-client';
-import { auth, LogoutReason } from './auth-service';
+import { LogoutReason, publicAuth } from './public-auth-service';
 import { utils } from './utils-service';
 //Mock the entire axios module so we never inadvertently make real
 //HTTP calls to remote services
@@ -31,13 +31,16 @@ jest.mock('../prisma/prisma-client', () => {
 });
 //Mock only the renew method in auth-service (for all other methods
 //in this module keep the original implementation)
-jest.mock('./auth-service', () => {
-  const actualAuth = jest.requireActual('./auth-service').auth;
-  const actualLogoutReason = jest.requireActual('./auth-service').LogoutReason;
-  const mockedAuth = (jest.genMockFromModule('./auth-service') as any).auth;
+jest.mock('./public-auth-service', () => {
+  const actualAuth = jest.requireActual('./public-auth-service').publicAuth;
+  const actualLogoutReason = jest.requireActual(
+    './public-auth-service',
+  ).LogoutReason;
+  const mockedAuth = (jest.genMockFromModule('./public-auth-service') as any)
+    .publicAuth;
 
   return {
-    auth: {
+    publicAuth: {
       ...mockedAuth,
       ...actualAuth,
       renew: jest.fn((refreshToken) => {}),
@@ -48,7 +51,7 @@ jest.mock('./auth-service', () => {
 
 //Keep a copy of the non-mocked auth-service because certain methods from
 //this module are mocked in some tests byt the original is required for other tests
-const actualAuth = jest.requireActual('./auth-service').auth;
+const actualAuth = jest.requireActual('./public-auth-service').publicAuth;
 
 //In utils-service mock only those methods that make calls to remote services
 //(for all other methods in this module keep the original implementation)
@@ -78,7 +81,7 @@ describe('isTokenExpired', () => {
         expiresIn: '-1h',
       });
 
-      expect(auth.isTokenExpired(expiredToken)).toBeTruthy();
+      expect(publicAuth.isTokenExpired(expiredToken)).toBeTruthy();
     });
   });
   describe('when the token has not yet expired', () => {
@@ -88,7 +91,7 @@ describe('isTokenExpired', () => {
         expiresIn: '1h',
       });
 
-      expect(auth.isTokenExpired(validToken)).toBeFalsy();
+      expect(publicAuth.isTokenExpired(validToken)).toBeFalsy();
     });
   });
 });
@@ -101,7 +104,7 @@ describe('isRenewable', () => {
         expiresIn: '-1h',
       });
 
-      expect(auth.isRenewable(expiredToken)).toBeFalsy();
+      expect(publicAuth.isRenewable(expiredToken)).toBeFalsy();
     });
   });
   describe('when the token has an expiration date in the future', () => {
@@ -111,7 +114,7 @@ describe('isRenewable', () => {
         expiresIn: '1h',
       });
 
-      expect(auth.isRenewable(validToken)).toBeTruthy();
+      expect(publicAuth.isRenewable(validToken)).toBeTruthy();
     });
   });
 });
@@ -146,9 +149,9 @@ describe('renew', () => {
       //identify provider
       const dummyRefreshToken = 'old_refresh_token';
 
-      (auth.renew as jest.Mock).mockImplementationOnce(actualAuth.renew);
+      (publicAuth.renew as jest.Mock).mockImplementationOnce(actualAuth.renew);
 
-      const result = await auth.renew(dummyRefreshToken);
+      const result = await publicAuth.renew(dummyRefreshToken);
 
       //Confirm that the auth.renew(...) function returns a response object
       //with the expected properties
@@ -190,9 +193,9 @@ describe('renew', () => {
       const dummyRefreshToken = 'dummy_refresh_token';
 
       //Use the "actual" auth.renew implementation for this test
-      auth.renew = jest.fn().mockImplementationOnce(actualAuth.renew);
+      publicAuth.renew = jest.fn().mockImplementationOnce(actualAuth.renew);
 
-      const result = await auth.renew(dummyRefreshToken);
+      const result = await publicAuth.renew(dummyRefreshToken);
 
       //Confirm that the auth.renew(...) function returns the data from the error
       //thrown by the the mock HTTP request to the identify provider
@@ -224,9 +227,9 @@ describe('renew', () => {
       //identify provider
       const dummyRefreshToken = 'old_refresh_token';
 
-      auth.renew = jest.fn().mockImplementationOnce(actualAuth.renew);
+      publicAuth.renew = jest.fn().mockImplementationOnce(actualAuth.renew);
 
-      const result = await auth.renew(dummyRefreshToken);
+      const result = await publicAuth.renew(dummyRefreshToken);
 
       //Confirm that the auth.renew(...) function returns a response object
       //with the expected properties
@@ -245,7 +248,7 @@ describe('refreshJWT', () => {
       };
       const res: any = {};
       const next: any = jest.fn();
-      await auth.refreshJWT(req, res, next);
+      await publicAuth.refreshJWT(req, res, next);
 
       //The user from the request object should have been deleted
       expect(req.user).toBeUndefined();
@@ -254,7 +257,7 @@ describe('refreshJWT', () => {
       expect(next).toHaveBeenCalledTimes(1);
 
       //No request was issued to renew a token
-      expect(auth.renew).toHaveBeenCalledTimes(0);
+      expect(publicAuth.renew).toHaveBeenCalledTimes(0);
     });
   });
   describe("when the request has an existing (backend) access token, but it's not expired yet", () => {
@@ -274,7 +277,7 @@ describe('refreshJWT', () => {
 
       const res: any = {};
       const next: any = jest.fn();
-      await auth.refreshJWT(req, res, next);
+      await publicAuth.refreshJWT(req, res, next);
 
       //No change to the req parameter
       expect(req).toStrictEqual(originalReq);
@@ -283,7 +286,7 @@ describe('refreshJWT', () => {
       expect(next).toHaveBeenCalledTimes(1);
 
       //No request was issued to renew a token
-      expect(auth.renew).toHaveBeenCalledTimes(0);
+      expect(publicAuth.renew).toHaveBeenCalledTimes(0);
     });
   });
 });
@@ -301,7 +304,7 @@ describe('generateUiToken', () => {
       }[key];
     });
 
-    const token = auth.generateUiToken();
+    const token = publicAuth.generateUiToken();
     const payload: any = jsonwebtoken.decode(token);
 
     const nowSeconds = Date.now().valueOf() / 1000;
@@ -358,7 +361,7 @@ describe('isValidBackendToken', () => {
         }),
       };
       const next: any = jest.fn();
-      await auth.isValidBackendToken()(req, res, next);
+      await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(0);
       expect(next).toHaveBeenCalledTimes(1);
@@ -390,7 +393,7 @@ describe('isValidBackendToken', () => {
         }),
       };
       const next: any = jest.fn();
-      await auth.isValidBackendToken()(req, res, next);
+      await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
@@ -412,7 +415,7 @@ describe('isValidBackendToken', () => {
         }),
       };
       const next: any = jest.fn();
-      await auth.isValidBackendToken()(req, res, next);
+      await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
@@ -432,7 +435,7 @@ describe('isValidBackendToken', () => {
         }),
       };
       const next: any = jest.fn();
-      await auth.isValidBackendToken()(req, res, next);
+      await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
@@ -493,7 +496,7 @@ const req: any = {
 
 describe('storeUserInfo', () => {
   it('should throw an error if no session data', async () => {
-    await expect(auth.storeUserInfo({} as any, {})).rejects.toThrow(
+    await expect(publicAuth.storeUserInfo({} as any, {})).rejects.toThrow(
       'No session data',
     );
   });
@@ -506,7 +509,7 @@ describe('storeUserInfo', () => {
     (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
       mockUserInDB,
     );
-    await auth.storeUserInfo(mockCompanyInSession, userInfo);
+    await publicAuth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
@@ -524,7 +527,7 @@ describe('storeUserInfo', () => {
     (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
       undefined,
     );
-    await auth.storeUserInfo(mockCompanyInSession, userInfo);
+    await publicAuth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.pay_transparency_company.findFirst).toHaveBeenCalled();
@@ -544,7 +547,7 @@ describe('storeUserInfo', () => {
     (prisma.pay_transparency_user.create as jest.Mock).mockRejectedValue(
       'DB transaction failed',
     );
-    await expect(auth.storeUserInfo(req, userInfo)).rejects.toThrow(
+    await expect(publicAuth.storeUserInfo(req, userInfo)).rejects.toThrow(
       'Error while storing user info',
     );
 
@@ -577,7 +580,7 @@ describe('handleCallBackBusinessBceid', () => {
     });
   });
   it('should handle the callback successfully', async () => {
-    const result = await auth.handleCallBackBusinessBceid(req);
+    const result = await publicAuth.handleCallBackBusinessBceid(req);
 
     expect(result).toBe(LogoutReason.Login);
     expect(req.session.companyDetails).toStrictEqual(mockCompanyInSession);
@@ -598,7 +601,7 @@ describe('handleCallBackBusinessBceid', () => {
       ...req,
     };
     modifiedReq.session.companyDetails = undefined;
-    const result = await auth.handleCallBackBusinessBceid(modifiedReq);
+    const result = await publicAuth.handleCallBackBusinessBceid(modifiedReq);
     expect(result).toBe(LogoutReason.Login);
     expect(req.session.companyDetails).toStrictEqual(mockCompanyInSession);
     expect(prisma.$transaction).toHaveBeenCalled();
@@ -626,7 +629,7 @@ describe('handleCallBackBusinessBceid', () => {
       ...req,
     };
     modifiedReq.session.companyDetails = undefined;
-    const result = await auth.handleCallBackBusinessBceid(modifiedReq);
+    const result = await publicAuth.handleCallBackBusinessBceid(modifiedReq);
     expect(result).toBe(LogoutReason.LoginError);
     expect(req.session.companyDetails).toBeUndefined();
     expect(prisma.$transaction).toHaveBeenCalled();
@@ -656,7 +659,7 @@ describe('handleCallBackBusinessBceid', () => {
       ...req,
     };
     modifiedReq.session.companyDetails = undefined;
-    const result = await auth.handleCallBackBusinessBceid(modifiedReq);
+    const result = await publicAuth.handleCallBackBusinessBceid(modifiedReq);
     expect(result).toBe(LogoutReason.ContactError);
     expect(req.session.companyDetails).toBeUndefined();
     expect(prisma.$transaction).toHaveBeenCalledTimes(0);
@@ -668,48 +671,48 @@ describe('handleCallBackBusinessBceid', () => {
 describe('isCompanyDetailsEqual', () => {
   it('should return true if details are identical', () => {
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, mockCompanyInDB),
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, mockCompanyInDB),
     ).toBeTruthy();
   });
   it('should return false if any of the details are different', () => {
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, {
         ...mockCompanyInDB,
         address_line1: 'different',
       }),
     ).toBeFalsy();
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, {
         ...mockCompanyInDB,
         address_line2: 'different',
       }),
     ).toBeFalsy();
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, {
         ...mockCompanyInDB,
         city: 'different',
       }),
     ).toBeFalsy();
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, {
         ...mockCompanyInDB,
         company_name: 'different',
       }),
     ).toBeFalsy();
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, {
         ...mockCompanyInDB,
         country: 'different',
       }),
     ).toBeFalsy();
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, {
         ...mockCompanyInDB,
         postal_code: 'different',
       }),
     ).toBeFalsy();
     expect(
-      auth.isCompanyDetailsEqual(mockCompanyInDB, {
+      publicAuth.isCompanyDetailsEqual(mockCompanyInDB, {
         ...mockCompanyInDB,
         province: 'different',
       }),
@@ -719,7 +722,7 @@ describe('isCompanyDetailsEqual', () => {
 
 describe('companyDetailsToRecord', () => {
   it('should return a pay_transparency_company record', () => {
-    const record = auth.companyDetailsToRecord(mockCompanyInSession);
+    const record = publicAuth.companyDetailsToRecord(mockCompanyInSession);
 
     expect(record.bceid_business_guid).toBeNull();
     expect(record.company_id).toBeNull();

@@ -16,13 +16,13 @@ import fileSessionStore from 'session-file-store';
 import { config } from './config';
 import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
-import authRouter from './v1/routes/auth-routes';
 import codeRouter from './v1/routes/code-routes';
 import { router as configRouter } from './v1/routes/config-routes';
 import { fileUploadRouter } from './v1/routes/file-upload-routes';
+import authRouter from './v1/routes/public-auth-routes';
 import { reportRouter } from './v1/routes/report-routes';
 import userRouter from './v1/routes/user-info-routes';
-import { auth } from './v1/services/auth-service';
+import { publicAuth } from './v1/services/public-auth-service';
 import { utils } from './v1/services/utils-service';
 
 import { run as startJobs } from './schedulers/run.all';
@@ -159,7 +159,7 @@ function addLoginPassportUse(
         }
 
         //set access and refresh tokens
-        profile.jwtFrontend = auth.generateUiToken();
+        profile.jwtFrontend = publicAuth.generateUiToken();
         profile.jwt = accessToken;
         profile._json = parseJwt(accessToken);
         profile.refreshToken = refreshToken;
@@ -279,7 +279,7 @@ apiRouter.use('/auth', authRouter);
 apiRouter.use(
   passport.authenticate('jwt', { session: false }),
   (req: Request, res: Response, next: NextFunction) => {
-    auth.isValidBackendToken()(req, res, next);
+    publicAuth.isValidBackendToken()(req, res, next);
   },
 );
 apiRouter.use('/user', userRouter);

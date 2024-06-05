@@ -4,9 +4,9 @@ import router from './user-info-routes';
 let app: Application;
 
 const mockGetUserInfo = jest.fn();
-jest.mock('../services/auth-service', () => ({
-  auth: {
-    getUserInfo: jest.fn((...args) => mockGetUserInfo(...args)),
+jest.mock('../services/public-auth-service', () => ({
+  publicAuth: {
+    handleGetUserInfo: jest.fn((...args) => mockGetUserInfo(...args)),
   },
 }));
 describe('user-info-routes', () => {
@@ -19,8 +19,8 @@ describe('user-info-routes', () => {
   describe('/', () => {
     it('[GET] - should return 200', () => {
       mockGetUserInfo.mockImplementation((_req, res) => {
-        return res.status(200).json({})
-      })
+        return res.status(200).json({});
+      });
       return request(app).get('/').expect(200);
     });
   });
