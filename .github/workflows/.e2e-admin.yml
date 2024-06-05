@@ -1,4 +1,4 @@
-name: .E2E
+name: .E2E-Admin
 env:
   deployment_name: pay-transparency
 on:
