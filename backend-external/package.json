@@ -152,10 +152,8 @@
         "error",
         {
           "assertFunctionNames": [
-            [
-              "expect",
-              "request.**.expect"
-            ]
+            "expect",
+            "request.**.expect"
           ]
         }
       ]
