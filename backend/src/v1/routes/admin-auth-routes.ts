@@ -23,7 +23,7 @@ router.get(
   utils.asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       log.debug(`Login flow callback idir is called.`);
-      const logoutReason = await adminAuth.handleCallBackIdir(req);
+      const logoutReason = await adminAuth.handleCallBackAzureIdir(req);
       if (logoutReason == LogoutReason.Login)
         return res.redirect(config.get('server:adminFrontend'));
       else return logoutHandler(req, res, next, logoutReason);
