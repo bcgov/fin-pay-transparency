@@ -85,7 +85,7 @@ const adminAuth = {
     return res.status(HttpStatus.OK).json(userInfoFrontend);
   },
 
-  async handleCallBackIdir(req: Request): Promise<LogoutReason> {
+  async handleCallBackAzureIdir(req: Request): Promise<LogoutReason> {
     const userInfo = utils.getSessionUser(req);
     const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
     const idirUserGuid = jwtPayload?.idir_user_guid;
