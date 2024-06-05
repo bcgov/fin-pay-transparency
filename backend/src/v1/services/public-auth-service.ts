@@ -3,12 +3,12 @@ import { NextFunction, Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
+import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
 import { getCompanyDetails } from '../../external/services/bceid-service';
 import { logger as log } from '../../logger';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
 import { authUtils } from './auth-utils-service';
 import { utils } from './utils-service';
-
 enum LogoutReason {
   Login = 'login', // ie. don't log out
   Default = 'default',
@@ -69,6 +69,26 @@ const publicAuth = {
       );
     }
     return true;
+  },
+
+  /**
+   * Returns a text-based description of the user associated with the given session.
+   * This is useful to log information about the user
+   * @returns
+   */
+  getUserDescription(session: any) {
+    return `[Username: ${session?.passport?.user?._json?.bceid_username}, Type: BCeID, GUID: ${session?.passport?.user?._json?.bceid_user_guid}]`;
+  },
+
+  handleGetToken(req: Request, res: Response) {
+    const session: any = req.session;
+    if (!session?.companyDetails) {
+      log.error(
+        `${MISSING_COMPANY_DETAILS_ERROR} for user ${publicAuth.getUserDescription(session)} with correlation ID ${session?.correlationID}`,
+      );
+      return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
+    }
+    authUtils.handleGetToken(req, res, publicAuth.getUserDescription);
   },
 
   async handleGetUserInfo(req: Request, res: Response) {

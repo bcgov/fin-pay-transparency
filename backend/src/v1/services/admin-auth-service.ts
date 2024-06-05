@@ -72,6 +72,14 @@ const adminAuth = {
     return true;
   },
 
+  getUserDescription(session: any) {
+    return `[Username: ${session?.passport?.user?._json?.idir_username}, Type: IDIR, GUID: ${session?.passport?.user?._json?.idir_user_guid}]`;
+  },
+
+  handleGetToken(req: Request, res: Response) {
+    authUtils.handleGetToken(req, res, adminAuth.getUserDescription);
+  },
+
   async handleGetUserInfo(req: Request, res: Response) {
     const userInfo = utils.getSessionUser(req);
     if (!userInfo?.jwt || !userInfo?._json) {

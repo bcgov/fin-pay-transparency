@@ -1,16 +1,15 @@
 import express, { NextFunction, Request, Response } from 'express';
-import passport from 'passport';
-import { v4 as uuidv4 } from 'uuid';
-import { config } from '../../config';
-import { logger as log } from '../../logger';
-import { LogoutReason, publicAuth } from '../services/public-auth-service';
-import { utils } from '../services/utils-service';
-
 import { body, validationResult } from 'express-validator';
+import passport from 'passport';
+import { config } from '../../config';
 import {
   MISSING_COMPANY_DETAILS_ERROR,
   MISSING_TOKENS_ERROR,
 } from '../../constants';
+import { logger as log } from '../../logger';
+import { UnauthorizedRsp } from '../services/auth-utils-service';
+import { LogoutReason, publicAuth } from '../services/public-auth-service';
+import { utils } from '../services/utils-service';
 
 const router = express.Router();
 
@@ -106,11 +105,6 @@ router.get(
   ),
 );
 
-const UnauthorizedRsp = {
-  error: 'Unauthorized',
-  error_description: 'Not logged in',
-};
-
 //refreshes jwt on refresh if refreshToken is valid
 router.post(
   '/refresh',
@@ -163,6 +157,9 @@ router.post(
 router.get(
   '/token',
   utils.asyncHandler(publicAuth.refreshJWT),
+  publicAuth.handleGetToken,
+
+  /*
   (req: Request, res: Response) => {
     const user: any = req.user;
     const session: any = req.session;
@@ -189,6 +186,7 @@ router.get(
       res.status(401).json(UnauthorizedRsp);
     }
   },
+  */
 );
 
 async function generateTokens(req: Request, res: Response) {

@@ -3,9 +3,20 @@ import { NextFunction, Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'querystring';
+import { v4 as uuidv4 } from 'uuid';
 import { config } from '../../config';
 import { logger as log } from '../../logger';
 import { utils } from './utils-service';
+
+/*
+This service contains functions related to authentication that are common between
+the public-facing app and the admin app.  
+*/
+
+const UnauthorizedRsp = {
+  error: 'Unauthorized',
+  error_description: 'Not logged in',
+};
 
 let kcPublicKey: string;
 
@@ -113,6 +124,31 @@ const authUtils = {
     next();
   },
 
+  handleGetToken(
+    req: Request,
+    res: Response,
+    getUserDescriptionFromSession: Function,
+  ) {
+    const user: any = req.user;
+    const session: any = req.session;
+    if (user?.jwtFrontend && user?.refreshToken) {
+      if (session?.passport?.user?._json) {
+        req.session['correlationID'] = uuidv4();
+        log.info(
+          `Created correlation ID ${session.correlationID} for user ${getUserDescriptionFromSession(session)}, and added to session`,
+        );
+      }
+      const responseJson = {
+        jwtFrontend: user.jwtFrontend,
+        correlationID: session.correlationID,
+      };
+      res.status(200).json(responseJson);
+    } else {
+      log.error(JSON.stringify(UnauthorizedRsp));
+      res.status(401).json(UnauthorizedRsp);
+    }
+  },
+
   generateUiToken(audience: string) {
     const i = config.get('tokenGenerate:issuer');
     const s = 'user@finpaytransparency.ca';
@@ -158,4 +194,4 @@ const authUtils = {
   },
 };
 
-export { authUtils };
+export { UnauthorizedRsp, authUtils };

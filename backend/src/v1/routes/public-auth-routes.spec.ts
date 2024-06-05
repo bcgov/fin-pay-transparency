@@ -11,11 +11,12 @@ const mockIsRenewable = jest.fn();
 const mockRenew = jest.fn();
 const mockGenerateUiToken = jest.fn();
 jest.mock('../services/public-auth-service', () => {
-  const actualLogoutReason = jest.requireActual(
+  const actualPublicAuth = jest.requireActual(
     '../services/public-auth-service',
-  ).LogoutReason;
+  );
   return {
     publicAuth: {
+      ...actualPublicAuth.publicAuth,
       handleCallBackBusinessBceid: (...args) =>
         mockHandleCallbackBusinessBceid(...args),
       refreshJWT: jest.fn((req, res, next) => mockRefreshJWT(req, res, next)),
@@ -24,7 +25,7 @@ jest.mock('../services/public-auth-service', () => {
       renew: () => mockRenew(),
       generateUiToken: () => mockGenerateUiToken(),
     },
-    LogoutReason: actualLogoutReason,
+    LogoutReason: actualPublicAuth.LogoutReason,
   };
 });
 
