@@ -159,7 +159,7 @@ function addLoginPassportUse(
         }
 
         //set access and refresh tokens
-        profile.jwtFrontend = publicAuth.generateUiToken();
+        profile.jwtFrontend = publicAuth.generateFrontendToken();
         profile.jwt = accessToken;
         profile._json = parseJwt(accessToken);
         profile.refreshToken = refreshToken;

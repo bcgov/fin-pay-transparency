@@ -31,23 +31,22 @@ jest.mock('../prisma/prisma-client', () => {
 });
 //Mock only the renew method in auth-service (for all other methods
 //in this module keep the original implementation)
-jest.mock('./public-auth-service', () => {
-  const actualAuth = jest.requireActual('./public-auth-service').publicAuth;
-  const actualLogoutReason = jest.requireActual(
-    './public-auth-service',
-  ).LogoutReason;
-  const mockedAuth = (jest.genMockFromModule('./public-auth-service') as any)
-    .publicAuth;
 
-  return {
-    publicAuth: {
-      ...mockedAuth,
-      ...actualAuth,
-      renew: jest.fn((refreshToken) => {}),
-    },
-    LogoutReason: actualLogoutReason,
+jest.mock('./public-auth-service', () => {
+  const actualPublicAuth = jest.requireActual('./public-auth-service');
+  const mockedPublicAuth = jest.genMockFromModule(
+    './public-auth-service',
+  ) as any;
+
+  const mocked = {
+    ...mockedPublicAuth,
+    publicAuth: Object.create(actualPublicAuth.publicAuth),
   };
+  mocked.publicAuth.renew = jest.fn((refreshToken) => {});
+  return mocked;
 });
+
+//publicAuth = Object.create(publicAuth);
 
 //Keep a copy of the non-mocked auth-service because certain methods from
 //this module are mocked in some tests byt the original is required for other tests
@@ -168,7 +167,7 @@ describe('renew', () => {
   });
   describe('when the request to the identify provider to refresh the token causes an error to be thrown', () => {
     it('responds with data from the error', async () => {
-      //Mock the call made by auth.renew(...) to utils.getOidcDiscovery(...) so it doesn't
+      //Mock the call made by publicAuth.renew(...) to utils.getOidcDiscovery(...) so it doesn't
       //depend on a remote service.  The mocked return value must include a "token_endpoint"
       //property, but the value of that property isn't important because
       //we're also mocking the HTTP request (see below) that uses the return value
@@ -304,7 +303,7 @@ describe('generateUiToken', () => {
       }[key];
     });
 
-    const token = publicAuth.generateUiToken();
+    const token = publicAuth.generateFrontendToken();
     const payload: any = jsonwebtoken.decode(token);
 
     const nowSeconds = Date.now().valueOf() / 1000;

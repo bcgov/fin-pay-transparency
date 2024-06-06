@@ -136,7 +136,7 @@ function addLoginPassportUse(
         }
 
         //set access and refresh tokens
-        profile.jwtFrontend = adminAuth.generateUiToken();
+        profile.jwtFrontend = adminAuth.generateFrontendToken();
         profile.jwt = accessToken;
         profile._json = parseJwt(accessToken);
         profile.refreshToken = refreshToken;

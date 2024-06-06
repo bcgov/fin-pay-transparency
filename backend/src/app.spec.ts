@@ -7,7 +7,7 @@ const request = require('supertest');
 // Setup
 // ----------------------------------------------------------------------------
 
-const validFrontendToken = publicAuth.generateUiToken();
+const validFrontendToken = publicAuth.generateFrontendToken();
 const invalidFrontendToken = 'invalid-token';
 
 jest.mock('./schedulers/run.all', () => ({
@@ -54,12 +54,23 @@ jest.mock('./v1/prisma/prisma-client', () => {
 // omit the session and token checks done by the function.  All other functions in this
 // module keep the original implementation.
 jest.mock('./v1/services/public-auth-service', () => {
-  const actualAuth = jest.requireActual(
+  const actualPublicAuth = jest.requireActual(
     './v1/services/public-auth-service',
-  ).publicAuth;
-  const mockedAuth = (
-    jest.genMockFromModule('./v1/services/public-auth-service') as any
-  ).auth;
+  );
+  const mockedPublicAuth = jest.genMockFromModule(
+    './v1/services/public-auth-service',
+  ) as any;
+  const mocked = {
+    ...mockedPublicAuth,
+    ...actualPublicAuth,
+  };
+  mocked.publicAuth.isValidBackendToken = jest
+    .fn()
+    .mockReturnValue(async (req, res, next) => {
+      next();
+    });
+  return mocked;
+  /*
   return {
     publicAuth: {
       ...mockedAuth,
@@ -69,6 +80,7 @@ jest.mock('./v1/services/public-auth-service', () => {
       }),
     },
   };
+  */
 });
 
 // Setup in app.ts requires access to certain config properties.  These may be present when

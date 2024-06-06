@@ -22,6 +22,7 @@ router.get(
     async (req: Request, res: Response, next: NextFunction) => {
       log.debug(`Login flow callback business bceid is called.`);
       const logoutReason = await publicAuth.handleCallBackBusinessBceid(req);
+      console.log('logoutReason:' + logoutReason);
       if (logoutReason == LogoutReason.Login)
         return res.redirect(config.get('server:frontend'));
       else return logoutHandler(req, res, next, logoutReason);
@@ -124,7 +125,7 @@ router.post(
           `${MISSING_COMPANY_DETAILS_ERROR} in session. No correlation id found.`,
         );
       }
-
+      console.log('--------------unauthorized 0');
       return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
     }
 

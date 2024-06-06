@@ -1,5 +1,21 @@
+import { Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
-import { authUtils } from './auth-utils-service';
+import { AuthBase } from './auth-utils-service';
+
+class MockAuthSubclass extends AuthBase {
+  public override renew(refreshToken: string) {}
+  public override generateFrontendToken() {}
+  public override getUserDescription(session: any): string {
+    return 'Mock user';
+  }
+  public override validateClaims(jwt: any) {}
+  public override handleGetUserInfo(req: Request, res: Response): any {
+    return {};
+  }
+  public override handleGetToken(req: Request, res: Response) {}
+}
+
+const mockAuth = new MockAuthSubclass();
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -13,7 +29,7 @@ describe('isTokenExpired', () => {
         expiresIn: '-1h',
       });
 
-      expect(authUtils.isTokenExpired(expiredToken)).toBeTruthy();
+      expect(mockAuth.isTokenExpired(expiredToken)).toBeTruthy();
     });
   });
   describe('when the token has not yet expired', () => {
@@ -23,7 +39,7 @@ describe('isTokenExpired', () => {
         expiresIn: '1h',
       });
 
-      expect(authUtils.isTokenExpired(validToken)).toBeFalsy();
+      expect(mockAuth.isTokenExpired(validToken)).toBeFalsy();
     });
   });
 });
@@ -36,7 +52,7 @@ describe('isRenewable', () => {
         expiresIn: '-1h',
       });
 
-      expect(authUtils.isRenewable(expiredToken)).toBeFalsy();
+      expect(mockAuth.isRenewable(expiredToken)).toBeFalsy();
     });
   });
   describe('when the token has an expiration date in the future', () => {
@@ -46,7 +62,7 @@ describe('isRenewable', () => {
         expiresIn: '1h',
       });
 
-      expect(authUtils.isRenewable(validToken)).toBeTruthy();
+      expect(mockAuth.isRenewable(validToken)).toBeTruthy();
     });
   });
 });

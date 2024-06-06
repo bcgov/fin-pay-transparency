@@ -20,16 +20,21 @@ const UnauthorizedRsp = {
 
 let kcPublicKey: string;
 
-const authUtils = {
-  // Check if JWT Access Token has expired
-  isTokenExpired(token: string) {
+abstract class AuthBase {
+  public abstract renew(refreshToken: string);
+  public abstract generateFrontendToken();
+  public abstract getUserDescription(session: any): string;
+  public abstract validateClaims(jwt: any);
+  public abstract handleGetUserInfo(req: Request, res: Response);
+  public abstract handleGetToken(req: Request, res: Response);
+
+  public isTokenExpired(token: string) {
     const now = Date.now().valueOf() / 1000;
     const payload = jsonwebtoken.decode(token);
-
     return !!payload['exp'] && payload['exp'] < now + 30; // Add 30 seconds to make sure , edge case is avoided and token is refreshed.
-  },
+  }
 
-  isRenewable(token: string) {
+  public isRenewable(token: string) {
     const now = Date.now().valueOf() / 1000;
     const payload: JwtPayload = jsonwebtoken.decode(token) as JwtPayload;
 
@@ -40,10 +45,123 @@ const authUtils = {
         payload.exp === 0) ||
       payload.exp > now
     );
-  },
+  }
+
+  // Update or remove token based on JWT and user state
+  public refreshJWT = async (
+    req: Request,
+    _res: Response,
+    next: NextFunction,
+  ) => {
+    const user: any = req.user;
+    try {
+      if (user?.jwt) {
+        log.verbose('refreshJWT', 'User & JWT exists');
+
+        if (this.isTokenExpired(user.jwt)) {
+          log.verbose('refreshJWT', 'JWT has expired');
+
+          if (!!user.refreshToken && this.isRenewable(user.refreshToken)) {
+            log.verbose('refreshJWT', 'Can refresh JWT token');
+
+            // Get new JWT and Refresh Tokens and update the request
+            const result: any = await this.renew(user.refreshToken);
+            user.jwt = result.jwt; // eslint-disable-line require-atomic-updates
+            user.refreshToken = result.refreshToken; // eslint-disable-line require-atomic-updates
+          } else {
+            log.verbose('refreshJWT', 'Cannot refresh JWT token');
+            delete req.user;
+          }
+        }
+      } else {
+        log.verbose('refreshJWT', 'No existing User or JWT');
+        delete req.user;
+      }
+    } catch (error) {
+      log.error('refreshJWT', error.message);
+    }
+    next();
+  };
+
+  public handleGetTokenImpl = async (
+    req: Request,
+    res: Response,
+  ): Promise<any> => {
+    const user: any = req.user;
+    const session: any = req.session;
+    if (user?.jwtFrontend && user?.refreshToken) {
+      if (session?.passport?.user?._json) {
+        req.session['correlationID'] = uuidv4();
+        log.info(
+          `Created correlation ID ${session.correlationID} for user ${this.getUserDescription(session)}, and added to session`,
+        );
+      }
+      const responseJson = {
+        jwtFrontend: user.jwtFrontend,
+        correlationID: session.correlationID,
+      };
+      res.status(200).json(responseJson);
+    } else {
+      log.error(JSON.stringify(UnauthorizedRsp));
+      res.status(401).json(UnauthorizedRsp);
+    }
+  };
+
+  public renewBackendAndFrontendTokens = async (
+    req: Request,
+    res: Response,
+  ) => {
+    const user: any = req.user;
+    const session: any = req.session;
+    const result = await this.renew(user.refreshToken);
+    console.log(result);
+    if (result?.jwt && result?.refreshToken) {
+      user.jwt = result.jwt;
+      user.refreshToken = result.refreshToken;
+      user.jwtFrontend = this.generateFrontendToken();
+      const responseJson = {
+        jwtFrontend: user.jwtFrontend,
+        correlationID: session.correlationID,
+      };
+      res.status(200).json(responseJson);
+    } else {
+      res.status(401).json(UnauthorizedRsp);
+    }
+  };
+
+  public isValidBackendToken() {
+    return async function (req: Request, res: Response, next: NextFunction) {
+      const session: any = req.session;
+      if (!kcPublicKey) {
+        kcPublicKey = await utils.getKeycloakPublicKey();
+        if (!kcPublicKey) {
+          log.error('error is from getKeycloakPublicKey');
+          return res.status(HttpStatus.UNAUTHORIZED).json();
+        }
+      }
+      if (session?.passport?.user?.jwt) {
+        const jwt = session.passport.user.jwt;
+        try {
+          jsonwebtoken.verify(jwt, kcPublicKey);
+          () => this.validateClaims(jwt)();
+          return next();
+        } catch (e) {
+          log.error('error is from verify', e);
+          return res.status(HttpStatus.UNAUTHORIZED).json();
+        }
+      } else {
+        log.silly(req.session);
+        log.silly('no jwt responding back 401');
+        return res.status(HttpStatus.UNAUTHORIZED).json();
+      }
+    };
+  }
+
+  // Protected interface
+  // ---------------------------------------------------------------------------
 
   // Get new JWT and Refresh tokens
-  async renew(
+  protected async renewImpl(
     refreshToken: string,
     clientId: string,
     clientSecret: string,
@@ -85,71 +203,9 @@ const authUtils = {
     }
 
     return result;
-  },
+  }
 
-  // Update or remove token based on JWT and user state
-  async refreshJWT(
-    req: Request,
-    _res: Response,
-    next: NextFunction,
-    renew: { (refreshToken: string): Promise<string> },
-  ) {
-    const user: any = req.user;
-    try {
-      if (user?.jwt) {
-        log.verbose('refreshJWT', 'User & JWT exists');
-
-        if (this.isTokenExpired(user.jwt)) {
-          log.verbose('refreshJWT', 'JWT has expired');
-
-          if (!!user.refreshToken && this.isRenewable(user.refreshToken)) {
-            log.verbose('refreshJWT', 'Can refresh JWT token');
-
-            // Get new JWT and Refresh Tokens and update the request
-            const result: any = await renew(user.refreshToken);
-            user.jwt = result.jwt; // eslint-disable-line require-atomic-updates
-            user.refreshToken = result.refreshToken; // eslint-disable-line require-atomic-updates
-          } else {
-            log.verbose('refreshJWT', 'Cannot refresh JWT token');
-            delete req.user;
-          }
-        }
-      } else {
-        log.verbose('refreshJWT', 'No existing User or JWT');
-        delete req.user;
-      }
-    } catch (error) {
-      log.error('refreshJWT', error.message);
-    }
-    next();
-  },
-
-  handleGetToken(
-    req: Request,
-    res: Response,
-    getUserDescriptionFromSession: Function,
-  ) {
-    const user: any = req.user;
-    const session: any = req.session;
-    if (user?.jwtFrontend && user?.refreshToken) {
-      if (session?.passport?.user?._json) {
-        req.session['correlationID'] = uuidv4();
-        log.info(
-          `Created correlation ID ${session.correlationID} for user ${getUserDescriptionFromSession(session)}, and added to session`,
-        );
-      }
-      const responseJson = {
-        jwtFrontend: user.jwtFrontend,
-        correlationID: session.correlationID,
-      };
-      res.status(200).json(responseJson);
-    } else {
-      log.error(JSON.stringify(UnauthorizedRsp));
-      res.status(401).json(UnauthorizedRsp);
-    }
-  },
-
-  generateUiToken(audience: string) {
+  protected generateFrontendTokenImpl(audience: string) {
     const i = config.get('tokenGenerate:issuer');
     const s = 'user@finpaytransparency.ca';
     const signOptions: SignOptions = {
@@ -163,58 +219,7 @@ const authUtils = {
     const uiToken = jsonwebtoken.sign({}, privateKey, signOptions);
     log.verbose('Generated JWT', uiToken);
     return uiToken;
-  },
+  }
+}
 
-  async renewBackendAndFrontendTokens(
-    req: Request,
-    res: Response,
-    renew: Function,
-    generateFrontendToken: Function,
-  ) {
-    const user: any = req.user;
-    const session: any = req.session;
-    const result = await renew(user.refreshToken);
-    if (result?.jwt && result?.refreshToken) {
-      user.jwt = result.jwt;
-      user.refreshToken = result.refreshToken;
-      user.jwtFrontend = generateFrontendToken();
-      const responseJson = {
-        jwtFrontend: user.jwtFrontend,
-        correlationID: session.correlationID,
-      };
-      res.status(200).json(responseJson);
-    } else {
-      res.status(401).json(UnauthorizedRsp);
-    }
-  },
-
-  isValidBackendToken(validateClaims: Function) {
-    return async function (req: Request, res: Response, next: NextFunction) {
-      const session: any = req.session;
-      if (!kcPublicKey) {
-        kcPublicKey = await utils.getKeycloakPublicKey();
-        if (!kcPublicKey) {
-          log.error('error is from getKeycloakPublicKey');
-          return res.status(HttpStatus.UNAUTHORIZED).json();
-        }
-      }
-      if (session?.passport?.user?.jwt) {
-        const jwt = session.passport.user.jwt;
-        try {
-          jsonwebtoken.verify(jwt, kcPublicKey);
-          validateClaims(jwt);
-          return next();
-        } catch (e) {
-          log.error('error is from verify', e);
-          return res.status(HttpStatus.UNAUTHORIZED).json();
-        }
-      } else {
-        log.silly(req.session);
-        log.silly('no jwt responding back 401');
-        return res.status(HttpStatus.UNAUTHORIZED).json();
-      }
-    };
-  },
-};
-
-export { UnauthorizedRsp, authUtils };
+export { AuthBase, UnauthorizedRsp };

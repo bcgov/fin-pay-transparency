@@ -1,5 +1,5 @@
 import { pay_transparency_company } from '@prisma/client';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
@@ -7,8 +7,9 @@ import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
 import { getCompanyDetails } from '../../external/services/bceid-service';
 import { logger as log } from '../../logger';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
-import { authUtils } from './auth-utils-service';
+import { AuthBase } from './auth-utils-service';
 import { utils } from './utils-service';
+
 enum LogoutReason {
   Login = 'login', // ie. don't log out
   Default = 'default',
@@ -18,43 +19,18 @@ enum LogoutReason {
   ContactError = 'contactError',
 }
 
-const publicAuth = {
-  isTokenExpired(token: string) {
-    return authUtils.isTokenExpired(token);
-  },
+class PublicAuth extends AuthBase {
+  public override generateFrontendToken() {
+    const audience = config.get('server:frontend');
+    return this.generateFrontendTokenImpl(audience);
+  }
 
-  isRenewable(token: string) {
-    return authUtils.isRenewable(token);
-  },
-
-  async renew(refreshToken: string) {
+  public override async renew(refreshToken: string) {
     const clientId = config.get('oidc:clientId');
     const clientSecret = config.get('oidc:clientSecret');
     const scope = 'bceidbusiness';
-    return authUtils.renew(refreshToken, clientId, clientSecret, scope);
-  },
-
-  async refreshJWT(req: Request, _res: Response, next: NextFunction) {
-    return authUtils.refreshJWT(req, _res, next, publicAuth.renew);
-  },
-
-  generateUiToken() {
-    const audience = config.get('server:frontend');
-    return authUtils.generateUiToken(audience);
-  },
-
-  async renewBackendAndFrontendTokens(req: Request, res: Response) {
-    return authUtils.renewBackendAndFrontendTokens(
-      req,
-      res,
-      publicAuth.renew,
-      publicAuth.generateUiToken,
-    );
-  },
-
-  isValidBackendToken() {
-    return authUtils.isValidBackendToken(publicAuth.validateClaims);
-  },
+    return this.renewImpl(refreshToken, clientId, clientSecret, scope);
+  }
 
   /**
    * check if the jwt contains valid claims.
@@ -63,7 +39,7 @@ const publicAuth = {
    * https://github.com/bcgov/sso-keycloak/wiki/Using-Your-SSO-Client#do-validate-the-idp-in-the-jwt
    * @param jwt the token
    */
-  validateClaims: function (jwt: any) {
+  public override validateClaims(jwt: any) {
     const payload: JwtPayload = jsonwebtoken.decode(jwt) as JwtPayload;
     if (payload?.identity_provider !== 'bceidbusiness') {
       throw new Error(
@@ -78,29 +54,24 @@ const publicAuth = {
       );
     }
     return true;
-  },
+  }
 
-  /**
-   * Returns a text-based description of the user associated with the given session.
-   * This is useful to log information about the user
-   * @returns
-   */
-  getUserDescription(session: any) {
+  public override getUserDescription(session: any) {
     return `[Username: ${session?.passport?.user?._json?.bceid_username}, Type: BCeID, GUID: ${session?.passport?.user?._json?.bceid_user_guid}]`;
-  },
+  }
 
-  handleGetToken(req: Request, res: Response) {
+  public handleGetToken = async (req: Request, res: Response): Promise<any> => {
     const session: any = req.session;
     if (!session?.companyDetails) {
       log.error(
-        `${MISSING_COMPANY_DETAILS_ERROR} for user ${publicAuth.getUserDescription(session)} with correlation ID ${session?.correlationID}`,
+        `${MISSING_COMPANY_DETAILS_ERROR} for user ${this.getUserDescription(session)} with correlation ID ${session?.correlationID}`,
       );
       return res.status(401).json({ error: MISSING_COMPANY_DETAILS_ERROR });
     }
-    authUtils.handleGetToken(req, res, publicAuth.getUserDescription);
-  },
+    this.handleGetTokenImpl(req, res);
+  };
 
-  async handleGetUserInfo(req: Request, res: Response) {
+  public override async handleGetUserInfo(req: Request, res: Response) {
     const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo?.jwt || !userInfo?._json) {
@@ -113,7 +84,7 @@ const publicAuth = {
       ...session.companyDetails,
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);
-  },
+  }
 
   /**
    * Creates new record if this bceid is not in db.
@@ -121,7 +92,7 @@ const publicAuth = {
    * and makes a copy of the old record in the history table
    * @param company - The logged in user's company (including bceid)
    */
-  createOrUpdatePayTransparencyCompany: async function (
+  public async createOrUpdatePayTransparencyCompany(
     company: pay_transparency_company,
     tx: PrismaTransactionalClient,
   ) {
@@ -148,9 +119,9 @@ const publicAuth = {
         data: { ...data, create_date: new Date(), update_date: new Date() },
       });
     }
-  },
+  }
 
-  createOrUpdatePayTransparencyUser: async function (
+  public async createOrUpdatePayTransparencyUser(
     userInfo,
     tx: PrismaTransactionalClient,
   ) {
@@ -181,12 +152,13 @@ const publicAuth = {
         },
       });
     }
-  },
+  }
+
   /**
    * Convert the details returned from the BCeID SAOP service into
    * a pay_transparency_company database object
    */
-  companyDetailsToRecord: function (
+  public companyDetailsToRecord(
     details,
     bceid_guid = null,
   ): pay_transparency_company {
@@ -203,11 +175,12 @@ const publicAuth = {
       create_date: null,
       update_date: null,
     };
-  },
+  }
+
   /**
    * Check if the name and address of two company records are the same
    */
-  isCompanyDetailsEqual: function (
+  public isCompanyDetailsEqual(
     comp1: pay_transparency_company,
     comp2: pay_transparency_company,
   ): boolean {
@@ -220,9 +193,9 @@ const publicAuth = {
       comp1.postal_code === comp2.postal_code &&
       comp1.province === comp2.province
     );
-  },
+  }
 
-  async storeUserInfo(companyDetails, userInfo) {
+  public async storeUserInfo(companyDetails, userInfo) {
     if (!userInfo?.jwt || !userInfo?._json) {
       throw new Error('No session data');
     }
@@ -240,9 +213,11 @@ const publicAuth = {
       log.error(e);
       throw new Error('Error while storing user info');
     }
-  },
+  }
 
-  async handleCallBackBusinessBceid(req: Request): Promise<LogoutReason> {
+  public async handleCallBackBusinessBceid(
+    req: Request,
+  ): Promise<LogoutReason> {
     const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
     const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
@@ -293,7 +268,9 @@ const publicAuth = {
     }
 
     return LogoutReason.Login;
-  },
-};
+  }
+}
+
+const publicAuth = new PublicAuth();
 
 export { LogoutReason, publicAuth };

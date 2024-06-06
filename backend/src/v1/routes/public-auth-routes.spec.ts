@@ -1,41 +1,48 @@
 import express, { Application } from 'express';
 import request from 'supertest';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
-import { authUtils } from '../services/auth-utils-service';
-import { LogoutReason } from '../services/public-auth-service';
+import { LogoutReason, publicAuth } from '../services/public-auth-service';
 import router from './public-auth-routes';
 let app: Application;
 
-const mockHandleCallbackBusinessBceid = jest.fn();
+const mockHandleCallbackBusinessBceid = jest.fn().mockResolvedValue(undefined);
 const mockIsTokenExpired = jest.fn();
 const mockIsRenewable = jest.fn();
 const mockRenew = jest.fn();
-const mockGenerateUiToken = jest.fn();
+const mockGenerateFrontendToken = jest.fn();
+const mockRenewBackendAndFrontendTokens = jest.fn((req, res) => {
+  res.status(200).json({});
+});
+
 jest.mock('../services/public-auth-service', () => {
   const actualPublicAuth = jest.requireActual(
     '../services/public-auth-service',
   );
-  return {
-    publicAuth: {
-      ...actualPublicAuth.publicAuth,
-      handleCallBackBusinessBceid: (...args) =>
-        mockHandleCallbackBusinessBceid(...args),
-      refreshJWT: jest.fn((req, res, next) => mockRefreshJWT(req, res, next)),
-      isTokenExpired: () => mockIsTokenExpired(),
-      isRenewable: () => mockIsRenewable(),
-      renew: () => mockRenew(),
-      generateUiToken: () => mockGenerateUiToken(),
-      renewBackendAndFrontendTokens: (req, res) => {
-        return authUtils.renewBackendAndFrontendTokens(
-          req,
-          res,
-          mockRenew,
-          mockGenerateUiToken,
-        );
-      },
-    },
-    LogoutReason: actualPublicAuth.LogoutReason,
+  const mockedPublicAuth = jest.genMockFromModule(
+    '../services/public-auth-service',
+  ) as any;
+
+  const mocked = {
+    ...mockedPublicAuth,
+    publicAuth: { ...actualPublicAuth.publicAuth },
   };
+  mocked.publicAuth.handleCallBackBusinessBceid = (...args) => {
+    mockHandleCallbackBusinessBceid(...args);
+  };
+  mocked.publicAuth.refreshJWT = jest.fn((req, res, next) =>
+    mockRefreshJWT(req, res, next),
+  );
+  mocked.publicAuth.isTokenExpired = () => mockIsTokenExpired();
+  mocked.publicAuth.isRenewable = () => mockIsRenewable();
+  mocked.publicAuth.renew = function () {
+    mockRenew();
+  };
+  mocked.publicAuth.generateFrontendToken = () => mockGenerateFrontendToken();
+  mocked.publicAuth.renewBackendAndFrontendTokens = (req, res) => {
+    mockRenewBackendAndFrontendTokens(req, res);
+  };
+
+  return mocked;
 });
 
 const mockGetOidcDiscovery = jest.fn();
@@ -87,10 +94,9 @@ describe('public-auth-routes', () => {
       mockAuthenticate.mockImplementation((_, __, next) => {
         next();
       });
-
-      mockHandleCallbackBusinessBceid.mockImplementation((req) => {
-        return LogoutReason.Login;
-      });
+      jest
+        .spyOn(publicAuth, 'handleCallBackBusinessBceid')
+        .mockResolvedValueOnce(LogoutReason.Login);
 
       return request(app).get('/callback_business_bceid').expect(302);
     });
@@ -109,10 +115,9 @@ describe('public-auth-routes', () => {
       mockAuthenticate.mockImplementation((_, __, next) => {
         next();
       });
-
-      mockHandleCallbackBusinessBceid.mockImplementation((req) => {
-        return LogoutReason.ContactError;
-      });
+      jest
+        .spyOn(publicAuth, 'handleCallBackBusinessBceid')
+        .mockResolvedValueOnce(LogoutReason.ContactError);
 
       return request(app).get('/auth/callback_business_bceid').expect(302);
     });
@@ -323,7 +328,9 @@ describe('public-auth-routes', () => {
           });
         });
     });
-    it('should renew the token if renewable', () => {
+    it('should renew the token if renewable', async () => {
+      const mockCorrelationId = 12;
+      const mockFrontendToken = 'jwt_value';
       mockExists.mockImplementation((req, res, next) => next());
       mockValidationResult.mockImplementation(() => {
         return {
@@ -331,33 +338,39 @@ describe('public-auth-routes', () => {
         };
       });
       mockIsTokenExpired.mockReturnValue(true);
-      mockGenerateUiToken.mockReturnValue('jwt_value');
+      mockGenerateFrontendToken.mockReturnValue(mockFrontendToken);
       mockIsRenewable.mockReturnValue(true);
       mockRenew.mockResolvedValue({ jwt: 1, refreshToken: 1 });
+      mockRenewBackendAndFrontendTokens.mockImplementation((req, res) =>
+        res.status(200).json({
+          jwtFrontend: mockFrontendToken,
+          correlationID: mockCorrelationId,
+        }),
+      );
 
       app.use((req: any, res, next) => {
         req.session = {
           ...mockRequest.session,
           companyDetails: { id: 1 },
-          correlationID: 12,
+          correlationID: mockCorrelationId,
         };
         req.user = { ...mockRequest.user, jwt: 'jwt', refreshToken: 'jwt' };
         req.logout = mockRequest.logout;
         next();
       });
       app.use('/auth', router);
-
-      return request(app)
+      await request(app)
         .post('/auth/refresh')
         .expect(200)
         .expect((res) => {
           expect(res.body).toEqual({
-            jwtFrontend: 'jwt_value',
-            correlationID: 12,
+            jwtFrontend: mockFrontendToken,
+            correlationID: mockCorrelationId,
           });
         });
     });
     it('should return unauthorized when it fails to renew tokens', () => {
+      const mockCorrelationId = 12;
       mockExists.mockImplementation((req, res, next) => next());
       mockValidationResult.mockImplementation(() => {
         return {
@@ -365,15 +378,18 @@ describe('public-auth-routes', () => {
         };
       });
       mockIsTokenExpired.mockReturnValue(true);
-      mockGenerateUiToken.mockReturnValue('jwt_value');
+      mockGenerateFrontendToken.mockReturnValue('jwt_value');
       mockIsRenewable.mockReturnValue(true);
       mockRenew.mockResolvedValue({});
+      mockRenewBackendAndFrontendTokens.mockImplementation((req, res) =>
+        res.status(401).json({}),
+      );
 
       app.use((req: any, res, next) => {
         req.session = {
           ...mockRequest.session,
           companyDetails: { id: 1 },
-          correlationID: 12,
+          correlationID: mockCorrelationId,
         };
         req.user = { ...mockRequest.user, jwt: 'jwt', refreshToken: 'jwt' };
         req.logout = mockRequest.logout;

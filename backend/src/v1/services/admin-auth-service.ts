@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
@@ -7,7 +7,7 @@ import {
   OIDC_AZUREIDIR_SCOPE,
 } from '../../constants';
 import { logger as log } from '../../logger';
-import { authUtils } from './auth-utils-service';
+import { AuthBase } from './auth-utils-service';
 import { utils } from './utils-service';
 
 enum LogoutReason {
@@ -19,43 +19,18 @@ enum LogoutReason {
   ContactError = 'contactError',
 }
 
-const adminAuth = {
-  isTokenExpired(token: string) {
-    return authUtils.isTokenExpired(token);
-  },
-
-  isRenewable(token: string) {
-    return authUtils.isRenewable(token);
-  },
-
-  async renew(refreshToken: string) {
+class AdminAuth extends AuthBase {
+  public override async renew(refreshToken: string) {
     const clientId = config.get('oidc:adminClientId');
     const clientSecret = config.get('oidc:adminClientSecret');
     const scope = OIDC_AZUREIDIR_SCOPE;
-    return authUtils.renew(refreshToken, clientId, clientSecret, scope);
-  },
+    return super.renewImpl(refreshToken, clientId, clientSecret, scope);
+  }
 
-  async refreshJWT(req: Request, _res: Response, next: NextFunction) {
-    return authUtils.refreshJWT(req, _res, next, adminAuth.renew);
-  },
-
-  generateUiToken() {
+  public override generateFrontendToken() {
     const audience = config.get('server:adminFrontend');
-    return authUtils.generateUiToken(audience);
-  },
-
-  async renewBackendAndFrontendTokens(req: Request, res: Response) {
-    return authUtils.renewBackendAndFrontendTokens(
-      req,
-      res,
-      adminAuth.renew,
-      adminAuth.generateUiToken,
-    );
-  },
-
-  isValidBackendToken() {
-    return authUtils.isValidBackendToken(adminAuth.validateClaims);
-  },
+    return super.generateFrontendTokenImpl(audience);
+  }
 
   /**
    * check if the jwt contains valid claims.
@@ -64,7 +39,7 @@ const adminAuth = {
    * https://github.com/bcgov/sso-keycloak/wiki/Using-Your-SSO-Client#do-validate-the-idp-in-the-jwt
    * @param jwt the token
    */
-  validateClaims: function (jwt: any) {
+  public override validateClaims(jwt: any) {
     const payload: JwtPayload = jsonwebtoken.decode(jwt) as JwtPayload;
     if (payload?.identity_provider !== KEYCLOAK_IDP_HINT_AZUREIDIR) {
       throw new Error(
@@ -79,17 +54,18 @@ const adminAuth = {
       );
     }
     return true;
-  },
+  }
 
-  getUserDescription(session: any) {
+  public override getUserDescription(session: any): string {
     return `[Username: ${session?.passport?.user?._json?.idir_username}, Type: IDIR, GUID: ${session?.passport?.user?._json?.idir_user_guid}]`;
-  },
+  }
 
-  handleGetToken(req: Request, res: Response) {
-    authUtils.handleGetToken(req, res, adminAuth.getUserDescription);
-  },
+  public handleGetToken = async (req: Request, res: Response): Promise<any> => {
+    this.handleGetTokenImpl(req, res);
+  };
 
-  async handleGetUserInfo(req: Request, res: Response) {
+  public override async handleGetUserInfo(req: Request, res: Response) {
+    const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo?.jwt || !userInfo?._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -100,9 +76,9 @@ const adminAuth = {
       displayName: userInfo._json.display_name,
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);
-  },
+  }
 
-  async handleCallBackAzureIdir(req: Request): Promise<LogoutReason> {
+  public async handleCallBackAzureIdir(req: Request): Promise<LogoutReason> {
     const userInfo = utils.getSessionUser(req);
     const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
     const idirUserGuid = jwtPayload?.idir_user_guid;
@@ -112,14 +88,16 @@ const adminAuth = {
     }
 
     try {
-      adminAuth.validateClaims(userInfo.jwt);
+      this.validateClaims(userInfo.jwt);
     } catch (e) {
       log.error('invalid claims in token', e);
       return LogoutReason.LoginError;
     }
 
     return LogoutReason.Login;
-  },
-};
+  }
+}
+
+const adminAuth = new AdminAuth();
 
 export { LogoutReason, adminAuth };
