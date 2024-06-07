@@ -171,10 +171,16 @@ router.get(
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();
       const page = Number((req.query.page || '0')?.toString());
-      const pageSize = Number((req.query.pageSize || '50')?.toString());
+      let pageSize = Number((req.query.pageSize || '50')?.toString());
       if (isNaN(page) || isNaN(pageSize)) {
         return res.status(400).json({ error: 'Invalid offset or limit' });
       }
+
+      const maxPageSize = 50;
+      if (pageSize > maxPageSize) {
+        pageSize = maxPageSize
+      }
+
       const { status, data } =
         await payTransparencyService.getPayTransparencyData(
           startDate,

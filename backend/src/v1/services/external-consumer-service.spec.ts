@@ -151,4 +151,45 @@ describe('external-consumer-service', () => {
       );
     }
   });
+
+  describe('should default page size to 50', () => {
+    it('when page size is not specified', async () => {
+      mockReportsViewFindMany.mockImplementation((args) => {
+        expect(args.take).toBe(50)
+        return [testData]
+      });
+      await externalConsumerService.exportDataWithPagination(
+        '2024-01-01',
+        '2024-01-01',
+        0,
+        undefined,
+      );
+
+    });
+    it('when page size is greater than max value (50)', async () => {
+      mockReportsViewFindMany.mockImplementation((args) => {
+        expect(args.take).toBe(50)
+        return [testData]
+      });
+      await externalConsumerService.exportDataWithPagination(
+        '2024-01-01',
+        '2024-01-01',
+        0,
+        100,
+      );
+    });
+
+    it('when page size is less than 1', async () => {
+      mockReportsViewFindMany.mockImplementation((args) => {
+        expect(args.take).toBe(50)
+        return [testData]
+      });
+      await externalConsumerService.exportDataWithPagination(
+        '2024-01-01',
+        '2024-01-01',
+        0,
+        -1,
+      );
+    });
+  });
 });
