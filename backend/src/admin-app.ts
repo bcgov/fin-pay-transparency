@@ -262,7 +262,7 @@ apiRouter.use(
   },
 );
 apiRouter.use('/user', adminUserRouter);
-apiRouter.use('/v1/report', adminReportRoutes);
+apiRouter.use('/v1/reports', adminReportRoutes);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });
