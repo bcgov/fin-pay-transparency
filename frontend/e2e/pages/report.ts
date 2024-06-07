@@ -27,18 +27,12 @@ export class BaseReportPage extends PTPage {
   async verifyEmployeerDetails(user, report) {
     await this.instance.waitForSelector('div.page-content');
     await expect(
-      await this.instance.getByRole('cell', { name: 'Employer' }),
-    ).toBeVisible();
-    await expect(
-      await this.instance.getByRole('cell', { name: user.legalName }),
-    ).toBeVisible();
-    await expect(
-      await this.instance.getByRole('cell', { name: 'Address' }),
+      await this.instance.getByText('Employer: ' + user.legalName),
     ).toBeVisible();
 
-    const addressValue = await this.instance.getByRole('cell', {
-      name: user.addressLine1,
-    });
+    const addressValue = await this.instance.getByText(
+      'Address: ' + user.addressLine1,
+    );
     await expect(addressValue).toBeVisible();
 
     if (user.addressLine2) {
