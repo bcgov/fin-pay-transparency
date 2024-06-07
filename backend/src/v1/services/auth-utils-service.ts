@@ -114,7 +114,6 @@ abstract class AuthBase {
     const user: any = req.user;
     const session: any = req.session;
     const result = await this.renew(user.refreshToken);
-    console.log(result);
     if (result?.jwt && result?.refreshToken) {
       user.jwt = result.jwt;
       user.refreshToken = result.refreshToken;
@@ -129,8 +128,8 @@ abstract class AuthBase {
     }
   };
 
-  public isValidBackendToken() {
-    return async function (req: Request, res: Response, next: NextFunction) {
+  public isValidBackendToken = () => {
+    return async (req: Request, res: Response, next: NextFunction) => {
       const session: any = req.session;
       if (!kcPublicKey) {
         kcPublicKey = await utils.getKeycloakPublicKey();
@@ -143,7 +142,7 @@ abstract class AuthBase {
         const jwt = session.passport.user.jwt;
         try {
           jsonwebtoken.verify(jwt, kcPublicKey);
-          () => this.validateClaims(jwt)();
+          this.validateClaims(jwt);
           return next();
         } catch (e) {
           log.error('error is from verify', e);
@@ -155,7 +154,7 @@ abstract class AuthBase {
         return res.status(HttpStatus.UNAUTHORIZED).json();
       }
     };
-  }
+  };
 
   // Protected interface
   // ---------------------------------------------------------------------------

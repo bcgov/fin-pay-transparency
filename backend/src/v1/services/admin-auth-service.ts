@@ -65,7 +65,6 @@ class AdminAuth extends AuthBase {
   };
 
   public override async handleGetUserInfo(req: Request, res: Response) {
-    const session: any = req.session;
     const userInfo = utils.getSessionUser(req);
     if (!userInfo?.jwt || !userInfo?._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({

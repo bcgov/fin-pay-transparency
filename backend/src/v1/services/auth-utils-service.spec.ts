@@ -2,8 +2,14 @@ import { Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
 import { AuthBase } from './auth-utils-service';
 
+const mockRenewSuccessResult = {
+  jwt: 'mock jwt',
+  refreshToken: 'mock refresh token',
+  idToken: 'mock id token',
+};
+
 class MockAuthSubclass extends AuthBase {
-  public override renew(refreshToken: string) {}
+  public override async renew(refreshToken: string): Promise<any> {}
   public override generateFrontendToken() {}
   public override getUserDescription(session: any): string {
     return 'Mock user';
@@ -14,7 +20,6 @@ class MockAuthSubclass extends AuthBase {
   }
   public override handleGetToken(req: Request, res: Response) {}
 }
-
 const mockAuth = new MockAuthSubclass();
 
 afterEach(() => {
@@ -63,6 +68,41 @@ describe('isRenewable', () => {
       });
 
       expect(mockAuth.isRenewable(validToken)).toBeTruthy();
+    });
+  });
+});
+
+describe('renewBackendAndFrontendTokens', () => {
+  describe('when the refresh token is successfully exchanged for new backend tokens', () => {
+    it('sets a success code in the response', async () => {
+      jest.spyOn(mockAuth, 'renew').mockResolvedValue(mockRenewSuccessResult);
+      const req = {
+        user: { refreshToken: 'mock refresh token' } as unknown,
+        session: {},
+      } as Request;
+      const res = {
+        status: jest.fn().mockReturnValue({
+          json: jest.fn(),
+        }) as unknown,
+      } as Response;
+      await mockAuth.renewBackendAndFrontendTokens(req, res);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+  });
+  describe('when the refresh token is not successfully exchanged for new backend tokens', () => {
+    it('sets an unauthorized code in the response', async () => {
+      jest.spyOn(mockAuth, 'renew').mockResolvedValue(null);
+      const req = {
+        user: { refreshToken: 'mock refresh token' } as unknown,
+        session: {},
+      } as Request;
+      const res = {
+        status: jest.fn().mockReturnValue({
+          json: jest.fn(),
+        }) as unknown,
+      } as Response;
+      await mockAuth.renewBackendAndFrontendTokens(req, res);
+      expect(res.status).toHaveBeenCalledWith(401);
     });
   });
 });
