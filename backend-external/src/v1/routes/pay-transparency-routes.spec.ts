@@ -54,10 +54,21 @@ describe('pay-transparency-routes', () => {
       mockGetPayTransparencyData.mockReturnValue({
         data: { message: 'Failed to get reports', error: true },
       });
-      return request(app)
-        .get('')
-        .set('x-api-key', 'api-key')
-        .expect(400);
+      return request(app).get('').set('x-api-key', 'api-key').expect(400);
+    });
+
+    describe('should default to max page size 50', () => {
+      it('when specified page size if greater than 50', () => {
+        mockGetPayTransparencyData.mockImplementation((...args) => {
+          expect(args[3]).toBe(50)
+          return {
+            status: 200,
+            data: [{ id: 1 }],
+          };
+        });
+
+        return request(app).get('').set('x-api-key', 'api-key').expect(200);
+      });
     });
   });
 
@@ -84,10 +95,10 @@ describe('pay-transparency-routes', () => {
       return request(app)
         .delete('/')
         .set('x-api-key', 'api-delete-reports-key')
-        .query({ companyName: "1234567890" })
+        .query({ companyName: '1234567890' })
         .expect(400);
     });
-    
+
     it('should fail if request fails to get reports', () => {
       mockDeleteReports.mockRejectedValue({ message: 'Error happened' });
       return request(app)
