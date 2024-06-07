@@ -1,17 +1,16 @@
 import express, { NextFunction, Request, Response } from 'express';
-import passport from 'passport';
-import { v4 as uuidv4 } from 'uuid';
-import { config } from '../../config';
-import { logger as log } from '../../logger';
-import { LogoutReason, adminAuth } from '../services/admin-auth-service';
-import { utils } from '../services/utils-service';
-
 import { body, validationResult } from 'express-validator';
+import passport from 'passport';
+import { config } from '../../config';
 import {
   MISSING_TOKENS_ERROR,
   OIDC_AZUREIDIR_CALLBACK_NAME,
   OIDC_AZUREIDIR_STRATEGY_NAME,
 } from '../../constants';
+import { logger as log } from '../../logger';
+import { LogoutReason, adminAuth } from '../services/admin-auth-service';
+import { UnauthorizedRsp } from '../services/auth-utils-service';
+import { utils } from '../services/utils-service';
 
 const router = express.Router();
 
@@ -23,7 +22,7 @@ router.get(
   utils.asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       log.debug(`Login flow callback idir is called.`);
-      const logoutReason = await adminAuth.handleCallBackIdir(req);
+      const logoutReason = await adminAuth.handleCallBackAzureIdir(req);
       if (logoutReason == LogoutReason.Login)
         return res.redirect(config.get('server:adminFrontend'));
       else return logoutHandler(req, res, next, logoutReason);
@@ -112,11 +111,6 @@ router.get(
   ),
 );
 
-const UnauthorizedRsp = {
-  error: 'Unauthorized',
-  error_description: 'Not logged in',
-};
-
 //refreshes jwt on refresh if refreshToken is valid
 router.post(
   '/refresh',
@@ -137,7 +131,7 @@ router.post(
       res.status(401).json(UnauthorizedRsp);
     } else if (adminAuth.isTokenExpired(user.jwt)) {
       if (user?.refreshToken && adminAuth.isRenewable(user.refreshToken)) {
-        return generateTokens(req, res);
+        return adminAuth.renewBackendAndFrontendTokens(req, res);
       } else {
         res.status(401).json(UnauthorizedRsp);
       }
@@ -155,45 +149,8 @@ router.post(
 router.get(
   '/token',
   utils.asyncHandler(adminAuth.refreshJWT),
-  (req: Request, res: Response) => {
-    const user: any = req.user;
-    const session: any = req.session;
-    if (user?.jwtFrontend && user?.refreshToken) {
-      if (session?.passport?.user?._json) {
-        req.session['correlationID'] = uuidv4();
-        log.info(
-          `created correlation id and stored in session for user guid: ${session?.passport?.user?._json?.bceid_user_guid}, user name: ${session?.passport?.user?._json?.bceid_username}, correlation_id:  ${session.correlationID}`,
-        );
-      }
-      const responseJson = {
-        jwtFrontend: user.jwtFrontend,
-        correlationID: session.correlationID,
-      };
-      res.status(200).json(responseJson);
-    } else {
-      log.error(JSON.stringify(UnauthorizedRsp));
-      res.status(401).json(UnauthorizedRsp);
-    }
-  },
+  adminAuth.handleGetToken,
 );
-
-async function generateTokens(req: Request, res: Response) {
-  const user: any = req.user;
-  const session: any = req.session;
-  const result = await adminAuth.renew(user.refreshToken);
-  if (result?.jwt && result?.refreshToken) {
-    user.jwt = result.jwt;
-    user.refreshToken = result.refreshToken;
-    user.jwtFrontend = adminAuth.generateUiToken();
-    const responseJson = {
-      jwtFrontend: user.jwtFrontend,
-      correlationID: session.correlationID,
-    };
-    res.status(200).json(responseJson);
-  } else {
-    res.status(401).json(UnauthorizedRsp);
-  }
-}
 
 //redirects to the SSO login screen
 router.get(

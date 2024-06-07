@@ -1,13 +1,13 @@
 import { app } from './app';
 import prisma from './v1/prisma/prisma-client';
-import { auth } from './v1/services/auth-service';
+import { publicAuth } from './v1/services/public-auth-service';
 const request = require('supertest');
 
 // ----------------------------------------------------------------------------
 // Setup
 // ----------------------------------------------------------------------------
 
-const validFrontendToken = auth.generateUiToken();
+const validFrontendToken = publicAuth.generateFrontendToken();
 const invalidFrontendToken = 'invalid-token';
 
 jest.mock('./schedulers/run.all', () => ({
@@ -53,13 +53,26 @@ jest.mock('./v1/prisma/prisma-client', () => {
 // as the second part of a two-step authorization phase.  To keep the API tests simple we
 // omit the session and token checks done by the function.  All other functions in this
 // module keep the original implementation.
-jest.mock('./v1/services/auth-service', () => {
-  const actualAuth = jest.requireActual('./v1/services/auth-service').auth;
-  const mockedAuth = (
-    jest.genMockFromModule('./v1/services/auth-service') as any
-  ).auth;
+jest.mock('./v1/services/public-auth-service', () => {
+  const actualPublicAuth = jest.requireActual(
+    './v1/services/public-auth-service',
+  );
+  const mockedPublicAuth = jest.genMockFromModule(
+    './v1/services/public-auth-service',
+  ) as any;
+  const mocked = {
+    ...mockedPublicAuth,
+    ...actualPublicAuth,
+  };
+  mocked.publicAuth.isValidBackendToken = jest
+    .fn()
+    .mockReturnValue(async (req, res, next) => {
+      next();
+    });
+  return mocked;
+  /*
   return {
-    auth: {
+    publicAuth: {
       ...mockedAuth,
       ...actualAuth,
       isValidBackendToken: jest.fn().mockReturnValue(async (req, res, next) => {
@@ -67,6 +80,7 @@ jest.mock('./v1/services/auth-service', () => {
       }),
     },
   };
+  */
 });
 
 // Setup in app.ts requires access to certain config properties.  These may be present when
