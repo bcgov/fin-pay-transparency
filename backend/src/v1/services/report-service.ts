@@ -1304,6 +1304,7 @@ const reportService = {
             create_date:
               existing_published_report?.create_date ||
               report_to_publish.create_date,
+            revision: 1,
           },
         });
       }
