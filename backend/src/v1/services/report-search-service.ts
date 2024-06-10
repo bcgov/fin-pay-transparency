@@ -1,5 +1,9 @@
 import { Prisma } from '@prisma/client';
-import { ReportFilterType, ReportSortType } from '../../types/report_search';
+import {
+  ReportFilterType,
+  ReportSortType,
+  RELATION_MAPPER,
+} from '../../types/report_search';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 
 const reportSearchService = {
@@ -19,11 +23,11 @@ const reportSearchService = {
     filter: string,
   ): Promise<any> {
     offset = offset || 0;
-    if (!limit || limit > 200) {
-      limit = 10;
+    if (!limit || limit > 100) {
+      limit = 20;
     }
     let sortObj: ReportSortType = [];
-    let filterObj = {};
+    let filterObj: ReportFilterType[] = [];
     try {
       sortObj = JSON.parse(sort);
       filterObj = JSON.parse(filter);
@@ -31,15 +35,26 @@ const reportSearchService = {
       throw new Error('Invalid query parameters');
     }
     const where = this.convertFiltersToPrismaFormat(filterObj);
-    const reports = await prismaReadOnlyReplica.pay_transparency_report.findMany({
-      skip: offset,
-      take: parseInt(String(limit)),
-        orderBy: [{pay_transparency_company: {}}],
-        where: where,
+    const orderBy = convertSortToPrismaFormat(sortObj);
+
+    const reports =
+      await prismaReadOnlyReplica.pay_transparency_report.findMany({
+        skip: offset,
+        take: parseInt(String(limit)),
+        orderBy,
+        where,
+        include: {
+          employee_count_range: true,
+          pay_transparency_company: {
+            select: {
+              company_id: true,
+              company_name: true,
+            },
+          },
+        },
       });
     const count = await prismaReadOnlyReplica.pay_transparency_report.count({
-      orderBy: sortObj,
-      where: where,
+      where,
     });
 
     return {
@@ -61,27 +76,57 @@ const reportSearchService = {
     let prismaFilterObj: Prisma.pay_transparency_reportWhereInput = {};
 
     for (const item of filterObj) {
+      const relationKey = RELATION_MAPPER[item.key];
+      let filterValue;
       if (item.operation === 'eq') {
-        prismaFilterObj[item.key] = item.value;
+        filterValue = item.value;
       } else if (item.operation === 'neq') {
-        prismaFilterObj[item.key] = { not: { equals: item.value } };
+        filterValue = { not: { eq: item.value } };
       } else if (item.operation === 'gt') {
-        prismaFilterObj[item.key] = { gt: item.value };
+        filterValue = { gt: item.value };
       } else if (item.operation === 'gte') {
-        prismaFilterObj[item.key] = { gte: item.value };
+        filterValue = { gte: item.value };
       } else if (item.operation === 'lt') {
-        prismaFilterObj[item.key] = { lt: item.value };
+        filterValue = { lt: item.value };
       } else if (item.operation === 'lte') {
-        prismaFilterObj[item.key] = { lte: item.value };
+        filterValue = { lte: item.value };
       } else if (item.operation === 'in') {
-        prismaFilterObj[item.key] = { in: item.value };
+        filterValue = { in: item.value };
       } else if (item.operation === 'notin') {
-        prismaFilterObj[item.key] = { not: { in: item.value } };
+        filterValue = { not: { in: item.value } };
       } else if (item.operation === 'between') {
-        prismaFilterObj[item.key] = { gte: item.value[0], lt: item.value[1] };
+        filterValue = { gte: item.value[0], lt: item.value[1] };
+      } else if (item.operation === 'like') {
+        filterValue = { contains: item.value, mode: 'insensitive' };
+      }
+
+      if (relationKey) {
+        prismaFilterObj[relationKey] = { [item.key]: filterValue };
+      } else {
+        prismaFilterObj[item.key] = filterValue;
       }
     }
     return prismaFilterObj;
   },
 };
+
+const convertSortToPrismaFormat = (
+  sort: ReportSortType,
+): Prisma.pay_transparency_reportOrderByWithRelationInput[] => {
+  if (!sort.length) {
+    return undefined;
+  }
+
+  return sort.map((item) => {
+    const [field] = Object.keys(item)
+    const relationKey = RELATION_MAPPER[field];
+    const sortItem = { [field]: item[field] };
+    if (relationKey) {
+      return { [relationKey]: sortItem };
+    }
+
+    return sortItem;
+  });
+};
+
 export { reportSearchService };

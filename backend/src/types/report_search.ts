@@ -52,12 +52,52 @@ export type IsUnlockedFilter = {
   value: boolean;
 };
 
-export type ReportFilterType = (SubmissonDateFilter | NaicsCodeFilter | ReportingYearFilter | IsUnlockedFilter | EmployeeCountRangeFilter)[]
+export type CompanyFilter = {
+  key: 'company_name';
+  operation: 'like';
+  value: string;
+};
 
-export type SortFieldType = 'create_date' | 'naics_code' | 'employee_count_range_id';
+export type ReportFilterType = (
+  | SubmissonDateFilter
+  | NaicsCodeFilter
+  | ReportingYearFilter
+  | IsUnlockedFilter
+  | EmployeeCountRangeFilter
+  | CompanyFilter
+)[];
 
-type SortType = {
-    [key in SortFieldType]: 'asc' | 'desc';
-}
+export type SortFieldType =
+  | 'create_date'
+  | 'naics_code'
+  | 'employee_count_range_id'
+  | 'company_name';
 
-export type ReportSortType = SortType[];
+type SortDirection = 'asc' | 'desc';
+
+export type SubmissionDateSort = {
+  create_date: SortDirection;
+};
+export type NaicsCodeSort = {
+  naics_code: SortDirection;
+};
+export type EmployeeCountRangeSort = {
+  employee_count_range_id: SortDirection;
+};
+
+export type CompanySort = {
+  company_name: SortDirection;
+};
+
+export type ReportSortType = (
+  | SubmissionDateSort
+  | NaicsCodeSort
+  | EmployeeCountRangeSort
+  | CompanySort
+)[];
+
+export const RELATION_MAPPER: {
+  [key in SortFieldType]?: string;
+} = {
+  company_name: 'pay_transparency_company',
+};
