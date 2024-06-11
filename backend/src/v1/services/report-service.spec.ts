@@ -860,6 +860,7 @@ describe('publishReport', () => {
       expect(updateStatement.data).toStrictEqual({
         report_status: enumReportStatus.Published,
         create_date: mockDraftReportInApi.create_date,
+        revision: 1,
       });
     });
   });
@@ -978,9 +979,7 @@ describe('movePublishedReportToHistory', () => {
       );
 
       // Confirm that the calculated datas were deleted
-      expect(
-        mockCalculatedDataDeleteMany,
-      ).toHaveBeenCalledTimes(1);
+      expect(mockCalculatedDataDeleteMany).toHaveBeenCalledTimes(1);
       const deleteCalcData = mockCalculatedDataDeleteMany.mock.calls[0][0];
       expect(deleteCalcData.where.report_id).toBe(
         mockPublishedReportInDb.report_id,

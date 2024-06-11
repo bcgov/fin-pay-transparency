@@ -203,6 +203,16 @@ crunchy:
       secretKey: ~
       fullBackupSchedule: 0 9 * * *
       incrementalBackupSchedule: "0 0,1,3,5,7,11,13,15,17,19,21,23 * * *" # every 2 hours, but 9 is not put intentionally to avoid conflict with full backup
+    pvc:
+      retention: "1"
+      retentionFullType: count
+      fullBackupSchedule: 0 8 * * *
+      incrementalBackupSchedule: 0 0,4,12,16,20 * * *
+      volume:
+        accessModes: "ReadWriteOnce"
+        storage: 64Mi
+        storageClassName: netapp-file-backup
+    
     config:
       requests:
         cpu: 5m
