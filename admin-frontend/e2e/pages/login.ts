@@ -1,36 +1,32 @@
-import { expect } from '@playwright/test';
-import { baseURL, PagePaths } from '../utils';
-import { DashboardPage } from './dashboard';
-import { PTPage } from './page';
+import { authenticator } from 'otplib';
+import { PagePaths } from '../utils';
+import { AdminPortalPage } from './admin-portal-page';
 
-export class LoginPage extends PTPage {
+export class LoginPage extends AdminPortalPage {
   static path = PagePaths.LOGIN;
-  public loginButton;
 
-  async setup() {
-    this.loginButton = await this.instance.getByRole('button', {
-      name: 'Log in with IDIR',
-    });
-  }
+  async setup() {}
 
   async login() {
-    await this.loginButton.click();
-    await this.instance.waitForTimeout(2000);
-    const html = await this.instance.locator('body').innerHTML();
-    if (html.includes('Sign in')) {
-      expect(this.instance.getByText('Sign in'));
-      await this.instance
-        .getByPlaceholder('Email, phone, or Skype')
-        .fill(process.env.E2E_ADMIN_USERNAME!);
-      //await this.instance.click('#password');
-      //await this.instance.fill('#password', process.env.E2E_ADMIN_PASSWORD!);
-      await this.instance.waitForTimeout(1000);
-      await this.instance.getByText('Next').click();
-      await this.instance.waitForURL(baseURL!);
-      const dashboard = new DashboardPage(this.instance);
-      await dashboard.setup();
-      await expect(dashboard.generateReportButton).toBeVisible();
-      await this.instance.context().storageState({ path: 'user.json' });
-    }
+    await this.page.getByTestId('login-button').click();
+    await this.page.getByLabel('Enter your email, phone, or').click();
+    await this.page
+      .getByPlaceholder('Email, phone, or Skype')
+      .fill(process.env.E2E_ADMIN_USERNAME!);
+    await this.page.getByRole('button', { name: 'Next' }).click();
+    await this.page.getByPlaceholder('Password').click();
+    await this.page
+      .getByPlaceholder('Password')
+      .fill(process.env.E2E_ADMIN_PASSWORD!);
+    await this.page.getByRole('button', { name: 'Sign in' }).click();
+
+    const totpToken = authenticator.generate(
+      process.env.E2E_ADMIN_TOTP_SECRET!,
+    );
+    await this.page.getByPlaceholder('Code').click();
+    await this.page.getByPlaceholder('Code').fill(totpToken);
+    await this.page.getByRole('button', { name: 'Verify' }).click();
+    await this.page.getByText("Don't show this again").click();
+    await this.page.getByRole('button', { name: 'Yes' }).click();
   }
 }

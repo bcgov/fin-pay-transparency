@@ -4,7 +4,8 @@ export const PagePaths = {
   LOGIN: `${baseURL}/login`,
   LOGOUT: `${baseURL}/logout`,
   DASHBOARD: `${baseURL}/dashboard`,
-  GENERATE_REPORT: `${baseURL}/generate-report-form`,
-  VIEW_REPORT: `${baseURL}/published-report`,
-  DRAFT_REPORT: `${baseURL}/draft-report`,
+  REPORTS: `${baseURL}/reports`,
+  ANNOUNCEMENTS: `${baseURL}/announcements`,
+  USER_MANAGEMENT: `${baseURL}/user-management`,
+  ANALYTICS: `${baseURL}/analytics`,
 };
