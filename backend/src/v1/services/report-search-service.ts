@@ -35,11 +35,7 @@ const reportSearchService = {
       throw new Error('Invalid query parameters');
     }
 
-    try {
-      await FilterValidationSchema.parseAsync(filterObj)
-    } catch (error) {
-      throw error
-    }
+    await FilterValidationSchema.parseAsync(filterObj);
 
     const where = this.convertFiltersToPrismaFormat(filterObj);
     const orderBy = convertSortToPrismaFormat(sortObj);
@@ -124,7 +120,7 @@ const convertSortToPrismaFormat = (
   }
 
   return sort.map((item) => {
-    const [field] = Object.keys(item)
+    const [field] = Object.keys(item);
     const relationKey = RELATION_MAPPER[field];
     const sortItem = { [field]: item[field] };
     if (relationKey) {
