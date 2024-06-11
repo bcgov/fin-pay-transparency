@@ -1,5 +1,6 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import {
+  DateTimeFormatter,
   LocalDate,
   LocalDateTime,
   ZoneId,
@@ -27,19 +28,20 @@ const externalConsumerService = {
    * calling this endpoint with no limit will default to 50.
    * calling this endpoint with no offset will default to 0.
    * calling this endpoint with no start date will default to - 31 days.
-   * calling this endpoint with no end date will default to  - 1 day.
+   * calling this endpoint with no end date will default to now.
    * consumer is responsible for making the api call in a loop to get all the records.
-   * @param startDate from when records needs to be fetched
-   * @param endDate till when records needs to be fetched
+   * @param startDatetime from when records needs to be fetched
+   * @param endDatetime till when records needs to be fetched
    * @param offset the starting point of the records , to support pagination
    * @param limit the number of records to be fetched
    */
   async exportDataWithPagination(
-    startDate?: string,
-    endDate?: string,
+    startDatetime?: string,
+    endDatetime?: string,
     offset?: number,
     limit?: number,
   ) {
+    console.log(startDatetime, endDatetime)
     const currentTime = LocalDateTime.now(ZoneId.UTC);
     let startDt = withStartOfDay(currentTime.minusDays(31));
     let endDt = withEndOfDay(currentTime.minusDays(1));
@@ -52,24 +54,12 @@ const externalConsumerService = {
     }
 
     try {
-      if (startDate) {
-        const date = convert(LocalDate.parse(startDate)).toDate();
-        startDt = withStartOfDay(
-          LocalDateTime.from(nativeJs(date, ZoneId.UTC)),
-        );
+      if (startDatetime) {
+        startDt = LocalDateTime.parse(startDatetime);
       }
 
-      if (endDate) {
-        const date = convert(LocalDate.parse(endDate)).toDate();
-        endDt = withEndOfDay(
-          LocalDateTime.from(nativeJs(date, ZoneId.UTC))
-        );
-
-        if (!endDt.isBefore(withStartOfDay(currentTime))) {
-          throw new PayTransparencyUserError(
-            'End date cannot be later than current - 1 days.',
-          );
-        }
+      if (endDatetime) {
+        endDt = LocalDateTime.parse(endDatetime);
       }
     } catch (error) {
       if (error instanceof PayTransparencyUserError) {
@@ -77,20 +67,20 @@ const externalConsumerService = {
       }
 
       throw new PayTransparencyUserError(
-        'Failed to parse dates. Please use date format YYYY-MM-dd',
+        'Failed to parse dates. Please use date format YYYY-MM-ddTHH:mm:ss',
       );
     }
 
     if (startDt.isAfter(endDt)) {
       throw new PayTransparencyUserError(
-        'Start date must be before the end date.',
+        'Start date time must be before the end date time.',
       );
     }
 
     const whereClause: Prisma.reports_viewWhereInput = {
       update_date: {
-        gte: convert(startDt).toDate(),
-        lt: convert(endDt).toDate(),
+        gte: convert(startDt.atZone(ZoneId.UTC)).toDate(),
+        lt: convert(endDt.atZone(ZoneId.UTC)).toDate(),
       },
     };
 
