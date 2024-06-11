@@ -4,7 +4,7 @@ env:
 on:
   workflow_dispatch:
     secrets:
-      ADMIN_E2E_TEST_LOGIN_USERNAME:
+      ADMIN_E2E_TEST_LOGIN_USER_EMAIL:
         required: true
       ADMIN_E2E_TEST_LOGIN_PASSWORD:
         required: true
@@ -27,7 +27,7 @@ on:
         type: number
   workflow_call:
     secrets:
-      ADMIN_E2E_TEST_LOGIN_USERNAME:
+      ADMIN_E2E_TEST_LOGIN_USER_EMAIL:
         required: true
       ADMIN_E2E_TEST_LOGIN_PASSWORD:
         required: true
@@ -76,7 +76,7 @@ jobs:
       - name: Run Tests
         env:
           E2E_ADMIN_BASE_URL: ${{ inputs.admin-frontend-url }}
-          E2E_ADMIN_USERNAME: ${{ secrets.ADMIN_E2E_TEST_LOGIN_USERNAME }}
+          E2E_ADMIN_USERNAME: ${{ secrets.ADMIN_E2E_TEST_LOGIN_USER_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.ADMIN_E2E_TEST_LOGIN_PASSWORD }}
           E2E_ADMIN_TOTP_SECRET: ${{ secrets.ADMIN_E2E_TEST_LOGIN_OTP_SECRET }}
         run: |
