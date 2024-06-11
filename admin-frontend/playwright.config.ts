@@ -57,6 +57,7 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
+    /*
     {
       name: 'Google Chrome',
       use: {
@@ -101,5 +102,6 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
+    */
   ],
 });
