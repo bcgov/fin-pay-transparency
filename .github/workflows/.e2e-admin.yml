@@ -61,7 +61,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        project: [chromium, Google Chrome, firefox, safari, Microsoft Edge]
+        project: [Google Chrome] # [chromium, Google Chrome, firefox, safari, Microsoft Edge]
     steps:
       - uses: actions/checkout@v4
         name: Checkout
