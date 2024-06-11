@@ -180,8 +180,8 @@ admin-frontend:
     logLevel: info
   autoscaling:
     enabled: true
-    minReplicas: 1
-    maxReplicas: 2
+    minReplicas: 2
+    maxReplicas: 3
     targetCPUUtilizationPercentage: 80 # this percentage from request cpu
   podSecurityContext: {}
   securityContext:
