@@ -6,6 +6,7 @@ import {
   FilterValidationSchema,
 } from '../types/report-search';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
+import { PayTransparencyUserError } from './file-upload-service';
 
 const reportSearchService = {
   /**
@@ -13,8 +14,8 @@ const reportSearchService = {
    * This gives flexibility to query with pagination and filter without any modification to this service.
    * @param page the page number to retrieve , UI page 1 is database page 0
    * @param limit the number of records to retrieve, default to 10
-   * @param sort string value of JSON Array to store sort key and sort value, ex: [{"revision":"desc"},{"create_date":"asc"}]
-   * @param filter string value of JSON Array for key, operation and value, ex: [{"key": "reporting_year", "operation": "eq", "value": "2024"}]
+   * @param sort string value of JSON Array to store sort key and sort value, ex: [{"create_date":"asc"}]
+   * @param filter string value of JSON Array for key, operation and value, ex: [{"key": "reporting_year", "operation": "eq", "value": 2024}]
    */
   async searchReport(
     offset: number,
@@ -32,7 +33,7 @@ const reportSearchService = {
       sortObj = JSON.parse(sort);
       filterObj = JSON.parse(filter);
     } catch (e) {
-      throw new Error('Invalid query parameters');
+      throw new PayTransparencyUserError('Invalid query parameters');
     }
 
     await FilterValidationSchema.parseAsync(filterObj);

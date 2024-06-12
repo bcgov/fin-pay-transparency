@@ -81,7 +81,13 @@ a {
   color: $link-color;
 }
 
+.v-main {
+  padding: 0;
+  margin: 0 !important;
+}
+
 .v-container {
+  
   width: 85%;
   margin-left: auto;
   margin-right: auto;
