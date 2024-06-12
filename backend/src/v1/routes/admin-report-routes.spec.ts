@@ -37,4 +37,9 @@ describe('admin-report-routes', () => {
       'naics_code=11',
     );
   });
+  it('400 - if search reports fails', async () => {
+    mockSearchReport.mockRejectedValue({error: true})
+    await request(app).get('')
+    .query({offset: 1, limit: 50, filter: 'naics_code=11', sort: 'field=naics_code,direction=asc'}).expect(400);
+  });
 });

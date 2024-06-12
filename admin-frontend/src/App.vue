@@ -81,7 +81,13 @@ a {
   color: $link-color;
 }
 
+.v-main {
+  padding: 0;
+  margin: 0 !important;
+}
+
 .v-container {
+  
   width: 85%;
   margin-left: auto;
   margin-right: auto;
@@ -223,9 +229,5 @@ h1 {
 
 .theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
   background-color: rgba(0, 0, 0, 0.12) !important;
-}
-
-.v-main {
-  margin: 24px;
 }
 </style>

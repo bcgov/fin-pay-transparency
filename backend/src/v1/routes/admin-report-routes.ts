@@ -16,13 +16,18 @@ router.get(
     logger.silly(req.query); //log the query params at silly level
     const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
-    const paginatedReportsResponse = await reportSearchService.searchReport(
-      offset,
-      limit,
-      req.query.sort as string,
-      req.query.filter as string,
-    );
-    return res.status(200).json(paginatedReportsResponse);
+    try {
+      const paginatedReportsResponse = await reportSearchService.searchReport(
+        offset,
+        limit,
+        req.query.sort as string,
+        req.query.filter as string,
+      );
+      return res.status(200).json(paginatedReportsResponse);
+    } catch (error) {
+      logger.error(error);
+      return res.status(400).json(error);
+    }
   }),
 );
 
