@@ -142,15 +142,15 @@ const validateApiKey =
  *       - in: query
  *         name: startDate
  *         type: date
- *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})/
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2}):([0-9]{2})/
  *         required: false
- *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-ddTHH:mm:ss, default -31 days ) - optional"
+ *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm:ss, default -31 days ) - optional"
  *       - in: query
  *         name: endDate
  *         type: string
- *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})/
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2}):([0-9]{2})/
  *         required: false
- *         description: "End date in UTC for the update date range filter (format: YYYY-MM-ddTHH:mm:ss, default -1 day) - optional"
+ *         description: "End date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm:ss, default now) - optional"
  *
  *
  *     responses:
@@ -182,7 +182,7 @@ router.get(
       }
 
       const maxPageSize = 50;
-      if (pageSize > maxPageSize) {
+      if (pageSize > maxPageSize || pageSize <= 0) {
         pageSize = maxPageSize;
       }
 

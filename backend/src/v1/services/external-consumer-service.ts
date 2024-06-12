@@ -1,24 +1,29 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import {
   DateTimeFormatter,
-  LocalDate,
   LocalDateTime,
   ZoneId,
+  ZonedDateTime,
   convert,
-  nativeJs,
 } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import { PayTransparencyUserError } from './file-upload-service';
 import { Prisma } from '@prisma/client';
 
 const DEFAULT_PAGE_SIZE = 50;
 
-const withStartOfDay = (input: LocalDateTime): LocalDateTime => {
+const withStartOfDay = (input: ZonedDateTime): ZonedDateTime => {
   return input.withHour(0).withMinute(0).withSecond(0).withNano(0);
 };
 
-const withEndOfDay = (input: LocalDateTime): LocalDateTime => {
+const withEndOfDay = (input: ZonedDateTime): ZonedDateTime => {
   return input.withHour(23).withMinute(59).withSecond(59);
 };
+
+const inputDateTimeFormat = 'yyyy-MM-dd HH:mm:ss';
+export const inputDateTimeFormatter = DateTimeFormatter.ofPattern(
+  inputDateTimeFormat,
+).withLocale(Locale.ENGLISH);
 
 const externalConsumerService = {
   /**
@@ -41,8 +46,7 @@ const externalConsumerService = {
     offset?: number,
     limit?: number,
   ) {
-    console.log(startDatetime, endDatetime)
-    const currentTime = LocalDateTime.now(ZoneId.UTC);
+    const currentTime = LocalDateTime.now(ZoneId.UTC).atZone(ZoneId.UTC);
     let startDt = withStartOfDay(currentTime.minusDays(31));
     let endDt = withEndOfDay(currentTime.minusDays(1));
 
@@ -55,11 +59,28 @@ const externalConsumerService = {
 
     try {
       if (startDatetime) {
-        startDt = LocalDateTime.parse(startDatetime);
+        startDt = LocalDateTime.parse(
+          startDatetime,
+          inputDateTimeFormatter,
+        ).atZone(ZoneId.UTC);
+
+        if (startDt.isAfter(currentTime)) {
+          throw new PayTransparencyUserError(
+            'Start date cannot be in the future',
+          );
+        }
       }
 
       if (endDatetime) {
-        endDt = LocalDateTime.parse(endDatetime);
+        endDt = LocalDateTime.parse(endDatetime, inputDateTimeFormatter)
+          .atZone(ZoneId.UTC)
+          .plusSeconds(1);
+
+        if (endDt.isAfter(currentTime)) {
+          throw new PayTransparencyUserError(
+            'End date cannot be in the future',
+          );
+        }
       }
     } catch (error) {
       if (error instanceof PayTransparencyUserError) {
@@ -67,7 +88,7 @@ const externalConsumerService = {
       }
 
       throw new PayTransparencyUserError(
-        'Failed to parse dates. Please use date format YYYY-MM-ddTHH:mm:ss',
+        'Failed to parse dates. Please use date format YYYY-MM-dd HH:mm:ss',
       );
     }
 
@@ -79,8 +100,8 @@ const externalConsumerService = {
 
     const whereClause: Prisma.reports_viewWhereInput = {
       update_date: {
-        gte: convert(startDt.atZone(ZoneId.UTC)).toDate(),
-        lt: convert(endDt.atZone(ZoneId.UTC)).toDate(),
+        gte: convert(startDt).toDate(),
+        lt: convert(endDt).toDate(),
       },
     };
 
