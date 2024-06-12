@@ -5,7 +5,11 @@
       <Header v-if="areHeaderAndSidebarVisible" />
       <SnackBar />
       <SideBar v-if="areHeaderAndSidebarVisible" />
-      <v-main fluid class="d-flex flex-column align-start">
+      <v-main
+        fluid
+        class="d-flex flex-column align-start"
+        :class="{ 'ptap-panel': areHeaderAndSidebarVisible }"
+      >
         <div v-if="isTitleVisible || isBreadcrumbTrailVisible" class="mb-3">
           <h2 class="page-title" v-if="isTitleVisible">
             {{ activeRoute.meta.pageTitle }}
@@ -79,6 +83,10 @@ export default {
 @import '@bcgov/bc-sans/css/BCSans.css';
 
 $link-color: #255a90;
+
+.ptap-panel {
+  margin: 24px;
+}
 
 a {
   color: $link-color;
@@ -232,7 +240,6 @@ h1 {
 }
 
 .v-main {
-  margin: 24px;
 }
 </style>
 ./services/notificationService

@@ -47,6 +47,28 @@
       </v-btn>
     </v-col>
   </v-row>
+
+  <v-data-table-server
+    v-model:items-per-page="pageSize"
+    :headers="headers"
+    :items="searchResults"
+    :items-length="totalNum"
+    :loading="isSearching"
+    search=""
+    item-value="name"
+    @update:options="searchReports"
+  >
+    <template v-slot:item.actions="{ item }">
+      <v-btn density="compact" variant="plain" icon="mdi-file-pdf-box"></v-btn>
+      <v-btn
+        density="compact"
+        variant="plain"
+        :icon="item?.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
+        :color="item?.is_unlocked ? 'success' : 'error'"
+      ></v-btn>
+      <v-btn density="compact" variant="plain" icon="mdi-clock"></v-btn>
+    </template>
+  </v-data-table-server>
 </template>
 
 <script>
@@ -61,15 +83,71 @@ import ReportSearchFilters from './ReportSearchFilters.vue';
 import ApiService from '../services/apiService';
 const isFilterPanelVisible = ref(false);
 const isSearching = ref(false);
+const pageSize = ref(20);
+const headers = ref([
+  {
+    title: 'Submission date',
+    key: 'submissionDate',
+    align: 'start',
+    sortable: true,
+    key: 'update_date',
+  },
+  {
+    title: 'Company name',
+    key: 'companyName',
+    align: 'start',
+    sortable: true,
+    key: 'pay_transparency_company.company_name',
+  },
+  {
+    title: 'NAICS',
+    key: 'naicsCode',
+    align: 'start',
+    sortable: true,
+    key: 'naics_code',
+  },
+  {
+    title: 'Employee count',
+    key: 'employeeCount',
+    align: 'start',
+    sortable: true,
+    key: 'employee_count_range.employee_count_range',
+  },
+  {
+    title: 'Year',
+    key: 'reportingYear',
+    align: 'start',
+    sortable: true,
+    key: 'reporting_year',
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    align: 'start',
+    sortable: false,
+  },
+]);
+const searchResults = ref();
+const totalNum = ref();
 
 function toggleFilterPanelVisible() {
   isFilterPanelVisible.value = !isFilterPanelVisible.value;
 }
 
-async function searchReports() {
+async function searchReports(options) {
+  const defaults = { page: 1, itemsPerPage: 20, sortBy: null };
+  options = { ...defaults, ...options };
+
+  const offset = (options.page - 1) * options.itemsPerPage;
+  const limit = options.itemsPerPage;
+  const filter = [];
+  const sort = [];
+
   isSearching.value = true;
   try {
-    await ApiService.getReports();
+    const resp = await ApiService.getReports(offset, limit, filter, sort);
+    searchResults.value = resp?.reports;
+    totalNum.value = resp?.total;
   } catch (err) {
     console.log(`search failed: ${err}`);
   }

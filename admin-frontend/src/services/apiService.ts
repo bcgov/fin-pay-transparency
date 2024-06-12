@@ -126,17 +126,24 @@ export default {
   async getReports(
     offset: number = 0,
     limit: number = 20,
-    filter: any | null = null,
-    sort: string | null = null,
+    filter: any[] | null = null,
+    sort: any[] | null = null,
   ): Promise<IReportSearchResult> {
     try {
+      if (!filter) {
+        filter = [];
+      }
+      if (!sort) {
+        sort = [{ create_date: 'asc' }];
+      }
+      const params = {
+        offset: offset,
+        limit: limit,
+        filter: JSON.stringify(filter),
+        sort: JSON.stringify(sort),
+      };
       const resp = await apiAxios.get<IReportSearchResult>(ApiRoutes.REPORTS, {
-        params: {
-          offset: offset,
-          limit: limit,
-          filter: filter,
-          sort: sort,
-        },
+        params: params,
       });
       if (resp?.data) {
         return resp.data;
