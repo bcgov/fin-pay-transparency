@@ -45,7 +45,7 @@ describe('/v1/pay-transparency/ GET', () => {
     it('should parse dates', () => {
       return request
       .get('/v1/pay-transparency/reports?pageSize=1')
-      .query({startDate: '2015-01-01 10:01:01', endDate: '2017-01-01 10:10:10'})
+      .query({startDate: '2015-01-01 10:01', endDate: '2017-01-01 10:10'})
       .set('x-api-key', config.get('server:apiKey'))
       .retry(3)
       .expect(200);

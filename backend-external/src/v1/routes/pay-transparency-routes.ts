@@ -142,15 +142,15 @@ const validateApiKey =
  *       - in: query
  *         name: startDate
  *         type: date
- *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2}):([0-9]{2})/
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2})/
  *         required: false
- *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm:ss, default -31 days ) - optional"
+ *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm, default -31 days ) - optional"
  *       - in: query
  *         name: endDate
  *         type: string
- *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2}):([0-9]{2})/
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2})/
  *         required: false
- *         description: "End date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm:ss, default now) - optional"
+ *         description: "End date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm, default now) - optional"
  *
  *
  *     responses:
@@ -171,7 +171,6 @@ router.get(
     .withMessage('Invalid start date format'),
   query('endDate').isISO8601().withMessage('Invalid end date format'),
   utils.asyncHandler(async (req: Request, res: Response) => {
-    console.log(req.query)
     try {
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();

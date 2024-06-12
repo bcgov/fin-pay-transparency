@@ -97,8 +97,8 @@ describe('external-consumer-service', () => {
   it('should parse date strings', async () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination(
-      '2024-01-01 11:00:00',
-      '2024-01-01 11:00:00',
+      '2024-01-01 11:00',
+      '2024-01-01 11:00',
       -1,
       -1,
     );
@@ -109,8 +109,8 @@ describe('external-consumer-service', () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
-        '20241-01-01 11:00:00',
-        '20241-01-02 11:00:00 ',
+        '20241-01-01 11:00',
+        '20241-01-02 11:00',
         -1,
         -1,
       );
@@ -124,8 +124,8 @@ describe('external-consumer-service', () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01 11:00:00',
-        '2023-01-01 11:00:00',
+        '2024-01-01 11:00',
+        '2023-01-01 11:00',
         -1,
         -1,
       );
@@ -139,7 +139,7 @@ describe('external-consumer-service', () => {
     try {
       await externalConsumerService.exportDataWithPagination(
         LocalDateTime.now().atZone(ZoneId.UTC).plusHours(24).format(inputDateTimeFormatter),
-        '2023-01-01 11:00:00',
+        '2023-01-01 11:00',
         -1,
         -1,
       );
@@ -151,7 +151,7 @@ describe('external-consumer-service', () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
-        '2023-01-01 11:00:00',
+        '2023-01-01 11:00',
         LocalDateTime.now().atZone(ZoneId.UTC).plusHours(24).format(inputDateTimeFormatter),
         -1,
         -1,
@@ -169,8 +169,8 @@ describe('external-consumer-service', () => {
         return [testData]
       });
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01 11:00:00',
-        '2024-01-01 11:00:00',
+        '2024-01-01 11:00',
+        '2024-01-01 11:00',
         0,
         undefined,
       );
@@ -182,8 +182,8 @@ describe('external-consumer-service', () => {
         return [testData]
       });
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01 11:00:00',
-        '2024-01-01 11:00:00',
+        '2024-01-01 11:00',
+        '2024-01-01 11:00',
         0,
         100,
       );
@@ -195,8 +195,8 @@ describe('external-consumer-service', () => {
         return [testData]
       });
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01 11:00:00',
-        '2024-01-01 11:00:00',
+        '2024-01-01 11:00',
+        '2024-01-01 11:00',
         0,
         -1,
       );

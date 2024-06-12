@@ -16,11 +16,7 @@ const withStartOfDay = (input: ZonedDateTime): ZonedDateTime => {
   return input.withHour(0).withMinute(0).withSecond(0).withNano(0);
 };
 
-const withEndOfDay = (input: ZonedDateTime): ZonedDateTime => {
-  return input.withHour(23).withMinute(59).withSecond(59);
-};
-
-const inputDateTimeFormat = 'yyyy-MM-dd HH:mm:ss';
+const inputDateTimeFormat = 'yyyy-MM-dd HH:mm';
 export const inputDateTimeFormatter = DateTimeFormatter.ofPattern(
   inputDateTimeFormat,
 ).withLocale(Locale.ENGLISH);
@@ -48,7 +44,7 @@ const externalConsumerService = {
   ) {
     const currentTime = LocalDateTime.now(ZoneId.UTC).atZone(ZoneId.UTC);
     let startDt = withStartOfDay(currentTime.minusDays(31));
-    let endDt = withEndOfDay(currentTime.minusDays(1));
+    let endDt = currentTime;
 
     if (!limit || limit <= 0 || limit > DEFAULT_PAGE_SIZE) {
       limit = DEFAULT_PAGE_SIZE;
@@ -74,7 +70,7 @@ const externalConsumerService = {
       if (endDatetime) {
         endDt = LocalDateTime.parse(endDatetime, inputDateTimeFormatter)
           .atZone(ZoneId.UTC)
-          .plusSeconds(1);
+          .plusMinutes(1);
 
         if (endDt.isAfter(currentTime)) {
           throw new PayTransparencyUserError(
