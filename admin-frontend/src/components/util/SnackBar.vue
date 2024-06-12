@@ -35,7 +35,7 @@ import {
   NotificationService,
   INotification,
   NotificationSeverity,
-} from '../../common/notificationService';
+} from '../../services/notificationService';
 import { useTheme } from 'vuetify';
 
 export default {
@@ -158,3 +158,4 @@ export default {
   border: none;
 }
 </style>
+../../services/notificationService

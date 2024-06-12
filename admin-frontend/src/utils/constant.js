@@ -20,13 +20,9 @@ export const AuthRoutes = Object.freeze(object);
 export const ApiRoutes = Object.freeze({
   USER: baseRoot + '/user',
   CONFIG: baseRoot + '/config',
-  fileUpload: {
-    BASE_URL: fileUploadRoot,
-  },
   EMPLOYEE_COUNT_RANGES: baseRoot + '/v1/codes/employee-count-ranges',
   NAICS_CODES: baseRoot + '/v1/codes/naics-codes',
-  POST_SUBMISSION: baseRoot + '/v1/file-upload',
-  REPORT: baseRoot + '/v1/report/',
+  REPORTS: baseRoot + '/v1/reports',
 });
 
 export const PAGE_TITLES = Object.freeze({

@@ -1,6 +1,6 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
-import ApiService from '../../common/apiService';
+import ApiService from '../../services/apiService';
 import { authStore } from './auth.js';
 
 /*

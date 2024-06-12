@@ -8,7 +8,7 @@ import * as directives from 'vuetify/directives';
 import {
   INotification,
   NotificationSeverity,
-} from '../../../common/notificationService';
+} from '../../../services/notificationService';
 import SnackBar from '../SnackBar.vue';
 
 // Mock the ResizeObserver

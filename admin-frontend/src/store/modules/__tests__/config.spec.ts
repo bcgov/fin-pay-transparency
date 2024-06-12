@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { IConfigValue } from '../../../common/types';
+import { IConfigValue } from '../../../services/types';
 import { useConfigStore } from '../config';
 
 const mockGetConfig = vi.fn();

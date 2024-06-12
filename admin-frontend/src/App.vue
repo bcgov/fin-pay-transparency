@@ -29,7 +29,7 @@ import SideBar from './components/SideBar.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
 import BreadcrumbTrail from './components/BreadcrumbTrail.vue';
-import { NotificationService } from './common/notificationService';
+import { NotificationService } from './services/notificationService';
 import { authStore } from './store/modules/auth';
 
 export default {
@@ -145,6 +145,9 @@ h1 {
 .v-btn.btn-link {
   text-decoration: underline;
   color: $link-color;
+  background-color: transparent !important;
+  border: none;
+  box-shadow: none;
 }
 
 .v-alert .v-icon {
@@ -232,3 +235,4 @@ h1 {
   margin: 24px;
 }
 </style>
+./services/notificationService

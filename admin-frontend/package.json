@@ -39,7 +39,7 @@
     "vue-dompurify-html": "^5.0.1",
     "vue-meta": "^3.0.0-alpha.10",
     "vue-router": "^4.2.5",
-    "vuetify": "^3.4.7"
+    "vuetify": "^3.6.9"
   },
   "devDependencies": {
     "@pinia/testing": "^0.1.3",

@@ -1,7 +1,7 @@
 import axios from 'axios';
+import { IConfigValue, IReportSearchResult } from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
-import { IConfigValue } from './types';
 
 export const LOCAL_STORAGE_KEY_JWT = 'pay-transparency-admin-jwt';
 
@@ -96,6 +96,54 @@ export default {
       return data;
     } catch (e) {
       console.log(`Failed to do get from Nodejs getConfig API - ${e}`);
+      throw e;
+    }
+  },
+  async getEmployeeCountRanges() {
+    try {
+      const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch employee count ranges from API');
+    } catch (e) {
+      console.log(`Failed to get employee count ranges from API - ${e}`);
+      throw e;
+    }
+  },
+  async getNaicsCodes() {
+    try {
+      const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch NAICS codes from API');
+    } catch (e) {
+      console.log(`Failed to get NAICS from API - ${e}`);
+      throw e;
+    }
+  },
+  async getReports(
+    offset: number = 0,
+    limit: number = 20,
+    filter: any | null = null,
+    sort: string | null = null,
+  ): Promise<IReportSearchResult> {
+    try {
+      const resp = await apiAxios.get<IReportSearchResult>(ApiRoutes.REPORTS, {
+        params: {
+          offset: offset,
+          limit: limit,
+          filter: filter,
+          sort: sort,
+        },
+      });
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to get reports from API');
+    } catch (e) {
+      console.log(`Failed to get reports from API - ${e}`);
       throw e;
     }
   },

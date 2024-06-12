@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { NotificationService } from '../common/notificationService';
+import { NotificationService } from '../services/notificationService';
 
 export default {
   data: () => ({
@@ -39,3 +39,4 @@ export default {
   height: 100%;
 }
 </style>
+../services/notificationService

@@ -2,7 +2,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia, storeToRefs } from 'pinia';
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { watch } from 'vue';
-import ApiService from '../../../common/apiService';
+import ApiService from '../../../services/apiService';
 import { authStore } from '../auth';
 import { useCodeStore } from '../codeStore';
 

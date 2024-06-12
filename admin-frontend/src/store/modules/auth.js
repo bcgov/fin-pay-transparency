@@ -1,5 +1,5 @@
-import ApiService, { LOCAL_STORAGE_KEY_JWT } from '../../common/apiService';
-import AuthService from '../../common/authService';
+import ApiService, { LOCAL_STORAGE_KEY_JWT } from '../../services/apiService';
+import AuthService from '../../services/authService';
 import { defineStore } from 'pinia';
 
 function isFollowUpVisit(jwtToken) {

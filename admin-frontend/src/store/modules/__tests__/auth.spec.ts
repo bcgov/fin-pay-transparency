@@ -1,8 +1,8 @@
 import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { LOCAL_STORAGE_KEY_JWT } from '../../../common/apiService';
-import AuthService from '../../../common/authService';
+import { LOCAL_STORAGE_KEY_JWT } from '../../../services/apiService';
+import AuthService from '../../../services/authService';
 import { authStore } from '../auth';
 vi.mock('../../../common/authService', async (importOriginal) => {
   const mod: any = await importOriginal();
