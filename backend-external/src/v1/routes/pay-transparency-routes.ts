@@ -3,11 +3,11 @@ import { payTransparencyService } from '../services/pay-transparency-service';
 import { utils } from '../../utils';
 import { logger } from '../../logger';
 import { config } from '../../config';
+import { query } from 'express-validator';
 
 const router = express.Router();
 const validateApiKey =
-  (validKey: string) =>
-  (req: Request, res: Response, next: NextFunction) => {
+  (validKey: string) => (req: Request, res: Response, next: NextFunction) => {
     const apiKey = req.header('x-api-key');
     if (apiKey) {
       if (validKey === apiKey) {
@@ -142,15 +142,15 @@ const validateApiKey =
  *       - in: query
  *         name: startDate
  *         type: date
- *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2})/
  *         required: false
- *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-dd, default -31 days ) - optional"
+ *         description: "Start date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm, default -31 days ) - optional"
  *       - in: query
  *         name: endDate
  *         type: string
- *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
+ *         pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})\s([0-9]{2}):([0-9]{2})/
  *         required: false
- *         description: "End date in UTC for the update date range filter (format: YYYY-MM-dd, default -1 day) - optional"
+ *         description: "End date in UTC for the update date range filter (format: YYYY-MM-dd HH:mm, default now) - optional"
  *
  *
  *     responses:
@@ -166,6 +166,10 @@ const validateApiKey =
 router.get(
   '/',
   validateApiKey(config.get('server:apiKey')),
+  query('startDate')
+    .isISO8601()
+    .withMessage('Invalid start date format'),
+  query('endDate').isISO8601().withMessage('Invalid end date format'),
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
       const startDate = req.query.startDate?.toString();
@@ -177,8 +181,8 @@ router.get(
       }
 
       const maxPageSize = 50;
-      if (pageSize > maxPageSize) {
-        pageSize = maxPageSize
+      if (pageSize > maxPageSize || pageSize <= 0) {
+        pageSize = maxPageSize;
       }
 
       const { status, data } =
@@ -229,9 +233,7 @@ router.get(
  */
 router.delete(
   '/',
-  validateApiKey(
-    config.get('server:deleteReportsApiKey'),
-  ),
+  validateApiKey(config.get('server:deleteReportsApiKey')),
   async (req, res) => {
     try {
       if (!req.query.companyName) {
@@ -239,7 +241,7 @@ router.delete(
           .status(404)
           .json({ message: 'companyName query parameter is missing.' });
       }
-      
+
       const { data } = await payTransparencyService.deleteReports(req);
       if (data.error) {
         return res.status(400).json({ message: data.message });

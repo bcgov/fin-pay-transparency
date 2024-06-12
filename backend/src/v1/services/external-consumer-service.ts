@@ -1,23 +1,25 @@
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import {
-  LocalDate,
+  DateTimeFormatter,
   LocalDateTime,
   ZoneId,
+  ZonedDateTime,
   convert,
-  nativeJs,
 } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import { PayTransparencyUserError } from './file-upload-service';
 import { Prisma } from '@prisma/client';
 
 const DEFAULT_PAGE_SIZE = 50;
 
-const withStartOfDay = (input: LocalDateTime): LocalDateTime => {
+const withStartOfDay = (input: ZonedDateTime): ZonedDateTime => {
   return input.withHour(0).withMinute(0).withSecond(0).withNano(0);
 };
 
-const withEndOfDay = (input: LocalDateTime): LocalDateTime => {
-  return input.withHour(23).withMinute(59).withSecond(59);
-};
+const inputDateTimeFormat = 'yyyy-MM-dd HH:mm';
+export const inputDateTimeFormatter = DateTimeFormatter.ofPattern(
+  inputDateTimeFormat,
+).withLocale(Locale.ENGLISH);
 
 const externalConsumerService = {
   /**
@@ -27,22 +29,22 @@ const externalConsumerService = {
    * calling this endpoint with no limit will default to 50.
    * calling this endpoint with no offset will default to 0.
    * calling this endpoint with no start date will default to - 31 days.
-   * calling this endpoint with no end date will default to  - 1 day.
+   * calling this endpoint with no end date will default to now.
    * consumer is responsible for making the api call in a loop to get all the records.
-   * @param startDate from when records needs to be fetched
-   * @param endDate till when records needs to be fetched
+   * @param startDatetime from when records needs to be fetched
+   * @param endDatetime till when records needs to be fetched
    * @param offset the starting point of the records , to support pagination
    * @param limit the number of records to be fetched
    */
   async exportDataWithPagination(
-    startDate?: string,
-    endDate?: string,
+    startDatetime?: string,
+    endDatetime?: string,
     offset?: number,
     limit?: number,
   ) {
-    const currentTime = LocalDateTime.now(ZoneId.UTC);
+    const currentTime = LocalDateTime.now(ZoneId.UTC).atZone(ZoneId.UTC);
     let startDt = withStartOfDay(currentTime.minusDays(31));
-    let endDt = withEndOfDay(currentTime.minusDays(1));
+    let endDt = currentTime;
 
     if (!limit || limit <= 0 || limit > DEFAULT_PAGE_SIZE) {
       limit = DEFAULT_PAGE_SIZE;
@@ -52,22 +54,27 @@ const externalConsumerService = {
     }
 
     try {
-      if (startDate) {
-        const date = convert(LocalDate.parse(startDate)).toDate();
-        startDt = withStartOfDay(
-          LocalDateTime.from(nativeJs(date, ZoneId.UTC)),
-        );
+      if (startDatetime) {
+        startDt = LocalDateTime.parse(
+          startDatetime,
+          inputDateTimeFormatter,
+        ).atZone(ZoneId.UTC);
+
+        if (startDt.isAfter(currentTime)) {
+          throw new PayTransparencyUserError(
+            'Start date cannot be in the future',
+          );
+        }
       }
 
-      if (endDate) {
-        const date = convert(LocalDate.parse(endDate)).toDate();
-        endDt = withEndOfDay(
-          LocalDateTime.from(nativeJs(date, ZoneId.UTC))
-        );
+      if (endDatetime) {
+        endDt = LocalDateTime.parse(endDatetime, inputDateTimeFormatter)
+          .atZone(ZoneId.UTC)
+          .plusMinutes(1);
 
-        if (!endDt.isBefore(withStartOfDay(currentTime))) {
+        if (endDt.isAfter(currentTime)) {
           throw new PayTransparencyUserError(
-            'End date cannot be later than current - 1 days.',
+            'End date cannot be in the future',
           );
         }
       }
@@ -77,13 +84,13 @@ const externalConsumerService = {
       }
 
       throw new PayTransparencyUserError(
-        'Failed to parse dates. Please use date format YYYY-MM-dd',
+        'Failed to parse dates. Please use date format YYYY-MM-dd HH:mm:ss',
       );
     }
 
     if (startDt.isAfter(endDt)) {
       throw new PayTransparencyUserError(
-        'Start date must be before the end date.',
+        'Start date time must be before the end date time.',
       );
     }
 

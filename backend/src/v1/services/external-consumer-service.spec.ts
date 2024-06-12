@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { externalConsumerService } from './external-consumer-service';
-import { LocalDate } from '@js-joda/core';
-import { JSON_REPORT_DATE_FORMAT } from '../../constants';
+import { externalConsumerService, inputDateTimeFormatter } from './external-consumer-service';
+import { LocalDateTime, ZoneId } from '@js-joda/core';
 
 const mockReportsViewFindMany = jest.fn();
 const mockReportsViewCount = jest.fn();
@@ -98,8 +97,8 @@ describe('external-consumer-service', () => {
   it('should parse date strings', async () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination(
-      '2024-01-01',
-      '2024-01-01',
+      '2024-01-01 11:00',
+      '2024-01-01 11:00',
       -1,
       -1,
     );
@@ -110,14 +109,14 @@ describe('external-consumer-service', () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
-        '20241-01-01',
-        '20241-01-01',
+        '20241-01-01 11:00',
+        '20241-01-02 11:00',
         -1,
         -1,
       );
     } catch (error) {
       expect(error.message).toBe(
-        'Failed to parse dates. Please use date format YYYY-MM-dd',
+        'Failed to parse dates. Please use date format YYYY-MM-dd HH:mm:ss',
       );
     }
   });
@@ -125,32 +124,43 @@ describe('external-consumer-service', () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01',
-        '2023-01-01',
+        '2024-01-01 11:00',
+        '2023-01-01 11:00',
         -1,
         -1,
       );
     } catch (error) {
-      expect(error.message).toBe('Start date must be before the end date.');
+      expect(error.message).toBe('Start date time must be before the end date time.');
     }
   });
-  it('should fail when endDate is later than current date - 1 days', async () => {
-    mockReportsViewFindMany.mockReturnValue([testData]);
 
-    const endDate = LocalDate.now().format(JSON_REPORT_DATE_FORMAT);
+  it('should fail if startDate is in the future', async () => {
+    mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01',
-        endDate,
+        LocalDateTime.now().atZone(ZoneId.UTC).plusHours(24).format(inputDateTimeFormatter),
+        '2023-01-01 11:00',
         -1,
         -1,
       );
     } catch (error) {
-      expect(error.message).toBe(
-        'End date cannot be later than current - 1 days.',
-      );
+      expect(error.message).toBe('Start date cannot be in the future');
     }
   });
+  it('should fail if endDate is in the future', async () => {
+    mockReportsViewFindMany.mockReturnValue([testData]);
+    try {
+      await externalConsumerService.exportDataWithPagination(
+        '2023-01-01 11:00',
+        LocalDateTime.now().atZone(ZoneId.UTC).plusHours(24).format(inputDateTimeFormatter),
+        -1,
+        -1,
+      );
+    } catch (error) {
+      expect(error.message).toBe('End date cannot be in the future');
+    }
+  });
+
 
   describe('should default page size to 50', () => {
     it('when page size is not specified', async () => {
@@ -159,8 +169,8 @@ describe('external-consumer-service', () => {
         return [testData]
       });
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01',
-        '2024-01-01',
+        '2024-01-01 11:00',
+        '2024-01-01 11:00',
         0,
         undefined,
       );
@@ -172,8 +182,8 @@ describe('external-consumer-service', () => {
         return [testData]
       });
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01',
-        '2024-01-01',
+        '2024-01-01 11:00',
+        '2024-01-01 11:00',
         0,
         100,
       );
@@ -185,8 +195,8 @@ describe('external-consumer-service', () => {
         return [testData]
       });
       await externalConsumerService.exportDataWithPagination(
-        '2024-01-01',
-        '2024-01-01',
+        '2024-01-01 11:00',
+        '2024-01-01 11:00',
         0,
         -1,
       );
