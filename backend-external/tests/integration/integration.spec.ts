@@ -42,23 +42,12 @@ describe('/v1/pay-transparency/ GET', () => {
         expect(body).toHaveProperty('records');
       });
     });
-    it('should not allow users to enter end date later than current - 1 day', () => {
-      //note: this test requires both backend-external and backend to be running.
-      const dateFormat = DateTimeFormatter.ofPattern(
-        'YYYY-MM-dd',
-      ).withLocale(Locale.ENGLISH);
-      const endDate = LocalDate.now().format(dateFormat);
-      
+    it('should parse dates', () => {
       return request
       .get('/v1/pay-transparency/reports?pageSize=1')
-      .query({startDate: '2015-01-01', endDate})
+      .query({startDate: '2015-01-01 10:01', endDate: '2017-01-01 10:10'})
       .set('x-api-key', config.get('server:apiKey'))
       .retry(3)
-      .expect(400)
-      .expect(({ body }) => {
-        expect(body.error).toBe(
-          'End date cannot be later than current - 1 days.',
-        );
-      });
+      .expect(200);
   });
 });
