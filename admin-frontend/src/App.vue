@@ -6,18 +6,15 @@
       <SnackBar />
       <SideBar v-if="areHeaderAndSidebarVisible" />
       <v-main fluid class="d-flex flex-column align-start">
-        <div class="mb-2" v-if="isBackButtonVisible">
-          <v-btn
-            id="back-button"
-            class="btn-secondary"
-            data-testid="login-button"
-            to="dashboard"
-            title="Back"
-          >
-            Back
-          </v-btn>
+        <div v-if="isTitleVisible || isBreadcrumbTrailVisible" class="mb-3">
+          <h2 class="page-title" v-if="isTitleVisible">
+            {{ activeRoute.meta.pageTitle }}
+          </h2>
+          <BreadcrumbTrail
+            class="pt-0 pb-0"
+            v-if="isBreadcrumbTrailVisible"
+          ></BreadcrumbTrail>
         </div>
-
         <router-view />
       </v-main>
     </div>
@@ -31,6 +28,7 @@ import Header from './components/Header.vue';
 import SideBar from './components/SideBar.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
+import BreadcrumbTrail from './components/BreadcrumbTrail.vue';
 import { NotificationService } from './common/notificationService';
 import { authStore } from './store/modules/auth';
 
@@ -41,11 +39,14 @@ export default {
     SideBar,
     MsieBanner,
     SnackBar,
+    BreadcrumbTrail,
   },
   data() {
     return {
       areHeaderAndSidebarVisible: false,
-      isBackButtonVisible: false,
+      isTitleVisible: false,
+      isBreadcrumbTrailVisible: false,
+      activeRoute: null,
     };
   },
   computed: {
@@ -57,12 +58,14 @@ export default {
   },
   watch: {
     $route(to, from) {
+      this.activeRoute = to;
       if (to.fullPath != '/error') {
         //Reset error page message back to the default
         NotificationService.setErrorPageMessage();
       }
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
-      this.isBackButtonVisible = to.meta.requiresAuth && to.name != 'dashboard';
+      this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
+      this.isBreadcrumbTrailVisible = to?.meta?.isBreadcrumbTrailVisible;
     },
   },
   async created() {},
