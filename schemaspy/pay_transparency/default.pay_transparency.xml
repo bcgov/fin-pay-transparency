@@ -239,6 +239,8 @@
          <column autoUpdated="false" defaultValue="true" digits="0" id="15" name="is_unlocked" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="reporting_year" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="17" name="report_unlock_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="idir_modified_username" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="19" name="idir_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_id" sequenceNumberInPK="1"/>
          <index name="report_id_pk" unique="true">
             <column ascending="true" name="report_id"/>
@@ -326,6 +328,8 @@
          <column autoUpdated="false" defaultValue="true" digits="0" id="16" name="is_unlocked" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="reporting_year" nullable="false" remarks="" size="0" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="report_unlock_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="idir_modified_username" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="idir_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
          <index name="report_history_pk" unique="true">
             <column ascending="true" name="report_history_id"/>
