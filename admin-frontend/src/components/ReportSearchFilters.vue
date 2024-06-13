@@ -1,10 +1,55 @@
 <template>
-  <div class="filters py-2">
+  <div class="primary-filters">
+    <v-row dense class="mt-0 w-100 mb-4">
+      <v-col sm="9" md="8" lg="6" xl="4" class="d-flex align-center">
+        <v-text-field
+          v-model="searchText"
+          prepend-inner-icon="mdi-magnify"
+          density="compact"
+          label="Search by company name"
+          variant="solo"
+          hide-details
+          :single-line="true"
+          @keyup.enter="searchReports()"
+        >
+          <template v-slot:append> </template>
+        </v-text-field>
+        <v-btn class="btn-primary" @click="searchReports()"> Search </v-btn>
+      </v-col>
+      <v-col
+        sm="3"
+        md="4"
+        lg="6"
+        xl="8"
+        class="d-flex justify-end align-center"
+      >
+        <v-btn
+          class="btn-secondary me-2"
+          :disabled="!isDirty()"
+          @click="reset()"
+        >
+          Reset
+        </v-btn>
+        <v-btn
+          class="btn-secondary"
+          prepend-icon="mdi-filter"
+          :append-icon="
+            areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
+          "
+          @click="toggleSecondaryFiltersVisible()"
+        >
+          Filter
+        </v-btn>
+      </v-col>
+    </v-row>
+  </div>
+
+  <div class="secondary-filters py-4" v-if="areSecondaryFiltersVisible">
     <v-row dense>
       <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>Submission date</h5>
         <VueDatePicker
-          v-model="submissionDateFilter"
+          v-model="submissionDateRange"
           range
           format="yyyy-MM-dd"
           :max-date="new Date()"
@@ -16,7 +61,7 @@
       <v-col sm="6" md="6" lg="4" xl="2" class="d-flex flex-column">
         <h5>NAICS code</h5>
         <v-select
-          v-model="naicsCodeFilter"
+          v-model="naicsCodes"
           :items="naicsCodeOptions"
           :persistent-placeholder="true"
           placeholder="All"
@@ -45,7 +90,7 @@
               v-if="index === maxSelectedNaicsCodesShown"
               class="text-grey text-caption align-self-center"
             >
-              (+{{ naicsCodeFilter.length - maxSelectedNaicsCodesShown }} more)
+              (+{{ naicsCodes.length - maxSelectedNaicsCodesShown }} more)
             </span>
           </template>
         </v-select>
@@ -54,7 +99,7 @@
       <v-col sm="4" md="2" lg="2" xl="1" class="d-flex flex-column">
         <h5>Year</h5>
         <v-select
-          v-model="reportYearFilter"
+          v-model="reportYear"
           :items="reportYearOptions"
           variant="solo"
           density="compact"
@@ -98,14 +143,11 @@
       <v-col sm="8" md="7" lg="4" xl="3" class="d-flex flex-column">
         <h5>Employee count</h5>
         <v-select
-          v-model="employeeCountFilter"
+          v-model="employeeCount"
           :items="employeeCountOptions"
-          item-title="employee_count_range"
           :persistent-placeholder="true"
           placeholder="All"
           multiple
-          chips
-          single-line="true"
           class="w-100"
           variant="solo"
           density="compact"
@@ -118,6 +160,11 @@
                 </v-list-item-action>
               </template>
             </v-list-item>
+          </template>
+          <template v-slot:selection="{ item, index }">
+            <v-chip>
+              <span>{{ item.raw.employee_count_range }}</span>
+            </v-chip>
           </template>
         </v-select>
       </v-col>
@@ -135,30 +182,42 @@
       >
         <h5>&nbsp;</h5>
         <div class="d-flex justify-end align-center filter-buttons">
-          <v-btn class="btn-primary mr-0" @click="applyFilters()">
+          <v-btn class="btn-primary mr-0" @click="searchReports()">
             Apply
           </v-btn>
-          <v-btn class="btn-link" @click="reset()"> Clear </v-btn>
+          <v-btn
+            class="btn-link ms-2"
+            :disabled="!areSecondaryFiltersDirty()"
+            @click="clear()"
+          >
+            Clear
+          </v-btn>
         </div>
       </v-col>
     </v-row>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'ReportSearchFilters',
 };
 </script>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { storeToRefs } from 'pinia';
+import { ref, onMounted, watch } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
+import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import '@vuepic/vue-datepicker/dist/main.css';
+import { ReportFilterType } from '../types';
 
+const reportSearchStore = useReportSearchStore();
+const searchText = ref(undefined);
+const submissionDateRange = ref(undefined);
+const areSecondaryFiltersVisible = ref<boolean>(false);
 const maxSelectedNaicsCodesShown = ref(3);
-const submissionDateFilter = ref(undefined);
-const naicsCodeFilter = ref(undefined);
+const naicsCodes = ref([]);
 const naicsCodeOptions = ref([
   {
     naics_code: '11',
@@ -177,39 +236,126 @@ const naicsCodeOptions = ref([
     naics_label: 'Construction',
   },
 ]);
-const reportYearFilter = ref(null);
+const reportYear = ref(undefined);
 const reportYearOptions = ref([null, 2024, 2023]);
-const lockedFilter = ref(null);
+const lockedFilter = ref(undefined);
 const employeeCountOptions = ref([
   {
-    employee_count_range_id: '995f21ef-5bd2-41fc-b4c0-8bc595a3c1ab',
+    employee_count_range_id: 'cea23fca-f6fa-4d11-a2d7-49073cdecf6a',
     employee_count_range: '50-299',
   },
   {
-    employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
+    employee_count_range_id: 'c4ff1a56-920f-415d-a588-f369422b8e8c',
     employee_count_range: '300-999',
   },
   {
-    employee_count_range_id: '979e498c-af14-4ba4-b04e-8dd7bb44bdcc',
+    employee_count_range_id: '8fb03578-10ac-41c2-81ca-db5b8e2fedb9',
     employee_count_range: '1000 or more',
   },
 ]);
-const employeeCountFilter = ref(null);
+const employeeCount = ref([]);
 
-function reset() {}
+function getReportSearchFilters(): ReportFilterType {
+  const filters = [];
+  if (searchText.value) {
+    filters.push({
+      key: 'company_name',
+      operation: 'like',
+      value: searchText.value,
+    });
+  }
+  if (submissionDateRange.value) {
+    filters.push({
+      key: 'create_date',
+      operation: 'between',
+      value: [submissionDateRange.value.map((d) => d.format('YYYY-MM-DD'))],
+    });
+  }
+  if (naicsCodes.value?.length) {
+    filters.push({
+      key: 'naics_code',
+      operation: 'in',
+      value: naicsCodes.value?.map((d) => d.naics_code),
+    });
+  }
+  if (reportYear.value) {
+    filters.push({
+      key: 'reporting_year',
+      operation: 'eq',
+      value: reportYear.value,
+    });
+  }
+  if (employeeCount.value?.length) {
+    filters.push({
+      key: 'employee_count_range_id',
+      operation: 'in',
+      value: employeeCount.value?.map((d) => d.employee_count_range_id),
+    });
+  }
+  return filters;
+}
 
-function applyFilters() {}
+async function searchReports() {
+  const params = {
+    filter: getReportSearchFilters(),
+  };
+  reportSearchStore.searchReports(params);
+}
 
-onMounted(() => {
-  //const startDate = new Date();
-  //const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
-  //submissionDateRange.value = null;
-});
+function toggleSecondaryFiltersVisible() {
+  areSecondaryFiltersVisible.value = !areSecondaryFiltersVisible.value;
+}
+
+/*
+Determines whether any of the original state has been changed. 
+*/
+function isDirty() {
+  return (
+    (searchText.value != undefined && searchText.value.trim() != '') ||
+    reportSearchStore.isDirty ||
+    areSecondaryFiltersVisible.value != false ||
+    areSecondaryFiltersDirty()
+  );
+}
+
+/*
+Determines whether the original state of the secondary filters area
+has been changed
+*/
+function areSecondaryFiltersDirty() {
+  return (
+    submissionDateRange.value != undefined ||
+    naicsCodes.value?.length != 0 ||
+    reportYear.value != undefined ||
+    lockedFilter.value != undefined ||
+    employeeCount.value?.length !== 0
+  );
+}
+
+function clear() {
+  searchText.value = undefined;
+  submissionDateRange.value = undefined;
+  naicsCodes.value = [];
+  reportYear.value = undefined;
+  lockedFilter.value = undefined;
+  employeeCount.value = [];
+  reportSearchStore.reset();
+}
+
+function reset() {
+  clear();
+  areSecondaryFiltersVisible.value = false;
+}
+
+onMounted(() => {});
 </script>
 
 <style lang="scss">
 $inputHeight: 40px;
-.filters {
+.primary-filters {
+  margin-right: -24px;
+}
+.secondary-filters {
   margin-left: -24px !important;
   margin-right: -48px !important;
   padding-left: 24px !important;

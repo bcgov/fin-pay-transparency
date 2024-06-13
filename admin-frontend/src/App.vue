@@ -130,6 +130,12 @@ h1 {
   text-transform: none !important;
 }
 
+button:disabled.v-btn {
+  background-color: #eeeeee !important;
+  color: #aaaaaa !important;
+  border: 1px solid #cccccc !important;
+}
+
 .v-btn.btn-primary {
   background-color: #053662 !important;
   color: #ffffff !important;
