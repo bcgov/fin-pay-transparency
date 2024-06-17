@@ -130,7 +130,7 @@ async function repeatSearch() {
 
 async function lockUnlockReport(reportId: string, isUnlocked: boolean) {
   await ApiService.lockUnlockReport(reportId, isUnlocked);
-  await this.repeatLastSearch();
+  await this.repeatSearch();
 }
 
 function exportResults() {}

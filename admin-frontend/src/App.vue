@@ -85,7 +85,7 @@ export default {
 $link-color: #255a90;
 
 .ptap-panel {
-  margin: 24px;
+  margin: 24px !important;
 }
 
 a {
@@ -94,7 +94,6 @@ a {
 
 .v-main {
   padding: 0;
-  margin: 0 !important;
 }
 
 .v-container {
