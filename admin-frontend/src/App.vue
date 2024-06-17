@@ -92,6 +92,11 @@ a {
   color: $link-color;
 }
 
+.v-main {
+  padding: 0;
+  margin: 0 !important;
+}
+
 .v-container {
   width: 85%;
   margin-left: auto;
@@ -243,9 +248,6 @@ button:disabled.v-btn {
 
 .theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
   background-color: rgba(0, 0, 0, 0.12) !important;
-}
-
-.v-main {
 }
 </style>
 ./services/notificationService
