@@ -53,8 +53,9 @@
         <v-btn
           density="compact"
           variant="plain"
-          :icon="item?.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
-          :color="item?.is_unlocked ? 'success' : 'error'"
+          :icon="item.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
+          :color="item.is_unlocked ? 'success' : 'error'"
+          @click="lockUnlockReport(item.report_id, !item?.is_unlocked)"
         ></v-btn>
         <v-btn density="compact" variant="plain" icon="mdi-clock"></v-btn>
       </template>
@@ -62,18 +63,19 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'Reports',
 };
 </script>
 
-<script setup>
+<script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import { ReportKeys } from '../types';
+import ApiService from '../services/apiService';
 
 const reportSearchStore = useReportSearchStore();
 const { searchResults, isSearching, totalNum, pageSize } =
@@ -119,11 +121,16 @@ const headers = ref([
 ]);
 
 async function updateSearch(options) {
-  reportSearchStore.updateSearch(options);
+  await reportSearchStore.updateSearch(options);
 }
 
-function resetSearch() {
-  reportSearchStore.reset();
+async function repeatSearch() {
+  await reportSearchStore.repeatSearch();
+}
+
+async function lockUnlockReport(reportId: string, isUnlocked: boolean) {
+  await ApiService.lockUnlockReport(reportId, isUnlocked);
+  await this.repeatLastSearch();
 }
 
 function exportResults() {}

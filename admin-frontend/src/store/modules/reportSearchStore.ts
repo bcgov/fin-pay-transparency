@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import ApiService from '../../services/apiService';
 import {
   IReportSearchParams,
@@ -17,7 +17,8 @@ report search results.
 */
 export const useReportSearchStore = defineStore('code', () => {
   //private state
-  let lastSubmittedFilter: any[] | undefined = undefined;
+  let lastSubmittedReportSearchParams: IReportSearchParams | undefined =
+    undefined;
 
   //public state
   const searchResults = ref<any[] | undefined>(undefined);
@@ -29,7 +30,7 @@ export const useReportSearchStore = defineStore('code', () => {
       searchResults.value !== undefined ||
       totalNum.value !== 0 ||
       pageSize.value !== DEFAULT_PAGE_SIZE ||
-      lastSubmittedFilter !== undefined,
+      lastSubmittedReportSearchParams !== undefined,
   );
 
   //public actions
@@ -37,7 +38,8 @@ export const useReportSearchStore = defineStore('code', () => {
 
   /* 
   Launches a new report search against the API using the given parameters.
-  The parameters and results will be saved to this store
+  The parameters and results will be saved to this store.  
+  No meaningful return value.
    */
   const searchReports = async (params: IReportSearchParams) => {
     const defaults: IReportSearchParams = {
@@ -54,7 +56,7 @@ export const useReportSearchStore = defineStore('code', () => {
     const sort = params.sort;
 
     isSearching.value = true;
-    lastSubmittedFilter = filter;
+    lastSubmittedReportSearchParams = params;
 
     try {
       const resp: IReportSearchResult = await ApiService.getReports(
@@ -76,21 +78,39 @@ export const useReportSearchStore = defineStore('code', () => {
   with updated values for 'page', 'itemsPerPage', and 'sortBy'.
   This method is designed to work with the Vuetify's v-data-table-server,
   which sends params in a specific format.
+  The parameters and results will be saved to this store. 
+  No meaningful return value.
   */
-  const updateSearch = (params: IReportSearchUpdateParams) => {
+  const updateSearch = async (params: IReportSearchUpdateParams) => {
+    console.log('updateSearch');
     const paramsAgumented: IReportSearchParams = {
       ...params,
       sort: dataTableSortByToBackendSort(params.sortBy),
-      filter: lastSubmittedFilter,
+      filter: lastSubmittedReportSearchParams?.filter,
     };
     return searchReports(paramsAgumented);
+  };
+
+  /*
+  Repeats the most recent previous search with all the same params.  
+  This is similar to updateSearch(), except that function only reuses
+  filters from the previous search, not also paging parameters like
+  this function.
+  The parameters and results will be saved to this store. 
+  No meaningful return value.
+  */
+  const repeatSearch = async () => {
+    console.log('repeatSearch');
+    if (lastSubmittedReportSearchParams) {
+      return searchReports(lastSubmittedReportSearchParams);
+    }
   };
 
   const reset = () => {
     searchResults.value = undefined;
     totalNum.value = 0;
     pageSize.value = DEFAULT_PAGE_SIZE;
-    lastSubmittedFilter = undefined;
+    lastSubmittedReportSearchParams = undefined;
   };
 
   // Private actions
@@ -136,6 +156,7 @@ export const useReportSearchStore = defineStore('code', () => {
     //actions
     searchReports,
     updateSearch,
+    repeatSearch,
     reset,
   };
 });

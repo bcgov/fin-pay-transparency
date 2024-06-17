@@ -154,4 +154,13 @@ export default {
       throw e;
     }
   },
+  async lockUnlockReport(
+    reportId: string,
+    isUnlocked: boolean,
+  ): Promise<boolean> {
+    const resp = await apiAxios.patch(`${ApiRoutes.REPORTS}/${reportId}`, {
+      is_unlocked: isUnlocked,
+    });
+    return false;
+  },
 };
