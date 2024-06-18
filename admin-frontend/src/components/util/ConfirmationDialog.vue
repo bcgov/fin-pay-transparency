@@ -14,16 +14,6 @@
           :dense="options.dense"
           flat
         >
-          <v-toolbar-title
-            :class="{
-              'text-white': options.dark,
-              'align-self-end': options.closeIcon,
-              'font-weight-bold': options.titleBold,
-              'dialog-subtitle': options.subtitle,
-            }"
-          >
-            {{ title }}
-          </v-toolbar-title>
           <v-spacer />
           <v-btn v-if="options.closeIcon" id="closeBtn" icon @click="cancel">
             <v-icon color="#38598A"> mdi-close </v-icon>
@@ -31,13 +21,16 @@
         </v-toolbar>
       </slot>
       <v-card-text
-        :class="[options.messagePadding, { 'black--text': !options.dark }]"
+        class="px-8 pt-8 pb-4"
+        :class="[{ 'black--text': !options.dark }]"
       >
-        {{ message }}
+        <h3 class="title">{{ title }}</h3>
+        <hr class="my-2" />
+        <div>{{ message }}</div>
         <slot name="message" />
         <v-divider v-if="options.divider" class="mt-1" />
       </v-card-text>
-      <v-card-actions class="pt-0">
+      <v-card-actions class="px-8 pb-8 pt-4">
         <v-spacer />
         <v-btn id="rejectBtn" class="btn-secondary" @click="cancel">{{
           options.rejectText || 'Cancel'
@@ -55,10 +48,9 @@
 </template>
 
 <script>
-import PrimaryButton from './PrimaryButton.vue';
 export default {
   name: 'ConfirmationDialog',
-  components: { PrimaryButton },
+  components: {},
   props: {
     contentClass: {
       type: String,
@@ -72,13 +64,13 @@ export default {
     message: null,
     title: null,
     options: {
-      color: 'tab',
-      width: 290,
+      color: 'highlight',
+      width: 390,
       zIndex: 200,
       dark: true,
       dense: true,
       closeIcon: false,
-      messagePadding: 'pa-4',
+      messagePadding: 'pa-8',
       titleBold: false,
       subtitle: false,
       divider: false,
@@ -112,8 +104,13 @@ export default {
 .dialog-subtitle {
   font-size: 1rem;
 }
-
 :deep(.v-toolbar-title__placeholder) {
   overflow: visible;
+}
+.v-dialog .v-toolbar {
+  height: 6px !important;
+}
+.title {
+  text-transform: capitalize;
 }
 </style>

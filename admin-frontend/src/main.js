@@ -26,6 +26,7 @@ const myCustomLightTheme = {
     error: '#ce3e39',
     warning: '#81692c',
     success: '#00A54F',
+    highlight: '#fdbb18',
     link: '#255A90',
     tab: '#1E5189',
     sidebar: '#39598a',

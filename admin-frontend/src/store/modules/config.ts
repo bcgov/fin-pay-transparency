@@ -1,7 +1,7 @@
-import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import ApiService from '../../common/apiService';
-import { IConfigValue } from '../../common/types';
+import { ref } from 'vue';
+import ApiService from '../../services/apiService';
+import { IConfigValue } from '../../types';
 
 export const useConfigStore = defineStore('config', () => {
   const config = ref<IConfigValue>();
@@ -14,7 +14,7 @@ export const useConfigStore = defineStore('config', () => {
     config.value = data;
 
     return data;
-  }
+  };
 
   return { config, loadConfig };
 });

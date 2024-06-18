@@ -24,6 +24,7 @@
     "@mdi/font": "^7.1.96",
     "@types/papaparse": "^5.3.14",
     "@vue/tsconfig": "^0.5.1",
+    "@vuepic/vue-datepicker": "^8.8.0",
     "axios": "^1.6.7",
     "dotenv": "^16.4.5",
     "file-saver": "^2.0.5",
@@ -39,7 +40,7 @@
     "vue-dompurify-html": "^5.0.1",
     "vue-meta": "^3.0.0-alpha.10",
     "vue-router": "^4.2.5",
-    "vuetify": "^3.4.7"
+    "vuetify": "^3.6.9"
   },
   "devDependencies": {
     "@pinia/testing": "^0.1.3",

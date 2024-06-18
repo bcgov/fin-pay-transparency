@@ -5,19 +5,20 @@
       <Header v-if="areHeaderAndSidebarVisible" />
       <SnackBar />
       <SideBar v-if="areHeaderAndSidebarVisible" />
-      <v-main fluid class="d-flex flex-column align-start">
-        <div class="mb-2" v-if="isBackButtonVisible">
-          <v-btn
-            id="back-button"
-            class="btn-secondary"
-            data-testid="login-button"
-            to="dashboard"
-            title="Back"
-          >
-            Back
-          </v-btn>
+      <v-main
+        fluid
+        class="d-flex flex-column align-start"
+        :class="{ 'ptap-panel': areHeaderAndSidebarVisible }"
+      >
+        <div v-if="isTitleVisible || isBreadcrumbTrailVisible" class="mb-3">
+          <h2 class="page-title" v-if="isTitleVisible">
+            {{ activeRoute.meta.pageTitle }}
+          </h2>
+          <BreadcrumbTrail
+            class="pt-0 pb-0"
+            v-if="isBreadcrumbTrailVisible"
+          ></BreadcrumbTrail>
         </div>
-
         <router-view />
       </v-main>
     </div>
@@ -31,7 +32,8 @@ import Header from './components/Header.vue';
 import SideBar from './components/SideBar.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
-import { NotificationService } from './common/notificationService';
+import BreadcrumbTrail from './components/BreadcrumbTrail.vue';
+import { NotificationService } from './services/notificationService';
 import { authStore } from './store/modules/auth';
 
 export default {
@@ -41,11 +43,14 @@ export default {
     SideBar,
     MsieBanner,
     SnackBar,
+    BreadcrumbTrail,
   },
   data() {
     return {
       areHeaderAndSidebarVisible: false,
-      isBackButtonVisible: false,
+      isTitleVisible: false,
+      isBreadcrumbTrailVisible: false,
+      activeRoute: null,
     };
   },
   computed: {
@@ -57,12 +62,14 @@ export default {
   },
   watch: {
     $route(to, from) {
+      this.activeRoute = to;
       if (to.fullPath != '/error') {
         //Reset error page message back to the default
         NotificationService.setErrorPageMessage();
       }
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
-      this.isBackButtonVisible = to.meta.requiresAuth && to.name != 'dashboard';
+      this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
+      this.isBreadcrumbTrailVisible = to?.meta?.isBreadcrumbTrailVisible;
     },
   },
   async created() {},
@@ -77,17 +84,19 @@ export default {
 
 $link-color: #255a90;
 
+.ptap-panel {
+  margin: 24px !important;
+}
+
 a {
   color: $link-color;
 }
 
 .v-main {
   padding: 0;
-  margin: 0 !important;
 }
 
 .v-container {
-  
   width: 85%;
   margin-left: auto;
   margin-right: auto;
@@ -125,6 +134,12 @@ h1 {
   text-transform: none !important;
 }
 
+button:disabled.v-btn {
+  background-color: #eeeeee !important;
+  color: #aaaaaa !important;
+  border: 1px solid #cccccc !important;
+}
+
 .v-btn.btn-primary {
   background-color: #053662 !important;
   color: #ffffff !important;
@@ -148,6 +163,9 @@ h1 {
 .v-btn.btn-link {
   text-decoration: underline;
   color: $link-color;
+  background-color: transparent !important;
+  border: none;
+  box-shadow: none;
 }
 
 .v-alert .v-icon {
@@ -231,3 +249,4 @@ h1 {
   background-color: rgba(0, 0, 0, 0.12) !important;
 }
 </style>
+./services/notificationService

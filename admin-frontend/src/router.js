@@ -36,6 +36,7 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.DASHBOARD,
         requiresAuth: true,
+        isTitleVisible: true,
       },
     },
     {
@@ -45,6 +46,8 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.REPORTS,
         requiresAuth: true,
+        isTitleVisible: true,
+        isBreadcrumbTrailVisible: true,
       },
     },
     {
@@ -54,6 +57,8 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.ANNOUNCEMENTS,
         requiresAuth: true,
+        isTitleVisible: true,
+        isBreadcrumbTrailVisible: true,
       },
     },
     {
@@ -63,6 +68,8 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.USER_MANAGEMENT,
         requiresAuth: true,
+        isTitleVisible: true,
+        isBreadcrumbTrailVisible: true,
       },
     },
     {
@@ -72,6 +79,8 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.ANALYTICS,
         requiresAuth: true,
+        isTitleVisible: true,
+        isBreadcrumbTrailVisible: true,
       },
     },
     {

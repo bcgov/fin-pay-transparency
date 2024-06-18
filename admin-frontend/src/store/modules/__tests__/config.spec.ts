@@ -1,11 +1,11 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { IConfigValue } from '../../../common/types';
+import { IConfigValue } from '../../../types';
 import { useConfigStore } from '../config';
 
 const mockGetConfig = vi.fn();
 
-vi.mock('../../../common/apiService', () => ({
+vi.mock('../../../services/apiService', () => ({
   default: {
     getConfig: () => mockGetConfig(),
   },
