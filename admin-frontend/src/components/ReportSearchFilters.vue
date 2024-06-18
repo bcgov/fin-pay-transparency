@@ -213,7 +213,12 @@ import { useCodeStore } from '../store/modules/codeStore.ts';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ReportFilterType } from '../types';
-import { ZonedDateTime, nativeJs, DateTimeFormatter } from '@js-joda/core';
+import {
+  ZonedDateTime,
+  nativeJs,
+  DateTimeFormatter,
+  ZoneId,
+} from '@js-joda/core';
 
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
@@ -244,7 +249,9 @@ function getReportSearchFilters(): ReportFilterType {
       key: 'create_date',
       operation: 'between',
       value: submissionDateRange.value.map((d, i) => {
-        const jodaZonedDateTime = ZonedDateTime.from(nativeJs(d));
+        const jodaZonedDateTime = ZonedDateTime.from(
+          nativeJs(d),
+        ).withZoneSameLocal(ZoneId.of('UTC'));
         const adjusted =
           i == 0
             ? jodaZonedDateTime //start of day
