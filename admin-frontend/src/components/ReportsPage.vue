@@ -71,7 +71,7 @@ export default {
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import { ReportKeys } from '../types';

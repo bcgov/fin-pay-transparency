@@ -58,7 +58,6 @@ watch(
 <style>
 .v-breadcrumbs-item {
   padding-left: 0px !important;
-  padding-left: 0px !important;
   font-size: 0.8em;
 }
 .v-breadcrumbs-item--link {

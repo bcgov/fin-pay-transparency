@@ -207,7 +207,7 @@ export default {
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import { useCodeStore } from '../store/modules/codeStore.ts';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
@@ -287,7 +287,7 @@ function isDirty() {
   return (
     (searchText.value != undefined && searchText.value.trim() != '') ||
     reportSearchStore.isDirty ||
-    areSecondaryFiltersVisible.value != false ||
+    areSecondaryFiltersVisible.value ||
     areSecondaryFiltersDirty()
   );
 }
