@@ -61,7 +61,6 @@
           :color="item.is_unlocked ? 'success' : 'error'"
           @click="lockUnlockReport(item.report_id, !item?.is_unlocked)"
         ></v-btn>
-        <v-btn density="compact" variant="plain" icon="mdi-clock"></v-btn>
       </template>
     </v-data-table-server>
   </div>
