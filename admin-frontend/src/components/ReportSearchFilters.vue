@@ -61,8 +61,8 @@
       <v-col sm="6" md="6" lg="4" xl="2" class="d-flex flex-column">
         <h5>NAICS code</h5>
         <v-select
-          v-model="naicsCodes"
-          :items="naicsCodeOptions"
+          v-model="selectedNaicsCodes"
+          :items="naicsCodes"
           :persistent-placeholder="true"
           placeholder="All"
           multiple
@@ -90,7 +90,8 @@
               v-if="index === maxSelectedNaicsCodesShown"
               class="text-grey text-caption align-self-center"
             >
-              (+{{ naicsCodes.length - maxSelectedNaicsCodesShown }} more)
+              (+{{ selectedNaicsCodes.length - maxSelectedNaicsCodesShown }}
+              more)
             </span>
           </template>
         </v-select>
@@ -99,7 +100,7 @@
       <v-col sm="4" md="2" lg="2" xl="1" class="d-flex flex-column">
         <h5>Year</h5>
         <v-select
-          v-model="reportYear"
+          v-model="selectedReportYear"
           :items="reportYearOptions"
           variant="solo"
           density="compact"
@@ -121,7 +122,7 @@
       <v-col sm="4" md="3" lg="2" xl="1" class="d-flex flex-column">
         <h5>Locked/Unlocked</h5>
         <v-select
-          v-model="lockedFilter"
+          v-model="selectedLockedValues"
           :items="[null, 'Locked', 'Unlocked']"
           variant="solo"
           density="compact"
@@ -143,8 +144,8 @@
       <v-col sm="8" md="7" lg="4" xl="3" class="d-flex flex-column">
         <h5>Employee count</h5>
         <v-select
-          v-model="employeeCount"
-          :items="employeeCountOptions"
+          v-model="selectedEmployeeCount"
+          :items="employeeCountRanges"
           :persistent-placeholder="true"
           placeholder="All"
           multiple
@@ -208,52 +209,25 @@ export default {
 import { storeToRefs } from 'pinia';
 import { ref, onMounted, watch } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
+import { useCodeStore } from '../store/modules/codeStore.ts';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ReportFilterType } from '../types';
 
 const reportSearchStore = useReportSearchStore();
+const codeStore = useCodeStore();
+
 const searchText = ref(undefined);
 const submissionDateRange = ref(undefined);
 const areSecondaryFiltersVisible = ref<boolean>(false);
 const maxSelectedNaicsCodesShown = ref(3);
-const naicsCodes = ref([]);
-const naicsCodeOptions = ref([
-  {
-    naics_code: '11',
-    naics_label: 'Agriculture, forestry, fishing and hunting',
-  },
-  {
-    naics_code: '21',
-    naics_label: 'Mining, quarrying, and oil and gas extraction',
-  },
-  {
-    naics_code: '22',
-    naics_label: 'Utilities',
-  },
-  {
-    naics_code: '23',
-    naics_label: 'Construction',
-  },
-]);
-const reportYear = ref(undefined);
+const selectedNaicsCodes = ref([]);
+const selectedReportYear = ref(undefined);
+const selectedLockedValues = ref(undefined);
+const selectedEmployeeCount = ref([]);
+
+const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
 const reportYearOptions = ref([null, 2024, 2023]);
-const lockedFilter = ref(undefined);
-const employeeCountOptions = ref([
-  {
-    employee_count_range_id: 'cea23fca-f6fa-4d11-a2d7-49073cdecf6a',
-    employee_count_range: '50-299',
-  },
-  {
-    employee_count_range_id: 'c4ff1a56-920f-415d-a588-f369422b8e8c',
-    employee_count_range: '300-999',
-  },
-  {
-    employee_count_range_id: '8fb03578-10ac-41c2-81ca-db5b8e2fedb9',
-    employee_count_range: '1000 or more',
-  },
-]);
-const employeeCount = ref([]);
 
 function getReportSearchFilters(): ReportFilterType {
   const filters = [];
@@ -271,25 +245,25 @@ function getReportSearchFilters(): ReportFilterType {
       value: [submissionDateRange.value.map((d) => d.format('YYYY-MM-DD'))],
     });
   }
-  if (naicsCodes.value?.length) {
+  if (selectedNaicsCodes.value?.length) {
     filters.push({
       key: 'naics_code',
       operation: 'in',
-      value: naicsCodes.value?.map((d) => d.naics_code),
+      value: selectedNaicsCodes.value?.map((d) => d.naics_code),
     });
   }
-  if (reportYear.value) {
+  if (selectedReportYear.value) {
     filters.push({
       key: 'reporting_year',
       operation: 'eq',
-      value: reportYear.value,
+      value: selectedReportYear.value,
     });
   }
-  if (employeeCount.value?.length) {
+  if (selectedEmployeeCount.value?.length) {
     filters.push({
       key: 'employee_count_range_id',
       operation: 'in',
-      value: employeeCount.value?.map((d) => d.employee_count_range_id),
+      value: selectedEmployeeCount.value?.map((d) => d.employee_count_range_id),
     });
   }
   return filters;
@@ -325,20 +299,20 @@ has been changed
 function areSecondaryFiltersDirty() {
   return (
     submissionDateRange.value != undefined ||
-    naicsCodes.value?.length != 0 ||
-    reportYear.value != undefined ||
-    lockedFilter.value != undefined ||
-    employeeCount.value?.length !== 0
+    selectedNaicsCodes.value?.length != 0 ||
+    selectedReportYear.value != undefined ||
+    selectedLockedValues.value != undefined ||
+    selectedEmployeeCount.value?.length !== 0
   );
 }
 
 function clear() {
   searchText.value = undefined;
   submissionDateRange.value = undefined;
-  naicsCodes.value = [];
-  reportYear.value = undefined;
-  lockedFilter.value = undefined;
-  employeeCount.value = [];
+  selectedNaicsCodes.value = [];
+  selectedReportYear.value = undefined;
+  selectedLockedValues.value = undefined;
+  selectedEmployeeCount.value = [];
   reportSearchStore.reset();
 }
 

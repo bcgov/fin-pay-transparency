@@ -10,7 +10,7 @@ import { useCodeStore } from '../codeStore';
 // Global Mocks
 // ----------------------------------------------------------------------------
 
-vi.mock('../../../common/apiService', async (importOriginal) => {
+vi.mock('../../../services/apiService', async (importOriginal) => {
   const mod: any = await importOriginal();
   const resp = {
     ...mod,

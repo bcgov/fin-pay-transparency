@@ -100,6 +100,7 @@ export default {
     }
   },
   async getEmployeeCountRanges() {
+    /*
     try {
       const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
       if (resp?.data) {
@@ -110,8 +111,25 @@ export default {
       console.log(`Failed to get employee count ranges from API - ${e}`);
       throw e;
     }
+    */
+    console.log('TODO: implement GET employee count ranges backend admin api');
+    return [
+      {
+        employee_count_range_id: '63d0124f-7c81-4a05-b7b7-307fea9af6ee',
+        employee_count_range: '50-299',
+      },
+      {
+        employee_count_range_id: 'f65072ec-6b13-4ceb-b7bb-2397b4838d45',
+        employee_count_range: '300-999',
+      },
+      {
+        employee_count_range_id: '1ae0cd6a-0b66-4607-9025-40cf755841dd',
+        employee_count_range: '1000 or more',
+      },
+    ];
   },
   async getNaicsCodes() {
+    /*
     try {
       const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
       if (resp?.data) {
@@ -122,6 +140,22 @@ export default {
       console.log(`Failed to get NAICS from API - ${e}`);
       throw e;
     }
+    */
+    console.log('TODO: implement GET naics code backend admin api');
+    return [
+      {
+        naics_code: '11',
+        naics_label: 'Agriculture, forestry, fishing and hunting',
+      },
+      {
+        naics_code: '21',
+        naics_label: 'Mining, quarrying, and oil and gas extraction',
+      },
+      {
+        naics_code: '22',
+        naics_label: 'Utilities',
+      },
+    ];
   },
   async getReports(
     offset: number = 0,

@@ -9,18 +9,19 @@ import {
   SORT_KEY_MAPPING,
 } from '../../types';
 
-const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = 20;
 
 /*
 Stores report search results and provides functions to fetch new 
 report search results.
 */
-export const useReportSearchStore = defineStore('code', () => {
-  //private state
-  let lastSubmittedReportSearchParams: IReportSearchParams | undefined =
-    undefined;
+export const useReportSearchStore = defineStore('reportSearch', () => {
+  //state
+  //---------------------------------------------------------------------------
 
-  //public state
+  const lastSubmittedReportSearchParams = ref<IReportSearchParams | undefined>(
+    undefined,
+  );
   const searchResults = ref<any[] | undefined>(undefined);
   const totalNum = ref(0);
   const isSearching = ref(false);
@@ -30,7 +31,7 @@ export const useReportSearchStore = defineStore('code', () => {
       searchResults.value !== undefined ||
       totalNum.value !== 0 ||
       pageSize.value !== DEFAULT_PAGE_SIZE ||
-      lastSubmittedReportSearchParams !== undefined,
+      lastSubmittedReportSearchParams.value !== undefined,
   );
 
   //public actions
@@ -56,7 +57,7 @@ export const useReportSearchStore = defineStore('code', () => {
     const sort = params.sort;
 
     isSearching.value = true;
-    lastSubmittedReportSearchParams = params;
+    lastSubmittedReportSearchParams.value = params;
 
     try {
       const resp: IReportSearchResult = await ApiService.getReports(
@@ -82,11 +83,11 @@ export const useReportSearchStore = defineStore('code', () => {
   No meaningful return value.
   */
   const updateSearch = async (params: IReportSearchUpdateParams) => {
-    console.log('updateSearch');
     const paramsAgumented: IReportSearchParams = {
-      ...params,
+      page: params.page,
+      itemsPerPage: params.itemsPerPage,
       sort: dataTableSortByToBackendSort(params.sortBy),
-      filter: lastSubmittedReportSearchParams?.filter,
+      filter: lastSubmittedReportSearchParams.value?.filter,
     };
     return searchReports(paramsAgumented);
   };
@@ -100,17 +101,20 @@ export const useReportSearchStore = defineStore('code', () => {
   No meaningful return value.
   */
   const repeatSearch = async () => {
-    console.log('repeatSearch');
-    if (lastSubmittedReportSearchParams) {
-      return searchReports(lastSubmittedReportSearchParams);
+    if (lastSubmittedReportSearchParams.value) {
+      return searchReports(lastSubmittedReportSearchParams.value);
     }
   };
 
+  /*
+  resets back to the original state (i.e. clears any saved search results 
+  and information about the previous search) 
+  */
   const reset = () => {
     searchResults.value = undefined;
     totalNum.value = 0;
     pageSize.value = DEFAULT_PAGE_SIZE;
-    lastSubmittedReportSearchParams = undefined;
+    lastSubmittedReportSearchParams.value = undefined;
   };
 
   // Private actions
@@ -148,6 +152,7 @@ export const useReportSearchStore = defineStore('code', () => {
   // Return the public interface for the store
   return {
     //state
+    lastSubmittedReportSearchParams,
     searchResults,
     isSearching,
     totalNum,
