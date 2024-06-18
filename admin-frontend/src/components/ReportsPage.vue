@@ -79,7 +79,7 @@ import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import { ReportKeys } from '../types';
 import ApiService from '../services/apiService';
-import { LocalDate, nativeJs, DateTimeFormatter } from '@js-joda/core';
+import { LocalDate, DateTimeFormatter } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 
 const displayDateFormatter = DateTimeFormatter.ofPattern(
