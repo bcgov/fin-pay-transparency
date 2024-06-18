@@ -100,14 +100,14 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .dialog-subtitle {
   font-size: 1rem;
 }
 :deep(.v-toolbar-title__placeholder) {
   overflow: visible;
 }
-.v-toolbar__content {
+.v-dialog .v-toolbar {
   height: 6px !important;
 }
 .title {
