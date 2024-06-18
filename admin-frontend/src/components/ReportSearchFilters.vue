@@ -213,6 +213,7 @@ import { useCodeStore } from '../store/modules/codeStore.ts';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ReportFilterType } from '../types';
+import { ZonedDateTime, nativeJs, DateTimeFormatter } from '@js-joda/core';
 
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
@@ -242,7 +243,10 @@ function getReportSearchFilters(): ReportFilterType {
     filters.push({
       key: 'create_date',
       operation: 'between',
-      value: [submissionDateRange.value.map((d) => d.format('YYYY-MM-DD'))],
+      value: submissionDateRange.value.map((d) => {
+        const jodaLocalDate = ZonedDateTime.from(nativeJs(d));
+        return DateTimeFormatter.ISO_DATE_TIME.format(jodaLocalDate);
+      }),
     });
   }
   if (selectedNaicsCodes.value?.length) {
@@ -281,7 +285,7 @@ function toggleSecondaryFiltersVisible() {
 }
 
 /*
-Determines whether any of the original state has been changed. 
+Determines whether any of the original state has been changed.
 */
 function isDirty() {
   return (

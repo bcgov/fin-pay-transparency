@@ -44,6 +44,9 @@
       no-data-text="No reports matched the search criteria"
       @update:options="updateSearch"
     >
+      <template v-slot:item.update_date="{ item }">
+        {{ formatSubmissionDate(item.update_date) }}
+      </template>
       <template v-slot:item.actions="{ item }">
         <v-btn
           density="compact"
@@ -76,6 +79,12 @@ import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
 import { ReportKeys } from '../types';
 import ApiService from '../services/apiService';
+import { LocalDate, nativeJs, DateTimeFormatter } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
+
+const displayDateFormatter = DateTimeFormatter.ofPattern(
+  'MMM dd, yyyy',
+).withLocale(Locale.CANADA);
 
 const reportSearchStore = useReportSearchStore();
 const { searchResults, isSearching, totalNum, pageSize } =
@@ -135,6 +144,20 @@ async function lockUnlockReport(reportId: string, isUnlocked: boolean) {
 
 function exportResults() {
   console.log('Todo: implement export');
+}
+
+/* 
+Converts a date/time string of one format into another format.
+The incoming and outgoing formats can be specified with Joda
+DateTimeFormatter objects passed as parameters.
+*/
+function formatSubmissionDate(
+  inDateStr: string,
+  inFormatter = DateTimeFormatter.ISO_DATE_TIME,
+  outFormatter = displayDateFormatter,
+) {
+  const jodaLocalDate = LocalDate.parse(inDateStr, inFormatter);
+  return outFormatter.format(jodaLocalDate);
 }
 </script>
 
