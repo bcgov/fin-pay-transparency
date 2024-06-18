@@ -64,6 +64,9 @@
       </template>
     </v-data-table-server>
   </div>
+
+  <!-- dialogs -->
+  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
 
 <script lang="ts">
@@ -81,6 +84,7 @@ import { ReportKeys } from '../types';
 import ApiService from '../services/apiService';
 import { LocalDate, DateTimeFormatter } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
+import ConfirmationDialog from './util/ConfirmationDialog.vue';
 
 const displayDateFormatter = DateTimeFormatter.ofPattern(
   'MMM dd, yyyy',
@@ -89,6 +93,7 @@ const displayDateFormatter = DateTimeFormatter.ofPattern(
 const reportSearchStore = useReportSearchStore();
 const { searchResults, isSearching, totalNum, pageSize } =
   storeToRefs(reportSearchStore);
+const confirmDialog = ref<typeof ConfirmationDialog>();
 
 const headers = ref([
   {
@@ -137,16 +142,27 @@ async function repeatSearch() {
   await reportSearchStore.repeatSearch();
 }
 
-async function lockUnlockReport(reportId: string, isUnlocked: boolean) {
-  await ApiService.lockUnlockReport(reportId, isUnlocked);
-  await repeatSearch();
+async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
+  const lockText = makeUnlocked ? 'unlock' : 'lock';
+  const isConfirmed = await confirmDialog.value?.open(
+    `${lockText} report`,
+    `Are you sure you want to ${lockText} the report?`,
+    {
+      titleBold: true,
+      resolveText: `Yes, ${lockText}`,
+    },
+  );
+  if (isConfirmed) {
+    await ApiService.lockUnlockReport(reportId, makeUnlocked);
+    await repeatSearch();
+  }
 }
 
 function exportResults() {
   console.log('Todo: implement export');
 }
 
-/* 
+/*
 Converts a date/time string of one format into another format.
 The incoming and outgoing formats can be specified with Joda
 DateTimeFormatter objects passed as parameters.
