@@ -40,6 +40,7 @@
       :items="searchResults"
       :items-length="totalNum"
       :loading="isSearching"
+      :items-per-page-options="itemsPerPageOptions"
       search=""
       no-data-text="No reports matched the search criteria"
       @update:options="updateSearch"
@@ -94,6 +95,13 @@ const reportSearchStore = useReportSearchStore();
 const { searchResults, isSearching, totalNum, pageSize } =
   storeToRefs(reportSearchStore);
 const confirmDialog = ref<typeof ConfirmationDialog>();
+const itemsPerPageOptions = ref([
+  { value: 1, title: '1' },
+  { value: 2, title: '2' },
+  { value: 10, title: '10' },
+  { value: 20, title: '20' },
+  { value: 40, title: '40' },
+]);
 
 const headers = ref([
   {

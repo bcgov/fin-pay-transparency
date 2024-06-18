@@ -110,7 +110,7 @@ export default {
 .v-toolbar__content {
   height: 6px !important;
 }
-.title::first-letter {
+.title {
   text-transform: capitalize;
 }
 </style>

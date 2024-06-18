@@ -9,7 +9,7 @@ import {
   SORT_KEY_MAPPING,
 } from '../../types';
 
-export const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = 10;
 
 /*
 Stores report search results and provides functions to fetch new 
