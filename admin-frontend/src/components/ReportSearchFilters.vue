@@ -243,9 +243,21 @@ function getReportSearchFilters(): ReportFilterType {
     filters.push({
       key: 'create_date',
       operation: 'between',
-      value: submissionDateRange.value.map((d) => {
-        const jodaLocalDate = ZonedDateTime.from(nativeJs(d));
-        return DateTimeFormatter.ISO_DATE_TIME.format(jodaLocalDate);
+      value: submissionDateRange.value.map((d, i) => {
+        const jodaZonedDateTime = ZonedDateTime.from(nativeJs(d));
+        const adjusted =
+          i == 0
+            ? jodaZonedDateTime //start of day
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0)
+            : jodaZonedDateTime //end of day
+                .withHour(23)
+                .withMinute(59)
+                .withSecond(59)
+                .withNano(999);
+        return DateTimeFormatter.ISO_DATE_TIME.format(adjusted);
       }),
     });
   }
