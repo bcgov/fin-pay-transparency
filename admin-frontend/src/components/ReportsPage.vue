@@ -133,7 +133,9 @@ async function lockUnlockReport(reportId: string, isUnlocked: boolean) {
   await repeatSearch();
 }
 
-function exportResults() {}
+function exportResults() {
+  console.log('Todo: implement export');
+}
 </script>
 
 <style>
