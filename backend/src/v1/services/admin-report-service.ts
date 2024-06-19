@@ -74,9 +74,9 @@ const adminReportService = {
   /**
    * Set report as locked/unlocked
    * @param reportId the id of the report
-   * @param idirUsername the IDIR username 
+   * @param idirUsername the IDIR username
    * @param isUnLocked true/false to update the is_unlocked column to
-   * @returns 
+   * @returns
    */
   changeReportLockStatus: async (
     reportId: string,
@@ -119,7 +119,9 @@ const adminReportService = {
    * @returns
    */
   convertFiltersToPrismaFormat(filterObj: ReportFilterType): any {
-    let prismaFilterObj: Prisma.pay_transparency_reportWhereInput = {};
+    let prismaFilterObj: Prisma.pay_transparency_reportWhereInput = {
+      report_status: 'Published',
+    };
 
     for (const item of filterObj) {
       const relationKey = RELATION_MAPPER[item.key];
