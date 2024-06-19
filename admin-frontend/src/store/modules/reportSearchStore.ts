@@ -14,7 +14,7 @@ export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
   page: 1,
   itemsPerPage: 20,
   filter: undefined,
-  sort: undefined,
+  sort: [{ update_date: 'desc' }],
 };
 
 /*
@@ -51,7 +51,11 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
     const offset = (searchParams.page - 1) * searchParams.itemsPerPage;
     const limit = params.itemsPerPage;
     const filter = params.filter;
-    const sort = params.sort;
+    let sort = params.sort;
+
+    if (!sort?.length) {
+      sort = DEFAULT_SEARCH_PARAMS.sort;
+    }
 
     isSearching.value = true;
     lastSubmittedReportSearchParams.value = params;
@@ -109,7 +113,6 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
   search with no filters applied) 
   */
   const reset = async () => {
-    console.log('reset');
     searchResults.value = undefined;
     totalNum.value = 0;
     pageSize.value = DEFAULT_PAGE_SIZE;
