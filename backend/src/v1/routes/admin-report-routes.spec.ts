@@ -82,12 +82,23 @@ describe('admin-report-routes', () => {
 
   describe('GET /:id', () => {
     describe('if reportId is valid', () => {
-      it('should default offset=0 and limit=20', async () => {
+      it('should fetch a pdf report', async () => {
         const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e3';
         await request(app)
           .get(`/${mockReportId}`)
           .set('accepts', 'application/pdf')
           .expect(200);
+        expect(mockGetReportPdf.mock.calls[0][1]).toBe(mockReportId);
+      });
+    });
+    describe('if reportId is invalid', () => {
+      it('return an error', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e3';
+        mockGetReportPdf.mockResolvedValueOnce(null);
+        await request(app)
+          .get(`/${mockReportId}`)
+          .set('accepts', 'application/pdf')
+          .expect(400);
         expect(mockGetReportPdf.mock.calls[0][1]).toBe(mockReportId);
       });
     });
