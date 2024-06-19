@@ -175,10 +175,14 @@ Downloads a PDF report with the given reportId, and opens it in a new tab
 */
 async function viewReportInNewTab(reportId: string) {
   setReportDownloadInProgress(reportId);
-  const pdfAsBlob = await ApiService.getPdfReportAsBlob(reportId);
+  try {
+    const pdfAsBlob = await ApiService.getPdfReportAsBlob(reportId);
+    const objectUrl = URL.createObjectURL(pdfAsBlob);
+    window.open(objectUrl);
+  } catch (e) {
+    //Todo: show a Snackbar notification describing the error
+  }
   clearReportDownloadInProgress(reportId);
-  const objectUrl = URL.createObjectURL(pdfAsBlob);
-  window.open(objectUrl);
 }
 
 function setReportDownloadInProgress(reportId: string) {
