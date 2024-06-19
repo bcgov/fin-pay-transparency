@@ -88,8 +88,8 @@ reportRouter.put(
 
       let reportId: string = req.params.reportId;
       const report_to_publish = await reportService.getReportById(
-        bceidBusinessGuid,
         reportId,
+        bceidBusinessGuid,
       );
 
       if (!report_to_publish) {
@@ -113,8 +113,8 @@ reportRouter.put(
 
       try {
         const report = await reportService.getReportById(
-          bceidBusinessGuid,
           reportId,
+          bceidBusinessGuid,
         );
         res.status(200).send(report);
       } catch (e) {
@@ -158,8 +158,8 @@ reportRouter.get(
       if (req.accepts('application/json')) {
         // get reports by status if status param is provided
         const report = await reportService.getReportById(
-          businessGuid,
           reportId,
+          businessGuid,
         );
         if (report) return res.status(HttpStatus.OK).json(report);
       }
@@ -171,10 +171,8 @@ reportRouter.get(
       //accepts 'pdf'
       else if (req.accepts('application/pdf')) {
         const pdf: Buffer = await reportService.getReportPdf(req, reportId);
-        const filename: string = await reportService.getReportFileName(
-          businessGuid,
-          reportId,
-        );
+        const filename: string =
+          await reportService.getReportFileName(reportId);
 
         if (pdf && filename) {
           res.set('Content-Type', 'application/pdf');

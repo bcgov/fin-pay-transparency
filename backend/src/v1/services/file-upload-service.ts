@@ -368,8 +368,8 @@ const fileUploadService = {
         correlationId,
       );
       const report: Report = await reportService.getReportById(
-        bceidBusinessGuid,
         reportId,
+        bceidBusinessGuid,
       );
       return report;
     } catch (err) {
