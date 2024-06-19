@@ -2,7 +2,11 @@ import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { IReportSearchParams, IReportSearchUpdateParams } from '../../../types';
-import { DEFAULT_PAGE_SIZE, useReportSearchStore } from '../reportSearchStore';
+import {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SEARCH_PARAMS,
+  useReportSearchStore,
+} from '../reportSearchStore';
 
 const mockGetReports = vi.fn();
 vi.mock('../../../services/apiService', () => ({
@@ -62,7 +66,6 @@ describe('reportSearchStore', () => {
       );
       expect(reportSearchStore.totalNum).toBe(mockGetReportsResponse.total);
       expect(reportSearchStore.isSearching).toBeFalsy();
-      expect(reportSearchStore.isDirty).toBeTruthy();
       expect(reportSearchStore.lastSubmittedReportSearchParams).toStrictEqual(
         params,
       );
@@ -71,7 +74,7 @@ describe('reportSearchStore', () => {
 
   describe('updateSearch', () => {
     it('should update the store with reports matching the search params', async () => {
-      const prevSearchParams: IReportSearchParams = {
+      const prevSearchParams = {
         page: 1,
         itemsPerPage: 1,
         filter: [],
@@ -104,7 +107,6 @@ describe('reportSearchStore', () => {
       );
       expect(reportSearchStore.totalNum).toBe(mockGetReportsResponse.total);
       expect(reportSearchStore.isSearching).toBeFalsy();
-      expect(reportSearchStore.isDirty).toBeTruthy();
       expect(reportSearchStore.lastSubmittedReportSearchParams).toStrictEqual({
         page: updateParams.page,
         itemsPerPage: updateParams.itemsPerPage,
@@ -157,18 +159,34 @@ describe('reportSearchStore', () => {
   });
 
   describe('reset', () => {
-    it('the store should be returned to its original state', () => {
-      reportSearchStore.searchResults = [{}, {}];
+    it('the store should be returned to its original state', async () => {
+      reportSearchStore.searchResults = [{}, {}, {}];
       reportSearchStore.pageSize = 5;
       reportSearchStore.totalNum = reportSearchStore.searchResults.length;
-      reportSearchStore.lastSubmittedReportSearchParams = 123;
+      reportSearchStore.lastSubmittedReportSearchParams = {};
 
-      reportSearchStore.reset();
+      const mockGetReportsResponse = {
+        reports: [
+          {
+            report_id: '1119e398-22e7-4d10-93aa-8b2112b4e74f',
+          },
+          {
+            report_id: '24df5544-78e2-aa1c-97aa-8b2112b4556a',
+          },
+        ],
+        total: 2,
+      };
+      mockGetReports.mockResolvedValue(mockGetReportsResponse);
 
-      expect(reportSearchStore.searchResults).toBe(undefined);
+      await reportSearchStore.reset();
+
       expect(reportSearchStore.pageSize).toBe(DEFAULT_PAGE_SIZE);
-      expect(reportSearchStore.totalNum).toBe(0);
-      expect(reportSearchStore.lastSubmittedReportSearchParams).toBe(undefined);
+      expect(reportSearchStore.totalNum).toStrictEqual(
+        mockGetReportsResponse.total,
+      );
+      expect(reportSearchStore.lastSubmittedReportSearchParams).toStrictEqual(
+        DEFAULT_SEARCH_PARAMS,
+      );
     });
   });
 });
