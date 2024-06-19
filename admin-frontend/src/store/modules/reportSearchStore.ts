@@ -10,6 +10,12 @@ import {
 } from '../../types';
 
 export const DEFAULT_PAGE_SIZE = 100;
+export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
+  page: 1,
+  itemsPerPage: 20,
+  filter: undefined,
+  sort: undefined,
+};
 
 /*
 Stores report search results and provides functions to fetch new 
@@ -40,13 +46,7 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
   No meaningful return value.
    */
   const searchReports = async (params: IReportSearchParams = {}) => {
-    const defaults: IReportSearchParams = {
-      page: 1,
-      itemsPerPage: 20,
-      filter: undefined,
-      sort: undefined,
-    };
-    const searchParams: any = { ...defaults, ...params };
+    const searchParams: any = { ...DEFAULT_SEARCH_PARAMS, ...params };
 
     const offset = (searchParams.page - 1) * searchParams.itemsPerPage;
     const limit = params.itemsPerPage;
@@ -114,7 +114,7 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
     totalNum.value = 0;
     pageSize.value = DEFAULT_PAGE_SIZE;
     lastSubmittedReportSearchParams.value = undefined;
-    await searchReports();
+    await searchReports(DEFAULT_SEARCH_PARAMS);
   };
 
   // Private actions
