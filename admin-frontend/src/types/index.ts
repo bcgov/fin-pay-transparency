@@ -11,7 +11,7 @@ export interface IReportSearchUpdateParams {
 export interface IReportSearchParams {
   page?: number;
   itemsPerPage?: number;
-  filter?: ReportFilterType | undefined;
+  filter?: ReportFilterType;
   sort?: IReportSearchSort;
 }
 export type IReportSearchSort = any[] | undefined;
