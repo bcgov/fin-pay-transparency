@@ -1157,7 +1157,7 @@ const reportService = {
         `Unable to get PDF for reportId=${reportId} (correlationId=${req.session?.correlationID}). ${e}`,
       );
       logger.info('ReportData sent to doc-gen-service was:');
-      logger.info(reportData);
+      logger.info(JSON.stringify(reportData));
       throw e;
     }
   },
