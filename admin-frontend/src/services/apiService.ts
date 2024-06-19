@@ -169,20 +169,6 @@ export default {
       });
 
       if (resp?.data) {
-        //get/create filename
-        let fileName = '';
-        if (resp?.headers['content-disposition']) {
-          const startFileNameIndex =
-            resp.headers['content-disposition'].indexOf('filename=') + 9;
-          const endFileNameIndex =
-            resp.headers['content-disposition'].lastIndexOf('.pdf') + 4;
-          fileName = resp.headers['content-disposition'].substring(
-            startFileNameIndex,
-            endFileNameIndex,
-          );
-        }
-        if (!fileName) fileName = 'pay_transparency_report.pdf';
-
         //return the PDF data as a blob.
         return resp.data;
       } else {

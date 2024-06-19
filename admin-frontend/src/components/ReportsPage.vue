@@ -180,6 +180,7 @@ async function viewReportInNewTab(reportId: string) {
     const objectUrl = URL.createObjectURL(pdfAsBlob);
     window.open(objectUrl);
   } catch (e) {
+    console.log(e);
     //Todo: show a Snackbar notification describing the error
   }
   clearReportDownloadInProgress(reportId);

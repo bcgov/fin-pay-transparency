@@ -86,4 +86,21 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('getPdfReportAsBlob', () => {
+    describe('when the given report id is valid', () => {
+      it('returns a blob', async () => {
+        const mockReportId = 1;
+        const mockResponse = {
+          data: new Blob([], { type: 'application/pdf' }),
+        };
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.getPdfReportAsBlob(mockReportId);
+        expect(resp).toEqual(mockResponse.data);
+      });
+    });
+  });
 });
