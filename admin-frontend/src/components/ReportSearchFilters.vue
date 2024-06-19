@@ -123,7 +123,7 @@
         <h5>Locked/Unlocked</h5>
         <v-select
           v-model="selectedLockedValues"
-          :items="[null, 'Locked', 'Unlocked']"
+          :items="lockedOptions"
           variant="solo"
           density="compact"
         >
@@ -234,6 +234,7 @@ const selectedEmployeeCount = ref([]);
 
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
 const reportYearOptions = ref([null, 2024, 2023]);
+const lockedOptions = ref([null, 'Locked', 'Unlocked']);
 
 function getReportSearchFilters(): ReportFilterType {
   const filters = [];
@@ -287,6 +288,13 @@ function getReportSearchFilters(): ReportFilterType {
       key: 'employee_count_range_id',
       operation: 'in',
       value: selectedEmployeeCount.value?.map((d) => d.employee_count_range_id),
+    });
+  }
+  if (selectedLockedValues.value) {
+    filters.push({
+      key: 'is_unlocked',
+      operation: 'eq',
+      value: selectedLockedValues.value == 'Unlocked',
     });
   }
   return filters;

@@ -9,7 +9,7 @@ import {
   SORT_KEY_MAPPING,
 } from '../../types';
 
-export const DEFAULT_PAGE_SIZE = 10;
+export const DEFAULT_PAGE_SIZE = 100;
 
 /*
 Stores report search results and provides functions to fetch new 
@@ -32,6 +32,10 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
       totalNum.value !== 0 ||
       pageSize.value !== DEFAULT_PAGE_SIZE ||
       lastSubmittedReportSearchParams.value !== undefined,
+  );
+  const hasSearched = computed(
+    () =>
+      !isSearching.value && lastSubmittedReportSearchParams.value !== undefined,
   );
 
   //public actions
@@ -158,6 +162,7 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
     totalNum,
     pageSize,
     isDirty,
+    hasSearched,
     //actions
     searchReports,
     updateSearch,

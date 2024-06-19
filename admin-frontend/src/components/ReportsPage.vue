@@ -7,10 +7,10 @@
     </v-col>
   </v-row>
 
-  <div class="search-results w-100" v-if="searchResults">
+  <div class="search-results w-100">
     <v-row class="mt-0 w-100" no-gutters>
       <v-col sm="8" md="8" lg="6" xl="4" class="d-flex align-center">
-        <h4>
+        <h4 v-if="searchResults?.length">
           Displaying {{ searchResults.length }} report<span
             v-if="searchResults.length != 1"
             >s</span
@@ -28,6 +28,7 @@
           class="btn-primary"
           prepend-icon="mdi-export"
           @click="exportResults()"
+          :disabled="!searchResults?.length"
         >
           Export results
         </v-btn>
@@ -42,7 +43,9 @@
       :loading="isSearching"
       :items-per-page-options="itemsPerPageOptions"
       search=""
-      no-data-text="No reports matched the search criteria"
+      :no-data-text="
+        hasSearched ? 'No reports matched the search criteria' : ''
+      "
       @update:options="updateSearch"
     >
       <template v-slot:item.update_date="{ item }">
@@ -95,15 +98,15 @@ const displayDateFormatter = DateTimeFormatter.ofPattern(
 
 const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
-const { searchResults, isSearching, totalNum, pageSize } =
+const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
   storeToRefs(reportSearchStore);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const itemsPerPageOptions = ref([
   { value: 1, title: '1' },
   { value: 2, title: '2' },
-  { value: 10, title: '10' },
-  { value: 20, title: '20' },
-  { value: 40, title: '40' },
+  { value: 50, title: '50' },
+  { value: 100, title: '100' },
+  { value: 150, title: '150' },
 ]);
 
 const headers = ref([
