@@ -87,4 +87,44 @@ describe('ReportsPage', () => {
       });
     });
   });
+
+  describe('isDownloadingPdf', () => {
+    describe('given a report id listed in reportsCurrentlyBeingDownloaded ', () => {
+      it('downloads the report, and opens it in a new tab or window', async () => {
+        const mockReportId1 = '1';
+        const mockReportId2 = '2';
+        wrapper.vm.reportsCurrentlyBeingDownloaded = {};
+        wrapper.vm.reportsCurrentlyBeingDownloaded[mockReportId1] = true;
+        expect(wrapper.vm.isDownloadingPdf(mockReportId1)).toBeTruthy();
+        expect(wrapper.vm.isDownloadingPdf(mockReportId2)).toBeFalsy();
+      });
+    });
+  });
+
+  describe('setReportDownloadInProgress', () => {
+    it('records that the given reportId is being downloaded', async () => {
+      const mockReportId1 = '1';
+      wrapper.vm.reportsCurrentlyBeingDownloaded = {};
+      wrapper.vm.setReportDownloadInProgress(mockReportId1);
+      expect(
+        wrapper.vm.reportsCurrentlyBeingDownloaded.hasOwnProperty(
+          mockReportId1,
+        ),
+      ).toBeTruthy();
+    });
+  });
+
+  describe('clearReportDownloadInProgress', () => {
+    it('clears the flag indicating the given reportId is being downloaded', async () => {
+      const mockReportId1 = '1';
+      wrapper.vm.reportsCurrentlyBeingDownloaded = {};
+      wrapper.vm.reportsCurrentlyBeingDownloaded[mockReportId1] = true;
+      wrapper.vm.clearReportDownloadInProgress(mockReportId1);
+      expect(
+        wrapper.vm.reportsCurrentlyBeingDownloaded.hasOwnProperty(
+          mockReportId1,
+        ),
+      ).toBeFalsy();
+    });
+  });
 });
