@@ -152,7 +152,7 @@ const mockPublishedReportInDb: pay_transparency_report = {
   is_unlocked: true,
   report_unlock_date: null,
   idir_modified_date: new Date(),
-  idir_modified_username: ""
+  idir_modified_username: '',
 };
 
 const mockPublishedReportInApi: Report =
@@ -1011,8 +1011,8 @@ describe('getReportById', () => {
     };
     mockCompanyFindFirst.mockResolvedValue(mockReportResults);
     const ret = await reportService.getReportById(
-      mockCompanyInDB.company_id,
       report.report_id,
+      mockCompanyInDB.company_id,
     );
     expect(ret).toEqual(expectedReport);
   });
@@ -1055,7 +1055,6 @@ describe('getReportFileName', () => {
       .mockResolvedValueOnce(reportInApi);
 
     const ret = await reportService.getReportFileName(
-      mockCompanyInDB.company_id,
       '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
     );
     expect(ret).toBe('pay_transparency_report_2023-01_2023-12.pdf');

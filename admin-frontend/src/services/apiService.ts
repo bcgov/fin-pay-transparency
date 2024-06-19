@@ -154,6 +154,46 @@ export default {
       throw e;
     }
   },
+
+  /**
+   * Downloads a PDF of the report with the given id as a blob.
+   * Returns the blob.
+   * @param {string} reportId
+   * @returns a blob with the report's binary data
+   */
+  async getPdfReportAsBlob(reportId) {
+    try {
+      const resp = await apiAxios.get(`${ApiRoutes.REPORTS}/${reportId}`, {
+        headers: { accept: 'application/pdf' },
+        responseType: 'blob',
+      });
+
+      if (resp?.data) {
+        //get/create filename
+        let fileName = '';
+        if (resp?.headers['content-disposition']) {
+          const startFileNameIndex =
+            resp.headers['content-disposition'].indexOf('filename=') + 9;
+          const endFileNameIndex =
+            resp.headers['content-disposition'].lastIndexOf('.pdf') + 4;
+          fileName = resp.headers['content-disposition'].substring(
+            startFileNameIndex,
+            endFileNameIndex,
+          );
+        }
+        if (!fileName) fileName = 'pay_transparency_report.pdf';
+
+        //return the PDF data as a blob.
+        return resp.data;
+      } else {
+        throw new Error('Unable to get pdf report from API');
+      }
+    } catch (e) {
+      console.log(`Failed to get pdf report from API - ${e}`);
+      throw e;
+    }
+  },
+
   async lockUnlockReport(
     reportId: string,
     makeUnlocked: boolean,

@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
-import { logger } from '../../logger';
-import { utils } from '../services/utils-service';
-import { adminReportService } from '../services/admin-report-service';
+import HttpStatus from 'http-status-codes';
 import has from 'lodash/has';
+import { BAD_REQUEST } from '../../constants';
+import { logger } from '../../logger';
+import { adminReportService } from '../services/admin-report-service';
+import { reportService } from '../services/report-service';
+import { utils } from '../services/utils-service';
 
 const router = express.Router();
 /**
@@ -66,6 +69,40 @@ router.patch(
       res.status(400).json(error);
     }
   }),
+);
+
+/**
+ * GET /admin-api/v1/reports/:report_id
+ *    accepts 'pdf':
+ *      Download pdf of the report for the users business
+ */
+router.get(
+  '/:report_id',
+  utils.asyncHandler(
+    async (
+      req: Request<{ report_id: string }, null, null, null>,
+      res: Response,
+    ) => {
+      // params
+      const reportId = req.params.report_id;
+
+      if (req.accepts('application/pdf')) {
+        const pdf: Buffer = await reportService.getReportPdf(req, reportId);
+        const filename: string =
+          await reportService.getReportFileName(reportId);
+
+        if (pdf && filename) {
+          res.set('Content-Type', 'application/pdf');
+          res.set('Content-Disposition', `attachment; filename=${filename}`);
+          return res.send(pdf);
+        }
+      }
+
+      // if not enough information provided, then it is a bad request
+      logger.error(BAD_REQUEST);
+      return res.status(HttpStatus.BAD_REQUEST).end();
+    },
+  ),
 );
 
 export default router;

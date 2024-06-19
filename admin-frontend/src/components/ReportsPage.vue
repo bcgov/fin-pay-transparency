@@ -53,6 +53,9 @@
           density="compact"
           variant="plain"
           icon="mdi-file-pdf-box"
+          :loading="isDownloadingPdf(item.report_id)"
+          :disabled="isDownloadingPdf(item.report_id)"
+          @click="viewReportInNewTab(item.report_id)"
         ></v-btn>
         <v-btn
           density="compact"
@@ -90,6 +93,7 @@ const displayDateFormatter = DateTimeFormatter.ofPattern(
   'MMM dd, yyyy',
 ).withLocale(Locale.CANADA);
 
+const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
 const { searchResults, isSearching, totalNum, pageSize } =
   storeToRefs(reportSearchStore);
@@ -165,6 +169,30 @@ async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
   }
 }
 
+/*
+Downloads a PDF report with the given reportId, and opens it in a new tab
+(or a new window, depending on how the browser is configured).
+*/
+async function viewReportInNewTab(reportId: string) {
+  setReportDownloadInProgress(reportId);
+  const pdfAsBlob = await ApiService.getPdfReportAsBlob(reportId);
+  clearReportDownloadInProgress(reportId);
+  const objectUrl = URL.createObjectURL(pdfAsBlob);
+  window.open(objectUrl);
+}
+
+function setReportDownloadInProgress(reportId: string) {
+  reportsCurrentlyBeingDownloaded.value[reportId] = true;
+}
+
+function clearReportDownloadInProgress(reportId: string) {
+  delete reportsCurrentlyBeingDownloaded.value[reportId];
+}
+
+function isDownloadingPdf(reportId: string) {
+  return reportsCurrentlyBeingDownloaded.value.hasOwnProperty(reportId);
+}
+
 function exportResults() {
   console.log('Todo: implement export');
 }
@@ -187,5 +215,8 @@ function formatSubmissionDate(
 <style>
 .v-data-table-header__content {
   font-weight: bold !important;
+}
+button:disabled.v-btn.v-btn--loading {
+  color: #000000 !important;
 }
 </style>

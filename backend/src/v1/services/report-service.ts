@@ -1363,16 +1363,23 @@ const reportService = {
 
   /**
    *
-   * @param bceidBusinessGuid
    * @param reportId
+   * @param bceidBusinessGuid optional BCeID business GUID.  if specified, the
+   * given reportId must be associated with the given BCeID business GUID.  If not
+   * specified, this requirement is omitted.
    * @returns
    *    - object for a single report or
    *    - null or undefined if report couldn't be found
    */
   async getReportById(
-    bceidBusinessGuid: string,
     reportId: string,
+    bceidBusinessGuid: string = null,
   ): Promise<Report> {
+    const limitToBceidBusinessGuid = bceidBusinessGuid
+      ? {
+          bceid_business_guid: bceidBusinessGuid,
+        }
+      : {};
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -1397,9 +1404,7 @@ const reportService = {
           take: 1,
         },
       },
-      where: {
-        bceid_business_guid: bceidBusinessGuid,
-      },
+      where: limitToBceidBusinessGuid,
     });
     if (!reports) return null;
 
@@ -1418,14 +1423,8 @@ const reportService = {
     return first;
   },
 
-  async getReportFileName(
-    bceidBusinessGuid: string,
-    reportId: string,
-  ): Promise<string> {
-    const report: Report = await this.getReportById(
-      bceidBusinessGuid,
-      reportId,
-    );
+  async getReportFileName(reportId: string): Promise<string> {
+    const report: Report = await this.getReportById(reportId);
 
     if (report) {
       const start = LocalDate.parse(report.report_start_date).format(
