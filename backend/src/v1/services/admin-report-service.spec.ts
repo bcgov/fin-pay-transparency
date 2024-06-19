@@ -57,7 +57,7 @@ describe('admin-report-service', () => {
     reports = [
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
-        create_date: '2024-04-19T21:46:53.876',
+        update_date: '2024-04-19T21:46:53.876',
         naics_code: '30',
         reporting_year: 2024,
         is_unlocked: true,
@@ -66,7 +66,7 @@ describe('admin-report-service', () => {
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e2',
-        create_date: '2023-04-19T21:46:53.876',
+        update_date: '2023-04-19T21:46:53.876',
         naics_code: '11',
         reporting_year: 2023,
         is_unlocked: false,
@@ -75,7 +75,7 @@ describe('admin-report-service', () => {
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
-        create_date: '2022-04-19T21:46:53.876',
+        update_date: '2022-04-19T21:46:53.876',
         naics_code: '40',
         reporting_year: 2021,
         is_unlocked: false,
@@ -274,18 +274,18 @@ describe('admin-report-service', () => {
           });
         });
 
-        describe('create_date / submission date', () => {
-          it('should return reports with create_date between the specified dates', async () => {
+        describe('update_date / submission date', () => {
+          it('should return reports with update_date between the specified dates', async () => {
             const response = await adminReportService.searchReport(
               0,
               10,
               '[]',
-              '[{"key": "create_date", "operation": "between", "value": ["2024-01-01T21:46:53.876", "2024-05-05T21:46:53.876"] }]',
+              '[{"key": "update_date", "operation": "between", "value": ["2024-01-01T21:46:53.876", "2024-05-05T21:46:53.876"] }]',
             );
             expect(
               response.reports.every((x) => {
-                const createDate = LocalDateTime.parse(
-                  x.create_date,
+                const updateDate = LocalDateTime.parse(
+                  x.update_date,
                 ).toEpochSecond(ZoneOffset.UTC);
                 const rangeStart = LocalDateTime.parse(
                   '2024-01-01T21:46:53.876',
@@ -293,7 +293,7 @@ describe('admin-report-service', () => {
                 const rangeEnd = LocalDateTime.parse(
                   '2024-05-05T21:46:53.876',
                 ).toEpochSecond(ZoneOffset.UTC);
-                return createDate >= rangeStart && createDate < rangeEnd;
+                return updateDate >= rangeStart && updateDate < rangeEnd;
               }),
             ).toBeTruthy();
           });
@@ -303,7 +303,7 @@ describe('admin-report-service', () => {
               0,
               10,
               '[]',
-              '[{"key": "create_date", "operation": "between", "value": [] }]',
+              '[{"key": "update_date", "operation": "between", "value": [] }]',
             );
             expect(response.reports.length).toBe(0);
           });
@@ -364,7 +364,7 @@ describe('admin-report-service', () => {
             ).toThrow();
           } catch (error) {
             expect(error.errors.map((error) => error.message)).toContain(
-              'key must be one of the following values: create_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
+              'key must be one of the following values: update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
             );
           }
         });
@@ -375,7 +375,7 @@ describe('admin-report-service', () => {
                 0,
                 101,
                 '[]',
-                '[{"key": "create_date", "operation": "eq", "value": ["2024-04-19 21:46:53.876", "2024-04-19 21:46:53.876"]}]',
+                '[{"key": "update_date", "operation": "eq", "value": ["2024-04-19 21:46:53.876", "2024-04-19 21:46:53.876"]}]',
               ),
             ).toThrow();
           } catch (error) {
@@ -391,7 +391,7 @@ describe('admin-report-service', () => {
                 0,
                 101,
                 '[]',
-                '[{"key": "create_date", "value": []}]',
+                '[{"key": "update_date", "value": []}]',
               ),
             ).toThrow();
           } catch (error) {

@@ -1128,29 +1128,38 @@ const reportService = {
 
     // Request the PDF from the DocGenService, and download the response
     // as a stream
-    const responseStream = await utils.postDataToDocGenService(
-      reportData,
-      `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
-      req.session.correlationID,
-      {
-        headers: {
-          Accept: 'application/pdf',
+    try {
+      const responseStream = await utils.postDataToDocGenService(
+        reportData,
+        `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
+        req.session.correlationID,
+        {
+          headers: {
+            Accept: 'application/pdf',
+          },
+          responseType: 'stream',
         },
-        responseType: 'stream',
-      },
-    );
-    logger.debug(
-      `getReportPdf completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
-    );
+      );
+      logger.debug(
+        `getReportPdf completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+      );
 
-    // Convert the stream to a buffer
-    const buffers = [];
-    for await (const data of responseStream) {
-      buffers.push(data);
+      // Convert the stream to a buffer
+      const buffers = [];
+      for await (const data of responseStream) {
+        buffers.push(data);
+      }
+      const responseBuffer = Buffer.concat(buffers);
+
+      return responseBuffer;
+    } catch (e) {
+      logger.error(
+        `Unable to get PDF for reportId=${reportId} (correlationId=${req.session?.correlationID}). ${e}`,
+      );
+      logger.debug('ReportData sent to doc-gen-service was:');
+      logger.debug(reportData);
+      throw e;
     }
-    const responseBuffer = Buffer.concat(buffers);
-
-    return responseBuffer;
   },
 
   /**
