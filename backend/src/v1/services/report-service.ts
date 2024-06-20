@@ -1454,6 +1454,7 @@ const reportService = {
       return null;
     }
     logger.info('found a match');
+    logger.info(JSON.stringify(reports));
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
@@ -1464,15 +1465,17 @@ const reportService = {
       (r: pay_transparency_report) =>
         reportServicePrivate.prismaReportToReport(r),
     );
+    logger.info(JSON.stringify(reportsAdjusted));
 
     const [first] = reportsAdjusted;
+    logger.info(JSON.stringify(first));
 
     return first;
   },
 
   async getReportFileName(reportId: string): Promise<string> {
     const report: Report = await this.getReportById(reportId);
-    console.log(JSON.stringify(report));
+    logger.info(JSON.stringify(report));
     if (report) {
       const start = LocalDate.parse(report.report_start_date).format(
         FILENAME_REPORT_DATE_FORMAT,
