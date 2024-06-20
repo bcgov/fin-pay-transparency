@@ -1472,7 +1472,7 @@ const reportService = {
 
   async getReportFileName(reportId: string): Promise<string> {
     const report: Report = await this.getReportById(reportId);
-
+    console.log(JSON.stringify(report));
     if (report) {
       const start = LocalDate.parse(report.report_start_date).format(
         FILENAME_REPORT_DATE_FORMAT,
