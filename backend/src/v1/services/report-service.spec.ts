@@ -435,6 +435,22 @@ describe('getReportPdf', () => {
       expect(result).toBeInstanceOf(Buffer);
     });
   });
+  describe('when an invalid report id and/or bceidBusinessGuid are provided', () => {
+    it('throws an error ', async () => {
+      const mockReq = {
+        session: {
+          correlationID: 'mockCorrelationId',
+        },
+      };
+      const invalidReportId = '1';
+
+      jest.spyOn(reportService, 'getReportData').mockResolvedValueOnce(null);
+      jest.spyOn(utils, 'postDataToDocGenService').mockResolvedValueOnce(null);
+      await expect(
+        reportService.getReportPdf(mockReq, invalidReportId),
+      ).rejects.toThrow();
+    });
+  });
 });
 
 describe('genderCodeToGenderChartInfo', () => {

@@ -86,7 +86,7 @@ describe('admin-report-routes', () => {
         const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e3';
         await request(app)
           .get(`/${mockReportId}`)
-          .set('accepts', 'application/pdf')
+          .set('Accept', 'application/pdf')
           .expect(200);
         expect(mockGetReportPdf.mock.calls[0][1]).toBe(mockReportId);
       });
@@ -97,9 +97,19 @@ describe('admin-report-routes', () => {
         mockGetReportPdf.mockResolvedValueOnce(null);
         await request(app)
           .get(`/${mockReportId}`)
-          .set('accepts', 'application/pdf')
+          .set('Accept', 'application/pdf')
           .expect(404);
         expect(mockGetReportPdf.mock.calls[0][1]).toBe(mockReportId);
+      });
+    });
+    describe('if accept header is invalid', () => {
+      it('return an error', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e3';
+        mockGetReportPdf.mockResolvedValueOnce(null);
+        await request(app)
+          .get(`/${mockReportId}`)
+          .set('Accept', 'application/json')
+          .expect(400);
       });
     });
   });
