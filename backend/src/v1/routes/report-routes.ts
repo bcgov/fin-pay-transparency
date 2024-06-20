@@ -165,12 +165,20 @@ reportRouter.get(
       }
       //accepts 'html'
       else if (req.accepts('text/html')) {
-        const html = await reportService.getReportHtml(req, reportId);
+        const html = await reportService.getReportHtml(
+          req,
+          reportId,
+          businessGuid,
+        );
         if (html) return res.set('Content-Type', 'text/html').send(html);
       }
       //accepts 'pdf'
       else if (req.accepts('application/pdf')) {
-        const pdf: Buffer = await reportService.getReportPdf(req, reportId);
+        const pdf: Buffer = await reportService.getReportPdf(
+          req,
+          reportId,
+          businessGuid,
+        );
         const filename: string =
           await reportService.getReportFileName(reportId);
 

@@ -13,7 +13,7 @@ import {
   FILENAME_REPORT_DATE_FORMAT,
   JSON_REPORT_DATE_FORMAT,
 } from '../../constants';
-import { logger as log, logger } from '../../logger';
+import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { REPORT_STATUS } from './file-upload-service';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
@@ -495,34 +495,35 @@ const reportService = {
   If no report with the given id is found, returns null.
   */
   async getReportAndCalculations(
-    req,
     reportId: string,
+    bceidBusinessGuid: string = null,
   ): Promise<ReportAndCalculations | null> {
     let reportAndCalculations: ReportAndCalculations | null = null;
-    const userInfo = utils.getSessionUser(req);
-    if (!userInfo) {
-      log.error('Unable to look up user info');
-      throw new Error('Something went wrong');
-    }
 
     await prisma.$transaction(async (tx) => {
-      const payTransparencyCompany =
-        await tx.pay_transparency_company.findFirst({
-          where: {
-            bceid_business_guid: userInfo._json.bceid_business_guid,
-          },
-        });
-      if (!payTransparencyCompany) {
-        throw new Error('Cannot find company');
+      const whereClause = {
+        report_id: reportId,
+      };
+
+      //optionally restrict by reports submitted by the company with the given
+      //bceidBusinessGuid (if specified)
+      if (bceidBusinessGuid) {
+        const payTransparencyCompany =
+          await tx.pay_transparency_company.findFirst({
+            where: {
+              bceid_business_guid: bceidBusinessGuid,
+            },
+          });
+        if (!payTransparencyCompany) {
+          throw new Error('Cannot find company');
+        }
+        whereClause['company_id'] = payTransparencyCompany.company_id;
       }
 
       let report = null;
       try {
         report = await tx.pay_transparency_report.findFirst({
-          where: {
-            company_id: payTransparencyCompany.company_id,
-            report_id: reportId,
-          },
+          where: whereClause,
           include: {
             pay_transparency_company: true,
             naics_code_pay_transparency_report_naics_codeTonaics_code: true,
@@ -609,12 +610,16 @@ const reportService = {
     return explanatoryNotes;
   },
 
-  async getReportData(req, reportId: string): Promise<object | null> {
+  async getReportData(
+    req,
+    reportId: string,
+    bceidBusinessGuid: string = null,
+  ): Promise<object | null> {
     logger.debug(
       `getReportData called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
     const reportAndCalculations: ReportAndCalculations =
-      await this.getReportAndCalculations(req, reportId);
+      await this.getReportAndCalculations(reportId, bceidBusinessGuid);
 
     if (!reportAndCalculations) {
       return null;
@@ -1110,8 +1115,16 @@ const reportService = {
     return reportData;
   },
 
-  async getReportHtml(req, reportId: string): Promise<string> {
-    const reportData = await this.getReportData(req, reportId);
+  async getReportHtml(
+    req,
+    reportId: string,
+    bceidBusinessGuid: string = null,
+  ): Promise<string> {
+    const reportData = await this.getReportData(
+      req,
+      reportId,
+      bceidBusinessGuid,
+    );
     const responseHtml: string = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
@@ -1123,8 +1136,26 @@ const reportService = {
     return responseHtml;
   },
 
-  async getReportPdf(req, reportId: string): Promise<Buffer> {
-    const reportData = await this.getReportData(req, reportId);
+  async getReportPdf(
+    req,
+    reportId: string,
+    bceidBusinessGuid: string = null,
+  ): Promise<Buffer> {
+    const reportData = await this.getReportData(
+      req,
+      reportId,
+      bceidBusinessGuid,
+    );
+
+    if (!reportData) {
+      const bceidBusinessGuidLabel =
+        bceidBusinessGuid !== null
+          ? ` and bceidBusinessGuid=${bceidBusinessGuid}`
+          : '';
+      throw new Error(
+        `Unable to find report with reportId=${reportId}${bceidBusinessGuidLabel}`,
+      );
+    }
 
     // Request the PDF from the DocGenService, and download the response
     // as a stream
