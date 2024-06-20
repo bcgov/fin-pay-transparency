@@ -1415,13 +1415,7 @@ const reportService = {
     reportId: string,
     bceidBusinessGuid: string = null,
   ): Promise<Report> {
-    const limitToBceidBusinessGuid = bceidBusinessGuid
-      ? {
-          bceid_business_guid: bceidBusinessGuid,
-        }
-      : {};
-
-    const reports = await prisma.pay_transparency_company.findFirst({
+    const query = {
       select: {
         pay_transparency_report: {
           select: {
@@ -1445,11 +1439,17 @@ const reportService = {
           take: 1,
         },
       },
-      where: limitToBceidBusinessGuid,
-    });
+    };
+    if (bceidBusinessGuid) {
+      query['where'] = {
+        bceid_business_guid: bceidBusinessGuid,
+      };
+    }
+    const reports = await prisma.pay_transparency_company.findFirst(query);
+
     logger.info(`getReportById(${reportId}, ${bceidBusinessGuid})`);
-    logger.info(JSON.stringify(limitToBceidBusinessGuid));
-    if (!reports) {
+    logger.info(JSON.stringify(query));
+    if (!reports?.pay_transparency_report?.length) {
       logger.info('no matches');
       return null;
     }
@@ -1475,7 +1475,7 @@ const reportService = {
 
   async getReportFileName(reportId: string): Promise<string> {
     const report: Report = await this.getReportById(reportId);
-    logger.info(JSON.stringify(report));
+
     if (report) {
       const start = LocalDate.parse(report.report_start_date).format(
         FILENAME_REPORT_DATE_FORMAT,
