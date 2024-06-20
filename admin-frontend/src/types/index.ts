@@ -88,3 +88,9 @@ export type ReportFilterType = (
   | EmployeeCountRangeFilter
   | CompanyFilter
 )[];
+
+export type User = {
+  userName: string;
+  displayName: string;
+  role: string;
+};
