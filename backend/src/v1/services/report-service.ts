@@ -622,7 +622,6 @@ const reportService = {
     if (!reportAndCalculations) {
       return null;
     }
-    logger.info(`got report and calculations for reportId: ${reportId}`);
 
     const report = reportAndCalculations.report;
     const calcs = reportAndCalculations.calculations;
@@ -1145,7 +1144,6 @@ const reportService = {
       reportId,
       bceidBusinessGuid,
     );
-    logger.info(JSON.stringify(reportData));
 
     if (!reportData) {
       const bceidBusinessGuidLabel =
@@ -1181,7 +1179,7 @@ const reportService = {
         buffers.push(data);
       }
       const responseBuffer = Buffer.concat(buffers);
-      console.log('build pdf');
+
       return responseBuffer;
     } catch (e) {
       logger.error(
@@ -1446,6 +1444,20 @@ const reportService = {
       };
     }
     const reports = await prisma.pay_transparency_company.findFirst(query);
+    console.log(
+      'all reports:' +
+        JSON.stringify(
+          await prisma.pay_transparency_company.findMany({
+            select: {
+              pay_transparency_report: {
+                select: {
+                  report_id: true,
+                },
+              },
+            },
+          }),
+        ),
+    );
 
     if (!reports?.pay_transparency_report?.length) {
       return null;
