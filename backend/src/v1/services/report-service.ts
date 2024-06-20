@@ -1420,6 +1420,7 @@ const reportService = {
           bceid_business_guid: bceidBusinessGuid,
         }
       : {};
+
     const reports = await prisma.pay_transparency_company.findFirst({
       select: {
         pay_transparency_report: {
@@ -1446,7 +1447,13 @@ const reportService = {
       },
       where: limitToBceidBusinessGuid,
     });
-    if (!reports) return null;
+    logger.info(`getReportById(${reportId}, ${bceidBusinessGuid})`);
+    logger.info(JSON.stringify(limitToBceidBusinessGuid));
+    if (!reports) {
+      logger.info('no matches');
+      return null;
+    }
+    logger.info('found a match');
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
@@ -1475,6 +1482,8 @@ const reportService = {
       );
       const filename = `pay_transparency_report_${start}_${end}.pdf`;
       return filename;
+    } else {
+      throw new Error(`No such report with reportId=${reportId}`);
     }
   },
 
