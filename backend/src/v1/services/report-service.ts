@@ -1413,53 +1413,56 @@ const reportService = {
     reportId: string,
     bceidBusinessGuid: string = null,
   ): Promise<Report> {
-    const query = {
+    const reportQuery = {
       select: {
-        pay_transparency_report: {
-          select: {
-            report_id: true,
-            user_comment: true,
-            employee_count_range_id: true,
-            naics_code: true,
-            report_start_date: true,
-            report_end_date: true,
-            reporting_year: true,
-            report_status: true,
-            revision: true,
-            data_constraints: true,
-            is_unlocked: true,
-            create_date: true,
-            company_id: true,
-          },
-          where: {
-            report_id: reportId,
-          },
-          take: 1,
-        },
+        report_id: true,
+        user_comment: true,
+        employee_count_range_id: true,
+        naics_code: true,
+        report_start_date: true,
+        report_end_date: true,
+        reporting_year: true,
+        report_status: true,
+        revision: true,
+        data_constraints: true,
+        is_unlocked: true,
+        create_date: true,
+        company_id: true,
       },
+      where: {
+        report_id: reportId,
+      },
+      take: 1,
     };
-    if (bceidBusinessGuid) {
-      query['where'] = {
-        bceid_business_guid: bceidBusinessGuid,
-      };
-    }
-    const reports = await prisma.pay_transparency_company.findFirst(query);
-    console.log(
-      'all reports:' +
-        JSON.stringify(
-          await prisma.pay_transparency_company.findMany({
-            select: {
-              pay_transparency_report: {
-                select: {
-                  report_id: true,
-                },
-              },
-            },
-          }),
-        ),
-    );
 
-    if (!reports?.pay_transparency_report?.length) {
+    let report = null;
+
+    //if we aren't limiting the search by bceidBusinessGuid, then run a simple query
+    //against the report table
+    if (!bceidBusinessGuid) {
+      report = await prisma.pay_transparency_report.findFirst(reportQuery);
+    }
+
+    //if we are limiting by bceidBusinessGuid then run a slightly different
+    //query to join company and report
+    else {
+      const companyQuery = {
+        select: {
+          pay_transparency_report: reportQuery,
+        },
+        where: {
+          bceid_business_guid: bceidBusinessGuid,
+        },
+      };
+
+      const result =
+        await prisma.pay_transparency_company.findFirst(companyQuery);
+      report = result?.pay_transparency_report?.length
+        ? result?.pay_transparency_report[0]
+        : null;
+    }
+
+    if (!report) {
       return null;
     }
 
@@ -1468,14 +1471,9 @@ const reportService = {
     // (to achieve this, we also retype the object from pay_transparency_report
     // (the prisma type) to Report (a custom interface that extends the prisma
     // type)
-    const reportsAdjusted = reports?.pay_transparency_report.map(
-      (r: pay_transparency_report) =>
-        reportServicePrivate.prismaReportToReport(r),
-    );
+    const reportAdjusted = reportServicePrivate.prismaReportToReport(report);
 
-    const [first] = reportsAdjusted;
-
-    return first;
+    return reportAdjusted;
   },
 
   async getReportFileName(reportId: string): Promise<string> {
