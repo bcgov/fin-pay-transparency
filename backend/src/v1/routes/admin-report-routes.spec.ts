@@ -98,7 +98,7 @@ describe('admin-report-routes', () => {
         await request(app)
           .get(`/${mockReportId}`)
           .set('accepts', 'application/pdf')
-          .expect(400);
+          .expect(404);
         expect(mockGetReportPdf.mock.calls[0][1]).toBe(mockReportId);
       });
     });
