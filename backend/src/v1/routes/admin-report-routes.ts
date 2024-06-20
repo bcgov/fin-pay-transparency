@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-import HttpStatus from 'http-status-codes';
 import has from 'lodash/has';
 import { BAD_REQUEST } from '../../constants';
 import { logger } from '../../logger';
@@ -88,19 +87,28 @@ router.get(
 
       if (req.accepts('application/pdf')) {
         const pdf: Buffer = await reportService.getReportPdf(req, reportId);
+        if (!pdf) {
+          return res.status(404).json({ error: 'Report not found' });
+        }
         const filename: string =
           await reportService.getReportFileName(reportId);
-
-        if (pdf && filename) {
-          res.set('Content-Type', 'application/pdf');
-          res.set('Content-Disposition', `attachment; filename=${filename}`);
-          return res.send(pdf);
+        if (!filename) {
+          logger.error(
+            `Unable to determine PDF filename for reportId=${reportId}`,
+          );
+          return res.status(500).json({ error: 'Something went wrong' });
         }
+
+        res.set('Content-Type', 'application/pdf');
+        res.set('Content-Disposition', `attachment; filename=${filename}`);
+        return res.send(pdf);
       }
 
       // if not enough information provided, then it is a bad request
       logger.error(BAD_REQUEST);
-      return res.status(HttpStatus.BAD_REQUEST).end();
+      return res
+        .status(404)
+        .json({ error: 'Unsupported format in accept header' });
     },
   ),
 );
