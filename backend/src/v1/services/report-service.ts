@@ -537,37 +537,35 @@ const reportService = {
         logger.error(e);
       }
 
-      if (!report) {
-        return null;
-      }
+      if (report) {
+        const calculatedDatas =
+          await tx.pay_transparency_calculated_data.findMany({
+            where: {
+              report_id: reportId,
+              is_suppressed: false,
+            },
+            include: {
+              calculation_code: true,
+            },
+          });
 
-      const calculatedDatas =
-        await tx.pay_transparency_calculated_data.findMany({
-          where: {
-            report_id: reportId,
-            is_suppressed: false,
-          },
-          include: {
-            calculation_code: true,
-          },
+        // Reorganize the calculation data results into an object of this format:
+        // [CALCULATION CODE 1] => { value: "100", isSuppressed: false }
+        // [CALCULATION CODE 2] => { value: "200", isSuppressed: false }
+        // ...etc
+        const calcs = {};
+        calculatedDatas.forEach((c) => {
+          calcs[c.calculation_code.calculation_code] = {
+            value: c.value,
+            isSuppressed: c.is_suppressed,
+          };
         });
 
-      // Reorganize the calculation data results into an object of this format:
-      // [CALCULATION CODE 1] => { value: "100", isSuppressed: false }
-      // [CALCULATION CODE 2] => { value: "200", isSuppressed: false }
-      // ...etc
-      const calcs = {};
-      calculatedDatas.forEach((c) => {
-        calcs[c.calculation_code.calculation_code] = {
-          value: c.value,
-          isSuppressed: c.is_suppressed,
+        reportAndCalculations = {
+          report: report,
+          calculations: calcs,
         };
-      });
-
-      reportAndCalculations = {
-        report: report,
-        calculations: calcs,
-      };
+      }
     });
 
     return reportAndCalculations;
@@ -624,6 +622,7 @@ const reportService = {
     if (!reportAndCalculations) {
       return null;
     }
+    logger.info(`got report and calculations for reportId: ${reportId}`);
 
     const report = reportAndCalculations.report;
     const calcs = reportAndCalculations.calculations;
@@ -1146,6 +1145,7 @@ const reportService = {
       reportId,
       bceidBusinessGuid,
     );
+    logger.info(JSON.stringify(reportData));
 
     if (!reportData) {
       const bceidBusinessGuidLabel =
@@ -1181,7 +1181,7 @@ const reportService = {
         buffers.push(data);
       }
       const responseBuffer = Buffer.concat(buffers);
-
+      console.log('build pdf');
       return responseBuffer;
     } catch (e) {
       logger.error(
@@ -1447,14 +1447,9 @@ const reportService = {
     }
     const reports = await prisma.pay_transparency_company.findFirst(query);
 
-    logger.info(`getReportById(${reportId}, ${bceidBusinessGuid})`);
-    logger.info(JSON.stringify(query));
     if (!reports?.pay_transparency_report?.length) {
-      logger.info('no matches');
       return null;
     }
-    logger.info('found a match');
-    logger.info(JSON.stringify(reports));
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
@@ -1465,10 +1460,8 @@ const reportService = {
       (r: pay_transparency_report) =>
         reportServicePrivate.prismaReportToReport(r),
     );
-    logger.info(JSON.stringify(reportsAdjusted));
 
     const [first] = reportsAdjusted;
-    logger.info(JSON.stringify(first));
 
     return first;
   },
