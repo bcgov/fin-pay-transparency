@@ -13,7 +13,7 @@ import {
   FILENAME_REPORT_DATE_FORMAT,
   JSON_REPORT_DATE_FORMAT,
 } from '../../constants';
-import { logger as log, logger } from '../../logger';
+import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { REPORT_STATUS } from './file-upload-service';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
@@ -495,34 +495,35 @@ const reportService = {
   If no report with the given id is found, returns null.
   */
   async getReportAndCalculations(
-    req,
     reportId: string,
+    bceidBusinessGuid: string = null,
   ): Promise<ReportAndCalculations | null> {
     let reportAndCalculations: ReportAndCalculations | null = null;
-    const userInfo = utils.getSessionUser(req);
-    if (!userInfo) {
-      log.error('Unable to look up user info');
-      throw new Error('Something went wrong');
-    }
 
     await prisma.$transaction(async (tx) => {
-      const payTransparencyCompany =
-        await tx.pay_transparency_company.findFirst({
-          where: {
-            bceid_business_guid: userInfo._json.bceid_business_guid,
-          },
-        });
-      if (!payTransparencyCompany) {
-        throw new Error('Cannot find company');
+      const whereClause = {
+        report_id: reportId,
+      };
+
+      //optionally restrict by reports submitted by the company with the given
+      //bceidBusinessGuid (if specified)
+      if (bceidBusinessGuid) {
+        const payTransparencyCompany =
+          await tx.pay_transparency_company.findFirst({
+            where: {
+              bceid_business_guid: bceidBusinessGuid,
+            },
+          });
+        if (!payTransparencyCompany) {
+          throw new Error('Cannot find company');
+        }
+        whereClause['company_id'] = payTransparencyCompany.company_id;
       }
 
       let report = null;
       try {
         report = await tx.pay_transparency_report.findFirst({
-          where: {
-            company_id: payTransparencyCompany.company_id,
-            report_id: reportId,
-          },
+          where: whereClause,
           include: {
             pay_transparency_company: true,
             naics_code_pay_transparency_report_naics_codeTonaics_code: true,
@@ -536,37 +537,35 @@ const reportService = {
         logger.error(e);
       }
 
-      if (!report) {
-        return null;
-      }
+      if (report) {
+        const calculatedDatas =
+          await tx.pay_transparency_calculated_data.findMany({
+            where: {
+              report_id: reportId,
+              is_suppressed: false,
+            },
+            include: {
+              calculation_code: true,
+            },
+          });
 
-      const calculatedDatas =
-        await tx.pay_transparency_calculated_data.findMany({
-          where: {
-            report_id: reportId,
-            is_suppressed: false,
-          },
-          include: {
-            calculation_code: true,
-          },
+        // Reorganize the calculation data results into an object of this format:
+        // [CALCULATION CODE 1] => { value: "100", isSuppressed: false }
+        // [CALCULATION CODE 2] => { value: "200", isSuppressed: false }
+        // ...etc
+        const calcs = {};
+        calculatedDatas.forEach((c) => {
+          calcs[c.calculation_code.calculation_code] = {
+            value: c.value,
+            isSuppressed: c.is_suppressed,
+          };
         });
 
-      // Reorganize the calculation data results into an object of this format:
-      // [CALCULATION CODE 1] => { value: "100", isSuppressed: false }
-      // [CALCULATION CODE 2] => { value: "200", isSuppressed: false }
-      // ...etc
-      const calcs = {};
-      calculatedDatas.forEach((c) => {
-        calcs[c.calculation_code.calculation_code] = {
-          value: c.value,
-          isSuppressed: c.is_suppressed,
+        reportAndCalculations = {
+          report: report,
+          calculations: calcs,
         };
-      });
-
-      reportAndCalculations = {
-        report: report,
-        calculations: calcs,
-      };
+      }
     });
 
     return reportAndCalculations;
@@ -609,12 +608,16 @@ const reportService = {
     return explanatoryNotes;
   },
 
-  async getReportData(req, reportId: string): Promise<object | null> {
+  async getReportData(
+    req,
+    reportId: string,
+    bceidBusinessGuid: string = null,
+  ): Promise<object | null> {
     logger.debug(
       `getReportData called with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
     );
     const reportAndCalculations: ReportAndCalculations =
-      await this.getReportAndCalculations(req, reportId);
+      await this.getReportAndCalculations(reportId, bceidBusinessGuid);
 
     if (!reportAndCalculations) {
       return null;
@@ -1110,8 +1113,16 @@ const reportService = {
     return reportData;
   },
 
-  async getReportHtml(req, reportId: string): Promise<string> {
-    const reportData = await this.getReportData(req, reportId);
+  async getReportHtml(
+    req,
+    reportId: string,
+    bceidBusinessGuid: string = null,
+  ): Promise<string> {
+    const reportData = await this.getReportData(
+      req,
+      reportId,
+      bceidBusinessGuid,
+    );
     const responseHtml: string = await utils.postDataToDocGenService(
       reportData,
       `${config.get('docGenService:url')}/doc-gen?reportType=html`,
@@ -1123,34 +1134,61 @@ const reportService = {
     return responseHtml;
   },
 
-  async getReportPdf(req, reportId: string): Promise<Buffer> {
-    const reportData = await this.getReportData(req, reportId);
+  async getReportPdf(
+    req,
+    reportId: string,
+    bceidBusinessGuid: string = null,
+  ): Promise<Buffer> {
+    const reportData = await this.getReportData(
+      req,
+      reportId,
+      bceidBusinessGuid,
+    );
+
+    if (!reportData) {
+      const bceidBusinessGuidLabel =
+        bceidBusinessGuid !== null
+          ? ` and bceidBusinessGuid=${bceidBusinessGuid}`
+          : '';
+      throw new Error(
+        `Unable to find report with reportId=${reportId}${bceidBusinessGuidLabel}`,
+      );
+    }
 
     // Request the PDF from the DocGenService, and download the response
     // as a stream
-    const responseStream = await utils.postDataToDocGenService(
-      reportData,
-      `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
-      req.session.correlationID,
-      {
-        headers: {
-          Accept: 'application/pdf',
+    try {
+      const responseStream = await utils.postDataToDocGenService(
+        reportData,
+        `${config.get('docGenService:url')}/doc-gen?reportType=pdf`,
+        req.session.correlationID,
+        {
+          headers: {
+            Accept: 'application/pdf',
+          },
+          responseType: 'stream',
         },
-        responseType: 'stream',
-      },
-    );
-    logger.debug(
-      `getReportPdf completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
-    );
+      );
+      logger.debug(
+        `getReportPdf completed with reportId: ${reportId} and correlationId: ${req.session?.correlationID}`,
+      );
 
-    // Convert the stream to a buffer
-    const buffers = [];
-    for await (const data of responseStream) {
-      buffers.push(data);
+      // Convert the stream to a buffer
+      const buffers = [];
+      for await (const data of responseStream) {
+        buffers.push(data);
+      }
+      const responseBuffer = Buffer.concat(buffers);
+
+      return responseBuffer;
+    } catch (e) {
+      logger.error(
+        `Unable to get PDF for reportId=${reportId} (correlationId=${req.session?.correlationID}). ${e}`,
+      );
+      logger.info('ReportData sent to doc-gen-service was:');
+      logger.info(JSON.stringify(reportData));
+      throw e;
     }
-    const responseBuffer = Buffer.concat(buffers);
-
-    return responseBuffer;
   },
 
   /**
@@ -1375,52 +1413,67 @@ const reportService = {
     reportId: string,
     bceidBusinessGuid: string = null,
   ): Promise<Report> {
-    const limitToBceidBusinessGuid = bceidBusinessGuid
-      ? {
-          bceid_business_guid: bceidBusinessGuid,
-        }
-      : {};
-    const reports = await prisma.pay_transparency_company.findFirst({
+    const reportQuery = {
       select: {
-        pay_transparency_report: {
-          select: {
-            report_id: true,
-            user_comment: true,
-            employee_count_range_id: true,
-            naics_code: true,
-            report_start_date: true,
-            report_end_date: true,
-            reporting_year: true,
-            report_status: true,
-            revision: true,
-            data_constraints: true,
-            is_unlocked: true,
-            create_date: true,
-            company_id: true,
-          },
-          where: {
-            report_id: reportId,
-          },
-          take: 1,
-        },
+        report_id: true,
+        user_comment: true,
+        employee_count_range_id: true,
+        naics_code: true,
+        report_start_date: true,
+        report_end_date: true,
+        reporting_year: true,
+        report_status: true,
+        revision: true,
+        data_constraints: true,
+        is_unlocked: true,
+        create_date: true,
+        company_id: true,
       },
-      where: limitToBceidBusinessGuid,
-    });
-    if (!reports) return null;
+      where: {
+        report_id: reportId,
+      },
+      take: 1,
+    };
+
+    let report = null;
+
+    //if we aren't limiting the search by bceidBusinessGuid, then run a simple query
+    //against the report table
+    if (!bceidBusinessGuid) {
+      report = await prisma.pay_transparency_report.findFirst(reportQuery);
+    }
+
+    //if we are limiting by bceidBusinessGuid then run a slightly different
+    //query to join company and report
+    else {
+      const companyQuery = {
+        select: {
+          pay_transparency_report: reportQuery,
+        },
+        where: {
+          bceid_business_guid: bceidBusinessGuid,
+        },
+      };
+
+      const result =
+        await prisma.pay_transparency_company.findFirst(companyQuery);
+      report = result?.pay_transparency_report?.length
+        ? result?.pay_transparency_report[0]
+        : null;
+    }
+
+    if (!report) {
+      return null;
+    }
 
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
     // (to achieve this, we also retype the object from pay_transparency_report
     // (the prisma type) to Report (a custom interface that extends the prisma
     // type)
-    const reportsAdjusted = reports?.pay_transparency_report.map(
-      (r: pay_transparency_report) =>
-        reportServicePrivate.prismaReportToReport(r),
-    );
+    const reportAdjusted = reportServicePrivate.prismaReportToReport(report);
 
-    const [first] = reportsAdjusted;
-
-    return first;
+    return reportAdjusted;
   },
 
   async getReportFileName(reportId: string): Promise<string> {
@@ -1435,6 +1488,8 @@ const reportService = {
       );
       const filename = `pay_transparency_report_${start}_${end}.pdf`;
       return filename;
+    } else {
+      throw new Error(`No such report with reportId=${reportId}`);
     }
   },
 

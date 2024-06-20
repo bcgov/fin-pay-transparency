@@ -31,22 +31,6 @@ describe('ReportsPage', () => {
     pinia = createTestingPinia({
       initialState: {},
     });
-    /*
-    wrapper = mount(
-      {
-        template: '<v-layout><ReportsPage/></v-layout>',
-      },
-      {
-        props: {},
-        global: {
-          components: {
-            ReportsPage,
-          },
-          plugins: [vuetify, pinia],
-        },
-      },
-    );
-    */
     wrapper = mount(ReportsPage, {
       global: {
         plugins: [vuetify, pinia],
@@ -55,9 +39,6 @@ describe('ReportsPage', () => {
 
     //wait for the async component to load
     await flushPromises();
-
-    console.log('****');
-    console.log(wrapper);
   };
 
   beforeEach(async () => {

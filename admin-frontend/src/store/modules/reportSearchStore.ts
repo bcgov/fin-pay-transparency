@@ -10,6 +10,12 @@ import {
 } from '../../types';
 
 export const DEFAULT_PAGE_SIZE = 100;
+export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
+  page: 1,
+  itemsPerPage: 20,
+  filter: undefined,
+  sort: [{ update_date: 'desc' }],
+};
 
 /*
 Stores report search results and provides functions to fetch new 
@@ -26,13 +32,6 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
   const totalNum = ref(0);
   const isSearching = ref(false);
   const pageSize = ref(DEFAULT_PAGE_SIZE);
-  const isDirty = computed(
-    () =>
-      searchResults.value !== undefined ||
-      totalNum.value !== 0 ||
-      pageSize.value !== DEFAULT_PAGE_SIZE ||
-      lastSubmittedReportSearchParams.value !== undefined,
-  );
   const hasSearched = computed(
     () =>
       !isSearching.value && lastSubmittedReportSearchParams.value !== undefined,
@@ -46,19 +45,17 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
   The parameters and results will be saved to this store.  
   No meaningful return value.
    */
-  const searchReports = async (params: IReportSearchParams) => {
-    const defaults: IReportSearchParams = {
-      page: 1,
-      itemsPerPage: 20,
-      filter: undefined,
-      sort: undefined,
-    };
-    params = { ...defaults, ...params };
+  const searchReports = async (params: IReportSearchParams = {}) => {
+    const searchParams: any = { ...DEFAULT_SEARCH_PARAMS, ...params };
 
-    const offset = (params.page - 1) * params.itemsPerPage;
+    const offset = (searchParams.page - 1) * searchParams.itemsPerPage;
     const limit = params.itemsPerPage;
     const filter = params.filter;
-    const sort = params.sort;
+    let sort = params.sort;
+
+    if (!sort?.length) {
+      sort = DEFAULT_SEARCH_PARAMS.sort;
+    }
 
     isSearching.value = true;
     lastSubmittedReportSearchParams.value = params;
@@ -112,13 +109,15 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
 
   /*
   resets back to the original state (i.e. clears any saved search results 
-  and information about the previous search) 
+  and information about the previous search, and performs a fresh 
+  search with no filters applied) 
   */
-  const reset = () => {
+  const reset = async () => {
     searchResults.value = undefined;
     totalNum.value = 0;
     pageSize.value = DEFAULT_PAGE_SIZE;
     lastSubmittedReportSearchParams.value = undefined;
+    await searchReports(DEFAULT_SEARCH_PARAMS);
   };
 
   // Private actions
@@ -161,7 +160,6 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
     isSearching,
     totalNum,
     pageSize,
-    isDirty,
     hasSearched,
     //actions
     searchReports,

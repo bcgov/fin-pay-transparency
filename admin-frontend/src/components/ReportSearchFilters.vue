@@ -209,8 +209,8 @@ export default {
 import { storeToRefs } from 'pinia';
 import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { useCodeStore } from '../store/modules/codeStore.ts';
-import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
+import { useCodeStore } from '../store/modules/codeStore';
+import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ReportFilterType } from '../types';
 import {
@@ -223,8 +223,8 @@ import {
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
 
-const searchText = ref(undefined);
-const submissionDateRange = ref(undefined);
+const searchText = ref<string | undefined>(undefined);
+const submissionDateRange = ref<any[] | undefined>(undefined);
 const areSecondaryFiltersVisible = ref<boolean>(false);
 const maxSelectedNaicsCodesShown = ref(3);
 const selectedNaicsCodes = ref([]);
@@ -237,7 +237,7 @@ const reportYearOptions = ref([null, 2024, 2023]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
 
 function getReportSearchFilters(): ReportFilterType {
-  const filters = [];
+  const filters: any[] = [];
   if (searchText.value) {
     filters.push({
       key: 'company_name',
@@ -247,7 +247,7 @@ function getReportSearchFilters(): ReportFilterType {
   }
   if (submissionDateRange.value) {
     filters.push({
-      key: 'create_date',
+      key: 'update_date',
       operation: 'between',
       value: submissionDateRange.value.map((d, i) => {
         const jodaZonedDateTime = ZonedDateTime.from(
@@ -273,7 +273,7 @@ function getReportSearchFilters(): ReportFilterType {
     filters.push({
       key: 'naics_code',
       operation: 'in',
-      value: selectedNaicsCodes.value?.map((d) => d.naics_code),
+      value: selectedNaicsCodes.value?.map((d: any) => d.naics_code),
     });
   }
   if (selectedReportYear.value) {
@@ -287,7 +287,9 @@ function getReportSearchFilters(): ReportFilterType {
     filters.push({
       key: 'employee_count_range_id',
       operation: 'in',
-      value: selectedEmployeeCount.value?.map((d) => d.employee_count_range_id),
+      value: selectedEmployeeCount.value?.map(
+        (d: any) => d.employee_count_range_id,
+      ),
     });
   }
   if (selectedLockedValues.value) {
@@ -317,7 +319,6 @@ Determines whether any of the original state has been changed.
 function isDirty() {
   return (
     (searchText.value != undefined && searchText.value.trim() != '') ||
-    reportSearchStore.isDirty ||
     areSecondaryFiltersVisible.value ||
     areSecondaryFiltersDirty()
   );
