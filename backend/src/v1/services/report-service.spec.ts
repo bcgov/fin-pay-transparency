@@ -952,30 +952,53 @@ describe('movePublishedReportToHistory', () => {
 });
 
 describe('getReportById', () => {
-  it('returns an single report with dates in the appropriate format', async () => {
-    const dateNow: Date = convert(LocalDate.now()).toDate();
-    const report = {
-      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      report_start_date: dateNow,
-      report_end_date: dateNow,
-      create_date: dateNow,
-      update_date: dateNow,
-      revision: 1,
-    };
-    const expectedReport = {
-      ...report,
-      report_start_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
-      report_end_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
-    };
-    const mockReportResults = {
-      pay_transparency_report: [report],
-    };
-    mockCompanyFindFirst.mockResolvedValue(mockReportResults);
-    const ret = await reportService.getReportById(
-      report.report_id,
-      mockCompanyInDB.company_id,
-    );
-    expect(ret).toEqual(expectedReport);
+  describe('when a valid reportId and a valid, corresponding bceidBusinessGuid are passed', () => {
+    it('returns an single report with dates in the appropriate format', async () => {
+      const dateNow: Date = convert(LocalDate.now()).toDate();
+      const report = {
+        report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+        report_start_date: dateNow,
+        report_end_date: dateNow,
+        create_date: dateNow,
+        update_date: dateNow,
+        revision: 1,
+      };
+      const expectedReport = {
+        ...report,
+        report_start_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
+        report_end_date: nativeJs(dateNow).format(JSON_REPORT_DATE_FORMAT),
+      };
+      const mockReportResults = {
+        pay_transparency_report: [report],
+      };
+      mockCompanyFindFirst.mockResolvedValue(mockReportResults);
+      const ret = await reportService.getReportById(
+        report.report_id,
+        mockCompanyInDB.company_id,
+      );
+      expect(ret).toEqual(expectedReport);
+    });
+  });
+  describe('when an invalid pair of reportId and bceidBusinessGuid are passed', () => {
+    it('returns null', async () => {
+      const mockReportId = '7c655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+      const mockBceidBusinessGuid = '556d5fd3-22b7-4b9a-86de-2bfc0fcf43ff';
+      mockCompanyFindFirst.mockResolvedValue(null);
+      const ret = await reportService.getReportById(
+        mockReportId,
+        mockBceidBusinessGuid,
+      );
+      expect(ret).toEqual(null);
+    });
+  });
+  describe('when an invalid reportId is passed, and bceidBusinessGuid is omitted', () => {
+    it('returns null', async () => {
+      const mockReportId = '65655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+
+      mockReportFindFirst.mockResolvedValue(null);
+      const ret = await reportService.getReportById(mockReportId);
+      expect(ret).toEqual(null);
+    });
   });
 });
 
@@ -983,42 +1006,52 @@ describe('getReportFileName', () => {
   afterEach(() => {
     jest.useRealTimers();
   });
-  it('returns a filename', async () => {
-    jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
-    const reportInDb = {
-      report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      company_id: mockCompanyInDB.company_id,
-      user_id: '1232344',
-      user_comment: '',
-      employee_count_range_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-      naics_code: '11',
-      report_start_date: convert(
-        LocalDate.now(ZoneId.UTC).minusMonths(11),
-      ).toDate(),
-      report_end_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
-      reporting_year: new Prisma.Decimal(2022),
-      report_status: 'Published',
-      revision: new Prisma.Decimal(1),
-      data_constraints: '',
-      create_date: new Date(),
-      update_date: new Date(),
-      create_user: 'User',
-      update_user: 'User',
-      is_unlocked: false,
-      report_unlock_date: null,
-      idir_modified_date: new Date(),
-      idir_modified_username: '',
-    };
-    const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);
+  describe('when the given reportId is valid', () => {
+    it('returns a filename', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
+      const reportInDb = {
+        report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+        company_id: mockCompanyInDB.company_id,
+        user_id: '1232344',
+        user_comment: '',
+        employee_count_range_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+        naics_code: '11',
+        report_start_date: convert(
+          LocalDate.now(ZoneId.UTC).minusMonths(11),
+        ).toDate(),
+        report_end_date: convert(LocalDate.now(ZoneId.UTC)).toDate(),
+        reporting_year: new Prisma.Decimal(2022),
+        report_status: 'Published',
+        revision: new Prisma.Decimal(1),
+        data_constraints: '',
+        create_date: new Date(),
+        update_date: new Date(),
+        create_user: 'User',
+        update_user: 'User',
+        is_unlocked: false,
+        report_unlock_date: null,
+        idir_modified_date: new Date(),
+        idir_modified_username: '',
+      };
+      const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);
 
-    jest
-      .spyOn(reportService, 'getReportById')
-      .mockResolvedValueOnce(reportInApi);
+      jest
+        .spyOn(reportService, 'getReportById')
+        .mockResolvedValueOnce(reportInApi);
 
-    const ret = await reportService.getReportFileName(
-      '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
-    );
-    expect(ret).toBe('pay_transparency_report_2023-01_2023-12.pdf');
+      const ret = await reportService.getReportFileName(
+        '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
+      );
+      expect(ret).toBe('pay_transparency_report_2023-01_2023-12.pdf');
+    });
+  });
+  describe('when the given reportId is invalid', () => {
+    it('throws an error', async () => {
+      const getReportByIdSpy = jest
+        .spyOn(reportService, 'getReportById')
+        .mockRejectedValueOnce(null);
+      const invalidReportId = '66655fd3-22b7-4b9a-86de-2bfc0fcf2f2f';
+    });
   });
 });
 
