@@ -1,6 +1,7 @@
 <template>
   <div v-if="loading" class="loader-root">
     <v-progress-circular color="primary" indeterminate></v-progress-circular>
+    <span class="mt-2">Loading users</span>
   </div>
   <div v-if="!loading" class="main-root">
     <div class="toolbar">
@@ -11,7 +12,13 @@
       >
     </div>
     <v-row class="users-grid" no-gutters>
-      <v-col class="user-card-wrapper" cols="12" sm="12" md="3" v-for="user of users">
+      <v-col
+        class="user-card-wrapper"
+        cols="12"
+        sm="12"
+        md="3"
+        v-for="user of users"
+      >
         <v-card class="pa-4 ma-2 user-card">
           <div class="actions d-flex">
             <v-avatar color="primary">
@@ -24,6 +31,7 @@
               variant="text"
               color="error"
               icon="mdi-trash-can-outline"
+              aria-label="Delete user"
             ></v-btn>
           </div>
           <div class="display-name mt-2">
@@ -36,6 +44,7 @@
                 variant="text"
                 append-icon="mdi-chevron-down"
                 class="role-menu-button"
+                :aria-label="`Role ${RoleLabels[user.role]}`"
                 v-bind="props"
                 >{{ RoleLabels[user.role] }}</v-btn
               >
@@ -87,6 +96,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 }
 
 .main-root {
@@ -101,8 +111,8 @@ onMounted(async () => {
     flex-direction: row;
     margin-bottom: 10px;
     .title {
-        font-weight: bold;
-        font-size: large;
+      font-weight: bold;
+      font-size: large;
     }
   }
 }
