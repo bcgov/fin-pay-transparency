@@ -5,7 +5,7 @@ import { User } from '../../types';
 
 export const useUsersStore = defineStore('users', () => {
   const loading = ref<boolean>(false);
-  const users = ref<User[]>([]);
+  const users = ref<User[] | undefined>(undefined);
 
   const getUsers = async () => {
     try {
@@ -21,7 +21,7 @@ export const useUsersStore = defineStore('users', () => {
 
   const reset = () => {
     loading.value = false;
-    users.value = [];
+    users.value = undefined;
   };
 
   return {

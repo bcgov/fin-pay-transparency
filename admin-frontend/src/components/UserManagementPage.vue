@@ -3,7 +3,7 @@
     <v-progress-circular color="primary" indeterminate></v-progress-circular>
     <span class="mt-2">Loading users</span>
   </div>
-  <div v-if="!loading" class="main-root">
+  <div v-if="!loading && users !== undefined" class="main-root">
     <div class="toolbar">
       <div class="title">Users ({{ users.length }})</div>
       <span style="flex: 1 1 auto" />

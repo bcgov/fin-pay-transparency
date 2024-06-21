@@ -1,10 +1,25 @@
 import express, { Request, Response } from 'express';
 import { logger } from '../../logger';
 import { SSO } from '../services/admin-users-services';
-
-const router = express.Router();
+import { utils } from '../services/utils-service';
+import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
+import { HttpStatusCode } from 'axios';
 
 type ExtendedRequest = Request & { sso: SSO };
+const router = express.Router();
+
+router.use(async (req: ExtendedRequest, res: Response, next) => {
+  const user = utils.getSessionUser(req);
+  const roles = user._json.client_roles as string[];
+  if (!roles.includes(PTRT_ADMIN_ROLE_NAME)) {
+    return res
+      .status(HttpStatusCode.Unauthorized)
+      .json({ error: 'Not authorized' });
+  }
+
+  next();
+});
+
 router.use(async (req: ExtendedRequest, _, next) => {
   try {
     const sso = await SSO.init();

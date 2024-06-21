@@ -35,7 +35,7 @@ const wrappedRender = () => {
 
 const store = useUsersStore();
 
-describe.only('UserManagementPage', () => {
+describe('UserManagementPage', () => {
   beforeEach(() => {
     store.$patch({
       loading: false,
