@@ -107,7 +107,7 @@ router.get(
       // if not enough information provided, then it is a bad request
       logger.error(BAD_REQUEST);
       return res
-        .status(404)
+        .status(400)
         .json({ error: 'Unsupported format in accept header' });
     },
   ),
