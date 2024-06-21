@@ -132,6 +132,7 @@ jobs:
           --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
           --set-string global.secrets.externalConsumerApiKey="${{ secrets.EXTERNAL_CONSUMER_API_KEY }}"  \
           --set-string global.secrets.externalConsumerDeleteReportsApiKey="${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}" \
+          --set-string global.secrets.externalConsumerErrorReportsApiKey="${{ secrets.EXTERNAL_CONSUMER_ERROR_REPORTS_API_KEY }}" \
           --set-string global.secrets.chesTokenURL="${{ secrets.CHES_TOKEN_ENDPOINT }}" \
           --set-string global.secrets.chesClientID="${{ secrets.CHES_CLIENT_ID }}" \
           --set-string global.secrets.chesClientSecret="${{ secrets.CHES_CLIENT_SECRET }}"  \
