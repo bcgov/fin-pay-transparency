@@ -6,9 +6,14 @@ const router = express.Router();
 
 type ExtendedRequest = Request & { sso: SSO };
 router.use(async (req: ExtendedRequest, _, next) => {
-  const sso = await SSO.init();
-  req.sso = sso;
-  next();
+  try {
+    const sso = await SSO.init();
+    req.sso = sso;
+    next();
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
 });
 
 router.get('', async (req: ExtendedRequest, res: Response) => {

@@ -42,14 +42,12 @@ export class SSO {
       },
     );
 
+    const { access_token, token_type } = data;
     const client = axios.create({
       baseURL: `${CSS_SSO_BASE_URL}/integrations/${config.get('cssAppApiIntegration:integrationId')}/${config.get('cssAppApiIntegration:environment')}/`,
-    });
-
-    const { access_token, token_type } = data;
-    client.interceptors.request.use((config) => {
-      config.headers.Authorization = `${token_type} ${access_token}`;
-      return config;
+      headers: {
+        Authorization: `${token_type} ${access_token}`,
+      },
     });
 
     return new SSO(client);
