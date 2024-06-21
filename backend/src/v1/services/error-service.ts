@@ -16,7 +16,7 @@ import { ValidationError } from './validate-service';
 function ConvertStringToZonedISO(str: string): ZonedDateTime {
   str = str.toUpperCase().trim();
   const DATETIMEZONE_FORMATTER = DateTimeFormatter.ofPattern(
-    `yyyy-MM-dd[' ']['T'][' ']HH:mm[:ss][.SSS][' '][VV]`,
+    `yyyy-MM-dd[' ']['T'][' ']HH:mm[:ss][.SSS][.S][' '][VV]`,
   );
 
   const dateTimeQuery = {
