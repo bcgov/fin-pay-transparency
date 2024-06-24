@@ -26,6 +26,7 @@ global:
     cssAppApiEnvironment: "test"
     externalConsumerApiKey: ~
     externalConsumerDeleteReportsApiKey: ~
+    externalConsumerErrorReportsApiKey: ~
     chesClientID: ~
     chesTokenURL: ~
     chesClientSecret: ~

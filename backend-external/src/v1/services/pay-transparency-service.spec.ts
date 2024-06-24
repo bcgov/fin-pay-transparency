@@ -16,6 +16,7 @@ describe('pay-transparency-service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   describe('getPayTransparencyData', () => {
     it('should forward to request  to the backend api', async () => {
       mockGet.mockReturnValue({});
@@ -25,14 +26,17 @@ describe('pay-transparency-service', () => {
         0,
         1000,
       );
-      expect(mockGet).toHaveBeenCalledWith('/external-consumer-api/v1/reports', {
-        params: {
-          startDate: 'start',
-          endDate: 'end',
-          offset: 0,
-          limit: 1000,
+      expect(mockGet).toHaveBeenCalledWith(
+        '/external-consumer-api/v1/reports',
+        {
+          params: {
+            startDate: 'start',
+            endDate: 'end',
+            offset: 0,
+            limit: 1000,
+          },
         },
-      });
+      );
     });
   });
 
@@ -49,6 +53,24 @@ describe('pay-transparency-service', () => {
           params: { companyName: '1234567890' },
           headers: {
             'x-api-key': 'api-key',
+          },
+        },
+      );
+    });
+  });
+
+  describe('getReportErrors', () => {
+    it('should forward to request to the backend api', async () => {
+      mockGet.mockReturnValue({});
+      await payTransparencyService.getReportErrors('start', 'end', '0', '1000');
+      expect(mockGet).toHaveBeenCalledWith(
+        '/external-consumer-api/v1/reports/errors',
+        {
+          params: {
+            startDate: 'start',
+            endDate: 'end',
+            page: '0',
+            limit: '1000',
           },
         },
       );

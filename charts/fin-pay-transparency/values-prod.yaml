@@ -26,6 +26,7 @@ global:
     cssAppApiEnvironment: "prod"
     externalConsumerApiKey: ~
     externalConsumerDeleteReportsApiKey: ~
+    externalConsumerErrorReportsApiKey: ~
     chesClientID: ~
     chesTokenURL: ~
     chesClientSecret: ~
@@ -216,7 +217,7 @@ crunchy:
         accessModes: "ReadWriteOnce"
         storage: 64Mi
         storageClassName: netapp-file-backup
-    
+
     config:
       requests:
         cpu: 5m

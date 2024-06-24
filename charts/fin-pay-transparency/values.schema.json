@@ -425,6 +425,9 @@
             "externalConsumerDeleteReportsApiKey": {
               "type": "string"
             },
+            "externalConsumerErrorReportsApiKey": {
+              "type": "string"
+            },
             "chestApiUrl": {
               "type": "string",
               "format": "uri"
@@ -459,7 +462,8 @@
             "cssAppApiIntegrationId",
             "cssAppApiEnvironment",
             "externalConsumerApiKey",
-            "externalConsumerDeleteReportsApiKey"
+            "externalConsumerDeleteReportsApiKey",
+            "externalConsumerErrorReportsApiKey"
           ]
         },
         "domain": {
