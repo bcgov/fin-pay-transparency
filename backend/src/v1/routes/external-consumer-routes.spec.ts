@@ -37,6 +37,13 @@ jest.mock('../services/report-service', () => ({
   },
 }));
 
+const mockRetrieveErrors = jest.fn();
+jest.mock('../services/error-service', () => ({
+  errorService: {
+    retrieveErrors: (...args) => mockRetrieveErrors(...args),
+  },
+}));
+
 let app: Application;
 const REPORT = {
   report_id: faker.string.uuid(),
@@ -152,12 +159,14 @@ describe('external-consumer-routes', () => {
         .expect(({ body }) => {
           expect(body).toEqual({
             error: false,
-            message: 'Reports deleted'
+            message: 'Reports deleted',
           });
         });
     });
     it('should fail delete reports and return error', () => {
-      mockDeleteReports.mockRejectedValue({message: 'Failed to delete reports'})
+      mockDeleteReports.mockRejectedValue({
+        message: 'Failed to delete reports',
+      });
       return request(app)
         .delete('/')
         .expect(200)
@@ -168,5 +177,36 @@ describe('external-consumer-routes', () => {
           });
         });
     });
-  })
+  });
+
+  describe('GET /errors', () => {
+    it('should forward the input to the service', async () => {
+      await request(app)
+        .get('/errors')
+        .query({
+          startDate: '2024-06-20 10:20',
+          endDate: '2024-06-20 10:20',
+          page: '2',
+          limit: '10',
+        })
+        .expect(200);
+      expect(mockRetrieveErrors).toHaveBeenCalledWith(
+        '2024-06-20 10:20',
+        '2024-06-20 10:20',
+        '2',
+        '10',
+      );
+    });
+    it('should fail if request fails', () => {
+      mockRetrieveErrors.mockRejectedValue({});
+      return request(app)
+        .get('/errors')
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toMatchObject({
+            error: true,
+          });
+        });
+    });
+  });
 });

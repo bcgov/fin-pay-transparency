@@ -389,6 +389,9 @@
             "externalConsumerDeleteReportsApiKey": {
               "type": "string"
             },
+            "externalConsumerErrorReportsApiKey": {
+              "type": "string"
+            },
             "chestApiUrl": {
               "type": "string",
               "format": "uri"
@@ -419,7 +422,8 @@
             "bceidWsOnlineServiceId",
             "bceidWsUrl",
             "externalConsumerApiKey",
-            "externalConsumerDeleteReportsApiKey"
+            "externalConsumerDeleteReportsApiKey",
+            "externalConsumerErrorReportsApiKey"
           ]
         },
         "domain": {

@@ -111,6 +111,70 @@ const validateApiKey =
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/Report"
+ *
+ *     Error:
+ *       type: object
+ *       properties:
+ *         user_error_id:
+ *           type:string
+ *         user_id:
+ *           type:string
+ *         company_id:
+ *           type:string
+ *         error:
+ *           type:string
+ *         create_date:
+ *           type:string
+ *           format:date-time
+ *         pay_transparency_company:
+ *           type: array
+ *           items:
+ *             $ref: "#/components/schemas/Company"
+ *
+ *     Company:
+ *       type: object
+ *       properties:
+ *         company_id:
+ *           type: string
+ *         company_name:
+ *           type: string
+ *         province:
+ *           type: string
+ *         city:
+ *           type: string
+ *         bceid_business_guid:
+ *           type: string
+ *         country:
+ *           type: string
+ *         postal_code:
+ *           type: string
+ *         postal_address_line1:
+ *           type: string
+ *         postal_address_line2:
+ *           type: string
+ *         create_date:
+ *           type:string
+ *           format:date-time
+ *         update_date:
+ *           type:string
+ *           format:date-time
+ *
+ *     PaginatedErrors:
+ *       type: object
+ *       properties:
+ *         totalRecords:
+ *           type: number
+ *           description: total number of records in the database
+ *         page:
+ *           type: number
+ *           description: Current page offset
+ *         pageSize:
+ *           type: number
+ *           description: Number of reports retrieved per request
+ *         records:
+ *           type: array
+ *           items:
+ *             $ref: "#/components/schemas/Error"
  */
 
 /**
@@ -130,7 +194,7 @@ const validateApiKey =
  *           type: integer
  *           minimum: 0
  *         required: false
- *         description: The page offset number to retrive reports - optional
+ *         description: The page offset number to retrieve reports - optional
  *       - in: query
  *         name: pageSize
  *         schema:
@@ -166,9 +230,7 @@ const validateApiKey =
 router.get(
   '/',
   validateApiKey(config.get('server:apiKey')),
-  query('startDate')
-    .isISO8601()
-    .withMessage('Invalid start date format'),
+  query('startDate').isISO8601().withMessage('Invalid start date format'),
   query('endDate').isISO8601().withMessage('Invalid end date format'),
   utils.asyncHandler(async (req: Request, res: Response) => {
     try {
@@ -252,6 +314,86 @@ router.delete(
       return res.status(500).json({ message: error.message });
     }
   },
+);
+
+/**
+ * @swagger
+ * tags:
+ *   name: Errors
+ * /reports/errors:
+ *   get:
+ *     summary: Get errors of submitted reports created within a period of time (date range defaults to the last 30 full UTC days, which does not including today)
+ *     tags: [Errors]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         required: false
+ *         description: The page offset number to retrieve errors - optional
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 1000
+ *         required: false
+ *         description: The number of records per page (max 1000, default 1000) - optional
+ *       - in: query
+ *         name: startDate
+ *         type: date
+ *         required: false
+ *         description: "Start date (in UTC or ISO-8601) to retrieve records (format: YYYY-MM-dd HH:mm, default -31 days ) - optional"
+ *       - in: query
+ *         name: endDate
+ *         type: string
+ *         required: false
+ *         description: "End date (in UTC or ISO-8601) to retrieve records (format: YYYY-MM-dd HH:mm, default now) - optional"
+ *
+ *
+ *     responses:
+ *       200:
+ *         description: A paginated list of errors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/PaginatedErrors"
+ */
+router.get(
+  '/errors',
+  validateApiKey(config.get('server:errorReportsApiKey')),
+  utils.asyncHandler(
+    async (
+      req: Request<
+        null,
+        null,
+        null,
+        { startDate: string; endDate: string; page: string; pageSize: string }
+      >,
+      res: Response,
+    ) => {
+      try {
+        const { status, data } = await payTransparencyService.getReportErrors(
+          req.query.startDate,
+          req.query.endDate,
+          req.query.page,
+          req.query.pageSize,
+        );
+
+        if (data.error) {
+          return res.status(400).json({ error: data.message });
+        }
+        res.status(status).json(data);
+      } catch (e) {
+        res.status(500).json({ error: e.message });
+      }
+    },
+  ),
 );
 
 export default router;
