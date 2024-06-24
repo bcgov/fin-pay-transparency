@@ -28,9 +28,10 @@
           class="btn-primary"
           prepend-icon="mdi-export"
           @click="exportResults()"
-          :disabled="!searchResults?.length"
+          :disabled="!searchResults?.length || isDownloadingCsv"
+          :loading="isDownloadingCsv"
         >
-          Export results
+          Export results (CSV)
         </v-btn>
       </v-col>
     </v-row>
@@ -98,8 +99,15 @@ const displayDateFormatter = DateTimeFormatter.ofPattern(
 
 const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
-const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
-  storeToRefs(reportSearchStore);
+const {
+  searchResults,
+  isSearching,
+  hasSearched,
+  totalNum,
+  pageSize,
+  lastSubmittedReportSearchParams,
+  isDownloadingCsv,
+} = storeToRefs(reportSearchStore);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const itemsPerPageOptions = ref([
   { value: 1, title: '1' },
@@ -202,7 +210,9 @@ function isDownloadingPdf(reportId: string) {
 }
 
 function exportResults() {
-  console.log('Todo: implement export');
+  if (lastSubmittedReportSearchParams.value) {
+    reportSearchStore.downloadReportsCsv(lastSubmittedReportSearchParams.value);
+  }
 }
 
 /*

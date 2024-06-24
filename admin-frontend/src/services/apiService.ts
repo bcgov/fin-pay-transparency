@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { saveAs } from 'file-saver';
 import { IConfigValue, IReportSearchResult } from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
@@ -134,7 +135,7 @@ export default {
         filter = [];
       }
       if (!sort) {
-        sort = [{ create_date: 'asc' }];
+        sort = [{ update_date: 'desc' }];
       }
       const params = {
         offset: offset,
@@ -151,6 +152,42 @@ export default {
       throw new Error('Unable to get reports from API');
     } catch (e) {
       console.log(`Failed to get reports from API - ${e}`);
+      throw e;
+    }
+  },
+
+  /**
+   * Download a list of reports in csv format.  This method also causes
+   * the browser to save the resulting file.
+   */
+  async downloadReportsCsv(
+    filter: any[] | null = null,
+    sort: any[] | null = null,
+  ) {
+    try {
+      if (!filter) {
+        filter = [];
+      }
+      if (!sort) {
+        sort = [{ update_date: 'desc' }];
+      }
+      const resp = await apiAxios.get(ApiRoutes.REPORTS, {
+        headers: { accept: 'text/csv' },
+        params: { filter: JSON.stringify(filter), sort: JSON.stringify(sort) },
+      });
+
+      if (resp?.data) {
+        //make the browser save the file
+        console.log(resp.data);
+        var blob = new Blob([resp.data], {
+          type: resp.headers['content-type'],
+        });
+        saveAs(blob, 'pay-transparency-reports.csv');
+      } else {
+        throw new Error('Unable to download reports in CSV format');
+      }
+    } catch (e) {
+      console.log(`Failed to get reports in CSV format - ${e}`);
       throw e;
     }
   },

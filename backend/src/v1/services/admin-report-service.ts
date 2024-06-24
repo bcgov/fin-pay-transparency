@@ -1,36 +1,36 @@
+import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
 import { Prisma } from '@prisma/client';
+import prisma from '../prisma/prisma-client';
+import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import {
+  FilterValidationSchema,
+  RELATION_MAPPER,
   ReportFilterType,
   ReportSortType,
-  RELATION_MAPPER,
-  FilterValidationSchema,
 } from '../types/report-search';
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { PayTransparencyUserError } from './file-upload-service';
-import prisma from '../prisma/prisma-client';
-import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
 
 const adminReportService = {
   /**
    * Search reports, with pagination, sorting and filtering by connecting to read replica of crunchy.
    * This gives flexibility to query with pagination and filter without any modification to this service.
    * @param page the page number to retrieve , UI page 1 is database page 0
-   * @param limit the number of records to retrieve, default to 10
+   * @param limit the number of records to retrieve.  if null, there is no limit.
    * @param sort string value of JSON Array to store sort key and sort value, ex: [{"create_date":"asc"}]
    * @param filter string value of JSON Array for key, operation and value, ex: [{"key": "reporting_year", "operation": "eq", "value": 2024}]
    */
   async searchReport(
     offset: number,
-    limit: number,
+    limit: number | undefined,
     sort: string,
     filter: string,
   ): Promise<any> {
     offset = offset || 0;
-    if (!limit || limit > 100) {
-      limit = 20;
-    }
     let sortObj: ReportSortType = [];
     let filterObj: ReportFilterType[] = [];
+    if (limit < 0) {
+      throw new PayTransparencyUserError('Invalid limit');
+    }
     try {
       sortObj = JSON.parse(sort);
       filterObj = JSON.parse(filter);
@@ -43,22 +43,26 @@ const adminReportService = {
     const where = this.convertFiltersToPrismaFormat(filterObj);
     const orderBy = convertSortToPrismaFormat(sortObj);
 
-    const reports =
-      await prismaReadOnlyReplica.pay_transparency_report.findMany({
-        skip: offset,
-        take: parseInt(String(limit)),
-        orderBy,
-        where,
-        include: {
-          employee_count_range: true,
-          pay_transparency_company: {
-            select: {
-              company_id: true,
-              company_name: true,
-            },
+    const query = {
+      skip: offset,
+      orderBy,
+      where,
+      include: {
+        employee_count_range: true,
+        pay_transparency_company: {
+          select: {
+            company_id: true,
+            company_name: true,
           },
         },
-      });
+      },
+    };
+    if (limit !== null) {
+      query['take'] = parseInt(String(limit));
+    }
+
+    const reports =
+      await prismaReadOnlyReplica.pay_transparency_report.findMany(query);
     const count = await prismaReadOnlyReplica.pay_transparency_report.count({
       where,
     });
@@ -71,6 +75,46 @@ const adminReportService = {
       totalPages: Math.ceil(count / limit),
     };
   },
+
+  /*
+  This function is designed to accept a 'report' object in the same form
+  as is returned by searchReport.  It creates a new report object with
+  a flattened structure, a subset of attributes (only the most important ones),
+  and human-friendly names given to those attributes.
+  */
+  toHumanFriendlyReport(report: any) {
+    //created a flattened copy of the original object (i.e. one in which
+    //none of the attributes values of type 'object')
+    const flattened = { ...report };
+    flattened.employee_count_range =
+      report?.employee_count_range?.employee_count_range;
+    flattened.company_name = report?.pay_transparency_company?.company_name;
+
+    // Convert the boolean "true" and "false" values into "Yes" and "No"
+    flattened['is_unlocked'] = flattened['is_unlocked'] ? 'Yes' : 'No';
+
+    const attrsToRename = {
+      update_date: 'Submission date',
+      company_name: 'Company name',
+      naics_code: 'NAICS code',
+      employee_count_range: 'Employee count',
+      reporting_year: 'Reporting year',
+      is_unlocked: 'Is unlocked?',
+    };
+    const simplified = {};
+
+    // Copy a subset of the attributes from the flattened object into
+    // a new object.  Rename those copied attributes to have more
+    // human friendly names (with appropriate capitalization, and without
+    // underscores)
+    Object.keys(attrsToRename).forEach((oldAttr) => {
+      const newAttr = attrsToRename[oldAttr];
+      simplified[newAttr] = flattened[oldAttr];
+    });
+
+    return simplified;
+  },
+
   /**
    * Set report as locked/unlocked
    * @param reportId the id of the report
