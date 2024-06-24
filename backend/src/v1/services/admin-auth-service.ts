@@ -73,6 +73,7 @@ class AdminAuth extends AuthBase {
     }
     const userInfoFrontend = {
       displayName: userInfo._json.display_name,
+      role: userInfo._json.client_roles?.[0]
     };
     return res.status(HttpStatus.OK).json(userInfoFrontend);
   }

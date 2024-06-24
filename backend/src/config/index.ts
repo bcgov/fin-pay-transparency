@@ -84,6 +84,14 @@ config.defaults({
     url: process.env.BCEID_WS_URL,
     onlineServiceId: process.env.BCEID_WS_ONLINE_SERVICE_ID,
   },
+  cssAppApiIntegration: {
+    auth: {
+      username: process.env.CSS_APP_API_CLIENT_ID,
+      password: process.env.CSS_APP_API_CLIENT_SECRET,
+    },
+    integrationId: process.env.CSS_APP_API_INTEGRATION_ID,
+    environment: process.env.CSS_APP_API_ENVIRONMENT,
+  },
   docGenService: {
     url: process.env.DOC_GEN_SERVICE_URL || 'http://localhost:3001/api',
     apiKey: process.env.DOC_GEN_API_KEY || 'api-key',

@@ -87,6 +87,23 @@ describe('ApiService', () => {
     });
   });
 
+  describe('getUsers', () => {
+    describe('when the data are successfully retrieved from the backend', () => {
+      it('returns an array of users', async () => {
+        const mockBackendResponse = [{ name: 'test' }];
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.getUsers();
+        expect(resp.data).toEqual(mockBackendResponse);
+      });
+    });
+  });
+
   describe('getPdfReportAsBlob', () => {
     describe('when the given report id is valid', () => {
       it('returns a blob', async () => {

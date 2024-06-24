@@ -20,8 +20,13 @@ global:
     bceidWsAuthUserName: ~
     bceidWsUrl: ~
     bceidWsOnlineServiceId: ~
+    cssAppApiClientId: ~
+    cssAppApiClientSecret: ~
+    cssAppApiIntegrationId: ~
+    cssAppApiEnvironment: "test"
     externalConsumerApiKey: ~
     externalConsumerDeleteReportsApiKey: ~
+    externalConsumerErrorReportsApiKey: ~
     chesClientID: ~
     chesTokenURL: ~
     chesClientSecret: ~

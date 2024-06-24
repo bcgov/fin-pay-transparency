@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import { IConfigValue, IReportSearchResult } from '../types';
+import { IConfigValue, IReportSearchResult, User } from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
@@ -80,6 +80,14 @@ export default {
       apiAxios.defaults.headers.common['x-correlation-id'] = correlationID;
     } else {
       delete apiAxios.defaults.headers.common['x-correlation-id'];
+    }
+  },
+  async getUsers() {
+    try {
+      return await apiAxios.get<User[]>(ApiRoutes.USERS);
+    } catch (e) {
+      console.log(`Failed to get from Nodejs getUsers API - ${e}`);
+      throw e;
     }
   },
   async getUserInfo() {

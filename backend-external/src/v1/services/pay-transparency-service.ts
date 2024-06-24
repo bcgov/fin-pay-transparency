@@ -23,6 +23,7 @@ export const payTransparencyService = {
       .get('/external-consumer-api/v1/reports', axiosConfig);
     return { status, data };
   },
+
   async deleteReports(req: Request) {
     const axiosConfig: AxiosRequestConfig = {
       params: req.query,
@@ -34,6 +35,26 @@ export const payTransparencyService = {
       error: boolean;
       message: string;
     }>('/external-consumer-api/v1/reports', axiosConfig);
+    return { status, data };
+  },
+
+  async getReportErrors(
+    startDate: string,
+    endDate: string,
+    page: string,
+    limit: string,
+  ) {
+    const axiosConfig = {
+      params: {
+        startDate,
+        endDate,
+        page,
+        limit,
+      },
+    };
+    const { status, data } = await utils
+      .backendAxios()
+      .get('/external-consumer-api/v1/reports/errors', axiosConfig);
     return { status, data };
   },
 };
