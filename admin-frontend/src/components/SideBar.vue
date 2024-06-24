@@ -60,6 +60,7 @@
       to="user-management"
       title="User Management"
       :class="{ active: activeRoute == 'user-management' }"
+      v-if="userInfo?.role == ADMIN_ROLE_NAME"
     >
       <template v-slot:prepend>
         <v-icon icon="mdi-account-multiple"></v-icon>
@@ -88,7 +89,10 @@ export default {
 <script setup>
 import { watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { authStore } from '../store/modules/auth';
+import { ADMIN_ROLE_NAME } from '../constants';
 
+const { userInfo } = authStore();
 const route = useRoute();
 const activeRoute = ref();
 const isExpanded = ref(true);

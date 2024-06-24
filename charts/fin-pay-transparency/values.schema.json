@@ -37,7 +37,12 @@
               "type": "string"
             }
           },
-          "required": ["repository", "repositoryInit", "pullPolicy", "tag"],
+          "required": [
+            "repository",
+            "repositoryInit",
+            "pullPolicy",
+            "tag"
+          ],
           "additionalProperties": false
         },
         "containerPort": {
@@ -59,7 +64,11 @@
               "type": "integer"
             }
           },
-          "required": ["type", "port", "targetPort"],
+          "required": [
+            "type",
+            "port",
+            "targetPort"
+          ],
           "additionalProperties": false
         },
         "resources": {
@@ -129,7 +138,11 @@
               "type": "string"
             }
           },
-          "required": ["enabled", "size", "accessMode"],
+          "required": [
+            "enabled",
+            "size",
+            "accessMode"
+          ],
           "additionalProperties": false
         },
         "app": {
@@ -199,7 +212,9 @@
               "type": "string"
             }
           },
-          "required": ["repository"],
+          "required": [
+            "repository"
+          ],
           "additionalProperties": false
         },
         "containerPort": {
@@ -221,7 +236,9 @@
               "type": "string"
             }
           },
-          "required": ["enabled"],
+          "required": [
+            "enabled"
+          ],
           "additionalProperties": false
         },
         "service": {
@@ -237,7 +254,11 @@
               "type": "integer"
             }
           },
-          "required": ["type", "port", "targetPort"],
+          "required": [
+            "type",
+            "port",
+            "targetPort"
+          ],
           "additionalProperties": false
         },
         "resources": {
@@ -333,7 +354,10 @@
           "type": "object",
           "properties": {
             "databasePassword": {
-              "type": ["string", "null"]
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "databaseUser": {
               "type": "string"
@@ -380,6 +404,18 @@
               "type": "string",
               "format": "uri"
             },
+            "cssAppApiClientId": {
+              "type": "string"
+            },
+            "cssAppApiClientSecret": {
+              "type": "string"
+            },
+            "cssAppApiIntegrationId": {
+              "type": "string"
+            },
+            "cssAppApiEnvironment": {
+              "type": "string"
+            },
             "annotation": {
               "type": "object"
             },
@@ -421,6 +457,10 @@
             "bceidWsAuthUserName",
             "bceidWsOnlineServiceId",
             "bceidWsUrl",
+            "cssAppApiClientId",
+            "cssAppApiClientSecret",
+            "cssAppApiIntegrationId",
+            "cssAppApiEnvironment",
             "externalConsumerApiKey",
             "externalConsumerDeleteReportsApiKey",
             "externalConsumerErrorReportsApiKey"
@@ -433,7 +473,10 @@
           "type": "string"
         },
         "serverFrontend": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "autoscaling": {
           "type": "object",
@@ -444,7 +487,10 @@
           }
         }
       },
-      "required": ["secrets", "domain"],
+      "required": [
+        "secrets",
+        "domain"
+      ],
       "additionalProperties": true
     },
     "crunchy": {
@@ -457,6 +503,11 @@
       "additionalProperties": true
     }
   },
-  "required": ["backend", "frontend", "database", "global"],
+  "required": [
+    "backend",
+    "frontend",
+    "database",
+    "global"
+  ],
   "additionalProperties": true
 }
