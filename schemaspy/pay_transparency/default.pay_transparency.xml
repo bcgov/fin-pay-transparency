@@ -184,6 +184,7 @@
             <child column="company_id" foreignKey="report_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="company_id" foreignKey="report_history_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
             <child column="company_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="reports_view"/>
+            <child column="company_id" foreignKey="error_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="user_error"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="bceid_business_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
@@ -281,6 +282,7 @@
             <child column="user_id" foreignKey="report_pt_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="user_id" foreignKey="report_history_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
             <child column="user_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="reports_view"/>
+            <child column="user_id" foreignKey="error_pt_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="user_error"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="bceid_user_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="bceid_business_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
@@ -375,6 +377,24 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="25" name="company_country" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="company_postal_code" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="27" name="employee_count_range" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+      </table>
+      <table name="user_error" remarks="" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="user_error_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="user_id" foreignKey="error_pt_user_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="company_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="company_id" foreignKey="error_pt_company_id_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_company"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="error" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="user_error_id" sequenceNumberInPK="1"/>
+         <index name="user_error_id_pk" unique="true">
+            <column ascending="true" name="user_error_id"/>
+         </index>
+         <index name="user_error_create_date_idx" unique="false">
+            <column ascending="true" name="create_date"/>
+         </index>
       </table>
    </tables>
 </database>

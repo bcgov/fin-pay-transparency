@@ -1,11 +1,12 @@
 pay_transparency_company
+pay_transparency_user
 calculation_code
 employee_count_range
 naics_code
-pay_transparency_user
 pay_transparency_report
 pay_transparency_calculated_data
 report_history
 company_history
+user_error
 calculated_data_history
 flyway_schema_history

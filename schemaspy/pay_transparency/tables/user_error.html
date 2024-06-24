@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>pay_transparency_user - default.pay_transparency</title>
+        <title>user_error - default.pay_transparency</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>pay_transparency_user</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <h1>user_error</h1><p><span id="recordNumber">-1</span> rows</p><br />
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -109,7 +109,7 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user_id">user_id</span></td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user_error_id">user_error_id</span></td>
                                     <td>uuid</td>
                                     <td>2147483647</td>
                                     <td title=''></td>
@@ -117,36 +117,38 @@
                                     <td>gen_random_uuid()</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user_id">user_id</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="pay_transparency_report.user_id references pay_transparency_user.user_id via report_pt_user_id_fk"><a href='pay_transparency_report.html'>pay_transparency_report</a><span class='relatedKey'>.user_id</span></td>
-                                                <td class="constraint detail">report_pt_user_id_fk</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="report_history.user_id references pay_transparency_user.user_id via report_history_user_id_fk"><a href='report_history.html'>report_history</a><span class='relatedKey'>.user_id</span></td>
-                                                <td class="constraint detail">report_history_user_id_fk</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="reports_view.user_id&#39;s name implies that it&#39;s a child of pay_transparency_user.user_id, but it doesn&#39;t reference that column."><a href='reports_view.html'>reports_view</a><span class='relatedKey'>.user_id</span></td>
-                                                <td class="constraint detail">Implied Constraint</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="user_error.user_id references pay_transparency_user.user_id via error_pt_user_id_fk"><a href='user_error.html'>user_error</a><span class='relatedKey'>.user_id</span></td>
+                                                <td title="user_error.user_id references pay_transparency_user.user_id via error_pt_user_id_fk"><a href='pay_transparency_user.html'>pay_transparency_user</a><span class='relatedKey'>.user_id</span></td>
                                                 <td class="constraint detail">error_pt_user_id_fk</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
                                     </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="bceid_user_guid">bceid_user_guid</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="company_id">company_id</span></td>
                                     <td>uuid</td>
                                     <td>2147483647</td>
                                     <td title=''></td>
@@ -158,29 +160,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="user_error.company_id references pay_transparency_company.company_id via error_pt_company_id_fk"><a href='pay_transparency_company.html'>pay_transparency_company</a><span class='relatedKey'>.company_id</span></td>
+                                                <td class="constraint detail">error_pt_company_id_fk</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="bceid_business_guid">bceid_business_guid</span></td>
-                                    <td>uuid</td>
-                                    <td>2147483647</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="display_name">display_name</span></td>
+                                    <td><span id="error">error</span></td>
                                     <td>varchar</td>
                                     <td>255</td>
                                     <td title=''></td>
@@ -197,24 +187,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="create_date">create_date</span></td>
-                                    <td>timestamp</td>
-                                    <td>29,6</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>CURRENT_TIMESTAMP</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="update_date">update_date</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="create_date">create_date</span></td>
                                     <td>timestamp</td>
                                     <td>29,6</td>
                                     <td title=''></td>
@@ -261,16 +234,16 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> user_id_pk</td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> user_error_id_pk</td>
                                     <td>Primary key</td>
                                     <td><span title='Ascending'>Asc</span></td>
-                                    <td>user_id</td>
+                                    <td>user_error_id</td>
                                 </tr>
                                 <tr>
-                                    <td title='Indexed'>pay_transparency_user_bceid_user_guid_bceid_business_guid_idx</td>
+                                    <td title='Indexed'>user_error_create_date_idx</td>
                                     <td>Performance</td>
-                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-                                    <td>bceid_user_guid + bceid_business_guid</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>create_date</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -297,52 +270,42 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,5,695,387">
-<area shape="rect" id="node2" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,361,372,607">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="739,127,992,391">
-<area shape="rect" id="node4" href="user_error.html" target="_top" title="user_error" alt="" coords="474,440,637,645">
+<area shape="rect" id="node1" href="user_error.html" target="_top" title="user_error" alt="" coords="351,56,639,272">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,199,307,345">
+<area shape="rect" id="node3" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,5,287,181">
 </map>
-                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/pay_transparency_user.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/user_error.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1136,115,1404,203">
-<area shape="rect" id="node2" href="report_history.html" target="_top" title="report_history" alt="" coords="819,117,1012,205">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,152,695,240">
-<area shape="rect" id="node5" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="38,479,339,567">
-<area shape="rect" id="node6" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="57,5,320,93">
-<area shape="rect" id="node7" href="naics_code.html" target="_top" title="naics_code" alt="" coords="106,111,271,199">
-<area shape="rect" id="node8" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,216,372,461">
-<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="739,223,1092,311">
-<area shape="rect" id="node9" href="user_error.html" target="_top" title="user_error" alt="" coords="474,293,637,499">
+<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="387,74,603,162">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,157,307,303">
+<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="355,413,634,501">
+<area shape="rect" id="node4" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,410,287,586">
+<area shape="rect" id="node5" href="report_history.html" target="_top" title="report_history" alt="" coords="683,413,876,501">
+<area shape="rect" id="node6" href="user_error.html" target="_top" title="user_error" alt="" coords="351,179,639,395">
 </map>
-                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/pay_transparency_user.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/user_error.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,101,695,483">
-<area shape="rect" id="node2" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,308,372,553">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="756,5,1009,269">
-<area shape="rect" id="node4" href="reports_view.html" target="_top" title="reports_view" alt="" coords="739,311,1027,521">
-<area shape="rect" id="node5" href="user_error.html" target="_top" title="user_error" alt="" coords="474,536,637,741">
+<area shape="rect" id="node1" href="user_error.html" target="_top" title="user_error" alt="" coords="351,56,639,272">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,199,307,345">
+<area shape="rect" id="node3" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,5,287,181">
 </map>
-                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/pay_transparency_user.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/user_error.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1136,75,1404,163">
-<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="739,148,1092,236">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="819,7,1012,95">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,149,695,237">
-<area shape="rect" id="node6" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="38,479,339,567">
-<area shape="rect" id="node7" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="57,5,320,93">
-<area shape="rect" id="node8" href="naics_code.html" target="_top" title="naics_code" alt="" coords="106,111,271,199">
-<area shape="rect" id="node9" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,216,372,461">
-<area shape="rect" id="node5" href="calculated_data_view.html" target="_top" title="calculated_data_view" alt="" coords="1148,197,1392,261">
-<area shape="rect" id="node10" href="reports_view.html" target="_top" title="reports_view" alt="" coords="827,289,1004,353">
-<area shape="rect" id="node11" href="user_error.html" target="_top" title="user_error" alt="" coords="474,363,637,568">
+<area shape="rect" id="node1" href="company_history.html" target="_top" title="company_history" alt="" coords="387,73,603,161">
+<area shape="rect" id="node2" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,138,307,285">
+<area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="355,448,634,536">
+<area shape="rect" id="node4" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,480,287,656">
+<area shape="rect" id="node5" href="report_history.html" target="_top" title="report_history" alt="" coords="683,394,876,482">
+<area shape="rect" id="node6" href="reports_view.html" target="_top" title="reports_view" alt="" coords="691,500,868,564">
+<area shape="rect" id="node7" href="user_error.html" target="_top" title="user_error" alt="" coords="351,214,639,430">
 </map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/pay_transparency_user.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/user_error.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>
