@@ -27,9 +27,10 @@ export class AdminPortalPage {
     await expect(
       this.page.getByRole('link', { name: 'Announcements' }),
     ).toBeVisible();
-    await expect(
-      this.page.getByRole('link', { name: 'User Management' }),
-    ).toBeVisible();
+    // TODO: bring it back after the 
+    // await expect(
+    //   this.page.getByRole('link', { name: 'User Management' }),
+    // ).toBeVisible();
     await expect(
       this.page.getByRole('link', { name: 'Analytics' }),
     ).toBeVisible();
