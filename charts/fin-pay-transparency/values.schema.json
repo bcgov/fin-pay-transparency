@@ -414,8 +414,7 @@
               "type": "string"
             },
             "cssAppApiEnvironment": {
-              "type": "string",
-              "format": "uri"
+              "type": "string"
             },
             "annotation": {
               "type": "object"
