@@ -130,6 +130,9 @@ jobs:
           --set-string global.secrets.bceidWsAuthPassword="${{ secrets.BCEID_WS_BASIC_AUTH_PASSWORD }}" \
           --set-string global.secrets.bceidWsAuthUserName="${{ secrets.BCEID_WS_BASIC_AUTH_USERNAME }}" \
           --set-string global.secrets.bceidWsOnlineServiceId="${{ secrets.BCEID_WS_ONLINE_SERVICE_ID }}"  \
+          --set-string global.secrets.cssAppApiClientId="${{ secrets.CSS_APP_API_CLIENT_ID }}" \
+          --set-string global.secrets.cssAppApiClientSecret="${{ secrets.CSS_APP_API_CLIENT_SECRET }}" \
+          --set-string global.secrets.cssAppApiIntegrationId="${{ secrets.CSS_APP_API_INTEGRATION_ID }}"  \
           --set-string global.secrets.externalConsumerApiKey="${{ secrets.EXTERNAL_CONSUMER_API_KEY }}"  \
           --set-string global.secrets.externalConsumerDeleteReportsApiKey="${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}" \
           --set-string global.secrets.chesTokenURL="${{ secrets.CHES_TOKEN_ENDPOINT }}" \

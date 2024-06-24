@@ -19,6 +19,10 @@ global:
     bceidWsAuthUserName: ~
     bceidWsUrl: ~
     bceidWsOnlineServiceId: ~
+    cssAppApiClientId: ~
+    cssAppApiClientSecret: ~
+    cssAppApiIntegrationId: ~
+    cssAppApiEnvironment: "dev"
     externalConsumerApiKey: ~
     externalConsumerDeleteReportsApiKey: ~
     chesClientID: ~
