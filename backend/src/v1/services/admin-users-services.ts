@@ -4,7 +4,6 @@ import flatten from 'lodash/flatten';
 import qs from 'qs';
 import emailService from '../../external/services/ches';
 import prisma from '../prisma/prisma-client';
-import { hostname } from 'node:os';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
