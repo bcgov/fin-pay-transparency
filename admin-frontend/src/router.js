@@ -13,6 +13,7 @@ import { PAGE_TITLES } from './utils/constant';
 import Login from './components/Login.vue';
 import { authStore } from './store/modules/auth';
 import Logout from './components/Logout.vue';
+import { ADMIN_ROLE_NAME } from './constants';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -68,6 +69,7 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.USER_MANAGEMENT,
         requiresAuth: true,
+        role: ADMIN_ROLE_NAME,
         isTitleVisible: true,
         isBreadcrumbTrailVisible: true,
       },
@@ -153,6 +155,9 @@ router.beforeEach((to, _from, next) => {
       aStore
         .getUserInfo()
         .then(() => {
+          if (to.meta.role && aStore.userInfo?.role !== to.meta.role) {
+            next('notfound')
+          }
           next();
         })
         .catch(() => {

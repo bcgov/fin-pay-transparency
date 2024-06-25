@@ -6,6 +6,7 @@ import {
   fileUploadService,
 } from '../services/file-upload-service';
 import { utils } from '../services/utils-service';
+import { errorService } from '../services/error-service';
 
 const fileUploadRouter = express.Router();
 fileUploadRouter.post(
@@ -19,19 +20,22 @@ fileUploadRouter.post(
 
       const userInfo = utils.getSessionUser(req);
       const data: ISubmission = req.body;
+      let error = null;
       try {
         const result: any = await fileUploadService.handleSubmission(
           userInfo,
           data,
         );
         if (result instanceof SubmissionError) {
-          res.status(400).json(result);
-          return;
+          error = result;
+          return res.status(400).json(error);
         }
-        res.status(200).json(result);
-        return;
+        return res.status(200).json(result);
       } catch (err) {
-        res.status(500).json(new SubmissionError('Something went wrong'));
+        error = new SubmissionError('Something went wrong');
+        res.status(500).json(error);
+      } finally {
+        if (error) errorService.storeError(userInfo, error);
       }
     },
   ),

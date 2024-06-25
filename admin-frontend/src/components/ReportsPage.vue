@@ -85,7 +85,7 @@ export default {
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import ReportSearchFilters from './ReportSearchFilters.vue';
-import { useReportSearchStore } from '../store/modules/reportSearchStore.ts';
+import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import { ReportKeys } from '../types';
 import ApiService from '../services/apiService';
 import { LocalDate, DateTimeFormatter } from '@js-joda/core';
@@ -109,7 +109,7 @@ const itemsPerPageOptions = ref([
   { value: 150, title: '150' },
 ]);
 
-const headers = ref([
+const headers = ref<any>([
   {
     title: 'Submission date',
     align: 'start',

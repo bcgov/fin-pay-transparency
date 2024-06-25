@@ -16,7 +16,7 @@ export type FilterOperationType =
 export type FilterValueType = string[] | null | undefined | boolean;
 
 export type FilterKeyType =
-  | 'create_date'
+  | 'update_date'
   | 'naics_code'
   | 'reporting_year'
   | 'is_unlocked'
@@ -24,7 +24,7 @@ export type FilterKeyType =
   | 'company_name';
 
 export type SubmissonDateFilter = {
-  key: 'create_date';
+  key: 'update_date';
   operation: 'between';
   value: string[];
 };
@@ -71,7 +71,7 @@ export type ReportFilterType = (
 )[];
 
 export type SortFieldType =
-  | 'create_date'
+  | 'update_date'
   | 'naics_code'
   | 'employee_count_range_id'
   | 'company_name';
@@ -79,7 +79,7 @@ export type SortFieldType =
 type SortDirection = 'asc' | 'desc';
 
 export type SubmissionDateSort = {
-  create_date: SortDirection;
+  update_date: SortDirection;
 };
 export type NaicsCodeSort = {
   naics_code: SortDirection;
@@ -108,7 +108,7 @@ export const RELATION_MAPPER: {
 const FILTER_OPERATION_SCHEMA: {
   [key in FilterKeyType]: z.ZodString | z.ZodEnum<any>;
 } = {
-  create_date: z.enum(['between'], {
+  update_date: z.enum(['between'], {
     message: 'Only "between" operation is allowed',
   }),
   naics_code: z.enum(['in', 'notin'], {
@@ -128,7 +128,7 @@ const FILTER_OPERATION_SCHEMA: {
 };
 
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
-  create_date: z.array(z.string()).optional(),
+  update_date: z.array(z.string()).optional(),
   naics_code: z.array(z.string()).optional(),
   employee_count_range_id: z.array(z.string()).optional(),
   reporting_year: z.number().optional(),
@@ -141,7 +141,7 @@ export const FilterValidationSchema = z.array(
     .object({
       key: z.enum(
         [
-          'create_date',
+          'update_date',
           'naics_code',
           'reporting_year',
           'is_unlocked',
@@ -151,7 +151,7 @@ export const FilterValidationSchema = z.array(
         {
           required_error: 'Missing or invalid filter key',
           message:
-            'key must be one of the following values: create_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
+            'key must be one of the following values: update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
         },
       ),
       operation: z.string({

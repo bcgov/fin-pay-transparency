@@ -24,6 +24,7 @@ import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
 import adminAuthRouter from './v1/routes/admin-auth-routes';
 import adminReportRoutes from './v1/routes/admin-report-routes';
+import adminUsersRoutes from './v1/routes/admin-users-routes';
 import adminUserRouter from './v1/routes/admin-user-info-routes';
 import codeRouter from './v1/routes/code-routes';
 import { adminAuth } from './v1/services/admin-auth-service';
@@ -265,6 +266,7 @@ apiRouter.use(
 apiRouter.use('/user', adminUserRouter);
 apiRouter.use('/v1/codes', codeRouter);
 apiRouter.use('/v1/reports', adminReportRoutes);
+apiRouter.use('/v1/users', adminUsersRoutes);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });

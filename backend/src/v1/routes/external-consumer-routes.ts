@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
 import { reportService } from '../services/report-service';
+import { errorService } from '../services/error-service';
 
 const router = express.Router();
 
@@ -38,5 +39,40 @@ router.delete('/', async (req, res) => {
     res.json({ error: true, message: error.message });
   }
 });
+
+/**
+ * GET /external-consumer-api/v1/reports/errors ?startDate= &endDate= &page= &limit=
+ */
+router.get(
+  '/errors',
+  utils.asyncHandler(
+    async (
+      req: Request<
+        null,
+        null,
+        null,
+        {
+          startDate: string;
+          endDate: string;
+          page: string;
+          limit: string;
+        }
+      >,
+      res: Response,
+    ) => {
+      try {
+        const results = await errorService.retrieveErrors(
+          req.query.startDate,
+          req.query.endDate,
+          req.query.page,
+          req.query.limit,
+        );
+        res.status(200).json(results);
+      } catch (e) {
+        res.json({ error: true, message: e.message });
+      }
+    },
+  ),
+);
 
 export default router;

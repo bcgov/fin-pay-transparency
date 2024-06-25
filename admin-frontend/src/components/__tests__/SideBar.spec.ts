@@ -4,6 +4,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import SideBar from '../SideBar.vue';
+import { createTestingPinia } from '@pinia/testing';
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
@@ -24,6 +25,9 @@ describe('SideBar', () => {
       components,
       directives,
     });
+    const pinia = createTestingPinia({
+      initialState: {},
+    });
 
     wrapper = mount(
       {
@@ -41,7 +45,7 @@ describe('SideBar', () => {
           components: {
             SideBar,
           },
-          plugins: [vuetify],
+          plugins: [vuetify, pinia],
         },
       },
     );
