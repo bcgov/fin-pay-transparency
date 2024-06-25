@@ -132,7 +132,8 @@ export class AdminUserService {
           first_name: firstname,
           assigned_roles: roles,
           is_onboarded: false,
-          created_by: createdBy
+          created_by: createdBy,
+          expiry_date: new Date(new Date().getTime() + 72 * 60 * 60 * 1000) //TODO make expiry configurable
         }
 
       });

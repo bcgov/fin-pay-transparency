@@ -2,15 +2,15 @@ SET search_path TO pay_transparency;
 
 create table if not exists admin_user
 (
-    admin_user_id   uuid                                not null default gen_random_uuid(),
-    idir_user_guid  uuid                                not null,
-    display_name    varchar(255)                        not null,
-    create_date     timestamp default current_timestamp not null,
-    create_user     varchar(255)                        not null,
-    update_date     timestamp default current_timestamp not null,
-    update_user     varchar(255)                        not null,
-    is_active       boolean   default true              not null,
-    assigned_roles  varchar(255)                        not null,
+    admin_user_id  uuid                                not null default gen_random_uuid(),
+    idir_user_guid uuid                                not null,
+    display_name   varchar(255)                        not null,
+    create_date    timestamp default current_timestamp not null,
+    create_user    varchar(255)                        not null,
+    update_date    timestamp default current_timestamp not null,
+    update_user    varchar(255)                        not null,
+    is_active      boolean   default true              not null,
+    assigned_roles varchar(255)                        not null,
     constraint admin_user_id_pk primary key (admin_user_id)
 );
 
@@ -39,6 +39,7 @@ create table if not exists admin_user_onboarding
     create_date              timestamp default current_timestamp not null,
     created_by               uuid                                not null,
     is_onboarded             boolean   default false             not null,
+    expiry_date              timestamp                           not null,
     constraint admin_user_onboarding_id_pk primary key (admin_user_onboarding_id)
 );
 

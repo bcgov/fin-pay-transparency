@@ -112,6 +112,8 @@ class AdminAuth extends AuthBase {
         is_onboarded: false
       }
     });
+    //TODO - if onboarding request exists and has expired show the page to user to ask admin to add them again.
+
     // record found , need to do the processing.
     if (adminUserOnboarding) {
       // get SSO roles from Keycloak
