@@ -124,8 +124,11 @@ export class AdminUserService {
       }
     });
     if (pendingUserRequestCount > 0) {
+      // TODO - if request is active and has not expired throw error, Else update the existing record with new details and reset expiry date
       throw new Error('Add user Request already exists');
+
     } else {
+
       await prisma.admin_user_onboarding.create({
         data:{
           email: email,
