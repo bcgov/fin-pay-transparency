@@ -17,71 +17,23 @@
         md="3"
         v-for="user of users"
       >
-        <v-card class="pa-4 ma-2 user-card">
-          <div class="actions d-flex">
-            <v-avatar color="primary">
-              <span class="text-h6">{{ getUserInitials(user) }}</span>
-            </v-avatar>
-            <span style="flex: 1 1 auto" />
-
-            <v-btn
-              density="compact"
-              variant="text"
-              color="error"
-              icon="mdi-trash-can-outline"
-              aria-label="Delete user"
-            ></v-btn>
-          </div>
-          <div class="display-name mt-2">
-            {{ user.displayName }}
-          </div>
-          <v-menu location="bottom">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                color="primary"
-                variant="text"
-                append-icon="mdi-chevron-down"
-                class="role-menu-button"
-                :aria-label="`Role ${RoleLabels[user.effectiveRole]}`"
-                v-bind="props"
-                >{{ RoleLabels[user.effectiveRole] }}</v-btn
-              >
-            </template>
-
-            <v-list>
-              <v-list-item
-                :variant="user.effectiveRole === item.value ? 'tonal' : 'plain'"
-                v-for="(item, index) in RoleOptions"
-                :key="index"
-                :class="user.effectiveRole === item.value ? 'selected-role' : undefined"
-              >
-                <v-list-item-title v-text="item.label"></v-list-item-title>
-                <template v-slot:append v-if="user.effectiveRole === item.value">
-                  <v-icon size="x-small" icon="mdi-check" />
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-card>
+        <UserCard :key="user.userName" :user="user" />
       </v-col>
     </v-row>
   </div>
+  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
 
 <script setup lang="ts">
 import AddUserButton from './user-management/AddUserButton.vue';
+import UserCard from './UserCard.vue';
+import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useUsersStore } from '../store/modules/usersStore';
-import { RoleOptions, RoleLabels } from '../constants';
 
 const usersStore = useUsersStore();
 const { users, loading } = storeToRefs(usersStore);
-
-const getUserInitials = (user) => {
-  const tokens = user.displayName.split(' ');
-  return `${tokens[0][0]}${tokens[1][0]}`;
-};
 
 onMounted(async () => {
   await usersStore.getUsers();

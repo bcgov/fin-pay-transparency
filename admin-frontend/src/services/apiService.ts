@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import { AddUserInput, IConfigValue, IReportSearchResult, User } from '../types';
+import {
+  AddUserInput,
+  IConfigValue,
+  IReportSearchResult,
+  User,
+} from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
@@ -95,6 +100,16 @@ export default {
       return await apiAxios.post(ApiRoutes.USERS, data);
     } catch (e) {
       console.log(`Failed to get from Nodejs addUser API - ${e}`);
+    }
+  },
+  async assignUserRole(username: string, role: string) {
+    try {
+      return await apiAxios.patch(`${ApiRoutes.USERS}/roles`, {
+        role,
+        username,
+      });
+    } catch (e) {
+      console.log(`Failed to get from Nodejs getUsers API - ${e}`);
       throw e;
     }
   },

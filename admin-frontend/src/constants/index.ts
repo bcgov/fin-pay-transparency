@@ -8,6 +8,11 @@ export const RoleLabels = {
   'PTRT-USER': 'User',
 };
 
+export const NextRoleTransitions = {
+  'PTRT-ADMIN': 'PTRT-USER',
+  'PTRT-USER': 'PTRT-ADMIN',
+};
+
 export const RoleOptions = [
   { label: RoleLabels['PTRT-ADMIN'], value: 'PTRT-ADMIN' },
   { label: RoleLabels['PTRT-USER'], value: 'PTRT-USER' },
