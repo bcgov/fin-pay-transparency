@@ -73,6 +73,8 @@ async function logoutHandler(
 
       if (reason == 'sessionExpired') url = '/session-expired';
       else if (reason == 'loginError') url = '/login-error';
+      else if (reason == 'notAuthorized') url = '/unauthorized';
+      else if (reason == 'roleChanged') url = '/login';
       else if (reason == LogoutReason.LoginAzureIdir)
         url = '/admin-api/auth/login-azureidir';
       else if (reason == 'contactError') url = '/contact-error';

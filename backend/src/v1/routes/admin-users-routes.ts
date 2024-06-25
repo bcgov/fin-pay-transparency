@@ -1,9 +1,10 @@
 import express, { Request, Response } from 'express';
 import { logger } from '../../logger';
-import { SSO } from '../services/admin-users-services';
+import { SSO, AdminUserService } from '../services/admin-users-services';
 import { utils } from '../services/utils-service';
 import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
 import { HttpStatusCode } from 'axios';
+import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 
 type ExtendedRequest = Request & { sso: SSO };
 const router = express.Router();
@@ -44,16 +45,18 @@ router.get('', async (req: ExtendedRequest, res: Response) => {
 
 router.post('', async (req: ExtendedRequest, res: Response) => {
   try {
-    const { email, firstName, lastName } = req.body;
-    if(!email || !firstName || !lastName){
-      return res.status(400).json({ error: 'Missing required fields - email, firstname, lastname' });
-
+    const { email, firstName, roles } = req.body;
+    if(!email || !firstName || !roles){
+      return res.status(400).json({ error: 'Missing required fields - email, firstname, roles' });
     }
-
-    return res.status(200).json(user);
+    const userInfo = utils.getSessionUser(req);
+    const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
+    const idirUserGuid = jwtPayload?.idir_user_guid;
+    await new AdminUserService().addNewUser(email, roles, firstName, idirUserGuid);
+    return res.status(200).json();
   } catch (error) {
     logger.error(error);
-    return res.status(400).json({ error: 'Failed to create user' });
+    return res.status(500).json({ error: 'Failed to create user' });
   }
 });
 export default router;
