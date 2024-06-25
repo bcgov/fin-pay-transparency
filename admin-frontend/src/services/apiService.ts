@@ -186,7 +186,7 @@ export default {
 
       if (resp?.data) {
         //make the browser save the file
-        var blob = new Blob([resp.data], {
+        const blob = new Blob([resp.data], {
           type: resp.headers['content-type'],
         });
         saveAs(blob, 'pay-transparency-reports.csv');
