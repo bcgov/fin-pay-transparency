@@ -41,4 +41,19 @@ router.get('', async (req: ExtendedRequest, res: Response) => {
   }
 });
 
+
+router.post('', async (req: ExtendedRequest, res: Response) => {
+  try {
+    const { email, firstName, lastName } = req.body;
+    if(!email || !firstName || !lastName){
+      return res.status(400).json({ error: 'Missing required fields - email, firstname, lastname' });
+
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).json({ error: 'Failed to create user' });
+  }
+});
 export default router;

@@ -2,6 +2,9 @@ import axios, { AxiosInstance } from 'axios';
 import { config } from '../../config';
 import flatten from 'lodash/flatten';
 import qs from 'qs';
+import emailService from '../../external/services/ches';
+import prisma from '../prisma/prisma-client';
+import { hostname } from 'node:os';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
@@ -71,5 +74,33 @@ export class SSO {
     );
 
     return flatten(results);
+  }
+
+  async addNewUser(email: string, roles: string, firstname: string, createdBy: string) {
+    let pendingUserRequestCount =  await prisma.admin_user_onboarding.count({ where: { email: email , is_onboarded: false} });
+    if(pendingUserRequestCount > 0){
+      throw new Error('Add user Request already exists');
+    }else {
+      prisma.transaction(async (prisma) => {
+        await prisma.admin_user_onboarding.create({
+          email: email,
+          firstname: firstname,
+          assigned_roles: roles,
+          created_by: createdBy
+        });
+        await sendUserEmailInvite(email, firstname);
+      });
+    }
+    }
+
+  async sendUserEmailInvite(email: string, firstname: string) {
+    const emailContent = emailService.generateHtmlEmail(
+      'Pay Transparency Admin Tool Onboarding',
+      email,
+      'Pay Transparency Admin Tool Onboarding',
+      `Hello ${firstname}, <br><br> You have been invited to join the Pay Transparency Reporting Admin Tool as an User. Please click the link below to complete your registration and access the application. <br><br> <a href="${config.get('frontendUrl')}">Click here to complete your registration</a>`,
+      'You have been invited to join the Pay Transparency Reporting Tool as an Admin User. Please click the link below to complete your registration and access the application.`<a href="${config.get('adminfrontendurl')}>Click here to complete your registration</a>`'
+    );
+    await emailService.sendEmailWithRetry(emailContent,3);
   }
 }
