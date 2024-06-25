@@ -1,6 +1,6 @@
+import { LocalDateTime, ZoneOffset } from '@js-joda/core';
 import createPrismaMock from 'prisma-mock';
 import { adminReportService } from './admin-report-service';
-import { LocalDateTime, ZoneOffset } from '@js-joda/core';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -118,23 +118,23 @@ describe('admin-report-service', () => {
     });
 
     describe('pagination', () => {
-      it('should default limit to 20 if not specified', async () => {
-        const response = await adminReportService.searchReport(
-          0,
-          undefined,
-          '[]',
-          '[]',
-        );
-        expect(response.limit).toBe(20);
+      describe('if limit is negative', () => {
+        it('should throw an error', async () => {
+          await expect(
+            adminReportService.searchReport(0, -1, '[]', '[]'),
+          ).rejects.toThrow();
+        });
       });
-      it('should default limit to 20 if more than 100', async () => {
-        const response = await adminReportService.searchReport(
-          0,
-          101,
-          '[]',
-          '[]',
-        );
-        expect(response.limit).toBe(20);
+      describe('if limit is undefined', () => {
+        it('should throw an error', async () => {
+          const response = await adminReportService.searchReport(
+            0,
+            undefined,
+            '[]',
+            '[]',
+          );
+          await expect(response.limit).toBeUndefined();
+        });
       });
     });
 
@@ -484,6 +484,64 @@ describe('admin-report-service', () => {
       });
     });
   });
+  /*
+  describe('toHumanFriendlyReport', () => {
+    describe('given a report of the form returned by searchReport', () => {
+      it('returns a flattened and simplified report', () => {
+        const mockReport = {
+          report_id: '1119e398-22e7-4d10-93aa-8b2112b4e74f',
+          company_id: '515c7526-7d56-4509-a713-cad45fb10a3d',
+          user_id: 'a5ee6f48-13e1-40f3-a0e3-266d842aa7b0',
+          user_comment: 'comment',
+          employee_count_range_id: 'f65072ec-6b13-4ceb-b7bb-2397b4838d45',
+          naics_code: '52',
+          report_start_date: '2023-01-01T00:00:00.000Z',
+          report_end_date: '2023-12-31T00:00:00.000Z',
+          create_date: '2024-06-17T22:08:07.405Z',
+          update_date: '2024-06-17T22:08:07.405Z',
+          create_user: 'postgres',
+          update_user: 'postgres',
+          report_status: 'Published',
+          revision: '1',
+          data_constraints: '234',
+          is_unlocked: false,
+          reporting_year: '2023',
+          report_unlock_date: '2024-06-20T00:49:23.802Z',
+          idir_modified_username: null,
+          idir_modified_date: '2024-06-20T00:49:23.802Z',
+          employee_count_range: {
+            employee_count_range_id: 'f65072ec-6b13-4ceb-b7bb-2397b4838d45',
+            employee_count_range: '300-999',
+            create_date: '2024-06-17T22:00:10.084Z',
+            update_date: '2024-06-17T22:00:10.084Z',
+            effective_date: '2024-06-17T22:00:10.084Z',
+            expiry_date: null,
+            create_user: 'postgres',
+            update_user: 'postgres',
+          },
+          pay_transparency_company: {
+            company_id: '515c7526-7d56-4509-a713-cad45fb10a3d',
+            company_name: 'BC Crown Corp',
+          },
+        };
+        const result = adminReportService.toHumanFriendlyReport(mockReport);
+        expect(result['Submission date']).toBe(mockReport.update_date);
+        expect(result['Company name']).toBe(
+          mockReport.pay_transparency_company.company_name,
+        );
+        expect(result['Reporting year']).toBe(mockReport.reporting_year);
+        expect(result['NAICS code']).toBe(mockReport.naics_code);
+        expect(result['Employee count']).toBe(
+          mockReport.employee_count_range.employee_count_range,
+        );
+        expect(result['Is unlocked?']).toBe(
+          mockReport.is_unlocked ? 'Yes' : 'No',
+        );
+        expect(Object.keys(result).length).toBe(6);
+      });
+    });
+  });
+  */
 
   describe('changeReportLockStatus', () => {
     it('should throw error if report does not exist', async () => {

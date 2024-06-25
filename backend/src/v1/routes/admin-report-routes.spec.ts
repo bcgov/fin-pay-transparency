@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import request from 'supertest';
+import { PayTransparencyUserError } from '../services/file-upload-service';
 import router from './admin-report-routes';
 
 jest.mock('../services/utils-service', () => ({
@@ -10,10 +11,49 @@ jest.mock('../services/utils-service', () => ({
   },
 }));
 
-const mockSearchReport = jest.fn();
+const mockReport = {
+  report_id: '1119e398-22e7-4d10-93aa-8b2112b4e74f',
+  company_id: '515c7526-7d56-4509-a713-cad45fb10a3d',
+  user_id: 'a5ee6f48-13e1-40f3-a0e3-266d842aa7b0',
+  user_comment: 'comment',
+  employee_count_range_id: 'f65072ec-6b13-4ceb-b7bb-2397b4838d45',
+  naics_code: '52',
+  report_start_date: '2023-01-01T00:00:00.000Z',
+  report_end_date: '2023-12-31T00:00:00.000Z',
+  create_date: '2024-06-17T22:08:07.405Z',
+  update_date: '2024-06-17T22:08:07.405Z',
+  create_user: 'postgres',
+  update_user: 'postgres',
+  report_status: 'Published',
+  revision: '1',
+  data_constraints: '234',
+  is_unlocked: false,
+  reporting_year: '2023',
+  report_unlock_date: '2024-06-20T00:49:23.802Z',
+  idir_modified_username: null,
+  idir_modified_date: '2024-06-20T00:49:23.802Z',
+  employee_count_range: {
+    employee_count_range_id: 'f65072ec-6b13-4ceb-b7bb-2397b4838d45',
+    employee_count_range: '300-999',
+    create_date: '2024-06-17T22:00:10.084Z',
+    update_date: '2024-06-17T22:00:10.084Z',
+    effective_date: '2024-06-17T22:00:10.084Z',
+    expiry_date: null,
+    create_user: 'postgres',
+    update_user: 'postgres',
+  },
+  pay_transparency_company: {
+    company_id: '515c7526-7d56-4509-a713-cad45fb10a3d',
+    company_name: 'BC Crown Corp',
+  },
+};
+
+const mockSearchReport = jest.fn().mockResolvedValue({ reports: [mockReport] });
 const mockChangeReportLockStatus = jest.fn();
 jest.mock('../services/admin-report-service', () => ({
   adminReportService: {
+    ...jest.requireActual('../services/admin-report-service')
+      .adminReportService,
     searchReport: (...args) => mockSearchReport(...args),
     changeReportLockStatus: (...args) => mockChangeReportLockStatus(...args),
   },
@@ -39,44 +79,69 @@ describe('admin-report-routes', () => {
   });
 
   describe('GET /', () => {
-    it('should default offset=0 and limit=20', async () => {
-      await request(app).get('').expect(200);
-      expect(mockSearchReport).toHaveBeenCalledWith(
-        0,
-        20,
-        undefined,
-        undefined,
-      );
+    describe('when output format is JSON', () => {
+      describe("when limit isn't specified", () => {
+        it('should default offset=0 and limit=20', async () => {
+          await request(app)
+            .get('')
+            .set('Accept', 'application/json')
+            .expect(200);
+          expect(mockSearchReport).toHaveBeenCalledWith(
+            0,
+            20,
+            undefined,
+            undefined,
+          );
+        });
+      });
+      describe('when offset, limit, filter and sort are specified', () => {
+        it('should resolve query params', async () => {
+          await request(app)
+            .get('')
+            .set('Accept', 'application/json')
+            .query({
+              offset: 1,
+              limit: 50,
+              filter: 'naics_code=11',
+              sort: 'field=naics_code,direction=asc',
+            })
+            .expect(200);
+          expect(mockSearchReport).toHaveBeenCalledWith(
+            1,
+            50,
+            'field=naics_code,direction=asc',
+            'naics_code=11',
+          );
+        });
+      });
+      describe('when an error is thrown', () => {
+        it('400 - if search reports fails', async () => {
+          mockSearchReport.mockRejectedValueOnce(
+            new PayTransparencyUserError('invalid params'),
+          );
+          await request(app)
+            .get('')
+            .set('Accept', 'application/json')
+            .query({
+              offset: 1,
+              limit: 50,
+              filter: 'naics_code=11',
+              sort: 'field=naics_code,direction=asc',
+            })
+            .expect(400);
+        });
+      });
     });
-
-    it('should resolve query params', async () => {
-      await request(app)
-        .get('')
-        .query({
-          offset: 1,
-          limit: 50,
-          filter: 'naics_code=11',
-          sort: 'field=naics_code,direction=asc',
-        })
-        .expect(200);
-      expect(mockSearchReport).toHaveBeenCalledWith(
-        1,
-        50,
-        'field=naics_code,direction=asc',
-        'naics_code=11',
-      );
-    });
-    it('400 - if search reports fails', async () => {
-      mockSearchReport.mockRejectedValue({ error: true });
-      await request(app)
-        .get('')
-        .query({
-          offset: 1,
-          limit: 50,
-          filter: 'naics_code=11',
-          sort: 'field=naics_code,direction=asc',
-        })
-        .expect(400);
+    describe('when output format is CSV', () => {
+      it('should default offset=0 and limit=undefined', async () => {
+        await request(app).get('').set('Accept', 'text/csv').expect(200);
+        expect(mockSearchReport).toHaveBeenCalledWith(
+          0,
+          undefined,
+          undefined,
+          undefined,
+        );
+      });
     });
   });
 

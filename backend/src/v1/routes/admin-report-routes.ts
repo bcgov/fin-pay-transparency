@@ -1,10 +1,18 @@
 import express, { Request, Response } from 'express';
 import has from 'lodash/has';
+import Papa from 'papaparse';
 import { BAD_REQUEST } from '../../constants';
 import { logger } from '../../logger';
 import { adminReportService } from '../services/admin-report-service';
+import { PayTransparencyUserError } from '../services/file-upload-service';
 import { reportService } from '../services/report-service';
 import { utils } from '../services/utils-service';
+
+enum Format {
+  CSV = 'text/csv',
+  JSON = 'application/json',
+  PDF = 'application/pdf',
+}
 
 const router = express.Router();
 /**
@@ -15,21 +23,57 @@ const router = express.Router();
 router.get(
   '/',
   utils.asyncHandler(async (req: Request, res: Response) => {
-    logger.info('Pagination endpoint called');
     logger.silly(req.query); //log the query params at silly level
+
+    const outputFormat = req.accepts(Format.JSON) || req.accepts(Format.CSV);
+
+    //The pagination behaviour of this endpoint depends on the output format.
+    //Pagination is optional for CSV output, but is required for other formats.
+    const isPaginationRequired = outputFormat != Format.CSV;
+    const defaultLimit = isPaginationRequired ? 20 : undefined;
+    const maxLimit = isPaginationRequired ? 100 : undefined;
     const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+    let limit = req.query.limit
+      ? parseInt(req.query.limit as string)
+      : defaultLimit;
+
+    if (maxLimit && limit > maxLimit) {
+      limit = maxLimit;
+    }
+
     try {
-      const paginatedReportsResponse = await adminReportService.searchReport(
+      const resultJson = await adminReportService.searchReport(
         offset,
         limit,
         req.query.sort as string,
         req.query.filter as string,
       );
-      return res.status(200).json(paginatedReportsResponse);
+      if (outputFormat == Format.JSON) {
+        return res.status(200).json(resultJson);
+      }
+      if (outputFormat == Format.CSV) {
+        // To produce a csv we start with the json format.
+        // Then transform the json into a simpler object
+        const simplifiedReports = resultJson?.reports.map((r) =>
+          adminReportService.toHumanFriendlyReport(r),
+        );
+
+        // Convert the simplified json to csv
+        const csv = Papa.unparse(simplifiedReports);
+        return res
+          .status(200)
+          .setHeader('Content-Type', Format.CSV)
+          .attachment('pay-transparency-reports.csv')
+          .send(csv);
+      }
+      throw new Error('Unsupported format');
     } catch (error) {
+      if (error instanceof PayTransparencyUserError) {
+        return res.status(400).json(error);
+      }
+      console.log('==================');
       logger.error(error);
-      return res.status(400).json(error);
+      return res.status(500).json({ error: 'Something went wrong' });
     }
   }),
 );

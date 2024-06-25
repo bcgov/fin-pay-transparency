@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import ApiService from '../../services/apiService';
+import { useReportSearchStore } from '../../store/modules/reportSearchStore';
 import ReportsPage from '../ReportsPage.vue';
 
 // Mock the ResizeObserver
@@ -21,6 +22,7 @@ vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 describe('ReportsPage', () => {
   let wrapper;
   let pinia;
+  let reportSearchStore;
 
   const initWrapper = async (options: any = {}) => {
     const vuetify = createVuetify({
@@ -36,6 +38,7 @@ describe('ReportsPage', () => {
         plugins: [vuetify, pinia],
       },
     });
+    reportSearchStore = useReportSearchStore();
 
     //wait for the async component to load
     await flushPromises();
@@ -106,6 +109,19 @@ describe('ReportsPage', () => {
           mockReportId1,
         ),
       ).toBeFalsy();
+    });
+  });
+
+  describe('exportResults', () => {
+    it('delegates to reportSearchStore', async () => {
+      const downloadReportsCsvSpy = vi
+        .spyOn(reportSearchStore, 'downloadReportsCsv')
+        .mockResolvedValue();
+      wrapper.vm.lastSubmittedReportSearchParams = { filter: [] };
+      wrapper.vm.exportResults();
+      expect(downloadReportsCsvSpy).toHaveBeenCalledWith(
+        wrapper.vm.lastSubmittedReportSearchParams,
+      );
     });
   });
 });

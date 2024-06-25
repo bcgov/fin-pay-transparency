@@ -16,6 +16,10 @@ export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
   filter: undefined,
   sort: [{ update_date: 'desc' }],
 };
+export const DEFAULT_DOWNLOAD_CSV_PARAMS: IReportSearchParams = {
+  filter: undefined,
+  sort: [{ update_date: 'desc' }],
+};
 
 /*
 Stores report search results and provides functions to fetch new 
@@ -31,6 +35,7 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
   const searchResults = ref<any[] | undefined>(undefined);
   const totalNum = ref(0);
   const isSearching = ref(false);
+  const isDownloadingCsv = ref(false);
   const pageSize = ref(DEFAULT_PAGE_SIZE);
   const hasSearched = computed(
     () =>
@@ -120,6 +125,31 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
     await searchReports(DEFAULT_SEARCH_PARAMS);
   };
 
+  /*
+  Downloads a CSV of reports. CSV output will not be subdivided
+  into "pages".  (i.e. if 'page' and 'itemsPerPage' params are specified, 
+  they are ignored.)
+  */
+  const downloadReportsCsv = async (params: IReportSearchParams) => {
+    const searchParams: any = { ...DEFAULT_DOWNLOAD_CSV_PARAMS, ...params };
+
+    const filter = searchParams.filter;
+    let sort = searchParams.sort;
+
+    if (!sort?.length) {
+      sort = DEFAULT_SEARCH_PARAMS.sort;
+    }
+
+    isDownloadingCsv.value = true;
+
+    try {
+      await ApiService.downloadReportsCsv(filter, sort);
+    } catch (err) {
+      console.log(`Unable to download CSV: ${err}`);
+    }
+    isDownloadingCsv.value = false;
+  };
+
   // Private actions
   //---------------------------------------------------------------------------
 
@@ -158,6 +188,7 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
     lastSubmittedReportSearchParams,
     searchResults,
     isSearching,
+    isDownloadingCsv,
     totalNum,
     pageSize,
     hasSearched,
@@ -166,5 +197,6 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
     updateSearch,
     repeatSearch,
     reset,
+    downloadReportsCsv,
   };
 });
