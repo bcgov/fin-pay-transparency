@@ -31,6 +31,9 @@ const adminReportService = {
     if (limit < 0) {
       throw new PayTransparencyUserError('Invalid limit');
     }
+    if (limit) {
+      limit = parseInt(String(limit));
+    }
     try {
       sortObj = JSON.parse(sort);
       filterObj = JSON.parse(filter);
@@ -57,7 +60,7 @@ const adminReportService = {
         },
       },
     };
-    if (limit !== null) {
+    if (limit) {
       query['take'] = parseInt(String(limit));
     }
 
