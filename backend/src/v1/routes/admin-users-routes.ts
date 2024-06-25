@@ -1,13 +1,33 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { logger } from '../../logger';
 import { SSO } from '../services/admin-users-services';
 import { utils } from '../services/utils-service';
-import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
+import {
+  PTRT_ADMIN_ROLE_NAME,
+  PTRT_USER_ROLE_NAME,
+} from '../../constants/admin';
 import { HttpStatusCode } from 'axios';
+import z, { ZodSchema } from 'zod';
+
+export const validateRequest = (mode: 'body' | 'query', schema: ZodSchema) => {
+  return async (req: ExtendedRequest, _: Response, next: NextFunction) => {
+    const data = req[mode];
+
+    try {
+      await schema.parseAsync(data);
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};
 
 type ExtendedRequest = Request & { sso: SSO };
 const router = express.Router();
 
+/**
+ * Middleware to check if user has a PTRT-ADMIN role
+ */
 router.use(async (req: ExtendedRequest, res: Response, next) => {
   const user = utils.getSessionUser(req);
   const roles = user._json.client_roles as string[];
@@ -20,6 +40,9 @@ router.use(async (req: ExtendedRequest, res: Response, next) => {
   next();
 });
 
+/**
+ * Attach the CSS SSO client
+ */
 router.use(async (req: ExtendedRequest, _, next) => {
   try {
     const sso = await SSO.init();
@@ -31,6 +54,9 @@ router.use(async (req: ExtendedRequest, _, next) => {
   }
 });
 
+/**
+ * Get all users in the system
+ */
 router.get('', async (req: ExtendedRequest, res: Response) => {
   try {
     const users = await req.sso.getUsers();
@@ -40,5 +66,33 @@ router.get('', async (req: ExtendedRequest, res: Response) => {
     return res.status(400).json({ error: 'Failed to get users' });
   }
 });
+
+const ASSIGN_ROLE_SCHEMA = z.object({
+  username: z.string(),
+  role: z.enum([PTRT_ADMIN_ROLE_NAME, PTRT_USER_ROLE_NAME]),
+});
+
+/**
+ * Assign user role
+ */
+router.patch(
+  '/roles',
+  validateRequest('body', ASSIGN_ROLE_SCHEMA),
+  async (req: ExtendedRequest, res: Response) => {
+    const data: z.infer<typeof ASSIGN_ROLE_SCHEMA> = req.body;
+
+    try {
+      const { error } = await req.sso.assignRole(data.username, data.role);
+      console.log('1')
+      if (error) {
+        return res.status(400).json({ error: 'Failed to assign user role' });
+      }
+      return res.status(204).json({message: 'Successfully assigned user role'});
+    } catch (error) {
+      logger.error(error);
+      return res.status(400).json({ error: 'Failed to assign user role' });
+    }
+  },
+);
 
 export default router;

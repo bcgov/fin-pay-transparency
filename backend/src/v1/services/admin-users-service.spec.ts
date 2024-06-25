@@ -38,6 +38,7 @@ describe('admin-users-service', () => {
           data: [
             {
               email: faker.internet.email(),
+              username: faker.internet.userName(),
               attributes: {
                 idir_username: [faker.internet.userName()],
                 display_name: [faker.internet.displayName()],

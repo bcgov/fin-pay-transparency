@@ -19,6 +19,16 @@ export const useUsersStore = defineStore('users', () => {
     }
   };
 
+  const assignUserRole = async (username: string, role: string) => {
+    try {
+      await ApiService.assignUserRole(username, role);
+      const { data } = await ApiService.getUsers();
+      users.value = data;
+    } catch (err) {
+      console.log(`get users failed: ${err}`);
+    }
+  };
+
   const reset = () => {
     loading.value = false;
     users.value = undefined;
@@ -30,6 +40,7 @@ export const useUsersStore = defineStore('users', () => {
     users,
     //actions
     getUsers,
+    assignUserRole,
     reset,
   };
 });

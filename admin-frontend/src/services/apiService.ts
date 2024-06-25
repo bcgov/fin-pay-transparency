@@ -89,6 +89,17 @@ export default {
       throw e;
     }
   },
+  async assignUserRole(username: string, role: string) {
+    try {
+      return await apiAxios.patch(`${ApiRoutes.USERS}/roles`, {
+        role,
+        username,
+      });
+    } catch (e) {
+      console.log(`Failed to get from Nodejs getUsers API - ${e}`);
+      throw e;
+    }
+  },
   async getUserInfo() {
     try {
       return await apiAxios.get(ApiRoutes.USER);
