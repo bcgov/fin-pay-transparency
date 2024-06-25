@@ -15,6 +15,11 @@ vi.mock('axios', async () => {
   };
 });
 
+const mockSaveAs = vi.fn();
+vi.mock('file-saver', async () => {
+  return { saveAs: (...args) => mockSaveAs(...args) };
+});
+
 describe('ApiService', () => {
   beforeEach(() => {});
 
@@ -100,6 +105,62 @@ describe('ApiService', () => {
 
         const resp = await ApiService.getUsers();
         expect(resp.data).toEqual(mockBackendResponse);
+      });
+    });
+  });
+
+  describe('downloadReportsCsv', () => {
+    describe('when valid filter and sort are passed, and the backend returns a valid response', () => {
+      it('the browser saves the downloaded file', async () => {
+        const filter = [
+          { key: 'reporting_year', operation: 'eq', value: 2024 },
+        ];
+        const sort = [{ company_name: 'asc' }];
+        const mockAxiosResp = {
+          data: 'A,B,C\na,b,c\n',
+          headers: {
+            'content-type': 'text/csv',
+          },
+        };
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockAxiosResp,
+        );
+
+        await ApiService.downloadReportsCsv(filter, sort);
+        expect(mockSaveAs).toHaveBeenCalledOnce();
+        const savedBlob = mockSaveAs.mock.calls[0][0];
+        expect(savedBlob.type).toBe(mockAxiosResp.headers['content-type']);
+      });
+    });
+    describe('when the backend returns an error response', () => {
+      it('throws an error', async () => {
+        const filter = [
+          { key: 'reporting_year', operation: 'eq', value: 2024 },
+        ];
+        const sort = [{ company_name: 'asc' }];
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValue(
+          new Error('Some backend error occurred'),
+        );
+
+        await expect(
+          ApiService.downloadReportsCsv(filter, sort),
+        ).rejects.toThrow();
+        expect(mockSaveAs).toHaveBeenCalledTimes(0);
+      });
+    });
+    describe('when the backend returns an invalid response with a success code', () => {
+      it('throws an error', async () => {
+        const filter = [
+          { key: 'reporting_year', operation: 'eq', value: 2024 },
+        ];
+        const sort = [{ company_name: 'asc' }];
+        const mockAxiosResp = {};
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValue(mockAxiosResp);
+
+        await expect(
+          ApiService.downloadReportsCsv(filter, sort),
+        ).rejects.toThrow();
+        expect(mockSaveAs).toHaveBeenCalledTimes(0);
       });
     });
   });

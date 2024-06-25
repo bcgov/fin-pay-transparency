@@ -1,6 +1,7 @@
 import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import ApiService from '../../../services/apiService';
 import { IReportSearchParams, IReportSearchUpdateParams } from '../../../types';
 import {
   DEFAULT_PAGE_SIZE,
@@ -9,11 +10,15 @@ import {
 } from '../reportSearchStore';
 
 const mockGetReports = vi.fn();
-vi.mock('../../../services/apiService', () => ({
-  default: {
-    getReports: () => mockGetReports(),
-  },
-}));
+vi.mock('../../../services/apiService', async (importOriginal) => {
+  const mod: any = await importOriginal();
+  return {
+    default: {
+      ...mod.default,
+      getReports: () => mockGetReports(),
+    },
+  };
+});
 
 describe('reportSearchStore', () => {
   let reportSearchStore;
@@ -187,6 +192,43 @@ describe('reportSearchStore', () => {
       expect(reportSearchStore.lastSubmittedReportSearchParams).toStrictEqual(
         DEFAULT_SEARCH_PARAMS,
       );
+    });
+  });
+
+  describe('downloadReportsCsv', () => {
+    describe('given filter and sort', () => {
+      it('delegates to the ApiService, passing the given filter and sort', async () => {
+        const params: IReportSearchParams = {
+          filter: [],
+          sort: [{ reporting_year: 'desc' }],
+        };
+        const spy = vi
+          .spyOn(ApiService, 'downloadReportsCsv')
+          .mockResolvedValue();
+
+        await reportSearchStore.downloadReportsCsv(params);
+
+        expect(spy.mock.calls[0][0]).toBe(params.filter);
+        expect(spy.mock.calls[0][1]).toBe(params.sort);
+        expect(reportSearchStore.isDownloadingCsv).toBeFalsy();
+      });
+    });
+    describe('given empty filter and empty sort', () => {
+      it('delegates to the ApiService, passing a default sort', async () => {
+        const params: IReportSearchParams = {
+          filter: [],
+          sort: [],
+        };
+        const spy = vi
+          .spyOn(ApiService, 'downloadReportsCsv')
+          .mockResolvedValue();
+
+        await reportSearchStore.downloadReportsCsv(params);
+
+        expect(spy.mock.calls[0][0]).toBe(params.filter);
+        expect(spy.mock.calls[0][1]).toBe(DEFAULT_SEARCH_PARAMS.sort);
+        expect(reportSearchStore.isDownloadingCsv).toBeFalsy();
+      });
     });
   });
 });

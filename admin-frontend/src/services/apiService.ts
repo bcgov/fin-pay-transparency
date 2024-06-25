@@ -186,7 +186,6 @@ export default {
 
       if (resp?.data) {
         //make the browser save the file
-        console.log(resp.data);
         var blob = new Blob([resp.data], {
           type: resp.headers['content-type'],
         });
