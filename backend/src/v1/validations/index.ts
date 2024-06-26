@@ -10,7 +10,9 @@ export type UseValidateOptions = {
 export const useValidate = ({ mode, schema }: UseValidateOptions) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await schema.parseAsync(req[mode]);
+      const data = req[mode];
+      await schema.parseAsync(data);
+      next()
     } catch (error) {
       logger.error(error);
       return res.status(400).json(error);

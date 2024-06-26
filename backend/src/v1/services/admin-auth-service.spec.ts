@@ -64,12 +64,13 @@ describe('admin-auth-service', () => {
   });
   describe('handleCallBackAzureIdir', () => {
     it('should return login error when jwt decode fails', async () => {
-      mockGetSessionUser.mockResolvedValue({});
+      mockGetSessionUser.mockReturnValue({});
       const result = await adminAuth.handleCallBackAzureIdir({} as any);
       expect(result).toBe('loginError');
     });
     it('should return login error when identity_provider is not KEYCLOAK_IDP_HINT_AZUREIDIR', async () => {
-      mockGetSessionUser.mockResolvedValue({
+      mockGetSessionUser.mockReturnValue({});
+      mockJWTDecode.mockReturnValue({
         idir_user_guid: faker.string.uuid(),
         email: faker.internet.email(),
         preferred_username: faker.internet.userName(),
@@ -78,7 +79,8 @@ describe('admin-auth-service', () => {
       expect(result).toBe('loginError');
     });
     it('should return login error when audience validation fails', async () => {
-      mockGetSessionUser.mockResolvedValue({
+      mockGetSessionUser.mockReturnValue({});
+      mockJWTDecode.mockReturnValue({
         idir_user_guid: faker.string.uuid(),
         email: faker.internet.email(),
         preferred_username: faker.internet.userName(),
