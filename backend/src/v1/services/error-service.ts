@@ -8,6 +8,7 @@ import {
   ZonedDateTime,
   convert,
 } from '@js-joda/core';
+import { config } from '../../config';
 import prisma from '../prisma/prisma-client';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { SubmissionError } from '../services/file-upload-service';
@@ -32,11 +33,17 @@ function ConvertStringToZonedISO(str: string): ZonedDateTime {
 
 const errorService = {
   /**
-   * Stores the errors in the database
+   * Stores the errors in the database. If the config setting
+   * 'server:userErrorLogging:isEnabled' is false then this method silently
+   * returns without storing any error.
    * @param userInfo
    * @param errors - supports classes Error, SubmissionError, ValidationError
    */
-  async storeError(userInfo, errors: Error) {
+  async storeError(userInfo, errors: Error): Promise<void> {
+    if (!config.get('server:userErrorLogging:isEnabled')) {
+      return;
+    }
+
     let errorArr = [];
     if (
       errors instanceof SubmissionError &&
@@ -158,6 +165,26 @@ const errorService = {
       pageSize: pageSize,
       records,
     };
+  },
+
+  /**
+  Deletes errors that were logged before a given date
+  @param thresholdDate: an ISO 8601 datetime string identifying the date in 
+  which errors older than this should be deleted. (default: 6 months ago)
+  */
+  async deleteErrorsOlderThan(
+    thresholdDate: string = LocalDate.now(ZoneId.UTC)
+      .atStartOfDay(ZoneId.UTC)
+      .minusMonths(6)
+      .format(DateTimeFormatter.ISO_DATE_TIME),
+  ) {
+    await prisma.user_error.deleteMany({
+      where: {
+        create_date: {
+          lte: thresholdDate,
+        },
+      },
+    });
   },
 };
 

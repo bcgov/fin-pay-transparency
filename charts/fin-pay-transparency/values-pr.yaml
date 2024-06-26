@@ -34,6 +34,8 @@ global:
   domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
   autoscaling:
     enabled: false
+  config:
+    is_user_error_logging_enabled: true
   crunchyEnabled: false
   seedData: true
 backend:

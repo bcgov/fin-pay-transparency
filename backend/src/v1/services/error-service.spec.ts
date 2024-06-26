@@ -1,9 +1,10 @@
 import { DateTimeFormatter, ZoneId, ZonedDateTime } from '@js-joda/core';
+import { config } from '../../config';
 import prisma from '../prisma/prisma-client';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { errorService } from './error-service';
 import { SubmissionError } from './file-upload-service';
-import { ValidationError, RowError } from './validate-service';
+import { RowError, ValidationError } from './validate-service';
 
 jest.mock('../prisma/prisma-client', () => {
   return {
@@ -75,6 +76,19 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
+const mockConfigLoggingDisbled = (key) => {
+  if (key == 'server:userErrorLogging:isEnabled') {
+    return false;
+  }
+  return undefined;
+};
+const mockConfigLoggingEnabled = (key) => {
+  if (key == 'server:userErrorLogging:isEnabled') {
+    return true;
+  }
+  return undefined;
+};
+
 describe('storeError', () => {
   (
     prismaReadOnlyReplica.pay_transparency_company.findFirst as jest.Mock
@@ -82,42 +96,59 @@ describe('storeError', () => {
   (
     prismaReadOnlyReplica.pay_transparency_user.findFirst as jest.Mock
   ).mockResolvedValue(mockUserInDB);
-
-  it('stores SubmissionError with ValidationError', async () => {
-    await errorService.storeError(
-      mockUserInfo,
-      new SubmissionError(mockValidationError),
-    );
-    const createMany = (prisma.user_error.createMany as jest.Mock).mock
-      .calls[0][0];
-    expect(createMany.data.map((x) => x.error)).toStrictEqual(mockArray);
+  describe('if error logging is disabled', () => {
+    it('', async () => {
+      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingDisbled);
+      await errorService.storeError(
+        mockUserInfo,
+        new SubmissionError(mockValidationError),
+      );
+      expect(prisma.user_error.createMany as jest.Mock).toHaveBeenCalledTimes(
+        0,
+      );
+    });
   });
+  describe('if error logging is enabled', () => {
+    it('stores SubmissionError with ValidationError', async () => {
+      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      await errorService.storeError(
+        mockUserInfo,
+        new SubmissionError(mockValidationError),
+      );
+      const createMany = (prisma.user_error.createMany as jest.Mock).mock
+        .calls[0][0];
+      expect(createMany.data.map((x) => x.error)).toStrictEqual(mockArray);
+    });
 
-  it('stores SubmissionError with string', async () => {
-    const error = 'Something went wrong';
-    const subError = new SubmissionError(error);
-    await errorService.storeError(mockUserInfo, subError);
-    const createMany = (prisma.user_error.createMany as jest.Mock).mock
-      .calls[0][0];
-    expect(createMany.data.map((x) => x.error)).toStrictEqual([error]);
-  });
+    it('stores SubmissionError with string', async () => {
+      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      const error = 'Something went wrong';
+      const subError = new SubmissionError(error);
+      await errorService.storeError(mockUserInfo, subError);
+      const createMany = (prisma.user_error.createMany as jest.Mock).mock
+        .calls[0][0];
+      expect(createMany.data.map((x) => x.error)).toStrictEqual([error]);
+    });
 
-  it('stores Error', async () => {
-    const error = 'test error';
-    const errorObj = new Error(error);
-    await errorService.storeError(mockUserInfo, errorObj);
-    const createMany = (prisma.user_error.createMany as jest.Mock).mock
-      .calls[0][0];
-    expect(createMany.data.map((x) => x.error)).toStrictEqual([error]);
-  });
+    it('stores Error', async () => {
+      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      const error = 'test error';
+      const errorObj = new Error(error);
+      await errorService.storeError(mockUserInfo, errorObj);
+      const createMany = (prisma.user_error.createMany as jest.Mock).mock
+        .calls[0][0];
+      expect(createMany.data.map((x) => x.error)).toStrictEqual([error]);
+    });
 
-  it('does not store anything if there are no errors', async () => {
-    await errorService.storeError(
-      mockUserInfo,
-      new SubmissionError(new ValidationError([], [], [])),
-    );
+    it('does not store anything if there are no errors', async () => {
+      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      await errorService.storeError(
+        mockUserInfo,
+        new SubmissionError(new ValidationError([], [], [])),
+      );
 
-    expect(prisma.user_error.createMany).toHaveBeenCalledTimes(0);
+      expect(prisma.user_error.createMany).toHaveBeenCalledTimes(0);
+    });
   });
 });
 

@@ -46,6 +46,14 @@ config.defaults({
     reportUnlockDurationInDays: parseInt(
       process.env.REPORT_UNLOCK_DURATION_IN_DAYS || '2',
     ),
+    userErrorLogging: {
+      isEnabled:
+        process.env.IS_USER_ERROR_LOGGING_ENABLED?.toUpperCase() == 'TRUE' ||
+        false,
+      deleteScheduleCronTime: process.env.DELETE_USER_ERRORS_CRON_CRONTIME,
+      numMonthsOfUserErrorsToKeep:
+        process.env.NUM_MONTHS_OF_USER_ERRORS_TO_KEEP || 6,
+    },
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
       windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
@@ -108,4 +116,5 @@ config.defaults({
     emailRecipients: process.env.CHES_EMAIL_RECIPIENTS?.split(','), // comma separated email addresses
   },
 });
+
 export { config };
