@@ -1,56 +1,63 @@
 import { faker } from '@faker-js/faker';
-import { SSO } from './admin-users-services';
+import { AdminUserService } from './admin-users-services';
 
-const mockAxiosGet = jest.fn();
-const mockAxiosPost = jest.fn();
-const mockAxiosCreate = jest.fn((args) => ({
-  get: () => mockAxiosGet(),
+const mockFindFirst = jest.fn();
+const mockCreate = jest.fn();
+const mockUpdate = jest.fn();
+jest.mock('../prisma/prisma-client', () => ({
+  __esModule: true,
+  ...jest.requireActual('../prisma/prisma-client'),
+  default: {
+    admin_user_onboarding: {
+      findFirst: (args) => mockFindFirst(args),
+      create: (args) => mockCreate(args),
+      update: (args) => mockUpdate(args),
+    },
+    $extends: jest.fn(),
+  },
 }));
-jest.mock('axios', () => ({
-  ...jest.requireActual('axios'),
-  post: () => mockAxiosPost(),
-  create: (args) => mockAxiosCreate(args),
+
+const mockSendEmailWithRetry = jest.fn();
+jest.mock('../../external/services/ches', () => ({
+  __esModule: true,
+  default: {
+    sendEmailWithRetry: () => mockSendEmailWithRetry(),
+    generateHtmlEmail: () => jest.fn(),
+  },
 }));
+
+const service = new AdminUserService();
 
 describe('admin-users-service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  it('should initialize SSO client', async () => {
-    mockAxiosPost.mockResolvedValue({
-      data: { access_token: 'jwt', token_type: 'Bearer' },
+
+  describe('addNewUser', () => {
+    describe('when invitation does not exist', () => {
+      it('should send a new invitation', async () => {
+        await service.addNewUser(
+          faker.internet.email(),
+          'admin',
+          faker.internet.userName(),
+          faker.internet.userName(),
+        );
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+        expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
+      });
     });
-    await SSO.init();
-    expect(mockAxiosPost).toHaveBeenCalledTimes(1);
-
-    const { headers } = mockAxiosCreate.mock.calls[0][0];
-
-    expect(headers.Authorization).toBe('Bearer jwt');
-  });
-
-  describe('getUsers', () => {
-    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
-      mockAxiosPost.mockResolvedValue({
-        data: { access_token: 'jwt', token_type: 'Bearer' },
+    describe('when invitation exists', () => {
+      it('should send a update invitation and send email', async () => {
+        mockFindFirst.mockResolvedValue({})
+        await service.addNewUser(
+          faker.internet.email(),
+          'admin',
+          faker.internet.userName(),
+          faker.internet.userName(),
+        );
+        expect(mockUpdate).toHaveBeenCalledTimes(1);
+        expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
       });
-      mockAxiosGet.mockResolvedValue({
-        data: {
-          data: [
-            {
-              email: faker.internet.email(),
-              attributes: {
-                idir_username: [faker.internet.userName()],
-                display_name: [faker.internet.displayName()],
-              },
-            },
-          ],
-        },
-      });
-      const client = await SSO.init();
-      const users = await client.getUsers();
-      expect(mockAxiosGet).toHaveBeenCalledTimes(2);
-      expect(users.some((u) => u.role === 'PTRT-ADMIN')).toBeTruthy();
-      expect(users.some((u) => u.role === 'PTRT-USER')).toBeTruthy();
     });
   });
 });

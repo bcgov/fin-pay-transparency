@@ -7,7 +7,8 @@ import { logger as log } from '../../logger';
 import { AuthBase } from './auth-utils-service';
 import { utils } from './utils-service';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
-import { SSO } from './admin-users-services';
+import { SSO } from './sso-service';
+import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
 
 enum LogoutReason {
   Login = 'login', // ie. don't log out
@@ -17,7 +18,8 @@ enum LogoutReason {
   LoginAzureIdir = 'loginAzureIdir',
   ContactError = 'contactError',
   NotAuthorized = 'notAuthorized',
-  RoleChanged = 'roleChanged'
+  RoleChanged = 'roleChanged',
+  InvitationExpired = 'invitationExpired'
 }
 
 class AdminAuth extends AuthBase {
@@ -112,10 +114,15 @@ class AdminAuth extends AuthBase {
         is_onboarded: false
       }
     });
-    //TODO - if onboarding request exists and has expired show the page to user to ask admin to add them again.
 
     // record found , need to do the processing.
     if (adminUserOnboarding) {
+
+      const expireDate = LocalDateTime.from(nativeJs(new Date(adminUserOnboarding.expiry_date)));
+      if (expireDate.isBefore(LocalDateTime.now(ZoneId.UTC))) {
+        return LogoutReason.InvitationExpired;
+      }
+
       // get SSO roles from Keycloak
       await this.processRolesWithKeycloak(preferred_username, adminUserOnboarding, refreshToken);
       await this.storeUserInfoWithHistory(adminUserOnboarding, idirUserGuid);

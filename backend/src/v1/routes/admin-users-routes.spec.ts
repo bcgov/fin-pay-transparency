@@ -4,7 +4,7 @@ import router from './admin-users-routes';
 
 const mockGetUsers = jest.fn();
 const mockInitSSO = jest.fn();
-jest.mock('../services/admin-users-services', () => ({
+jest.mock('../services/sso-service', () => ({
   SSO: {
     init: () => mockInitSSO(),
   },
