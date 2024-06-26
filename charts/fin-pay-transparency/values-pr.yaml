@@ -35,7 +35,7 @@ global:
   autoscaling:
     enabled: false
   config:
-    is_user_error_logging_enabled: true
+    is_user_error_logging_enabled: "true"
   crunchyEnabled: false
   seedData: true
 backend:

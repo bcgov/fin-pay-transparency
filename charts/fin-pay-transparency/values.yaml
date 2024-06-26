@@ -50,7 +50,7 @@ global:
     first_year_with_prev_reporting_year_option: "2025"
     db_connection_pool_size: "5"
     num_months_of_user_errors_to_keep: "6"
-    is_user_error_logging_enabled: false
+    is_user_error_logging_enabled: "false"
   crunchyEnabled: true
   seedData: false # this controls whether the seed data should be loaded or not, mostly used for PR deployments.
 backend:
