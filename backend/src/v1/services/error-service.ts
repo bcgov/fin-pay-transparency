@@ -171,13 +171,14 @@ const errorService = {
   Deletes errors that were logged before a given date
   @param thresholdDate: an ISO 8601 datetime string identifying the date in 
   which errors older than this should be deleted. (default: 6 months ago)
-  */
-  async deleteErrorsOlderThan(
-    thresholdDate: string = LocalDate.now(ZoneId.UTC)
+  Example usage:  
+    const sixMonthsAgo = LocalDate.now(ZoneId.UTC)
       .atStartOfDay(ZoneId.UTC)
       .minusMonths(6)
-      .format(DateTimeFormatter.ISO_DATE_TIME),
-  ) {
+      .format(DateTimeFormatter.ISO_DATE_TIME;
+    errorService.deleteErrorsOlderThan(sixMonthsAgo);
+  */
+  async deleteErrorsOlderThan(thresholdDate: string) {
     await prisma.user_error.deleteMany({
       where: {
         create_date: {
