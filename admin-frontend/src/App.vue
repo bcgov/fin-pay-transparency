@@ -27,7 +27,7 @@
 
 <script>
 import { appStore } from './store/modules/app';
-import { mapState } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 import Header from './components/Header.vue';
 import SideBar from './components/SideBar.vue';
 import MsieBanner from './components/MsieBanner.vue';
@@ -35,6 +35,7 @@ import SnackBar from './components/util/SnackBar.vue';
 import BreadcrumbTrail from './components/BreadcrumbTrail.vue';
 import { NotificationService } from './services/notificationService';
 import { authStore } from './store/modules/auth';
+import { USER_ROLE_NAME } from './constants';
 
 export default {
   name: 'App',
@@ -69,12 +70,15 @@ export default {
       }
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
       this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
-      this.isBreadcrumbTrailVisible = to?.meta?.isBreadcrumbTrailVisible;
+      this.isBreadcrumbTrailVisible =
+        to?.meta?.isBreadcrumbTrailVisible &&
+        this.doesUserHaveRole(USER_ROLE_NAME);
     },
   },
   async created() {},
   methods: {
     appStore,
+    ...mapActions(authStore, ['doesUserHaveRole']),
   },
 };
 </script>

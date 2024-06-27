@@ -13,7 +13,7 @@ import { PAGE_TITLES } from './utils/constant';
 import Login from './components/Login.vue';
 import { authStore } from './store/modules/auth';
 import Logout from './components/Logout.vue';
-import { ADMIN_ROLE_NAME } from './constants';
+import { ADMIN_ROLE_NAME, USER_ROLE_NAME } from './constants';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -37,6 +37,7 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.DASHBOARD,
         requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
       },
     },
@@ -47,6 +48,7 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.REPORTS,
         requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
         isBreadcrumbTrailVisible: true,
       },
@@ -58,6 +60,7 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.ANNOUNCEMENTS,
         requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
         isBreadcrumbTrailVisible: true,
       },
@@ -69,7 +72,7 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.USER_MANAGEMENT,
         requiresAuth: true,
-        role: ADMIN_ROLE_NAME,
+        requiresRole: ADMIN_ROLE_NAME,
         isTitleVisible: true,
         isBreadcrumbTrailVisible: true,
       },
@@ -81,6 +84,7 @@ const router = createRouter({
       meta: {
         pageTitle: PAGE_TITLES.ANALYTICS,
         requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
         isBreadcrumbTrailVisible: true,
       },
@@ -125,14 +129,13 @@ const router = createRouter({
       name: 'NotFound',
       component: NotFoundPage,
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
   ],
 });
 
 router.beforeEach((to, _from, next) => {
-  // this section is to set page title in vue store
   if (!to.meta.requiresAuth) {
     //Proceed normally to the requested route
     const apStore = appStore();
@@ -141,7 +144,6 @@ router.beforeEach((to, _from, next) => {
     return;
   }
 
-  // requires bceid info
   const aStore = authStore();
 
   aStore
@@ -155,12 +157,16 @@ router.beforeEach((to, _from, next) => {
       aStore
         .getUserInfo()
         .then(() => {
-          if (to.meta.role && aStore.userInfo?.role !== to.meta.role) {
-            next('notfound')
+          if (
+            to.meta.requiresRole &&
+            !aStore.doesUserHaveRole(to.meta.requiresRole)
+          ) {
+            next('notfound');
           }
           next();
         })
-        .catch(() => {
+        .catch((e) => {
+          console.log(e);
           next('error');
         });
     })

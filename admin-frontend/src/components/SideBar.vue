@@ -26,51 +26,60 @@
       </div>
     </div>
     <v-list-item
+      id="link-dashboard"
       link
       to="dashboard"
       title="Dashboard"
       :class="{ active: activeRoute == 'dashboard' }"
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
       <template v-slot:prepend>
         <v-icon icon="mdi-home"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      id="link-reports"
       link
       to="reports"
       title="Reports"
       :class="{ active: activeRoute == 'reports' }"
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
       <template v-slot:prepend>
         <v-icon icon="mdi-magnify"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      id="link-announcements"
       link
       to="announcements"
       title="Announcements"
       :class="{ active: activeRoute == 'announcements' }"
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
       <template v-slot:prepend>
         <v-icon icon="mdi-bullhorn"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      id="link-user-management"
       link
       to="user-management"
       title="User Management"
       :class="{ active: activeRoute == 'user-management' }"
-      v-if="userInfo?.role == ADMIN_ROLE_NAME"
+      v-if="auth.doesUserHaveRole(ADMIN_ROLE_NAME)"
     >
       <template v-slot:prepend>
         <v-icon icon="mdi-account-multiple"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      id="link-analytics"
       link
       to="analytics"
       title="Analytics"
       :class="{ active: activeRoute == 'analytics' }"
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
       <template v-slot:prepend>
         <v-icon icon="mdi-chart-bar"></v-icon>
@@ -90,9 +99,9 @@ export default {
 import { watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { authStore } from '../store/modules/auth';
-import { ADMIN_ROLE_NAME } from '../constants';
+import { ADMIN_ROLE_NAME, USER_ROLE_NAME } from '../constants';
 
-const { userInfo } = authStore();
+const auth = authStore();
 const route = useRoute();
 const activeRoute = ref();
 const isExpanded = ref(true);
