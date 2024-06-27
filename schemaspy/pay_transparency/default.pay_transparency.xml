@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?><database name="default" schema="pay_transparency" type="PostgreSQL - 16.3 (Debian 16.3-1.pgdg120+1)">
    <tables>
+      <table name="admin_user" remarks="To track the associated roles and status active/inactive of admin users of the application" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="admin_user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <child column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="idir_user_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="display_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="true" digits="0" id="7" name="is_active" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="assigned_roles" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="admin_user_id" sequenceNumberInPK="1"/>
+         <index name="admin_user_id_pk" unique="true">
+            <column ascending="true" name="admin_user_id"/>
+         </index>
+      </table>
+      <table name="admin_user_history" remarks="History is updated when there is change in roles or status of the admin user." schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="admin_user_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="admin_user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="idir_user_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="display_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="create_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="update_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="true" digits="0" id="8" name="is_active" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="assigned_roles" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="admin_user_history_id" sequenceNumberInPK="1"/>
+         <index name="admin_user_history_id_pk" unique="true">
+            <column ascending="true" name="admin_user_history_id"/>
+         </index>
+      </table>
+      <table name="admin_user_onboarding" remarks="To track pending admin users of the application that are waiting to be onboarded." schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="admin_user_onboarding_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="email" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="first_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="assigned_roles" nullable="false" remarks="Roles assigned to the user.Comma separated list of roles that can be assigned to the user" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="create_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="6" name="is_onboarded" nullable="false" remarks="Flag to indicate if the user has been onboarded or not" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="expiry_date" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="admin_user_onboarding_id" sequenceNumberInPK="1"/>
+         <index name="admin_user_onboarding_id_pk" unique="true">
+            <column ascending="true" name="admin_user_onboarding_id"/>
+         </index>
+      </table>
       <table name="calculated_data_history" remarks="" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="calculated_data_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="calculated_data_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">

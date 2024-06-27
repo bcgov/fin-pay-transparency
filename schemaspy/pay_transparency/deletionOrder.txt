@@ -1,10 +1,13 @@
 flyway_schema_history
+admin_user_onboarding
 calculated_data_history
 user_error
 company_history
+admin_user_history
 report_history
 pay_transparency_calculated_data
 pay_transparency_report
+admin_user
 naics_code
 employee_count_range
 calculation_code
