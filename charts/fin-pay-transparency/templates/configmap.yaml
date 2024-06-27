@@ -10,7 +10,10 @@ data:
   REPORT_EDIT_DURATION_IN_DAYS: {{ .Values.global.config.report_edit_duration_in_days | quote }}
   REPORT_UNLOCK_DURATION_IN_DAYS: {{ .Values.global.config.report_unlock_duration_in_days | quote }}
   DELETE_DRAFT_REPORT_CRON_CRONTIME: {{ .Values.global.config.delete_draft_report_cron_crontime | quote }}
+  DELETE_USER_ERRORS_CRON_CRONTIME: {{ .Values.global.config.delete_user_errors_cron_crontime | quote }}
   LOCK_REPORT_CRON_CRONTIME: {{ .Values.global.config.lock_report_cron_crontime | quote }}
   REPORTS_SCHEDULER_CRON_TIMEZONE: {{ .Values.global.config.reports_scheduler_cron_timezone | quote }}
   FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION: {{ .Values.global.config.first_year_with_prev_reporting_year_option | quote }}
   DB_CONNECTION_POOL_SIZE: {{ .Values.global.config.db_connection_pool_size | quote }}
+  IS_USER_ERROR_LOGGING_ENABLED: {{ .Values.global.config.is_user_error_logging_enabled | quote }}
+  NUM_MONTHS_OF_USER_ERRORS_TO_KEEP: {{ .Values.global.config.num_months_of_user_errors_to_keep | quote }}
