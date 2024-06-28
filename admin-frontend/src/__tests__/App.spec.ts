@@ -1,6 +1,6 @@
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
@@ -76,9 +76,13 @@ const setupComponentEnvironment = async (options: any = {}) => {
   };
 };
 
-describe('App', () => {
-  beforeEach(async () => {});
+beforeEach(async () => {});
 
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+describe('App', () => {
   describe('if the header and sidebar are supposed to be visible', () => {
     it('they are both actually visible', async () => {
       const componentEnv = await setupComponentEnvironment();
@@ -119,8 +123,8 @@ describe('App', () => {
     });
   });
   describe('onRouteChanged', () => {
-    describe('', () => {
-      it('', async () => {
+    describe('when the route changes', () => {
+      it('various state variables are updated', async () => {
         const componentEnv = await setupComponentEnvironment();
         const to = {
           meta: {
