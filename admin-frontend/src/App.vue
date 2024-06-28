@@ -62,7 +62,17 @@ export default {
     },
   },
   watch: {
-    $route(to, from) {
+    $route: {
+      handler(to, from) {
+        this.onRouteChanged(to, from);
+      },
+    },
+  },
+  async created() {},
+  methods: {
+    appStore,
+    ...mapActions(authStore, ['doesUserHaveRole']),
+    onRouteChanged(to, from) {
       this.activeRoute = to;
       if (to.fullPath != '/error') {
         //Reset error page message back to the default
@@ -73,17 +83,7 @@ export default {
       this.isBreadcrumbTrailVisible =
         to?.meta?.isBreadcrumbTrailVisible &&
         this.doesUserHaveRole(USER_ROLE_NAME);
-      console.log(
-        '===============' +
-          this.doesUserHaveRole(USER_ROLE_NAME) +
-          JSON.stringify(to),
-      );
     },
-  },
-  async created() {},
-  methods: {
-    appStore,
-    ...mapActions(authStore, ['doesUserHaveRole']),
   },
 };
 </script>
