@@ -44,21 +44,21 @@
                 variant="text"
                 append-icon="mdi-chevron-down"
                 class="role-menu-button"
-                :aria-label="`Role ${RoleLabels[user.role]}`"
+                :aria-label="`Role ${RoleLabels[user.effectiveRole]}`"
                 v-bind="props"
-                >{{ RoleLabels[user.role] }}</v-btn
+                >{{ RoleLabels[user.effectiveRole] }}</v-btn
               >
             </template>
 
             <v-list>
               <v-list-item
-                :variant="user.role === item.value ? 'tonal' : 'plain'"
+                :variant="user.effectiveRole === item.value ? 'tonal' : 'plain'"
                 v-for="(item, index) in RoleOptions"
                 :key="index"
-                :class="user.role === item.value ? 'selected-role' : undefined"
+                :class="user.effectiveRole === item.value ? 'selected-role' : undefined"
               >
                 <v-list-item-title v-text="item.label"></v-list-item-title>
-                <template v-slot:append v-if="user.role === item.value">
+                <template v-slot:append v-if="user.effectiveRole === item.value">
                   <v-icon size="x-small" icon="mdi-check" />
                 </template>
               </v-list-item>
