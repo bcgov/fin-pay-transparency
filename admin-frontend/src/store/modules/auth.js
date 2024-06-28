@@ -81,7 +81,6 @@ export const authStore = defineStore('auth', {
       this.userInfo = userInfoRes.data;
     },
     doesUserHaveRole(roleToCheckFor) {
-      console.log('*******************');
       return (
         this?.userInfo?.roles?.length &&
         this?.userInfo?.roles.indexOf(roleToCheckFor) >= 0

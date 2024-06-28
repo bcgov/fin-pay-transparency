@@ -54,4 +54,24 @@ describe('AuthStore', () => {
     await auth.getJwtToken();
     expect(localStorage.getItem(LOCAL_STORAGE_KEY_JWT)).toBeTruthy();
   });
+  describe('doesUserHaveRole', () => {
+    describe("if the user doesn't have the given role", () => {
+      it('return false', () => {
+        const mockRole = 'MOCK_ROLE';
+        auth.userInfo = {
+          roles: [],
+        };
+        expect(auth.doesUserHaveRole(mockRole)).toBeFalsy();
+      });
+    });
+    describe('if the user has the given role', () => {
+      it('return true', () => {
+        const mockRole = 'MOCK_ROLE';
+        auth.userInfo = {
+          roles: [mockRole],
+        };
+        expect(auth.doesUserHaveRole(mockRole)).toBeTruthy();
+      });
+    });
+  });
 });
