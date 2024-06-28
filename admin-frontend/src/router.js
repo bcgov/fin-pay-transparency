@@ -165,8 +165,7 @@ router.beforeEach((to, _from, next) => {
           }
           next();
         })
-        .catch((e) => {
-          console.log(e);
+        .catch(() => {
           next('error');
         });
     })
