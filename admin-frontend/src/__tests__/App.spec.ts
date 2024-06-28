@@ -1,5 +1,6 @@
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
+import { getActivePinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createVuetify } from 'vuetify';
@@ -25,12 +26,7 @@ const setupComponentEnvironment = async (options: any = {}) => {
     directives,
   });
 
-  const pinia = createTestingPinia({
-    initialState: {
-      code: {},
-      config: {},
-    },
-  });
+  const pinia = getActivePinia();
 
   const auth = authStore();
   auth.getJwtToken = vi.fn().mockResolvedValue(null);
@@ -57,7 +53,7 @@ const setupComponentEnvironment = async (options: any = {}) => {
         components: {
           App,
         },
-        plugins: [vuetify, pinia, mockRouter],
+        plugins: [vuetify, pinia as any, mockRouter],
       },
     },
   );
@@ -76,7 +72,15 @@ const setupComponentEnvironment = async (options: any = {}) => {
   };
 };
 
-beforeEach(async () => {});
+beforeEach(async () => {
+  const pinia = createTestingPinia({
+    initialState: {
+      code: {},
+      config: {},
+    },
+  });
+  setActivePinia(pinia);
+});
 
 afterEach(() => {
   vi.clearAllMocks();
