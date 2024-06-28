@@ -118,4 +118,25 @@ describe('App', () => {
       expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
     });
   });
+  describe('onRouteChanged', () => {
+    describe('', () => {
+      it('', async () => {
+        const componentEnv = await setupComponentEnvironment();
+        const to = {
+          meta: {
+            requiresAuth: false,
+            isBreadcrumbTrailVisible: true,
+            pageTitle: 'sample route',
+          },
+        };
+        componentEnv.auth.doesUserHaveRole.mockReturnValue(false);
+        componentEnv.app.vm.onRouteChanged(to, null);
+        expect(componentEnv.app.vm.activeRoute).toStrictEqual(to);
+        expect(componentEnv.app.vm.areHeaderAndSidebarVisible).toBe(
+          to.meta.requiresAuth,
+        );
+        expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBe(false);
+      });
+    });
+  });
 });
