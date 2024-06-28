@@ -1,75 +1,61 @@
-import axios, { AxiosInstance } from 'axios';
 import { config } from '../../config';
-import flatten from 'lodash/flatten';
-import qs from 'qs';
+import emailService from '../../external/services/ches';
+import prisma from '../prisma/prisma-client';
+import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
 
-const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
-const CSS_SSO_TOKEN_URL =
-  'https://loginproxy.gov.bc.ca/auth/realms/standard/protocol/openid-connect/token';
-
-type LoginReponse = {
-  access_token: string;
-  token_type: string;
-};
-
-type GetUserResponse = {
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  attributes: {
-    display_name: string[];
-    idir_user_guid: string[];
-    idir_username: string[];
-  };
-};
-
-type User = { userName: string; displayName: string; role: string };
-
-const ROLE_NAMES = ['PTRT-USER', 'PTRT-ADMIN'];
-
-export class SSO {
-  constructor(private readonly client: AxiosInstance) {}
-
-  static async init() {
-    const { data } = await axios.post<LoginReponse>(
-      CSS_SSO_TOKEN_URL,
-      qs.stringify({
-        grant_type: 'client_credentials',
-      }),
-      {
-        auth: config.get('cssAppApiIntegration:auth'),
-      },
-    );
-
-    const { access_token, token_type } = data;
-    const client = axios.create({
-      baseURL: `${CSS_SSO_BASE_URL}/integrations/${config.get('cssAppApiIntegration:integrationId')}/${config.get('cssAppApiIntegration:environment')}/`,
-      headers: {
-        Authorization: `${token_type} ${access_token}`,
+export class AdminUserService {
+  async addNewUser(
+    email: string,
+    roles: string,
+    firstname: string,
+    createdBy: string,
+  ) {
+    const pendingUserRequest = await prisma.admin_user_onboarding.findFirst({
+      where: {
+        email: email,
+        is_onboarded: false,
+        expiry_date: { lte: convert(LocalDateTime.now(ZoneId.UTC)).toDate() },
       },
     });
 
-    return new SSO(client);
+    const expiryDate = convert(
+      LocalDateTime.now(ZoneId.UTC).plusHours(
+        config.get('server:adminInvitationDurationInHours'),
+      ),
+    ).toDate();
+
+    if (pendingUserRequest) {
+      await prisma.admin_user_onboarding.update({
+        where: {
+          admin_user_onboarding_id: pendingUserRequest.admin_user_onboarding_id,
+        },
+        data: {
+          expiry_date: expiryDate,
+        },
+      });
+    } else {
+      await prisma.admin_user_onboarding.create({
+        data: {
+          email: email,
+          first_name: firstname,
+          assigned_roles: roles,
+          is_onboarded: false,
+          created_by: createdBy,
+          expiry_date: expiryDate,
+        },
+      });
+    }
+    await this.sendUserEmailInvite(email, firstname);
   }
 
-  async getUsers(): Promise<User[]> {
-    const results = await Promise.all(
-      ROLE_NAMES.map(async (roleName) => {
-        const { data: results } = await this.client.get<{
-          data: GetUserResponse[];
-        }>(`/roles/${roleName}/users`);
-
-        return results.data
-          .filter((user) => !!user.email)
-          .map((item) => ({
-            userName: item.attributes.idir_username[0],
-            displayName: item.attributes.display_name[0],
-            role: roleName,
-          }));
-      }),
+  async sendUserEmailInvite(email: string, firstname: string) {
+    const htmlEmail = emailService.generateHtmlEmail(
+      'Pay Transparency Admin Portal Onboarding',
+      [email],
+      'Pay Transparency Admin Portal Onboarding',
+      `Hello ${firstname}, <br><br> You have been invited to join the Pay Transparency Admin Portal as an User. Please click the link below to complete your registration and access the application. <br><br> <a href="${config.get('adminFrontend')}">Click here to complete your registration</a>`,
+      `You have been invited to join the Pay Transparency Admin Portal as an Admin User. Please click the link below to complete your registration and access the application.<a href="${config.get('adminFrontend')}">Click here to complete your registration</a>`,
     );
-
-    return flatten(results);
+    await emailService.sendEmailWithRetry(htmlEmail, 3);
   }
 }

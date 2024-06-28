@@ -40,7 +40,6 @@ jest.mock('../prisma/prisma-client', () => ({
   default: {
     pay_transparency_report: {
       findUniqueOrThrow: (args) => {
-        console.log(args);
         return prismaClient.pay_transparency_report.findUniqueOrThrow(args);
       },
       findUnique: (args) =>
