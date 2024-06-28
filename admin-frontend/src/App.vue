@@ -73,6 +73,11 @@ export default {
       this.isBreadcrumbTrailVisible =
         to?.meta?.isBreadcrumbTrailVisible &&
         this.doesUserHaveRole(USER_ROLE_NAME);
+      console.log(
+        '===============' +
+          this.doesUserHaveRole(USER_ROLE_NAME) +
+          JSON.stringify(to),
+      );
     },
   },
   async created() {},
