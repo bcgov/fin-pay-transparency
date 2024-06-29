@@ -1,7 +1,13 @@
 import axios, { AxiosInstance } from 'axios';
 import { config } from '../../config';
 import flatten from 'lodash/flatten';
+import omit from 'lodash/omit';
+import groupBy from 'lodash/groupBy';
 import qs from 'qs';
+import {
+  PTRT_ADMIN_ROLE_NAME,
+  PTRT_USER_ROLE_NAME,
+} from '../../constants/admin';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
@@ -53,7 +59,9 @@ export class SSO {
     return new SSO(client);
   }
 
-  async getUsers(): Promise<User[]> {
+  async getUsers(): Promise<
+    (Omit<User, 'role'> & { roles: string[]; effectiveRole: string })[]
+  > {
     const results = await Promise.all(
       ROLE_NAMES.map(async (roleName) => {
         const { data: results } = await this.client.get<{
@@ -70,7 +78,21 @@ export class SSO {
       }),
     );
 
-    return flatten(results);
+    const userGroups: { [key: string]: User[] } = groupBy(
+      flatten(results),
+      (u) => u.userName,
+    );
+
+    return Object.keys(userGroups).reduce((acc: User[], key: string) => {
+      const users = userGroups[key];
+      const roles = users.map((user) => user.role);
+      const effectiveRole = roles.includes(PTRT_ADMIN_ROLE_NAME)
+        ? PTRT_ADMIN_ROLE_NAME
+        : PTRT_USER_ROLE_NAME;
+      const user = users[0];
+
+      return [...acc, { ...omit(user, 'role'), roles, effectiveRole }];
+    }, []);
   }
 
   /**
