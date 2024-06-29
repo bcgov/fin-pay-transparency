@@ -80,6 +80,12 @@ export const authStore = defineStore('auth', {
       const userInfoRes = await ApiService.getUserInfo();
       this.userInfo = userInfoRes.data;
     },
+    doesUserHaveRole(roleToCheckFor) {
+      return (
+        this?.userInfo?.roles?.length &&
+        this?.userInfo?.roles.indexOf(roleToCheckFor) >= 0
+      );
+    },
     //retrieves the json web token from local storage. If not in local storage, retrieves it from API
     async getJwtToken() {
       await this.setError(false);
