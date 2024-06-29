@@ -44,14 +44,21 @@ describe('sso-service', () => {
                 display_name: [faker.internet.displayName()],
               },
             },
+            {
+              email: faker.internet.email(),
+              attributes: {
+                idir_username: [faker.internet.userName()],
+                display_name: [faker.internet.displayName()],
+              },
+            },
           ],
         },
       });
       const client = await SSO.init();
       const users = await client.getUsers();
       expect(mockAxiosGet).toHaveBeenCalledTimes(2);
-      expect(users.some((u) => u.role === 'PTRT-ADMIN')).toBeTruthy();
-      expect(users.some((u) => u.role === 'PTRT-USER')).toBeTruthy();
+      expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
+      expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
     });
   });
 
