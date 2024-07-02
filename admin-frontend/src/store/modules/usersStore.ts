@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import ApiService from '../../services/apiService';
-import { User } from '../../types';
+import { AddUserInput, User } from '../../types';
 
 export const useUsersStore = defineStore('users', () => {
   const loading = ref<boolean>(false);
@@ -19,6 +19,10 @@ export const useUsersStore = defineStore('users', () => {
     }
   };
 
+  const addUser = async (data: AddUserInput) => {
+    return ApiService.addUser(data);
+  };
+
   const reset = () => {
     loading.value = false;
     users.value = undefined;
@@ -30,6 +34,7 @@ export const useUsersStore = defineStore('users', () => {
     users,
     //actions
     getUsers,
+    addUser,
     reset,
   };
 });

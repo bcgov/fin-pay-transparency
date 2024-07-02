@@ -1,4 +1,8 @@
 import { config } from '../../config';
+import {
+  PTRT_ADMIN_ROLE_NAME,
+  PTRT_USER_ROLE_NAME,
+} from '../../constants/admin';
 import emailService from '../../external/services/ches';
 import prisma from '../prisma/prisma-client';
 import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
@@ -6,7 +10,7 @@ import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
 export class AdminUserService {
   async addNewUser(
     email: string,
-    roles: string,
+    role: string,
     firstname: string,
     createdBy: string,
   ) {
@@ -34,11 +38,15 @@ export class AdminUserService {
         },
       });
     } else {
+      const roles =
+        role === PTRT_ADMIN_ROLE_NAME
+          ? [PTRT_ADMIN_ROLE_NAME, PTRT_USER_ROLE_NAME]
+          : [PTRT_USER_ROLE_NAME];
       await prisma.admin_user_onboarding.create({
         data: {
           email: email,
           first_name: firstname,
-          assigned_roles: roles,
+          assigned_roles: roles.join(','),
           is_onboarded: false,
           created_by: createdBy,
           expiry_date: expiryDate,
@@ -49,13 +57,13 @@ export class AdminUserService {
   }
 
   async sendUserEmailInvite(email: string, firstname: string) {
-    const htmlEmail = emailService.generateHtmlEmail(
+    const htmlEmail = emailService?.generateHtmlEmail(
       'Pay Transparency Admin Portal Onboarding',
       [email],
       'Pay Transparency Admin Portal Onboarding',
       `Hello ${firstname}, <br><br> You have been invited to join the Pay Transparency Admin Portal as an User. Please click the link below to complete your registration and access the application. <br><br> <a href="${config.get('adminFrontend')}">Click here to complete your registration</a>`,
       `You have been invited to join the Pay Transparency Admin Portal as an Admin User. Please click the link below to complete your registration and access the application.<a href="${config.get('adminFrontend')}">Click here to complete your registration</a>`,
     );
-    await emailService.sendEmailWithRetry(htmlEmail, 3);
+    await emailService?.sendEmailWithRetry(htmlEmail, 3);
   }
 }

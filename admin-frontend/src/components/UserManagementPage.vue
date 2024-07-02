@@ -7,9 +7,7 @@
     <div class="toolbar">
       <div class="title">Users ({{ users.length }})</div>
       <span style="flex: 1 1 auto" />
-      <v-btn prepend-icon="mdi-account-plus" color="primary" variant="elevated"
-        >Add New User</v-btn
-      >
+      <AddUserButton />
     </div>
     <v-row class="users-grid" no-gutters>
       <v-col
@@ -71,8 +69,9 @@
 </template>
 
 <script setup lang="ts">
+import AddUserButton from './user-management/AddUserButton.vue';
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useUsersStore } from '../store/modules/usersStore';
 import { RoleOptions, RoleLabels } from '../constants';
 

@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { AdminUserService } from './admin-users-services';
+import { PTRT_ADMIN_ROLE_NAME, PTRT_USER_ROLE_NAME } from '../../constants/admin';
 
 const mockFindFirst = jest.fn();
 const mockCreate = jest.fn();
@@ -38,7 +39,7 @@ describe('admin-users-service', () => {
       it('should send a new invitation', async () => {
         await service.addNewUser(
           faker.internet.email(),
-          'admin',
+          PTRT_USER_ROLE_NAME,
           faker.internet.userName(),
           faker.internet.userName(),
         );
@@ -51,7 +52,7 @@ describe('admin-users-service', () => {
         mockFindFirst.mockResolvedValue({})
         await service.addNewUser(
           faker.internet.email(),
-          'admin',
+          PTRT_ADMIN_ROLE_NAME,
           faker.internet.userName(),
           faker.internet.userName(),
         );

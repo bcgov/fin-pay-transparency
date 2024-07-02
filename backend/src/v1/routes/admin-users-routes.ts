@@ -50,13 +50,13 @@ router.post(
   useValidate({ mode: 'body', schema: AddNewUserSchema }),
   async (req: ExtendedRequest, res: Response) => {
     try {
-      const { email, firstName, roles } = req.body as AddNewUserType;
+      const { email, firstName, role } = req.body as AddNewUserType;
       const userInfo = utils.getSessionUser(req);
       const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
       const idirUserGuid = jwtPayload?.idir_user_guid;
       await new AdminUserService().addNewUser(
         email.trim().toLowerCase(),
-        roles,
+        role,
         firstName,
         idirUserGuid,
       );
