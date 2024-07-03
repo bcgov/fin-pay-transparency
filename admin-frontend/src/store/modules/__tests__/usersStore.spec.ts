@@ -1,11 +1,17 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useUsersStore } from '../usersStore';
+import { waitFor } from '@testing-library/vue';
 
 const mockGetUsers = vi.fn();
-vi.mock('../../services/apiService', () => ({
+const mockAddUser = vi.fn();
+vi.mock('../../../services/apiService', () => ({
   default: {
-    getUsers: () => mockGetUsers(),
+    getUsers: () => {
+      console.log('mockGetUsers ********')
+      return mockGetUsers();
+    },
+    addUser: () => mockAddUser(),
   },
 }));
 
@@ -21,6 +27,27 @@ describe('usersStore', () => {
     it('should default users list to undefined', () => {
       const store = useUsersStore();
       expect(store.users).toBe(undefined);
+    });
+  });
+
+  describe('actions', () => {
+    it('should get users', async () => {
+      const store = useUsersStore();
+      mockGetUsers.mockResolvedValueOnce([{ id: 1, name: 'John' }]);
+      await store.getUsers();
+      expect(mockGetUsers).toHaveBeenCalled();
+    });
+
+    it('should add user', async () => {
+      const store = useUsersStore();
+      mockAddUser.mockResolvedValueOnce({});
+      const input = {
+        firstName: 'Jane',
+        email: 'user@example.com',
+        role: 'admin',
+      };
+      await store.addUser(input);
+      expect(mockAddUser).toHaveBeenCalled();
     });
   });
 });

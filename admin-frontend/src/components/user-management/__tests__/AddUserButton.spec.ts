@@ -1,5 +1,5 @@
 import { createTestingPinia } from '@pinia/testing';
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { createVuetify } from 'vuetify';
 import AddUserButton from '../AddUserButton.vue';
@@ -33,7 +33,20 @@ vi.mock('../../../store/modules/usersStore', () => ({
   }),
 }));
 
+const mockSuccess = vi.fn();
+const mockError = vi.fn();
+vi.mock('../../../services/notificationService', () => ({
+  NotificationService: {
+    pushNotificationSuccess: () => mockSuccess(),
+    pushNotificationError: () => mockError(),
+  }
+}));
+
 describe('AddUserButton', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.resetAllMocks();
+  });
   it('should render correctly', async () => {
     await wrappedRender();
     expect(
@@ -129,5 +142,67 @@ describe('AddUserButton', () => {
     await waitFor(() => {
       expect(mockAddUser).toHaveBeenCalled();
     });
+    expect(mockSuccess).toHaveBeenCalled();
+  });
+
+  it('should alert error if addUser fails', async () => {
+    mockAddUser.mockImplementation(() => {
+      throw new Error('Failed to add user');
+    });
+    const wrapper = await wrappedRender();
+    const button = wrapper.getByRole('button', { name: 'Add New User' });
+    await fireEvent.click(button);
+    const nameInput = screen.getByRole('textbox', { name: 'Name' });
+    const emailInput = screen.getByRole('textbox', { name: 'Email' });
+    await fireEvent.update(nameInput, 'Test User');
+    await fireEvent.update(emailInput, 'name@example.com');
+    await fireEvent.blur(nameInput);
+    await fireEvent.blur(emailInput);
+
+    expect(screen.queryByRole('button', { name: 'Continue' })).toBeDefined();
+    const submitButton = screen.getByRole('button', { name: 'Add' });
+    expect(screen.queryByText('Confirm User Addition')).not.toBeInTheDocument();
+
+    await fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Confirm User Addition')).toBeVisible();
+    });
+    const continueButton = screen.getByRole('button', { name: 'Continue' });
+    await fireEvent.click(continueButton);
+    await waitFor(() => {
+      expect(mockAddUser).toHaveBeenCalled();
+    });
+    expect(mockError).toHaveBeenCalled();
+  });
+
+  it('should not submit form when cancel button is clicked', async () => {
+    const wrapper = await wrappedRender();
+    const button = wrapper.getByRole('button', { name: 'Add New User' });
+    await fireEvent.click(button);
+    const nameInput = screen.getByRole('textbox', { name: 'Name' });
+    const emailInput = screen.getByRole('textbox', { name: 'Email' });
+    await fireEvent.update(nameInput, 'Test User');
+    await fireEvent.update(emailInput, 'name@example.com');
+    await fireEvent.blur(nameInput);
+    await fireEvent.blur(emailInput);
+
+    expect(screen.queryByRole('button', { name: 'Continue' })).toBeDefined();
+    const submitButton = screen.getByRole('button', { name: 'Add' });
+    expect(screen.queryByText('Confirm User Addition')).not.toBeInTheDocument();
+
+    await fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Confirm User Addition')).toBeVisible();
+    });
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    await fireEvent.click(cancelButton);
+    await waitFor(() => {
+      expect(
+        screen.getByRole('dialog', { name: 'Add New User' }),
+      ).toBeVisible();
+    });
+    expect(mockAddUser).not.toHaveBeenCalled();
   });
 });
