@@ -74,6 +74,21 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>calculated_data_view</h1><p><span id="recordNumber">0</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>This view is a union of the <code>pay_transparency_calculated_data</code> table and <code>calculated_data_history</code> table. The column <code>calculation_code.calculation_code</code> have been included in this view.</p>
+<p>This view allows the webapp to fetch the calculated data for any report regardless of if that report is in the history table or not. It is used in combination with the <code>reports_view</code> view to fetch a single report with that report&rsquo;s history and also get the calculated data from this view.</p>
+<p>There are no new columns in this view, but some columns from the two <code>calculated_data</code> tables are not included in this view.</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -128,7 +143,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The primary ID to identify this specific record in the table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="report_id">report_id</span></td>
@@ -150,7 +165,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Identifies which report that this calculated data is associated with. This references the primary key of <code>pay_transparency_report</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="calculation_code_id">calculation_code_id</span></td>
@@ -172,7 +187,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Identifies which statistic this record is storing. References the primary key of <code>calculation_code</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="value">value</span></td>
@@ -189,7 +204,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The statistic that indicates any disparity in gender pay, which will be shown as a graph in the resulting report. If there is insufficient information to calculate the statistic, value will be null.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="is_suppressed">is_suppressed</span></td>
@@ -206,7 +221,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Will be set to true if there is not enough information to calculate a statistic. Suppressed statistics are not included in the outputted report.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="calculation_code">calculation_code</span></td>
@@ -223,7 +238,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>A unique, human readable string used to identify the algorithm for data calculation. The webapp uses this code to lookup the <code>calculation_code_id</code> to save the value in the <code>pay_transparency_calculated_data</code> table.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -257,7 +272,7 @@
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
 <area shape="rect" id="node1" href="calculated_data_view.html" target="_top" title="calculated_data_view" alt="" coords="725,180,1077,401">
 <area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,29,681,235">
-<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,404,251,527">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,404,251,551">
 <area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,5,284,387">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/calculated_data_view.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>

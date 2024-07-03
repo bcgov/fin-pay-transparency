@@ -74,6 +74,19 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>calculated_data_history</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>This table stores the calculated data associated with previous versions of published reports. When a report is updated, the report&rsquo;s calculated data is transferred from <code>pay_transparency_calculated_data</code> table to the <code>calculated_data_history</code> table. The purpose and meaning of the calculated data is described in the comments of the <code>pay_transparency_calculated_data</code> table. The calculated data history is used as an internal archival record, and is not accessible to the end user.</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -123,7 +136,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The primary ID to identify this specific record in the table</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="calculated_data_id">calculated_data_id</span></td>
@@ -145,7 +158,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The original ID before moving the record to the history table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="report_history_id">report_history_id</span></td>
@@ -167,7 +180,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Identifies which report that this calculated data history is associated with. This references the primary key of <code>report_history</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="report_id">report_id</span></td>
@@ -189,7 +202,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The ID of the original report associated with the record.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="calculation_code_id">calculation_code_id</span></td>
@@ -211,7 +224,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Identifies which statistic this record is storing. References the primary key of <code>calculation_code</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="value">value</span></td>
@@ -228,7 +241,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The statistic that indicates any disparity in gender pay, which will be shown as a graph in the resulting report. If there is insufficient information to calculate the statistic, value will be null.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="is_suppressed">is_suppressed</span></td>
@@ -245,7 +258,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Will be set to true if there is not enough information to calculate a statistic. Suppressed statistics are not included in the outputted report.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_date">create_date</span></td>
@@ -262,7 +275,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The date and time when this record was inserted into <code>pay_transparency_calculated_data</code>.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_date">update_date</span></td>
@@ -279,7 +292,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The date and time when this record was last modified while in <code>pay_transparency_calculated_data</code>. Records in the history table are not modified.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_user">create_user</span></td>
@@ -296,7 +309,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The username of the database user who created the record in <code>pay_transparency_calculated_data</code>.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_user">update_user</span></td>
@@ -313,7 +326,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The username of the database user who modified the record in <code>pay_transparency_calculated_data</code>. Records in the history table are not modified.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -383,22 +396,22 @@
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
 <area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="303,56,696,448">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="26,287,238,409">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="26,287,238,433">
 <area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="5,5,259,269">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/calculated_data_history.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="971,7,1364,399">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="694,340,906,463">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="971,13,1364,405">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="694,340,906,487">
 <area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="673,59,927,323">
 <area shape="rect" id="node5" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,167,629,255">
 <area shape="rect" id="node6" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,5,307,93">
 <area shape="rect" id="node7" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,216,287,304">
 <area shape="rect" id="node8" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,321,239,409">
 <area shape="rect" id="node9" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,111,287,199">
-<area shape="rect" id="node4" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="991,425,1344,513">
+<area shape="rect" id="node4" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="991,437,1344,525">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/calculated_data_history.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
@@ -406,7 +419,7 @@
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
 <area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="725,273,1119,665">
 <area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,5,681,211">
-<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,505,251,628">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,505,251,652">
 <area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="378,228,631,492">
 <area shape="rect" id="node5" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,107,284,488">
 </map>

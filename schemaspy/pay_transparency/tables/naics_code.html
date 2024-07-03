@@ -74,6 +74,20 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>naics_code</h1><p><span id="recordNumber">20</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>This is a lookup table that stores only the 1st level (of 5 levels) codes of the current North American Industry Classification System (NAICS) data. The user is required to select a NAICS code for each report.</p>
+<p><a href="https://www23.statcan.gc.ca/imdb/pUtil.pl?Function=getNote&amp;Id=1369825&amp;NT=45">North American Industry Classification System (NAICS) Canada 2022 Version 1.0</a></p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -138,7 +152,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The NAICS code which is either a number (eg 11) or a range of numbers (eg 31-33).</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="naics_label">naics_label</span></td>
@@ -155,7 +169,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The name of the sector (eg &lsquo;Construction&rsquo;) of the NAICS code.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="effective_date">effective_date</span></td>
@@ -172,7 +186,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The minimum date for which the code can be visible to the users.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="expiry_date">expiry_date</span></td>
@@ -189,7 +203,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>A code will be visible to the users if the value is not set or the current date is not later than the date value of this column.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_date">create_date</span></td>
@@ -206,7 +220,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>When the value was inserted/created</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_date">update_date</span></td>
@@ -223,7 +237,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>When the value was modified</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_user">create_user</span></td>
@@ -240,7 +254,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The database user who initially created the record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_user">update_user</span></td>
@@ -257,7 +271,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The database user who modified the record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="naics_year">naics_year</span></td>
@@ -274,7 +288,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The year on which the code was created by Statistics Canada</p></td>
                                 </tr>
                                 </tbody>
                             </table>

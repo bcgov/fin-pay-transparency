@@ -74,6 +74,20 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>pay_transparency_calculated_data</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>This table holds the statistics for a company&rsquo;s pay transparency report that shows any pay disparity between genders. Every report has 57 records (ie. statistics) in this table, collectively known as &lsquo;calculated data&rsquo;. The records in this table are statistics calculated from the file submitted by users and are used in the report. Records are identified and described by a <code>calculation_code_id</code> from the <code>calculation_code</code> table. If insufficient data prevents a statistic from being calculated, a record is still created with a null value and <code>is_suppressed</code> set as true.</p>
+<p>Calculated data linked to draft reports that are older than 48 hours are deleted automatically on a schedule.</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -133,7 +147,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The primary ID to identify this specific record in the table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="report_id">report_id</span></td>
@@ -155,7 +169,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Identifies which report that this calculated data is associated with. This references the primary key of <code>pay_transparency_report</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="calculation_code_id">calculation_code_id</span></td>
@@ -177,7 +191,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Identifies which statistic this record is storing. References the primary key of <code>calculation_code</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="value">value</span></td>
@@ -194,7 +208,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The statistic that indicates any disparity in gender pay, which will be shown as a graph in the resulting report. If there is insufficient information to calculate the statistic, value will be null.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="is_suppressed">is_suppressed</span></td>
@@ -211,7 +225,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Will be set to true if there is not enough information to calculate a statistic. Suppressed statistics are not included in the outputted report.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_date">create_date</span></td>
@@ -228,7 +242,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The date and time when this record was inserted. This is used for deleting calculated data records associated with draft reports that are older than 48 hours.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_date">update_date</span></td>
@@ -245,7 +259,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The date and time when this record was modified. Records cannot be modified from the webapp, instead the user is required to submit a new report.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_user">create_user</span></td>
@@ -262,7 +276,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The username of the database user who created the record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_user">update_user</span></td>
@@ -279,7 +293,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The username of the database user who modified the record. Records cannot be modified from the webapp, instead the user is required to submit a new report.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -361,7 +375,7 @@
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
 <area shape="rect" id="node1" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,159,785,492">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,404,251,527">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,404,251,551">
 <area shape="rect" id="node3" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,5,284,387">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/pay_transparency_calculated_data.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
@@ -369,7 +383,7 @@
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
 <area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1024,392,1292,480">
-<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="673,200,885,322">
+<area shape="rect" id="node2" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="673,188,885,334">
 <area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="683,402,876,490">
 <area shape="rect" id="node5" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,62,629,444">
 <area shape="rect" id="node6" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,52,307,140">
@@ -384,7 +398,7 @@
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
 <area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="829,43,1097,278">
 <area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="328,70,785,403">
-<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,423,251,546">
+<area shape="rect" id="node3" href="calculation_code.html" target="_top" title="calculation_code" alt="" coords="39,423,251,570">
 <area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="5,25,284,406">
 <area shape="rect" id="node5" href="calculated_data_view.html" target="_top" title="calculated_data_view" alt="" coords="841,387,1085,539">
 </map>

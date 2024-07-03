@@ -74,6 +74,23 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>pay_transparency_report</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>This table stores the latest versions of draft and published reports. Each report is submitted by a BCeID user, identified by <code>user_id</code>, and is associated with an employer with a BCeID Business account, identified by <code>company_id</code>.</p>
+<p>Reports are created after the user submits the form in the webapp. Initially <code>report_status</code> will be &lsquo;draft&rsquo;, but the user can choose to publish the report which changes it&rsquo;s <code>report_status</code> to &lsquo;published&rsquo;. The form allows the user to select <code>employee_count_range_id</code>, <code>naics_code</code>, <code>reporting_year</code>, <code>report_start_date</code>, <code>report_end_date</code>, <code>user_comment</code>, and <code>data_constraints</code>.</p>
+<p>Each employer will have one published report per <code>reporting_year</code>. When a draft report is published, the existing published report (if there is one) will be copied into the <code>report_history</code> table. Once a report is published, the <code>report_id</code> will stay the same even if it is updated. <code>revision</code> keeps track of the number of times a report has been updated after being published.</p>
+<p>Reports that have a <code>create_date</code> older than 30 days are locked on a schedule run daily. Reports with is_unlocked set to false, cannot be modified by the user. An admin can set <code>is_unlocked</code> to true, which will allow the user to publish a new report for the same <code>reporting_year</code>. After 3 days, it will automatically be locked again.</p>
+<p>Draft reports that are older than 48 hours are deleted automatically on a schedule.</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -148,7 +165,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Primary unique ID for this report. Even when a published report is updated, this ID stays the same.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="company_id">company_id</span></td>
@@ -170,7 +187,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The employer (a BCeID Business) the report is made for. This references the primary key of <code>pay_transparency_company</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user_id">user_id</span></td>
@@ -192,7 +209,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The user who created/modified this report. This references the primary key of <code>pay_transparency_user</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="user_comment">user_comment</span></td>
@@ -209,7 +226,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>User optionally fills this text area on the form, called &lsquo;Employer statement&rsquo;, which is shown at the top of the report. This is for additional information about the employer.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="employee_count_range_id">employee_count_range_id</span></td>
@@ -231,7 +248,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>User selects range indicating the number of employees an employer has on the form, which is shown on the report. This references the primary key of <code>employee_count_range</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="naics_code">naics_code</span></td>
@@ -253,7 +270,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>User selects the NAICS code for their business on the form, which is shown on the report. This references the primary key of <code>naics_code</code> table.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="report_start_date">report_start_date</span></td>
@@ -270,7 +287,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Start date of the report, which is shown on the report, and always a year before the end date. The range could be a calendar year, fiscal year, school year, or any range the employer prefers. A user can choose either the start date or end date for the report on the form. The other date is automatically calculated.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="report_end_date">report_end_date</span></td>
@@ -287,7 +304,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>End date of the report, which is shown on the report, and always a year before the end date. A user can choose either the start date or end date for the report on the form. The other date is automatically calculated.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="create_date">create_date</span></td>
@@ -304,7 +321,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The date and time when the first revision was inserted. This is used for locking published reports older than 30 days.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_date">update_date</span></td>
@@ -321,7 +338,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The date and time when this revision was modified. This is used for deleting draft reports older than 24 hours.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_user">create_user</span></td>
@@ -338,7 +355,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The username of the database user who created the record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_user">update_user</span></td>
@@ -355,7 +372,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The username of the database user who modified the record.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="report_status">report_status</span></td>
@@ -372,7 +389,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Reports are first created with the status of &lsquo;Draft&rsquo; and the user can publish their report which changes the status to &lsquo;Published&rsquo;.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="revision">revision</span></td>
@@ -389,7 +406,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Every published report has a revision. Each time a published report is replaced the revision goes up.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="data_constraints">data_constraints</span></td>
@@ -406,7 +423,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>User optionally fills this text area on the form, which is shown at the bottom of the report. This is for any relevant information, such as limitations, constraints, or dependencies, that may help explain the employers payroll data.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="is_unlocked">is_unlocked</span></td>
@@ -423,7 +440,9 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>This signifies when a published report can be modified or not. Draft reports can always be created regardless of this field.</p>
+<p>When <code>is_unlocked</code> is true on a published report, then a draft report in the same <code>reporting_year</code> can be published overwriting the existing published report.</p>
+<p>Published reports are unlocked for 30 days from the <code>create_date</code> before they are automatically locked by a schedule. Administrators can unlock a report, which will be locked again after 3 days from <code>report_unlock_date</code>.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="reporting_year">reporting_year</span></td>
@@ -440,7 +459,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>User selects the calendar year this report is for. Each employer is limited to one report annually. This is distinct from the report&rsquo;s start and end dates as employers may generate reports for any period, like a fiscal or school year, yet the specific year the report pertains to may not be discernible from those dates.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="report_unlock_date">report_unlock_date</span></td>
@@ -457,7 +476,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>This date is set by an administrator and is used by a scheduled task to change <code>is_unlocked</code> to false after 3 days.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="idir_modified_username">idir_modified_username</span></td>
