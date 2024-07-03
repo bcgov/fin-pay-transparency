@@ -122,7 +122,7 @@ describe('admin-users-router', () => {
               .send({
                 firstName: faker.person.firstName(),
                 email: faker.internet.email(),
-                roles: 'PTRT-ADMIN',
+                role: 'PTRT-ADMIN',
               })
               .expect(200);
           });
@@ -135,7 +135,7 @@ describe('admin-users-router', () => {
                 .send({
                   firstName: faker.person.firstName(),
                   email: faker.internet.email(),
-                  roles: 'PTRT-ADMIN',
+                  role: 'PTRT-ADMIN',
                 })
                 .expect(400);
             });
