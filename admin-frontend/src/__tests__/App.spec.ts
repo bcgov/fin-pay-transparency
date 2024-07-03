@@ -9,6 +9,7 @@ import * as directives from 'vuetify/directives';
 import App from '../App.vue';
 import router from '../router';
 import { authStore } from '../store/modules/auth';
+import { waitFor } from '@testing-library/vue';
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
@@ -123,7 +124,10 @@ describe('App', () => {
       componentEnv.router.push('/user-management');
       await componentEnv.router.isReady();
       await componentEnv.app.vm.$nextTick();
-      expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
+      await waitFor(() => {
+        expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
+      
+      })
     });
   });
   describe('onRouteChanged', () => {
