@@ -356,7 +356,7 @@ function reset() {
 onMounted(() => {});
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 $inputHeight: 40px;
 .primary-filters {
   margin-right: -24px;
