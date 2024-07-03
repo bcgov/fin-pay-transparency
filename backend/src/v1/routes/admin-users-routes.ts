@@ -94,7 +94,6 @@ router.post(
   },
 );
 const ASSIGN_ROLE_SCHEMA = z.object({
-  username: z.string(),
   role: z.enum([PTRT_ADMIN_ROLE_NAME, PTRT_USER_ROLE_NAME]),
 });
 
@@ -102,23 +101,38 @@ const ASSIGN_ROLE_SCHEMA = z.object({
  * Assign user role
  */
 router.patch(
-  '/roles',
+  '/:userId',
   validateRequest('body', ASSIGN_ROLE_SCHEMA),
   async (req: ExtendedRequest, res: Response) => {
+    const { userId } = req.params;
     const data: z.infer<typeof ASSIGN_ROLE_SCHEMA> = req.body;
 
     try {
-      const { error } = await req.sso.assignRole(data.username, data.role);
-      console.log('1')
-      if (error) {
-        return res.status(400).json({ error: 'Failed to assign user role' });
-      }
-      return res.status(204).json({message: 'Successfully assigned user role'});
+      await req.sso.assignRoleToUser(userId, data.role);
+
+      return res
+        .status(204)
+        .json({ message: 'Successfully assigned user role' });
     } catch (error) {
       logger.error(error);
       return res.status(400).json({ error: 'Failed to assign user role' });
     }
   },
 );
+
+/**
+ * Delete user
+ */
+router.delete('/:userId', async (req: ExtendedRequest, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    await req.sso.deleteUser(userId);
+    return res.status(204).json();
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).json({ error: 'Failed to delete user' });
+  }
+});
 
 export default router;

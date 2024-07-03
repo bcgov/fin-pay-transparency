@@ -17,17 +17,15 @@
         md="3"
         v-for="user of users"
       >
-        <UserCard :key="user.userName" :user="user" />
+        <UserCard :key="user.id" :user="user" />
       </v-col>
     </v-row>
   </div>
-  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
 
 <script setup lang="ts">
 import AddUserButton from './user-management/AddUserButton.vue';
 import UserCard from './UserCard.vue';
-import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useUsersStore } from '../store/modules/usersStore';

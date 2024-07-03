@@ -90,7 +90,7 @@ export type ReportFilterType = (
 )[];
 
 export type User = {
-  userName: string;
+  id: string;
   displayName: string;
   roles: string[];
   effectiveRole: string;

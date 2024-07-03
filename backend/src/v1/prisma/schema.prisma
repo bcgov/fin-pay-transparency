@@ -238,6 +238,7 @@ model admin_user {
   update_user        String               @db.VarChar(255)
   is_active          Boolean              @default(true)
   assigned_roles     String               @db.VarChar(255)
+  username           String               @default("") @db.VarChar(255)
   admin_user_history admin_user_history[]
 }
 
@@ -253,6 +254,7 @@ model admin_user_history {
   update_user           String     @db.VarChar(255)
   is_active             Boolean    @default(true)
   assigned_roles        String     @db.VarChar(255)
+  username              String     @default("") @db.VarChar(255)
   admin_user            admin_user @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
 }
 

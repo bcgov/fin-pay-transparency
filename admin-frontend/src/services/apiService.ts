@@ -102,14 +102,21 @@ export default {
       console.log(`Failed to get from Nodejs addUser API - ${e}`);
     }
   },
-  async assignUserRole(username: string, role: string) {
+  async assignUserRole(userId: string, role: string) {
     try {
-      return await apiAxios.patch(`${ApiRoutes.USERS}/roles`, {
+      return await apiAxios.patch(`${ApiRoutes.USERS}/${userId}`, {
         role,
-        username,
       });
     } catch (e) {
-      console.log(`Failed to get from Nodejs getUsers API - ${e}`);
+      console.log(`Failed to get from Nodejs assignUserRole API - ${e}`);
+      throw e;
+    }
+  },
+  async deleteUser(userId: string) {
+    try {
+      return await apiAxios.delete(`${ApiRoutes.USERS}/${userId}`);
+    } catch (e) {
+      console.log(`Failed to get from Nodejs deleteUser API - ${e}`);
       throw e;
     }
   },

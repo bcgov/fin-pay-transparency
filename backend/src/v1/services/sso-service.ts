@@ -5,9 +5,13 @@ import omit from 'lodash/omit';
 import groupBy from 'lodash/groupBy';
 import qs from 'qs';
 import {
+  EFFECTIVE_ROLES,
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
 } from '../../constants/admin';
+import { RoleType } from '../types/users';
+import prisma from '../prisma/prisma-client';
+import { logger } from '../../logger';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
@@ -71,6 +75,7 @@ export class SSO {
         return results.data
           .filter((user) => !!user.email)
           .map((item) => ({
+            idirUserGuid: item.attributes.idir_user_guid[0],
             userName: item.attributes.idir_username[0],
             displayName: item.attributes.display_name[0],
             role: roleName,
@@ -130,5 +135,95 @@ export class SSO {
    */
   async addRolesToUser(userName: string, roles: { name: string }[]) {
     await this.client.post(`/users/${userName}/roles`, roles);
+  }
+
+  async assignRoleToUser(userId: string, roleName: RoleType) {
+    const localUser = await prisma.admin_user.findUniqueOrThrow({
+      where: { admin_user_id: userId },
+    });
+
+    if (!localUser.username) {
+      throw new Error(
+        `User not found with id: ${userId}. User name is missing.`,
+      );
+    }
+
+    const currentRoles = localUser.assigned_roles.split(
+      ',',
+    ) as unknown as RoleType[];
+    const nextRoles = EFFECTIVE_ROLES[roleName];
+    const deleteRoles = currentRoles.filter(
+      (role) => !nextRoles.includes(role),
+    );
+    const addRoles = nextRoles.filter((role) => !currentRoles.includes(role));
+
+    let rolesDeleted = false;
+
+    try {
+      if (deleteRoles.length) {
+        await Promise.all(
+          deleteRoles.map((role) =>
+            this.removeRoleFromUser(localUser.username, role),
+          ),
+        );
+        rolesDeleted = true;
+      }
+
+      if (addRoles.length) {
+        await this.addRolesToUser(
+          localUser.username,
+          addRoles.map((role) => ({ name: role })),
+        );
+      }
+      await prisma.admin_user.update({
+        where: { admin_user_id: localUser.admin_user_id },
+        data: {
+          assigned_roles: nextRoles.join(','),
+        },
+      });
+    } catch (error) {
+      logger.error(`Failed to assign role to user: ${error.message}`, error);
+      if (rolesDeleted) {
+        // Rollback the roles if any error occurs
+        try {
+          await this.addRolesToUser(
+            localUser.username,
+            deleteRoles.map((role) => ({ name: role })),
+          );
+        } catch (error) {
+          logger.error(
+            `Failed to rollback the deleted roles: ${error.message}`,
+            error,
+          );
+        }
+      }
+      throw error;
+    }
+  }
+
+  async removeRoleFromUser(userName: string, roleName: RoleType) {
+    await this.client.delete(`/users/${userName}/roles/${roleName}`);
+  }
+
+  async deleteUser(userId: string) {
+    const localUser = await prisma.admin_user.findUniqueOrThrow({
+      where: { admin_user_id: userId },
+    });
+
+    if (!localUser.username) {
+      throw new Error(
+        `User not found with id: ${userId}. User name is missing.`,
+      );
+    }
+
+    const roles = localUser.assigned_roles.split(',') as RoleType[];
+
+    await Promise.all(
+      roles.map((role) => this.removeRoleFromUser(localUser.username, role)),
+    );
+    await prisma.admin_user.update({
+      where: { admin_user_id: userId },
+      data: { is_active: false },
+    });
   }
 }

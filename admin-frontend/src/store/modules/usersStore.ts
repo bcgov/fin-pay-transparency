@@ -23,9 +23,19 @@ export const useUsersStore = defineStore('users', () => {
     return ApiService.addUser(data);
   }
   
-  const assignUserRole = async (username: string, role: string) => {
+  const assignUserRole = async (userId: string, role: string) => {
     try {
-      await ApiService.assignUserRole(username, role);
+      await ApiService.assignUserRole(userId, role);
+      const { data } = await ApiService.getUsers();
+      users.value = data;
+    } catch (err) {
+      console.log(`get users failed: ${err}`);
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      await ApiService.deleteUser(userId);
       const { data } = await ApiService.getUsers();
       users.value = data;
     } catch (err) {
@@ -46,6 +56,7 @@ export const useUsersStore = defineStore('users', () => {
     getUsers,
     addUser,
     assignUserRole,
+    deleteUser,
     reset,
   };
 });
