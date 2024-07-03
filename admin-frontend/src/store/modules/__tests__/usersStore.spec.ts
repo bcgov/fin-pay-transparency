@@ -1,14 +1,12 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useUsersStore } from '../usersStore';
-import { waitFor } from '@testing-library/vue';
 
 const mockGetUsers = vi.fn();
 const mockAddUser = vi.fn();
 vi.mock('../../../services/apiService', () => ({
   default: {
     getUsers: () => {
-      console.log('mockGetUsers ********')
       return mockGetUsers();
     },
     addUser: () => mockAddUser(),

@@ -9,7 +9,6 @@ import * as directives from 'vuetify/directives';
 import App from '../App.vue';
 import router from '../router';
 import { authStore } from '../store/modules/auth';
-import { waitFor } from '@testing-library/vue';
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
@@ -20,8 +19,8 @@ const ResizeObserverMock = vi.fn(() => ({
 
 // Stub the global ResizeObserver
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-
-const setupComponentEnvironment = async (options: any = {}) => {
+const mockDoesUserHaveRole = vi.fn();
+const setupComponentEnvironment = async () => {
   const vuetify = createVuetify({
     components,
     directives,
@@ -31,7 +30,7 @@ const setupComponentEnvironment = async (options: any = {}) => {
 
   const auth = authStore();
   auth.getJwtToken = vi.fn().mockResolvedValue(null);
-  auth.doesUserHaveRole = vi.fn().mockReturnValue(true);
+  auth.doesUserHaveRole = () => mockDoesUserHaveRole();
 
   const mockRouter = createRouter({
     history: createWebHistory(),
@@ -54,7 +53,7 @@ const setupComponentEnvironment = async (options: any = {}) => {
         components: {
           App,
         },
-        plugins: [vuetify, pinia as any, mockRouter],
+        plugins: [vuetify, pinia!, mockRouter],
       },
     },
   );
@@ -73,22 +72,21 @@ const setupComponentEnvironment = async (options: any = {}) => {
   };
 };
 
-beforeEach(async () => {
-  vi.clearAllMocks();
-  const pinia = createTestingPinia({
-    initialState: {
-      code: {},
-      config: {},
-    },
-  });
-  setActivePinia(pinia);
-});
-
-afterEach(() => {
-  vi.clearAllMocks();
-});
-
 describe('App', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const pinia = createTestingPinia({
+      initialState: {
+        code: {},
+        config: {},
+      },
+    });
+    setActivePinia(pinia);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
   describe('if the header and sidebar are supposed to be visible', () => {
     it('they are both actually visible', async () => {
       const componentEnv = await setupComponentEnvironment();
@@ -111,7 +109,7 @@ describe('App', () => {
   describe('when the route changes to /user-management, and the user has permission to view the breadbrumb trail', async () => {
     it('breadcrumb trail is visible', async () => {
       const componentEnv = await setupComponentEnvironment();
-      componentEnv.auth.doesUserHaveRole.mockReturnValue(true);
+      mockDoesUserHaveRole.mockReturnValue(true);
       componentEnv.router.push('/user-management');
       await componentEnv.router.isReady();
       await componentEnv.app.vm.$nextTick();
@@ -121,13 +119,11 @@ describe('App', () => {
   describe("when the route changes to /user-management, and the user doesn't have permission to view the breadbrumb trail", async () => {
     it('breadcrumb trail is hidden', async () => {
       const componentEnv = await setupComponentEnvironment();
-      componentEnv.auth.doesUserHaveRole.mockReturnValue(false);
+      mockDoesUserHaveRole.mockReturnValue(false);
       componentEnv.router.push('/user-management');
       await componentEnv.router.isReady();
       await componentEnv.app.vm.$nextTick();
-      await waitFor(() => {
-        expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
-      });
+      expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
     });
   });
   describe('onRouteChanged', () => {
@@ -141,7 +137,7 @@ describe('App', () => {
             pageTitle: 'sample route',
           },
         };
-        componentEnv.auth.doesUserHaveRole.mockReturnValue(false);
+        mockDoesUserHaveRole.mockReturnValue(false);
         componentEnv.app.vm.onRouteChanged(to, null);
         expect(componentEnv.app.vm.activeRoute).toStrictEqual(to);
         expect(componentEnv.app.vm.areHeaderAndSidebarVisible).toBe(
