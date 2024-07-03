@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import { IConfigValue, IReportSearchResult, User } from '../types';
+import { AddUserInput, IConfigValue, IReportSearchResult, User } from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
@@ -87,6 +87,14 @@ export default {
       return await apiAxios.get<User[]>(ApiRoutes.USERS);
     } catch (e) {
       console.log(`Failed to get from Nodejs getUsers API - ${e}`);
+      throw e;
+    }
+  },
+  async addUser(data: AddUserInput) {
+    try {
+      return await apiAxios.post(ApiRoutes.USERS, data);
+    } catch (e) {
+      console.log(`Failed to get from Nodejs addUser API - ${e}`);
       throw e;
     }
   },

@@ -11,10 +11,10 @@
       :content-class="styleClass"
       transition="slide-y-transition"
     >
-      <span :if="activeNotification?.title" class="snackbar-title mr-1">{{
+      <span v-if="activeNotification?.title" class="snackbar-title mr-1">{{
         activeNotification?.title
       }}</span
-      ><span :if="activeNotification?.message" class="snackbar-message">{{
+      ><span v-if="activeNotification?.message" class="snackbar-message">{{
         activeNotification?.message
       }}</span>
       <template #actions>

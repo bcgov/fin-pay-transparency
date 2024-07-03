@@ -183,9 +183,10 @@ button:disabled.v-btn {
 }
 
 .v-alert {
-  color: #2d2d2d;
+  display: flex !important;
+  color: #2d2d2d !important;
 }
-.v-alert.alert-success {
+.v-alert.alert-success {  
   background-color: #f6fff8 !important;
   border-color: #42814a !important;
 }

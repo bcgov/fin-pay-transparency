@@ -95,3 +95,9 @@ export type User = {
   roles: string[];
   effectiveRole: string;
 };
+
+export type AddUserInput = {
+  firstName: string;
+  email: string;
+  role: string;
+};
