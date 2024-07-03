@@ -14,7 +14,7 @@ describe('usersStore', () => {
     setActivePinia(createPinia());
   });
   describe('defaults', () => {
-    it('should default loading  tofalse', () => {
+    it('should default loading  to false', () => {
       const store = useUsersStore();
       expect(store.loading).toBe(false);
     });

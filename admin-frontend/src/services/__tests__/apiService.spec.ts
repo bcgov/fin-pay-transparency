@@ -108,6 +108,22 @@ describe('ApiService', () => {
       });
     });
   });
+  describe('addUser', () => {
+    describe('when the data are successfully saved in the backend', () => {
+      it('200 - success', async () => {
+        const mockBackendResponse = [{ message: 'success' }];
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.addUser({firstName: 'test', email: 'user@example.com', role: 'admin'});
+        expect(resp.data).toEqual(mockBackendResponse);
+      });
+    });
+  });
 
   describe('downloadReportsCsv', () => {
     describe('when valid filter and sort are passed, and the backend returns a valid response', () => {

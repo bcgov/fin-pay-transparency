@@ -11,8 +11,8 @@
         ></v-btn>
       </template>
 
-      <v-card>
-        <template v-slot:title>
+      <v-card v-if="open" role="dialog" aria-label="Add New User">
+        <template v-slot:title >
           <span class="card-title">Add New User</span>
         </template>
         <v-divider></v-divider>
@@ -23,6 +23,8 @@
               <h5>Name *</h5>
 
               <v-text-field
+                single-line
+                label="Name"
                 placeholder="Name"
                 v-model="name"
                 v-bind="nameProps"
@@ -35,6 +37,7 @@
 
               <v-text-field
                 single-line
+                label="Email"
                 placeholder="Email"
                 type="email"
                 required
@@ -44,8 +47,8 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="12" sm="12">
-              <h5>Select the user role *</h5>
               <v-radio-group
+                label="Select the user role *"
                 v-model="role"
                 :error-messages="errors.role"
                 v-bind="roleProps"
@@ -74,7 +77,6 @@
             text="Add"
             variant="elevated"
             @click="submit"
-            :disabled="!meta.dirty || !meta.valid"
           ></v-btn>
         </v-card-actions>
       </v-card>
@@ -110,7 +112,15 @@ import { NotificationService } from '../../services/notificationService';
 const { addUser } = useUsersStore();
 const open = ref(false);
 const confirmDialog = ref();
-const { meta, handleSubmit, handleReset, defineField, errors } = useForm({
+const {
+  meta,
+  handleSubmit,
+  handleReset,
+  defineField,
+  errors,
+  validate,
+  setErrors,
+} = useForm({
   initialTouched: {
     name: false,
     email: false,
@@ -152,6 +162,12 @@ const onClose = () => {
 };
 
 const submit = async () => {
+  const results = await validate();
+  if (!results.valid) {
+    setErrors(results.errors);
+    return;
+  }
+
   open.value = false;
   const confirm = await confirmDialog.value?.open(
     `Confirm User Addition`,
@@ -163,6 +179,7 @@ const submit = async () => {
   );
 
   if (!confirm) {
+    open.value = true;
     return;
   }
 
@@ -198,5 +215,9 @@ input::-ms-input-placeholder {
 }
 .v-field__input > input {
   padding-top: 0px;
+}
+
+.v-label {
+  font-weight: 700 !important;
 }
 </style>
