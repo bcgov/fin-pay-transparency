@@ -96,15 +96,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import {
   RoleLabels,
   RoleOptions,
-  ADMIN_ROLE_NAME,
   USER_ROLE_NAME,
 } from '../../constants';
 import z from 'zod';
-import { useField, useForm } from 'vee-validate';
+import { useForm } from 'vee-validate';
 import ConfirmDialog from '../util/ConfirmationDialog.vue';
 import { useUsersStore } from '../../store/modules/usersStore';
 import { NotificationService } from '../../services/notificationService';
