@@ -81,21 +81,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <ConfirmDialog ref="confirmDialog">
+      <template v-slot:message>
+        <p>Name: {{ name }}</p>
+        <p>Role: {{ RoleLabels[role] }}</p>
+        <p class="mt-2">
+          Ensure that the user details are correct before proceeding. Do you want
+          to add this user?
+        </p>
+      </template>
+    </ConfirmDialog>
   </v-form>
 
-  <ConfirmDialog ref="confirmDialog">
-    <template v-slot:message>
-      <p>Name: {{ name }}</p>
-      <p>Role: {{ RoleLabels[role] }}</p>
-      <p class="mt-2">
-        Ensure that the user details are correct before proceeding. Do you want
-        to add this user?
-      </p>
-    </template>
-  </ConfirmDialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import {
   RoleLabels,
