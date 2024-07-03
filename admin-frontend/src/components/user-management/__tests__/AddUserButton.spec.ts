@@ -33,7 +33,7 @@ vi.mock('../../../store/modules/usersStore', () => ({
   }),
 }));
 
-describe.only('AddUserButton', () => {
+describe('AddUserButton', () => {
   it('should render correctly', async () => {
     await wrappedRender();
     expect(
