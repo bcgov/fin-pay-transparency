@@ -74,6 +74,7 @@ const setupComponentEnvironment = async (options: any = {}) => {
 };
 
 beforeEach(async () => {
+  vi.clearAllMocks();
   const pinia = createTestingPinia({
     initialState: {
       code: {},
@@ -126,8 +127,7 @@ describe('App', () => {
       await componentEnv.app.vm.$nextTick();
       await waitFor(() => {
         expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
-      
-      })
+      });
     });
   });
   describe('onRouteChanged', () => {
