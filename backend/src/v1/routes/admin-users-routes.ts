@@ -128,7 +128,7 @@ router.delete('/:userId', async (req: ExtendedRequest, res: Response) => {
 
   try {
     await req.sso.deleteUser(userId);
-    return res.status(204).json();
+    return res.json();
   } catch (error) {
     logger.error(error);
     return res.status(400).json({ error: 'Failed to delete user' });

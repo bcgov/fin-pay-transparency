@@ -144,11 +144,6 @@ const {
 
       return true;
     },
-    role(value) {
-      if (value) return true;
-
-      return 'A role is required.';
-    },
   },
 });
 const [name, nameProps] = defineField('name');

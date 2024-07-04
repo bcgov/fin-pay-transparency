@@ -1,16 +1,37 @@
-import { faker } from '@faker-js/faker';
+import { de, faker } from '@faker-js/faker';
 import { SSO } from './sso-service';
 
 const mockAxiosGet = jest.fn();
 const mockAxiosPost = jest.fn();
+const mockAxiosDelete = jest.fn();
 const mockAxiosCreate = jest.fn((args) => ({
   get: () => mockAxiosGet(),
   post: (...args) => mockAxiosPost(...args),
+  delete: (...args) => mockAxiosDelete(...args),
 }));
 jest.mock('axios', () => ({
   ...jest.requireActual('axios'),
   post: () => mockAxiosPost(),
   create: (args) => mockAxiosCreate(args),
+}));
+
+const mockFindUniqueOrThrow = jest.fn();
+const mockUpdate = jest.fn();
+const mockCreateHistory = jest.fn();
+const mockTx = {
+  admin_user: {
+    findUniqueOrThrow: (...args) => {
+      return mockFindUniqueOrThrow(...args);
+    },
+    update: (...args) => mockUpdate(...args),
+  },
+  admin_user_history: {
+    create: (...args) => mockCreateHistory(...args),
+  },
+};
+
+jest.mock('../prisma/prisma-client', () => ({
+  $transaction: jest.fn().mockImplementation((fn) => fn(mockTx)),
 }));
 
 describe('sso-service', () => {
@@ -40,6 +61,7 @@ describe('sso-service', () => {
             {
               email: faker.internet.email(),
               attributes: {
+                idir_user_guid: [faker.string.uuid()],
                 idir_username: [faker.internet.userName()],
                 display_name: [faker.internet.displayName()],
               },
@@ -47,6 +69,7 @@ describe('sso-service', () => {
             {
               email: faker.internet.email(),
               attributes: {
+                idir_user_guid: [faker.string.uuid()],
                 idir_username: [faker.internet.userName()],
                 display_name: [faker.internet.displayName()],
               },
@@ -84,11 +107,200 @@ describe('sso-service', () => {
       });
       const client = await SSO.init();
       const username = faker.internet.userName();
-      await client.addRolesToUser(username, [{name: 'admin'}]);
+      await client.addRolesToUser(username, [{ name: 'admin' }]);
       expect(mockAxiosPost).toHaveBeenCalledTimes(2);
       const args = mockAxiosPost.mock.calls[1];
       expect(args[0]).toBe(`/users/${username}/roles`);
       expect(args[1]).toEqual([{ name: 'admin' }]);
     });
   });
+
+  describe('assignRoleToUser', () => {
+    let client: SSO;
+    beforeEach(async () => {
+      mockAxiosPost.mockResolvedValue({
+        data: { access_token: 'jwt', token_type: 'Bearer' },
+      });
+      client = await SSO.init();
+    });
+    describe('user is available', () => {
+      describe('username is not set', () => {
+        it('should throw an error', async () => {
+          mockFindUniqueOrThrow.mockResolvedValue({
+            idirUserGuid: faker.string.uuid(),
+            displayName: faker.internet.userName(),
+            assigned_roles: [],
+          });
+          const userId = faker.string.uuid();
+          await expect(
+            client.assignRoleToUser(userId, 'PTRT-ADMIN'),
+          ).rejects.toThrow(
+            `User not found with id: ${userId}. User name is missing.`,
+          );
+        });
+      });
+
+      describe('assign PTRT_ADMIN role', () => {
+        it('should assign role to user', async () => {
+          const userId = faker.string.uuid();
+          const user = {
+            admin_user_id: userId,
+            idirUserGuid: faker.string.uuid(),
+            username: faker.internet.userName(),
+            displayName: faker.internet.userName(),
+            assigned_roles: 'PTRT-USER',
+          };
+          mockFindUniqueOrThrow.mockResolvedValue(user);
+          await client.assignRoleToUser(userId, 'PTRT-ADMIN');
+          expect(mockAxiosDelete).not.toHaveBeenCalled();
+          expect(mockAxiosPost).toHaveBeenCalledWith(
+            `/users/${user.username}/roles`,
+            [{ name: 'PTRT-ADMIN' }],
+          );
+          expect(mockUpdate).toHaveBeenCalledWith({
+            where: { admin_user_id: userId },
+            data: { assigned_roles: 'PTRT-ADMIN,PTRT-USER' },
+          });
+          expect(mockCreateHistory).toHaveBeenCalledTimes(1);
+        });
+      });
+      describe('assign PTRT_USER role', () => {
+        it('should assign role to user', async () => {
+          const userId = faker.string.uuid();
+          const user = {
+            admin_user_id: userId,
+            idirUserGuid: faker.string.uuid(),
+            username: faker.internet.userName(),
+            displayName: faker.internet.userName(),
+            assigned_roles: 'PTRT-ADMIN,PTRT-USER',
+          };
+          mockFindUniqueOrThrow.mockResolvedValue(user);
+          await client.assignRoleToUser(userId, 'PTRT-USER');
+          expect(mockAxiosDelete).toHaveBeenCalledWith(
+            `/users/${user.username}/roles/PTRT-ADMIN`,
+          );
+          expect(mockAxiosPost).not.toHaveBeenCalledWith(
+            `/users/${user.username}/roles`,
+            [{ name: 'PTRT-USER' }],
+          );
+          expect(mockUpdate).toHaveBeenCalledWith({
+            data: { assigned_roles: 'PTRT-USER' },
+            where: { admin_user_id: userId },
+          });
+          expect(mockCreateHistory).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      it('should rollback changes if an error occurs', async () => {
+        mockUpdate.mockImplementationOnce(() => {
+          throw new Error('User update failed');
+        });
+        const mockPost = jest.fn();
+        const mockDelete = jest.fn();
+        const client = new SSO({
+          post: (...args) => mockPost(...args),
+          delete: (...args) => mockDelete(...args),
+        } as any);
+
+        const userId = faker.string.uuid();
+        const user = {
+          admin_user_id: userId,
+          idirUserGuid: faker.string.uuid(),
+          username: faker.internet.userName(),
+          displayName: faker.internet.userName(),
+          assigned_roles: 'PTRT-ADMIN,PTRT-USER',
+        };
+
+        mockFindUniqueOrThrow.mockResolvedValue(user);
+        await expect(client.assignRoleToUser(userId, 'PTRT-USER')).rejects.toThrow();
+        expect(mockDelete).toHaveBeenCalledWith(
+          `/users/${user.username}/roles/PTRT-ADMIN`,
+        );
+        // Post should once to rollback the changes
+        expect(mockPost).toHaveBeenCalledTimes(1);
+        expect(mockPost).toHaveBeenCalledWith(`/users/${user.username}/roles`, [
+          { name: 'PTRT-ADMIN' },
+        ]);
+        expect(mockUpdate).toHaveBeenCalledWith({
+          where: { admin_user_id: userId },
+          data: { assigned_roles: 'PTRT-USER' },
+        });
+        expect(mockCreateHistory).toHaveBeenCalledTimes(0);
+      });
+    });
+    describe('user is not available', () => {
+      it('should throw an error', async () => {
+        mockFindUniqueOrThrow.mockImplementation(() => {
+          throw new Error('User not found');
+        });
+        await expect(
+          client.assignRoleToUser(faker.internet.userName(), 'PTRT-ADMIN'),
+        ).rejects.toThrow();
+      });
+    });
+  });
+
+  describe('deleteUser', () => {
+    let client: SSO;
+    beforeEach(async () => {
+      mockAxiosPost.mockResolvedValue({
+        data: { access_token: 'jwt', token_type: 'Bearer' },
+      });
+      client = await SSO.init();
+    });
+    describe('user is not available', () => {
+      it('should throw an error', async () => {
+        mockFindUniqueOrThrow.mockImplementation(() => {
+          throw new Error('User not found');
+        });
+        await expect(
+          client.deleteUser(faker.string.uuid()),
+        ).rejects.toThrow();
+      });
+    });
+
+    describe('user is available', () => {
+      describe('username is not set', () => {
+        it('should throw an error', async () => {
+          mockFindUniqueOrThrow.mockResolvedValue({
+            idirUserGuid: faker.string.uuid(),
+            displayName: faker.internet.userName(),
+            assigned_roles: [],
+          });
+          const userId = faker.string.uuid();
+          await expect(
+            client.deleteUser(userId),
+          ).rejects.toThrow(
+            `User not found with id: ${userId}. User name is missing.`,
+          );
+        });
+      });
+
+      it('should delete user', async () => {
+        mockUpdate.mockClear();
+        const userId = faker.string.uuid();
+        const user = {
+          admin_user_id: userId,
+          idirUserGuid: faker.string.uuid(),
+          username: faker.internet.userName(),
+          displayName: faker.internet.userName(),
+          assigned_roles: 'PTRT-ADMIN,PTRT-USER',
+        };
+        mockFindUniqueOrThrow.mockResolvedValue(user);
+        await client.deleteUser(userId);
+        expect(mockAxiosDelete).toHaveBeenCalledTimes(2);
+        expect(mockAxiosDelete).toHaveBeenCalledWith(
+          `/users/${user.username}/roles/PTRT-ADMIN`,
+        );
+        expect(mockAxiosDelete).toHaveBeenCalledWith(
+          `/users/${user.username}/roles/PTRT-USER`,
+        );
+        expect(mockUpdate).toHaveBeenCalledWith({
+          where: { admin_user_id: userId },
+          data: { is_active: false },
+        });
+        expect(mockCreateHistory).toHaveBeenCalledTimes(1);
+      });
+    });
+  })
 });

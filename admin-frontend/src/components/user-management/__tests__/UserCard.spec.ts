@@ -35,6 +35,15 @@ vi.mock('../../../store/modules/usersStore', () => ({
   }),
 }));
 
+const mockSuccess = vi.fn();
+const mockError = vi.fn();
+vi.mock('../../../services/notificationService', () => ({
+  NotificationService: {
+    pushNotificationSuccess: () => mockSuccess(),
+    pushNotificationError: () => mockError(),
+  },
+}));
+
 describe('UserCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -61,6 +70,32 @@ describe('UserCard', () => {
   });
 
   describe('delete user', () => {
+    describe('when delete user fails', () => {
+      it('should show alert error', async () => {
+        mockDeleteUser.mockImplementationOnce(() => {
+            throw new Error('Failed to delete user');
+        });
+        const user = {
+          id: faker.string.uuid(),
+          displayName: faker.person.fullName(),
+          roles: [],
+          effectiveRole: ADMIN_ROLE_NAME,
+        };
+        const wrapper = await wrappedRender({ user });
+
+        const deleteButton = await wrapper.getByRole('button', {
+          name: `Delete user`,
+        });
+        await fireEvent.click(deleteButton);
+
+        const confirmButton = await wrapper.getByRole('button', {
+          name: 'Delete',
+        });
+        await fireEvent.click(confirmButton);
+        expect(mockDeleteUser).toHaveBeenCalledWith(user.id);
+        expect(mockError).toHaveBeenCalled();
+      });
+    });
     describe('continue after confirm', () => {
       it('should delete user', async () => {
         const user = {
@@ -107,6 +142,40 @@ describe('UserCard', () => {
     });
   });
   describe('assign role', () => {
+    describe('when assign role fails', () => {
+      it('should show alert error', async () => {
+        mockAssignUserRole.mockImplementationOnce(() => {
+          throw new Error('Failed to assign role');
+        });
+        const user = {
+          id: faker.string.uuid(),
+          displayName: faker.person.fullName(),
+          roles: [],
+          effectiveRole: ADMIN_ROLE_NAME,
+        };
+        const wrapper = await wrappedRender({ user });
+
+        const roleButton = await wrapper.getByRole('button', {
+          name: `Role ${RoleLabels[ADMIN_ROLE_NAME]}`,
+        });
+        await fireEvent.click(roleButton);
+        const userRoleButton = await wrapper.getByRole('menuitem', {
+          name: RoleLabels[USER_ROLE_NAME],
+        });
+
+        await fireEvent.click(userRoleButton);
+
+        const confirmButton = await wrapper.getByRole('button', {
+          name: 'Continue',
+        });
+        await fireEvent.click(confirmButton);
+        expect(mockAssignUserRole).toHaveBeenCalledWith(
+          user.id,
+          USER_ROLE_NAME,
+        );
+        expect(mockError).toHaveBeenCalled();
+      });
+    });
     describe('continue after confirm', () => {
       it('should assign new role', async () => {
         const user = {
