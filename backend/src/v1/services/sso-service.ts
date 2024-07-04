@@ -167,7 +167,7 @@ export class SSO {
         ',',
       ) as unknown as RoleType[];
       const nextRoles = EFFECTIVE_ROLES[roleName];
-      console
+
       const deleteRoles = currentRoles.filter(
         (role) => !nextRoles.includes(role),
       );
