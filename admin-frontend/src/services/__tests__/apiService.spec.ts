@@ -120,10 +120,68 @@ describe('ApiService', () => {
         );
 
         const resp = await ApiService.addUser({firstName: 'test', email: 'user@example.com', role: 'admin'});
-        expect(resp.data).toEqual(mockBackendResponse);
+        expect(resp!.data).toEqual(mockBackendResponse);
       });
     });
   });
+
+  describe('assignUserRole', () => {
+    describe('when the data are successfully saved in the backend', () => {
+      it('200 - success', async () => {
+        const mockBackendResponse = [{ message: 'success' }];
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.assignUserRole('1', 'admin');
+        expect(resp!.data).toEqual(mockBackendResponse);
+      });
+    });
+
+    describe('when the data are not successfully saved in the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'patch').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        expect(ApiService.assignUserRole('1', 'admin')).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
+    });
+  });
+
+  describe('deleteUser', () => {
+    describe('when the data are successfully deleted in the backend', () => {
+      it('200 - success', async () => {
+        const mockBackendResponse = [{ message: 'success' }];
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'delete').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.deleteUser('1');
+        expect(resp!.data).toEqual(mockBackendResponse);
+      });
+    });
+
+    describe('when the data are not successfully deleted in the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'delete').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        expect(ApiService.deleteUser('1')).rejects.toEqual(mockAxiosError);
+      });
+    });
+  })
 
   describe('downloadReportsCsv', () => {
     describe('when valid filter and sort are passed, and the backend returns a valid response', () => {

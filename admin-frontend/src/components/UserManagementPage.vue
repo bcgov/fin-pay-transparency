@@ -25,9 +25,9 @@
 
 <script setup lang="ts">
 import AddUserButton from './user-management/AddUserButton.vue';
-import UserCard from './UserCard.vue';
+import UserCard from './user-management/UserCard.vue';
 import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 import { useUsersStore } from '../store/modules/usersStore';
 
 const usersStore = useUsersStore();

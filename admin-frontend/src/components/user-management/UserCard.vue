@@ -41,6 +41,8 @@
           "
           @click="assignRole(item)"
           :disabled="user.effectiveRole === item.value"
+          role="menuitem"
+          :aria-label="item.label"
         >
           <v-list-item-title v-text="item.label"></v-list-item-title>
           <template v-slot:append v-if="user.effectiveRole === item.value">
@@ -77,13 +79,13 @@
   </ConfirmationDialog>
 </template>
 <script setup lang="ts">
-import ConfirmationDialog from './util/ConfirmationDialog.vue';
-import Spinner from './Spinner.vue';
+import ConfirmationDialog from '../util/ConfirmationDialog.vue';
+import Spinner from '../Spinner.vue';
 import { ref } from 'vue';
-import { RoleOptions, RoleLabels, NextRoleTransitions } from '../constants';
-import { useUsersStore } from '../store/modules/usersStore';
-import { NotificationService } from '../services/notificationService';
-import { User } from '../types';
+import { RoleOptions, RoleLabels, NextRoleTransitions } from '../../constants';
+import { useUsersStore } from '../../store/modules/usersStore';
+import { NotificationService } from '../../services/notificationService';
+import { User } from '../../types';
 
 const props = defineProps<{ user: User }>();
 const { assignUserRole, deleteUser } = useUsersStore();
