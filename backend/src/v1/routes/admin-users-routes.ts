@@ -1,30 +1,18 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { logger } from '../../logger';
 import { AdminUserService } from '../services/admin-users-services';
 import { utils } from '../services/utils-service';
-import {
-  PTRT_ADMIN_ROLE_NAME,
-  PTRT_USER_ROLE_NAME,
-} from '../../constants/admin';
+import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
 import { HttpStatusCode } from 'axios';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { useValidate } from '../validations';
-import { AddNewUserSchema, AddNewUserType } from '../validations/schemas';
+import {
+  ASSIGN_ROLE_SCHEMA,
+  AddNewUserSchema,
+  AddNewUserType,
+  AssignRoleType,
+} from '../validations/schemas';
 import { SSO } from '../services/sso-service';
-import z, { ZodSchema } from 'zod';
-
-export const validateRequest = (mode: 'body' | 'query', schema: ZodSchema) => {
-  return async (req: ExtendedRequest, _: Response, next: NextFunction) => {
-    const data = req[mode];
-
-    try {
-      await schema.parseAsync(data);
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
-};
 
 type ExtendedRequest = Request & { sso: SSO };
 const router = express.Router();
@@ -93,19 +81,16 @@ router.post(
     }
   },
 );
-const ASSIGN_ROLE_SCHEMA = z.object({
-  role: z.enum([PTRT_ADMIN_ROLE_NAME, PTRT_USER_ROLE_NAME]),
-});
 
 /**
  * Assign user role
  */
 router.patch(
   '/:userId',
-  validateRequest('body', ASSIGN_ROLE_SCHEMA),
+  useValidate({ mode: 'body', schema: ASSIGN_ROLE_SCHEMA }),
   async (req: ExtendedRequest, res: Response) => {
     const { userId } = req.params;
-    const data: z.infer<typeof ASSIGN_ROLE_SCHEMA> = req.body;
+    const data: AssignRoleType = req.body;
 
     try {
       await req.sso.assignRoleToUser(userId, data.role);

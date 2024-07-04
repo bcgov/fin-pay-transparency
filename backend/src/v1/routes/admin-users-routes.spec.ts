@@ -109,8 +109,9 @@ describe('admin-users-router', () => {
               .send({ firstName: '' })
               .expect(400)
               .expect(({ body }) => {
-                expect(body.name).toBe('ZodError');
-                expect(body.issues).toHaveLength(3);
+                expect(body.error).toBeDefined();
+                const errors = JSON.parse(body.error);
+                expect(errors).toHaveLength(3);
               });
           });
         });
@@ -151,6 +152,7 @@ describe('admin-users-router', () => {
               .send({ role: 'PTRT-ADMINA' })
               .expect(400)
               .expect(({ body }) => {
+                console.log(body);
                 expect(body.error).toBeDefined();
                 const errors = JSON.parse(body.error);
                 expect(errors[0].message).toBe(
