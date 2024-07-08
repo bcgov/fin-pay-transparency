@@ -146,7 +146,7 @@ describe('sso-service', () => {
           const user = {
             admin_user_id: userId,
             idirUserGuid: faker.string.uuid(),
-            username: faker.internet.userName(),
+            preferred_username: faker.internet.userName(),
             displayName: faker.internet.userName(),
             assigned_roles: 'PTRT-USER',
           };
@@ -154,7 +154,7 @@ describe('sso-service', () => {
           await client.assignRoleToUser(userId, 'PTRT-ADMIN');
           expect(mockAxiosDelete).not.toHaveBeenCalled();
           expect(mockAxiosPost).toHaveBeenCalledWith(
-            `/users/${user.username}/roles`,
+            `/users/${user.preferred_username}/roles`,
             [{ name: 'PTRT-ADMIN' }],
           );
           expect(mockUpdate).toHaveBeenCalledWith({
@@ -170,17 +170,17 @@ describe('sso-service', () => {
           const user = {
             admin_user_id: userId,
             idirUserGuid: faker.string.uuid(),
-            username: faker.internet.userName(),
+            preferred_username: faker.internet.userName(),
             displayName: faker.internet.userName(),
             assigned_roles: 'PTRT-ADMIN,PTRT-USER',
           };
           mockFindUniqueOrThrow.mockResolvedValue(user);
           await client.assignRoleToUser(userId, 'PTRT-USER');
           expect(mockAxiosDelete).toHaveBeenCalledWith(
-            `/users/${user.username}/roles/PTRT-ADMIN`,
+            `/users/${user.preferred_username}/roles/PTRT-ADMIN`,
           );
           expect(mockAxiosPost).not.toHaveBeenCalledWith(
-            `/users/${user.username}/roles`,
+            `/users/${user.preferred_username}/roles`,
             [{ name: 'PTRT-USER' }],
           );
           expect(mockUpdate).toHaveBeenCalledWith({
@@ -206,7 +206,7 @@ describe('sso-service', () => {
         const user = {
           admin_user_id: userId,
           idirUserGuid: faker.string.uuid(),
-          username: faker.internet.userName(),
+          preferred_username: faker.internet.userName(),
           displayName: faker.internet.userName(),
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
         };
@@ -214,13 +214,14 @@ describe('sso-service', () => {
         mockFindUniqueOrThrow.mockResolvedValue(user);
         await expect(client.assignRoleToUser(userId, 'PTRT-USER')).rejects.toThrow();
         expect(mockDelete).toHaveBeenCalledWith(
-          `/users/${user.username}/roles/PTRT-ADMIN`,
+          `/users/${user.preferred_username}/roles/PTRT-ADMIN`,
         );
         // Post should once to rollback the changes
         expect(mockPost).toHaveBeenCalledTimes(1);
-        expect(mockPost).toHaveBeenCalledWith(`/users/${user.username}/roles`, [
-          { name: 'PTRT-ADMIN' },
-        ]);
+        expect(mockPost).toHaveBeenCalledWith(
+          `/users/${user.preferred_username}/roles`,
+          [{ name: 'PTRT-ADMIN' }],
+        );
         expect(mockUpdate).toHaveBeenCalledWith({
           where: { admin_user_id: userId },
           data: { assigned_roles: 'PTRT-USER' },
@@ -282,7 +283,7 @@ describe('sso-service', () => {
         const user = {
           admin_user_id: userId,
           idirUserGuid: faker.string.uuid(),
-          username: faker.internet.userName(),
+          preferred_username: faker.internet.userName(),
           displayName: faker.internet.userName(),
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
         };
@@ -290,10 +291,10 @@ describe('sso-service', () => {
         await client.deleteUser(userId);
         expect(mockAxiosDelete).toHaveBeenCalledTimes(2);
         expect(mockAxiosDelete).toHaveBeenCalledWith(
-          `/users/${user.username}/roles/PTRT-ADMIN`,
+          `/users/${user.preferred_username}/roles/PTRT-ADMIN`,
         );
         expect(mockAxiosDelete).toHaveBeenCalledWith(
-          `/users/${user.username}/roles/PTRT-USER`,
+          `/users/${user.preferred_username}/roles/PTRT-USER`,
         );
         expect(mockUpdate).toHaveBeenCalledWith({
           where: { admin_user_id: userId },

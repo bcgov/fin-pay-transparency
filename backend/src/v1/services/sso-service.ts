@@ -157,7 +157,7 @@ export class SSO {
         where: { admin_user_id: userId },
       });
 
-      if (!localUser.username) {
+      if (!localUser.preferred_username) {
         throw new Error(
           `User not found with id: ${userId}. User name is missing.`,
         );
@@ -178,7 +178,7 @@ export class SSO {
         if (deleteRoles.length) {
           await Promise.all(
             deleteRoles.map((role) =>
-              this.removeRoleFromUser(localUser.username, role),
+              this.removeRoleFromUser(localUser.preferred_username, role),
             ),
           );
           rolesDeleted = true;
@@ -186,7 +186,7 @@ export class SSO {
 
         if (addRoles.length) {
           await this.addRolesToUser(
-            localUser.username,
+            localUser.preferred_username,
             addRoles.map((role) => ({ name: role })),
           );
         }
@@ -203,7 +203,7 @@ export class SSO {
           // Rollback the roles if any error occurs
           try {
             await this.addRolesToUser(
-              localUser.username,
+              localUser.preferred_username,
               deleteRoles.map((role) => ({ name: role })),
             );
             logger.info('Successfully rolled back the deleted roles');
@@ -229,7 +229,7 @@ export class SSO {
         where: { admin_user_id: userId },
       });
 
-      if (!localUser.username) {
+      if (!localUser.preferred_username) {
         throw new Error(
           `User not found with id: ${userId}. User name is missing.`,
         );
@@ -237,7 +237,7 @@ export class SSO {
 
       const roles = localUser.assigned_roles.split(',') as RoleType[];
       await Promise.all(
-        roles.map((role) => this.removeRoleFromUser(localUser.username, role)),
+        roles.map((role) => this.removeRoleFromUser(localUser.preferred_username, role)),
       );
       await tx.admin_user.update({
         where: { admin_user_id: userId },
@@ -261,7 +261,7 @@ export class SSO {
         update_user: user.update_user,
         assigned_roles: user.assigned_roles,
         is_active: user.is_active,
-        username: user.username,
+        preferred_username: user.preferred_username,
       },
     });
   }

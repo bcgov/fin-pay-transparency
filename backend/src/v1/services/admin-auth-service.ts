@@ -106,6 +106,7 @@ class AdminAuth extends AuthBase {
     try {
       return await this.processUserOnboarding(
         email,
+        userInfo._json.display_name,
         preferred_username,
         userInfo?.refreshToken,
         idirUserGuid,
@@ -118,6 +119,7 @@ class AdminAuth extends AuthBase {
 
   private async processUserOnboarding(
     email: string,
+    displayName: string,
     preferred_username: string,
     refreshToken: string,
     idirUserGuid: string,
@@ -147,6 +149,7 @@ class AdminAuth extends AuthBase {
       await this.storeUserInfoWithHistory(
         adminUserOnboarding,
         idirUserGuid,
+        displayName,
         preferred_username,
       );
       return LogoutReason.RoleChanged;
@@ -170,7 +173,8 @@ class AdminAuth extends AuthBase {
   private async storeUserInfoWithHistory(
     adminUserOnboarding,
     idirUserGuid: string,
-    username: string,
+    displayName: string,
+    preferred_username: string,
   ) {
     await prisma.$transaction(async (tx: PrismaTransactionalClient) => {
       // update the user onboarding record, idempotent operation, also solves the edge case when call to keycloak was
@@ -212,19 +216,19 @@ class AdminAuth extends AuthBase {
             update_user: existing_admin_user.update_user,
             assigned_roles: existing_admin_user.assigned_roles,
             is_active: existing_admin_user.is_active,
-            username,
+            preferred_username,
           },
         });
       } else {
         await tx.admin_user.create({
           data: {
-            display_name: adminUserOnboarding.first_name,
+            display_name: displayName,
             idir_user_guid: idirUserGuid,
             create_user: adminUserOnboarding.created_by,
             update_user: adminUserOnboarding.created_by,
             assigned_roles: adminUserOnboarding.assigned_roles,
             is_active: true,
-            username,
+            preferred_username,
           },
         });
       }
