@@ -161,7 +161,7 @@ function addLoginPassportUse(
         //set access and refresh tokens
         profile.jwtFrontend = publicAuth.generateFrontendToken();
         profile.jwt = accessToken;
-        profile._json = parseJwt(accessToken);
+        profile._json = utils.parseJwt(accessToken);
         profile.refreshToken = refreshToken;
         profile.idToken = idToken;
         return done(null, profile);
@@ -169,14 +169,6 @@ function addLoginPassportUse(
     ),
   );
 }
-
-const parseJwt = (token) => {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch (e) {
-    return null;
-  }
-};
 
 //initialize our authentication strategy
 utils.getOidcDiscovery().then((discovery) => {
@@ -200,7 +192,7 @@ utils.getOidcDiscovery().then((discovery) => {
         issuer: config.get('tokenGenerate:issuer'),
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: config.get('tokenGenerate:publicKey'),
-        ignoreExpiration: true,
+        ignoreExpiration: false,
       },
       (jwtPayload, done) => {
         if (typeof jwtPayload === 'undefined' || jwtPayload === null) {

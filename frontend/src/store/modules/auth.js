@@ -6,13 +6,6 @@ function isFollowUpVisit(jwtToken) {
   return !!jwtToken;
 }
 
-function isExpiredToken(jwtToken) {
-  const now = Date.now().valueOf() / 1000;
-  const jwtPayload = jwtToken.split('.')[1];
-  const payload = JSON.parse(window.atob(jwtPayload));
-  return payload.exp <= now;
-}
-
 export const authStore = defineStore('auth', {
   namespaced: true,
   state: () => ({
@@ -84,11 +77,6 @@ export const authStore = defineStore('auth', {
     async getJwtToken() {
       await this.setError(false);
       if (isFollowUpVisit(this.jwtToken)) {
-        if (isExpiredToken(this.jwtToken)) {
-          await this.logout();
-          return;
-        }
-
         const response = await AuthService.refreshAuthToken(
           this.jwtToken,
           localStorage.getItem('correlationID'),
