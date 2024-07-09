@@ -99,7 +99,7 @@ export default {
     try {
       return await apiAxios.post(ApiRoutes.USERS, data);
     } catch (e) {
-      console.log(`Failed to get from Nodejs addUser API - ${e}`);
+      console.log(`Failed to post from Nodejs addUser API - ${e}`);
     }
   },
   async assignUserRole(userId: string, role: string) {
@@ -108,7 +108,7 @@ export default {
         role,
       });
     } catch (e) {
-      console.log(`Failed to get from Nodejs assignUserRole API - ${e}`);
+      console.log(`Failed to patch from Nodejs assignUserRole API - ${e}`);
       throw e;
     }
   },
@@ -116,7 +116,7 @@ export default {
     try {
       return await apiAxios.delete(`${ApiRoutes.USERS}/${userId}`);
     } catch (e) {
-      console.log(`Failed to get from Nodejs deleteUser API - ${e}`);
+      console.log(`Failed to delete from Nodejs deleteUser API - ${e}`);
       throw e;
     }
   },
