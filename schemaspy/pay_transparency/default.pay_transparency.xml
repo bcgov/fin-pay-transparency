@@ -12,6 +12,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="true" digits="0" id="7" name="is_active" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="assigned_roles" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="''::character varying" digits="0" id="9" name="preferred_username" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <primaryKey column="admin_user_id" sequenceNumberInPK="1"/>
          <index name="admin_user_id_pk" unique="true">
             <column ascending="true" name="admin_user_id"/>
@@ -30,6 +31,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="update_user" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="true" digits="0" id="8" name="is_active" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="assigned_roles" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="''::character varying" digits="0" id="10" name="preferred_username" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <primaryKey column="admin_user_history_id" sequenceNumberInPK="1"/>
          <index name="admin_user_history_id_pk" unique="true">
             <column ascending="true" name="admin_user_history_id"/>
