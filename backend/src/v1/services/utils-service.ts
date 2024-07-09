@@ -2,6 +2,8 @@ import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
+import jsonwebtoken from 'jsonwebtoken';
+
 const fs = require('fs');
 axios.interceptors.response.use((response) => {
   const headers = response.headers;
@@ -22,6 +24,15 @@ axios.interceptors.response.use((response) => {
 
   return response;
 });
+
+const parseJwt = (token) => {
+  try {
+    return jsonwebtoken.decode(token);
+  } catch (e) {
+    logger.error(`Error parsing jwt: ${e}`);
+    return null;
+  }
+};
 
 let discovery = null;
 
@@ -108,7 +119,8 @@ const utils = {
   asyncHandler: (fn) => (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   },
-  delay
+  delay,
+  parseJwt
 };
 
 export { utils };
