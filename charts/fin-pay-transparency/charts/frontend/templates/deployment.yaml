@@ -54,9 +54,23 @@ spec:
             - name: PAY_TRANSPARENCY_REGULATION_URL
               value: {{ .Values.env.payTransparencyRegulationUrl }}
             - name: GUIDANCE_FOR_REPORTING_WEB_URL
-              value: {{ .Values.env.guidanceForReportingWebUrl }}      
+              value: {{ .Values.env.guidanceForReportingWebUrl }}
             - name: GUIDANCE_FOR_REPORTING_PDF_URL
-              value: {{ .Values.env.guidanceForReportingPdfUrl }}      
+              value: {{ .Values.env.guidanceForReportingPdfUrl }}
+            - name: BCGOV_HOME_URL
+              value: {{ .Values.env.bcgovHomeUrl }}
+            - name: BCGOV_ABOUT_URL
+              value: {{ .Values.env.bcgovAboutUrl }}
+            - name: BCGOV_DISCLAIMER_URL
+              value: {{ .Values.env.bcgovDisclaimerUrl }}
+            - name: BCGOV_PRIVACY_URL
+              value: {{ .Values.env.bcgovPrivacyUrl }}
+            - name: BCGOV_ACCESSIBILITY_URL
+              value: {{ .values.env.bcgovAccessibilityUrl }}
+            - name: BCGOV_COPYRIGHT_URL
+              value: {{ .Values.env.bcgovCopyrightUrl }}
+            - name: BCGOV_CONTACT_URL
+              value: {{ .Values.env.bcgovContactUrl }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

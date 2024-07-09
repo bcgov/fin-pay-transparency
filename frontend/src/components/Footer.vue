@@ -63,36 +63,40 @@ type FooterSettings = {
 
 const settings: FooterSettings = {
   links: [
-    { id: 'footer-link-home', label: 'Home', to: 'https://www.gov.bc.ca/' },
+    {
+      id: 'footer-link-home',
+      label: 'Home',
+      to: window?.config?.BCGOV_HOME_URL,
+    },
     {
       id: 'footer-link-about',
       label: 'About gov.bc.ca',
-      to: 'https://www2.gov.bc.ca/gov/content/about-gov-bc-ca',
+      to: window?.config?.BCGOV_ABOUT_URL,
     },
     {
       id: 'footer-link-disclaimer',
       label: 'Disclaimer',
-      to: 'https://www.gov.bc.ca/disclaimer',
+      to: window?.config?.BCGOV_DISCLAIMER_URL,
     },
     {
       id: 'footer-link-privacy',
       label: 'Privacy',
-      to: 'https://www.gov.bc.ca/privacy',
+      to: window?.config?.BCGOV_PRIVACY_URL,
     },
     {
       id: 'footer-link-accessibility',
       label: 'Accessibility',
-      to: 'https://www.gov.bc.ca/webaccessibility',
+      to: window?.config?.BCGOV_ACCESSIBILITY_URL,
     },
     {
       id: 'footer-link-copyright',
       label: 'Copyright',
-      to: 'https://www.gov.bc.ca/copyright',
+      to: window?.config?.BCGOV_COPYRIGHT_URL,
     },
     {
       id: 'footer-link-contact-us',
       label: 'Contact Us',
-      to: 'https://www2.gov.bc.ca/gov/content/home/contact-us',
+      to: window?.config?.BCGOV_CONTACT_URL,
     },
   ],
 };
