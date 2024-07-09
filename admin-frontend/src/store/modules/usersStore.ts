@@ -21,6 +21,26 @@ export const useUsersStore = defineStore('users', () => {
 
   const addUser = async (data: AddUserInput) => {
     return ApiService.addUser(data);
+  }
+  
+  const assignUserRole = async (userId: string, role: string) => {
+    try {
+      await ApiService.assignUserRole(userId, role);
+      const { data } = await ApiService.getUsers();
+      users.value = data;
+    } catch (err) {
+      console.log(`get users failed: ${err}`);
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      await ApiService.deleteUser(userId);
+      const { data } = await ApiService.getUsers();
+      users.value = data;
+    } catch (err) {
+      console.log(`get users failed: ${err}`);
+    }
   };
 
   const reset = () => {
@@ -35,6 +55,8 @@ export const useUsersStore = defineStore('users', () => {
     //actions
     getUsers,
     addUser,
+    assignUserRole,
+    deleteUser,
     reset,
   };
 });

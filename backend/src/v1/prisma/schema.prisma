@@ -193,6 +193,7 @@ model report_history {
 model calculation_code {
   calculation_code_id              String                             @id(map: "calculation_code_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   calculation_code                 String                             @unique @db.VarChar(255)
+  description                      String?
   calculated_data_history          calculated_data_history[]
   pay_transparency_calculated_data pay_transparency_calculated_data[]
 }
@@ -238,6 +239,7 @@ model admin_user {
   update_user        String               @db.VarChar(255)
   is_active          Boolean              @default(true)
   assigned_roles     String               @db.VarChar(255)
+  preferred_username String               @default("") @db.VarChar(255)
   admin_user_history admin_user_history[]
 }
 
@@ -253,6 +255,7 @@ model admin_user_history {
   update_user           String     @db.VarChar(255)
   is_active             Boolean    @default(true)
   assigned_roles        String     @db.VarChar(255)
+  preferred_username    String     @default("") @db.VarChar(255)
   admin_user            admin_user @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
 }
 

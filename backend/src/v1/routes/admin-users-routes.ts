@@ -6,12 +6,20 @@ import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
 import { HttpStatusCode } from 'axios';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { useValidate } from '../validations';
-import { AddNewUserSchema, AddNewUserType } from '../validations/schemas';
+import {
+  ASSIGN_ROLE_SCHEMA,
+  AddNewUserSchema,
+  AddNewUserType,
+  AssignRoleType,
+} from '../validations/schemas';
 import { SSO } from '../services/sso-service';
 
 type ExtendedRequest = Request & { sso: SSO };
 const router = express.Router();
 
+/**
+ * Middleware to check if user has a PTRT-ADMIN role
+ */
 router.use(async (req: ExtendedRequest, res: Response, next) => {
   const user = utils.getSessionUser(req);
   const roles = user._json.client_roles as string[];
@@ -24,6 +32,9 @@ router.use(async (req: ExtendedRequest, res: Response, next) => {
   next();
 });
 
+/**
+ * Attach the CSS SSO client
+ */
 router.use(async (req: ExtendedRequest, _, next) => {
   try {
     const sso = await SSO.init();
@@ -35,6 +46,9 @@ router.use(async (req: ExtendedRequest, _, next) => {
   }
 });
 
+/**
+ * Get all users in the system
+ */
 router.get('', async (req: ExtendedRequest, res: Response) => {
   try {
     const users = await req.sso.getUsers();
@@ -67,4 +81,43 @@ router.post(
     }
   },
 );
+
+/**
+ * Assign user role
+ */
+router.patch(
+  '/:userId',
+  useValidate({ mode: 'body', schema: ASSIGN_ROLE_SCHEMA }),
+  async (req: ExtendedRequest, res: Response) => {
+    const { userId } = req.params;
+    const data: AssignRoleType = req.body;
+
+    try {
+      await req.sso.assignRoleToUser(userId, data.role);
+
+      return res
+        .status(204)
+        .json({ message: 'Successfully assigned user role' });
+    } catch (error) {
+      logger.error(error);
+      return res.status(400).json({ error: 'Failed to assign user role' });
+    }
+  },
+);
+
+/**
+ * Delete user
+ */
+router.delete('/:userId', async (req: ExtendedRequest, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    await req.sso.deleteUser(userId);
+    return res.json();
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).json({ error: 'Failed to delete user' });
+  }
+});
+
 export default router;

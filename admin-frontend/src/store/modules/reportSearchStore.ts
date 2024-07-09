@@ -9,7 +9,7 @@ import {
   SORT_KEY_MAPPING,
 } from '../../types';
 
-export const DEFAULT_PAGE_SIZE = 100;
+export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
   page: 1,
   itemsPerPage: 20,

@@ -9,6 +9,7 @@ import * as directives from 'vuetify/directives';
 import App from '../App.vue';
 import router from '../router';
 import { authStore } from '../store/modules/auth';
+import { waitFor } from '@testing-library/vue';
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
@@ -113,7 +114,9 @@ describe('App', () => {
       componentEnv.router.push('/user-management');
       await componentEnv.router.isReady();
       await componentEnv.app.vm.$nextTick();
-      expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeTruthy();
+      await waitFor(() => {
+        expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeTruthy();
+      });
     });
   });
   describe("when the route changes to /user-management, and the user doesn't have permission to view the breadbrumb trail", async () => {
@@ -123,7 +126,9 @@ describe('App', () => {
       componentEnv.router.push('/user-management');
       await componentEnv.router.isReady();
       await componentEnv.app.vm.$nextTick();
-      expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
+      await waitFor(() => {
+        expect(componentEnv.app.vm.isBreadcrumbTrailVisible).toBeFalsy();
+      });
     });
   });
   describe('onRouteChanged', () => {

@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import { AddUserInput, IConfigValue, IReportSearchResult, User } from '../types';
+import {
+  AddUserInput,
+  IConfigValue,
+  IReportSearchResult,
+  User,
+} from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
@@ -94,7 +99,24 @@ export default {
     try {
       return await apiAxios.post(ApiRoutes.USERS, data);
     } catch (e) {
-      console.log(`Failed to get from Nodejs addUser API - ${e}`);
+      console.log(`Failed to post from Nodejs addUser API - ${e}`);
+    }
+  },
+  async assignUserRole(userId: string, role: string) {
+    try {
+      return await apiAxios.patch(`${ApiRoutes.USERS}/${userId}`, {
+        role,
+      });
+    } catch (e) {
+      console.log(`Failed to patch from Nodejs assignUserRole API - ${e}`);
+      throw e;
+    }
+  },
+  async deleteUser(userId: string) {
+    try {
+      return await apiAxios.delete(`${ApiRoutes.USERS}/${userId}`);
+    } catch (e) {
+      console.log(`Failed to delete from Nodejs deleteUser API - ${e}`);
       throw e;
     }
   },

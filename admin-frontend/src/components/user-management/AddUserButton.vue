@@ -11,7 +11,7 @@
         ></v-btn>
       </template>
 
-      <v-card v-if="open" role="dialog" aria-label="Add New User">
+      <v-card v-if="open" role="presentation" aria-label="Add New User">
         <template v-slot:title >
           <span class="card-title">Add New User</span>
         </template>
@@ -143,11 +143,6 @@ const {
       }
 
       return true;
-    },
-    role(value) {
-      if (value) return true;
-
-      return 'A role is required.';
     },
   },
 });

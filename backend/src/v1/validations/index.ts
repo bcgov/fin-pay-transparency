@@ -15,7 +15,7 @@ export const useValidate = ({ mode, schema }: UseValidateOptions) => {
       next()
     } catch (error) {
       logger.error(error);
-      return res.status(400).json(error);
+      return next(error);
     }
   };
 };

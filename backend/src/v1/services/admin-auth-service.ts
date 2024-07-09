@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
-import { KEYCLOAK_IDP_HINT_AZUREIDIR, OIDC_AZUREIDIR_SCOPE } from '../../constants';
+import {
+  KEYCLOAK_IDP_HINT_AZUREIDIR,
+  OIDC_AZUREIDIR_SCOPE,
+} from '../../constants';
 import { logger as log } from '../../logger';
 import { AuthBase } from './auth-utils-service';
 import { utils } from './utils-service';
@@ -19,7 +22,7 @@ enum LogoutReason {
   ContactError = 'contactError',
   NotAuthorized = 'notAuthorized',
   RoleChanged = 'roleChanged',
-  InvitationExpired = 'invitationExpired'
+  InvitationExpired = 'invitationExpired',
 }
 
 class AdminAuth extends AuthBase {
@@ -47,13 +50,13 @@ class AdminAuth extends AuthBase {
     if (payload?.identity_provider !== KEYCLOAK_IDP_HINT_AZUREIDIR) {
       throw new Error(
         `backend token invalid, identity_provider is not ${KEYCLOAK_IDP_HINT_AZUREIDIR}`,
-        jwt
+        jwt,
       );
     }
     if (payload?.aud !== config.get('oidc:adminClientId')) {
       throw new Error(
         'backend token invalid, aud claim validation failed',
-        jwt
+        jwt,
       );
     }
     return true;
@@ -71,7 +74,7 @@ class AdminAuth extends AuthBase {
     const userInfo = utils.getSessionUser(req);
     if (!userInfo?.jwt || !userInfo?._json) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
-        message: 'No session data'
+        message: 'No session data',
       });
     }
     const userInfoFrontend = {
@@ -88,7 +91,9 @@ class AdminAuth extends AuthBase {
     const email = jwtPayload?.email;
     const preferred_username = jwtPayload?.preferred_username;
     if (!idirUserGuid || !email || !preferred_username) {
-      log.error(`one of mandatory parameters missing in the token, idir_user_guid: ${idirUserGuid}, email: ${email}, preferred_username: ${preferred_username}`);
+      log.error(
+        `one of mandatory parameters missing in the token, idir_user_guid: ${idirUserGuid}, email: ${email}, preferred_username: ${preferred_username}`,
+      );
       return LogoutReason.LoginError;
     }
 
@@ -99,77 +104,108 @@ class AdminAuth extends AuthBase {
       return LogoutReason.LoginError;
     }
     try {
-      return await this.processUserOnboarding(email, preferred_username, userInfo?.refreshToken, idirUserGuid);
+      return await this.processUserOnboarding(
+        email,
+        userInfo._json.display_name,
+        preferred_username,
+        userInfo?.refreshToken,
+        idirUserGuid,
+      );
     } catch (e) {
       log.error('Failed while processing user onboarding.', e);
       return LogoutReason.LoginError;
     }
-
   }
 
-  private async processUserOnboarding(email: string, preferred_username: string, refreshToken: string, idirUserGuid: string): Promise<LogoutReason> {
+  private async processUserOnboarding(
+    email: string,
+    displayName: string,
+    preferred_username: string,
+    refreshToken: string,
+    idirUserGuid: string,
+  ): Promise<LogoutReason> {
     const adminUserOnboarding = await prisma.admin_user_onboarding.findFirst({
       where: {
         email: email,
-        is_onboarded: false
-      }
+        is_onboarded: false,
+      },
     });
 
     // record found , need to do the processing.
     if (adminUserOnboarding) {
-
-      const expireDate = LocalDateTime.from(nativeJs(new Date(adminUserOnboarding.expiry_date)));
+      const expireDate = LocalDateTime.from(
+        nativeJs(new Date(adminUserOnboarding.expiry_date)),
+      );
       if (expireDate.isBefore(LocalDateTime.now(ZoneId.UTC))) {
         return LogoutReason.InvitationExpired;
       }
 
       // get SSO roles from Keycloak
-      await this.processRolesWithKeycloak(preferred_username, adminUserOnboarding, refreshToken);
-      await this.storeUserInfoWithHistory(adminUserOnboarding, idirUserGuid);
+      await this.processRolesWithKeycloak(
+        preferred_username,
+        adminUserOnboarding,
+        refreshToken,
+      );
+      await this.storeUserInfoWithHistory(
+        adminUserOnboarding,
+        idirUserGuid,
+        displayName,
+        preferred_username,
+      );
       return LogoutReason.RoleChanged;
     } else {
-      log.info(`No user onboarding record found for the user ${preferred_username}, check user for roles`);
+      log.info(
+        `No user onboarding record found for the user ${preferred_username}, check user for roles`,
+      );
       // check for roles, if no roles found throw error
       const sso = await SSO.init();
       const userRoles = await sso.getRolesByUser(preferred_username);
       if (!userRoles || userRoles.length === 0) {
-        log.error(`No roles found for the user ${preferred_username}, please contact the administrator`);
+        log.error(
+          `No roles found for the user ${preferred_username}, please contact the administrator`,
+        );
         return LogoutReason.NotAuthorized;
       }
       return LogoutReason.Login;
     }
   }
 
-  private async storeUserInfoWithHistory(adminUserOnboarding, idirUserGuid: string) {
+  private async storeUserInfoWithHistory(
+    adminUserOnboarding,
+    idirUserGuid: string,
+    displayName: string,
+    preferred_username: string,
+  ) {
     await prisma.$transaction(async (tx: PrismaTransactionalClient) => {
       // update the user onboarding record, idempotent operation, also solves the edge case when call to keycloak was
       // successful earlier but db operation had failed.
       await tx.admin_user_onboarding.update({
         where: {
-          admin_user_onboarding_id: adminUserOnboarding.admin_user_onboarding_id
+          admin_user_onboarding_id:
+            adminUserOnboarding.admin_user_onboarding_id,
         },
         data: {
-          is_onboarded: true
-        }
+          is_onboarded: true,
+        },
       });
       //// create/update a record in the admin user table
       const existing_admin_user = await tx.admin_user.findFirst({
         where: {
           idir_user_guid: idirUserGuid,
-          is_active: false
-        }
+          is_active: false,
+        },
       });
       if (existing_admin_user) {
         await tx.admin_user.update({
           where: {
-            admin_user_id: existing_admin_user.admin_user_id
+            admin_user_id: existing_admin_user.admin_user_id,
           },
           data: {
             update_date: new Date(),
             update_user: adminUserOnboarding.created_by,
             assigned_roles: adminUserOnboarding.assigned_roles,
-            is_active: true
-          }
+            is_active: true,
+          },
         });
         await tx.admin_user_history.create({
           data: {
@@ -179,33 +215,42 @@ class AdminAuth extends AuthBase {
             create_user: existing_admin_user.create_user,
             update_user: existing_admin_user.update_user,
             assigned_roles: existing_admin_user.assigned_roles,
-            is_active: existing_admin_user.is_active
-          }
+            is_active: existing_admin_user.is_active,
+            preferred_username,
+          },
         });
-
       } else {
         await tx.admin_user.create({
           data: {
-            display_name: adminUserOnboarding.first_name,
+            display_name: displayName,
             idir_user_guid: idirUserGuid,
             create_user: adminUserOnboarding.created_by,
             update_user: adminUserOnboarding.created_by,
             assigned_roles: adminUserOnboarding.assigned_roles,
-            is_active: true
-          }
+            is_active: true,
+            preferred_username,
+          },
         });
       }
     });
   }
 
-  private async processRolesWithKeycloak(preferred_username: string, adminUserOnboarding, refreshToken: string) {
+  private async processRolesWithKeycloak(
+    preferred_username: string,
+    adminUserOnboarding,
+    refreshToken: string,
+  ) {
     const sso = await SSO.init();
     const userRoles = await sso.getRolesByUser(preferred_username);
     if (!userRoles || userRoles.length === 0) {
-      log.info(`No roles found for the user ${preferred_username}, call API to add the roles`);
-      const roles = adminUserOnboarding.assigned_roles.split(',').map(role => {
-        return { name: role };
-      });
+      log.info(
+        `No roles found for the user ${preferred_username}, call API to add the roles`,
+      );
+      const roles = adminUserOnboarding.assigned_roles
+        .split(',')
+        .map((role) => {
+          return { name: role };
+        });
       await sso.addRolesToUser(preferred_username, roles);
     }
   }

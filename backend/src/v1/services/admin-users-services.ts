@@ -61,8 +61,8 @@ export class AdminUserService {
       'Pay Transparency Admin Portal Onboarding',
       [email],
       'Pay Transparency Admin Portal Onboarding',
-      `Hello ${firstname}, <br><br> You have been invited to join the Pay Transparency Admin Portal as an User. Please click the link below to complete your registration and access the application. <br><br> <a href="${config.get('adminFrontend')}">Click here to complete your registration</a>`,
-      `You have been invited to join the Pay Transparency Admin Portal as an Admin User. Please click the link below to complete your registration and access the application.<a href="${config.get('adminFrontend')}">Click here to complete your registration</a>`,
+      `Hello ${firstname}, <br><br> You have been invited to join the Pay Transparency Admin Portal as an User. Please click the link below to complete your registration and access the application. <br><br> <a href="${config.get('server:adminFrontend')}">Click here to complete your registration</a>`,
+      `You have been invited to join the Pay Transparency Admin Portal as an Admin User. Please click the link below to complete your registration and access the application.<a href="${config.get('server:adminFrontend')}">Click here to complete your registration</a>`,
     );
     await emailService?.sendEmailWithRetry(htmlEmail, 3);
   }

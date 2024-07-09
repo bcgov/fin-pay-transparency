@@ -108,12 +108,12 @@ describe('AddUserButton', () => {
     const button = wrapper.getByRole('button', { name: 'Add New User' });
     await fireEvent.click(button);
     expect(
-      screen.getByRole('dialog', { name: 'Add New User' }),
+      screen.getByRole('presentation', { name: 'Add New User' }),
     ).toBeInTheDocument();
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await fireEvent.click(cancelButton);
     expect(
-      screen.queryByRole('dialog', { name: 'Add New User' }),
+      screen.queryByRole('presentation', { name: 'Add New User' }),
     ).not.toBeInTheDocument();
   });
 
@@ -200,7 +200,7 @@ describe('AddUserButton', () => {
     await fireEvent.click(cancelButton);
     await waitFor(() => {
       expect(
-        screen.getByRole('dialog', { name: 'Add New User' }),
+        screen.getByRole('presentation', { name: 'Add New User' }),
       ).toBeVisible();
     });
     expect(mockAddUser).not.toHaveBeenCalled();

@@ -109,8 +109,9 @@ describe('admin-users-router', () => {
               .send({ firstName: '' })
               .expect(400)
               .expect(({ body }) => {
-                expect(body.name).toBe('ZodError');
-                expect(body.issues).toHaveLength(3);
+                expect(body.error).toBeDefined();
+                const errors = JSON.parse(body.error);
+                expect(errors).toHaveLength(3);
               });
           });
         });
@@ -140,6 +141,70 @@ describe('admin-users-router', () => {
                 .expect(400);
             });
           });
+        });
+      });
+
+      describe('/:id [PATCH] - assign user role', () => {
+        describe('400', () => {
+          it('validation fails', () => {
+            return request(app)
+              .patch('/1')
+              .send({ role: 'PTRT-ADMINA' })
+              .expect(400)
+              .expect(({ body }) => {
+                console.log(body);
+                expect(body.error).toBeDefined();
+                const errors = JSON.parse(body.error);
+                expect(errors[0].message).toBe(
+                  "Invalid enum value. Expected 'PTRT-ADMIN' | 'PTRT-USER', received 'PTRT-ADMINA'",
+                );
+              });
+          });
+
+          it('assign role fails', () => {
+            mockInitSSO.mockReturnValue({
+              assignRoleToUser: () =>
+                Promise.reject(new Error('Failed to assign role')),
+            });
+            return request(app)
+              .patch('/1')
+              .send({ role: 'PTRT-ADMIN' })
+              .expect(400)
+              .expect(({ body }) => {
+                expect(body.error).toBe('Failed to assign user role');
+              });
+          });
+        });
+
+        describe('validation passes', () => {
+          it('200 - success assign role', () => {
+            mockInitSSO.mockReturnValue({
+              assignRoleToUser: jest.fn(),
+            });
+            return request(app)
+              .patch('/1')
+              .send({ role: 'PTRT-ADMIN' })
+              .expect(204);
+          });
+        });
+      });
+
+      describe('/:id [DELETE] - delete user', () => {
+        describe('400', () => {
+          it('delete user fails', () => {
+            mockInitSSO.mockReturnValue({
+              deleteUser: () =>
+                Promise.reject(new Error('Failed to delete user')),
+            });
+            return request(app).delete('/1').expect(400);
+          });
+        });
+
+        it('200 - success delete user', () => {
+          mockInitSSO.mockReturnValue({
+            deleteUser: jest.fn(),
+          });
+          return request(app).delete('/1').expect(200);
         });
       });
     });

@@ -92,7 +92,7 @@ describe('admin-auth-service', () => {
 
     describe('processUserOnboarding', () => {
       it('should return invitation expired', async () => {
-        mockGetSessionUser.mockResolvedValue({});
+        mockGetSessionUser.mockReturnValue({ _json: { display_name: 'test' } });
         mockJWTDecode.mockReturnValue({
           idir_user_guid: faker.string.uuid(),
           email: faker.internet.email(),
@@ -116,7 +116,7 @@ describe('admin-auth-service', () => {
           getRolesByUser: () => mockGetRolesByUser(),
           addRolesToUser: () => mockAddRolesToUser(),
         });
-        mockGetSessionUser.mockResolvedValue({});
+        mockGetSessionUser.mockReturnValue({ _json: { display_name: 'test' } });
         mockJWTDecode.mockReturnValue({
           idir_user_guid: faker.string.uuid(),
           email: faker.internet.email(),
@@ -141,7 +141,9 @@ describe('admin-auth-service', () => {
             getRolesByUser: () => mockGetRolesByUser(),
             addRolesToUser: () => mockAddRolesToUser(),
           });
-          mockGetSessionUser.mockResolvedValue({});
+          mockGetSessionUser.mockReturnValue({
+            _json: { display_name: 'test' },
+          });
           mockJWTDecode.mockReturnValue({
             idir_user_guid: faker.string.uuid(),
             email: faker.internet.email(),
@@ -161,7 +163,9 @@ describe('admin-auth-service', () => {
             getRolesByUser: () => mockGetRolesByUser(),
             addRolesToUser: () => mockAddRolesToUser(),
           });
-          mockGetSessionUser.mockResolvedValue({});
+          mockGetSessionUser.mockReturnValue({
+            _json: { display_name: 'test' },
+          });
           mockJWTDecode.mockReturnValue({
             idir_user_guid: faker.string.uuid(),
             email: faker.internet.email(),
