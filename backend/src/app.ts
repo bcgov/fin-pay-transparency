@@ -192,7 +192,7 @@ utils.getOidcDiscovery().then((discovery) => {
         issuer: config.get('tokenGenerate:issuer'),
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: config.get('tokenGenerate:publicKey'),
-        ignoreExpiration: false,
+        ignoreExpiration: true,
       },
       (jwtPayload, done) => {
         if (typeof jwtPayload === 'undefined' || jwtPayload === null) {
