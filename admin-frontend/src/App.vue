@@ -2,9 +2,9 @@
   <v-app id="app">
     <MsieBanner v-if="isIE" />
     <div v-if="!isIE">
-      <Header v-if="areHeaderAndSidebarVisible" />
+      <Header data-testid="header" v-if="areHeaderAndSidebarVisible" />
       <SnackBar />
-      <SideBar v-if="areHeaderAndSidebarVisible" />
+      <SideBar data-testid="sidebar" v-if="areHeaderAndSidebarVisible" />
       <v-main
         fluid
         class="d-flex flex-column align-start"
@@ -79,10 +79,14 @@ export default {
         NotificationService.setErrorPageMessage();
       }
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
+      console.log('areHeaderAndSidebarVisible', this.areHeaderAndSidebarVisible);
       this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
       this.isBreadcrumbTrailVisible =
         to?.meta?.isBreadcrumbTrailVisible &&
         this.doesUserHaveRole(USER_ROLE_NAME);
+        console.log(`this.doesUserHaveRole(${USER_ROLE_NAME})`, this.doesUserHaveRole(USER_ROLE_NAME)
+        console.log('to?.meta?.isBreadcrumbTrailVisible', to?.meta?.isBreadcrumbTrailVisible);
+        console.log('isBreadcrumbTrailVisible', this.isBreadcrumbTrailVisible);
     },
   },
 };
@@ -186,7 +190,7 @@ button:disabled.v-btn {
   display: flex !important;
   color: #2d2d2d !important;
 }
-.v-alert.alert-success {  
+.v-alert.alert-success {
   background-color: #f6fff8 !important;
   border-color: #42814a !important;
 }
