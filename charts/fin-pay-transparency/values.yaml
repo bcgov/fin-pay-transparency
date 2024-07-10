@@ -143,6 +143,13 @@ frontend:
     payTransparencyRegulationUrl: https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/225_2023
     guidanceForReportingWebUrl: https://www2.gov.bc.ca/gov/content/gender-equity/preparing-pay-transparency-reports
     guidanceForReportingPdfUrl: https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/gender-equity/guidance-for-pay-gap-reporting.pdf
+    bcgovHomeUrl: https://www.gov.bc.ca/
+    bcgovAboutUrl: https://www2.gov.bc.ca/gov/content/about-gov-bc-ca
+    bcgovDisclaimerUrl: https://www.gov.bc.ca/disclaimer
+    bcgovPrivacyUrl: https://www.gov.bc.ca/privacy
+    bcgovAccessibilityUrl: https://www.gov.bc.ca/webaccessibility
+    bcgovCopyrightUrl: https://www.gov.bc.ca/copyright
+    bcgovContactUrl: https://www2.gov.bc.ca/gov/content/home/contact-us
   autoscaling:
     enabled: true
     minReplicas: 3

@@ -2,9 +2,23 @@
   "version": "2.0.0",
   "tasks": [
     {
+      // This starts the database container and performs the Flyway
+      // migration to get the database uptodate with the latest changes.
       "label": "Launch and migrate database",
       "type": "shell",
       "command": "podman-compose up -d database-migrations",
+      "problemMatcher": []
+    },
+    {
+      // Run this task to bring all database changes into Prisma to be available in the code.
+      // Automatically performs the "Launch and migrate database" task.
+      "label": "Prisma 'pull' schema from database",
+      "type": "npm",
+      "script": "pull",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "dependsOn": ["Launch and migrate database"],
       "problemMatcher": []
     }
   ]
