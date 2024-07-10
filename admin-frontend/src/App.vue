@@ -2,9 +2,9 @@
   <v-app id="app">
     <MsieBanner v-if="isIE" />
     <div v-if="!isIE">
-      <Header data-testid="header" v-if="areHeaderAndSidebarVisible" />
+      <Header v-if="areHeaderAndSidebarVisible" />
       <SnackBar />
-      <SideBar data-testid="sidebar" v-if="areHeaderAndSidebarVisible" />
+      <SideBar v-if="areHeaderAndSidebarVisible" />
       <v-main
         fluid
         class="d-flex flex-column align-start"
