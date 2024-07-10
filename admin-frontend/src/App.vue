@@ -84,7 +84,7 @@ export default {
       this.isBreadcrumbTrailVisible =
         to?.meta?.isBreadcrumbTrailVisible &&
         this.doesUserHaveRole(USER_ROLE_NAME);
-        console.log(`this.doesUserHaveRole(${USER_ROLE_NAME})`, this.doesUserHaveRole(USER_ROLE_NAME)
+        console.log(`this.doesUserHaveRole(${USER_ROLE_NAME})`, this.doesUserHaveRole(USER_ROLE_NAME))
         console.log('to?.meta?.isBreadcrumbTrailVisible', to?.meta?.isBreadcrumbTrailVisible);
         console.log('isBreadcrumbTrailVisible', this.isBreadcrumbTrailVisible);
     },
