@@ -66,7 +66,7 @@ spec:
             - name: BCGOV_PRIVACY_URL
               value: {{ .Values.env.bcgovPrivacyUrl }}
             - name: BCGOV_ACCESSIBILITY_URL
-              value: {{ .values.env.bcgovAccessibilityUrl }}
+              value: {{ .Values.env.bcgovAccessibilityUrl }}
             - name: BCGOV_COPYRIGHT_URL
               value: {{ .Values.env.bcgovCopyrightUrl }}
             - name: BCGOV_CONTACT_URL
