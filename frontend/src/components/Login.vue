@@ -10,20 +10,20 @@
               </h4>
               <p class="text-subtitle-2">
                 In British Columbia, if you are a provincially regulated employer above a certain size, you are required to complete and post a pay transparency report by November 1st of each year through a phased approach: 
-                <ul class="ml-8 mt-4 mb-4">
+                
+              </p><ul class="ml-8 mt-4 mb-4">
                   <li>2024: all employers with 1,000 employees or more</li>
                   <li>2025: all employers with 300 employees or more</li>
                   <li>2026: all employers with 50 employees or more</li>
                 </ul>
-              </p>
               <p class="text-subtitle-2 mb-2">This tool enables you to easily create a pay transparency report as required under the <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_ACT_URL)">Pay Transparency Act</a> and <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_REGULATION_URL)">Regulation</a>.</p>
               <p class="text-subtitle-2 mb-4">Below is an overview of the three steps required to produce your pay transparency report. For additional information please visit <a target="_blank" rel="noopener noreferrer" :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_HOME_URL)">Pay Transparency in B.C.</a></p>
               <v-btn
                 id="login-button"
                 class="btn-primary"
-                @click="clearStorageAndRedirectToLogin"
                 data-testid="login-button"
                 title="Login"
+                @click="clearStorageAndRedirectToLogin"
               >
                 Log In with Business BCeID<v-icon>mdi-login</v-icon>
               </v-btn>  
@@ -105,13 +105,13 @@
                       Download sample CSV
                     </v-btn>
                   </div>
-                  <p v-show="stage == 'REVIEW'">
+                  <div v-show="stage == 'REVIEW'">
                     <h3 class="mb-4">Review and validate</h3>
                     <p class="mb-8">
                       Please carefully review any error messages and confirm the information you provided is accurate before moving forward.  The <a target="_blank" rel="noopener" :href="sanitizeUrl(frontendConfig.GUIDANCE_FOR_REPORTING_PDF_URL)">Guidance for Preparing Pay Transparency Reports</a> details what must be included in your report.
                     </P>
-                  </p>
-                  <p v-show="stage == 'GENERATE'">
+                  </div>
+                  <div v-show="stage == 'GENERATE'">
                     <h3 class="mb-4">Generate your report</h3>
                     <p class="mb-8">
                       You will now be able to download and review a draft version of your report. Draft reports are not saved in the system. Once your report is finalized, it will be available in the system in your employer profile for retrieval and distribution.
@@ -119,7 +119,7 @@
                     <v-btn class="btn-secondary" href="SampleReport.pdf" download>
                       View sample report
                     </v-btn>
-                  </p>                                    
+                  </div>                                    
                 </v-col>
                 <v-col class="d-flex justify-center aligned-right no-padding">
                   <img
@@ -131,15 +131,14 @@
                       alt="Monitor"
                   >  
                 </v-col>
-              </v-row>               
+              </v-row>
 
             </v-col>
-          </v-row>        
-        </v-container>  
+          </v-row>
+        </v-container>
 
       </v-col>
-    </v-row>  
-  <!-- </v-container> -->
+    </v-row>
 </template>
 
 <script>
