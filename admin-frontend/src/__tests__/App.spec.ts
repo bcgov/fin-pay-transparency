@@ -110,7 +110,7 @@ describe('App', () => {
   describe('when the route changes to /user-management, and the user has permission to view the breadbrumb trail', async () => {
     it('breadcrumb trail is visible', async () => {
       const componentEnv = await setupComponentEnvironment();
-      mockDoesUserHaveRole.mockReturnValue(true);
+      mockDoesUserHaveRole.mockReturnValueOnce(true);
       componentEnv.router.push('/user-management');
       await componentEnv.router.isReady();
       await componentEnv.app.vm.$nextTick();
@@ -122,7 +122,7 @@ describe('App', () => {
   describe("when the route changes to /user-management, and the user doesn't have permission to view the breadbrumb trail", async () => {
     it('breadcrumb trail is hidden', async () => {
       const componentEnv = await setupComponentEnvironment();
-      mockDoesUserHaveRole.mockReturnValue(false);
+      mockDoesUserHaveRole.mockReturnValueOnce(false);
       componentEnv.router.push('/user-management');
       await componentEnv.router.isReady();
       await componentEnv.app.vm.$nextTick();
@@ -142,7 +142,7 @@ describe('App', () => {
             pageTitle: 'sample route',
           },
         };
-        mockDoesUserHaveRole.mockReturnValue(false);
+        mockDoesUserHaveRole.mockReturnValueOnce(false);
         componentEnv.app.vm.onRouteChanged(to, null);
         expect(componentEnv.app.vm.activeRoute).toStrictEqual(to);
         expect(componentEnv.app.vm.areHeaderAndSidebarVisible).toBe(

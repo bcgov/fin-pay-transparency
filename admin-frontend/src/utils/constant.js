@@ -34,6 +34,7 @@ export const PAGE_TITLES = Object.freeze({
   ANALYTICS: 'Analytics',
   LOGIN: 'Login',
   TOKEN_EXPIRED: 'Token Expired',
+  INVITATION_EXPIRED: 'Invitation Expired',
 });
 
 export const MINISTRY_NAME = 'Ministry of Finance';

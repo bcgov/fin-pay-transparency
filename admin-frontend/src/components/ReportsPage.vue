@@ -110,8 +110,8 @@ const {
 } = storeToRefs(reportSearchStore);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const itemsPerPageOptions = ref([
-  { value: 1, title: '1' },
-  { value: 2, title: '2' },
+  { value: 10, title: '10' },
+  { value: 25, title: '25' },
   { value: 50, title: '50' },
   { value: 100, title: '100' },
   { value: 150, title: '150' },
