@@ -79,14 +79,10 @@ export default {
         NotificationService.setErrorPageMessage();
       }
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
-      console.log('areHeaderAndSidebarVisible', this.areHeaderAndSidebarVisible);
       this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
       this.isBreadcrumbTrailVisible =
         to?.meta?.isBreadcrumbTrailVisible &&
         this.doesUserHaveRole(USER_ROLE_NAME);
-        console.log(`this.doesUserHaveRole(${USER_ROLE_NAME})`, this.doesUserHaveRole(USER_ROLE_NAME))
-        console.log('to?.meta?.isBreadcrumbTrailVisible', to?.meta?.isBreadcrumbTrailVisible);
-        console.log('isBreadcrumbTrailVisible', this.isBreadcrumbTrailVisible);
     },
   },
 };
