@@ -84,14 +84,29 @@ export class SSO {
           .map((item) => ({
             idirUserGuid: item.attributes.idir_user_guid[0],
             userName: item.attributes.idir_username[0],
+            preferredUserName: item.username,
             displayName: item.attributes.display_name[0],
             role: roleName,
           }));
       }),
     );
 
+    const users = flatten(results);
+    const localUsers = await prisma.admin_user.findMany({
+      where: {
+        preferred_username: { in: users.map((u) => u.preferredUserName) },
+        is_active: true,
+      },
+    });
+
+    console.log('localUsers', localUsers);
+
+    const preferredUsernameToAdminUserId = localUsers.reduce((acc, user) => {
+      return { ...acc, [user.preferred_username]: user.admin_user_id };
+    }, {});
+
     const userGroups: { [key: string]: User[] } = groupBy(
-      flatten(results),
+      users.filter((u) => preferredUsernameToAdminUserId[u.preferredUserName]),
       (u) => u.userName,
     );
 
@@ -101,9 +116,17 @@ export class SSO {
       const effectiveRole = roles.includes(PTRT_ADMIN_ROLE_NAME)
         ? PTRT_ADMIN_ROLE_NAME
         : PTRT_USER_ROLE_NAME;
-      const user = users[0];
+      const user: any = users[0];
 
-      return [...acc, { ...omit(user, 'role'), roles, effectiveRole }];
+      return [
+        ...acc,
+        {
+          ...omit(user, 'role', 'preferredUserName', 'idirUserGuid', 'userName'),
+          roles,
+          effectiveRole,
+          id: preferredUsernameToAdminUserId[user.preferredUserName],
+        },
+      ];
     }, []);
   }
 
@@ -221,7 +244,7 @@ export class SSO {
 
   /**
    * Delete the user role in keycloak and deactivate the user in the database
-   * @param userId 
+   * @param userId
    */
   async deleteUser(userId: string) {
     await prisma.$transaction(async (tx) => {
@@ -237,7 +260,9 @@ export class SSO {
 
       const roles = localUser.assigned_roles.split(',') as RoleType[];
       await Promise.all(
-        roles.map((role) => this.removeRoleFromUser(localUser.preferred_username, role)),
+        roles.map((role) =>
+          this.removeRoleFromUser(localUser.preferred_username, role),
+        ),
       );
       await tx.admin_user.update({
         where: { admin_user_id: userId },
