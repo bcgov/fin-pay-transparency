@@ -15,15 +15,17 @@ jest.mock('axios', () => ({
   create: (args) => mockAxiosCreate(args),
 }));
 
+const mockFindMany = jest.fn();
 const mockFindUniqueOrThrow = jest.fn();
 const mockUpdate = jest.fn();
 const mockCreateHistory = jest.fn();
-const mockTx = {
+const mockPrisma = {
   admin_user: {
     findUniqueOrThrow: (...args) => {
       return mockFindUniqueOrThrow(...args);
     },
     update: (...args) => mockUpdate(...args),
+    findMany: (...args) => mockFindMany(...args),
   },
   admin_user_history: {
     create: (...args) => mockCreateHistory(...args),
@@ -31,7 +33,10 @@ const mockTx = {
 };
 
 jest.mock('../prisma/prisma-client', () => ({
-  $transaction: jest.fn().mockImplementation((fn) => fn(mockTx)),
+  admin_user: {
+    findMany: (...args) => mockFindMany(...args),
+  },
+  $transaction: jest.fn().mockImplementation((fn) => fn(mockPrisma)),
 }));
 
 describe('sso-service', () => {
@@ -52,6 +57,12 @@ describe('sso-service', () => {
 
   describe('getUsers', () => {
     it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
+      const preferredUsername1 = faker.internet.userName();
+      const preferredUsername2 = faker.internet.userName();
+      mockFindMany.mockResolvedValue([
+        {admin_user_id: faker.string.uuid(), preferred_username: preferredUsername1},
+        {admin_user_id: faker.string.uuid(), preferred_username: preferredUsername2},
+      ]);
       mockAxiosPost.mockResolvedValue({
         data: { access_token: 'jwt', token_type: 'Bearer' },
       });
@@ -60,6 +71,7 @@ describe('sso-service', () => {
           data: [
             {
               email: faker.internet.email(),
+              username: preferredUsername1,
               attributes: {
                 idir_user_guid: [faker.string.uuid()],
                 idir_username: [faker.internet.userName()],
@@ -68,6 +80,7 @@ describe('sso-service', () => {
             },
             {
               email: faker.internet.email(),
+              username: preferredUsername2,
               attributes: {
                 idir_user_guid: [faker.string.uuid()],
                 idir_username: [faker.internet.userName()],
@@ -212,7 +225,9 @@ describe('sso-service', () => {
         };
 
         mockFindUniqueOrThrow.mockResolvedValue(user);
-        await expect(client.assignRoleToUser(userId, 'PTRT-USER')).rejects.toThrow();
+        await expect(
+          client.assignRoleToUser(userId, 'PTRT-USER'),
+        ).rejects.toThrow();
         expect(mockDelete).toHaveBeenCalledWith(
           `/users/${user.preferred_username}/roles/PTRT-ADMIN`,
         );
@@ -254,9 +269,7 @@ describe('sso-service', () => {
         mockFindUniqueOrThrow.mockImplementation(() => {
           throw new Error('User not found');
         });
-        await expect(
-          client.deleteUser(faker.string.uuid()),
-        ).rejects.toThrow();
+        await expect(client.deleteUser(faker.string.uuid())).rejects.toThrow();
       });
     });
 
@@ -269,9 +282,7 @@ describe('sso-service', () => {
             assigned_roles: [],
           });
           const userId = faker.string.uuid();
-          await expect(
-            client.deleteUser(userId),
-          ).rejects.toThrow(
+          await expect(client.deleteUser(userId)).rejects.toThrow(
             `User not found with id: ${userId}. User name is missing.`,
           );
         });
@@ -303,5 +314,5 @@ describe('sso-service', () => {
         expect(mockCreateHistory).toHaveBeenCalledTimes(1);
       });
     });
-  })
+  });
 });
