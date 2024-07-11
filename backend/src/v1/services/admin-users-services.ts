@@ -6,6 +6,7 @@ import {
 import emailService from '../../external/services/ches';
 import prisma from '../prisma/prisma-client';
 import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
+import { EMAIL_TEMPLATES } from '../email-templates';
 
 export class AdminUserService {
   async addNewUser(
@@ -56,14 +57,28 @@ export class AdminUserService {
     await this.sendUserEmailInvite(email, firstname);
   }
 
+  async resendInvite(invitationId: string) {
+    const pendingUserRequest = await prisma.admin_user_onboarding.findFirstOrThrow({
+      where: {
+        admin_user_onboarding_id: invitationId,
+      },
+    });
+
+    await this.sendUserEmailInvite(
+      pendingUserRequest.email,
+      pendingUserRequest.first_name,
+    );
+  }
+
   async sendUserEmailInvite(email: string, firstname: string) {
     const htmlEmail = emailService?.generateHtmlEmail(
-      'Pay Transparency Admin Portal Onboarding',
+      EMAIL_TEMPLATES.USER_INVITE.subject,
       [email],
-      'Pay Transparency Admin Portal Onboarding',
-      `Hello ${firstname}, <br><br> You have been invited to join the Pay Transparency Admin Portal as an User. Please click the link below to complete your registration and access the application. <br><br> <a href="${config.get('server:adminFrontend')}">Click here to complete your registration</a>`,
-      `You have been invited to join the Pay Transparency Admin Portal as an Admin User. Please click the link below to complete your registration and access the application.<a href="${config.get('server:adminFrontend')}">Click here to complete your registration</a>`,
+      EMAIL_TEMPLATES.USER_INVITE.title,
+      '',
+      EMAIL_TEMPLATES.USER_INVITE.body(firstname),
     );
     await emailService?.sendEmailWithRetry(htmlEmail, 3);
   }
 }
+
