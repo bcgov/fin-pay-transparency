@@ -22,22 +22,6 @@ jest.mock('../middlewares/authorization/authorize', () => ({
   authorize: () => (req, res, next) => next(),
 }));
 
-
-const mockAddNewUser = jest.fn();
-jest.mock('../services/admin-users-services', () => ({
-  AdminUserService: jest.fn().mockImplementation(() => ({
-    addNewUser: () => mockAddNewUser(),
-  })),
-}));
-
-const mockJWTDecode = jest.fn();
-jest.mock('jsonwebtoken', () => ({
-  ...jest.requireActual('jsonwebtoken'),
-  decode: () => {
-    return mockJWTDecode();
-  },
-}));
-
 let app: Application;
 describe('admin-users-router', () => {
   beforeEach(() => {

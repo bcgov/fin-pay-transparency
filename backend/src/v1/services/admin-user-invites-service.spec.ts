@@ -1,4 +1,3 @@
-import { __esModule } from '@js-joda/core';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
@@ -29,13 +28,6 @@ jest.mock('../prisma/prisma-client', () => ({
       findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
     },
   },
-}));
-
-const mockResendInvite = jest.fn();
-jest.mock('./admin-users-services', () => ({
-  AdminUserService: jest.fn().mockImplementation(() => ({
-    resendInvite: mockResendInvite,
-  })),
 }));
 
 const mockSendEmailWithRetry = jest.fn();
