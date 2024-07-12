@@ -52,7 +52,7 @@ router.post(
   },
 );
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await resendInvite(id);

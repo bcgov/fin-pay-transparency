@@ -118,9 +118,9 @@ export default {
   },
   async resendUserInvite(id: string) {
     try {
-      return await apiAxios.put(`${ApiRoutes.USER_INVITES}/${id}`);
+      return await apiAxios.patch(`${ApiRoutes.USER_INVITES}/${id}`);
     } catch (e) {
-      console.log(`Failed to put from Nodejs resendUserInvite API - ${e}`);
+      console.log(`Failed to patch from Nodejs resendUserInvite API - ${e}`);
     }
   },
   async assignUserRole(userId: string, role: string) {

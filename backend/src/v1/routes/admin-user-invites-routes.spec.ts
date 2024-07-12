@@ -111,17 +111,17 @@ describe('admin-user-invites-routes', () => {
     });
   });
 
-  describe('/:id [PUT] - resend invite', () => {
+  describe('/:id [PATCH] - resend invite', () => {
     it('200 - success resend invite', async () => {
       mockResendInvite.mockResolvedValue({});
-      const response = await request(app).put('/1');
+      const response = await request(app).patch('/1');
       expect(mockResendInvite).toHaveBeenCalledWith('1');
       expect(response.status).toBe(200);
     });
 
     it('400 - when failed to resend invite', async () => {
       mockResendInvite.mockRejectedValue(new Error('Failed to resend invite'));
-      const response = await request(app).put('/1');
+      const response = await request(app).patch('/1');
       expect(response.status).toBe(400);
       expect(response.body).toEqual({ error: 'Failed to resend invite' });
     });

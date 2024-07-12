@@ -167,7 +167,7 @@ describe('ApiService', () => {
       const mockAxiosResponse = {
         data: mockBackendResponse,
       };
-      vi.spyOn(ApiService.apiAxios, 'put').mockResolvedValueOnce(
+      vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(
         mockAxiosResponse,
       );
 
