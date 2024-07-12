@@ -64,6 +64,22 @@ describe('admin-user-invite-service', () => {
         expect(mockCreate).toHaveBeenCalledTimes(1);
         expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
       });
+
+      it('should send a new invitation for admin', async () => {
+        await createInvite(
+          faker.internet.email(),
+          PTRT_ADMIN_ROLE_NAME,
+          faker.internet.userName(),
+          faker.internet.userName(),
+        );
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+        expect(mockCreate).toHaveBeenCalledWith({
+          data: expect.objectContaining({
+            assigned_roles: `${PTRT_ADMIN_ROLE_NAME},${PTRT_USER_ROLE_NAME}`,
+          }),
+        });
+        expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
+      });
     });
     describe('when invitation exists', () => {
       it('should send a update invitation and send email', async () => {
