@@ -96,7 +96,14 @@ export type User = {
   effectiveRole: string;
 };
 
-export type AddUserInput = {
+export type CreateUserInviteInput = {
+  firstName: string;
+  email: string;
+  role: string;
+};
+
+export type UserInvite = {
+  admin_user_onboarding_id: string;
   firstName: string;
   email: string;
   role: string;

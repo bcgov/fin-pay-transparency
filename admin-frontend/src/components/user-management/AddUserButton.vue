@@ -105,10 +105,10 @@ import {
 import z from 'zod';
 import { useForm } from 'vee-validate';
 import ConfirmDialog from '../util/ConfirmationDialog.vue';
-import { useUsersStore } from '../../store/modules/usersStore';
+import { useInvitesStore } from '../../store/modules/userInvitesStore';
 import { NotificationService } from '../../services/notificationService';
 
-const { addUser } = useUsersStore();
+const { addInvite } = useInvitesStore();
 const open = ref(false);
 const confirmDialog = ref();
 const {
@@ -184,7 +184,7 @@ const submit = async () => {
   };
 
   try {
-    await addUser(data);
+    await addInvite(data);
     NotificationService.pushNotificationSuccess(
       'User successfully onboarded. An email has been sent for them to activate their account for the application. Once they activate their account the user will be displayed for user management',
     );

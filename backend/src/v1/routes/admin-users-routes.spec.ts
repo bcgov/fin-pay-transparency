@@ -2,7 +2,6 @@ import express, { Application } from 'express';
 import request from 'supertest';
 import router from './admin-users-routes';
 import bodyParser from 'body-parser';
-import { faker } from '@faker-js/faker';
 
 const mockGetUsers = jest.fn();
 const mockInitSSO = jest.fn();
@@ -18,6 +17,11 @@ jest.mock('../services/utils-service', () => ({
     getSessionUser: () => mockGetSessionUser(),
   },
 }));
+
+jest.mock('../middlewares/authorization/authorize', () => ({
+  authorize: () => (req, res, next) => next(),
+}));
+
 
 const mockAddNewUser = jest.fn();
 jest.mock('../services/admin-users-services', () => ({
@@ -43,15 +47,6 @@ describe('admin-users-router', () => {
     app.use(router);
     app.use((err, req, res, next) => {
       res.status(400).send({ error: err.message });
-    });
-  });
-
-  describe('when user is not admin', () => {
-    it('401 - unauthorized', () => {
-      mockGetSessionUser.mockReturnValue({
-        _json: { client_roles: [] },
-      });
-      return request(app).get('').expect(401);
     });
   });
 
@@ -98,49 +93,6 @@ describe('admin-users-router', () => {
             .expect(({ body }) => {
               expect(body).toEqual([]);
             });
-        });
-      });
-
-      describe('/ [POST] - add user', () => {
-        describe('validation fails', () => {
-          it('400', () => {
-            return request(app)
-              .post('')
-              .send({ firstName: '' })
-              .expect(400)
-              .expect(({ body }) => {
-                expect(body.error).toBeDefined();
-                const errors = JSON.parse(body.error);
-                expect(errors).toHaveLength(3);
-              });
-          });
-        });
-        describe('validation passes', () => {
-          it('200 - success add user', async () => {
-            mockJWTDecode.mockReturnValue({ idir_user_guid: '' });
-            return request(app)
-              .post('')
-              .send({
-                firstName: faker.person.firstName(),
-                email: faker.internet.email(),
-                role: 'PTRT-ADMIN',
-              })
-              .expect(200);
-          });
-
-          describe('when an error occurs', () => {
-            it('400', () => {
-              mockAddNewUser.mockRejectedValue(new Error('Error happened'));
-              return request(app)
-                .post('')
-                .send({
-                  firstName: faker.person.firstName(),
-                  email: faker.internet.email(),
-                  role: 'PTRT-ADMIN',
-                })
-                .expect(400);
-            });
-          });
         });
       });
 

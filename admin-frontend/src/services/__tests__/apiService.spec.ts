@@ -1,6 +1,8 @@
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ApiService from '../apiService';
+import { de } from '@faker-js/faker';
+import { i } from 'vitest/dist/reporters-yx5ZTtEV.js';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -108,7 +110,7 @@ describe('ApiService', () => {
       });
     });
   });
-  describe('addUser', () => {
+  describe('inviteUser', () => {
     describe('when the data are successfully saved in the backend', () => {
       it('200 - success', async () => {
         const mockBackendResponse = [{ message: 'success' }];
@@ -119,9 +121,58 @@ describe('ApiService', () => {
           mockAxiosResponse,
         );
 
-        const resp = await ApiService.addUser({firstName: 'test', email: 'user@example.com', role: 'admin'});
+        const resp = await ApiService.inviteUser({
+          firstName: 'test',
+          email: 'user@example.com',
+          role: 'admin',
+        });
         expect(resp!.data).toEqual(mockBackendResponse);
       });
+    });
+  });
+
+  describe('getPendingUserInvites', () => {
+    it('returns an array of pending user invites', async () => {
+      const mockBackendResponse = [{ name: 'test' }];
+      const mockAxiosResponse = {
+        data: mockBackendResponse,
+      };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+
+      const resp = await ApiService.getPendingUserInvites();
+      expect(resp!.data).toEqual(mockBackendResponse);
+    });
+  });
+
+  describe('deleteUserInvite', () => {
+    it('200 - success', async () => {
+      const mockBackendResponse = [{ message: 'success' }];
+      const mockAxiosResponse = {
+        data: mockBackendResponse,
+      };
+      vi.spyOn(ApiService.apiAxios, 'delete').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+
+      const resp = await ApiService.deleteUserInvite('1');
+      expect(resp!.data).toEqual(mockBackendResponse);
+    });
+  });
+
+  describe('resendUserInvite', () => {
+    it('200 - success', async () => {
+      const mockBackendResponse = [{ message: 'success' }];
+      const mockAxiosResponse = {
+        data: mockBackendResponse,
+      };
+      vi.spyOn(ApiService.apiAxios, 'put').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+
+      const resp = await ApiService.resendUserInvite('1');
+      expect(resp!.data).toEqual(mockBackendResponse);
     });
   });
 
@@ -181,7 +232,7 @@ describe('ApiService', () => {
         expect(ApiService.deleteUser('1')).rejects.toEqual(mockAxiosError);
       });
     });
-  })
+  });
 
   describe('downloadReportsCsv', () => {
     describe('when valid filter and sort are passed, and the backend returns a valid response', () => {

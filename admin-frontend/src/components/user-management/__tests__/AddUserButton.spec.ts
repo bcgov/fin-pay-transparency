@@ -24,11 +24,11 @@ const wrappedRender = async () => {
   });
 };
 
-const mockAddUser = vi.fn();
-vi.mock('../../../store/modules/usersStore', () => ({
-  useUsersStore: () => ({
-    addUser: () => {
-      mockAddUser();
+const mockAddInvite = vi.fn();
+vi.mock('../../../store/modules/userInvitesStore', () => ({
+  useInvitesStore: () => ({
+    addInvite: () => {
+      mockAddInvite();
     },
   }),
 }));
@@ -140,13 +140,13 @@ describe('AddUserButton', () => {
     const continueButton = screen.getByRole('button', { name: 'Continue' });
     await fireEvent.click(continueButton);
     await waitFor(() => {
-      expect(mockAddUser).toHaveBeenCalled();
+      expect(mockAddInvite).toHaveBeenCalled();
     });
     expect(mockSuccess).toHaveBeenCalled();
   });
 
   it('should alert error if addUser fails', async () => {
-    mockAddUser.mockImplementation(() => {
+    mockAddInvite.mockImplementation(() => {
       throw new Error('Failed to add user');
     });
     const wrapper = await wrappedRender();
@@ -171,7 +171,7 @@ describe('AddUserButton', () => {
     const continueButton = screen.getByRole('button', { name: 'Continue' });
     await fireEvent.click(continueButton);
     await waitFor(() => {
-      expect(mockAddUser).toHaveBeenCalled();
+      expect(mockAddInvite).toHaveBeenCalled();
     });
     expect(mockError).toHaveBeenCalled();
   });
@@ -203,6 +203,6 @@ describe('AddUserButton', () => {
         screen.getByRole('presentation', { name: 'Add New User' }),
       ).toBeVisible();
     });
-    expect(mockAddUser).not.toHaveBeenCalled();
+    expect(mockAddInvite).not.toHaveBeenCalled();
   });
 });

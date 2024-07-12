@@ -58,16 +58,32 @@ export class AdminUserService {
   }
 
   async resendInvite(invitationId: string) {
-    const pendingUserRequest = await prisma.admin_user_onboarding.findFirstOrThrow({
-      where: {
-        admin_user_onboarding_id: invitationId,
-      },
-    });
+    const pendingUserRequest =
+      await prisma.admin_user_onboarding.findFirstOrThrow({
+        where: {
+          admin_user_onboarding_id: invitationId,
+        },
+      });
 
     await this.sendUserEmailInvite(
       pendingUserRequest.email,
       pendingUserRequest.first_name,
     );
+
+    const expiryDate = convert(
+      LocalDateTime.now(ZoneId.UTC).plusHours(
+        config.get('server:adminInvitationDurationInHours'),
+      ),
+    ).toDate();
+
+    await prisma.admin_user_onboarding.update({
+      where: {
+        admin_user_onboarding_id: invitationId,
+      },
+      data: {
+        expiry_date: expiryDate,
+      },
+    });
   }
 
   async sendUserEmailInvite(email: string, firstname: string) {
@@ -81,4 +97,3 @@ export class AdminUserService {
     await emailService?.sendEmailWithRetry(htmlEmail, 3);
   }
 }
-

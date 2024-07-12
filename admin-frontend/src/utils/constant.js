@@ -24,6 +24,7 @@ export const ApiRoutes = Object.freeze({
   NAICS_CODES: baseRoot + '/v1/codes/naics-codes',
   REPORTS: baseRoot + '/v1/reports',
   USERS: `${baseRoot}/v1/users`,
+  USER_INVITES: `${baseRoot}/v1/user-invites`,
 });
 
 export const PAGE_TITLES = Object.freeze({
