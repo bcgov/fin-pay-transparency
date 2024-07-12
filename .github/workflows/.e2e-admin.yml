@@ -88,6 +88,6 @@ jobs:
         env:
           PW_TEST_HTML_REPORT_OPEN: always
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report-admin-frontend-${{ matrix.project }}
           path: "./admin-frontend/playwright-report" # path from current folder
           retention-days: 7

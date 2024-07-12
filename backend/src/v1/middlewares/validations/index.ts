@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ZodSchema } from 'zod';
-import { logger } from '../../logger';
+import { logger } from '../../../logger';
 
 export type UseValidateOptions = {
   mode: 'body' | 'query';

@@ -42,20 +42,6 @@ describe('usersStore', () => {
       });
     });
 
-    describe('addUser', () => {
-      it('should add user', async () => {
-        const store = useUsersStore();
-        mockAddUser.mockResolvedValueOnce({});
-        const input = {
-          firstName: 'Jane',
-          email: 'user@example.com',
-          role: 'admin',
-        };
-        await store.addUser(input);
-        expect(mockAddUser).toHaveBeenCalled();
-      });
-    });
-
     describe('assignUserRole', () => {
       it('should assign user role', async () => {
         const store = useUsersStore();

@@ -1,5 +1,5 @@
 import z from 'zod';
-import { PTRT_ADMIN_ROLE_NAME, PTRT_USER_ROLE_NAME } from '../../constants/admin';
+import { PTRT_ADMIN_ROLE_NAME, PTRT_USER_ROLE_NAME } from '../../../constants/admin';
 
 export const AddNewUserSchema = z.object({
     firstName: z.string({required_error: 'First name is required'}).min(1),
