@@ -129,6 +129,23 @@ describe('ApiService', () => {
         expect(resp!.data).toEqual(mockBackendResponse);
       });
     });
+
+    describe('when the data are not successfully saved in the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'post').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        expect(
+          ApiService.inviteUser({
+            firstName: 'test',
+            email: 'test@example.com',
+            role: 'admin',
+          }),
+        ).rejects.toEqual(mockAxiosError);
+      });
+    });
   });
 
   describe('getPendingUserInvites', () => {
@@ -143,6 +160,19 @@ describe('ApiService', () => {
 
       const resp = await ApiService.getPendingUserInvites();
       expect(resp!.data).toEqual(mockBackendResponse);
+    });
+
+    describe('when the data are not successfully retrieved from the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        await expect(ApiService.getPendingUserInvites()).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
     });
   });
 
@@ -159,6 +189,17 @@ describe('ApiService', () => {
       const resp = await ApiService.deleteUserInvite('1');
       expect(resp!.data).toEqual(mockBackendResponse);
     });
+
+    describe('when the data are not successfully deleted in the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'delete').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        expect(ApiService.deleteUserInvite('1')).rejects.toEqual(mockAxiosError);
+      });
+    });
   });
 
   describe('resendUserInvite', () => {
@@ -173,6 +214,19 @@ describe('ApiService', () => {
 
       const resp = await ApiService.resendUserInvite('1');
       expect(resp!.data).toEqual(mockBackendResponse);
+    });
+
+    describe('when the data are not successfully saved in the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'patch').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        expect(ApiService.resendUserInvite('1')).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
     });
   });
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useInvitesStore } from '../userInvitesStore';
+import { de } from '@faker-js/faker';
 
 const mockGetPendingUserInvites = vi.fn();
 const mockAddInvite = vi.fn();
@@ -33,6 +34,16 @@ describe('userInvitesStore', () => {
   });
 
   describe('actions', () => {
+    describe('reset', () => {
+      it('should reset store', () => {
+        const store = useInvitesStore();
+        store.loading = true;
+        store.invites = [{ id: 1, name: 'John' }] as any;
+        store.reset();
+        expect(store.loading).toBe(false);
+        expect(store.invites).toBe(undefined);
+      });
+    })
     describe('getInvites', () => {
       it('should get invites', async () => {
         const store = useInvitesStore();
@@ -47,6 +58,7 @@ describe('userInvitesStore', () => {
     describe('addInvite', () => {
       it('should add user', async () => {
         const store = useInvitesStore();
+        mockGetPendingUserInvites.mockResolvedValueOnce({ data: [] });
         mockAddInvite.mockResolvedValueOnce({});
         const input = {
           firstName: 'Jane',
@@ -71,6 +83,7 @@ describe('userInvitesStore', () => {
     describe('deleteInvite', () => {
       it('should delete invite', async () => {
         const store = useInvitesStore();
+        mockGetPendingUserInvites.mockResolvedValueOnce({ data: [] });
         mockDeleteInvite.mockResolvedValueOnce([{ id: 1, name: 'John' }]);
         await store.deleteInvite('1');
         expect(mockDeleteInvite).toHaveBeenCalledWith('1');
