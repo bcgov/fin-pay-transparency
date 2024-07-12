@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import ApiService from '../../services/apiService';
-import { CreateUserInviteInput, User } from '../../types';
+import { User } from '../../types';
 
 export const useUsersStore = defineStore('users', () => {
   const loading = ref<boolean>(false);
