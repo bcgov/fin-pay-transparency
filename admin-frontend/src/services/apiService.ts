@@ -5,6 +5,7 @@ import {
   IConfigValue,
   IReportSearchResult,
   User,
+  UserInvite,
 } from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
@@ -105,7 +106,7 @@ export default {
   },
   async getPendingUserInvites() {
     try {
-      return await apiAxios.get(ApiRoutes.USER_INVITES);
+      return await apiAxios.get<UserInvite[]>(ApiRoutes.USER_INVITES);
     } catch (e) {
       console.log(`Failed to get from Nodejs getPendingUserInvites API - ${e}`);
       throw e;

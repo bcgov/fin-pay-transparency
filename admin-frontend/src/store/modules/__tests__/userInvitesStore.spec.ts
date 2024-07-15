@@ -1,7 +1,6 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useInvitesStore } from '../userInvitesStore';
-import { de } from '@faker-js/faker';
 
 const mockGetPendingUserInvites = vi.fn();
 const mockAddInvite = vi.fn();

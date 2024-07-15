@@ -104,7 +104,7 @@ export type CreateUserInviteInput = {
 
 export type UserInvite = {
   admin_user_onboarding_id: string;
-  firstName: string;
+  first_name: string;
   email: string;
   role: string;
 };
