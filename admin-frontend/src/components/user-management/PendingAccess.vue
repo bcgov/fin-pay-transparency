@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open" max-width="700">
+  <v-dialog v-model="open" max-width="850">
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         text="Pending Access"
@@ -36,7 +36,7 @@
         <v-data-table
           :headers="headers"
           :items="invites"
-          :items-per-page="5"
+          :items-per-page="10"
           :disable-sort="true"
           v-if="invites?.length"
         >
