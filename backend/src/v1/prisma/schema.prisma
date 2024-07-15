@@ -234,12 +234,13 @@ model admin_user {
   idir_user_guid     String               @db.Uuid
   display_name       String               @db.VarChar(255)
   create_date        DateTime             @default(now()) @db.Timestamp(6)
-  create_user        String               @db.VarChar(255)
+  create_user        String?              @db.VarChar(255)
   update_date        DateTime             @default(now()) @db.Timestamp(6)
-  update_user        String               @db.VarChar(255)
+  update_user        String?              @db.VarChar(255)
   is_active          Boolean              @default(true)
   assigned_roles     String               @db.VarChar(255)
   preferred_username String               @default("") @db.VarChar(255)
+  last_login         DateTime             @default(now()) @db.Timestamp(6)
   admin_user_history admin_user_history[]
 }
 
@@ -250,12 +251,13 @@ model admin_user_history {
   idir_user_guid        String     @db.Uuid
   display_name          String     @db.VarChar(255)
   create_date           DateTime   @default(now()) @db.Timestamp(6)
-  create_user           String     @db.VarChar(255)
+  create_user           String?    @db.VarChar(255)
   update_date           DateTime   @default(now()) @db.Timestamp(6)
-  update_user           String     @db.VarChar(255)
+  update_user           String?    @db.VarChar(255)
   is_active             Boolean    @default(true)
   assigned_roles        String     @db.VarChar(255)
   preferred_username    String     @default("") @db.VarChar(255)
+  last_login            DateTime   @default(now()) @db.Timestamp(6)
   admin_user            admin_user @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
 }
 

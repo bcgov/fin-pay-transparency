@@ -90,7 +90,7 @@ describe('admin-auth-service', () => {
       expect(result).toBe('loginError');
     });
 
-    describe('processUserOnboarding', () => {
+    describe('processUser', () => {
       it('should return invitation expired', async () => {
         mockGetSessionUser.mockReturnValue({ _json: { display_name: 'test' } });
         mockJWTDecode.mockReturnValue({
