@@ -7,6 +7,7 @@
     <div class="toolbar">
       <div class="title">Users ({{ users.length }})</div>
       <span style="flex: 1 1 auto" />
+      <PendingAccess />
       <AddUserButton />
     </div>
     <v-row class="users-grid" no-gutters>
@@ -24,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import PendingAccess from './user-management/PendingAccess.vue';
 import AddUserButton from './user-management/AddUserButton.vue';
 import UserCard from './user-management/UserCard.vue';
 import { storeToRefs } from 'pinia';
