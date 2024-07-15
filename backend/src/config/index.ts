@@ -23,6 +23,9 @@ config.defaults({
     hostName: process.env.HOSTNAME || 'localhost', // Available by default to each pod in OpenShift.
     openshiftEnv: process.env.OPENSHIFT_ENV || 'local', // Set by HELM values-$env.yaml
     adminFrontend: process.env.SERVER_ADMIN_FRONTEND,
+    adminInvitationDurationInHours: parseInt(
+      process.env.ADMIN_INVITATION_DURATION_IN_HOURS || '72',
+    ),
     frontend: process.env.SERVER_FRONTEND,
     logLevel: process.env.LOG_LEVEL,
     morganFormat: 'dev',

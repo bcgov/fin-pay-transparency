@@ -1,0 +1,1 @@
+export type RoleType = 'PTRT-ADMIN' | 'PTRT-USER';

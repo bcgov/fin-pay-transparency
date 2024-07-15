@@ -1,6 +1,12 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
-import { IConfigValue, IReportSearchResult, User } from '../types';
+import {
+  CreateUserInviteInput,
+  IConfigValue,
+  IReportSearchResult,
+  User,
+  UserInvite,
+} from '../types';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
@@ -87,6 +93,56 @@ export default {
       return await apiAxios.get<User[]>(ApiRoutes.USERS);
     } catch (e) {
       console.log(`Failed to get from Nodejs getUsers API - ${e}`);
+      throw e;
+    }
+  },
+  async inviteUser(data: CreateUserInviteInput) {
+    try {
+      return await apiAxios.post(ApiRoutes.USER_INVITES, data);
+    } catch (e) {
+      console.log(`Failed to post from Nodejs invite API - ${e}`);
+      throw e;
+    }
+  },
+  async getPendingUserInvites() {
+    try {
+      return await apiAxios.get<UserInvite[]>(ApiRoutes.USER_INVITES);
+    } catch (e) {
+      console.log(`Failed to get from Nodejs getPendingUserInvites API - ${e}`);
+      throw e;
+    }
+  },
+  async deleteUserInvite(id: string) {
+    try {
+      return await apiAxios.delete(`${ApiRoutes.USER_INVITES}/${id}`);
+    } catch (e) {
+      console.log(`Failed to delete from Nodejs deleteUserInvite API - ${e}`);
+      throw e;
+    }
+  },
+  async resendUserInvite(id: string) {
+    try {
+      return await apiAxios.patch(`${ApiRoutes.USER_INVITES}/${id}`);
+    } catch (e) {
+      console.log(`Failed to patch from Nodejs resendUserInvite API - ${e}`);
+      throw e;
+    }
+  },
+  async assignUserRole(userId: string, role: string) {
+    try {
+      return await apiAxios.patch(`${ApiRoutes.USERS}/${userId}`, {
+        role,
+      });
+    } catch (e) {
+      console.log(`Failed to patch from Nodejs assignUserRole API - ${e}`);
+      throw e;
+    }
+  },
+  async deleteUser(userId: string) {
+    try {
+      return await apiAxios.delete(`${ApiRoutes.USERS}/${userId}`);
+    } catch (e) {
+      console.log(`Failed to delete from Nodejs deleteUser API - ${e}`);
       throw e;
     }
   },

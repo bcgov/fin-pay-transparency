@@ -24,6 +24,7 @@ export const ApiRoutes = Object.freeze({
   NAICS_CODES: baseRoot + '/v1/codes/naics-codes',
   REPORTS: baseRoot + '/v1/reports',
   USERS: `${baseRoot}/v1/users`,
+  USER_INVITES: `${baseRoot}/v1/user-invites`,
 });
 
 export const PAGE_TITLES = Object.freeze({
@@ -34,6 +35,7 @@ export const PAGE_TITLES = Object.freeze({
   ANALYTICS: 'Analytics',
   LOGIN: 'Login',
   TOKEN_EXPIRED: 'Token Expired',
+  INVITATION_EXPIRED: 'Invitation Expired',
 });
 
 export const MINISTRY_NAME = 'Ministry of Finance';

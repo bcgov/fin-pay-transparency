@@ -3,6 +3,7 @@ import DashboardPage from './components/DashboardPage.vue';
 import ReportsPage from './components/ReportsPage.vue';
 import AnnouncementsPage from './components/AnnouncementsPage.vue';
 import UserManagementPage from './components/UserManagementPage.vue';
+import InvitationExpired from './components/InvitationExpired.vue';
 import AnalyticsPage from './components/AnalyticsPage.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import NotFoundPage from './components/NotFound.vue';
@@ -107,6 +108,15 @@ const router = createRouter({
       component: Login,
       meta: {
         pageTitle: PAGE_TITLES.LOGIN,
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/invitation-expired',
+      name: 'invitation-expired',
+      component: InvitationExpired,
+      meta: {
+        pageTitle: PAGE_TITLES.INVITATION_EXPIRED,
         requiresAuth: false,
       },
     },

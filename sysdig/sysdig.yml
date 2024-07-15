@@ -8,8 +8,13 @@ spec:
   team:
     description: The Sysdig Team for the OpenShift Project Set Pay Transparency for Ministry of Finance/
     users:
-      - name: sukanyarath1987@gmail.com
-        role: ROLE_TEAM_EDIT
       - name: sukanya.rath@gov.bc.ca
         role: ROLE_TEAM_EDIT
+      - name: jerek.mehrer@gov.bc.ca
+        role: ROLE_TEAM_EDIT
+      - name: dan.hofman@gov.bc.ca
+        role: ROLE_TEAM_EDIT
+      - name: kunal.kardam@gov.bc.ca
+        role: ROLE_TEAM_EDIT
+
       # more users below here

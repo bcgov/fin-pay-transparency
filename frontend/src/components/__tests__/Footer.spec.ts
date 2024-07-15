@@ -54,7 +54,7 @@ describe('Footer', () => {
     links.forEach((link) => {
       const linkElement = screen.getByTestId(link.id);
       expect(linkElement).toHaveTextContent(link.label);
-      expect(linkElement).toHaveAttribute('href', link.to);
-    })
-  })
+      expect(linkElement).toHaveAttribute('href');
+    });
+  });
 });

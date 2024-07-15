@@ -73,7 +73,8 @@ describe('UserManagementPage', () => {
         {
           userName: 'testusername',
           displayName: 'Test display name',
-          role: 'PTRT-ADMIN',
+          roles: [],
+          effectiveRole: 'PTRT-ADMIN',
         },
       ],
     });
@@ -90,7 +91,8 @@ describe('UserManagementPage', () => {
         {
           userName: 'testusername',
           displayName: 'Test Display FIN:EX',
-          role: 'PTRT-ADMIN',
+          effectiveRole: 'PTRT-ADMIN',
+          roles: [],
         },
       ],
     });

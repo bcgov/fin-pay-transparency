@@ -6,13 +6,6 @@ function isFollowUpVisit(jwtToken) {
   return !!jwtToken;
 }
 
-function isExpiredToken(jwtToken) {
-  const now = Date.now().valueOf() / 1000;
-  const jwtPayload = jwtToken.split('.')[1];
-  const payload = JSON.parse(window.atob(jwtPayload));
-  return payload.exp <= now;
-}
-
 export const authStore = defineStore('auth', {
   namespaced: true,
   state: () => ({
@@ -81,7 +74,10 @@ export const authStore = defineStore('auth', {
       this.userInfo = userInfoRes.data;
     },
     doesUserHaveRole(roleToCheckFor) {
+<<<<<<< HEAD
       console.log('*******************');
+=======
+>>>>>>> 688efff9475f57857d17f5d0db61d6bf970840c4
       return (
         this?.userInfo?.roles?.length &&
         this?.userInfo?.roles.indexOf(roleToCheckFor) >= 0
@@ -91,10 +87,6 @@ export const authStore = defineStore('auth', {
     async getJwtToken() {
       await this.setError(false);
       if (isFollowUpVisit(this.jwtToken)) {
-        if (isExpiredToken(this.jwtToken)) {
-          await this.logout();
-          return;
-        }
 
         const response = await AuthService.refreshAuthToken(
           this.jwtToken,

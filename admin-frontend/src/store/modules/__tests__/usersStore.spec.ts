@@ -3,9 +3,17 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useUsersStore } from '../usersStore';
 
 const mockGetUsers = vi.fn();
-vi.mock('../../services/apiService', () => ({
+const mockAddUser = vi.fn();
+const mockDeleteUser = vi.fn();
+const mockAssignUserRole = vi.fn();
+vi.mock('../../../services/apiService', () => ({
   default: {
-    getUsers: () => mockGetUsers(),
+    getUsers: () => {
+      return mockGetUsers();
+    },
+    addUser: () => mockAddUser(),
+    assignUserRole: () => mockAssignUserRole(),
+    deleteUser: () => mockDeleteUser(),
   },
 }));
 
@@ -14,13 +22,44 @@ describe('usersStore', () => {
     setActivePinia(createPinia());
   });
   describe('defaults', () => {
-    it('should default loading  tofalse', () => {
+    it('should default loading  to false', () => {
       const store = useUsersStore();
       expect(store.loading).toBe(false);
     });
     it('should default users list to undefined', () => {
       const store = useUsersStore();
       expect(store.users).toBe(undefined);
+    });
+  });
+
+  describe('actions', () => {
+    describe('getUsers', () => {
+      it('should get users', async () => {
+        const store = useUsersStore();
+        mockGetUsers.mockResolvedValueOnce([{ id: 1, name: 'John' }]);
+        await store.getUsers();
+        expect(mockGetUsers).toHaveBeenCalled();
+      });
+    });
+
+    describe('assignUserRole', () => {
+      it('should assign user role', async () => {
+        const store = useUsersStore();
+        mockGetUsers.mockResolvedValueOnce([{ id: 1, name: 'John' }]);
+        await store.assignUserRole('1', 'admin');
+        expect(mockAssignUserRole).toHaveBeenCalled();
+        expect(mockGetUsers).toHaveBeenCalled();
+      });
+    });
+
+    describe('deleteUser', () => {
+      it('should delete user', async () => {
+        const store = useUsersStore();
+        mockGetUsers.mockResolvedValueOnce([{ id: 1, name: 'John' }]);
+        await store.deleteUser('1');
+        expect(mockDeleteUser).toHaveBeenCalled();
+        expect(mockGetUsers).toHaveBeenCalled();
+      });
     });
   });
 });

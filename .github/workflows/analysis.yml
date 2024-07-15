@@ -92,7 +92,7 @@ jobs:
           dir: ${{ matrix.dir }}
           node_version: "20"
           sonar_args: >
-            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/dist/**,**/ches/**,**/templates/**
+            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/dist/**,**/ches/**,**/templates/**,**/prisma/views/pay_transparency/**
             -Dsonar.organization=bcgov-sonarcloud
             -Dsonar.project.monorepo.enabled=true
             -Dsonar.projectKey=${{ matrix.sonar_projectKey }}
@@ -111,7 +111,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.23.0
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           format: "sarif"
           output: "trivy-results.sarif"

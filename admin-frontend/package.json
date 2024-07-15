@@ -37,13 +37,16 @@
     "sass": "^1.58.3",
     "tiny-emitter": "^2.1.0",
     "v-viewer": "^3.0.11",
+    "vee-validate": "^4.13.1",
     "vue": "^3.3.13",
     "vue-dompurify-html": "^5.0.1",
     "vue-meta": "^3.0.0-alpha.10",
     "vue-router": "^4.2.5",
-    "vuetify": "^3.6.9"
+    "vuetify": "^3.6.9",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@pinia/testing": "^0.1.3",
     "@playwright/test": "^1.43.1",
     "@testing-library/jest-dom": "^6.4.2",

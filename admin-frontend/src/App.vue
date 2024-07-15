@@ -62,7 +62,17 @@ export default {
     },
   },
   watch: {
-    $route(to, from) {
+    $route: {
+      handler(to, from) {
+        this.onRouteChanged(to, from);
+      },
+    },
+  },
+  async created() {},
+  methods: {
+    appStore,
+    ...mapActions(authStore, ['doesUserHaveRole']),
+    onRouteChanged(to, from) {
       this.activeRoute = to;
       if (to.fullPath != '/error') {
         //Reset error page message back to the default
@@ -75,11 +85,14 @@ export default {
         this.doesUserHaveRole(USER_ROLE_NAME);
     },
   },
+<<<<<<< HEAD
   async created() {},
   methods: {
     appStore,
     ...mapActions(authStore, ['doesUserHaveRole']),
   },
+=======
+>>>>>>> 688efff9475f57857d17f5d0db61d6bf970840c4
 };
 </script>
 
@@ -178,7 +191,8 @@ button:disabled.v-btn {
 }
 
 .v-alert {
-  color: #2d2d2d;
+  display: flex !important;
+  color: #2d2d2d !important;
 }
 .v-alert.alert-success {
   background-color: #f6fff8 !important;

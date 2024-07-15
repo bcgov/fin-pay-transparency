@@ -33,6 +33,7 @@ import { utils } from './v1/services/utils-service';
 export const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
 
 import { run as startJobs } from './schedulers/run.all';
+import adminUserInvitesRoutes from './v1/routes/admin-user-invites-routes';
 startJobs();
 
 const register = new prom.Registry();
@@ -141,7 +142,7 @@ function addLoginPassportUse(
         //set access and refresh tokens
         profile.jwtFrontend = adminAuth.generateFrontendToken();
         profile.jwt = accessToken;
-        profile._json = parseJwt(accessToken);
+        profile._json = utils.parseJwt(accessToken);
         profile.refreshToken = refreshToken;
         profile.idToken = idToken;
         return done(null, profile);
@@ -149,14 +150,6 @@ function addLoginPassportUse(
     ),
   );
 }
-
-const parseJwt = (token) => {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch (e) {
-    return null;
-  }
-};
 
 //initialize our authentication strategy
 utils.getOidcDiscovery().then((oicdDiscoveryDocument) => {
@@ -267,6 +260,7 @@ apiRouter.use('/user', adminUserRouter);
 apiRouter.use('/v1/codes', codeRouter);
 apiRouter.use('/v1/reports', adminReportRoutes);
 apiRouter.use('/v1/users', adminUsersRoutes);
+apiRouter.use('/v1/user-invites', adminUserInvitesRoutes);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });

@@ -7,9 +7,8 @@
     <div class="toolbar">
       <div class="title">Users ({{ users.length }})</div>
       <span style="flex: 1 1 auto" />
-      <v-btn prepend-icon="mdi-account-plus" color="primary" variant="elevated"
-        >Add New User</v-btn
-      >
+      <PendingAccess />
+      <AddUserButton />
     </div>
     <v-row class="users-grid" no-gutters>
       <v-col
@@ -19,70 +18,22 @@
         md="3"
         v-for="user of users"
       >
-        <v-card class="pa-4 ma-2 user-card">
-          <div class="actions d-flex">
-            <v-avatar color="primary">
-              <span class="text-h6">{{ getUserInitials(user) }}</span>
-            </v-avatar>
-            <span style="flex: 1 1 auto" />
-
-            <v-btn
-              density="compact"
-              variant="text"
-              color="error"
-              icon="mdi-trash-can-outline"
-              aria-label="Delete user"
-            ></v-btn>
-          </div>
-          <div class="display-name mt-2">
-            {{ user.displayName }}
-          </div>
-          <v-menu location="bottom">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                color="primary"
-                variant="text"
-                append-icon="mdi-chevron-down"
-                class="role-menu-button"
-                :aria-label="`Role ${RoleLabels[user.role]}`"
-                v-bind="props"
-                >{{ RoleLabels[user.role] }}</v-btn
-              >
-            </template>
-
-            <v-list>
-              <v-list-item
-                :variant="user.role === item.value ? 'tonal' : 'plain'"
-                v-for="(item, index) in RoleOptions"
-                :key="index"
-                :class="user.role === item.value ? 'selected-role' : undefined"
-              >
-                <v-list-item-title v-text="item.label"></v-list-item-title>
-                <template v-slot:append v-if="user.role === item.value">
-                  <v-icon size="x-small" icon="mdi-check" />
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-card>
+        <UserCard :key="user.id" :user="user" />
       </v-col>
     </v-row>
   </div>
 </template>
 
 <script setup lang="ts">
+import PendingAccess from './user-management/PendingAccess.vue';
+import AddUserButton from './user-management/AddUserButton.vue';
+import UserCard from './user-management/UserCard.vue';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useUsersStore } from '../store/modules/usersStore';
-import { RoleOptions, RoleLabels } from '../constants';
 
 const usersStore = useUsersStore();
 const { users, loading } = storeToRefs(usersStore);
-
-const getUserInitials = (user) => {
-  const tokens = user.displayName.split(' ');
-  return `${tokens[0][0]}${tokens[1][0]}`;
-};
 
 onMounted(async () => {
   await usersStore.getUsers();
