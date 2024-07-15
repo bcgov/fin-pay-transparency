@@ -4,11 +4,14 @@
       <v-container fluid class="root">
         <h1 class="title">Invitation Expired</h1>
         <v-alert dense variant="outlined" class="alert-error mt-2 mb-2">
-          The invitation link to access the Pay Transparency Portal has expired. Please contact the Pay Transparency
-          Office to request a new invitation.
+          <p>
+            You are seeing this error page because the invitation link expires
+            72 hours after creation. <br />Please contact an Admin Portal
+            Manager to re-send an invitation link.<br />
+            Thank you
+          </p>
         </v-alert>
-        <div>
-      </div>
+        <div></div>
       </v-container>
     </template>
   </AuthLayout>
@@ -21,7 +24,7 @@ import AuthLayout from './util/AuthLayout.vue';
 .root {
   display: flex;
   flex-direction: column;
-  max-width: 500px;
+  max-width: 550px;
   height: 100%;
 }
 </style>
