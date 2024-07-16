@@ -71,14 +71,15 @@ async function logoutHandler(
     if (idToken) {
       let url = '';
 
-      if (reason == 'sessionExpired') url = '/session-expired';
-      else if (reason == 'loginError') url = '/login-error';
-      else if (reason == 'notAuthorized') url = '/unauthorized';
-      else if (reason == 'roleChanged') url = '/login';
-      else if (reason == LogoutReason.InvitationExpired) url = '/invitation-expired';
+      if (reason == LogoutReason.SessionExpired) url = '/session-expired';
+      else if (reason == LogoutReason.LoginError) url = '/login-error';
+      else if (reason == LogoutReason.NotAuthorized) url = '/unauthorized';
+      else if (reason == LogoutReason.RoleChanged) url = '/login';
+      else if (reason == LogoutReason.InvitationExpired)
+        url = '/invitation-expired';
       else if (reason == LogoutReason.LoginAzureIdir)
         url = '/admin-api/auth/login-azureidir';
-      else if (reason == 'contactError') url = '/contact-error';
+      else if (reason == LogoutReason.ContactError) url = '/contact-error';
       else url = '/logout';
 
       const postLogoutRedirectUri = config.get('server:adminFrontend') + url;
