@@ -3,6 +3,8 @@
       <table name="admin_user" remarks="To track the associated roles and status active/inactive of admin users of the application" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="admin_user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user_history"/>
+            <child column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
+            <child column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="idir_user_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="display_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
@@ -17,6 +19,9 @@
          <primaryKey column="admin_user_id" sequenceNumberInPK="1"/>
          <index name="admin_user_id_pk" unique="true">
             <column ascending="true" name="admin_user_id"/>
+         </index>
+         <index name="admin_user_idir_user_guid_uk" unique="true">
+            <column ascending="true" name="idir_user_guid"/>
          </index>
       </table>
       <table name="admin_user_history" remarks="History is updated when there is change in roles or status of the admin user." schema="pay_transparency" type="TABLE">
@@ -294,8 +299,10 @@
          <column autoUpdated="false" defaultValue="true" digits="0" id="15" name="is_unlocked" nullable="false" remarks="This signifies when a published report can be modified or not. Draft reports can always be created regardless of this field.&#10;&#10;When `is_unlocked` is true on a published report, then a draft report in the same `reporting_year` can be published overwriting the existing published report.&#10;&#10;Published reports are unlocked for 30 days from the `create_date` before they are automatically locked by a schedule. Administrators can unlock a report, which will be locked again after 3 days from `report_unlock_date`." size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="reporting_year" nullable="false" remarks="User selects the calendar year this report is for. Each employer is limited to one report annually. This is distinct from the report's start and end dates as employers may generate reports for any period, like a fiscal or school year, yet the specific year the report pertains to may not be discernible from those dates." size="0" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="17" name="report_unlock_date" nullable="true" remarks="This date is set by an administrator and is used by a scheduled task to change `is_unlocked` to false after 3 days." size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="idir_modified_username" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="19" name="idir_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="admin_user_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="19" name="admin_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_id" sequenceNumberInPK="1"/>
          <index name="report_id_pk" unique="true">
             <column ascending="true" name="report_id"/>
@@ -384,8 +391,10 @@
          <column autoUpdated="false" defaultValue="true" digits="0" id="16" name="is_unlocked" nullable="false" remarks="History reports are not modified, so this field has no meaning in the `report_history` table. This field will always be 'true' since reports must be unlocked before being replaced and moving to the history table." size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="reporting_year" nullable="false" remarks="User selected the year this report is for. Each employer is limited to one report annually. This is distinct from the report's start and end dates as employers may generate reports for any period, like a fiscal or school year, yet the specific year the report pertains to may not be discernible from those dates." size="0" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="report_unlock_date" nullable="true" remarks="History reports are not modified, so this field has no meaning in the `report_history` table." size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="idir_modified_username" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="idir_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="admin_user_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="admin_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
          <index name="report_history_pk" unique="true">
             <column ascending="true" name="report_history_id"/>
