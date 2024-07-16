@@ -1,0 +1,12 @@
+---
+title: Pay Transparency Admin Portal - Logical Data Flow Diagram (L1)
+---
+flowchart LR
+    AdminMgr(Admin Manager) -->|Change admin role| UserManagement
+    UserManagement((User Management)) --> KeyCloak(KeyCloak) 
+    KeyCloak --> UserManagement
+    
+    UserManagement --> |List admin users| AdminMgr
+    QueryProcess((Query)) -->|List published reports| AdminUser(Admin User)
+    AdminUser(Admin User) -->|Report ID| DocGenProcess((Document\nGeneration)) 
+    DocGenProcess -->|PDF report| AdminUser

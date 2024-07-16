@@ -1,0 +1,20 @@
+---
+title: Pay Transparency System - Data Flow Diagram (L0)
+---
+flowchart LR    
+    Org(Organization User) -->|"Upload pay data"| PT((Pay Transparency System))
+    PT <-->|Authentication and user management| KeyCloak("KeyCloak")
+    PT -->|View report| Org
+    Org -->|"Publish report"| PT
+    PT -->|List published reports| Org    
+    
+    PT -->|List admin users| AdminMgr(Admin Manager)
+    AdminMgr -->|Change admin role| PT
+
+    PT -->|List published reports| AdminUser(Admin User)
+    PT -->|View published report| AdminUser(Admin User)
+    AdminUser -->|Lock/Unlock report| PT
+    
+    %%TODO: Include data flows for "Announcements", "Analytics" and "Dashboard" when then
+    %%are implemented
+

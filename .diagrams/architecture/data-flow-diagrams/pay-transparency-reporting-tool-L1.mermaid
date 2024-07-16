@@ -1,0 +1,15 @@
+---
+title: Pay Transparency Reporting Tool - Logical Data Flow Diagram (L1)
+---
+flowchart LR
+    Org("Organization\nUser") -->|"Employee pay data"| SubmissionProcess(("Submission"))
+    SubmissionProcess --> |"Employee pay data"| ValidateAndCalculateProcess(("Validate and\nCalculate"))    
+    ValidateAndCalculateProcess --> |Save report calculations| CalculatedData[/"Calculated Data"/]
+    ValidateAndCalculateProcess --> |Save report| Report[/"Pay Transparency Report"/]    
+    ValidateAndCalculateProcess --> |"Validation errors"| SubmissionProcess
+    Org("Organization\nUser") -->|"Report ID"| PublishProcess(("Publish"))
+    PublishProcess --> |Change report status| Report
+    Org --> |Report ID| DocGenProcess(("Document\nGeneration"))
+    DocGenProcess --> |HTML or PDF report| Org            
+    QueryProcess -->|List of published reports| Org
+    Report --> |Reports| QueryProcess
