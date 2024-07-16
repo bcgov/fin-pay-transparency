@@ -137,8 +137,12 @@ const {
       if (!value) return 'Name is required.';
       return true;
     },
-    email(value) {
+    email(value: string) {
       if (!value) return 'Email is required.';
+
+      if (value.includes('@')) {
+        return 'Should not contain a "@"" symbol';
+      }
 
       return true;
     },
