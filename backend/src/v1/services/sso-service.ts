@@ -99,8 +99,6 @@ export class SSO {
       },
     });
 
-    console.log('localUsers', localUsers);
-
     const preferredUsernameToAdminUserId = localUsers.reduce((acc, user) => {
       return { ...acc, [user.preferred_username]: user.admin_user_id };
     }, {});
