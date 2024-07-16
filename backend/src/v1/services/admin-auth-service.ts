@@ -260,7 +260,7 @@ class AdminAuth extends AuthBase {
             display_name: displayName,
             preferred_username: preferred_username,
             update_date: new Date(),
-            update_user: adminUserOnboarding?.created_by,
+            update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
             is_active: true,
             last_login: new Date(),
@@ -275,7 +275,9 @@ class AdminAuth extends AuthBase {
             update_user: existing_admin_user.update_user,
             assigned_roles: existing_admin_user.assigned_roles,
             is_active: existing_admin_user.is_active,
-            preferred_username,
+            preferred_username: existing_admin_user.preferred_username,
+            create_date: existing_admin_user.create_date,
+            update_date: existing_admin_user.update_date,
           },
         });
       } else if (existing_admin_user) {
@@ -295,8 +297,8 @@ class AdminAuth extends AuthBase {
           data: {
             display_name: displayName,
             idir_user_guid: idirUserGuid,
-            create_user: adminUserOnboarding?.created_by,
-            update_user: adminUserOnboarding?.created_by,
+            create_user: adminUserOnboarding?.created_by ?? 'Keycloak',
+            update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
             is_active: true,
             preferred_username,

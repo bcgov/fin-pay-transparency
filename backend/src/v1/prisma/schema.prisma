@@ -234,9 +234,9 @@ model admin_user {
   idir_user_guid     String               @db.Uuid
   display_name       String               @db.VarChar(255)
   create_date        DateTime             @default(now()) @db.Timestamp(6)
-  create_user        String?              @db.VarChar(255)
+  create_user        String               @db.VarChar(255)
   update_date        DateTime             @default(now()) @db.Timestamp(6)
-  update_user        String?              @db.VarChar(255)
+  update_user        String               @db.VarChar(255)
   is_active          Boolean              @default(true)
   assigned_roles     String               @db.VarChar(255)
   preferred_username String               @default("") @db.VarChar(255)
@@ -251,9 +251,9 @@ model admin_user_history {
   idir_user_guid        String     @db.Uuid
   display_name          String     @db.VarChar(255)
   create_date           DateTime   @default(now()) @db.Timestamp(6)
-  create_user           String?    @db.VarChar(255)
+  create_user           String     @db.VarChar(255)
   update_date           DateTime   @default(now()) @db.Timestamp(6)
-  update_user           String?    @db.VarChar(255)
+  update_user           String     @db.VarChar(255)
   is_active             Boolean    @default(true)
   assigned_roles        String     @db.VarChar(255)
   preferred_username    String     @default("") @db.VarChar(255)
