@@ -41,6 +41,7 @@
                 placeholder="Email"
                 type="email"
                 required
+                :suffix="emailSuffix"
                 v-model="email"
                 v-bind="emailProps"
                 :error-messages="errors.email"
@@ -102,7 +103,6 @@ import {
   RoleOptions,
   USER_ROLE_NAME,
 } from '../../constants';
-import z from 'zod';
 import { useForm } from 'vee-validate';
 import ConfirmDialog from '../util/ConfirmationDialog.vue';
 import { useInvitesStore } from '../../store/modules/userInvitesStore';
@@ -111,6 +111,7 @@ import { NotificationService } from '../../services/notificationService';
 const { addInvite } = useInvitesStore();
 const open = ref(false);
 const confirmDialog = ref();
+const emailSuffix = '@gov.bc.ca';
 const {
   meta,
   handleSubmit,
@@ -135,11 +136,11 @@ const {
       if (!value) return 'Name is required.';
       return true;
     },
-    email(value) {
+    email(value: string) {
       if (!value) return 'Email is required.';
 
-      if (!z.string().email().safeParse(value).success) {
-        return 'Must be a valid email address.';
+      if (value.includes('@')) {
+        return 'Should not contain a "@"" symbol';
       }
 
       return true;
@@ -179,7 +180,7 @@ const submit = async () => {
 
   const data = {
     firstName: name.value,
-    email: email.value,
+    email: `${email.value}${emailSuffix}`,
     role: role.value,
   };
 

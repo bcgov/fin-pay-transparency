@@ -48,6 +48,7 @@ global:
     lock_report_cron_crontime: "0 15 0 * * *" # 12:15 AM PST/PDT
     reports_scheduler_cron_timezone: "America/Vancouver"
     first_year_with_prev_reporting_year_option: "2025"
+    admin_invitation_duration_in_hours: "1"
     db_connection_pool_size: "5"
     num_months_of_user_errors_to_keep: "6"
     is_user_error_logging_enabled: "true"

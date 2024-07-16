@@ -1,4 +1,4 @@
-import { de, faker } from '@faker-js/faker';
+import { de, fa, faker } from '@faker-js/faker';
 import { Application } from 'express';
 import request from 'supertest';
 
@@ -70,7 +70,7 @@ describe('admin-user-invites-routes', () => {
       });
     });
     describe('validation fails', () => {
-      it('400', () => {
+      it('400 - failed fields validation', () => {
         return request(app)
           .post('')
           .send({ firstName: '' })
@@ -81,6 +81,23 @@ describe('admin-user-invites-routes', () => {
             expect(errors).toHaveLength(3);
           });
       });
+
+      it('400 - failed email validation', () => {
+        return request(app)
+          .post('')
+          .send({
+            role: 'PTRT-ADMIN',
+            firstName: faker.person.firstName(),
+            email: faker.internet.email({ provider: 'gov1.bc.ca' }),
+          })
+          .expect(400)
+          .expect(({ body }) => {
+            expect(body.error).toBeDefined();
+            const errors = JSON.parse(body.error);
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toBe('Email address must be a government email address');
+          });
+      });
     });
     describe('validation passes', () => {
       it('200 - success add user', async () => {
@@ -89,7 +106,7 @@ describe('admin-user-invites-routes', () => {
           .post('')
           .send({
             firstName: faker.person.firstName(),
-            email: faker.internet.email(),
+            email: faker.internet.email({ provider: 'gov.bc.ca' }),
             role: 'PTRT-ADMIN',
           })
           .expect(200);
@@ -102,7 +119,7 @@ describe('admin-user-invites-routes', () => {
             .post('')
             .send({
               firstName: faker.person.firstName(),
-              email: faker.internet.email(),
+              email: faker.internet.email({ provider: 'gov.bc.ca' }),
               role: 'PTRT-ADMIN',
             })
             .expect(400);

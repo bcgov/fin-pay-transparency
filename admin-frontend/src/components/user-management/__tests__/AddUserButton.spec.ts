@@ -89,15 +89,15 @@ describe('AddUserButton', () => {
       });
     });
 
-    it('should correctly validate email address', async () => {
+    it('email field should respect the suffix', async () => {
       const wrapper = await wrappedRender();
       const button = wrapper.getByRole('button', { name: 'Add New User' });
       await fireEvent.click(button);
       const emailInput = screen.getByRole('textbox', { name: 'Email' });
-      await fireEvent.update(emailInput, 'invalid-email');
+      await fireEvent.update(emailInput, 'username@gov.bc.ca');
       await waitFor(() => {
         expect(
-          screen.getByText('Must be a valid email address.'),
+          screen.getByText('Should not contain a "@"" symbol'),
         ).toBeInTheDocument();
       });
     });
@@ -124,7 +124,7 @@ describe('AddUserButton', () => {
     const nameInput = screen.getByRole('textbox', { name: 'Name' });
     const emailInput = screen.getByRole('textbox', { name: 'Email' });
     await fireEvent.update(nameInput, 'Test User');
-    await fireEvent.update(emailInput, 'name@example.com');
+    await fireEvent.update(emailInput, 'name.last');
     await fireEvent.blur(nameInput);
     await fireEvent.blur(emailInput);
 
@@ -155,7 +155,7 @@ describe('AddUserButton', () => {
     const nameInput = screen.getByRole('textbox', { name: 'Name' });
     const emailInput = screen.getByRole('textbox', { name: 'Email' });
     await fireEvent.update(nameInput, 'Test User');
-    await fireEvent.update(emailInput, 'name@example.com');
+    await fireEvent.update(emailInput, 'name.last');
     await fireEvent.blur(nameInput);
     await fireEvent.blur(emailInput);
 
@@ -183,7 +183,7 @@ describe('AddUserButton', () => {
     const nameInput = screen.getByRole('textbox', { name: 'Name' });
     const emailInput = screen.getByRole('textbox', { name: 'Email' });
     await fireEvent.update(nameInput, 'Test User');
-    await fireEvent.update(emailInput, 'name@example.com');
+    await fireEvent.update(emailInput, 'name.last');
     await fireEvent.blur(nameInput);
     await fireEvent.blur(emailInput);
 

@@ -114,7 +114,7 @@ const assignRole = async (role: (typeof RoleOptions)[0]) => {
       isProcessing.value = true;
       await assignUserRole(props.user.id, role.value);
       NotificationService.pushNotificationSuccess(
-        `${props.user.displayName} assigned ${RoleLabels[nextRole]} role`,
+        `Permissions have been updated. If the user is currently logged in, please request that they log out and log in again`,
       );
     } catch (error) {
       NotificationService.pushNotificationError(
