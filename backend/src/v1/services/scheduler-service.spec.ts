@@ -44,8 +44,8 @@ const mockDraftReport: pay_transparency_report = {
   data_constraints: null,
   is_unlocked: true,
   report_unlock_date: null,
-  idir_modified_date: new Date(),
-  idir_modified_username: '',
+  admin_modified_date: new Date(),
+  admin_user_id: '',
 };
 
 const mockCalculatedDatasInDB = [

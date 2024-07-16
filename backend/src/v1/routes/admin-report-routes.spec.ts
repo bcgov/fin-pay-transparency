@@ -30,8 +30,8 @@ const mockReport = {
   is_unlocked: false,
   reporting_year: '2023',
   report_unlock_date: '2024-06-20T00:49:23.802Z',
-  idir_modified_username: null,
-  idir_modified_date: '2024-06-20T00:49:23.802Z',
+  admin_user_id: null,
+  admin_modified_date: '2024-06-20T00:49:23.802Z',
   employee_count_range: {
     employee_count_range_id: 'f65072ec-6b13-4ceb-b7bb-2397b4838d45',
     employee_count_range: '300-999',
