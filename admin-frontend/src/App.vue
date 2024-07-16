@@ -85,14 +85,6 @@ export default {
         this.doesUserHaveRole(USER_ROLE_NAME);
     },
   },
-<<<<<<< HEAD
-  async created() {},
-  methods: {
-    appStore,
-    ...mapActions(authStore, ['doesUserHaveRole']),
-  },
-=======
->>>>>>> 688efff9475f57857d17f5d0db61d6bf970840c4
 };
 </script>
 
