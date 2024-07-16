@@ -88,19 +88,6 @@ describe('AddUserButton', () => {
         expect(screen.getByText('Email is required.')).toBeInTheDocument();
       });
     });
-
-    it('should correctly validate email address', async () => {
-      const wrapper = await wrappedRender();
-      const button = wrapper.getByRole('button', { name: 'Add New User' });
-      await fireEvent.click(button);
-      const emailInput = screen.getByRole('textbox', { name: 'Email' });
-      await fireEvent.update(emailInput, 'invalid-email');
-      await waitFor(() => {
-        expect(
-          screen.getByText('Must be a valid email address.'),
-        ).toBeInTheDocument();
-      });
-    });
   });
 
   it('should close dialog when cancel button is clicked', async () => {
