@@ -41,6 +41,7 @@
                 placeholder="Email"
                 type="email"
                 required
+                :suffix="emailSuffix"
                 v-model="email"
                 v-bind="emailProps"
                 :error-messages="errors.email"
@@ -111,6 +112,7 @@ import { NotificationService } from '../../services/notificationService';
 const { addInvite } = useInvitesStore();
 const open = ref(false);
 const confirmDialog = ref();
+const emailSuffix = '@gov.bc.ca';
 const {
   meta,
   handleSubmit,
@@ -137,10 +139,6 @@ const {
     },
     email(value) {
       if (!value) return 'Email is required.';
-
-      if (!z.string().email().safeParse(value).success) {
-        return 'Must be a valid email address.';
-      }
 
       return true;
     },
@@ -179,7 +177,7 @@ const submit = async () => {
 
   const data = {
     firstName: name.value,
-    email: email.value,
+    email: `${email.value}${emailSuffix}`,
     role: role.value,
   };
 
