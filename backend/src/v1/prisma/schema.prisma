@@ -240,6 +240,7 @@ model admin_user {
   is_active          Boolean              @default(true)
   assigned_roles     String               @db.VarChar(255)
   preferred_username String               @default("") @db.VarChar(255)
+  last_login         DateTime             @default(now()) @db.Timestamp(6)
   admin_user_history admin_user_history[]
 }
 
@@ -256,6 +257,7 @@ model admin_user_history {
   is_active             Boolean    @default(true)
   assigned_roles        String     @db.VarChar(255)
   preferred_username    String     @default("") @db.VarChar(255)
+  last_login            DateTime   @default(now()) @db.Timestamp(6)
   admin_user            admin_user @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
 }
 
