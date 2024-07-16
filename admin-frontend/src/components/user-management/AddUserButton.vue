@@ -103,7 +103,6 @@ import {
   RoleOptions,
   USER_ROLE_NAME,
 } from '../../constants';
-import z from 'zod';
 import { useForm } from 'vee-validate';
 import ConfirmDialog from '../util/ConfirmationDialog.vue';
 import { useInvitesStore } from '../../store/modules/userInvitesStore';
