@@ -49,13 +49,13 @@
     </v-list-item>
     <v-list-item
       link
-      to="announcements"
-      title="Announcements"
-      :class="{ active: activeRoute == 'announcements' }"
+      to="analytics"
+      title="Analytics"
+      :class="{ active: activeRoute == 'analytics' }"
       v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
       <template v-slot:prepend>
-        <v-icon icon="mdi-bullhorn"></v-icon>
+        <v-icon icon="mdi-chart-bar"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -71,13 +71,13 @@
     </v-list-item>
     <v-list-item
       link
-      to="analytics"
-      title="Analytics"
-      :class="{ active: activeRoute == 'analytics' }"
+      to="announcements"
+      title="Announcements"
+      :class="{ active: activeRoute == 'announcements' }"
       v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
       <template v-slot:prepend>
-        <v-icon icon="mdi-chart-bar"></v-icon>
+        <v-icon icon="mdi-bullhorn"></v-icon>
       </template>
     </v-list-item>
   </v-navigation-drawer>
