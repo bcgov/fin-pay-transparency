@@ -157,7 +157,6 @@ class AdminAuth extends AuthBase {
         adminUserOnboarding,
         refreshToken,
       );
-      return LogoutReason.RoleChanged;
     } else {
       log.info(
         `No user onboarding record found for the user ${preferred_username}, check user for roles`,
@@ -184,7 +183,7 @@ class AdminAuth extends AuthBase {
       adminUserOnboarding,
     );
 
-    return LogoutReason.Login;
+    return adminUserOnboarding ? LogoutReason.RoleChanged : LogoutReason.Login;
   }
 
   /**
@@ -227,16 +226,23 @@ class AdminAuth extends AuthBase {
         });
       }
 
-      //// create/update a record in the admin user table
-      const existing_admin_user = await tx.admin_user.findFirst({
+      const existing_admin_user = await prisma.admin_user.findFirst({
         where: {
           idir_user_guid: idirUserGuid,
         },
       });
+
+      // check if the new-roles and old-roles are equal by sorting the
+      // arrays and comparing (note: slice() and localeCompare() are to appease sonar)
       const areAssignedRolesEqual = isEqual(
-        existing_admin_user?.assigned_roles.split(',').sort(),
-        userRoles.sort(),
+        existing_admin_user?.assigned_roles
+          .split(',')
+          .slice()
+          .sort((a, b) => a.localeCompare(b)),
+        userRoles.slice().sort((a, b) => a.localeCompare(b)),
       );
+
+      // create/update a record in the admin user table
       if (
         existing_admin_user &&
         (!areAssignedRolesEqual ||
