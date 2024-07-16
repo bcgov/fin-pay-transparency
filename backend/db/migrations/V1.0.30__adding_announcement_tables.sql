@@ -1,0 +1,8 @@
+CREATE TABLE announcement (
+    announcement_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by UUID NOT NULL,
+);
