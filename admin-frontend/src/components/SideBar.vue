@@ -39,7 +39,7 @@
     <v-list-item
       link
       to="reports"
-      title="Reports"
+      title="Search Reports"
       :class="{ active: activeRoute == 'reports' }"
       v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >

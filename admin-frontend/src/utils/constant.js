@@ -29,7 +29,7 @@ export const ApiRoutes = Object.freeze({
 
 export const PAGE_TITLES = Object.freeze({
   DASHBOARD: 'Dashboard',
-  REPORTS: 'Reports',
+  REPORTS: 'Search Reports',
   ANNOUNCEMENTS: 'Announcements',
   USER_MANAGEMENT: 'User Management',
   ANALYTICS: 'Analytics',
