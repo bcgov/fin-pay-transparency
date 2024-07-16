@@ -83,6 +83,7 @@ export const authStore = defineStore('auth', {
     async getJwtToken() {
       await this.setError(false);
       if (isFollowUpVisit(this.jwtToken)) {
+
         const response = await AuthService.refreshAuthToken(
           this.jwtToken,
           localStorage.getItem('correlationID'),

@@ -26,7 +26,6 @@
       </div>
     </div>
     <v-list-item
-      id="link-dashboard"
       link
       to="dashboard"
       title="Dashboard"
@@ -38,7 +37,6 @@
       </template>
     </v-list-item>
     <v-list-item
-      id="link-reports"
       link
       to="reports"
       title="Reports"
@@ -50,7 +48,6 @@
       </template>
     </v-list-item>
     <v-list-item
-      id="link-announcements"
       link
       to="announcements"
       title="Announcements"
@@ -62,7 +59,6 @@
       </template>
     </v-list-item>
     <v-list-item
-      id="link-user-management"
       link
       to="user-management"
       title="User Management"
@@ -74,7 +70,6 @@
       </template>
     </v-list-item>
     <v-list-item
-      id="link-analytics"
       link
       to="analytics"
       title="Analytics"
