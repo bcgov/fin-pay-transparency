@@ -74,10 +74,6 @@ export const authStore = defineStore('auth', {
       this.userInfo = userInfoRes.data;
     },
     doesUserHaveRole(roleToCheckFor) {
-<<<<<<< HEAD
-      console.log('*******************');
-=======
->>>>>>> 688efff9475f57857d17f5d0db61d6bf970840c4
       return (
         this?.userInfo?.roles?.length &&
         this?.userInfo?.roles.indexOf(roleToCheckFor) >= 0
@@ -87,7 +83,6 @@ export const authStore = defineStore('auth', {
     async getJwtToken() {
       await this.setError(false);
       if (isFollowUpVisit(this.jwtToken)) {
-
         const response = await AuthService.refreshAuthToken(
           this.jwtToken,
           localStorage.getItem('correlationID'),
