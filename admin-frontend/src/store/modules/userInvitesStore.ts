@@ -10,6 +10,7 @@ export const useInvitesStore = defineStore('invites', () => {
   const getInvites = async () => {
     loading.value = true;
     const response = await ApiService.getPendingUserInvites();
+    response.data.sort((a, b) => a.first_name.localeCompare(b.first_name));
     invites.value = response.data;
     loading.value = false;
   };

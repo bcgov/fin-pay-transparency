@@ -15,7 +15,12 @@
         <span class="card-title">Pending User Access</span>
       </template>
       <template v-slot:append>
-        <v-btn variant="text" icon="mdi-close" @click="onClose" aria-label="Close"></v-btn>
+        <v-btn
+          variant="text"
+          icon="mdi-close"
+          @click="onClose"
+          aria-label="Close"
+        ></v-btn>
       </template>
       <v-divider></v-divider>
 
@@ -38,6 +43,7 @@
           :items="invites"
           :items-per-page="10"
           :disable-sort="true"
+          :hide-default-footer="invites?.length <= 10"
           v-if="invites?.length"
         >
           <template v-slot:item="{ item }">
@@ -143,7 +149,7 @@ const deleteInvite = async (item: UserInvite) => {
       );
     }
   }
-};   
+};
 
 const resendEmail = async (item: UserInvite) => {
   open.value = false;

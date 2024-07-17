@@ -42,13 +42,13 @@ describe('userInvitesStore', () => {
         expect(store.loading).toBe(false);
         expect(store.invites).toBe(undefined);
       });
-    })
+    });
     describe('getInvites', () => {
       it('should get invites', async () => {
         const store = useInvitesStore();
-        mockGetPendingUserInvites.mockResolvedValueOnce([
-          { id: 1, name: 'John' },
-        ]);
+        mockGetPendingUserInvites.mockResolvedValueOnce({
+          data: [{ id: 1, name: 'John' }],
+        });
         await store.getInvites();
         expect(mockGetPendingUserInvites).toHaveBeenCalled();
       });
