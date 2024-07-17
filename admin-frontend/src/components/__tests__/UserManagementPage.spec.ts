@@ -5,7 +5,8 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createTestingPinia } from '@pinia/testing';
 import { useUsersStore } from '../../store/modules/usersStore';
-import { render, waitFor, fireEvent } from '@testing-library/vue';
+import { authStore } from '../../store/modules/auth';
+import { render, waitFor } from '@testing-library/vue';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -34,6 +35,7 @@ const wrappedRender = () => {
 };
 
 const store = useUsersStore();
+const auth = authStore();
 
 describe('UserManagementPage', () => {
   beforeEach(() => {
@@ -41,6 +43,7 @@ describe('UserManagementPage', () => {
       loading: false,
       users: [],
     });
+    auth.$patch({ userInfo: { id: 'someid', roles: ['PTRT-ADMIN'] } });
   });
 
   it('should display loading spinner', async () => {

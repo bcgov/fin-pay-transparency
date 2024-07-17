@@ -246,4 +246,45 @@ describe('admin-auth-service', () => {
       });
     });
   });
+
+  describe('handleGetUserInfo', () => {
+    it('should return user info', async () => {
+      const mockStatus = jest.fn();
+      const mockJson = jest.fn();
+      const res = {
+        status: mockStatus.mockImplementation(() => {
+          return {
+            json: mockJson,
+          };
+        }),
+      };
+      mockAdminUserFindFirst.mockResolvedValue({ admin_user_id: '1234' });
+      mockGetSessionUser.mockReturnValue({
+        _json: { display_name: 'test' },
+        jwt: { preferred_username: 'user123' },
+      });
+      await adminAuth.handleGetUserInfo({} as any, res as any);
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith({
+        id: '1234',
+        displayName: expect.any(String),
+      });
+    });
+
+    it('should return 404 if user not found', async () => {
+      const mockStatus = jest.fn();
+      const mockJson = jest.fn();
+      const res = {
+        status: mockStatus.mockImplementation(() => {
+          return {
+            json: mockJson,
+          };
+        }),
+      };
+      mockGetSessionUser.mockReturnValue({});
+      await adminAuth.handleGetUserInfo({} as any, res as any);
+      expect(mockStatus).toHaveBeenCalledWith(401);
+      expect(mockJson).toHaveBeenCalledWith({ message: 'No session data' });
+    });
+  });
 });

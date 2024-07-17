@@ -12,6 +12,7 @@
         color="error"
         icon="mdi-trash-can-outline"
         aria-label="Delete user"
+        :disabled="currentUser?.id === user.id"
         @click="removeUser"
       ></v-btn>
     </div>
@@ -25,9 +26,17 @@
           variant="text"
           append-icon="mdi-chevron-down"
           class="role-menu-button"
+          v-if="currentUser?.id !== user.id"
           :aria-label="`Role ${RoleLabels[user.effectiveRole]}`"
           v-bind="props"
-          >{{ RoleLabels[user.effectiveRole] }}</v-btn
+        >
+          {{ RoleLabels[user.effectiveRole] }}
+        </v-btn>
+        <span
+          v-if="currentUser?.id === user.id"
+          class="role-display"
+          :aria-label="`Role ${RoleLabels[user.effectiveRole]}`"
+          >{{ RoleLabels[user.effectiveRole] }}</span
         >
       </template>
 
@@ -86,8 +95,12 @@ import { RoleOptions, RoleLabels, NextRoleTransitions } from '../../constants';
 import { useUsersStore } from '../../store/modules/usersStore';
 import { NotificationService } from '../../services/notificationService';
 import { User } from '../../types';
+import { authStore } from '../../store/modules/auth';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{ user: User }>();
+const auth = authStore();
+const { userInfo: currentUser, x } = storeToRefs(auth);
 const { assignUserRole, deleteUser } = useUsersStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const isProcessing = ref<boolean>(false);
@@ -170,6 +183,11 @@ const removeUser = async () => {
 .role-menu-button {
   padding: 5px;
   padding-right: 5px;
+}
+
+.role-display {
+  font-weight: 600;
+  color: #003366;
 }
 
 .selected-role {
