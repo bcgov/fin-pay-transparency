@@ -4,6 +4,7 @@ import ReportsPage from './components/ReportsPage.vue';
 import AnnouncementsPage from './components/AnnouncementsPage.vue';
 import UserManagementPage from './components/UserManagementPage.vue';
 import InvitationExpired from './components/InvitationExpired.vue';
+import UnauthorizedError from './components/UnauthorizedError.vue';
 import AnalyticsPage from './components/AnalyticsPage.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import NotFoundPage from './components/NotFound.vue';
@@ -117,6 +118,15 @@ const router = createRouter({
       component: InvitationExpired,
       meta: {
         pageTitle: PAGE_TITLES.INVITATION_EXPIRED,
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/unauthorized',
+      name: 'unauthorized',
+      component: UnauthorizedError,
+      meta: {
+        pageTitle: PAGE_TITLES.UNAUTHORIZED,
         requiresAuth: false,
       },
     },

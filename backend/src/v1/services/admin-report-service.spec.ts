@@ -23,6 +23,7 @@ const company2 = {
 
 let companies = [];
 let reports = [];
+let admins = [];
 let prismaClient: any;
 
 const mockFindMany = jest.fn();
@@ -106,10 +107,17 @@ describe('admin-report-service', () => {
       },
     ];
     companies = [company2, company1];
+    admins = [
+      {
+        admin_user_id: '1234',
+        idir_user_guid: '5678',
+      },
+    ];
 
     prismaClient = createPrismaMock({
       pay_transparency_report: reports,
       pay_transparency_company: companies,
+      admin_user: admins,
     });
   });
   describe('searchReports', () => {
@@ -516,8 +524,8 @@ describe('admin-report-service', () => {
           is_unlocked: false,
           reporting_year: '2023',
           report_unlock_date: '2024-06-20T00:49:23.802Z',
-          idir_modified_username: null,
-          idir_modified_date: '2024-06-20T00:49:23.802Z',
+          admin_user_id: null,
+          admin_modified_date: '2024-06-20T00:49:23.802Z',
           employee_count_range: {
             employee_count_range_id: 'f65072ec-6b13-4ceb-b7bb-2397b4838d45',
             employee_count_range: '300-999',
@@ -557,7 +565,7 @@ describe('admin-report-service', () => {
       await expect(
         adminReportService.changeReportLockStatus(
           '5492feff-99d7-4b2b-8896-12a59a75d4e2',
-          'asasasa',
+          '5678',
           true,
         ),
       ).rejects.toThrow();
@@ -566,22 +574,22 @@ describe('admin-report-service', () => {
     it('should change report is_unlocked to true', async () => {
       const report = await adminReportService.changeReportLockStatus(
         '4492feff-99d7-4b2b-8896-12a59a75d4e2',
-        'username',
+        '5678',
         true,
       );
       expect(report.is_unlocked).toBeTruthy();
-      expect(report.idir_modified_date).toBe(report.report_unlock_date);
-      expect(report.idir_modified_username).toBe('username');
+      expect(report.admin_modified_date).toBe(report.report_unlock_date);
+      expect(report.admin_user_id).toBe('1234');
     });
     it('should change report is_unlocked to false', async () => {
       const report = await adminReportService.changeReportLockStatus(
         '4492feff-99d7-4b2b-8896-12a59a75d4e1',
-        'username1',
+        '5678',
         false,
       );
       expect(report.is_unlocked).toBeFalsy();
-      expect(report.idir_modified_date).toBe(report.report_unlock_date);
-      expect(report.idir_modified_username).toBe('username1');
+      expect(report.admin_modified_date).toBe(report.report_unlock_date);
+      expect(report.admin_user_id).toBe('1234');
     });
   });
 

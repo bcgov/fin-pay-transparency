@@ -12,6 +12,8 @@ import { utils } from './utils-service';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
 import { SSO } from './sso-service';
 import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
+import { admin_user_onboarding } from '@prisma/client';
+import { isEqual } from 'lodash';
 
 enum LogoutReason {
   Login = 'login', // ie. don't log out
@@ -104,7 +106,7 @@ class AdminAuth extends AuthBase {
       return LogoutReason.LoginError;
     }
     try {
-      return await this.processUserOnboarding(
+      return await this.processUser(
         email,
         userInfo._json.display_name,
         preferred_username,
@@ -112,18 +114,28 @@ class AdminAuth extends AuthBase {
         idirUserGuid,
       );
     } catch (e) {
-      log.error('Failed while processing user onboarding.', e);
+      log.error('Failed while processing user.', e);
       return LogoutReason.LoginError;
     }
   }
 
-  private async processUserOnboarding(
+  /**
+   * Process a new user, or update an existing user.
+   * - Assignes roles to users who need to be onboarded.
+   * - Deny access to users without sufficient permission.
+   * - Update the database for this user.
+   *
+   * @returns LogoutReason
+   * - Will throw an Error if the DB transaction is unsuccessful
+   */
+  private async processUser(
     email: string,
     displayName: string,
     preferred_username: string,
     refreshToken: string,
     idirUserGuid: string,
   ): Promise<LogoutReason> {
+    // Onboard user if needed
     const adminUserOnboarding = await prisma.admin_user_onboarding.findFirst({
       where: {
         email: email,
@@ -131,7 +143,6 @@ class AdminAuth extends AuthBase {
       },
     });
 
-    // record found , need to do the processing.
     if (adminUserOnboarding) {
       const expireDate = LocalDateTime.from(
         nativeJs(new Date(adminUserOnboarding.expiry_date)),
@@ -146,65 +157,113 @@ class AdminAuth extends AuthBase {
         adminUserOnboarding,
         refreshToken,
       );
-      await this.storeUserInfoWithHistory(
-        adminUserOnboarding,
-        idirUserGuid,
-        displayName,
-        preferred_username,
-      );
-      return LogoutReason.RoleChanged;
     } else {
       log.info(
         `No user onboarding record found for the user ${preferred_username}, check user for roles`,
       );
-      // check for roles, if no roles found throw error
-      const sso = await SSO.init();
-      const userRoles = await sso.getRolesByUser(preferred_username);
-      if (!userRoles || userRoles.length === 0) {
-        log.error(
-          `No roles found for the user ${preferred_username}, please contact the administrator`,
-        );
-        return LogoutReason.NotAuthorized;
-      }
-      return LogoutReason.Login;
     }
+
+    // check for roles, if no roles then user is not authorized. SSO is the source-of-truth.
+    const sso = await SSO.init();
+    const userRoles = await sso.getRolesByUser(preferred_username);
+    if (!userRoles || userRoles.length === 0) {
+      log.error(
+        `No roles found for the user ${preferred_username}, please contact the administrator`,
+      );
+      return LogoutReason.NotAuthorized;
+    }
+    const userRolesArray = userRoles.map((x) => x.name);
+
+    // update database
+    await this.storeUserInfoWithHistory(
+      idirUserGuid,
+      displayName,
+      preferred_username,
+      userRolesArray,
+      adminUserOnboarding,
+    );
+
+    return adminUserOnboarding ? LogoutReason.RoleChanged : LogoutReason.Login;
   }
 
+  /**
+   * This function accomplishes several goals:
+   * - A user who is being onboarded will have their record in the admin_user_onboarding
+   *   updated to be complete and in the same transaction will have their user details
+   *   added to admin_user. This way in case there is an error, the user can be onboarded
+   *   properly the next time they try to log in.
+   * - This function assumes that the user has permission from keycloak. If the user is
+   *   not in the admin_user table, then add the user. This can happen if a user was not
+   *   onboarded through the Admin Portal, but was directly added in keycloak.
+   * - If any of the details of the user are being changed, for example, they're permissions
+   *   are being revoked or reinstated, the we keep a record of that in the history table.
+   * - Every time a user logs in, the last_login date is updated.
+   *
+   * @returns
+   * - Will throw an Error if the DB transaction is unsuccessful
+   */
   private async storeUserInfoWithHistory(
-    adminUserOnboarding,
     idirUserGuid: string,
     displayName: string,
     preferred_username: string,
+    userRoles: string[],
+    adminUserOnboarding?: admin_user_onboarding,
   ) {
+    const assigned_roles = userRoles.join(',');
+
     await prisma.$transaction(async (tx: PrismaTransactionalClient) => {
-      // update the user onboarding record, idempotent operation, also solves the edge case when call to keycloak was
-      // successful earlier but db operation had failed.
-      await tx.admin_user_onboarding.update({
-        where: {
-          admin_user_onboarding_id:
-            adminUserOnboarding.admin_user_onboarding_id,
-        },
-        data: {
-          is_onboarded: true,
-        },
-      });
-      //// create/update a record in the admin user table
-      const existing_admin_user = await tx.admin_user.findFirst({
+      // update the user onboarding record, idempotent operation, also solves the edge
+      // case when call to keycloak was successful earlier but db operation had failed.
+      if (adminUserOnboarding) {
+        await tx.admin_user_onboarding.update({
+          where: {
+            admin_user_onboarding_id:
+              adminUserOnboarding.admin_user_onboarding_id,
+          },
+          data: {
+            is_onboarded: true,
+          },
+        });
+      }
+
+      const existing_admin_user = await prisma.admin_user.findFirst({
         where: {
           idir_user_guid: idirUserGuid,
-          is_active: false,
         },
       });
-      if (existing_admin_user) {
+
+      // check if the new-roles and old-roles are equal by sorting the
+      // arrays and comparing (note: slice() and localeCompare() are to appease sonar)
+      const areAssignedRolesEqual = isEqual(
+        existing_admin_user?.assigned_roles
+          .split(',')
+          .slice()
+          .sort((a, b) => a.localeCompare(b)),
+        userRoles.slice().sort((a, b) => a.localeCompare(b)),
+      );
+
+      // create/update a record in the admin user table
+      if (
+        existing_admin_user &&
+        (!areAssignedRolesEqual ||
+          existing_admin_user.display_name != displayName ||
+          existing_admin_user.preferred_username != preferred_username ||
+          !existing_admin_user.is_active)
+      ) {
+        // The details of the user has changed, we need to store
+        // the existing user in the history table.
         await tx.admin_user.update({
           where: {
             admin_user_id: existing_admin_user.admin_user_id,
           },
           data: {
+            display_name: displayName,
+            preferred_username: preferred_username,
             update_date: new Date(),
-            update_user: adminUserOnboarding.created_by,
-            assigned_roles: adminUserOnboarding.assigned_roles,
+            update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
+            assigned_roles: assigned_roles,
             is_active: true,
+            last_login: new Date(),
           },
         });
         await tx.admin_user_history.create({
@@ -216,17 +275,31 @@ class AdminAuth extends AuthBase {
             update_user: existing_admin_user.update_user,
             assigned_roles: existing_admin_user.assigned_roles,
             is_active: existing_admin_user.is_active,
-            preferred_username,
+            preferred_username: existing_admin_user.preferred_username,
+            create_date: existing_admin_user.create_date,
+            update_date: existing_admin_user.update_date,
+          },
+        });
+      } else if (existing_admin_user) {
+        // There is an existing user, but none of their details have
+        // changed, so just update the last login time.
+        await tx.admin_user.update({
+          where: {
+            admin_user_id: existing_admin_user.admin_user_id,
+          },
+          data: {
+            last_login: new Date(),
           },
         });
       } else {
+        // There is not an existing user, so make one.
         await tx.admin_user.create({
           data: {
             display_name: displayName,
             idir_user_guid: idirUserGuid,
-            create_user: adminUserOnboarding.created_by,
-            update_user: adminUserOnboarding.created_by,
-            assigned_roles: adminUserOnboarding.assigned_roles,
+            create_user: adminUserOnboarding?.created_by ?? 'Keycloak',
+            update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
+            assigned_roles: assigned_roles,
             is_active: true,
             preferred_username,
           },
@@ -237,7 +310,7 @@ class AdminAuth extends AuthBase {
 
   private async processRolesWithKeycloak(
     preferred_username: string,
-    adminUserOnboarding,
+    adminUserOnboarding: admin_user_onboarding,
     refreshToken: string,
   ) {
     const sso = await SSO.init();

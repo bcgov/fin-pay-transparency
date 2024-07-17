@@ -119,7 +119,13 @@ export class SSO {
       return [
         ...acc,
         {
-          ...omit(user, 'role', 'preferredUserName', 'idirUserGuid', 'userName'),
+          ...omit(
+            user,
+            'role',
+            'preferredUserName',
+            'idirUserGuid',
+            'userName',
+          ),
           roles,
           effectiveRole,
           id: preferredUsernameToAdminUserId[user.preferredUserName],
@@ -146,7 +152,7 @@ export class SSO {
    * }
    */
 
-  async getRolesByUser(userName: string): Promise<string[]> {
+  async getRolesByUser(userName: string): Promise<{ name: string }[]> {
     const response = await this.client.get(`/users/${userName}/roles`);
     return response.data?.data;
   }

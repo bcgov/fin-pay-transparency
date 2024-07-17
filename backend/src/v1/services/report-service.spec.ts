@@ -151,8 +151,8 @@ const mockPublishedReportInDb: pay_transparency_report = {
   data_constraints: null,
   is_unlocked: true,
   report_unlock_date: null,
-  idir_modified_date: new Date(),
-  idir_modified_username: '',
+  admin_modified_date: new Date(),
+  admin_user_id: '',
   admin_last_access_date: null,
 };
 
@@ -1047,8 +1047,8 @@ describe('getReportFileName', () => {
         update_user: 'User',
         is_unlocked: false,
         report_unlock_date: null,
-        idir_modified_date: new Date(),
-        idir_modified_username: '',
+        admin_modified_date: new Date(),
+        admin_user_id: '',
         admin_last_access_date: null,
       };
       const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);

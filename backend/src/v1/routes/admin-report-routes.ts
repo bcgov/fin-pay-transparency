@@ -99,7 +99,7 @@ router.patch(
 
       const report = await adminReportService.changeReportLockStatus(
         params?.id,
-        user?.idir_username,
+        user?._json?.idir_user_guid,
         body.is_unlocked,
       );
 

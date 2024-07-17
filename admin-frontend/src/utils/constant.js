@@ -29,13 +29,14 @@ export const ApiRoutes = Object.freeze({
 
 export const PAGE_TITLES = Object.freeze({
   DASHBOARD: 'Dashboard',
-  REPORTS: 'Reports',
+  REPORTS: 'Search Reports',
   ANNOUNCEMENTS: 'Announcements',
   USER_MANAGEMENT: 'User Management',
   ANALYTICS: 'Analytics',
   LOGIN: 'Login',
   TOKEN_EXPIRED: 'Token Expired',
   INVITATION_EXPIRED: 'Invitation Expired',
+  UNAUTHORIZED: 'Unauthorized',
 });
 
 export const MINISTRY_NAME = 'Ministry of Finance';

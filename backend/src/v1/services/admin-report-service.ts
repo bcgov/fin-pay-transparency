@@ -123,13 +123,13 @@ const adminReportService = {
   /**
    * Set report as locked/unlocked
    * @param reportId the id of the report
-   * @param idirUsername the IDIR username
+   * @param idirGuid the IDIR guid
    * @param isUnLocked true/false to update the is_unlocked column to
    * @returns
    */
   changeReportLockStatus: async (
     reportId: string,
-    idirUsername: string,
+    idirGuid: string,
     isUnLocked: boolean,
   ) => {
     await prisma.pay_transparency_report.findUniqueOrThrow({
@@ -143,8 +143,8 @@ const adminReportService = {
       data: {
         is_unlocked: isUnLocked,
         report_unlock_date: currentDate,
-        idir_modified_date: currentDate,
-        idir_modified_username: idirUsername,
+        admin_modified_date: currentDate,
+        admin_user: { connect: { idir_user_guid: idirGuid } },
       },
     });
 

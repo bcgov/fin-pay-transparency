@@ -39,7 +39,6 @@
                 single-line
                 label="Email"
                 placeholder="Email"
-                type="email"
                 required
                 :suffix="emailSuffix"
                 v-model="email"

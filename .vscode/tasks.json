@@ -10,8 +10,8 @@
       "problemMatcher": []
     },
     {
-      // Run this task to bring all database changes into Prisma to be available in the code.
-      // Automatically performs the "Launch and migrate database" task.
+      // After making changes to the database via Flyway, Run this task to
+      // bring all those changes into Prisma to be available in the code.
       "label": "Prisma 'pull' schema from database",
       "type": "npm",
       "script": "pull",
@@ -19,6 +19,19 @@
         "cwd": "${workspaceFolder}/backend"
       },
       "dependsOn": ["Launch and migrate database"],
+      "problemMatcher": []
+    },
+    {
+      // Executes "npm install" in all subdirectories one level deep
+      // that contains a package.json.
+      "label": "npm install all (parallel)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "$jobs = @(); Get-ChildItem -Directory | ForEach-Object { $dir = $_.FullName; $packageJsonPath = Join-Path -Path $dir -ChildPath \"package.json\"; if (Test-Path $packageJsonPath) { $jobs += Start-Job -ScriptBlock { param ($dir); Write-Host -ForegroundColor Yellow \"Running 'npm install' in $dir\"; Push-Location $dir; npm install; Pop-Location; } -ArgumentList $dir }}; $jobs | ForEach-Object { $job = $_; $job | Wait-Job; $job | Receive-Job; $job | Remove-Job; }; Write-Host -ForegroundColor Green \"All npm install jobs have completed.\""
+      ],
       "problemMatcher": []
     }
   ]
