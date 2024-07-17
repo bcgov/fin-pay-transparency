@@ -303,6 +303,7 @@
             <parent column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="6" id="19" name="admin_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="admin_last_access_date" nullable="true" remarks="timestamp of last access by any admin user" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_id" sequenceNumberInPK="1"/>
          <index name="report_id_pk" unique="true">
             <column ascending="true" name="report_id"/>
@@ -395,6 +396,7 @@
             <parent column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="admin_modified_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="21" name="admin_last_access_date" nullable="true" remarks="timestamp of last access by any admin user" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="report_history_id" sequenceNumberInPK="1"/>
          <index name="report_history_pk" unique="true">
             <column ascending="true" name="report_history_id"/>
