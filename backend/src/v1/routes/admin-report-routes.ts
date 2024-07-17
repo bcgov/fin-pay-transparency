@@ -130,7 +130,10 @@ router.get(
       const reportId = req.params.report_id;
 
       if (req.accepts('application/pdf')) {
-        const pdf: Buffer = await reportService.getReportPdf(req, reportId);
+        const pdf: Buffer = await adminReportService.getReportPdf(
+          req,
+          reportId,
+        );
         if (!pdf) {
           return res.status(404).json({ error: 'Report not found' });
         }
