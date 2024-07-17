@@ -6,7 +6,6 @@ import PendingAccess from '../PendingAccess.vue';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { useInvitesStore } from '../../../store/modules/userInvitesStore';
 import { setActivePinia, createPinia } from 'pinia';
-import { de } from '@faker-js/faker';
 
 const mockGetPendingUserInvites = vi.fn();
 const mockResendUserInvite = vi.fn();

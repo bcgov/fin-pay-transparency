@@ -1,7 +1,6 @@
 import { describe, vi, it, beforeEach, expect } from 'vitest';
 import UserCard from '../UserCard.vue';
 import { fireEvent, render } from '@testing-library/vue';
-import { createTestingPinia } from '@pinia/testing';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -12,6 +11,8 @@ import {
   RoleLabels,
   USER_ROLE_NAME,
 } from '../../../constants';
+import { authStore } from '../../../store/modules/auth';
+import { createTestingPinia } from '@pinia/testing';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
@@ -44,9 +45,13 @@ vi.mock('../../../services/notificationService', () => ({
   },
 }));
 
+const currentUserId = faker.string.uuid();
+
 describe('UserCard', () => {
+  let auth;
   beforeEach(() => {
     vi.clearAllMocks();
+    auth = authStore();
   });
 
   it('should render correctly', async () => {
@@ -73,7 +78,7 @@ describe('UserCard', () => {
     describe('when delete user fails', () => {
       it('should show alert error', async () => {
         mockDeleteUser.mockImplementationOnce(() => {
-            throw new Error('Failed to delete user');
+          throw new Error('Failed to delete user');
         });
         const user = {
           id: faker.string.uuid(),
@@ -232,6 +237,27 @@ describe('UserCard', () => {
         await fireEvent.click(cancelButton);
         expect(mockAssignUserRole).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('when current user', () => {
+    beforeEach(() => {
+      auth.$patch({
+        userInfo: { id: currentUserId, roles: [ADMIN_ROLE_NAME] },
+      });
+    });
+    it('should not show delete button', async () => {
+      const user = {
+        id: currentUserId,
+        displayName: faker.person.fullName(),
+        roles: [],
+        effectiveRole: ADMIN_ROLE_NAME,
+      };
+      const wrapper = await wrappedRender({ user });
+
+      expect(
+        wrapper.queryByRole('button', { name: 'Delete user' }),
+      ).toBeDisabled();
     });
   });
 });
