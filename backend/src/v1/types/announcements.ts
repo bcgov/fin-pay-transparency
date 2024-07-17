@@ -1,6 +1,4 @@
-import z from 'zod';
-import { search } from '../routes/admin-user-info-routes';
-import { fi } from '@faker-js/faker';
+import { z } from 'zod';
 
 export type DateFilter = {
   key: 'published_date' | 'expiry_date';
@@ -9,10 +7,10 @@ export type DateFilter = {
 };
 
 export type AnnouncementStatusType =
-  | 'Published'
-  | 'Draft'
-  | 'Expired'
-  | 'Deleted';
+  | 'PUBLISHED'
+  | 'DRAFT'
+  | 'EXPIRED'
+  | 'DELETED';
 
 export type StatusFilter = {
   key: string;
@@ -46,7 +44,7 @@ const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   published_date: z.array(z.string()).optional(),
   expiry_date: z.array(z.string()).optional(),
   announcement_status: z
-    .array(z.enum(['Published', 'Draft', 'Expired', 'Deleted']))
+    .array(z.enum(['PUBLISHED', 'DRAFT', 'EXPIRED', 'DELETED']))
     .optional(),
 };
 
@@ -90,4 +88,4 @@ export const AnnouncementQuerySchema = z.object({
   filters: FilterValidationSchema.optional(),
 });
 
-export const AnnouncementQueryType = z.infer<typeof AnnouncementQuerySchema>;
+export type AnnouncementQueryType = z.infer<typeof AnnouncementQuerySchema>;

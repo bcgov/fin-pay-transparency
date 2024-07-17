@@ -314,7 +314,7 @@ model announcement_history {
   announcement_history_id                                String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   announcement_id                                        String?              @db.Uuid
   title                                                  String               @db.VarChar(100)
-  content                                                String               @db.VarChar(2000)
+  description                                            String               @db.VarChar(2000)
   created_date                                           DateTime             @default(now()) @db.Timestamp(6)
   updated_date                                           DateTime             @default(now()) @db.Timestamp(6)
   created_by                                             String               @db.Uuid
@@ -336,7 +336,7 @@ model announcement_resource {
   announcement_id                                         String                          @db.Uuid
   display_name                                            String                          @db.VarChar(100)
   resource_type                                           announcement_resource_type
-  reource_url                                             String                          @db.VarChar(255)
+  resource_url                                            String                          @db.VarChar(255)
   created_date                                            DateTime                        @default(now()) @db.Timestamp(6)
   update_date                                             DateTime                        @default(now()) @db.Timestamp(6)
   created_by                                              String                          @db.Uuid
@@ -355,7 +355,7 @@ model announcement_resource_history {
   announcement_id                                                 String                     @db.Uuid
   display_name                                                    String                     @db.VarChar(100)
   resource_type                                                   announcement_resource_type
-  reource_url                                                     String                     @db.VarChar(255)
+  resource_url                                                    String                     @db.VarChar(255)
   created_date                                                    DateTime                   @default(now()) @db.Timestamp(6)
   update_date                                                     DateTime                   @default(now()) @db.Timestamp(6)
   created_by                                                      String                     @db.Uuid
