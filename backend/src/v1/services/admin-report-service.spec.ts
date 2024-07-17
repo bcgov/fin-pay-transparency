@@ -1,6 +1,16 @@
-import { LocalDateTime, ZoneOffset } from '@js-joda/core';
+import {
+  convert,
+  LocalDateTime,
+  ZonedDateTime,
+  ZoneId,
+  ZoneOffset,
+} from '@js-joda/core';
 import createPrismaMock from 'prisma-mock';
-import { adminReportService } from './admin-report-service';
+import {
+  adminReportService,
+  adminReportServicePrivate,
+} from './admin-report-service';
+import { reportService } from './report-service';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -580,6 +590,48 @@ describe('admin-report-service', () => {
       expect(report.is_unlocked).toBeFalsy();
       expect(report.admin_modified_date).toBe(report.report_unlock_date);
       expect(report.admin_user_id).toBe('1234');
+    });
+  });
+
+  describe('getReportPdf', () => {
+    it("updates the report's last admin access date", async () => {
+      const mockReq = {};
+      const reportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+      const mockReport = Buffer.from('mock pdf report');
+      jest.spyOn(reportService, 'getReportPdf').mockResolvedValue(mockReport);
+      const updateAdminLastAccessDateSpy = jest.spyOn(
+        adminReportServicePrivate,
+        'updateAdminLastAccessDate',
+      );
+      const report = await adminReportService.getReportPdf(mockReq, reportId);
+      expect(report).toEqual(mockReport);
+      expect(updateAdminLastAccessDateSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('updateAdminLastAccessDate', () => {
+    it('executes an update statement against the pay_transparency_report table', async () => {
+      const reportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+      const updateSpy = jest.spyOn(
+        prismaClient.pay_transparency_report,
+        'update',
+      );
+
+      await adminReportServicePrivate.updateAdminLastAccessDate(reportId);
+
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+      const updateParam: any = updateSpy.mock.calls[0][0];
+      expect(updateParam.where.report_id).toBe(reportId);
+      expect(Object.keys(updateParam.data).length).toBe(1);
+
+      //check that the date/time submitted to the database is approximately equal
+      //to the current UTC date/time
+      const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
+      const dateDiffMs =
+        currentDateUtc.getTime() -
+        updateParam.data.admin_last_access_date.getTime();
+      expect(dateDiffMs).toBeGreaterThanOrEqual(0);
+      expect(dateDiffMs).toBeLessThan(10000); //10 seconds
     });
   });
 });
