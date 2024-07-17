@@ -153,6 +153,7 @@ const mockPublishedReportInDb: pay_transparency_report = {
   report_unlock_date: null,
   idir_modified_date: new Date(),
   idir_modified_username: '',
+  admin_last_access_date: null,
 };
 
 const mockPublishedReportInApi: Report =
@@ -1048,6 +1049,7 @@ describe('getReportFileName', () => {
         report_unlock_date: null,
         idir_modified_date: new Date(),
         idir_modified_username: '',
+        admin_last_access_date: null,
       };
       const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);
 
