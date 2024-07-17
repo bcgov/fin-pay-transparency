@@ -56,6 +56,7 @@ jest.mock('../services/admin-report-service', () => ({
       .adminReportService,
     searchReport: (...args) => mockSearchReport(...args),
     changeReportLockStatus: (...args) => mockChangeReportLockStatus(...args),
+    getReportPdf: (...args) => mockGetReportPdf(...args),
   },
 }));
 const mockGetReportPdf = jest

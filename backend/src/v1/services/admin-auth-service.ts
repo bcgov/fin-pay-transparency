@@ -79,7 +79,16 @@ class AdminAuth extends AuthBase {
         message: 'No session data',
       });
     }
+
+    const preferred_username = userInfo._json.preferred_username;
+    const localUser = await prisma.admin_user.findFirst({
+      where: {
+        preferred_username: preferred_username,
+      },
+    });
+
     const userInfoFrontend = {
+      id: localUser?.admin_user_id,
       displayName: userInfo._json.display_name,
       roles: userInfo._json?.client_roles,
     };

@@ -9,6 +9,7 @@ import {
   ReportSortType,
 } from '../types/report-search';
 import { PayTransparencyUserError } from './file-upload-service';
+import { reportService } from './report-service';
 
 const adminReportService = {
   /**
@@ -44,7 +45,8 @@ const adminReportService = {
     await FilterValidationSchema.parseAsync(filterObj);
 
     const where = this.convertFiltersToPrismaFormat(filterObj);
-    const orderBy = convertSortToPrismaFormat(sortObj);
+    const orderBy =
+      adminReportServicePrivate.convertSortToPrismaFormat(sortObj);
 
     const query = {
       skip: offset,
@@ -159,6 +161,12 @@ const adminReportService = {
       },
     });
   },
+  async getReportPdf(req, reportId: string): Promise<Buffer> {
+    const report = await reportService.getReportPdf(req, reportId);
+    await adminReportServicePrivate.updateAdminLastAccessDate(reportId);
+    return report;
+  },
+
   /**
    * Convert JSON object to Prisma specific query object
    *
@@ -205,23 +213,35 @@ const adminReportService = {
   },
 };
 
-const convertSortToPrismaFormat = (
-  sort: ReportSortType,
-): Prisma.pay_transparency_reportOrderByWithRelationInput[] => {
-  if (!sort.length) {
-    return undefined;
-  }
+const adminReportServicePrivate = {
+  async updateAdminLastAccessDate(reportId: string) {
+    const currentDate = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
+    await prisma.pay_transparency_report.update({
+      where: { report_id: reportId },
+      data: {
+        admin_last_access_date: currentDate,
+      },
+    });
+  },
 
-  return sort.map((item) => {
-    const [field] = Object.keys(item);
-    const relationKey = RELATION_MAPPER[field];
-    const sortItem = { [field]: item[field] };
-    if (relationKey) {
-      return { [relationKey]: sortItem };
+  convertSortToPrismaFormat(
+    sort: ReportSortType,
+  ): Prisma.pay_transparency_reportOrderByWithRelationInput[] {
+    if (!sort.length) {
+      return undefined;
     }
 
-    return sortItem;
-  });
+    return sort.map((item) => {
+      const [field] = Object.keys(item);
+      const relationKey = RELATION_MAPPER[field];
+      const sortItem = { [field]: item[field] };
+      if (relationKey) {
+        return { [relationKey]: sortItem };
+      }
+
+      return sortItem;
+    });
+  },
 };
 
-export { adminReportService };
+export { adminReportService, adminReportServicePrivate };
