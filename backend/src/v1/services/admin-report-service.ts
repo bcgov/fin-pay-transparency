@@ -1,4 +1,4 @@
-import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
+import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { Prisma } from '@prisma/client';
 import prisma from '../prisma/prisma-client';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
@@ -134,14 +134,14 @@ const adminReportService = {
       where: { report_id: reportId },
     });
 
-    const currentDate = convert(LocalDateTime.now(ZoneId.UTC)).toDate();
+    const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
 
     await prisma.pay_transparency_report.update({
       where: { report_id: reportId },
       data: {
         is_unlocked: isUnLocked,
-        report_unlock_date: currentDate,
-        admin_modified_date: currentDate,
+        report_unlock_date: currentDateUtc,
+        admin_modified_date: currentDateUtc,
         admin_user: { connect: { idir_user_guid: idirGuid } },
       },
     });

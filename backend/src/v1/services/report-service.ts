@@ -1,8 +1,8 @@
 import {
   LocalDate,
-  LocalDateTime,
   TemporalAdjusters,
   ZoneId,
+  ZonedDateTime,
   convert,
   nativeJs,
 } from '@js-joda/core';
@@ -1321,7 +1321,7 @@ const reportService = {
             pay_transparency_user: {
               connect: { user_id: full_report_to_publish.user_id },
             },
-            update_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
+            update_date: convert(ZonedDateTime.now(ZoneId.UTC)).toDate(), //current date/time in the UTC timezone
             update_user: full_report_to_publish.update_user,
             pay_transparency_calculated_data: {
               createMany: {

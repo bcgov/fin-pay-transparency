@@ -2,6 +2,7 @@ import {
   LocalDate,
   TemporalAdjusters,
   ZoneId,
+  ZonedDateTime,
   convert,
   nativeJs,
 } from '@js-joda/core';
@@ -877,6 +878,14 @@ describe('publishReport', () => {
       expect(updateStatement.where.report_id).toBe(
         mockPublishedReportInDb.report_id,
       );
+
+      // Expect the update date to be approximately equal to the current date
+      // in the UTC timezone (within 10 seconds)
+      const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
+      const dateDiffMs =
+        currentDateUtc.getTime() - updateStatement.data.update_date.getTime();
+      expect(dateDiffMs).toBeGreaterThanOrEqual(0);
+      expect(dateDiffMs).toBeLessThan(10000); //10 seconds
     });
   });
   describe('if the given report has status=Draft, and there is an existing Published and locked report', () => {
