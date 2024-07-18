@@ -24,6 +24,7 @@ jest.mock('../prisma/prisma-client', () => ({
   default: {
     announcement: {
       findMany: (...args) => mockFindMany(...args),
+      count: jest.fn().mockResolvedValue(2),
     },
   },
 }));
@@ -33,7 +34,11 @@ describe('AnnouncementsService', () => {
     describe('when no query is provided', () => {
       it('should return announcements', async () => {
         const announcements = await getAnnouncements();
-        expect(announcements).toHaveLength(2);
+        expect(announcements.items).toHaveLength(2);
+        expect(announcements.total).toBe(2);
+        expect(announcements.offset).toBe(0);
+        expect(announcements.limit).toBe(10);
+        expect(announcements.totalPages).toBe(1);
         expect(mockFindMany).toHaveBeenCalledTimes(1);
         expect(mockFindMany).toHaveBeenCalledWith({
           where: {},
