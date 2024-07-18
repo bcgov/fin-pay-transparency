@@ -591,6 +591,31 @@ describe('admin-report-service', () => {
       expect(report.admin_modified_date).toBe(report.report_unlock_date);
       expect(report.admin_user_id).toBe('1234');
     });
+    it('should update the report_unlock_date to the current date/time in UTC', async () => {
+      const updateSpy = jest.spyOn(
+        prismaClient.pay_transparency_report,
+        'update',
+      );
+      await adminReportService.changeReportLockStatus(
+        '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+        '5678',
+        false,
+      );
+
+      const updateParam: any = updateSpy.mock.calls[0][0];
+      expect(updateParam.data.admin_modified_date).toBe(
+        updateParam.data.report_unlock_date,
+      );
+
+      //check that the unlock report date/time submitted to the database is approximately
+      //equal to the current UTC date/time
+      const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
+      const unlockDateDiffMs =
+        currentDateUtc.getTime() -
+        updateParam.data.report_unlock_date.getTime();
+      expect(unlockDateDiffMs).toBeGreaterThanOrEqual(0);
+      expect(unlockDateDiffMs).toBeLessThan(10000); //10 seconds
+    });
   });
 
   describe('getReportPdf', () => {
