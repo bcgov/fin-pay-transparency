@@ -1,7 +1,10 @@
 import { z } from 'zod';
 
-export type DateFilter = {
-  key: 'published_on' | 'expires_on';
+type PublishedOnField = 'published_on';
+type ExpiresOnField = 'expires_on';
+
+export type DateFilter<T> = {
+  key: T;
   operation: 'between';
   value: string[];
 };
@@ -18,7 +21,12 @@ export type StatusFilter = {
   value: AnnouncementStatusType[];
 };
 
-export type AnnouncementFilterType = (DateFilter | StatusFilter)[];
+export type AnnouncementFilterType = (DateFilter<PublishedOnField> | DateFilter<ExpiresOnField> | StatusFilter)[];
+
+export type AnnouncementSortType = {
+  field: 'published_on' | 'expires_on' | 'title' | 'status';
+  order: 'asc' | 'desc';
+}[];
 
 export type FilterKeyType = 'published_on' | 'expires_on' | 'status';
 
@@ -69,7 +77,6 @@ const FilterItemSchema = z
   )
   .refine(
     (data) => {
-      debugger;
       return FILTER_VALUE_SCHEMA[data.key].safeParse(data.value).success;
     },
     {
@@ -85,7 +92,7 @@ const AnnouncementSortSchema = z.object({
 
 export const AnnouncementQuerySchema = z.object({
   search: z.string().optional(),
-  filters: z.array(FilterItemSchema).or(FilterItemSchema).optional(),
+  filters: z.array(FilterItemSchema).optional(),
   limit: z.coerce
     .number()
     .int()
@@ -100,7 +107,6 @@ export const AnnouncementQuerySchema = z.object({
     .optional(),
   sort: z
     .array(AnnouncementSortSchema, { message: 'Not a valid sort' })
-    .or(AnnouncementSortSchema)
     .optional(),
 });
 

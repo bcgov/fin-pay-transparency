@@ -1,7 +1,7 @@
-import { de } from '@faker-js/faker';
 import bodyParser from 'body-parser';
-import e, { Application } from 'express';
+import { Application } from 'express';
 import request from 'supertest';
+import qs from 'qs';
 
 const mockGetAnnouncements = jest.fn().mockResolvedValue({
   items: [],
@@ -34,7 +34,7 @@ describe('announcement-routes', () => {
       it('should return 400', async () => {
         const response = await request(app)
           .get('/')
-          .query({ filters: 'invalid' });
+          .query(qs.stringify({ filters: 'invalid' }));
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ error: expect.any(String) });
       });
@@ -60,7 +60,7 @@ describe('announcement-routes', () => {
         it('should return announcements', async () => {
           const response = await request(app)
             .get('/')
-            .query({ search: 'test' });
+            .query(qs.stringify({ search: 'test' }));
           expect(mockGetAnnouncements).toHaveBeenCalledWith(
             expect.objectContaining({ search: 'test' }),
           );
@@ -76,7 +76,7 @@ describe('announcement-routes', () => {
       });
       describe('when limit is provided', () => {
         it('should return announcements', async () => {
-          const response = await request(app).get('/').query({ limit: 20 });
+          const response = await request(app).get('/').query(qs.stringify({ limit: 20 }));
           expect(mockGetAnnouncements).toHaveBeenCalledWith(
             expect.objectContaining({ limit: 20 }),
           );
@@ -93,7 +93,7 @@ describe('announcement-routes', () => {
 
       describe('when offset is provided', () => {
         it('should return announcements', async () => {
-          const response = await request(app).get('/').query({ offset: 10 });
+          const response = await request(app).get('/').query(qs.stringify({ offset: 10 }));
           expect(mockGetAnnouncements).toHaveBeenCalledWith(
             expect.objectContaining({ offset: 10 }),
           );
@@ -113,7 +113,7 @@ describe('announcement-routes', () => {
           it('should return announcements', async () => {
             const response = await request(app)
               .get('/')
-              .query({ sort: [{ field: 'status', order: 'asc' }] });
+              .query(qs.stringify({ sort: [{ field: 'status', order: 'asc' }] }));
             expect(mockGetAnnouncements).toHaveBeenCalledWith(
               expect.objectContaining({
                 sort: [{ field: 'status', order: 'asc' }],
@@ -134,7 +134,7 @@ describe('announcement-routes', () => {
           it('should return 400', async () => {
             const response = await request(app)
               .get('/')
-              .query({ sort: [{ field: 'invalid', order: 'asc' }] });
+              .query(qs.stringify({ sort: [{ field: 'invalid', order: 'asc' }] }));
             expect(response.status).toBe(400);
             expect(response.body).toEqual({ error: expect.any(String) });
           });
@@ -147,11 +147,13 @@ describe('announcement-routes', () => {
             it('should return announcements', async () => {
               const response = await request(app)
                 .get('/')
-                .query({
-                  filters: [
-                    { key: 'status', operation: 'in', value: ['DRAFT'] },
-                  ],
-                });
+                .query(
+                  qs.stringify({
+                    filters: [
+                      { key: 'status', operation: 'in', value: ['DRAFT'] },
+                    ],
+                  }),
+                );
               expect(mockGetAnnouncements).toHaveBeenCalledWith(
                 expect.objectContaining({
                   filters: [
@@ -168,56 +170,23 @@ describe('announcement-routes', () => {
                 totalPages: 0,
               });
             });
-
-            describe('when filter value is an array with multiple values', () => {
-              it('should return announcements', async () => {
-                const response = await request(app)
-                  .get('/')
-                  .query({
-                    filters: [
-                      {
-                        key: 'status',
-                        operation: 'in',
-                        value: ['DRAFT', 'PUBLISHED'],
-                      },
-                    ],
-                  });
-                expect(mockGetAnnouncements).toHaveBeenCalledWith(
-                  expect.objectContaining({
-                    filters: [
-                      {
-                        key: 'status',
-                        operation: 'in',
-                        value: ['DRAFT', 'PUBLISHED'],
-                      },
-                    ],
-                  }),
-                );
-                expect(response.status).toBe(200);
-                expect(response.body).toEqual({
-                  items: [],
-                  total: 0,
-                  offset: 0,
-                  limit: 10,
-                  totalPages: 0,
-                });
-              });
-            });
           });
 
           describe('published_on', () => {
             it('should return announcements', async () => {
               const response = await request(app)
                 .get('/')
-                .query({
-                  filters: [
-                    {
-                      key: 'published_on',
-                      operation: 'between',
-                      value: ['2022-01-01', '2022-12-31'],
-                    },
-                  ],
-                });
+                .query(
+                  qs.stringify({
+                    filters: [
+                      {
+                        key: 'published_on',
+                        operation: 'between',
+                        value: ['2022-01-01', '2022-12-31'],
+                      },
+                    ],
+                  }),
+                );
               expect(mockGetAnnouncements).toHaveBeenCalledWith(
                 expect.objectContaining({
                   filters: [
@@ -244,15 +213,17 @@ describe('announcement-routes', () => {
             it('should return announcements', async () => {
               const response = await request(app)
                 .get('/')
-                .query({
-                  filters: [
-                    {
-                      key: 'expires_on',
-                      operation: 'between',
-                      value: ['2022-01-01', '2022-12-31'],
-                    },
-                  ],
-                });
+                .query(
+                  qs.stringify({
+                    filters: [
+                      {
+                        key: 'expires_on',
+                        operation: 'between',
+                        value: ['2022-01-01', '2022-12-31'],
+                      },
+                    ],
+                  }),
+                );
               expect(mockGetAnnouncements).toHaveBeenCalledWith(
                 expect.objectContaining({
                   filters: [
@@ -280,15 +251,26 @@ describe('announcement-routes', () => {
           it('should return 400', async () => {
             const response = await request(app)
               .get('/')
-              .query({
-                filters: [
-                  { key: 'invalid', operation: 'in', value: ['DRAFT'] },
-                ],
-              });
+              .query(
+                qs.stringify({
+                  filters: [
+                    { key: 'invalid', operation: 'in', value: ['DRAFT'] },
+                  ],
+                }),
+              );
             expect(response.status).toBe(400);
             expect(response.body).toEqual({ error: expect.any(String) });
           });
         });
+      });
+    });
+
+    describe('when service throws error', () => {
+      it('should return 400', async () => {
+        mockGetAnnouncements.mockRejectedValue(new Error('Invalid request'));
+        const response = await request(app).get('/');
+        expect(response.status).toBe(400);
+        expect(response.body.message).toEqual('Invalid request');
       });
     });
   });

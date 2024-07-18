@@ -16,31 +16,7 @@ router.get(
     try {
       // Query parameters are validated
       const query: AnnouncementQueryType = req.query;
-      const announcements = await getAnnouncements({
-        ...query,
-        filters: query.filters
-          ? Array.isArray(query.filters)
-            ? query.filters.map((filter) => ({
-                ...filter,
-                value: Array.isArray(filter.value)
-                  ? filter.value
-                  : [filter.value],
-              }))
-            : [
-                {
-                  ...query.filters,
-                  value: Array.isArray(query.filters.value)
-                    ? query.filters.value
-                    : [query.filters.value],
-                },
-              ]
-          : undefined,
-        sort: query.sort
-          ? Array.isArray(query.sort)
-            ? query.sort
-            : [query.sort]
-          : undefined,
-      });
+      const announcements = await getAnnouncements(query);
       res.status(200).json(announcements);
     } catch (error) {
       logger.error(error);
