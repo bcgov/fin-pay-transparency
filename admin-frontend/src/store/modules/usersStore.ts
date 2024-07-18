@@ -11,6 +11,7 @@ export const useUsersStore = defineStore('users', () => {
     try {
       loading.value = true;
       const { data } = await ApiService.getUsers();
+      data.sort((a, b) => a.displayName.localeCompare(b.displayName));
       users.value = data;
     } catch (err) {
       console.log(`get users failed: ${err}`);
