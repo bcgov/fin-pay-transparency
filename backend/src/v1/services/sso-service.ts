@@ -1,19 +1,19 @@
+import { Prisma, PrismaClient, admin_user } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 import axios, { AxiosInstance } from 'axios';
-import { config } from '../../config';
 import flatten from 'lodash/flatten';
-import omit from 'lodash/omit';
 import groupBy from 'lodash/groupBy';
+import omit from 'lodash/omit';
 import qs from 'qs';
+import { config } from '../../config';
 import {
   EFFECTIVE_ROLES,
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
 } from '../../constants/admin';
-import { RoleType } from '../types/users';
-import prisma from '../prisma/prisma-client';
 import { logger } from '../../logger';
-import { Prisma, PrismaClient, admin_user } from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
+import prisma from '../prisma/prisma-client';
+import { RoleType } from '../types/users';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
@@ -291,6 +291,7 @@ export class SSO {
         assigned_roles: user.assigned_roles,
         is_active: user.is_active,
         preferred_username: user.preferred_username,
+        email: user.email,
       },
     });
   }

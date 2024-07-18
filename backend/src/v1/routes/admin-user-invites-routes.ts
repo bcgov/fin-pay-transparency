@@ -1,20 +1,21 @@
-import { Router, Response, Request } from 'express';
-import { authorize } from '../middlewares/authorization/authorize';
+import { Request, Response, Router } from 'express';
+import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
+import { logger } from '../../logger';
+import { authorize } from '../middlewares/authorization/authorize';
+import { useValidate } from '../middlewares/validations';
+import {
+  AddNewUserSchema,
+  AddNewUserType,
+} from '../middlewares/validations/schemas';
 import {
   createInvite,
   deleteInvite,
   getPendingInvites,
   resendInvite,
 } from '../services/admin-user-invites-service';
-import { logger } from '../../logger';
-import { useValidate } from '../middlewares/validations';
-import {
-  AddNewUserSchema,
-  AddNewUserType,
-} from '../middlewares/validations/schemas';
 import { utils } from '../services/utils-service';
-import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
+import { UserInputError } from '../types/errors';
 
 const router = Router();
 router.use(authorize([PTRT_ADMIN_ROLE_NAME]));
@@ -47,6 +48,9 @@ router.post(
       return res.status(200).json({ message: 'User invite created' });
     } catch (error) {
       logger.error(error);
+      if (error instanceof UserInputError) {
+        return res.status(400).json({ message: error.message });
+      }
       return res.status(400).json({ error: 'Failed to create user' });
     }
   },

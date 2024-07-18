@@ -1,19 +1,19 @@
+import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
+import { admin_user_onboarding } from '@prisma/client';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
+import { isEqual } from 'lodash';
 import { config } from '../../config';
 import {
   KEYCLOAK_IDP_HINT_AZUREIDIR,
   OIDC_AZUREIDIR_SCOPE,
 } from '../../constants';
 import { logger as log } from '../../logger';
-import { AuthBase } from './auth-utils-service';
-import { utils } from './utils-service';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
+import { AuthBase } from './auth-utils-service';
 import { SSO } from './sso-service';
-import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
-import { admin_user_onboarding } from '@prisma/client';
-import { isEqual } from 'lodash';
+import { utils } from './utils-service';
 
 enum LogoutReason {
   Login = 'login', // ie. don't log out
@@ -188,6 +188,7 @@ class AdminAuth extends AuthBase {
       idirUserGuid,
       displayName,
       preferred_username,
+      email,
       userRolesArray,
       adminUserOnboarding,
     );
@@ -215,6 +216,7 @@ class AdminAuth extends AuthBase {
     idirUserGuid: string,
     displayName: string,
     preferred_username: string,
+    email: string,
     userRoles: string[],
     adminUserOnboarding?: admin_user_onboarding,
   ) {
@@ -268,6 +270,7 @@ class AdminAuth extends AuthBase {
           data: {
             display_name: displayName,
             preferred_username: preferred_username,
+            email: email,
             update_date: new Date(),
             update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
@@ -285,6 +288,7 @@ class AdminAuth extends AuthBase {
             assigned_roles: existing_admin_user.assigned_roles,
             is_active: existing_admin_user.is_active,
             preferred_username: existing_admin_user.preferred_username,
+            email: existing_admin_user.email,
             create_date: existing_admin_user.create_date,
             update_date: existing_admin_user.update_date,
           },
