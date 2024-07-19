@@ -1,4 +1,4 @@
-import { de, faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { SSO } from './sso-service';
 
 const mockAxiosGet = jest.fn();
@@ -39,6 +39,26 @@ jest.mock('../prisma/prisma-client', () => ({
   $transaction: jest.fn().mockImplementation((fn) => fn(mockPrisma)),
 }));
 
+const mockStoreUserInfoWithHistory = jest.fn();
+jest.mock('../services/admin-auth-service', () => {
+  const actualAdminAuth = jest.requireActual(
+    '../services/admin-auth-service',
+  ) as any;
+  const mockedAdminAuth = jest.createMockFromModule(
+    '../services/admin-auth-service',
+  ) as any;
+
+  const mocked = {
+    ...mockedAdminAuth,
+    adminAuth: { ...actualAdminAuth.adminAuth },
+  };
+
+  mocked.adminAuth.storeUserInfoWithHistory = () =>
+    mockStoreUserInfoWithHistory();
+
+  return mocked;
+});
+
 describe('sso-service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -56,16 +76,25 @@ describe('sso-service', () => {
   });
 
   describe('getUsers', () => {
-    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
-      const preferredUsername1 = faker.internet.userName();
-      const preferredUsername2 = faker.internet.userName();
-      mockFindMany.mockResolvedValue([
-        {admin_user_id: faker.string.uuid(), preferred_username: preferredUsername1},
-        {admin_user_id: faker.string.uuid(), preferred_username: preferredUsername2},
-      ]);
+    beforeEach(() => {
       mockAxiosPost.mockResolvedValue({
         data: { access_token: 'jwt', token_type: 'Bearer' },
       });
+    });
+    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
+      mockStoreUserInfoWithHistory.mockResolvedValue(true);
+      const preferredUsername1 = faker.internet.userName();
+      const preferredUsername2 = faker.internet.userName();
+      mockFindMany.mockResolvedValue([
+        {
+          admin_user_id: faker.string.uuid(),
+          preferred_username: preferredUsername1,
+        },
+        {
+          admin_user_id: faker.string.uuid(),
+          preferred_username: preferredUsername2,
+        },
+      ]);
       mockAxiosGet.mockResolvedValue({
         data: {
           data: [
@@ -95,6 +124,15 @@ describe('sso-service', () => {
       expect(mockAxiosGet).toHaveBeenCalledTimes(2);
       expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
       expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
+    });
+    it('should throw error if SSO returns no users', async () => {
+      mockAxiosGet.mockResolvedValue({
+        data: {
+          data: [],
+        },
+      });
+      const client = await SSO.init();
+      await expect(client.getUsers()).rejects.toThrow();
     });
   });
 
