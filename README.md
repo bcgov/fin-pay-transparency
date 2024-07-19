@@ -126,6 +126,6 @@ flowchart
     C --> D[Changes Deployed to Dev environment with Crunchy DB, follow .github/workflows/ci_cd_on_pr_hotfix.yml]
     D -->|On Approval and Merge to releases/hotfix| E[Clean up PR environment and create the new Docker Tags and GitHub Tag]
     E -->|Promote to PROD, using the tag that was generated in previous step | F[Promote to Prod using branch releases/hotfix using existing github workflow, cd-to-prod-on-workflow-dispatch.yml]
-    F -->|Create a PR to main branch from releases/hotfix G[Resolve Merge Conflicts here and promote through, DEV and TEST]
+    F -->|Create a PR to main branch from releases/hotfix| G[Resolve Merge Conflicts here and promote through, DEV and TEST]
 
 ```
