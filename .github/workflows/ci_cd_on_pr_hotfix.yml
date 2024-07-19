@@ -20,9 +20,29 @@ concurrency:
   group: pr-${{ github.workflow }}-${{ github.event.number }}
   cancel-in-progress: true
 jobs:
+  validate:
+    if:  startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
+    name: Validate Branch Naming
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate
+        shell: bash
+        run: |
+          echo "Validating PR, if the head branch name follows the pattern x.x.x_hotfix.x"
+          # check if the branch name follows the pattern x.x.x_hotfix.x
+          SUFFIX=$(echo "${{ github.head_ref }}" | sed 's/hotfix\///')
+          if [[ $SUFFIX =~ ^[0-9]+\.[0-9]+\.[0-9]+_hotfix\.[0-9]+$ ]]; then
+            echo "Branch naming follows the pattern of hotfix/x.x.x_hotfix.x"
+          else
+            echo "Branch naming does not follow the pattern of hotfix/x.x.x_hotfix.x"
+            exit 1
+          fi
 
   builds:
     if:  startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
+    needs: [validate]
     uses: ./.github/workflows/.build.yml
 
 

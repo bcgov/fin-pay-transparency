@@ -1,0 +1,90 @@
+name: Hotfix Pull Request Closed
+
+on:
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - 'docker-compose.yml'
+      - 'renovate.json'
+      - 'COMPLIANCE.yaml'
+      - '.gitignore'
+      - '.vscode/**'
+      - '.diagrams/**'
+      - '.graphics/**'
+      - 'sysdig/**'
+      - '.github/workflows/sysdig.yml'
+    branches:
+      - 'releases/**'
+    types:
+      - closed
+
+concurrency:
+  # PR open and close use the same group, allowing only one at a time
+  group: pr-${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  # Clean up OpenShift when PR closed, no conditions
+  cleanup-openshift:
+    if: startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
+    name: Cleanup OpenShift
+    env:
+      release: pay-transparency-pr-${{ github.event.number }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Remove OpenShift artifacts
+        run: |
+          oc login --token=${{ secrets.OC_TOKEN }} --server=${{ vars.OC_SERVER }}
+          oc project ${{ vars.OC_NAMESPACE }}
+
+          helm status ${{ env.release }} && helm uninstall --no-hooks ${{ env.release }} || \
+            echo "Not found: ${{ env.release }}"
+
+  create-hotfix-github-tag:
+    if: startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
+    name: Create Hotfix Tag
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create Hotfix GitHub Tag
+        shell: bash
+        run: |
+          git fetch --all
+          # create Tag based on the name of the branch after removing hotfix/, find the branch name in the PR
+          # e.g. hotfix/v1.72.3_hotfix.1 -> v1.72.3_hotfix.1
+          TAG=$(echo "${{ github.head_ref }}" | sed 's/hotfix\///')
+          git tag -a "$TAG" -m "Hotfix $TAG"
+          git push origin "$TAG"
+  create-hotfix-docker-tag:
+    if: startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        package: [ backend,
+                   database-migrations,
+                   admin-frontend,
+                   frontend,
+                   doc-gen-service,
+                   backend-external,
+                   maintenance, ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Find Tag From Base Branch
+        id: vars
+        shell: Bash
+        run: |
+          # e.g. hotfix/v1.72.3_hotfix.1 -> 1.72.3_hotfix.1
+          TAG=$(echo "${{ github.head_ref }}" | sed 's/hotfix\/v//')
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Tag Docker Images
+        uses: shrink/actions-docker-registry-tag@v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ github.event.number }}
+          tags: |
+            ${{ steps.vars.outputs.tag }}
+            hotfix

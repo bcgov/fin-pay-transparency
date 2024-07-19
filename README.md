@@ -115,3 +115,17 @@ First install playwright tools:
 Then run the tests:
 
 `npm run e2e`
+
+## Hotfix Process
+
+```mermaid
+flowchart 
+    A[Last Released To Production Tag ex: 1.17.2] -->|create a hotfix branch from the tag ex: hotfix/v1.17.2_hotfix.1| B(Make Changes)
+    A[Last Released To Production Tag ex: 1.17.2] -->|create releases/hotfix branch from the tag | C( Branch to Which pull request will be raised)
+    B --> C[Create pull request to releases/hotfix branch, from the hotfix/x.x.x_hotfix.x branch]
+    C --> D[Changes Deployed to Dev environment with Crunchy DB, follow .github/workflows/ci_cd_on_pr_hotfix.yml]
+    D -->|On Approval and Merge to releases/hotfix| E[Clean up PR environment and create the new Docker Tags and GitHub Tag]
+    E -->|Promote to PROD, using the tag that was generated in previous step | F[Promote to Prod using branch releases/hotfix using existing github workflow, cd-to-prod-on-workflow-dispatch.yml]
+    F -->|Create a PR to main branch from releases/hotfix G[Resolve Merge Conflicts here and promote through, DEV and TEST]
+
+```
