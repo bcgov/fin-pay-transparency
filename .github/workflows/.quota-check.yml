@@ -1,0 +1,62 @@
+name: Check Quota For Deployment
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment to read secrets from GitHub secrets"
+        required: false
+        default: dev
+        type: string
+jobs:
+  check-quota:
+    name: Check Quota
+    runs-on: ubuntu-22.04
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Check Quota For Deployment
+        shell: bash
+        run: |
+          
+          # Allow pipefail, since we could be catching oc create errors
+          set +o pipefail
+          
+          # Login to OpenShift (NOTE: project command is a safeguard)
+          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+          oc project ${{ vars.oc_namespace }}
+          
+          #check helm status to see if this is an already deployed PR or a new PR
+          DEPLOYMENT_STATUS=$(helm status pay-transparency-pr-${{ github.event.number }} -o json | jq .info.status || false)
+          echo "DEPLOYMENT_STATUS is '$DEPLOYMENT_STATUS'"
+          # if deployment status is false or blank, then this is a new PR and we need to check quota
+          if [[ $DEPLOYMENT_STATUS == "" ]] || [[ $DEPLOYMENT_STATUS == "false" ]]; then
+              echo "This is a new PR, checking quota"
+              # PRINT QUOTA
+              oc describe quota compute-long-running-quota
+          
+              QUOTA=$(oc get quota compute-long-running-quota -o json | jq -r '.status.used."limits.cpu"')
+          
+              # if quota contains 'm' get only the number by removing the last character
+              if [[ $QUOTA == *"m"* ]]; then
+                  QUOTA=${QUOTA::-1}
+              fi
+              echo "USED QUOTA: $QUOTA"
+              TOTAL_QUOTA=$(oc get quota compute-long-running-quota -o json | jq -r '.status.hard."limits.cpu"')
+              if [[ $TOTAL_QUOTA != *"m" ]]; then
+                TOTAL_QUOTA=$((TOTAL_QUOTA * 1000))
+              fi
+          
+              # find available quota by subtracting from the total quota
+              AVL_QUOTA=$(($TOTAL_QUOTA-$QUOTA))
+              echo "AVL_QUOTA: $AVL_QUOTA"
+              #Total quota(CPU LIMIT) required for PR to deploy is backend + doc-gen + database + frontend = 580 milli cores.
+              if [[ $AVL_QUOTA -lt 600 ]]; then
+                echo "Not Enough Resource(CPU Limits) Quota not available to deploy PR"
+                exit 1
+              else 
+                echo "Quota available for deployment."
+                exit 0
+              fi
+          else
+              echo "This is an already deployed PR, skipping quota check"
+              exit 0
+          fi

@@ -1,0 +1,62 @@
+name: Builds
+on:
+  workflow_call:
+
+jobs:
+  builds:
+    name: Builds
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [ backend,
+                   database-migrations,
+                   admin-frontend,
+                   frontend,
+                   doc-gen-service,
+                   backend-external,
+                   maintenance
+        ]
+        include:
+          - package: backend
+            triggers: ('backend/')
+            build_file: ./backend/Dockerfile
+            build_context: ./backend
+          - package: admin-frontend
+            triggers: ('admin-frontend/')
+            build_file: ./admin-frontend/Dockerfile
+            build_context: ./admin-frontend
+          - package: frontend
+            triggers: ('frontend/')
+            build_file: ./frontend/Dockerfile
+            build_context: ./frontend
+          - package: database-migrations
+            triggers: ('backend/db')
+            build_file: ./backend/db/Dockerfile
+            build_context: ./backend/db
+          - package: doc-gen-service
+            triggers: ('doc-gen-service/')
+            build_file: ./doc-gen-service/Dockerfile
+            build_context: ./doc-gen-service
+          - package: backend-external
+            build_file: ./backend-external/Dockerfile
+            build_context: ./backend-external
+          - package: maintenance
+            build_file: ./maintenance/Dockerfile
+            build_context: ./maintenance
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bcgov-nr/action-builder-ghcr@v2.2.0
+        with:
+          package: ${{ matrix.package }}
+          tag: ${{ github.event.number }}
+          tag_fallback: test
+          build_context: ${{ matrix.build_context }}
+      - uses: shrink/actions-docker-registry-tag@v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ github.event.number }}
+          tags: pr-${{ github.event.number }}-${{ github.run_number }}
