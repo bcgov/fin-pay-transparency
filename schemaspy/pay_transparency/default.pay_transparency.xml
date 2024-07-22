@@ -3,6 +3,14 @@
       <table name="admin_user" remarks="To track the associated roles and status active/inactive of admin users of the application" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="admin_user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <child column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user_history"/>
+            <child column="created_by" foreignKey="announcement_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
+            <child column="updated_by" foreignKey="announcement_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
+            <child column="created_by" foreignKey="announcement_history_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_history"/>
+            <child column="updated_by" foreignKey="announcement_history_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_history"/>
+            <child column="created_by" foreignKey="announcement_resource_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
+            <child column="updated_by" foreignKey="announcement_resource_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
+            <child column="created_by" foreignKey="announcement_resource_history_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
+            <child column="updated_by" foreignKey="announcement_resource_history_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
             <child column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="pay_transparency_report"/>
             <child column="admin_user_id" foreignKey="admin_user_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="report_history"/>
          </column>
@@ -56,6 +64,154 @@
          <primaryKey column="admin_user_onboarding_id" sequenceNumberInPK="1"/>
          <index name="admin_user_onboarding_id_pk" unique="true">
             <column ascending="true" name="admin_user_onboarding_id"/>
+         </index>
+      </table>
+      <table name="announcement" remarks="To track announcements created from the application" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="announcement_id" nullable="false" remarks="Unique identifier/Primary key for an announcement" size="2147483647" type="uuid" typeCode="1111">
+            <child column="announcement_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement_history"/>
+            <child column="announcement_id" foreignKey="announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
+            <child column="announcement_id" foreignKey="announcement_resource_history_announcement_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="title" nullable="false" remarks="Title of the announcement" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="false" remarks="Description of the announcement" size="2000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="created_date" nullable="false" remarks="Date when the announcement was created" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="updated_date" nullable="false" remarks="Date when the announcement was last updated" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="false" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="updated_by" nullable="false" remarks="The ID of the user who last updated the announcement" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="published_on" nullable="true" remarks="Date when the announcement was published" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="expires_on" nullable="true" remarks="Date when the announcement expires (optional)" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="status" nullable="true" remarks="Status of the announcement (Draft, Published, Expired, Deleted)" size="100" type="varchar" typeCode="12">
+            <parent column="code" foreignKey="announcement_status_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_status"/>
+         </column>
+         <primaryKey column="announcement_id" sequenceNumberInPK="1"/>
+         <index name="announcement_pkey" unique="true">
+            <column ascending="true" name="announcement_id"/>
+         </index>
+         <index name="announcement_dates_idx" unique="false">
+            <column ascending="true" name="published_on"/>
+            <column ascending="true" name="expires_on"/>
+         </index>
+         <index name="announcement_status_idx" unique="false">
+            <column ascending="true" name="status"/>
+         </index>
+      </table>
+      <table name="announcement_history" remarks="Announcement history is updated whenever there is change in any record of an announcement." schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="announcement_history_id" nullable="false" remarks="Unique identifier/Primary key for an announcement history record" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="announcement_id" nullable="true" remarks="The ID of the original announcement" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="announcement_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="title" nullable="false" remarks="Title of the announcement" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="description" nullable="false" remarks="Description of the announcement" size="2000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="created_date" nullable="false" remarks="Date when the announcement was created" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="updated_date" nullable="false" remarks="Date when the announcement was last updated" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="false" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_history_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="false" remarks="The ID of the user who last updated the announcement" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_history_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="published_on" nullable="true" remarks="Date when the announcement was published" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="9" name="expires_on" nullable="true" remarks="Date when the announcement expires (optional)" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="status" nullable="true" remarks="Status of the announcement (Draft, Published, Expired, Deleted)" size="100" type="varchar" typeCode="12">
+            <parent column="code" foreignKey="announcement_status_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_status"/>
+         </column>
+         <primaryKey column="announcement_history_id" sequenceNumberInPK="1"/>
+         <index name="announcement_history_pkey" unique="true">
+            <column ascending="true" name="announcement_history_id"/>
+         </index>
+         <index name="announcement_history_dates_idx" unique="false">
+            <column ascending="true" name="published_on"/>
+            <column ascending="true" name="expires_on"/>
+         </index>
+         <index name="announcement_history_status_idx" unique="false">
+            <column ascending="true" name="status"/>
+         </index>
+      </table>
+      <table name="announcement_resource" remarks="To track resources(links or attachments) associated with an announcement" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="announcement_resource_id" nullable="false" remarks="Unique identifier/Primary key for an announcement resource" size="2147483647" type="uuid" typeCode="1111">
+            <child column="announcement_resource_id" foreignKey="announcement_resource_history_announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="announcement_id" nullable="false" remarks="The ID of the announcement to which the resource is associated" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="announcement_id" foreignKey="announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="display_name" nullable="false" remarks="Display name of the resource" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="resource_url" nullable="false" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="created_date" nullable="false" remarks="Date when the resource was created" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="update_date" nullable="false" remarks="Date when the resource was last updated" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="false" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_resource_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="false" remarks="The ID of the user who last updated the resource" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_resource_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="resource_type" nullable="false" remarks="Type of the resource (Link, Attachment)" size="20" type="varchar" typeCode="12">
+            <parent column="code" foreignKey="announcement_resource_type_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_type"/>
+         </column>
+         <primaryKey column="announcement_resource_id" sequenceNumberInPK="1"/>
+         <index name="announcement_resource_pkey" unique="true">
+            <column ascending="true" name="announcement_resource_id"/>
+         </index>
+         <index name="announcement_resource_type_idx" unique="false">
+            <column ascending="true" name="resource_type"/>
+         </index>
+      </table>
+      <table name="announcement_resource_history" remarks="Announcement resource history is updated whenever there is change in any record of an announcement resource." schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="announcement_resource_history_id" nullable="false" remarks="Unique identifier/Primary key for an announcement resource history record" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="announcement_resource_id" nullable="true" remarks="The ID of the original announcement resource" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="announcement_resource_id" foreignKey="announcement_resource_history_announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="announcement_id" nullable="false" remarks="The ID of the announcement to which the resource is associated" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="announcement_id" foreignKey="announcement_resource_history_announcement_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="display_name" nullable="false" remarks="Display name of the resource" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="resource_url" nullable="false" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="created_date" nullable="false" remarks="Date when the resource was created" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="update_date" nullable="false" remarks="Date when the resource was last updated" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="created_by" nullable="false" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_resource_history_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="updated_by" nullable="false" remarks="The ID of the user who last updated the resource" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="admin_user_id" foreignKey="announcement_resource_history_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="resource_type" nullable="false" remarks="Type of the resource (Link, Attachment)" size="20" type="varchar" typeCode="12">
+            <parent column="code" foreignKey="announcement_resource_type_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_type"/>
+         </column>
+         <primaryKey column="announcement_resource_history_id" sequenceNumberInPK="1"/>
+         <index name="announcement_resource_history_pkey" unique="true">
+            <column ascending="true" name="announcement_resource_history_id"/>
+         </index>
+         <index name="announcement_resource_history_resource_type_idx" unique="false">
+            <column ascending="true" name="resource_type"/>
+         </index>
+      </table>
+      <table name="announcement_resource_type" remarks="To track the type of resource (Link, Attachment) associated with an announcement" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="code" nullable="false" remarks="Code for the type of resource (Link, Attachment) associated with an announcement" size="20" type="varchar" typeCode="12">
+            <child column="resource_type" foreignKey="announcement_resource_type_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
+            <child column="resource_type" foreignKey="announcement_resource_type_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the type of resource (Link, Attachment) associated with an announcement" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="2" name="created_date" nullable="false" remarks="Date when the type was created" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="updated_date" nullable="false" remarks="Date when the type was last updated" size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="code" sequenceNumberInPK="1"/>
+         <index name="announcement_resource_type_pkey" unique="true">
+            <column ascending="true" name="code"/>
+         </index>
+      </table>
+      <table name="announcement_status" remarks="To track the status of an announcement (Draft, Published, Expired, Deleted)" schema="pay_transparency" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="code" nullable="false" remarks="Code for the status of an announcement (Draft, Published, Expired, Deleted)" size="20" type="varchar" typeCode="12">
+            <child column="status" foreignKey="announcement_status_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
+            <child column="status" foreignKey="announcement_status_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the status of an announcement (Draft, Published, Expired, Deleted)" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="2" name="created_date" nullable="false" remarks="Date when the status was created" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="updated_date" nullable="false" remarks="Date when the status was last updated" size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="code" sequenceNumberInPK="1"/>
+         <index name="announcement_status_pkey" unique="true">
+            <column ascending="true" name="code"/>
          </index>
       </table>
       <table name="calculated_data_history" remarks="This table stores the calculated data associated with previous versions of published reports. When a report is updated, the report's calculated data is transferred from `pay_transparency_calculated_data` table to the `calculated_data_history` table. The purpose and meaning of the calculated data is described in the comments of the `pay_transparency_calculated_data` table. The calculated data history is used as an internal archival record, and is not accessible to the end user." schema="pay_transparency" type="TABLE">

@@ -78,7 +78,7 @@
                         <div class="col-md-12">
                             <div class="callout callout-info">
                                 <h4>SchemaSpy Analysis of default.pay_transparency</h4>
-                                <p>Generated on Wed Jul 17 23:05 GMT 2024</p>
+                                <p>Generated on Mon Jul 22 18:41 GMT 2024</p>
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                                 <span class="info-box-icon bg-aqua"><i class="fa fa-table"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">TABLES</span>
-                                    <span class="info-box-number">15</span>
+                                    <span class="info-box-number">21</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -118,7 +118,7 @@
                                 <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">COLUMNS</span>
-                                    <span class="info-box-number">192</span>
+                                    <span class="info-box-number">240</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -130,7 +130,7 @@
                                 <span class="info-box-icon bg-yellow"><i class="ion ion-key"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Constraints</span>
-                                    <span class="info-box-number">19</span>
+                                    <span class="info-box-number">34</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -142,7 +142,7 @@
                                 <span class="info-box-icon bg-red-active"><i class="fa fa-question" aria-hidden="true"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Anomalies</span>
-                                    <span class="info-box-number">4</span>
+                                    <span class="info-box-number">5</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -248,7 +248,7 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/admin_user.html">admin_user</a></td>
-                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">11</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">11</td>
                                         <td class="detail" align="right">-1</td>
@@ -296,6 +296,33 @@
                                         <td class="comment detail" style="display: table-cell;"><p>This table stores the report information of old published reports that have been replaced with a new version. Old draft reports are not stored. When a published report is updated, the report&rsquo;s information is copied from <code>pay_transparency_report</code> table to the <code>report_history</code> table. The purpose and meaning of the report information is described in the description of the <code>pay_transparency_report</code> table. Previous reports are not modified and are used as an internal archival record, and are not accessible to the end user.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/announcement_resource.html">announcement_resource</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">9</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>To track resources(links or attachments) associated with an announcement</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/announcement.html">announcement</a></td>
+                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">10</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>To track announcements created from the application</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/announcement_resource_type.html">announcement_resource_type</a></td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>To track the type of resource (Link, Attachment) associated with an announcement</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/company_history.html">company_history</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
@@ -333,6 +360,24 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Users log in with their BCeID account which must be associated with a BCeID business account. The unique ID&rsquo;s of both accounts are stored to identify this user and business in future logins.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/announcement_history.html">announcement_history</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">11</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Announcement history is updated whenever there is change in any record of an announcement.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/announcement_resource_history.html">announcement_resource_history</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">5</td>
+                                        <td class="detail" align="right">10</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Announcement resource history is updated whenever there is change in any record of an announcement resource.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/calculation_code.html">calculation_code</a></td>
                                         <td class="detail" align="right">3</td>
                                         <td class="detail" align="right">0</td>
@@ -349,6 +394,15 @@
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
                                         <td class="comment detail" style="display: table-cell;"><p>This table stores the calculated data associated with previous versions of published reports. When a report is updated, the report&rsquo;s calculated data is transferred from <code>pay_transparency_calculated_data</code> table to the <code>calculated_data_history</code> table. The purpose and meaning of the calculated data is described in the comments of the <code>pay_transparency_calculated_data</code> table. The calculated data history is used as an internal archival record, and is not accessible to the end user.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/announcement_status.html">announcement_status</a></td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>To track the status of an announcement (Draft, Published, Expired, Deleted)</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/reports_view.html">reports_view</a></td>
