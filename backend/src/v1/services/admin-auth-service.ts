@@ -297,21 +297,19 @@ class AdminAuth extends AuthBase {
           },
         });
         modified = true;
-      } else if (existing_admin_user) {
-        if (isLogin) {
-          // There is an existing user, but none of their details have
-          // changed, so just update the last login time.
-          await tx.admin_user.update({
-            where: {
-              admin_user_id: existing_admin_user.admin_user_id,
-            },
-            data: {
-              last_login: new Date(),
-            },
-          });
-          modified = true;
-        }
-      } else {
+      } else if (existing_admin_user && isLogin) {
+        // There is an existing user, but none of their details have
+        // changed, so just update the last login time.
+        await tx.admin_user.update({
+          where: {
+            admin_user_id: existing_admin_user.admin_user_id,
+          },
+          data: {
+            last_login: new Date(),
+          },
+        });
+        modified = true;
+      } else if (!existing_admin_user) {
         // There is not an existing user, so make one.
         await tx.admin_user.create({
           data: {

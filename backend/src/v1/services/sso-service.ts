@@ -13,7 +13,6 @@ import { logger } from '../../logger';
 import { Prisma, PrismaClient, admin_user } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { adminAuth } from '../services/admin-auth-service';
-import { logger as log } from '../../logger';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
@@ -112,7 +111,7 @@ export class SSO {
     if (Object.keys(ssoUsers).length < 1) {
       // There should always be at least 1 user.
       // If none were found then there is a problem and the local database should not be modified
-      log.error(`Keycloak did not find any users with any permissions`);
+      logger.error(`Keycloak did not find any users with any permissions`);
       throw Error('No users found from Keycloak');
     }
 
