@@ -76,13 +76,14 @@ describe('sso-service', () => {
   });
 
   describe('getUsers', () => {
+    const preferredUsername1 = faker.internet.userName();
+    const preferredUsername2 = faker.internet.userName();
+
     beforeEach(() => {
       mockAxiosPost.mockResolvedValue({
         data: { access_token: 'jwt', token_type: 'Bearer' },
       });
 
-      const preferredUsername1 = faker.internet.userName();
-      const preferredUsername2 = faker.internet.userName();
       mockFindMany.mockResolvedValue([
         {
           admin_user_id: faker.string.uuid(),
@@ -144,6 +145,37 @@ describe('sso-service', () => {
       expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
       expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
       expect(mockFindMany).toHaveBeenCalledTimes(1);
+    });
+    it('should de-activate users in database that have no permissions in sso', async () => {
+      mockFindMany
+        .mockResolvedValueOnce([
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername1,
+          },
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername2,
+          },
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: faker.internet.userName(),
+          },
+        ])
+        .mockResolvedValue([
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername1,
+          },
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername2,
+          },
+        ]);
+
+      const client = await SSO.init();
+      await client.getUsers();
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
     });
   });
 
