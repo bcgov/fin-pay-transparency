@@ -1,4 +1,4 @@
-import { getAnnouncements } from './announcements-service';
+import { getAnnouncements, patchAnnouncements } from './announcements-service';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -19,13 +19,30 @@ const mockFindMany = jest.fn().mockResolvedValue([
   },
 ]);
 
+const mockUpdateMany = jest.fn();
+const mockHistoryCreateMany = jest.fn();
 jest.mock('../prisma/prisma-client', () => ({
   __esModule: true,
   default: {
     announcement: {
       findMany: (...args) => mockFindMany(...args),
       count: jest.fn().mockResolvedValue(2),
+      updateMany: (...args) => mockUpdateMany(...args),
     },
+    announcement_history: {
+      createMany: (...args) => mockHistoryCreateMany(...args),
+    },
+    $transaction: jest.fn().mockImplementation((cb) =>
+      cb({
+        announcement: {
+          findMany: (...args) => mockFindMany(...args),
+          updateMany: (...args) => mockUpdateMany(...args),
+        },
+        announcement_history: {
+          createMany: (...args) => mockHistoryCreateMany(...args),
+        },
+      }),
+    ),
   },
 }));
 
@@ -189,6 +206,39 @@ describe('AnnouncementsService', () => {
             }),
           );
         });
+      });
+    });
+  });
+
+  describe('patchAnnouncements', () => {
+    it('should delete announcements', async () => {
+      mockFindMany.mockResolvedValue([
+        { announcement_id: 4, title: 'Announcement 4' },
+        { announcement_id: 5, title: 'Announcement 5' },
+      ]);
+      await patchAnnouncements(
+        [
+          { id: '1', status: 'DELETED' },
+          { id: '2', status: 'DELETED' },
+        ],
+        'user-id',
+      );
+      expect(mockFindMany).toHaveBeenCalledWith({
+        where: { announcement_id: { in: ['1', '2'] } },
+      });
+      expect(mockHistoryCreateMany).toHaveBeenCalledWith({
+        data: [
+          { announcement_id: 4, title: 'Announcement 4' },
+          { announcement_id: 5, title: 'Announcement 5' },
+        ],
+      });
+      expect(mockUpdateMany).toHaveBeenCalledWith({
+        where: { announcement_id: { in: ['1', '2'] } },
+        data: {
+          status: 'DELETED',
+          updated_by: 'user-id',
+          updated_date: expect.any(Date),
+        },
       });
     });
   });
