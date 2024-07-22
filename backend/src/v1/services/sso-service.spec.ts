@@ -80,9 +80,7 @@ describe('sso-service', () => {
       mockAxiosPost.mockResolvedValue({
         data: { access_token: 'jwt', token_type: 'Bearer' },
       });
-    });
-    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
-      mockStoreUserInfoWithHistory.mockResolvedValue(true);
+
       const preferredUsername1 = faker.internet.userName();
       const preferredUsername2 = faker.internet.userName();
       mockFindMany.mockResolvedValue([
@@ -119,11 +117,15 @@ describe('sso-service', () => {
           ],
         },
       });
+    });
+    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
+      mockStoreUserInfoWithHistory.mockResolvedValue(true);
       const client = await SSO.init();
       const users = await client.getUsers();
       expect(mockAxiosGet).toHaveBeenCalledTimes(2);
       expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
       expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
+      expect(mockFindMany).toHaveBeenCalledTimes(2);
     });
     it('should throw error if SSO returns no users', async () => {
       mockAxiosGet.mockResolvedValue({
@@ -133,6 +135,15 @@ describe('sso-service', () => {
       });
       const client = await SSO.init();
       await expect(client.getUsers()).rejects.toThrow();
+    });
+    it('should not query the database twice if there were no db updates', async () => {
+      mockStoreUserInfoWithHistory.mockResolvedValue(false);
+      const client = await SSO.init();
+      const users = await client.getUsers();
+      expect(mockAxiosGet).toHaveBeenCalledTimes(2);
+      expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
+      expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
+      expect(mockFindMany).toHaveBeenCalledTimes(1);
     });
   });
 
