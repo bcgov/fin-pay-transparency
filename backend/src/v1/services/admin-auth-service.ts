@@ -12,7 +12,7 @@ import { utils } from './utils-service';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
 import { SSO } from './sso-service';
 import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
-import { admin_user_onboarding } from '@prisma/client';
+import { admin_user, admin_user_onboarding } from '@prisma/client';
 import { isEqual } from 'lodash';
 
 enum LogoutReason {
@@ -208,18 +208,24 @@ class AdminAuth extends AuthBase {
    *   are being revoked or reinstated, the we keep a record of that in the history table.
    * - Every time a user logs in, the last_login date is updated.
    *
-   * @returns
+   * @param adminUserOnboarding - (optional) Onboarding object from database if onboarding a user
+   * @param existing_admin_user - (optional) The existing user can be passed in to reduce the number of db calls
+   * @param isLogin - (optional) Whether or not to set the last_login date or not. Default is 'true'.
+   * @returns - 'true' if the admin_user table was updated, otherwise 'false'
    * - Will throw an Error if the DB transaction is unsuccessful
    */
-  private async storeUserInfoWithHistory(
+
+  public async storeUserInfoWithHistory(
     idirUserGuid: string,
     displayName: string,
     preferred_username: string,
     userRoles: string[],
     adminUserOnboarding?: admin_user_onboarding,
-  ) {
+    existing_admin_user?: admin_user,
+    isLogin: boolean = true,
+  ): Promise<boolean> {
     const assigned_roles = userRoles.join(',');
-
+    let modified = false;
     await prisma.$transaction(async (tx: PrismaTransactionalClient) => {
       // update the user onboarding record, idempotent operation, also solves the edge
       // case when call to keycloak was successful earlier but db operation had failed.
@@ -235,11 +241,12 @@ class AdminAuth extends AuthBase {
         });
       }
 
-      const existing_admin_user = await prisma.admin_user.findFirst({
-        where: {
-          idir_user_guid: idirUserGuid,
-        },
-      });
+      if (!existing_admin_user)
+        existing_admin_user = await prisma.admin_user.findFirst({
+          where: {
+            idir_user_guid: idirUserGuid,
+          },
+        });
 
       // check if the new-roles and old-roles are equal by sorting the
       // arrays and comparing (note: slice() and localeCompare() are to appease sonar)
@@ -272,7 +279,7 @@ class AdminAuth extends AuthBase {
             update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
             is_active: true,
-            last_login: new Date(),
+            last_login: isLogin ? new Date() : undefined,
           },
         });
         await tx.admin_user_history.create({
@@ -289,7 +296,8 @@ class AdminAuth extends AuthBase {
             update_date: existing_admin_user.update_date,
           },
         });
-      } else if (existing_admin_user) {
+        modified = true;
+      } else if (existing_admin_user && isLogin) {
         // There is an existing user, but none of their details have
         // changed, so just update the last login time.
         await tx.admin_user.update({
@@ -300,7 +308,8 @@ class AdminAuth extends AuthBase {
             last_login: new Date(),
           },
         });
-      } else {
+        modified = true;
+      } else if (!existing_admin_user) {
         // There is not an existing user, so make one.
         await tx.admin_user.create({
           data: {
@@ -311,10 +320,14 @@ class AdminAuth extends AuthBase {
             assigned_roles: assigned_roles,
             is_active: true,
             preferred_username,
+            last_login: isLogin ? undefined : new Date(0),
           },
         });
+        modified = true;
       }
     });
+
+    return modified;
   }
 
   private async processRolesWithKeycloak(
