@@ -130,7 +130,7 @@ const externalConsumerService = {
         },
         take: limit,
         skip: offset,
-        orderBy: [{ update_date: 'asc' }, { revision: 'asc' }],
+        orderBy: [{ update_date: 'asc' }],
       });
 
     const totalRecordsCount = await prismaReadOnlyReplica
