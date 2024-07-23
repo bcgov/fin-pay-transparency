@@ -20,11 +20,7 @@ describe('authenticateAdmin', () => {
   beforeEach(() => {
     jest.clearAllMocks
     jest.resetModules();
-    req = {
-      headers: {
-        authorization: 'Bearer token',
-      },
-    };
+    req = {};
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
