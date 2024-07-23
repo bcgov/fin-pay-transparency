@@ -21,7 +21,11 @@ export type StatusFilter = {
   value: AnnouncementStatusType[];
 };
 
-export type AnnouncementFilterType = (DateFilter<PublishedOnField> | DateFilter<ExpiresOnField> | StatusFilter)[];
+export type AnnouncementFilterType = (
+  | DateFilter<PublishedOnField>
+  | DateFilter<ExpiresOnField>
+  | StatusFilter
+)[];
 
 export type AnnouncementSortType = {
   field: 'published_on' | 'expires_on' | 'title' | 'status';
@@ -111,3 +115,12 @@ export const AnnouncementQuerySchema = z.object({
 });
 
 export type AnnouncementQueryType = z.infer<typeof AnnouncementQuerySchema>;
+
+export const PatchAnnouncementsSchema = z.array(
+  z.object({
+    id: z.string().uuid(),
+    status: z.enum(['DELETED']),
+  }),
+);
+
+export type PatchAnnouncementsType = z.infer<typeof PatchAnnouncementsSchema>;
