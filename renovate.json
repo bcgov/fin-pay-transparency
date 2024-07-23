@@ -7,7 +7,7 @@
     "group:definitelyTyped",
     "group:linters",
     "group:monorepos",
-    "group:react",
+    "group:vueMonorepo",
     "group:recommended",
     ":combinePatchMinorReleases",
     ":enableVulnerabilityAlerts",
