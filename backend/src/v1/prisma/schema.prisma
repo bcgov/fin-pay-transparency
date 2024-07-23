@@ -329,13 +329,8 @@ model announcement_history {
   announcement_status                                    announcement_status?            @relation(fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_status_fk")
   announcement_resource_history                          announcement_resource_history[]
 
-<<<<<<< HEAD
-  @@index([published_on, expires_on], map: "announcement_history_dates_idx")
-  @@index([status])
-=======
   @@index([status])
   @@index([published_on, expires_on], map: "announcement_history_dates_idx")
->>>>>>> main
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -370,10 +365,7 @@ model announcement_resource_history {
   created_by                                                      String                     @db.Uuid
   updated_by                                                      String                     @db.Uuid
   resource_type                                                   String                     @db.VarChar(20)
-<<<<<<< HEAD
-=======
   announcement_history_id                                         String                     @db.Uuid
->>>>>>> main
   announcement                                                    announcement               @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_fk")
   announcement_history                                            announcement_history       @relation(fields: [announcement_history_id], references: [announcement_history_id], onDelete: NoAction, onUpdate: NoAction)
   announcement_resource                                           announcement_resource?     @relation(fields: [announcement_resource_id], references: [announcement_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_resource_fk")
