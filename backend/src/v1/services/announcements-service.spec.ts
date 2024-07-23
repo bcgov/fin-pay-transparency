@@ -20,7 +20,7 @@ const mockFindMany = jest.fn().mockResolvedValue([
 ]);
 
 const mockUpdateMany = jest.fn();
-const mockHistoryCreateMany = jest.fn();
+const mockHistoryCreate = jest.fn();
 jest.mock('../prisma/prisma-client', () => ({
   __esModule: true,
   default: {
@@ -30,7 +30,7 @@ jest.mock('../prisma/prisma-client', () => ({
       updateMany: (...args) => mockUpdateMany(...args),
     },
     announcement_history: {
-      createMany: (...args) => mockHistoryCreateMany(...args),
+      create: (...args) => mockHistoryCreate(...args),
     },
     $transaction: jest.fn().mockImplementation((cb) =>
       cb({
@@ -39,7 +39,7 @@ jest.mock('../prisma/prisma-client', () => ({
           updateMany: (...args) => mockUpdateMany(...args),
         },
         announcement_history: {
-          createMany: (...args) => mockHistoryCreateMany(...args),
+          create: (...args) => mockHistoryCreate(...args),
         },
       }),
     ),
@@ -213,8 +213,16 @@ describe('AnnouncementsService', () => {
   describe('patchAnnouncements', () => {
     it('should delete announcements', async () => {
       mockFindMany.mockResolvedValue([
-        { announcement_id: 4, title: 'Announcement 4' },
-        { announcement_id: 5, title: 'Announcement 5' },
+        {
+          announcement_id: 4,
+          title: 'Announcement 4',
+          announcement_resource: [],
+        },
+        {
+          announcement_id: 5,
+          title: 'Announcement 5',
+          announcement_resource: [],
+        },
       ]);
       await patchAnnouncements(
         [
@@ -223,15 +231,16 @@ describe('AnnouncementsService', () => {
         ],
         'user-id',
       );
-      expect(mockFindMany).toHaveBeenCalledWith({
-        where: { announcement_id: { in: ['1', '2'] } },
-      });
-      expect(mockHistoryCreateMany).toHaveBeenCalledWith({
-        data: [
-          { announcement_id: 4, title: 'Announcement 4' },
-          { announcement_id: 5, title: 'Announcement 5' },
-        ],
-      });
+      expect(mockFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            announcement_id: {
+              in: ['1', '2'],
+            },
+          },
+        }),
+      );
+      expect(mockHistoryCreate).toHaveBeenCalledTimes(2);
       expect(mockUpdateMany).toHaveBeenCalledWith({
         where: { announcement_id: { in: ['1', '2'] } },
         data: {

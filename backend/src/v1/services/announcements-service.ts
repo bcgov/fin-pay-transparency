@@ -84,13 +84,23 @@ export const patchAnnouncements = async (
     const ids = data.map((item) => item.id);
     const announcements = await tx.announcement.findMany({
       where: { announcement_id: { in: data.map((item) => item.id) } },
+      include: { announcement_resource: true },
     });
 
-    await tx.announcement_history.createMany({
-      data: announcements.map((announcement) => ({
-        ...announcement,
-      })),
-    });
+    for (const announcement of announcements) {
+      await tx.announcement_history.create({
+        data: {
+          ...announcement,
+          announcement_resource_history: {
+            createMany: {
+              data: announcement.announcement_resource.map((resource) => ({
+                ...resource,
+              })),
+            },
+          },
+        },
+      });
+    }
 
     const updateDate = LocalDate.now(ZoneId.UTC);
     await tx.announcement.updateMany({
