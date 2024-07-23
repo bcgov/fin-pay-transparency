@@ -54,6 +54,7 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <v-btn
+          aria-label="Open Report"
           density="compact"
           variant="plain"
           icon="mdi-file-pdf-box"
@@ -62,6 +63,7 @@
           @click="viewReportInNewTab(item.report_id)"
         ></v-btn>
         <v-btn
+          :aria-label="item.is_unlocked ? 'Lock report' : 'Unlock report'"
           density="compact"
           variant="plain"
           :icon="item.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
