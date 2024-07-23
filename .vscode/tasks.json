@@ -24,7 +24,7 @@
     {
       // Executes "npm install" in all subdirectories one level deep
       // that contains a package.json.
-      "label": "npm install all (parallel)",
+      "label": "Install all npm packages in parallel",
       "type": "shell",
       "command": "powershell",
       "args": [

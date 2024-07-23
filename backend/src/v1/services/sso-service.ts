@@ -1,9 +1,7 @@
 import { Prisma, PrismaClient, admin_user } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import axios, { AxiosInstance } from 'axios';
-import flatten from 'lodash/flatten';
-import groupBy from 'lodash/groupBy';
-import omit from 'lodash/omit';
+import { difference } from 'lodash';
 import qs from 'qs';
 import { config } from '../../config';
 import {
@@ -13,6 +11,7 @@ import {
 } from '../../constants/admin';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
+import { adminAuth } from '../services/admin-auth-service';
 import { RoleType } from '../types/users';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
@@ -41,7 +40,20 @@ type GetUserResponse = {
   };
 };
 
-type User = { userName: string; displayName: string; role: string };
+type User = {
+  id: string;
+  displayName: string;
+  roles: string[];
+  effectiveRole: string;
+};
+type SsoUser = {
+  displayName: string;
+  idirUserGuid: string;
+  preferredUserName: string;
+  email: string;
+  roles: string[];
+  userName: string;
+};
 
 const ROLE_NAMES = ['PTRT-USER', 'PTRT-ADMIN'];
 
@@ -73,65 +85,108 @@ export class SSO {
   async getUsers(): Promise<
     (Omit<User, 'role'> & { roles: string[]; effectiveRole: string })[]
   > {
-    const results = await Promise.all(
-      ROLE_NAMES.map(async (roleName) => {
-        const { data: results } = await this.client.get<{
-          data: GetUserResponse[];
-        }>(`/roles/${roleName}/users`);
+    // create dictionary of users from SSO
+    const ssoUsers: Record<string, SsoUser> = {};
+    for (const roleName of ROLE_NAMES) {
+      const { data: results } = await this.client.get<{
+        data: GetUserResponse[];
+      }>(`/roles/${roleName}/users`);
 
-        return results.data
-          .filter((user) => !!user.email)
-          .map((item) => ({
-            idirUserGuid: item.attributes.idir_user_guid[0],
-            userName: item.attributes.idir_username[0],
-            preferredUserName: item.username,
-            displayName: item.attributes.display_name[0],
-            role: roleName,
-          }));
-      }),
-    );
+      for (const user of results.data) {
+        if (!user.email) continue; // ignore service accounts
+        const prefUser = user.username;
+        if (prefUser in ssoUsers)
+          // user exists, add role to user
+          ssoUsers[prefUser].roles.push(roleName);
+        else
+          ssoUsers[prefUser] = {
+            idirUserGuid: user.attributes.idir_user_guid[0],
+            userName: user.attributes.idir_username[0],
+            preferredUserName: user.username,
+            email: user.email,
+            displayName: user.attributes.display_name[0],
+            roles: [roleName],
+          };
+      }
+    }
 
-    const users = flatten(results);
-    const localUsers = await prisma.admin_user.findMany({
+    if (Object.keys(ssoUsers).length < 1) {
+      // There should always be at least 1 user.
+      // If none were found then there is a problem and the local database should not be modified
+      logger.error(`Keycloak did not find any users with any permissions`);
+      throw Error('No users found from Keycloak');
+    }
+
+    // get the users from the database
+    let localUsers = await prisma.admin_user.findMany({
       where: {
-        preferred_username: { in: users.map((u) => u.preferredUserName) },
         is_active: true,
       },
     });
 
-    const preferredUsernameToAdminUserId = localUsers.reduce((acc, user) => {
-      return { ...acc, [user.preferred_username]: user.admin_user_id };
-    }, {});
+    // ensure each SSO user is in our database and their details are up to date
+    let isDbUpdated = false;
+    for (const prefUser in ssoUsers) {
+      const match = localUsers.find(
+        (localUser) => localUser.preferred_username == prefUser,
+      );
 
-    const userGroups: { [key: string]: User[] } = groupBy(
-      users.filter((u) => preferredUsernameToAdminUserId[u.preferredUserName]),
-      (u) => u.userName,
+      const updated = await adminAuth.storeUserInfoWithHistory(
+        ssoUsers[prefUser].idirUserGuid,
+        ssoUsers[prefUser].displayName,
+        ssoUsers[prefUser].preferredUserName,
+        ssoUsers[prefUser].email,
+        ssoUsers[prefUser].roles,
+        undefined,
+        match,
+        false,
+      );
+
+      isDbUpdated = isDbUpdated || updated;
+    }
+
+    // remove any users that are in db but not in sso
+    const deletedUsers = difference(
+      localUsers.map((x) => x.preferred_username),
+      Object.keys(ssoUsers),
+    );
+    for (const prefUser of deletedUsers) {
+      const user = localUsers.find(
+        (localUser) => localUser.preferred_username == prefUser,
+      );
+      await prisma.$transaction(async (tx) => {
+        await tx.admin_user.update({
+          where: { admin_user_id: user.admin_user_id },
+          data: { is_active: false },
+        });
+        await this.recordHistory(tx, user);
+      });
+    }
+
+    // need new admin_user_id from database
+    if (isDbUpdated)
+      localUsers = await prisma.admin_user.findMany({
+        where: {
+          is_active: true,
+        },
+      });
+
+    // merge local database id with sso object
+    const ret: User[] = Object.values(ssoUsers).map(
+      (user) =>
+        <User>{
+          id: localUsers.find(
+            (x) => x.preferred_username == user.preferredUserName,
+          ).admin_user_id,
+          displayName: user.displayName,
+          effectiveRole: user.roles.includes(PTRT_ADMIN_ROLE_NAME)
+            ? PTRT_ADMIN_ROLE_NAME
+            : PTRT_USER_ROLE_NAME,
+          roles: user.roles,
+        },
     );
 
-    return Object.keys(userGroups).reduce((acc: User[], key: string) => {
-      const users = userGroups[key];
-      const roles = users.map((user) => user.role);
-      const effectiveRole = roles.includes(PTRT_ADMIN_ROLE_NAME)
-        ? PTRT_ADMIN_ROLE_NAME
-        : PTRT_USER_ROLE_NAME;
-      const user: any = users[0];
-
-      return [
-        ...acc,
-        {
-          ...omit(
-            user,
-            'role',
-            'preferredUserName',
-            'idirUserGuid',
-            'userName',
-          ),
-          roles,
-          effectiveRole,
-          id: preferredUsernameToAdminUserId[user.preferredUserName],
-        },
-      ];
-    }, []);
+    return ret;
   }
 
   /**

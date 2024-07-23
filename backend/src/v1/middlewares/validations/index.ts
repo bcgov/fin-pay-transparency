@@ -11,7 +11,8 @@ export const useValidate = ({ mode, schema }: UseValidateOptions) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req[mode];
-      await schema.parseAsync(data);
+      const results = await schema.parseAsync(data);
+      req[mode] = results;
       next()
     } catch (error) {
       logger.error(error);
