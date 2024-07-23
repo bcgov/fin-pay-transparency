@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, admin_user } from '@prisma/client';
+import { admin_user, Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import axios, { AxiosInstance } from 'axios';
 import { difference } from 'lodash';
@@ -11,7 +11,7 @@ import {
 } from '../../constants/admin';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
-import { adminAuth } from '../services/admin-auth-service';
+import { adminAuth, IUserDetails } from '../services/admin-auth-service';
 import { RoleType } from '../types/users';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
@@ -55,7 +55,9 @@ type SsoUser = {
   userName: string;
 };
 
-const ROLE_NAMES = ['PTRT-USER', 'PTRT-ADMIN'];
+export const ROLE_ADMIN_USER = 'PTRT-USER';
+export const ROLE_ADMIN_MANAGER = 'PTRT-ADMIN';
+const ROLE_NAMES = [ROLE_ADMIN_USER, ROLE_ADMIN_MANAGER];
 
 export class SSO {
   constructor(private readonly client: AxiosInstance) {}
@@ -131,12 +133,16 @@ export class SSO {
         (localUser) => localUser.preferred_username == prefUser,
       );
 
+      const userDetails: IUserDetails = {
+        idirUserGuid: ssoUsers[prefUser].idirUserGuid,
+        displayName: ssoUsers[prefUser].displayName,
+        preferredUsername: ssoUsers[prefUser].preferredUserName,
+        email: ssoUsers[prefUser].email,
+        roles: ssoUsers[prefUser].roles,
+      };
+
       const updated = await adminAuth.storeUserInfoWithHistory(
-        ssoUsers[prefUser].idirUserGuid,
-        ssoUsers[prefUser].displayName,
-        ssoUsers[prefUser].preferredUserName,
-        ssoUsers[prefUser].email,
-        ssoUsers[prefUser].roles,
+        userDetails,
         undefined,
         match,
         false,

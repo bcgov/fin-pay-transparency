@@ -27,6 +27,14 @@ enum LogoutReason {
   InvitationExpired = 'invitationExpired',
 }
 
+export interface IUserDetails {
+  idirUserGuid: string;
+  displayName: string;
+  preferredUsername: string;
+  email: string;
+  roles: string[];
+}
+
 class AdminAuth extends AuthBase {
   public override async renew(refreshToken: string) {
     const clientId = config.get('oidc:adminClientId');
@@ -183,15 +191,16 @@ class AdminAuth extends AuthBase {
     }
     const userRolesArray = userRoles.map((x) => x.name);
 
+    const userDetails = {
+      idirUserGuid: idirUserGuid,
+      displayName: displayName,
+      preferredUsername: preferred_username,
+      email: email,
+      roles: userRolesArray,
+    };
+
     // update database
-    await this.storeUserInfoWithHistory(
-      idirUserGuid,
-      displayName,
-      preferred_username,
-      email,
-      userRolesArray,
-      adminUserOnboarding,
-    );
+    await this.storeUserInfoWithHistory(userDetails, adminUserOnboarding);
 
     return adminUserOnboarding ? LogoutReason.RoleChanged : LogoutReason.Login;
   }
@@ -217,16 +226,12 @@ class AdminAuth extends AuthBase {
    */
 
   public async storeUserInfoWithHistory(
-    idirUserGuid: string,
-    displayName: string,
-    preferred_username: string,
-    email: string,
-    userRoles: string[],
+    userDetails: IUserDetails,
     adminUserOnboarding?: admin_user_onboarding,
     existing_admin_user?: admin_user,
     isLogin: boolean = true,
   ): Promise<boolean> {
-    const assigned_roles = userRoles.join(',');
+    const assigned_roles = userDetails?.roles.join(',');
     let modified = false;
     await prisma.$transaction(async (tx: PrismaTransactionalClient) => {
       // update the user onboarding record, idempotent operation, also solves the edge
@@ -246,7 +251,7 @@ class AdminAuth extends AuthBase {
       if (!existing_admin_user)
         existing_admin_user = await prisma.admin_user.findFirst({
           where: {
-            idir_user_guid: idirUserGuid,
+            idir_user_guid: userDetails?.idirUserGuid,
           },
         });
 
@@ -257,15 +262,16 @@ class AdminAuth extends AuthBase {
           .split(',')
           .slice()
           .sort((a, b) => a.localeCompare(b)),
-        userRoles.slice().sort((a, b) => a.localeCompare(b)),
+        userDetails?.roles.slice().sort((a, b) => a.localeCompare(b)),
       );
 
       // create/update a record in the admin user table
       if (
         existing_admin_user &&
         (!areAssignedRolesEqual ||
-          existing_admin_user.display_name != displayName ||
-          existing_admin_user.preferred_username != preferred_username ||
+          existing_admin_user.display_name != userDetails.displayName ||
+          existing_admin_user.preferred_username !=
+            userDetails.preferredUsername ||
           !existing_admin_user.is_active)
       ) {
         // The details of the user has changed, we need to store
@@ -275,9 +281,9 @@ class AdminAuth extends AuthBase {
             admin_user_id: existing_admin_user.admin_user_id,
           },
           data: {
-            display_name: displayName,
-            preferred_username: preferred_username,
-            email: email,
+            display_name: userDetails.displayName,
+            preferred_username: userDetails.preferredUsername,
+            email: userDetails.email,
             update_date: new Date(),
             update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
@@ -317,13 +323,14 @@ class AdminAuth extends AuthBase {
         // There is not an existing user, so make one.
         await tx.admin_user.create({
           data: {
-            display_name: displayName,
-            idir_user_guid: idirUserGuid,
+            display_name: userDetails.displayName,
+            idir_user_guid: userDetails.idirUserGuid,
             create_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
             is_active: true,
-            preferred_username,
+            preferred_username: userDetails.preferredUsername,
+            email: userDetails.email,
             last_login: isLogin ? undefined : new Date(0),
           },
         });
