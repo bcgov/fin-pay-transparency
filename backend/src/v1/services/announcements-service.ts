@@ -1,7 +1,11 @@
 import { announcement, Prisma } from '@prisma/client';
-import { AnnouncementQueryType } from '../types/announcements';
+import {
+  AnnouncementQueryType,
+  PatchAnnouncementsType,
+} from '../types/announcements';
 import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
+import { convert, LocalDate, ZoneId } from '@js-joda/core';
 
 const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
   const where: Prisma.announcementWhereInput = {};
@@ -65,4 +69,47 @@ export const getAnnouncements = async (
     offset: query.offset || 0,
     totalPages: Math.ceil(total / (query.limit || DEFAULT_PAGE_SIZE)),
   };
+};
+
+/**
+ * Patch announcements by ids
+ * @param data - array of announcement ids to delete
+ * @param userId - user id who is deleting the announcements
+ */
+export const patchAnnouncements = async (
+  data: PatchAnnouncementsType,
+  userId: string,
+) => {
+  return prisma.$transaction(async (tx) => {
+    const ids = data.map((item) => item.id);
+    const announcements = await tx.announcement.findMany({
+      where: { announcement_id: { in: data.map((item) => item.id) } },
+      include: { announcement_resource: true },
+    });
+
+    for (const announcement of announcements) {
+      await tx.announcement_history.create({
+        data: {
+          ...announcement,
+          announcement_resource_history: {
+            createMany: {
+              data: announcement.announcement_resource.map((resource) => ({
+                ...resource,
+              })),
+            },
+          },
+        },
+      });
+    }
+
+    const updateDate = LocalDate.now(ZoneId.UTC);
+    await tx.announcement.updateMany({
+      data: {
+        status: 'DELETED',
+        updated_by: userId,
+        updated_date: convert(updateDate).toDate(),
+      },
+      where: { announcement_id: { in: ids } },
+    });
+  });
 };

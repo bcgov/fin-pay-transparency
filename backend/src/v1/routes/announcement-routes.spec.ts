@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import { Application } from 'express';
 import request from 'supertest';
 import qs from 'qs';
+import { faker } from '@faker-js/faker';
 
 const mockGetAnnouncements = jest.fn().mockResolvedValue({
   items: [],
@@ -10,11 +11,31 @@ const mockGetAnnouncements = jest.fn().mockResolvedValue({
   limit: 10,
   totalPages: 0,
 });
+const mockPatchAnnouncements = jest.fn();
 jest.mock('../services/announcements-service', () => ({
   getAnnouncements: (...args) => {
-    console.log('mockGetAnnouncements', args);
     return mockGetAnnouncements(...args);
   },
+  patchAnnouncements: (...args) => mockPatchAnnouncements(...args),
+}));
+
+jest.mock('../middlewares/authorization/authenticate-admin', () => ({
+  authenticateAdmin:
+    (...args) =>
+    (req, res, next) => {
+      console.log('mockAuthenticateAdmin');
+      req.user = { admin_user_id: faker.string.uuid(), userInfo: {} };
+      next();
+    },
+}));
+
+jest.mock('../middlewares/authorization/authorize', () => ({
+  authorize:
+    (...args) =>
+    (req, res, next) => {
+      console.log('mockAuthorize');
+      next();
+    },
 }));
 
 describe('announcement-routes', () => {
@@ -76,7 +97,9 @@ describe('announcement-routes', () => {
       });
       describe('when limit is provided', () => {
         it('should return announcements', async () => {
-          const response = await request(app).get('/').query(qs.stringify({ limit: 20 }));
+          const response = await request(app)
+            .get('/')
+            .query(qs.stringify({ limit: 20 }));
           expect(mockGetAnnouncements).toHaveBeenCalledWith(
             expect.objectContaining({ limit: 20 }),
           );
@@ -93,7 +116,9 @@ describe('announcement-routes', () => {
 
       describe('when offset is provided', () => {
         it('should return announcements', async () => {
-          const response = await request(app).get('/').query(qs.stringify({ offset: 10 }));
+          const response = await request(app)
+            .get('/')
+            .query(qs.stringify({ offset: 10 }));
           expect(mockGetAnnouncements).toHaveBeenCalledWith(
             expect.objectContaining({ offset: 10 }),
           );
@@ -113,7 +138,9 @@ describe('announcement-routes', () => {
           it('should return announcements', async () => {
             const response = await request(app)
               .get('/')
-              .query(qs.stringify({ sort: [{ field: 'status', order: 'asc' }] }));
+              .query(
+                qs.stringify({ sort: [{ field: 'status', order: 'asc' }] }),
+              );
             expect(mockGetAnnouncements).toHaveBeenCalledWith(
               expect.objectContaining({
                 sort: [{ field: 'status', order: 'asc' }],
@@ -134,7 +161,9 @@ describe('announcement-routes', () => {
           it('should return 400', async () => {
             const response = await request(app)
               .get('/')
-              .query(qs.stringify({ sort: [{ field: 'invalid', order: 'asc' }] }));
+              .query(
+                qs.stringify({ sort: [{ field: 'invalid', order: 'asc' }] }),
+              );
             expect(response.status).toBe(400);
             expect(response.body).toEqual({ error: expect.any(String) });
           });
@@ -271,6 +300,39 @@ describe('announcement-routes', () => {
         const response = await request(app).get('/');
         expect(response.status).toBe(400);
         expect(response.body.message).toEqual('Invalid request');
+      });
+    });
+  });
+
+  describe('PATCH / - delete announcements', () => {
+    describe('when body is invalid', () => {
+      it('should return 400', async () => {
+        const response = await request(app).patch('/');
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ error: expect.any(String) });
+      });
+    });
+
+    describe('when body is valid', () => {
+      it('should return 201', async () => {
+        const response = await request(app)
+          .patch('/')
+          .send([{ id: faker.string.uuid(), status: 'DELETED' }]);
+        expect(mockPatchAnnouncements).toHaveBeenCalled();
+        expect(response.status).toBe(201);
+        expect(response.body).toEqual({ message: 'Announcement deleted' });
+      });
+    });
+
+    describe('when service throws error', () => {
+      it('should return 400', async () => {
+        mockPatchAnnouncements.mockRejectedValue(new Error('Invalid request'));
+        const response = await request(app)
+          .patch('/')
+          .send([{ id: faker.string.uuid(), status: 'DELETED' }]);
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBeDefined();
       });
     });
   });

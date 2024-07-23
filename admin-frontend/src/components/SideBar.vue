@@ -8,10 +8,11 @@
   >
     <div class="d-flex justify-end mb-6">
       <v-btn
+        id="sidebar-rail-toggle-btn"
+        :aria-label="isExpanded ? 'Collapse menu' : 'Expand menu'"
         :icon="isExpanded ? 'mdi-chevron-left' : 'mdi-chevron-right'"
         variant="text"
         @click.stop="toggleIsExpanded()"
-        id="sidebar-rail-toggle-btn"
       ></v-btn>
     </div>
     <div class="justify-center text-center">
