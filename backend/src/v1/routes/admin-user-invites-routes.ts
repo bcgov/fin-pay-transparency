@@ -51,7 +51,7 @@ router.post(
       if (error instanceof UserInputError) {
         return res.status(400).json({ message: error.message });
       }
-      return res.status(400).json({ error: 'Failed to create user' });
+      return res.status(500).json({ error: 'Failed to create user' });
     }
   },
 );
