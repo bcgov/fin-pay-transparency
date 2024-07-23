@@ -8,230 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model company_history {
-  company_history_id       String                   @id(map: "company_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  company_id               String                   @db.Uuid
-  bceid_business_guid      String                   @db.Uuid
-  company_name             String                   @db.VarChar(255)
-  create_date              DateTime                 @default(now()) @db.Timestamp(6)
-  update_date              DateTime                 @default(now()) @db.Timestamp(6)
-  address_line1            String?                  @db.VarChar(255)
-  address_line2            String?                  @db.VarChar(255)
-  city                     String?                  @db.VarChar(255)
-  province                 String?                  @db.VarChar(255)
-  country                  String?                  @db.VarChar(255)
-  postal_code              String?                  @db.VarChar(255)
-  pay_transparency_company pay_transparency_company @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "company_history_company_id_fk")
-
-  @@index([bceid_business_guid])
-}
-
-model employee_count_range {
-  employee_count_range_id String                    @id(map: "employee_count_range_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  employee_count_range    String                    @db.VarChar(255)
-  create_date             DateTime                  @default(now()) @db.Timestamp(6)
-  update_date             DateTime                  @default(now()) @db.Timestamp(6)
-  effective_date          DateTime                  @default(now()) @db.Timestamp(6)
-  expiry_date             DateTime?                 @db.Timestamp(6)
-  create_user             String                    @db.VarChar(255)
-  update_user             String                    @db.VarChar(255)
-  pay_transparency_report pay_transparency_report[]
-  report_history          report_history[]
-
-  @@index([effective_date, expiry_date])
-}
-
-model flyway_schema_history {
-  installed_rank Int      @id(map: "flyway_schema_history_pk")
-  version        String?  @db.VarChar(50)
-  description    String   @db.VarChar(200)
-  type           String   @db.VarChar(20)
-  script         String   @db.VarChar(1000)
-  checksum       Int?
-  installed_by   String   @db.VarChar(100)
-  installed_on   DateTime @default(now()) @db.Timestamp(6)
-  execution_time Int
-  success        Boolean
-
-  @@index([success], map: "flyway_schema_history_s_idx")
-}
-
-model naics_code {
-  naics_code                                                             String                    @id(map: "naics_code_id_pk") @db.VarChar(5)
-  naics_label                                                            String                    @db.VarChar(255)
-  effective_date                                                         DateTime                  @default(dbgenerated("CURRENT_DATE")) @db.Date
-  expiry_date                                                            DateTime?                 @db.Date
-  create_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
-  update_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
-  create_user                                                            String                    @db.VarChar(255)
-  update_user                                                            String                    @db.VarChar(255)
-  naics_year                                                             String?                   @db.VarChar(255)
-  pay_transparency_report_pay_transparency_report_naics_codeTonaics_code pay_transparency_report[] @relation("pay_transparency_report_naics_codeTonaics_code")
-  report_history_report_history_naics_codeTonaics_code                   report_history[]          @relation("report_history_naics_codeTonaics_code")
-
-  @@index([effective_date, expiry_date])
-}
-
-model pay_transparency_calculated_data {
-  calculated_data_id      String                  @id(map: "calculated_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  report_id               String                  @db.Uuid
-  calculation_code_id     String                  @db.Uuid
-  value                   String?                 @db.VarChar(50)
-  is_suppressed           Boolean
-  create_date             DateTime                @default(now()) @db.Timestamp(6)
-  update_date             DateTime                @default(now()) @db.Timestamp(6)
-  create_user             String                  @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
-  update_user             String                  @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
-  pay_transparency_report pay_transparency_report @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_report_id_fk")
-  calculation_code        calculation_code        @relation(fields: [calculation_code_id], references: [calculation_code_id], onDelete: NoAction, onUpdate: NoAction, map: "calculation_code_id_fk")
-
-  @@unique([report_id, calculation_code_id], map: "pay_transparency_calculated_d_report_id_calculation_code_id_key")
-  @@index([report_id])
-  @@index([report_id, is_suppressed])
-}
-
-model pay_transparency_company {
-  company_id              String                    @id(map: "company_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  bceid_business_guid     String                    @unique(map: "company_bceid_business_guid_uk") @db.Uuid
-  company_name            String                    @db.VarChar(255)
-  create_date             DateTime                  @default(now()) @db.Timestamp(6)
-  update_date             DateTime                  @default(now()) @db.Timestamp(6)
-  address_line1           String?                   @db.VarChar(255)
-  address_line2           String?                   @db.VarChar(255)
-  city                    String?                   @db.VarChar(255)
-  province                String?                   @db.VarChar(255)
-  country                 String?                   @db.VarChar(255)
-  postal_code             String?                   @db.VarChar(255)
-  company_history         company_history[]
-  pay_transparency_report pay_transparency_report[]
-  report_history          report_history[]
-  user_error              user_error[]
-
-  @@index([bceid_business_guid])
-}
-
-model pay_transparency_report {
-  report_id                                                 String                             @id(map: "report_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  company_id                                                String                             @db.Uuid
-  user_id                                                   String                             @db.Uuid
-  user_comment                                              String?                            @db.VarChar(4000)
-  employee_count_range_id                                   String                             @db.Uuid
-  naics_code                                                String                             @db.VarChar(5)
-  report_start_date                                         DateTime                           @default(now()) @db.Date
-  report_end_date                                           DateTime                           @default(now()) @db.Date
-  create_date                                               DateTime                           @default(now()) @db.Timestamp(6)
-  update_date                                               DateTime                           @default(now()) @db.Timestamp(6)
-  create_user                                               String                             @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
-  update_user                                               String                             @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
-  report_status                                             String?                            @default("Draft") @db.VarChar(255)
-  revision                                                  Decimal                            @db.Decimal
-  data_constraints                                          String?                            @db.VarChar(3000)
-  is_unlocked                                               Boolean                            @default(true)
-  reporting_year                                            Decimal                            @db.Decimal
-  report_unlock_date                                        DateTime?                          @db.Timestamp(6)
-  admin_user_id                                             String?                            @db.Uuid
-  admin_modified_date                                       DateTime?                          @db.Timestamp(6)
-  admin_last_access_date                                    DateTime?                          @db.Timestamp(6)
-  pay_transparency_calculated_data                          pay_transparency_calculated_data[]
-  admin_user                                                admin_user?                        @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
-  naics_code_pay_transparency_report_naics_codeTonaics_code naics_code                         @relation("pay_transparency_report_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_naics_code_fk")
-  employee_count_range                                      employee_count_range               @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_employee_count_range_id_fk")
-  pay_transparency_company                                  pay_transparency_company           @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_pt_company_id_fk")
-  pay_transparency_user                                     pay_transparency_user              @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_pt_user_id_fk")
-  report_history                                            report_history[]
-
-  @@unique([company_id, user_id, reporting_year, report_status], map: "pay_transparency_report_uk")
-  @@index([report_id, company_id])
-  @@index([create_date, report_status])
-  @@index([company_id, create_date, reporting_year, report_status], map: "pay_transparency_report_company_id_create_date_report_year_idx")
-  @@index([company_id, reporting_year, report_status], map: "pay_transparency_report_company_id_reporting_year_report_idx")
-  @@index([report_unlock_date, is_unlocked])
-}
-
-model pay_transparency_user {
-  user_id                 String                    @id(map: "user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  bceid_user_guid         String                    @db.Uuid
-  bceid_business_guid     String                    @db.Uuid
-  display_name            String                    @db.VarChar(255)
-  create_date             DateTime                  @default(now()) @db.Timestamp(6)
-  update_date             DateTime                  @default(now()) @db.Timestamp(6)
-  pay_transparency_report pay_transparency_report[]
-  report_history          report_history[]
-  user_error              user_error[]
-
-  @@index([bceid_user_guid, bceid_business_guid])
-}
-
-model report_history {
-  report_history_id                                String                    @id(map: "report_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  report_id                                        String                    @db.Uuid
-  company_id                                       String                    @db.Uuid
-  user_id                                          String                    @db.Uuid
-  employee_count_range_id                          String                    @db.Uuid
-  user_comment                                     String?                   @db.VarChar(4000)
-  report_start_date                                DateTime                  @default(now()) @db.Date
-  report_end_date                                  DateTime                  @default(now()) @db.Date
-  create_date                                      DateTime                  @default(now()) @db.Timestamp(6)
-  update_date                                      DateTime                  @default(now()) @db.Timestamp(6)
-  create_user                                      String                    @db.VarChar(255)
-  update_user                                      String                    @db.VarChar(255)
-  report_status                                    String?                   @default("Draft") @db.VarChar(255)
-  naics_code                                       String                    @db.VarChar(5)
-  data_constraints                                 String?                   @db.VarChar(3000)
-  revision                                         Decimal                   @db.Decimal
-  is_unlocked                                      Boolean                   @default(true)
-  reporting_year                                   Decimal                   @db.Decimal
-  report_unlock_date                               DateTime?                 @db.Timestamp(6)
-  admin_user_id                                    String?                   @db.Uuid
-  admin_modified_date                              DateTime?                 @db.Timestamp(6)
-  admin_last_access_date                           DateTime?                 @db.Timestamp(6)
-  calculated_data_history                          calculated_data_history[]
-  admin_user                                       admin_user?               @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
-  pay_transparency_company                         pay_transparency_company  @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_company_id_fk")
-  employee_count_range                             employee_count_range      @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_employee_count_range_id_fk")
-  naics_code_report_history_naics_codeTonaics_code naics_code                @relation("report_history_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction)
-  pay_transparency_report                          pay_transparency_report   @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_report_id")
-  pay_transparency_user                            pay_transparency_user     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_user_id_fk")
-}
-
-model calculation_code {
-  calculation_code_id              String                             @id(map: "calculation_code_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  calculation_code                 String                             @unique @db.VarChar(255)
-  description                      String?
-  calculated_data_history          calculated_data_history[]
-  pay_transparency_calculated_data pay_transparency_calculated_data[]
-}
-
-model calculated_data_history {
-  calculated_data_history_id String           @id(map: "calculated_data_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  calculated_data_id         String           @db.Uuid
-  report_history_id          String           @db.Uuid
-  report_id                  String           @db.Uuid
-  calculation_code_id        String           @db.Uuid
-  value                      String?          @db.VarChar(50)
-  is_suppressed              Boolean
-  create_date                DateTime         @default(now()) @db.Timestamp(6)
-  update_date                DateTime         @default(now()) @db.Timestamp(6)
-  create_user                String           @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
-  update_user                String           @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
-  calculation_code           calculation_code @relation(fields: [calculation_code_id], references: [calculation_code_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_history_calculation_code_id_fk")
-  report_history             report_history   @relation(fields: [report_history_id], references: [report_history_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_history_report_id_fk")
-
-  @@unique([report_history_id, calculation_code_id])
-}
-
-model user_error {
-  user_error_id            String                   @id(map: "user_error_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id                  String                   @db.Uuid
-  company_id               String                   @db.Uuid
-  error                    String                   @db.VarChar(255)
-  create_date              DateTime                 @default(now()) @db.Timestamp(6)
-  pay_transparency_company pay_transparency_company @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "error_pt_company_id_fk")
-  pay_transparency_user    pay_transparency_user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "error_pt_user_id_fk")
-
-  @@index([create_date])
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model admin_user {
   admin_user_id                                                                      String                          @id(map: "admin_user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -329,8 +105,8 @@ model announcement_history {
   announcement_status                                    announcement_status?            @relation(fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_status_fk")
   announcement_resource_history                          announcement_resource_history[]
 
-  @@index([status])
   @@index([published_on, expires_on], map: "announcement_history_dates_idx")
+  @@index([status])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -397,53 +173,285 @@ model announcement_status {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model announcement_resource_type {
-  code                          String                          @id @db.VarChar(20)
-  description                   String                          @db.VarChar(255)
-  created_date                  DateTime                        @default(now()) @db.Timestamp(6)
-  updated_date                  DateTime                        @default(now()) @db.Timestamp(6)
-  announcement_resource         announcement_resource[]
-  announcement_resource_history announcement_resource_history[]
+model calculated_data_history {
+  calculated_data_history_id String           @id(map: "calculated_data_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  calculated_data_id         String           @db.Uuid
+  report_history_id          String           @db.Uuid
+  report_id                  String           @db.Uuid
+  calculation_code_id        String           @db.Uuid
+  value                      String?          @db.VarChar(50)
+  is_suppressed              Boolean
+  create_date                DateTime         @default(now()) @db.Timestamp(6)
+  update_date                DateTime         @default(now()) @db.Timestamp(6)
+  create_user                String           @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
+  update_user                String           @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
+  calculation_code           calculation_code @relation(fields: [calculation_code_id], references: [calculation_code_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_history_calculation_code_id_fk")
+  report_history             report_history   @relation(fields: [report_history_id], references: [report_history_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_history_report_id_fk")
+
+  @@unique([report_history_id, calculation_code_id])
 }
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model calculation_code {
+  calculation_code_id              String                             @id(map: "calculation_code_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  calculation_code                 String                             @unique @db.VarChar(255)
+  description                      String?
+  calculated_data_history          calculated_data_history[]
+  pay_transparency_calculated_data pay_transparency_calculated_data[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model company_history {
+  company_history_id       String                   @id(map: "company_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id               String                   @db.Uuid
+  bceid_business_guid      String                   @db.Uuid
+  company_name             String                   @db.VarChar(255)
+  create_date              DateTime                 @default(now()) @db.Timestamp(6)
+  update_date              DateTime                 @default(now()) @db.Timestamp(6)
+  address_line1            String?                  @db.VarChar(255)
+  address_line2            String?                  @db.VarChar(255)
+  city                     String?                  @db.VarChar(255)
+  province                 String?                  @db.VarChar(255)
+  country                  String?                  @db.VarChar(255)
+  postal_code              String?                  @db.VarChar(255)
+  pay_transparency_company pay_transparency_company @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "company_history_company_id_fk")
+
+  @@index([bceid_business_guid])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model employee_count_range {
+  employee_count_range_id String                    @id(map: "employee_count_range_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employee_count_range    String                    @db.VarChar(255)
+  create_date             DateTime                  @default(now()) @db.Timestamp(6)
+  update_date             DateTime                  @default(now()) @db.Timestamp(6)
+  effective_date          DateTime                  @default(now()) @db.Timestamp(6)
+  expiry_date             DateTime?                 @db.Timestamp(6)
+  create_user             String                    @db.VarChar(255)
+  update_user             String                    @db.VarChar(255)
+  pay_transparency_report pay_transparency_report[]
+  report_history          report_history[]
+
+  @@index([effective_date, expiry_date])
+}
+
+model flyway_schema_history {
+  installed_rank Int      @id(map: "flyway_schema_history_pk")
+  version        String?  @db.VarChar(50)
+  description    String   @db.VarChar(200)
+  type           String   @db.VarChar(20)
+  script         String   @db.VarChar(1000)
+  checksum       Int?
+  installed_by   String   @db.VarChar(100)
+  installed_on   DateTime @default(now()) @db.Timestamp(6)
+  execution_time Int
+  success        Boolean
+
+  @@index([success], map: "flyway_schema_history_s_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model naics_code {
+  naics_code                                                             String                    @id(map: "naics_code_id_pk") @db.VarChar(5)
+  naics_label                                                            String                    @db.VarChar(255)
+  effective_date                                                         DateTime                  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  expiry_date                                                            DateTime?                 @db.Date
+  create_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
+  update_date                                                            DateTime                  @default(now()) @db.Timestamp(6)
+  create_user                                                            String                    @db.VarChar(255)
+  update_user                                                            String                    @db.VarChar(255)
+  naics_year                                                             String?                   @db.VarChar(255)
+  pay_transparency_report_pay_transparency_report_naics_codeTonaics_code pay_transparency_report[] @relation("pay_transparency_report_naics_codeTonaics_code")
+  report_history_report_history_naics_codeTonaics_code                   report_history[]          @relation("report_history_naics_codeTonaics_code")
+
+  @@index([effective_date, expiry_date])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pay_transparency_calculated_data {
+  calculated_data_id      String                  @id(map: "calculated_data_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  report_id               String                  @db.Uuid
+  calculation_code_id     String                  @db.Uuid
+  value                   String?                 @db.VarChar(50)
+  is_suppressed           Boolean
+  create_date             DateTime                @default(now()) @db.Timestamp(6)
+  update_date             DateTime                @default(now()) @db.Timestamp(6)
+  create_user             String                  @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
+  update_user             String                  @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
+  pay_transparency_report pay_transparency_report @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "calculated_data_report_id_fk")
+  calculation_code        calculation_code        @relation(fields: [calculation_code_id], references: [calculation_code_id], onDelete: NoAction, onUpdate: NoAction, map: "calculation_code_id_fk")
+
+  @@unique([report_id, calculation_code_id], map: "pay_transparency_calculated_d_report_id_calculation_code_id_key")
+  @@index([report_id])
+  @@index([report_id, is_suppressed])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pay_transparency_company {
+  company_id              String                    @id(map: "company_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bceid_business_guid     String                    @unique(map: "company_bceid_business_guid_uk") @db.Uuid
+  company_name            String                    @db.VarChar(255)
+  create_date             DateTime                  @default(now()) @db.Timestamp(6)
+  update_date             DateTime                  @default(now()) @db.Timestamp(6)
+  address_line1           String?                   @db.VarChar(255)
+  address_line2           String?                   @db.VarChar(255)
+  city                    String?                   @db.VarChar(255)
+  province                String?                   @db.VarChar(255)
+  country                 String?                   @db.VarChar(255)
+  postal_code             String?                   @db.VarChar(255)
+  company_history         company_history[]
+  pay_transparency_report pay_transparency_report[]
+  report_history          report_history[]
+  user_error              user_error[]
+
+  @@index([bceid_business_guid])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pay_transparency_report {
+  report_id                                                 String                             @id(map: "report_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id                                                String                             @db.Uuid
+  user_id                                                   String                             @db.Uuid
+  user_comment                                              String?                            @db.VarChar(4000)
+  employee_count_range_id                                   String                             @db.Uuid
+  naics_code                                                String                             @db.VarChar(5)
+  report_start_date                                         DateTime                           @default(now()) @db.Date
+  report_end_date                                           DateTime                           @default(now()) @db.Date
+  create_date                                               DateTime                           @default(now()) @db.Timestamp(6)
+  update_date                                               DateTime                           @default(now()) @db.Timestamp(6)
+  create_user                                               String                             @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
+  update_user                                               String                             @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
+  report_status                                             String?                            @default("Draft") @db.VarChar(255)
+  revision                                                  Decimal                            @db.Decimal
+  data_constraints                                          String?                            @db.VarChar(3000)
+  is_unlocked                                               Boolean                            @default(true)
+  reporting_year                                            Decimal                            @db.Decimal
+  report_unlock_date                                        DateTime?                          @db.Timestamp(6)
+  admin_user_id                                             String?                            @db.Uuid
+  admin_modified_date                                       DateTime?                          @db.Timestamp(6)
+  admin_last_access_date                                    DateTime?                          @db.Timestamp(6)
+  pay_transparency_calculated_data                          pay_transparency_calculated_data[]
+  admin_user                                                admin_user?                        @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
+  naics_code_pay_transparency_report_naics_codeTonaics_code naics_code                         @relation("pay_transparency_report_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction, map: "pay_transparency_report_naics_code_fk")
+  employee_count_range                                      employee_count_range               @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "report_employee_count_range_id_fk")
+  pay_transparency_company                                  pay_transparency_company           @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_pt_company_id_fk")
+  pay_transparency_user                                     pay_transparency_user              @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_pt_user_id_fk")
+  report_history                                            report_history[]
+
+  @@unique([company_id, user_id, reporting_year, report_status], map: "pay_transparency_report_uk")
+  @@index([company_id, create_date, reporting_year, report_status], map: "pay_transparency_report_company_id_create_date_report_year_idx")
+  @@index([company_id, reporting_year, report_status], map: "pay_transparency_report_company_id_reporting_year_report_idx")
+  @@index([create_date, report_status])
+  @@index([report_id, company_id])
+  @@index([report_unlock_date, is_unlocked])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pay_transparency_user {
+  user_id                 String                    @id(map: "user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bceid_user_guid         String                    @db.Uuid
+  bceid_business_guid     String                    @db.Uuid
+  display_name            String                    @db.VarChar(255)
+  create_date             DateTime                  @default(now()) @db.Timestamp(6)
+  update_date             DateTime                  @default(now()) @db.Timestamp(6)
+  pay_transparency_report pay_transparency_report[]
+  report_history          report_history[]
+  user_error              user_error[]
+
+  @@index([bceid_user_guid, bceid_business_guid])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model report_history {
+  report_history_id                                String                    @id(map: "report_history_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  report_id                                        String                    @db.Uuid
+  company_id                                       String                    @db.Uuid
+  user_id                                          String                    @db.Uuid
+  employee_count_range_id                          String                    @db.Uuid
+  user_comment                                     String?                   @db.VarChar(4000)
+  report_start_date                                DateTime                  @default(now()) @db.Date
+  report_end_date                                  DateTime                  @default(now()) @db.Date
+  create_date                                      DateTime                  @default(now()) @db.Timestamp(6)
+  update_date                                      DateTime                  @default(now()) @db.Timestamp(6)
+  create_user                                      String                    @db.VarChar(255)
+  update_user                                      String                    @db.VarChar(255)
+  report_status                                    String?                   @default("Draft") @db.VarChar(255)
+  naics_code                                       String                    @db.VarChar(5)
+  data_constraints                                 String?                   @db.VarChar(3000)
+  revision                                         Decimal                   @db.Decimal
+  is_unlocked                                      Boolean                   @default(true)
+  reporting_year                                   Decimal                   @db.Decimal
+  report_unlock_date                               DateTime?                 @db.Timestamp(6)
+  admin_user_id                                    String?                   @db.Uuid
+  admin_modified_date                              DateTime?                 @db.Timestamp(6)
+  admin_last_access_date                           DateTime?                 @db.Timestamp(6)
+  calculated_data_history                          calculated_data_history[]
+  admin_user                                       admin_user?               @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
+  pay_transparency_company                         pay_transparency_company  @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_company_id_fk")
+  employee_count_range                             employee_count_range      @relation(fields: [employee_count_range_id], references: [employee_count_range_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_employee_count_range_id_fk")
+  naics_code_report_history_naics_codeTonaics_code naics_code                @relation("report_history_naics_codeTonaics_code", fields: [naics_code], references: [naics_code], onDelete: NoAction, onUpdate: NoAction)
+  pay_transparency_report                          pay_transparency_report   @relation(fields: [report_id], references: [report_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_report_id")
+  pay_transparency_user                            pay_transparency_user     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_history_user_id_fk")
+}
+
+model user_error {
+  user_error_id            String                   @id(map: "user_error_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                  String                   @db.Uuid
+  company_id               String                   @db.Uuid
+  error                    String                   @db.VarChar(255)
+  create_date              DateTime                 @default(now()) @db.Timestamp(6)
+  pay_transparency_company pay_transparency_company @relation(fields: [company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction, map: "error_pt_company_id_fk")
+  pay_transparency_user    pay_transparency_user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "error_pt_user_id_fk")
+
+  @@index([create_date])
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 view reports_view {
-  report_id                   String?                @db.Uuid
-  report_change_id            String                 @id @db.Uuid
-  company_id                  String?                @db.Uuid
-  user_id                     String?                @db.Uuid
-  user_comment                String?                @db.VarChar(4000)
-  employee_count_range_id     String?                @db.Uuid
-  naics_code                  String?                @db.VarChar(5)
-  report_start_date           DateTime?              @db.Date
-  report_end_date             DateTime?              @db.Date
-  create_date                 DateTime?              @db.Timestamp(6)
-  update_date                 DateTime?              @db.Timestamp(6)
-  create_user                 String?                @db.VarChar(255)
-  update_user                 String?                @db.VarChar(255)
-  report_status               String?                @db.VarChar(255)
-  revision                    Decimal?               @db.Decimal
-  data_constraints            String?                @db.VarChar(3000)
-  reporting_year              Decimal?               @db.Decimal
-  report_unlock_date          DateTime?              @db.Timestamp(6)
-  naics_code_label            String?                @db.VarChar(255)
-  company_name                String?                @db.VarChar(255)
-  company_bceid_business_guid String?                @db.Uuid
-  company_address_line1       String?                @db.VarChar(255)
-  company_address_line2       String?                @db.VarChar(255)
-  company_city                String?                @db.VarChar(255)
-  company_province            String?                @db.VarChar(255)
-  company_country             String?                @db.VarChar(255)
-  company_postal_code         String?                @db.VarChar(255)
-  employee_count_range        String?                @db.VarChar(255)
-  calculated_data             calculated_data_view[]
+  report_id                   String?   @db.Uuid
+  report_change_id            String?   @db.Uuid
+  company_id                  String?   @db.Uuid
+  user_id                     String?   @db.Uuid
+  user_comment                String?   @db.VarChar(4000)
+  employee_count_range_id     String?   @db.Uuid
+  naics_code                  String?   @db.VarChar(5)
+  report_start_date           DateTime? @db.Date
+  report_end_date             DateTime? @db.Date
+  create_date                 DateTime? @db.Timestamp(6)
+  update_date                 DateTime? @db.Timestamp(6)
+  create_user                 String?   @db.VarChar(255)
+  update_user                 String?   @db.VarChar(255)
+  report_status               String?   @db.VarChar(255)
+  revision                    Decimal?  @db.Decimal
+  data_constraints            String?   @db.VarChar(3000)
+  reporting_year              Decimal?  @db.Decimal
+  report_unlock_date          DateTime? @db.Timestamp(6)
+  naics_code_label            String?   @db.VarChar(255)
+  company_name                String?   @db.VarChar(255)
+  company_bceid_business_guid String?   @db.Uuid
+  company_address_line1       String?   @db.VarChar(255)
+  company_address_line2       String?   @db.VarChar(255)
+  company_city                String?   @db.VarChar(255)
+  company_province            String?   @db.VarChar(255)
+  company_country             String?   @db.VarChar(255)
+  company_postal_code         String?   @db.VarChar(255)
+  employee_count_range        String?   @db.VarChar(255)
+
+  @@ignore
 }
 
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 view calculated_data_view {
-  calculated_data_id  String       @id @db.Uuid
-  report_id           String       @db.Uuid
-  calculation_code_id String?      @db.Uuid
-  value               String?      @db.VarChar(50)
+  calculated_data_id  String?  @db.Uuid
+  report_id           String?  @db.Uuid
+  calculation_code_id String?  @db.Uuid
+  value               String?  @db.VarChar(50)
   is_suppressed       Boolean?
-  calculation_code    String?      @db.VarChar(255)
-  report              reports_view @relation(fields: [report_id], references: [report_change_id])
+  calculation_code    String?  @db.VarChar(255)
+
+  @@ignore
 }
