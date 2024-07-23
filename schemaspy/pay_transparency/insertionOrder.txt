@@ -9,12 +9,12 @@ announcement_status
 pay_transparency_report
 announcement
 pay_transparency_calculated_data
+announcement_history
 announcement_resource
 report_history
 admin_user_history
 company_history
 user_error
-announcement_history
 calculated_data_history
 announcement_resource_history
 admin_user_onboarding

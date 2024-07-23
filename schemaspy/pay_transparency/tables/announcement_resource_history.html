@@ -316,6 +316,28 @@
                                     </td>
                                     <td><p>Type of the resource (Link, Attachment)</p></td>
                                 </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="announcement_history_id">announcement_history_id</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="announcement_resource_history.announcement_history_id references announcement_history.announcement_history_id via announcement_resource_history_announcement_history_id_fkey"><a href='announcement_history.html'>announcement_history</a><span class='relatedKey'>.announcement_history_id</span></td>
+                                                <td class="constraint detail">announcement_resource_history_announcement_history_id_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -384,50 +406,52 @@
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
 <area shape="rect" id="node1" href="announcement.html" target="_top" title="announcement" alt="" coords="321,5,522,269">
-<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="5,265,217,412">
-<area shape="rect" id="node3" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="625,107,903,341">
-<area shape="rect" id="node4" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="261,395,581,512">
-<area shape="rect" id="node5" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="947,111,1413,473">
+<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="5,301,217,448">
+<area shape="rect" id="node3" href="announcement_history.html" target="_top" title="announcement_history" alt="" coords="289,565,553,859">
+<area shape="rect" id="node4" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="625,109,903,344">
+<area shape="rect" id="node5" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="261,395,581,512">
+<area shape="rect" id="node6" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="947,116,1413,508">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/announcement_resource_history.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="admin_user_history.html" target="_top" title="admin_user_history" alt="" coords="349,587,584,675">
-<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="48,189,220,277">
-<area shape="rect" id="node3" href="announcement.html" target="_top" title="announcement" alt="" coords="366,111,567,199">
-<area shape="rect" id="node4" href="announcement_status.html" target="_top" title="announcement_status" alt="" coords="5,45,263,133">
-<area shape="rect" id="node5" href="announcement_history.html" target="_top" title="announcement_history" alt="" coords="335,5,599,93">
-<area shape="rect" id="node6" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="671,165,948,253">
-<area shape="rect" id="node7" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="307,304,627,392">
-<area shape="rect" id="node8" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="992,32,1459,395">
-<area shape="rect" id="node9" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="327,481,606,569">
-<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="713,463,906,551">
+<area shape="rect" id="node1" href="admin_user_history.html" target="_top" title="admin_user_history" alt="" coords="349,5,584,93">
+<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="48,304,220,392">
+<area shape="rect" id="node3" href="announcement.html" target="_top" title="announcement" alt="" coords="366,304,567,392">
+<area shape="rect" id="node4" href="announcement_status.html" target="_top" title="announcement_status" alt="" coords="5,497,263,585">
+<area shape="rect" id="node5" href="announcement_history.html" target="_top" title="announcement_history" alt="" coords="335,587,599,675">
+<area shape="rect" id="node6" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="671,269,948,357">
+<area shape="rect" id="node7" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="307,409,627,497">
+<area shape="rect" id="node8" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="992,273,1459,665">
+<area shape="rect" id="node9" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="327,111,606,199">
+<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="713,137,906,225">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/announcement_resource_history.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="announcement.html" target="_top" title="announcement" alt="" coords="321,5,522,269">
-<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="5,265,217,412">
-<area shape="rect" id="node3" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="625,107,903,341">
-<area shape="rect" id="node4" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="261,395,581,512">
-<area shape="rect" id="node5" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="947,111,1413,473">
+<area shape="rect" id="node1" href="announcement.html" target="_top" title="announcement" alt="" coords="321,109,522,373">
+<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="5,326,217,473">
+<area shape="rect" id="node3" href="announcement_history.html" target="_top" title="announcement_history" alt="" coords="632,597,896,890">
+<area shape="rect" id="node4" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="625,80,903,314">
+<area shape="rect" id="node5" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="261,390,581,508">
+<area shape="rect" id="node6" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="947,254,1413,646">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/announcement_resource_history.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="admin_user_history.html" target="_top" title="admin_user_history" alt="" coords="349,539,584,627">
-<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="48,177,220,265">
-<area shape="rect" id="node3" href="announcement.html" target="_top" title="announcement" alt="" coords="366,47,567,135">
-<area shape="rect" id="node4" href="announcement_status.html" target="_top" title="announcement_status" alt="" coords="5,9,263,97">
-<area shape="rect" id="node5" href="announcement_history.html" target="_top" title="announcement_history" alt="" coords="677,45,941,133">
-<area shape="rect" id="node6" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="671,151,948,239">
-<area shape="rect" id="node7" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="307,328,627,416">
-<area shape="rect" id="node8" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="992,15,1459,377">
-<area shape="rect" id="node9" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="327,433,606,521">
-<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="713,520,906,608">
+<area shape="rect" id="node1" href="admin_user_history.html" target="_top" title="admin_user_history" alt="" coords="349,211,584,299">
+<area shape="rect" id="node2" href="admin_user.html" target="_top" title="admin_user" alt="" coords="48,422,220,510">
+<area shape="rect" id="node3" href="announcement.html" target="_top" title="announcement" alt="" coords="366,422,567,510">
+<area shape="rect" id="node4" href="announcement_status.html" target="_top" title="announcement_status" alt="" coords="5,584,263,672">
+<area shape="rect" id="node5" href="announcement_history.html" target="_top" title="announcement_history" alt="" coords="677,635,941,723">
+<area shape="rect" id="node6" href="announcement_resource.html" target="_top" title="announcement_resource" alt="" coords="671,316,948,404">
+<area shape="rect" id="node7" href="announcement_resource_type.html" target="_top" title="announcement_resource_type" alt="" coords="307,316,627,404">
+<area shape="rect" id="node8" href="announcement_resource_history.html" target="_top" title="announcement_resource_history" alt="" coords="992,290,1459,682">
+<area shape="rect" id="node9" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="327,54,606,142">
+<area shape="rect" id="node10" href="report_history.html" target="_top" title="report_history" alt="" coords="713,18,906,106">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/announcement_resource_history.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

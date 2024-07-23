@@ -2,12 +2,12 @@ flyway_schema_history
 admin_user_onboarding
 announcement_resource_history
 calculated_data_history
-announcement_history
 user_error
 company_history
 admin_user_history
 report_history
 announcement_resource
+announcement_history
 pay_transparency_calculated_data
 announcement
 pay_transparency_report
