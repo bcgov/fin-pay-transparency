@@ -118,3 +118,16 @@ export const patchAnnouncements = async (
     });
   });
 };
+
+/**
+ * Create announcement
+ * @param data - announcement data
+ */
+export const createAnnouncement = async (
+  data: Prisma.announcementCreateInput,
+  currentUserId: string,
+) => {
+  return prisma.announcement.create({ 
+    data: { ...data, created_by: currentUserId, updated_by: currentUserId } 
+  });
+};
