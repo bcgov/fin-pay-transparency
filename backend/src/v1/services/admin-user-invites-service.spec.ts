@@ -1,21 +1,23 @@
+import { faker } from '@faker-js/faker';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
 } from '../../constants/admin';
+import { UserInputError } from '../types/errors';
 import {
   createInvite,
   deleteInvite,
   getPendingInvites,
   resendInvite,
 } from './admin-user-invites-service';
-import { faker } from '@faker-js/faker';
 
 const mockCreate = jest.fn();
 const mockDelete = jest.fn();
 const mockFindMany = jest.fn();
-const mockFindFirst = jest.fn();
+const mockOnboardingFindFirst = jest.fn();
 const mockUpdate = jest.fn();
 const mockFindUniqueOrThrow = jest.fn();
+const mockAdminUserFindFirst = jest.fn();
 jest.mock('../prisma/prisma-client', () => ({
   __esModule: true,
   default: {
@@ -24,8 +26,11 @@ jest.mock('../prisma/prisma-client', () => ({
       delete: (...args) => mockDelete(...args),
       create: (...args) => mockCreate(...args),
       update: (...args) => mockUpdate(...args),
-      findFirst: (...args) => mockFindFirst(...args),
+      findFirst: (...args) => mockOnboardingFindFirst(...args),
       findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
+    },
+    admin_user: {
+      findFirst: (...args) => mockAdminUserFindFirst(...args),
     },
   },
 }));
@@ -75,7 +80,7 @@ describe('admin-user-invite-service', () => {
     });
     describe('when invitation exists', () => {
       it('should send a update invitation and send email', async () => {
-        mockFindFirst.mockResolvedValue({});
+        mockOnboardingFindFirst.mockResolvedValue({});
         await createInvite(
           faker.internet.email(),
           PTRT_ADMIN_ROLE_NAME,
@@ -84,6 +89,21 @@ describe('admin-user-invite-service', () => {
         );
         expect(mockUpdate).toHaveBeenCalledTimes(1);
         expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
+      });
+    });
+    describe('when inviting a user that already exists in the system', () => {
+      it('should throw a UserInputError', async () => {
+        mockAdminUserFindFirst.mockResolvedValue({});
+        await expect(
+          createInvite(
+            faker.internet.email(),
+            PTRT_ADMIN_ROLE_NAME,
+            faker.internet.userName(),
+            faker.internet.userName(),
+          ),
+        ).rejects.toThrow(UserInputError);
+        expect(mockUpdate).toHaveBeenCalledTimes(0);
+        expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(0);
       });
     });
   });

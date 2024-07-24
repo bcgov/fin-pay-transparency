@@ -1,8 +1,9 @@
 import { faker } from '@faker-js/faker';
-import { adminAuth } from './admin-auth-service';
+import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
 import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants';
-import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
 import prisma from '../prisma/prisma-client';
+import { adminAuth, IUserDetails } from './admin-auth-service';
+import { ROLE_ADMIN_USER } from './sso-service';
 
 const mockGetSessionUser = jest.fn();
 jest.mock('./utils-service', () => ({
@@ -243,6 +244,26 @@ describe('admin-auth-service', () => {
           expect(mockAdminUserUpdate).toHaveBeenCalled();
           expect(mockAdminUserHistoryCreate).toHaveBeenCalled();
         });
+      });
+    });
+  });
+
+  describe('storeUserInfoWithHistory', () => {
+    describe('when there is no current record of the user', () => {
+      it('adds the user', async () => {
+        const userDetails: IUserDetails = {
+          idirUserGuid: faker.string.uuid(),
+          displayName: 'Mock user',
+          preferredUsername: faker.internet.userName(),
+          email: faker.internet.email(),
+          roles: [ROLE_ADMIN_USER],
+        };
+        mockAdminUserFindFirst.mockResolvedValue(null);
+        await adminAuth.storeUserInfoWithHistory(userDetails);
+        expect(mockAdminUserFindFirst).toHaveBeenCalledTimes(1);
+        expect(mockAdminUserCreate).toHaveBeenCalledTimes(1);
+        expect(mockAdminUserUpdate).toHaveBeenCalledTimes(0);
+        expect(mockAdminUserHistoryCreate).toHaveBeenCalledTimes(0);
       });
     });
   });
