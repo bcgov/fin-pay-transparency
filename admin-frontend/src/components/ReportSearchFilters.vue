@@ -53,8 +53,10 @@
           range
           format="yyyy-MM-dd"
           :max-date="new Date()"
-          :multi-calendars="{ static: false }"
           :enable-time-picker="false"
+          arrow-navigation
+          auto-apply
+          prevent-min-max-navigation
         />
       </v-col>
 
