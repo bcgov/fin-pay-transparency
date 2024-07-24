@@ -1,6 +1,5 @@
-import { admin_user_onboarding } from '@prisma/client';
-import prisma from '../prisma/prisma-client';
 import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
+import { admin_user_onboarding } from '@prisma/client';
 import { config } from '../../config';
 import {
   PTRT_ADMIN_ROLE_NAME,
@@ -8,7 +7,8 @@ import {
 } from '../../constants/admin';
 import emailService from '../../external/services/ches';
 import { EMAIL_TEMPLATES } from '../email-templates';
-
+import prisma from '../prisma/prisma-client';
+import { UserInputError } from '../types/errors';
 /**
  * Create a new user invite and send email to user
  * @param email
@@ -22,6 +22,17 @@ const createInvite = async (
   firstname: string,
   createdBy: string,
 ) => {
+  const existingActiveUser = await prisma.admin_user.findFirst({
+    where: {
+      email: email,
+      is_active: true,
+    },
+  });
+  if (existingActiveUser) {
+    throw new UserInputError(
+      `There is already a user associated with email address '${email}'.`,
+    );
+  }
   const pendingUserRequest = await prisma.admin_user_onboarding.findFirst({
     where: {
       email: email,
@@ -136,4 +147,4 @@ const deleteInvite = async (id: string): Promise<admin_user_onboarding> => {
   return deletedInvite;
 };
 
-export { getPendingInvites, deleteInvite, resendInvite, createInvite };
+export { createInvite, deleteInvite, getPendingInvites, resendInvite };

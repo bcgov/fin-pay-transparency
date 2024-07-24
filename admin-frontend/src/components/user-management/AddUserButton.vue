@@ -12,7 +12,7 @@
       </template>
 
       <v-card v-if="open" role="presentation" aria-label="Add New User">
-        <template v-slot:title >
+        <template v-slot:title>
           <span class="card-title">Add New User</span>
         </template>
         <v-divider></v-divider>
@@ -86,22 +86,17 @@
         <p>Name: {{ name }}</p>
         <p>Role: {{ RoleLabels[role] }}</p>
         <p class="mt-2">
-          Ensure that the user details are correct before proceeding. Do you want
-          to add this user?
+          Ensure that the user details are correct before proceeding. Do you
+          want to add this user?
         </p>
       </template>
     </ConfirmDialog>
   </v-form>
-
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import {
-  RoleLabels,
-  RoleOptions,
-  USER_ROLE_NAME,
-} from '../../constants';
+import { RoleLabels, RoleOptions, USER_ROLE_NAME } from '../../constants';
 import { useForm } from 'vee-validate';
 import ConfirmDialog from '../util/ConfirmationDialog.vue';
 import { useInvitesStore } from '../../store/modules/userInvitesStore';
@@ -188,9 +183,18 @@ const submit = async () => {
     NotificationService.pushNotificationSuccess(
       'User successfully onboarded. An email has been sent for them to activate their account for the application. Once they activate their account the user will be displayed for user management',
     );
-  } catch (error) {
+  } catch (error: any) {
+    // Assume that any AxiosError with status == 400 and an included error
+    // message has its message written in a user-friendly format that we
+    // can display directly. If the above conditions aren't met, show a
+    // generic error message.
+    const errorMessage =
+      error?.cause?.response.status == 400 &&
+      error?.cause?.response?.data?.message
+        ? error?.cause?.response?.data?.message
+        : 'Failed to add user';
     open.value = true;
-    NotificationService.pushNotificationError('Failed to add user');
+    NotificationService.pushNotificationError(errorMessage);
   }
 };
 </script>

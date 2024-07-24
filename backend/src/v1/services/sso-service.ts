@@ -1,18 +1,18 @@
+import { admin_user, Prisma, PrismaClient } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 import axios, { AxiosInstance } from 'axios';
-import { config } from '../../config';
 import { difference } from 'lodash';
 import qs from 'qs';
+import { config } from '../../config';
 import {
   EFFECTIVE_ROLES,
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
 } from '../../constants/admin';
-import { RoleType } from '../types/users';
-import prisma from '../prisma/prisma-client';
 import { logger } from '../../logger';
-import { Prisma, PrismaClient, admin_user } from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
-import { adminAuth } from '../services/admin-auth-service';
+import prisma from '../prisma/prisma-client';
+import { adminAuth, IUserDetails } from '../services/admin-auth-service';
+import { RoleType } from '../types/users';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
@@ -50,11 +50,14 @@ type SsoUser = {
   displayName: string;
   idirUserGuid: string;
   preferredUserName: string;
+  email: string;
   roles: string[];
   userName: string;
 };
 
-const ROLE_NAMES = ['PTRT-USER', 'PTRT-ADMIN'];
+export const ROLE_ADMIN_USER = 'PTRT-USER';
+export const ROLE_ADMIN_MANAGER = 'PTRT-ADMIN';
+const ROLE_NAMES = [ROLE_ADMIN_USER, ROLE_ADMIN_MANAGER];
 
 export class SSO {
   constructor(private readonly client: AxiosInstance) {}
@@ -102,6 +105,7 @@ export class SSO {
             idirUserGuid: user.attributes.idir_user_guid[0],
             userName: user.attributes.idir_username[0],
             preferredUserName: user.username,
+            email: user.email,
             displayName: user.attributes.display_name[0],
             roles: [roleName],
           };
@@ -129,11 +133,16 @@ export class SSO {
         (localUser) => localUser.preferred_username == prefUser,
       );
 
+      const userDetails: IUserDetails = {
+        idirUserGuid: ssoUsers[prefUser].idirUserGuid,
+        displayName: ssoUsers[prefUser].displayName,
+        preferredUsername: ssoUsers[prefUser].preferredUserName,
+        email: ssoUsers[prefUser].email,
+        roles: ssoUsers[prefUser].roles,
+      };
+
       const updated = await adminAuth.storeUserInfoWithHistory(
-        ssoUsers[prefUser].idirUserGuid,
-        ssoUsers[prefUser].displayName,
-        ssoUsers[prefUser].preferredUserName,
-        ssoUsers[prefUser].roles,
+        userDetails,
         undefined,
         match,
         false,
@@ -343,6 +352,7 @@ export class SSO {
         assigned_roles: user.assigned_roles,
         is_active: user.is_active,
         preferred_username: user.preferred_username,
+        email: user.email,
       },
     });
   }
