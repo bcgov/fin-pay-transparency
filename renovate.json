@@ -29,7 +29,7 @@
     {
       "description": "One week stability period for npm packages",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "5 days"
     },
     {
       "matchManagers": ["github-actions"],
@@ -51,16 +51,12 @@
     {
       "description": "JS - puppeteer",
       "groupName": "puppeteer",
-      "matchPackagePatterns": ["puppeteer", "^@puppeteer\\/"]
+      "matchPackagePatterns": ["puppeteer"]
     }
   ],
   "lockFileMaintenance": { "enabled": true },
   "autodiscover": true,
   "autodiscoverFilter": "bcgov/fin-pay-transparency",
-  "rebaseWhen": "behind-base-branch",
-  "schedule": [
-    "after 10pm every weekday",
-    "before 5am every weekday",
-    "every weekend"
-  ]
+  "rebaseWhen": "behind-base-branch"
+
 }
