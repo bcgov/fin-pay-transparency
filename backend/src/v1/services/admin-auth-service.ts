@@ -292,19 +292,7 @@ class AdminAuth extends AuthBase {
           },
         });
         await tx.admin_user_history.create({
-          data: {
-            admin_user_id: existing_admin_user.admin_user_id,
-            display_name: existing_admin_user.display_name,
-            idir_user_guid: existing_admin_user.idir_user_guid,
-            create_user: existing_admin_user.create_user,
-            update_user: existing_admin_user.update_user,
-            assigned_roles: existing_admin_user.assigned_roles,
-            is_active: existing_admin_user.is_active,
-            preferred_username: existing_admin_user.preferred_username,
-            email: existing_admin_user.email,
-            create_date: existing_admin_user.create_date,
-            update_date: existing_admin_user.update_date,
-          },
+          data: existing_admin_user,
         });
         modified = true;
       } else if (existing_admin_user && isLogin) {

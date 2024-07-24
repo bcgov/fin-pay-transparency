@@ -35,6 +35,9 @@ const mockPrisma = {
 jest.mock('../prisma/prisma-client', () => ({
   admin_user: {
     findMany: (...args) => mockFindMany(...args),
+    findUniqueOrThrow: (...args) => {
+      return mockFindUniqueOrThrow(...args);
+    },
   },
   $transaction: jest.fn().mockImplementation((fn) => fn(mockPrisma)),
 }));
@@ -350,7 +353,9 @@ describe('sso-service', () => {
         mockFindUniqueOrThrow.mockImplementation(() => {
           throw new Error('User not found');
         });
-        await expect(client.deleteUser(faker.string.uuid())).rejects.toThrow();
+        await expect(
+          client.deleteUser(faker.string.uuid(), faker.string.uuid()),
+        ).rejects.toThrow();
       });
     });
 
@@ -363,7 +368,9 @@ describe('sso-service', () => {
             assigned_roles: [],
           });
           const userId = faker.string.uuid();
-          await expect(client.deleteUser(userId)).rejects.toThrow(
+          await expect(
+            client.deleteUser(userId, faker.string.uuid()),
+          ).rejects.toThrow(
             `User not found with id: ${userId}. User name is missing.`,
           );
         });
@@ -372,6 +379,7 @@ describe('sso-service', () => {
       it('should delete user', async () => {
         mockUpdate.mockClear();
         const userId = faker.string.uuid();
+        const modifiedByUserId = faker.string.uuid();
         const user = {
           admin_user_id: userId,
           idirUserGuid: faker.string.uuid(),
@@ -380,7 +388,7 @@ describe('sso-service', () => {
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
         };
         mockFindUniqueOrThrow.mockResolvedValue(user);
-        await client.deleteUser(userId);
+        await client.deleteUser(userId, modifiedByUserId);
         expect(mockAxiosDelete).toHaveBeenCalledTimes(2);
         expect(mockAxiosDelete).toHaveBeenCalledWith(
           `/users/${user.preferred_username}/roles/PTRT-ADMIN`,
@@ -390,7 +398,10 @@ describe('sso-service', () => {
         );
         expect(mockUpdate).toHaveBeenCalledWith({
           where: { admin_user_id: userId },
-          data: { is_active: false },
+          data: expect.objectContaining({
+            is_active: false,
+            update_user: modifiedByUserId,
+          }),
         });
         expect(mockCreateHistory).toHaveBeenCalledTimes(1);
       });

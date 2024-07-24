@@ -13,6 +13,7 @@ import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { adminAuth, IUserDetails } from '../services/admin-auth-service';
 import { RoleType } from '../types/users';
+import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
@@ -157,16 +158,10 @@ export class SSO {
       Object.keys(ssoUsers),
     );
     for (const prefUser of deletedUsers) {
-      const user = localUsers.find(
+      const localUser = localUsers.find(
         (localUser) => localUser.preferred_username == prefUser,
       );
-      await prisma.$transaction(async (tx) => {
-        await tx.admin_user.update({
-          where: { admin_user_id: user.admin_user_id },
-          data: { is_active: false },
-        });
-        await this.recordHistory(tx, user);
-      });
+      await this.setUserInactiveInDatabase(localUser, 'Keycloak');
     }
 
     // need new admin_user_id from database
@@ -309,51 +304,53 @@ export class SSO {
 
   /**
    * Delete the user role in keycloak and deactivate the user in the database
-   * @param userId
+   * @param userId - the user to delete
+   * @param modifiedByUserId - the user who modified this record
    */
-  async deleteUser(userId: string) {
-    await prisma.$transaction(async (tx) => {
-      const localUser = await tx.admin_user.findUniqueOrThrow({
-        where: { admin_user_id: userId },
-      });
-
-      if (!localUser.preferred_username) {
-        throw new Error(
-          `User not found with id: ${userId}. User name is missing.`,
-        );
-      }
-
-      const roles = localUser.assigned_roles.split(',') as RoleType[];
-      await Promise.all(
-        roles.map((role) =>
-          this.removeRoleFromUser(localUser.preferred_username, role),
-        ),
-      );
-      await tx.admin_user.update({
-        where: { admin_user_id: userId },
-        data: { is_active: false },
-      });
-      await this.recordHistory(tx, localUser);
+  async deleteUser(userId: string, modifiedByUserId: string) {
+    const localUser = await prisma.admin_user.findUniqueOrThrow({
+      where: { admin_user_id: userId },
     });
+
+    if (!localUser.preferred_username) {
+      throw new Error(
+        `User not found with id: ${userId}. User name is missing.`,
+      );
+    }
+
+    const roles = localUser.assigned_roles.split(',') as RoleType[];
+    await Promise.all(
+      roles.map((role) =>
+        this.removeRoleFromUser(localUser.preferred_username, role),
+      ),
+    );
+    await this.setUserInactiveInDatabase(localUser, modifiedByUserId);
   }
 
   private async removeRoleFromUser(userName: string, roleName: RoleType) {
     await this.client.delete(`/users/${userName}/roles/${roleName}`);
   }
 
+  private async setUserInactiveInDatabase(
+    localUser: admin_user,
+    modifiedByUserId: string,
+  ) {
+    await prisma.$transaction(async (tx) => {
+      await tx.admin_user.update({
+        where: { admin_user_id: localUser.admin_user_id },
+        data: {
+          is_active: false,
+          update_date: convert(ZonedDateTime.now(ZoneId.UTC)).toDate(),
+          update_user: modifiedByUserId,
+        },
+      });
+      await this.recordHistory(tx, localUser);
+    });
+  }
+
   private async recordHistory(tx: PrismaTransactionalClient, user: admin_user) {
     await tx.admin_user_history.create({
-      data: {
-        admin_user_id: user.admin_user_id,
-        display_name: user.display_name,
-        idir_user_guid: user.idir_user_guid,
-        create_user: user.create_user,
-        update_user: user.update_user,
-        assigned_roles: user.assigned_roles,
-        is_active: user.is_active,
-        preferred_username: user.preferred_username,
-        email: user.email,
-      },
+      data: user,
     });
   }
 }
