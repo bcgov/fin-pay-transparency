@@ -8,6 +8,11 @@
     "group:linters",
     "group:monorepos",
     "group:vueMonorepo",
+    "group:prismaMonorepo",
+    "group:nodeJs",
+    "group:jestMonorepo",
+    "group:playwrightMonorepo",
+    "group:lodashMonorepo",
     "group:recommended",
     ":combinePatchMinorReleases",
     ":enableVulnerabilityAlerts",
@@ -42,6 +47,11 @@
       "description": "JS - group linters",
       "groupName": "linters",
       "matchPackagePatterns": ["eslint", "^@prettier\\/", "^prettier-plugin-"]
+    },
+    {
+      "description": "JS - puppeteer",
+      "groupName": "puppeteer",
+      "matchPackagePatterns": ["puppeteer", "^@puppeteer\\/"]
     }
   ],
   "lockFileMaintenance": { "enabled": true },
