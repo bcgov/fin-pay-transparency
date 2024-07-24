@@ -235,7 +235,7 @@ model user_error {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model admin_user {
   admin_user_id                                                                      String                          @id(map: "admin_user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  idir_user_guid                                                                     String                          @unique(map: "admin_user_guid_unique") @db.Uuid
+  idir_user_guid                                                                     String                          @unique(map: "admin_user_idir_user_guid_uk") @db.Uuid
   display_name                                                                       String                          @db.VarChar(255)
   create_date                                                                        DateTime                        @default(now()) @db.Timestamp(6)
   create_user                                                                        String                          @db.VarChar(255)
@@ -245,6 +245,7 @@ model admin_user {
   assigned_roles                                                                     String                          @db.VarChar(255)
   preferred_username                                                                 String                          @default("") @db.VarChar(255)
   last_login                                                                         DateTime                        @default(now()) @db.Timestamp(6)
+  email                                                                              String                          @default("") @db.VarChar(255)
   admin_user_history                                                                 admin_user_history[]
   announcement_announcement_created_byToadmin_user                                   announcement[]                  @relation("announcement_created_byToadmin_user")
   announcement_announcement_updated_byToadmin_user                                   announcement[]                  @relation("announcement_updated_byToadmin_user")
@@ -272,6 +273,7 @@ model admin_user_history {
   assigned_roles        String     @db.VarChar(255)
   preferred_username    String     @default("") @db.VarChar(255)
   last_login            DateTime   @default(now()) @db.Timestamp(6)
+  email                 String     @default("") @db.VarChar(255)
   admin_user            admin_user @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
 }
 
