@@ -30,7 +30,7 @@ vi.mock('../../../services/notificationService', () => ({
 global.ResizeObserver = require('resize-observer-polyfill');
 const vuetify = createVuetify({ components, directives });
 const pinia = createPinia();
-
+setActivePinia(pinia);
 const wrappedRender = async () => {
   return render(PendingAccess, {
     global: {
@@ -45,7 +45,7 @@ describe('PendingAccess', () => {
   let store: ReturnType<typeof useInvitesStore>;
   beforeEach(() => {
     vi.clearAllMocks();
-    setActivePinia(createPinia());
+    // setActivePinia(createPinia());
     store = useInvitesStore();
   });
 
