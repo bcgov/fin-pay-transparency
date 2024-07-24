@@ -45,7 +45,6 @@ describe('PendingAccess', () => {
   let store: ReturnType<typeof useInvitesStore>;
   beforeEach(() => {
     vi.clearAllMocks();
-    // setActivePinia(createPinia());
     store = useInvitesStore();
   });
 
