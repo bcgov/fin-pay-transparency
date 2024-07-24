@@ -235,7 +235,7 @@ model user_error {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model admin_user {
   admin_user_id                                                                      String                          @id(map: "admin_user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  idir_user_guid                                                                     String                          @unique(map: "admin_user_idir_user_guid_uk") @db.Uuid
+  idir_user_guid                                                                     String                          @unique(map: "admin_user_guid_unique") @db.Uuid
   display_name                                                                       String                          @db.VarChar(255)
   create_date                                                                        DateTime                        @default(now()) @db.Timestamp(6)
   create_user                                                                        String                          @db.VarChar(255)
