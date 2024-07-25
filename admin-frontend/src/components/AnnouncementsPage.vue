@@ -1,9 +1,15 @@
 <template>
+  <v-row dense class="mt-0 w-100 mb-4">
+    <v-col class="py-0">
+      <AnnouncementSearchFilters />
+    </v-col>
+  </v-row>
+
   <div class="search-results w-100">
     <v-row class="mt-0 w-100" no-gutters>
       <v-col sm="8" md="8" lg="6" xl="4" class="d-flex align-center">
         <h4 v-if="searchResults?.length">
-          Displaying {{ searchResults.length }} announcements<span
+          Displaying {{ searchResults.length }} announcement<span
             v-if="searchResults.length != 1"
             >s</span
           >
@@ -78,6 +84,7 @@ export default {
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import AnnouncementSearchFilters from './AnnouncementSearchFilters.vue';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
 import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';

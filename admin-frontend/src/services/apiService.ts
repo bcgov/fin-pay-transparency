@@ -240,8 +240,8 @@ export default {
       const params = {
         offset: offset,
         limit: limit,
-        filter: filter, //JSON.stringify(filter),
-        sort: sort, // JSON.stringify(sort),
+        filter: filter,
+        sort: sort,
       };
       const resp = await apiAxios.get<IAnnouncementSearchResult>(
         ApiRoutes.ANNOUNCEMENTS,

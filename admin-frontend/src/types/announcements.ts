@@ -38,6 +38,13 @@ export type AnnouncementStatusType =
   | 'EXPIRED'
   | 'DELETED';
 
+export enum AnnouncementStatus {
+  Published = 'PUBLISHED',
+  Draft = 'DRAFT',
+  Expired = 'EXPIRED',
+  Deleted = 'DELETED',
+}
+
 export type StatusFilter = {
   key: string;
   operation: 'in' | 'notin';
