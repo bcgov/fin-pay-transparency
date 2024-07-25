@@ -3,6 +3,12 @@ import { z } from 'zod';
 type PublishedOnField = 'published_on';
 type ExpiresOnField = 'expires_on';
 
+export type TitleFilter = {
+  key: 'title';
+  operation: 'like';
+  value: string;
+};
+
 export type DateFilter<T> = {
   key: T;
   operation: 'between';
@@ -16,12 +22,13 @@ export type AnnouncementStatusType =
   | 'DELETED';
 
 export type StatusFilter = {
-  key: string;
+  key: 'status';
   operation: 'in' | 'notin';
   value: AnnouncementStatusType[];
 };
 
 export type AnnouncementFilterType = (
+  | TitleFilter
   | DateFilter<PublishedOnField>
   | DateFilter<ExpiresOnField>
   | StatusFilter
@@ -32,12 +39,15 @@ export type AnnouncementSortType = {
   order: 'asc' | 'desc';
 }[];
 
-export type FilterKeyType = 'published_on' | 'expires_on' | 'status';
+export type FilterKeyType = 'title' | 'published_on' | 'expires_on' | 'status';
 
 // Filter schema
 const FILTER_OPERATION_SCHEMA: {
   [key in FilterKeyType]: z.ZodString | z.ZodEnum<any>;
 } = {
+  title: z.enum(['like'], {
+    message: 'Only "like" operation is allowed',
+  }),
   published_on: z.enum(['between'], {
     message: 'Only "between" operation is allowed',
   }),
@@ -51,6 +61,7 @@ const FILTER_OPERATION_SCHEMA: {
 
 const STATUSES = ['PUBLISHED', 'DRAFT', 'EXPIRED', 'DELETED'] as const;
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
+  title: z.string().optional(),
   published_on: z.array(z.string()).optional(),
   expires_on: z.array(z.string()).optional(),
   status: z.array(z.enum(STATUSES)).or(z.enum(STATUSES)).optional(),
@@ -58,7 +69,7 @@ const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
 
 const FilterItemSchema = z
   .object({
-    key: z.enum(['published_on', 'expires_on', 'status'], {
+    key: z.enum(['title', 'published_on', 'expires_on', 'status'], {
       required_error: 'Missing or invalid filter key',
       message:
         'key must be one of the following values: expires_on, published_on, status',
@@ -95,7 +106,6 @@ const AnnouncementSortSchema = z.object({
 });
 
 export const AnnouncementQuerySchema = z.object({
-  search: z.string().optional(),
   filters: z.array(FilterItemSchema).optional(),
   limit: z.coerce
     .number()
