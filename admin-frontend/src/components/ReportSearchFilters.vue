@@ -36,6 +36,7 @@
           :append-icon="
             areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
           "
+          :aria-expanded="areSecondaryFiltersVisible"
           @click="toggleSecondaryFiltersVisible()"
         >
           Filter
