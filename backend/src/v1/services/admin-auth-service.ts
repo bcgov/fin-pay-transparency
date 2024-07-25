@@ -1,19 +1,19 @@
+import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
+import { admin_user, admin_user_onboarding } from '@prisma/client';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
+import { isEqual } from 'lodash';
 import { config } from '../../config';
 import {
   KEYCLOAK_IDP_HINT_AZUREIDIR,
   OIDC_AZUREIDIR_SCOPE,
 } from '../../constants';
 import { logger as log } from '../../logger';
-import { AuthBase } from './auth-utils-service';
-import { utils } from './utils-service';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
+import { AuthBase } from './auth-utils-service';
 import { SSO } from './sso-service';
-import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
-import { admin_user, admin_user_onboarding } from '@prisma/client';
-import { isEqual } from 'lodash';
+import { utils } from './utils-service';
 
 enum LogoutReason {
   Login = 'login', // ie. don't log out
@@ -25,6 +25,14 @@ enum LogoutReason {
   NotAuthorized = 'notAuthorized',
   RoleChanged = 'roleChanged',
   InvitationExpired = 'invitationExpired',
+}
+
+export interface IUserDetails {
+  idirUserGuid: string;
+  displayName: string;
+  preferredUsername: string;
+  email: string;
+  roles: string[];
 }
 
 class AdminAuth extends AuthBase {
@@ -183,14 +191,16 @@ class AdminAuth extends AuthBase {
     }
     const userRolesArray = userRoles.map((x) => x.name);
 
+    const userDetails = {
+      idirUserGuid: idirUserGuid,
+      displayName: displayName,
+      preferredUsername: preferred_username,
+      email: email,
+      roles: userRolesArray,
+    };
+
     // update database
-    await this.storeUserInfoWithHistory(
-      idirUserGuid,
-      displayName,
-      preferred_username,
-      userRolesArray,
-      adminUserOnboarding,
-    );
+    await this.storeUserInfoWithHistory(userDetails, adminUserOnboarding);
 
     return adminUserOnboarding ? LogoutReason.RoleChanged : LogoutReason.Login;
   }
@@ -216,15 +226,12 @@ class AdminAuth extends AuthBase {
    */
 
   public async storeUserInfoWithHistory(
-    idirUserGuid: string,
-    displayName: string,
-    preferred_username: string,
-    userRoles: string[],
+    userDetails: IUserDetails,
     adminUserOnboarding?: admin_user_onboarding,
     existing_admin_user?: admin_user,
     isLogin: boolean = true,
   ): Promise<boolean> {
-    const assigned_roles = userRoles.join(',');
+    const assigned_roles = userDetails?.roles.join(',');
     let modified = false;
     await prisma.$transaction(async (tx: PrismaTransactionalClient) => {
       // update the user onboarding record, idempotent operation, also solves the edge
@@ -244,7 +251,7 @@ class AdminAuth extends AuthBase {
       if (!existing_admin_user)
         existing_admin_user = await prisma.admin_user.findFirst({
           where: {
-            idir_user_guid: idirUserGuid,
+            idir_user_guid: userDetails?.idirUserGuid,
           },
         });
 
@@ -255,15 +262,16 @@ class AdminAuth extends AuthBase {
           .split(',')
           .slice()
           .sort((a, b) => a.localeCompare(b)),
-        userRoles.slice().sort((a, b) => a.localeCompare(b)),
+        userDetails?.roles.slice().sort((a, b) => a.localeCompare(b)),
       );
 
       // create/update a record in the admin user table
       if (
         existing_admin_user &&
         (!areAssignedRolesEqual ||
-          existing_admin_user.display_name != displayName ||
-          existing_admin_user.preferred_username != preferred_username ||
+          existing_admin_user.display_name != userDetails.displayName ||
+          existing_admin_user.preferred_username !=
+            userDetails.preferredUsername ||
           !existing_admin_user.is_active)
       ) {
         // The details of the user has changed, we need to store
@@ -273,8 +281,9 @@ class AdminAuth extends AuthBase {
             admin_user_id: existing_admin_user.admin_user_id,
           },
           data: {
-            display_name: displayName,
-            preferred_username: preferred_username,
+            display_name: userDetails.displayName,
+            preferred_username: userDetails.preferredUsername,
+            email: userDetails.email,
             update_date: new Date(),
             update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
@@ -292,6 +301,7 @@ class AdminAuth extends AuthBase {
             assigned_roles: existing_admin_user.assigned_roles,
             is_active: existing_admin_user.is_active,
             preferred_username: existing_admin_user.preferred_username,
+            email: existing_admin_user.email,
             create_date: existing_admin_user.create_date,
             update_date: existing_admin_user.update_date,
           },
@@ -313,13 +323,14 @@ class AdminAuth extends AuthBase {
         // There is not an existing user, so make one.
         await tx.admin_user.create({
           data: {
-            display_name: displayName,
-            idir_user_guid: idirUserGuid,
+            display_name: userDetails.displayName,
+            idir_user_guid: userDetails.idirUserGuid,
             create_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
             is_active: true,
-            preferred_username,
+            preferred_username: userDetails.preferredUsername,
+            email: userDetails.email,
             last_login: isLogin ? undefined : new Date(0),
           },
         });

@@ -1,6 +1,7 @@
-import { de, fa, faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { Application } from 'express';
 import request from 'supertest';
+import { UserInputError } from '../types/errors';
 
 const mockDeleteInvite = jest.fn();
 const mockGetPendingInvites = jest.fn();
@@ -95,7 +96,9 @@ describe('admin-user-invites-routes', () => {
             expect(body.error).toBeDefined();
             const errors = JSON.parse(body.error);
             expect(errors).toHaveLength(1);
-            expect(errors[0].message).toBe('Email address must be a government email address');
+            expect(errors[0].message).toBe(
+              'Email address must be a government email address',
+            );
           });
       });
     });
@@ -112,9 +115,25 @@ describe('admin-user-invites-routes', () => {
           .expect(200);
       });
 
-      describe('when an error occurs', () => {
-        it('400', () => {
+      describe('when an internal error occurs (not related to user input)', () => {
+        it('500', () => {
           mockCreateInvite.mockRejectedValue(new Error('Error happened'));
+          return request(app)
+            .post('')
+            .send({
+              firstName: faker.person.firstName(),
+              email: faker.internet.email({ provider: 'gov.bc.ca' }),
+              role: 'PTRT-ADMIN',
+            })
+            .expect(500);
+        });
+      });
+
+      describe('when a UserInputError occurs', () => {
+        it('400', () => {
+          mockCreateInvite.mockRejectedValue(
+            new UserInputError('Error happened'),
+          );
           return request(app)
             .post('')
             .send({

@@ -9,9 +9,6 @@ import {
 
 const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
   const where: Prisma.announcementWhereInput = {};
-  if (query.search) {
-    where.title = { contains: query.search, mode: 'insensitive' };
-  }
 
   if (query.filters) {
     (query.filters as any[]).forEach((filter) => {
@@ -25,6 +22,9 @@ const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
             filter.operation === 'in'
               ? { in: filter.value }
               : { not: { in: filter.value } };
+          break;
+        case 'title':
+          where.title = { contains: filter.value, mode: 'insensitive' };
           break;
       }
     });
