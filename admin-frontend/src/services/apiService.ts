@@ -240,7 +240,7 @@ export default {
       const params = {
         offset: offset,
         limit: limit,
-        filter: filter,
+        filters: filter,
         sort: sort,
       };
       const resp = await apiAxios.get<IAnnouncementSearchResult>(

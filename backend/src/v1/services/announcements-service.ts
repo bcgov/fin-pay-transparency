@@ -54,8 +54,6 @@ export const getAnnouncements = async (
 ): Promise<PaginatedResult<announcement>> => {
   const where = buildAnnouncementWhereInput(query);
   const orderBy = buildAnnouncementSortInput(query);
-  console.log('----');
-  console.log(where);
   const items = await prisma.announcement.findMany({
     where,
     orderBy,

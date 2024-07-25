@@ -1,7 +1,7 @@
 <template>
   <div class="primary-filters">
     <v-row dense class="mt-0 w-100 mb-4">
-      <v-col sm="9" md="8" lg="6" xl="4" class="d-flex align-center">
+      <v-col sm="7" md="8" lg="6" xl="4" class="d-flex align-center">
         <v-text-field
           v-model="searchText"
           prepend-inner-icon="mdi-magnify"
@@ -19,7 +19,7 @@
         </v-btn>
       </v-col>
       <v-col
-        sm="3"
+        sm="5"
         md="4"
         lg="6"
         xl="8"
@@ -62,7 +62,7 @@
         />
       </v-col>
 
-      <v-col sm="6" md="6" lg="4" xl="2" class="d-flex flex-column">
+      <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>Expiry date</h5>
         <VueDatePicker
           v-model="expiryDateRange"
@@ -76,39 +76,45 @@
         />
       </v-col>
 
-      <v-col sm="4" md="2" lg="2" xl="1" class="d-flex flex-column">
+      <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>Status</h5>
         <v-select
           v-model="selectedStatuses"
           :items="statusOptions"
+          multiple
           variant="solo"
           density="compact"
         >
           <template v-slot:item="{ props, item }">
-            <!--v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+            <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+              <template v-slot:title="{ title }">
+                <span v-if="item.raw">
+                  <AnnouncementStatusChip
+                    :status="title"
+                  ></AnnouncementStatusChip>
+                </span>
+                <span v-if="!item.raw">{{ title }}</span>
+              </template>
               <template v-slot:append="{ isActive }">
                 <v-icon v-if="isActive" icon="mdi-check"></v-icon>
               </template>
-            </v-list-item-->
-            <v-list-item>
-              <template v-slot:append="{ isActive }">
-                <v-icon v-if="isActive" icon="mdi-check"></v-icon>
-              </template>
-              <v-chip
-                :class="{
-                  success: item.raw == 'PUBLISHED',
-                  warning: item.raw == 'EXPIRED',
-                  info: !['PUBLISHED', 'EXPIRED'].includes(item.raw),
-                }"
-                size="small"
-              >
-                {{ item.raw }}
-              </v-chip>
             </v-list-item>
           </template>
           <template v-slot:selection="{ item, index }">
             <span v-if="!item.raw">All</span>
-            <span v-if="item.raw">{{ item.raw }}</span>
+            <span v-if="item.raw">
+              <AnnouncementStatusChip
+                v-if="index < maxSelectedStatusesVisible"
+                :status="item.title"
+              ></AnnouncementStatusChip>
+              <span
+                v-if="index === maxSelectedStatusesVisible"
+                class="text-grey text-caption align-self-center"
+              >
+                (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
+                more)
+              </span>
+            </span>
           </template>
         </v-select>
       </v-col>
@@ -118,9 +124,9 @@
         md="1"
         lg="2"
         xl="2"
-        offset-sm="0"
-        offset-md="11"
-        offset-lg="6"
+        offset-sm="2"
+        offset-md="5"
+        offset-lg="10"
         offset-xl="0"
         class="align-stretch"
       >
@@ -149,7 +155,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
+import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
@@ -172,7 +178,7 @@ const publishDateRange = ref<any[] | undefined>(undefined);
 const expiryDateRange = ref<any[] | undefined>(undefined);
 const selectedStatuses = ref([]);
 const areSecondaryFiltersVisible = ref<boolean>(false);
-const maxSelectedChips = ref(3);
+const maxSelectedStatusesVisible = ref(3);
 
 const statusOptions = ref([
   null,

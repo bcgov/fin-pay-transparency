@@ -48,16 +48,7 @@
         {{ formatDate(item.expires_on) }}
       </template>
       <template v-slot:item.status="{ item }">
-        <v-chip
-          :class="{
-            success: item.status == 'PUBLISHED',
-            warning: item.status == 'EXPIRED',
-            info: !['PUBLISHED', 'EXPIRED'].includes(item.status),
-          }"
-          size="small"
-        >
-          {{ item.status }}
-        </v-chip>
+        <AnnouncementStatusChip :status="item.status"></AnnouncementStatusChip>
       </template>
       <template v-slot:item.actions="{ item }">
         <v-btn
@@ -85,6 +76,7 @@ export default {
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import AnnouncementSearchFilters from './AnnouncementSearchFilters.vue';
+import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
 import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
