@@ -1,19 +1,19 @@
 import { Router } from 'express';
+import { logger } from '../../logger';
+import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
+import { authorize } from '../middlewares/authorization/authorize';
 import { useValidate } from '../middlewares/validations';
+import {
+  getAnnouncements,
+  patchAnnouncements,
+} from '../services/announcements-service';
+import { ExtendedRequest } from '../types';
 import {
   AnnouncementQuerySchema,
   AnnouncementQueryType,
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
-import { logger } from '../../logger';
-import {
-  getAnnouncements,
-  patchAnnouncements,
-} from '../services/announcements-service';
-import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
-import { authorize } from '../middlewares/authorization/authorize';
-import { ExtendedRequest } from '../types';
 
 const router = Router();
 

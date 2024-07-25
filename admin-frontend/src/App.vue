@@ -206,6 +206,24 @@ button:disabled.v-btn {
   border-color: #ce3e39 !important;
 }
 
+.v-chip.success {
+  background-color: #d6e8da !important;
+  border-color: #d6e8da !important;
+  color: #207d33 !important;
+}
+
+.v-chip.info {
+  background-color: #efefef !important;
+  border-color: #efefef !important;
+  color: #313131 !important;
+}
+
+.v-chip.warning {
+  background-color: #fef1d8 !important;
+  border-color: #fef1d8 !important;
+  color: #f8bb47 !important;
+}
+
 @media screen and (max-width: 370px) {
   .v-toolbar__title {
     font-size: 0.9rem;
