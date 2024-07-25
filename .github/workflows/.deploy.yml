@@ -142,6 +142,7 @@ jobs:
           --set-string global.secrets.chesClientSecret="${{ secrets.CHES_CLIENT_SECRET }}"  \
           --set-string global.secrets.chesAPIURL="${{ secrets.CHES_API_URL }}"  \
           --set-string global.secrets.chesEmailRecipients="${{ secrets.CHES_EMAIL_RECIPIENTS }}"  \
+          --set-string global.secrets.adminFrontendUrl="${{ secrets.ADMIN_FRONTEND_URL }}"  \
           --set-string global.serverAdminFrontend="${{ inputs.admin-frontend-url }}" \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
           --set-string crunchy.pgBackRest.s3.bucket="${{ secrets.S3_BUCKET }}"  \
