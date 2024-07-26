@@ -4,6 +4,7 @@ import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
 import {
   AnnouncementQueryType,
+  CreateAnnouncementType,
   PatchAnnouncementsType,
 } from '../types/announcements';
 
@@ -124,10 +125,26 @@ export const patchAnnouncements = async (
  * @param data - announcement data
  */
 export const createAnnouncement = async (
-  data: Prisma.announcementCreateInput,
+  input: CreateAnnouncementType,
   currentUserId: string,
 ) => {
-  return prisma.announcement.create({ 
-    data: { ...data, created_by: currentUserId, updated_by: currentUserId } 
+  const data: Prisma.announcementCreateInput = {
+    title: input.title,
+    description: input.description,
+    announcement_status: {
+      connect: { code: input.status },
+    },
+    published_on: input.published_on,
+    expires_on: input.expires_on,
+    admin_user_announcement_created_byToadmin_user: {
+      connect: { admin_user_id: currentUserId },
+    },
+    admin_user_announcement_updated_byToadmin_user: {
+      connect: { admin_user_id: currentUserId },
+    },
+  };
+  
+  return prisma.announcement.create({
+    data,
   });
 };

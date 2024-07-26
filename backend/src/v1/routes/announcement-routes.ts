@@ -4,6 +4,7 @@ import { authenticateAdmin } from '../middlewares/authorization/authenticate-adm
 import { authorize } from '../middlewares/authorization/authorize';
 import { useValidate } from '../middlewares/validations';
 import {
+  createAnnouncement,
   getAnnouncements,
   patchAnnouncements,
 } from '../services/announcements-service';
@@ -11,6 +12,7 @@ import { ExtendedRequest } from '../types';
 import {
   AnnouncementQuerySchema,
   AnnouncementQueryType,
+  CreateAnnouncementSchema,
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
@@ -49,6 +51,26 @@ router.patch(
       const data: PatchAnnouncementsType = req.body;
       await patchAnnouncements(data, user.admin_user_id);
       res.status(201).json({ message: 'Announcement deleted' });
+    } catch (error) {
+      logger.error(error);
+      res.status(400).json({ message: 'Invalid request', error });
+    }
+  },
+);
+
+router.post(
+  '',
+  authenticateAdmin(),
+  authorize(['PTRT-ADMIN']),
+  useValidate({ mode: 'body', schema: CreateAnnouncementSchema }),
+  async (req: ExtendedRequest, res) => {
+    try {
+      const { user } = req;
+      // Request body is validated
+      const data = req.body;
+      // Create announcement
+      const announcement = await createAnnouncement(data, user.admin_user_id);
+      res.status(201).json(announcement);
     } catch (error) {
       logger.error(error);
       res.status(400).json({ message: 'Invalid request', error });
