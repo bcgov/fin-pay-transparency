@@ -59,8 +59,45 @@
           color="black"
           class="btn-actions"
         >
-          <template v-slot:default> <v-icon color="black"></v-icon> </template
-        ></v-btn>
+          <v-icon color="black"></v-icon>
+          <v-menu activator="parent">
+            <v-list>
+              <v-list-item>
+                <v-btn
+                  variant="text"
+                  prepend-icon="mdi-pencil"
+                  @click="editAnnouncement(item.announcement_id)"
+                  >Edit</v-btn
+                >
+              </v-list-item>
+              <v-list-item v-if="item.status == 'DRAFT'">
+                <v-btn
+                  variant="text"
+                  prepend-icon="mdi-publish"
+                  @click="publishAnnouncement(item.announcement_id)"
+                  >Publish</v-btn
+                >
+              </v-list-item>
+              <v-list-item v-if="item.status == 'PUBLISHED'">
+                <v-btn
+                  variant="text"
+                  prepend-icon="mdi-cancel"
+                  @click="unpublishAnnouncement(item.announcement_id)"
+                  >Unpublish</v-btn
+                >
+              </v-list-item>
+              <v-list-item>
+                <v-btn
+                  class="text-red"
+                  variant="text"
+                  prepend-icon="mdi-delete"
+                  @click="deleteAnnouncement(item.announcement_id)"
+                  >Delete</v-btn
+                >
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-btn>
       </template>
     </v-data-table-server>
   </div>
@@ -82,14 +119,8 @@ import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
 
 const announcementSearchStore = useAnnouncementSearchStore();
-const {
-  searchResults,
-  isSearching,
-  hasSearched,
-  totalNum,
-  pageSize,
-  lastSubmittedSearchParams,
-} = storeToRefs(announcementSearchStore);
+const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
+  storeToRefs(announcementSearchStore);
 
 const itemsPerPageOptions = ref([
   { value: 10, title: '10' },
@@ -130,7 +161,7 @@ const headers = ref<any>([
   {
     title: 'Actions',
     key: 'actions',
-    align: 'start',
+    align: 'center',
     sortable: false,
   },
 ]);
@@ -145,6 +176,22 @@ async function repeatSearch() {
 
 async function addAnnouncement() {
   console.log('TODO: add announcement');
+}
+
+function editAnnouncement(announcementId) {
+  console.log(`TODO: edit announcement ${announcementId}`);
+}
+
+function publishAnnouncement(announcementId) {
+  console.log(`TODO: publish announcement ${announcementId}`);
+}
+
+function unpublishAnnouncement(announcementId) {
+  console.log(`TODO: unpublish announcement ${announcementId}`);
+}
+
+function deleteAnnouncement(announcementId) {
+  console.log(`TODO: delete announcement ${announcementId}`);
 }
 </script>
 

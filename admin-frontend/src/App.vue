@@ -277,4 +277,17 @@ button:disabled.v-btn {
 .theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
   background-color: rgba(0, 0, 0, 0.12) !important;
 }
+
+/*
+Override default styles of VueDatepicker component to better match the
+style of vuetify components
+*/
+input.dp__input {
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+  box-shadow:
+    0px 3px 1px -2px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
+    0px 2px 2px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
+    0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
+}
 </style>

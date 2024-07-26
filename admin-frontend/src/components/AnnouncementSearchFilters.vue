@@ -81,12 +81,14 @@
         <v-select
           v-model="selectedStatuses"
           :items="statusOptions"
+          :persistent-placeholder="true"
           multiple
+          placeholder="All"
           variant="solo"
           density="compact"
         >
           <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+            <v-list-item v-bind="props" :title="item.raw">
               <template v-slot:title="{ title }">
                 <span v-if="item.raw">
                   <AnnouncementStatusChip
@@ -181,7 +183,6 @@ const areSecondaryFiltersVisible = ref<boolean>(false);
 const maxSelectedStatusesVisible = ref(3);
 
 const statusOptions = ref([
-  null,
   AnnouncementStatus.Published,
   AnnouncementStatus.Draft,
   AnnouncementStatus.Expired,
@@ -268,8 +269,8 @@ has been changed
 function areSecondaryFiltersDirty() {
   return (
     publishDateRange.value != undefined ||
-    expiryDateRange.value?.length != 0 ||
-    selectedStatuses.value != undefined
+    expiryDateRange.value != undefined ||
+    selectedStatuses.value?.length != 0
   );
 }
 
