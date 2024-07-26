@@ -77,24 +77,6 @@ describe('announcement-routes', () => {
         });
       });
 
-      describe('when search is provided', () => {
-        it('should return announcements', async () => {
-          const response = await request(app)
-            .get('/')
-            .query(qs.stringify({ search: 'test' }));
-          expect(mockGetAnnouncements).toHaveBeenCalledWith(
-            expect.objectContaining({ search: 'test' }),
-          );
-          expect(response.status).toBe(200);
-          expect(response.body).toEqual({
-            items: [],
-            total: 0,
-            offset: 0,
-            limit: 10,
-            totalPages: 0,
-          });
-        });
-      });
       describe('when limit is provided', () => {
         it('should return announcements', async () => {
           const response = await request(app)
@@ -172,6 +154,26 @@ describe('announcement-routes', () => {
 
       describe('when filters are provided', () => {
         describe('when filter is valid', () => {
+          describe('title', () => {
+            it('should return announcements', async () => {
+              const response = await request(app)
+                .get('/')
+                .query(qs.stringify({ filters: [{key: 'title', operation: 'like', value: 'test'}] }));
+              expect(mockGetAnnouncements).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  filters: [{ key: 'title', operation: 'like', value: 'test' }],
+                }),
+              );
+              expect(response.status).toBe(200);
+              expect(response.body).toEqual({
+                items: [],
+                total: 0,
+                offset: 0,
+                limit: 10,
+                totalPages: 0,
+              });
+            });
+          });
           describe('status', () => {
             it('should return announcements', async () => {
               const response = await request(app)
