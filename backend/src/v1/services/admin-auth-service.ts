@@ -1,4 +1,10 @@
-import { LocalDateTime, ZoneId, nativeJs } from '@js-joda/core';
+import {
+  LocalDateTime,
+  ZoneId,
+  ZonedDateTime,
+  convert,
+  nativeJs,
+} from '@js-joda/core';
 import { admin_user, admin_user_onboarding } from '@prisma/client';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
@@ -284,27 +290,17 @@ class AdminAuth extends AuthBase {
             display_name: userDetails.displayName,
             preferred_username: userDetails.preferredUsername,
             email: userDetails.email,
-            update_date: new Date(),
+            update_date: convert(ZonedDateTime.now(ZoneId.UTC)).toDate(),
             update_user: adminUserOnboarding?.created_by ?? 'Keycloak',
             assigned_roles: assigned_roles,
             is_active: true,
-            last_login: isLogin ? new Date() : undefined,
+            last_login: isLogin
+              ? convert(ZonedDateTime.now(ZoneId.UTC)).toDate()
+              : undefined,
           },
         });
         await tx.admin_user_history.create({
-          data: {
-            admin_user_id: existing_admin_user.admin_user_id,
-            display_name: existing_admin_user.display_name,
-            idir_user_guid: existing_admin_user.idir_user_guid,
-            create_user: existing_admin_user.create_user,
-            update_user: existing_admin_user.update_user,
-            assigned_roles: existing_admin_user.assigned_roles,
-            is_active: existing_admin_user.is_active,
-            preferred_username: existing_admin_user.preferred_username,
-            email: existing_admin_user.email,
-            create_date: existing_admin_user.create_date,
-            update_date: existing_admin_user.update_date,
-          },
+          data: existing_admin_user,
         });
         modified = true;
       } else if (existing_admin_user && isLogin) {
@@ -315,7 +311,7 @@ class AdminAuth extends AuthBase {
             admin_user_id: existing_admin_user.admin_user_id,
           },
           data: {
-            last_login: new Date(),
+            last_login: convert(ZonedDateTime.now(ZoneId.UTC)).toDate(),
           },
         });
         modified = true;
