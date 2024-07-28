@@ -63,35 +63,18 @@
           <v-menu activator="parent">
             <v-list>
               <v-list-item>
-                <v-btn
-                  variant="text"
-                  prepend-icon="mdi-pencil"
-                  @click="editAnnouncement(item.announcement_id)"
-                  >Edit</v-btn
-                >
+                <v-btn variant="text" prepend-icon="mdi-pencil">Edit</v-btn>
               </v-list-item>
               <v-list-item v-if="item.status == 'DRAFT'">
-                <v-btn
-                  variant="text"
-                  prepend-icon="mdi-publish"
-                  @click="publishAnnouncement(item.announcement_id)"
-                  >Publish</v-btn
-                >
+                <v-btn variant="text" prepend-icon="mdi-publish">Publish</v-btn>
               </v-list-item>
               <v-list-item v-if="item.status == 'PUBLISHED'">
-                <v-btn
-                  variant="text"
-                  prepend-icon="mdi-cancel"
-                  @click="unpublishAnnouncement(item.announcement_id)"
+                <v-btn variant="text" prepend-icon="mdi-cancel"
                   >Unpublish</v-btn
                 >
               </v-list-item>
               <v-list-item>
-                <v-btn
-                  class="text-red"
-                  variant="text"
-                  prepend-icon="mdi-delete"
-                  @click="deleteAnnouncement(item.announcement_id)"
+                <v-btn class="text-red" variant="text" prepend-icon="mdi-delete"
                   >Delete</v-btn
                 >
               </v-list-item>
@@ -176,22 +159,6 @@ async function repeatSearch() {
 
 async function addAnnouncement() {
   console.log('TODO: add announcement');
-}
-
-function editAnnouncement(announcementId) {
-  console.log(`TODO: edit announcement ${announcementId}`);
-}
-
-function publishAnnouncement(announcementId) {
-  console.log(`TODO: publish announcement ${announcementId}`);
-}
-
-function unpublishAnnouncement(announcementId) {
-  console.log(`TODO: unpublish announcement ${announcementId}`);
-}
-
-function deleteAnnouncement(announcementId) {
-  console.log(`TODO: delete announcement ${announcementId}`);
 }
 </script>
 
