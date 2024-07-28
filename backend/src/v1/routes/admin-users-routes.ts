@@ -8,15 +8,18 @@ import {
 } from '../middlewares/validations/schemas';
 import { SSO } from '../services/sso-service';
 import { authorize } from '../middlewares/authorization/authorize';
+import { ExtendedRequest } from '../types';
+import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
 
-type ExtendedRequest = Request & { sso: SSO };
+type SsoRequest = Request & { sso: SSO };
+type SsoExtendedRequest = ExtendedRequest & { sso: SSO };
 const router = express.Router();
 router.use(authorize([PTRT_ADMIN_ROLE_NAME]));
 
 /**
  * Attach the CSS SSO client
  */
-router.use(async (req: ExtendedRequest, _, next) => {
+router.use(async (req: SsoRequest, _, next) => {
   try {
     const sso = await SSO.init();
     req.sso = sso;
@@ -30,7 +33,7 @@ router.use(async (req: ExtendedRequest, _, next) => {
 /**
  * Get all users in the system
  */
-router.get('', async (req: ExtendedRequest, res: Response) => {
+router.get('', async (req: SsoRequest, res: Response) => {
   try {
     const users = await req.sso.getUsers();
     return res.status(200).json(users);
@@ -46,7 +49,7 @@ router.get('', async (req: ExtendedRequest, res: Response) => {
 router.patch(
   '/:userId',
   useValidate({ mode: 'body', schema: ASSIGN_ROLE_SCHEMA }),
-  async (req: ExtendedRequest, res: Response) => {
+  async (req: SsoRequest, res: Response) => {
     const { userId } = req.params;
     const data: AssignRoleType = req.body;
 
@@ -66,16 +69,21 @@ router.patch(
 /**
  * Delete user
  */
-router.delete('/:userId', async (req: ExtendedRequest, res: Response) => {
-  const { userId } = req.params;
+router.delete(
+  '/:userId',
+  authenticateAdmin(),
+  authorize(['PTRT-ADMIN']),
+  async (req: SsoExtendedRequest, res: Response) => {
+    const { userId } = req.params;
 
-  try {
-    await req.sso.deleteUser(userId);
-    return res.json();
-  } catch (error) {
-    logger.error(error);
-    return res.status(400).json({ error: 'Failed to delete user' });
-  }
-});
+    try {
+      await req.sso.deleteUser(userId, req.user.admin_user_id);
+      return res.json();
+    } catch (error) {
+      logger.error(error);
+      return res.status(400).json({ error: 'Failed to delete user' });
+    }
+  },
+);
 
 export default router;

@@ -9,7 +9,7 @@ export const EMAIL_TEMPLATES = {
         <p>
         You are invited to join the Pay Transparency Admin Portal as an Admin User.
         Please click the link
-        <a href="${config.get('server:adminFrontend')}">here</a>
+        <a href="${config.get('server:adminFrontendUrl')}">here</a>
         to complete your registration and access the application. This invitation
         expires in
         ${config.get('server:adminInvitationDurationInHours')}
