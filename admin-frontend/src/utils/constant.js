@@ -26,6 +26,7 @@ export const ApiRoutes = Object.freeze({
   ANNOUNCEMENTS: baseRoot + '/v1/announcements',
   USERS: `${baseRoot}/v1/users`,
   USER_INVITES: `${baseRoot}/v1/user-invites`,
+  ANNOUNCEMENTS: `${baseRoot}/v1/announcements`,
 });
 
 export const PAGE_TITLES = Object.freeze({

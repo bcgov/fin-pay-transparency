@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import DashboardPage from './components/DashboardPage.vue';
 import ReportsPage from './components/ReportsPage.vue';
 import AnnouncementsPage from './components/AnnouncementsPage.vue';
+import AddAnnouncementPage from './components/AddAnnouncementPage.vue';
 import UserManagementPage from './components/UserManagementPage.vue';
 import InvitationExpired from './components/InvitationExpired.vue';
 import UnauthorizedError from './components/UnauthorizedError.vue';
@@ -59,6 +60,18 @@ const router = createRouter({
       path: '/announcements',
       name: 'announcements',
       component: AnnouncementsPage,
+      meta: {
+        pageTitle: PAGE_TITLES.ANNOUNCEMENTS,
+        requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
+        isTitleVisible: true,
+        isBreadcrumbTrailVisible: true,
+      },
+    },
+    {
+      path: '/add-announcement',
+      name: 'add-announcement',
+      component: AddAnnouncementPage,
       meta: {
         pageTitle: PAGE_TITLES.ANNOUNCEMENTS,
         requiresAuth: true,

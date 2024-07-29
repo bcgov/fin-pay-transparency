@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import {
+  Announcement,
   CreateUserInviteInput,
   IConfigValue,
   User,
@@ -334,6 +335,15 @@ export default {
       }
     } catch (e) {
       console.log(`Failed to get pdf report from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async addAnnouncement(data: Announcement) {
+    try {
+      return await apiAxios.post(ApiRoutes.ANNOUNCEMENTS, data);
+    } catch (e) {
+      console.log(`Failed to post from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },
