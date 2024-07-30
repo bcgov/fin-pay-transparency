@@ -9,6 +9,7 @@ import {
 import {
   EXPECTED_COLUMNS,
   GENDER_CODES,
+  STANDARDIZED_GENDER_CODES,
   SUBMISSION_ROW_COLUMNS,
 } from './validate-service';
 import { createSampleRecord } from './validate-service.spec';
@@ -271,10 +272,12 @@ describe('TaggedColumnStats', () => {
         0,
         numEmployees - 1,
       );
-      expect(genderCounts[GENDER_CODES.MALE[0]]).toBe(numMale);
-      expect(genderCounts[GENDER_CODES.FEMALE[0]]).toBe(numFemale);
-      expect(genderCounts[GENDER_CODES.NON_BINARY[0]]).toBe(numNonBinary);
-      expect(genderCounts[GENDER_CODES.UNKNOWN[0]]).toBe(numUnknown);
+      expect(genderCounts[STANDARDIZED_GENDER_CODES.MALE]).toBe(numMale);
+      expect(genderCounts[STANDARDIZED_GENDER_CODES.FEMALE]).toBe(numFemale);
+      expect(genderCounts[STANDARDIZED_GENDER_CODES.NON_BINARY]).toBe(
+        numNonBinary,
+      );
+      expect(genderCounts[STANDARDIZED_GENDER_CODES.UNKNOWN]).toBe(numUnknown);
     });
   });
 
@@ -283,28 +286,44 @@ describe('TaggedColumnStats', () => {
       const quartiles = columnStats.getGenderCountsPerQuartile();
 
       // Expect only males in the top quartile
-      expect(quartiles['Q4'][GENDER_CODES.MALE[0]]).toBe(numMale);
-      expect(quartiles['Q4'][GENDER_CODES.FEMALE[0]]).toBeUndefined();
-      expect(quartiles['Q4'][GENDER_CODES.NON_BINARY[0]]).toBeUndefined();
-      expect(quartiles['Q4'][GENDER_CODES.UNKNOWN[0]]).toBeUndefined();
+      expect(quartiles['Q4'][STANDARDIZED_GENDER_CODES.MALE]).toBe(numMale);
+      expect(quartiles['Q4'][STANDARDIZED_GENDER_CODES.FEMALE]).toBeUndefined();
+      expect(
+        quartiles['Q4'][STANDARDIZED_GENDER_CODES.NON_BINARY],
+      ).toBeUndefined();
+      expect(
+        quartiles['Q4'][STANDARDIZED_GENDER_CODES.UNKNOWN],
+      ).toBeUndefined();
 
       // Expect only females in the migh-middle quartile
-      expect(quartiles['Q3'][GENDER_CODES.MALE[0]]).toBeUndefined();
-      expect(quartiles['Q3'][GENDER_CODES.FEMALE[0]]).toBe(numFemale);
-      expect(quartiles['Q3'][GENDER_CODES.NON_BINARY[0]]).toBeUndefined();
-      expect(quartiles['Q3'][GENDER_CODES.UNKNOWN[0]]).toBeUndefined();
+      expect(quartiles['Q3'][STANDARDIZED_GENDER_CODES.MALE]).toBeUndefined();
+      expect(quartiles['Q3'][STANDARDIZED_GENDER_CODES.FEMALE]).toBe(numFemale);
+      expect(
+        quartiles['Q3'][STANDARDIZED_GENDER_CODES.NON_BINARY],
+      ).toBeUndefined();
+      expect(
+        quartiles['Q3'][STANDARDIZED_GENDER_CODES.UNKNOWN],
+      ).toBeUndefined();
 
       // Expect only people of unknown gender in the low-middle quartile
-      expect(quartiles['Q2'][GENDER_CODES.MALE[0]]).toBeUndefined();
-      expect(quartiles['Q2'][GENDER_CODES.FEMALE[0]]).toBeUndefined();
-      expect(quartiles['Q2'][GENDER_CODES.NON_BINARY[0]]).toBe(numNonBinary);
-      expect(quartiles['Q2'][GENDER_CODES.UNKNOWN[0]]).toBeUndefined();
+      expect(quartiles['Q2'][STANDARDIZED_GENDER_CODES.MALE]).toBeUndefined();
+      expect(quartiles['Q2'][STANDARDIZED_GENDER_CODES.FEMALE]).toBeUndefined();
+      expect(quartiles['Q2'][STANDARDIZED_GENDER_CODES.NON_BINARY]).toBe(
+        numNonBinary,
+      );
+      expect(
+        quartiles['Q2'][STANDARDIZED_GENDER_CODES.UNKNOWN],
+      ).toBeUndefined();
 
       // Expect onlynon-binary people in the lowest quartile
-      expect(quartiles['Q1'][GENDER_CODES.MALE[0]]).toBeUndefined();
-      expect(quartiles['Q1'][GENDER_CODES.FEMALE[0]]).toBeUndefined();
-      expect(quartiles['Q1'][GENDER_CODES.NON_BINARY[0]]).toBeUndefined();
-      expect(quartiles['Q1'][GENDER_CODES.UNKNOWN[0]]).toBe(numUnknown);
+      expect(quartiles['Q1'][STANDARDIZED_GENDER_CODES.MALE]).toBeUndefined();
+      expect(quartiles['Q1'][STANDARDIZED_GENDER_CODES.FEMALE]).toBeUndefined();
+      expect(
+        quartiles['Q1'][STANDARDIZED_GENDER_CODES.NON_BINARY],
+      ).toBeUndefined();
+      expect(quartiles['Q1'][STANDARDIZED_GENDER_CODES.UNKNOWN]).toBe(
+        numUnknown,
+      );
     });
   });
 });
