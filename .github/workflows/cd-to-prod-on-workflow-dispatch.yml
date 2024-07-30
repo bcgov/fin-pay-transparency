@@ -46,7 +46,7 @@ jobs:
       environment: prod
       tag: ${{ github.event.inputs.tag }}
       frontend-url: https://paytransparency.fin.gov.bc.ca
-      admin-frontend-url: https://paytransparency-admin.fin.gov.bc.ca
+      admin-frontend-url: https://ptrtadmin.fin.gov.bc.ca
       semver: ${{ github.event.inputs.tag }}
       values: "values-prod.yaml"
   zap:
