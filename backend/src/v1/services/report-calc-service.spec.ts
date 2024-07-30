@@ -1222,6 +1222,153 @@ describe('calculateHourlyPayQuartiles', () => {
       ).toBe(25);
     });
   });
+
+  describe(`given a simulated list of people with gender codes and hourly pay data (scenario 3)`, () => {
+    it(`hourly pay percents per quartile are calculated correctly`, () => {
+      // For these mock hourly pay data, assume:
+      // - All males earn $100/hr
+      // - All females earn $99/hr
+      // - All non-binary people earn $98/hr
+      // - All people whose gender is unknown earn $97/hr
+      // Add 10 fake people in each gender category
+      const hourlyPayStats = new TaggedColumnStats();
+      Array(10)
+        .fill(100)
+        .forEach((v) => {
+          hourlyPayStats.push(v, GENDER_CODES.MALE[0]);
+          hourlyPayStats.push(v - 2, GENDER_CODES.NON_BINARY[0]);
+          hourlyPayStats.push(v - 3, GENDER_CODES.UNKNOWN[0]);
+        });
+
+      //register half the females with one gender code (W) and half with the
+      //alternative gender code (F)
+      Array(5)
+        .fill(100)
+        .forEach((v) => {
+          hourlyPayStats.push(v - 1, GENDER_CODES.FEMALE[0]);
+          hourlyPayStats.push(v - 1, GENDER_CODES.FEMALE[1]);
+        });
+
+      const calcs: CalculatedAmount[] =
+        reportCalcServicePrivate.calculateHourlyPayQuartiles(hourlyPayStats);
+
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_M,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_W,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_X,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_1_U,
+        )[0].value,
+      ).toBe(100);
+
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_M,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_W,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_X,
+        )[0].value,
+      ).toBe(100);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_2_U,
+        )[0].value,
+      ).toBe(null);
+
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_M,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_W,
+        )[0].value,
+      ).toBe(100);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_X,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_3_U,
+        )[0].value,
+      ).toBe(null);
+
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_M,
+        )[0].value,
+      ).toBe(100);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_W,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_X,
+        )[0].value,
+      ).toBe(null);
+      expect(
+        calcs.filter(
+          (d) =>
+            d.calculationCode ==
+            CALCULATION_CODES.HOURLY_PAY_PERCENT_QUARTILE_4_U,
+        )[0].value,
+      ).toBe(null);
+    });
+  });
 });
 
 describe('calculatePercentReceivingOvertimePay', () => {
