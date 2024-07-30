@@ -160,12 +160,12 @@ export default {
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
+import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import '@vuepic/vue-datepicker/dist/main.css';
 import {
   AnnouncementFilterType,
   AnnouncementStatus,
-} from '../types/announcements';
+} from '../../types/announcements';
 import {
   ZonedDateTime,
   nativeJs,

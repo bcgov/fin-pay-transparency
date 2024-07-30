@@ -95,8 +95,8 @@ export default {
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import AnnouncementSearchFilters from './AnnouncementSearchFilters.vue';
-import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
+import AnnouncementSearchFilters from './announcements/AnnouncementSearchFilters.vue';
+import AnnouncementStatusChip from './announcements/AnnouncementStatusChip.vue';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
 import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
