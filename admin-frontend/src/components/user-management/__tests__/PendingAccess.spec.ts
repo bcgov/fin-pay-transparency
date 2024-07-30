@@ -5,14 +5,13 @@ import * as directives from 'vuetify/directives';
 import PendingAccess from '../PendingAccess.vue';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { useInvitesStore } from '../../../store/modules/userInvitesStore';
-import { setActivePinia, createPinia } from 'pinia';
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
-const mockGetPendingUserInvites = vi.fn();
 const mockResendUserInvite = vi.fn();
 const mockDeleteUserInvite = vi.fn();
 vi.mock('../../../services/apiService', () => ({
   default: {
-    getPendingUserInvites: () => mockGetPendingUserInvites(),
     resendUserInvite: () => mockResendUserInvite(),
     deleteUserInvite: () => mockDeleteUserInvite(),
   },
@@ -29,9 +28,9 @@ vi.mock('../../../services/notificationService', () => ({
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const vuetify = createVuetify({ components, directives });
-const pinia = createPinia();
-setActivePinia(pinia);
+const pinia = createTestingPinia();
 const wrappedRender = async () => {
+  setActivePinia(pinia);
   return render(PendingAccess, {
     global: {
       plugins: [pinia, vuetify],
@@ -41,11 +40,10 @@ const wrappedRender = async () => {
 
 const getTrigger = () => screen.getByRole('button', { name: 'Pending Access' });
 
+let store: ReturnType<typeof useInvitesStore> = useInvitesStore();
 describe('PendingAccess', () => {
-  let store: ReturnType<typeof useInvitesStore>;
   beforeEach(() => {
     vi.clearAllMocks();
-    store = useInvitesStore();
   });
 
   it('should render correctly', async () => {
@@ -54,9 +52,6 @@ describe('PendingAccess', () => {
   });
 
   it('should close the dialog', async () => {
-    mockGetPendingUserInvites.mockResolvedValue({
-      data: [],
-    });
     await wrappedRender();
     const triggerButton = getTrigger();
     await fireEvent.click(triggerButton);
@@ -72,14 +67,11 @@ describe('PendingAccess', () => {
 
   describe('without invites', () => {
     it('should render loading state', async () => {
-      mockGetPendingUserInvites.mockResolvedValue({
-        data: [],
-      });
       await wrappedRender();
       const triggerButton = getTrigger();
       await fireEvent.click(triggerButton);
       await waitFor(() => {
-        expect(mockGetPendingUserInvites).toHaveBeenCalled();
+        expect(store.getInvites).toHaveBeenCalled();
       });
       await store.$patch({ invites: [], loading: true });
       await waitFor(() => {
@@ -90,14 +82,11 @@ describe('PendingAccess', () => {
       });
     });
     it('should render empty state', async () => {
-      mockGetPendingUserInvites.mockResolvedValue({
-        data: [],
-      });
       await wrappedRender();
       const triggerButton = getTrigger();
       await fireEvent.click(triggerButton);
       await waitFor(() => {
-        expect(mockGetPendingUserInvites).toHaveBeenCalled();
+        expect(store.getInvites).toHaveBeenCalled();
       });
       await store.$patch({ invites: [], loading: false });
       await waitFor(() => {
@@ -109,8 +98,9 @@ describe('PendingAccess', () => {
 
   describe('with invites', () => {
     it('should render invites', async () => {
-      mockGetPendingUserInvites.mockResolvedValue({
-        data: [
+      store.$patch({
+        loading: false,
+        invites: [
           {
             admin_user_onboarding_id: '1',
             first_name: 'John Doe',
@@ -126,7 +116,7 @@ describe('PendingAccess', () => {
         await expect(
           screen.getByText('Pending User Access'),
         ).toBeInTheDocument();
-        expect(mockGetPendingUserInvites).toHaveBeenCalled();
+        expect(store.getInvites).toHaveBeenCalled();
       });
 
       expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -135,8 +125,9 @@ describe('PendingAccess', () => {
 
     describe('resend invite', () => {
       it('should resend invite', async () => {
-        mockGetPendingUserInvites.mockResolvedValue({
-          data: [
+        store.$patch({
+          loading: false,
+          invites: [
             {
               admin_user_onboarding_id: '1',
               first_name: 'John Doe',
@@ -151,7 +142,7 @@ describe('PendingAccess', () => {
           await expect(
             screen.getByText('Pending User Access'),
           ).toBeInTheDocument();
-          expect(mockGetPendingUserInvites).toHaveBeenCalled();
+          expect(store.getInvites).toHaveBeenCalled();
         });
         expect(screen.getByText('John Doe')).toBeInTheDocument();
 
@@ -167,14 +158,15 @@ describe('PendingAccess', () => {
         const confirmButton = screen.getByRole('button', { name: 'Send' });
         await fireEvent.click(confirmButton);
         await waitFor(() => {
-          expect(mockResendUserInvite).toHaveBeenCalled();
+          expect(store.resendInvite).toHaveBeenCalled();
           expect(mockSuccess).toHaveBeenCalled();
         });
       });
 
       it('should fail resend invite', async () => {
-        mockGetPendingUserInvites.mockResolvedValue({
-          data: [
+        store.$patch({
+          loading: false,
+          invites: [
             {
               admin_user_onboarding_id: '1',
               first_name: 'John Doe',
@@ -182,9 +174,7 @@ describe('PendingAccess', () => {
             },
           ],
         });
-        mockResendUserInvite.mockRejectedValue(
-          new Error('Failed to resend invite'),
-        );
+        vi.spyOn(store, 'resendInvite').mockRejectedValue(() => new Error());
         await wrappedRender();
         const triggerButton = getTrigger();
         await fireEvent.click(triggerButton);
@@ -192,7 +182,7 @@ describe('PendingAccess', () => {
           await expect(
             screen.getByText('Pending User Access'),
           ).toBeInTheDocument();
-          expect(mockGetPendingUserInvites).toHaveBeenCalled();
+          expect(store.getInvites).toHaveBeenCalled();
         });
         expect(screen.getByText('John Doe')).toBeInTheDocument();
 
@@ -208,15 +198,16 @@ describe('PendingAccess', () => {
         const confirmButton = screen.getByRole('button', { name: 'Send' });
         await fireEvent.click(confirmButton);
         await waitFor(() => {
-          expect(mockResendUserInvite).toHaveBeenCalled();
+          expect(store.resendInvite).toHaveBeenCalled();
           expect(mockError).toHaveBeenCalled();
         });
       });
     });
     describe('delete invite', () => {
       it('should delete invite', async () => {
-        mockGetPendingUserInvites.mockResolvedValue({
-          data: [
+        store.$patch({
+          loading: false,
+          invites: [
             {
               admin_user_onboarding_id: '1',
               first_name: 'John Doe',
@@ -231,7 +222,7 @@ describe('PendingAccess', () => {
           await expect(
             screen.getByText('Pending User Access'),
           ).toBeInTheDocument();
-          expect(mockGetPendingUserInvites).toHaveBeenCalled();
+          expect(store.getInvites).toHaveBeenCalled();
         });
         expect(screen.getByText('John Doe')).toBeInTheDocument();
 
@@ -247,14 +238,15 @@ describe('PendingAccess', () => {
         const confirmButton = screen.getByRole('button', { name: 'Delete' });
         await fireEvent.click(confirmButton);
         await waitFor(() => {
-          expect(mockDeleteUserInvite).toHaveBeenCalled();
+          expect(store.deleteInvite).toHaveBeenCalled();
           expect(mockSuccess).toHaveBeenCalled();
         });
       });
 
       it('should fail resend invite', async () => {
-        mockGetPendingUserInvites.mockResolvedValue({
-          data: [
+        store.$patch({
+          loading: false,
+          invites: [
             {
               admin_user_onboarding_id: '1',
               first_name: 'John Doe',
@@ -262,9 +254,7 @@ describe('PendingAccess', () => {
             },
           ],
         });
-        mockDeleteUserInvite.mockRejectedValue(
-          new Error('Failed to delete invite'),
-        );
+        vi.spyOn(store, 'deleteInvite').mockRejectedValue(() => new Error());
         await wrappedRender();
         const triggerButton = getTrigger();
         await fireEvent.click(triggerButton);
@@ -272,7 +262,7 @@ describe('PendingAccess', () => {
           await expect(
             screen.getByText('Pending User Access'),
           ).toBeInTheDocument();
-          expect(mockGetPendingUserInvites).toHaveBeenCalled();
+          expect(store.getInvites).toHaveBeenCalled();
         });
         expect(screen.getByText('John Doe')).toBeInTheDocument();
 
@@ -288,7 +278,7 @@ describe('PendingAccess', () => {
         const confirmButton = screen.getByRole('button', { name: 'Delete' });
         await fireEvent.click(confirmButton);
         await waitFor(() => {
-          expect(mockDeleteUserInvite).toHaveBeenCalled();
+          expect(store.deleteInvite).toHaveBeenCalled();
           expect(mockError).toHaveBeenCalled();
         });
       });
