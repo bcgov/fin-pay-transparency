@@ -54,7 +54,6 @@
           v-model="publishDateRange"
           range
           format="yyyy-MM-dd"
-          :max-date="new Date()"
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
@@ -68,7 +67,6 @@
           v-model="expiryDateRange"
           range
           format="yyyy-MM-dd"
-          :max-date="new Date()"
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
