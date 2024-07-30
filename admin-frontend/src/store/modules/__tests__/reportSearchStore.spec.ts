@@ -2,7 +2,10 @@ import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ApiService from '../../../services/apiService';
-import { IReportSearchParams, IReportSearchUpdateParams } from '../../../types';
+import {
+  IReportSearchParams,
+  IReportSearchUpdateParams,
+} from '../../../types/reports';
 import {
   DEFAULT_PAGE_SIZE,
   DEFAULT_SEARCH_PARAMS,
