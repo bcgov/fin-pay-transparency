@@ -50,7 +50,7 @@
       @update:options="updateSearch"
     >
       <template v-slot:item.update_date="{ item }">
-        {{ formatSubmissionDate(item.update_date) }}
+        {{ formatDate(item.update_date) }}
       </template>
       <template v-slot:item.actions="{ item }">
         <v-btn
@@ -89,15 +89,10 @@ import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore';
-import { ReportKeys } from '../types';
+import { ReportKeys } from '../types/reports';
 import ApiService from '../services/apiService';
-import { LocalDate, DateTimeFormatter } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
-
-const displayDateFormatter = DateTimeFormatter.ofPattern(
-  'MMM dd, yyyy',
-).withLocale(Locale.CANADA);
+import { formatDate } from '../utils/date';
 
 const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
@@ -215,20 +210,6 @@ function exportResults() {
   if (lastSubmittedReportSearchParams.value) {
     reportSearchStore.downloadReportsCsv(lastSubmittedReportSearchParams.value);
   }
-}
-
-/*
-Converts a date/time string of one format into another format.
-The incoming and outgoing formats can be specified with Joda
-DateTimeFormatter objects passed as parameters.
-*/
-function formatSubmissionDate(
-  inDateStr: string,
-  inFormatter = DateTimeFormatter.ISO_DATE_TIME,
-  outFormatter = displayDateFormatter,
-) {
-  const jodaLocalDate = LocalDate.parse(inDateStr, inFormatter);
-  return outFormatter.format(jodaLocalDate);
 }
 </script>
 

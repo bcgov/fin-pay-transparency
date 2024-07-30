@@ -214,7 +214,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import { useCodeStore } from '../store/modules/codeStore';
 import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { ReportFilterType } from '../types';
+import { ReportFilterType } from '../types/reports';
 import {
   ZonedDateTime,
   nativeJs,

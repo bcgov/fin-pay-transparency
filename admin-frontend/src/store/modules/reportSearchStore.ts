@@ -7,7 +7,7 @@ import {
   IReportSearchSort,
   IReportSearchUpdateParams,
   SORT_KEY_MAPPING,
-} from '../../types';
+} from '../../types/reports';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
