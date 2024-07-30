@@ -48,7 +48,7 @@ jobs:
       environment: test
       tag: ${{ github.event.inputs.tag }}
       frontend-url: https://test.paytransparency.fin.gov.bc.ca
-      admin-frontend-url: https://test.paytransparency-admin.fin.gov.bc.ca
+      admin-frontend-url: https://test.ptrtadmin.fin.gov.bc.ca
       semver: ${{ github.event.inputs.tag }}
       values: "values-test.yaml"
   test-integration:
