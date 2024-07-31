@@ -100,11 +100,7 @@
                 >
               </v-list-item>
               <v-list-item>
-                <v-btn
-                  class="text-red"
-                  variant="text"
-                  prepend-icon="mdi-delete"
-                  ref="deleteAnnouncement"
+                <v-btn class="text-red" variant="text" prepend-icon="mdi-delete"
                   >Delete</v-btn
                 >
               </v-list-item>
