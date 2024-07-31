@@ -238,8 +238,7 @@ const selectedEmployeeCount = ref([]);
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
 const startYear = 2024;
 const currentYear = new Date().getFullYear();
-const yearOptions = range(startYear, currentYear + 1);
-const reportYearOptions = ref([null, ...yearOptions]);
+const reportYearOptions = ref([null, ...range(startYear, currentYear + 1).reverse()]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
 
 function getReportSearchFilters(): ReportFilterType {
