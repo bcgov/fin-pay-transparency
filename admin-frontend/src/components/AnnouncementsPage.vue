@@ -118,6 +118,7 @@
             <v-btn
               class="btn-secondary"
               :disabled="!selectedAnnouncementIds.length"
+              prepend-icon="mdi-delete"
               >Delete</v-btn
             >
           </v-col>
