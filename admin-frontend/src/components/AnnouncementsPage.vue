@@ -41,6 +41,32 @@
       "
       @update:options="updateSearch"
     >
+      <template v-slot:header.selection="{ column }">
+        <v-checkbox
+          class="checkbox-no-details"
+          v-model="isSelectedAnnouncementsHeaderChecked"
+          @click="
+            toggleSelectAllAnnouncements(!isSelectedAnnouncementsHeaderChecked)
+          "
+        ></v-checkbox>
+      </template>
+      <template v-slot:item.selection="{ item }">
+        <v-checkbox
+          class="checkbox-no-details"
+          v-model="selectedAnnouncements[item.announcement_id]"
+        >
+        </v-checkbox>
+      </template>
+      <template v-slot:item.title="{ item }">
+        <v-btn
+          variant="text"
+          class="btn-link"
+          color="link"
+          @click="showAnnouncement(item)"
+        >
+          {{ item.title }}
+        </v-btn>
+      </template>
       <template v-slot:item.published_on="{ item }">
         {{ formatDate(item.published_on) }}
       </template>
@@ -82,8 +108,44 @@
           </v-menu>
         </v-btn>
       </template>
+      <template v-slot:footer.prepend="">
+        <v-row class="d-flex justify-start">
+          <v-col>
+            <v-btn
+              class="btn-secondary"
+              :disabled="!selectedAnnouncementIds.length"
+              prepend-icon="mdi-delete"
+              >Delete</v-btn
+            >
+          </v-col>
+        </v-row>
+      </template>
     </v-data-table-server>
   </div>
+
+  <!-- dialogs -->
+  <v-dialog
+    v-model="isAnnouncementDialogVisible"
+    :close-on-content-click="true"
+    max-width="390"
+  >
+    <v-card>
+      <v-card-title>
+        {{ announcementInDialog?.title }}
+      </v-card-title>
+
+      <v-card-text>
+        {{ announcementInDialog?.description }}
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn class="btn-secondary" @click="showAnnouncement(undefined)">
+          Close
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts">
@@ -94,7 +156,7 @@ export default {
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
 import AnnouncementSearchFilters from './announcements/AnnouncementSearchFilters.vue';
 import AnnouncementStatusChip from './announcements/AnnouncementStatusChip.vue';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
@@ -104,6 +166,21 @@ import { AnnouncementKeys } from '../types/announcements';
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
   storeToRefs(announcementSearchStore);
+const announcementInDialog = ref<any>(undefined);
+const isAnnouncementDialogVisible = ref<boolean>(false);
+const isSelectedAnnouncementsHeaderChecked = ref<boolean>(false);
+const selectedAnnouncements = ref<object>({});
+const selectedAnnouncementIds = computed(() =>
+  Object.entries(selectedAnnouncements.value)
+    .filter(([_, value]) => value)
+    .map(([key, _]) => key),
+);
+
+watch(searchResults, () => {
+  // Don't allow an announcement to be selected if it isn't in the current page
+  // of search results
+  clearSelectionOfNonSearchResults();
+});
 
 const itemsPerPageOptions = ref([
   { value: 10, title: '10' },
@@ -117,6 +194,12 @@ const itemsPerPageOptions = ref([
 ]);
 
 const headers = ref<any>([
+  {
+    title: '',
+    key: 'selection',
+    align: 'center',
+    sortable: false,
+  },
   {
     title: 'Title',
     align: 'start',
@@ -149,6 +232,44 @@ const headers = ref<any>([
   },
 ]);
 
+function selectAnnouncement(announcement, select: boolean = true) {
+  if (!announcement) {
+    return;
+  }
+  if (select) {
+    selectedAnnouncements.value[announcement.announcement_id] = true;
+  } else {
+    delete selectedAnnouncements.value[announcement.announcement_id];
+  }
+}
+
+function toggleSelectAllAnnouncements(select: boolean) {
+  clearSelectionOfNonSearchResults();
+  searchResults.value?.forEach((announcement) => {
+    selectAnnouncement(announcement, select);
+  });
+}
+
+/*
+Removes from 'selectedAnnouncements' any announcements that are not also
+in the current 'searchResults'.
+*/
+function clearSelectionOfNonSearchResults() {
+  Object.keys(selectedAnnouncements.value).forEach((announcementId) => {
+    const isInSearchResults = searchResults.value?.filter(
+      (announcement) => announcement.announcement_id == announcementId,
+    ).length;
+    if (!isInSearchResults) {
+      delete selectedAnnouncements.value[announcementId];
+    }
+  });
+}
+
+function showAnnouncement(announcement) {
+  announcementInDialog.value = announcement;
+  isAnnouncementDialogVisible.value = announcement != undefined;
+}
+
 async function updateSearch(options) {
   await announcementSearchStore.updateSearch(options);
 }
@@ -169,5 +290,8 @@ async function addAnnouncement() {
 }
 .btn-actions {
   opacity: 1 !important;
+}
+.checkbox-no-details > .v-input__details {
+  display: none;
 }
 </style>

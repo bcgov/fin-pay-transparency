@@ -171,11 +171,16 @@ button:disabled.v-btn {
 }
 
 .v-btn.btn-link {
-  text-decoration: underline;
   color: $link-color;
   background-color: transparent !important;
   border: none;
   box-shadow: none;
+  font-weight: normal !important;
+  padding: 0px;
+  letter-spacing: 1px;
+}
+.v-btn.btn-link:hover > .v-btn__overlay {
+  opacity: 0 !important;
 }
 
 .v-alert .v-icon {
