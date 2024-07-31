@@ -121,10 +121,6 @@
         </v-row>
       </template>
     </v-data-table-server>
-
-    <v-row>
-      <v-col> </v-col>
-    </v-row>
   </div>
 
   <!-- dialogs -->
