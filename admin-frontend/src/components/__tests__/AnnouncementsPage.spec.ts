@@ -99,8 +99,20 @@ describe('AnnouncementsPage', () => {
     expect(wrapper.html()).toContain(`Displaying ${mockAnnouncements.length}`);
   });
 
-  it('has search filters', async () => {
-    //await nextTick();
-    //expect(wrapper.findComponent(AnnouncementsSearchFilters)).toBe(true);
+  describe('showAnnouncement', () => {
+    describe('value is an announcement', () => {
+      it('shows the dialog', async () => {
+        const mockAnnouncement = {};
+        wrapper.vm.showAnnouncement(mockAnnouncement);
+        expect(wrapper.vm.isAnnouncementDialogVisible).toBeTruthy();
+      });
+    });
+    describe('value is undefined', () => {
+      it('hides the dialog', async () => {
+        const mockAnnouncement = undefined;
+        wrapper.vm.showAnnouncement(mockAnnouncement);
+        expect(wrapper.vm.isAnnouncementDialogVisible).toBeFalsy();
+      });
+    });
   });
 });

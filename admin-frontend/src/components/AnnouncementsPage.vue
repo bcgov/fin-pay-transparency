@@ -41,6 +41,16 @@
       "
       @update:options="updateSearch"
     >
+      <template v-slot:item.title="{ item }">
+        <v-btn
+          variant="text"
+          class="btn-link"
+          color="link"
+          @click="showAnnouncement(item)"
+        >
+          {{ item.title }}
+        </v-btn>
+      </template>
       <template v-slot:item.published_on="{ item }">
         {{ formatDate(item.published_on) }}
       </template>
@@ -84,6 +94,30 @@
       </template>
     </v-data-table-server>
   </div>
+
+  <!-- dialogs -->
+  <v-dialog
+    v-model="isAnnouncementDialogVisible"
+    :close-on-content-click="true"
+    max-width="390"
+  >
+    <v-card>
+      <v-card-title>
+        {{ activeAnnouncement?.title }}
+      </v-card-title>
+
+      <v-card-text>
+        {{ activeAnnouncement?.description }}
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn class="btn-secondary" @click="showAnnouncement(undefined)">
+          Close
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts">
@@ -94,7 +128,7 @@ export default {
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import AnnouncementSearchFilters from './announcements/AnnouncementSearchFilters.vue';
 import AnnouncementStatusChip from './announcements/AnnouncementStatusChip.vue';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
@@ -104,6 +138,8 @@ import { AnnouncementKeys } from '../types/announcements';
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
   storeToRefs(announcementSearchStore);
+const activeAnnouncement = ref<any>(undefined);
+const isAnnouncementDialogVisible = ref<boolean>(false);
 
 const itemsPerPageOptions = ref([
   { value: 10, title: '10' },
@@ -148,6 +184,11 @@ const headers = ref<any>([
     sortable: false,
   },
 ]);
+
+function showAnnouncement(announcement) {
+  activeAnnouncement.value = announcement;
+  isAnnouncementDialogVisible.value = announcement != undefined;
+}
 
 async function updateSearch(options) {
   await announcementSearchStore.updateSearch(options);
