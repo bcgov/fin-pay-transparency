@@ -3,6 +3,7 @@ import {
   GENDER_CODES,
   NUMERIC_COLUMNS,
   RowError,
+  STANDARDIZED_GENDER_CODES,
   SUBMISSION_ROW_COLUMNS,
   validateService,
   ValidationError,
@@ -294,7 +295,9 @@ class TaggedColumnStats {
   }
 
   public push(value: number, genderCode: string) {
-    this.data.push({ value: value, genderCode: genderCode });
+    const standardizedGenderCode =
+      validateService.standardizeGenderCode(genderCode);
+    this.data.push({ value: value, genderCode: standardizedGenderCode });
     this.isSorted = false;
   }
 
@@ -631,12 +634,18 @@ const reportCalcServicePrivate = {
   Gets the hourly pay quartile calculationCode for the given quartile and
   genderCode.  Quartile should be one of ("Q1", "Q2", "Q3", "Q4").
   */
-  getHourlyPayQuartileCalculationCode(quartile: string, genderCode: string) {
+  getHourlyPayQuartileCalculationCode(
+    quartile: string,
+    standardizedGenderCode: string,
+  ) {
     //
     if (quartile.startsWith('Q')) {
       quartile = quartile.substring(1);
     }
-    const calculationCodeKey = `HOURLY_PAY_PERCENT_QUARTILE_${quartile}_${genderCode}`;
+    const primaryGenderCode = validateService.unstandardizeGenderCode(
+      standardizedGenderCode,
+    );
+    const calculationCodeKey = `HOURLY_PAY_PERCENT_QUARTILE_${quartile}_${primaryGenderCode}`;
     if (!CALCULATION_CODES.hasOwnProperty(calculationCodeKey)) {
       throw new Error(`Unknown calculation code: ${calculationCodeKey}`);
     }
@@ -1535,8 +1544,8 @@ const reportCalcServicePrivate = {
     const genderCountsPerQuartile = hourlyPayQuartileStats
       ? hourlyPayQuartileStats.getGenderCountsPerQuartile()
       : null;
-    const allGenderCodes = Object.keys(GENDER_CODES).map(
-      (g) => GENDER_CODES[g][0],
+    const allGenderCodes = Object.keys(STANDARDIZED_GENDER_CODES).map(
+      (g) => STANDARDIZED_GENDER_CODES[g],
     );
 
     Object.keys(QUARTILES).forEach((quartile) => {
@@ -1549,13 +1558,13 @@ const reportCalcServicePrivate = {
       // First iteration of employee counts for each gender to determine
       // which gender groups meet the threshold for display in the report
       // (i.e. which are not suppressed)
-      allGenderCodes.forEach((genderCode) => {
-        const genderCount = genderCounts.hasOwnProperty(genderCode)
-          ? genderCounts[genderCode]
+      allGenderCodes.forEach((standardizedGenderCode) => {
+        const genderCount = genderCounts.hasOwnProperty(standardizedGenderCode)
+          ? genderCounts[standardizedGenderCode]
           : 0;
         const isSuppressed = !this.meetsPeopleCountThreshold(genderCount);
         if (!isSuppressed) {
-          nonSuppressedGenderCounts[genderCode] = genderCount;
+          nonSuppressedGenderCounts[standardizedGenderCode] = genderCount;
         }
       });
 
@@ -1571,18 +1580,19 @@ const reportCalcServicePrivate = {
 
       // Second iteration of employee counts to calculate a percentage
       // of the gender group in the given quartile.
-      allGenderCodes.forEach((genderCode) => {
-        const isSuppressed =
-          !nonSuppressedGenderCounts.hasOwnProperty(genderCode);
+      allGenderCodes.forEach((standardizedGenderCode) => {
+        const isSuppressed = !nonSuppressedGenderCounts.hasOwnProperty(
+          standardizedGenderCode,
+        );
         let percent = null;
         const calculationCode =
           reportCalcServicePrivate.getHourlyPayQuartileCalculationCode(
             quartile,
-            genderCode,
+            standardizedGenderCode,
           );
 
         if (!isSuppressed) {
-          const genderCount = nonSuppressedGenderCounts[genderCode];
+          const genderCount = nonSuppressedGenderCounts[standardizedGenderCode];
           percent = (genderCount / nonSuppressedTotalCount) * 100;
         }
 
@@ -1593,7 +1603,7 @@ const reportCalcServicePrivate = {
         });
       });
     });
-
+    console.log(calculatedAmounts);
     return calculatedAmounts;
   },
 
