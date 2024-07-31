@@ -26,4 +26,6 @@ export type Announcement = {
   published_on: string;
   expires_on: string;
   status: 'DRAFT' | 'PUBLISHED';
+  linkUrl: string;
+  linkDisplayName: string;
 };

@@ -142,8 +142,23 @@ export const createAnnouncement = async (
     admin_user_announcement_updated_byToadmin_user: {
       connect: { admin_user_id: currentUserId },
     },
+    announcement_resource: input.linkUrl
+      ? {
+          createMany: {
+            data: [
+              {
+                display_name: input.linkDisplayText,
+                resource_url: input.linkUrl,
+                resource_type: 'LINK',
+                created_by: currentUserId,
+                updated_by: currentUserId,
+              },
+            ],
+          },
+        }
+      : undefined,
   };
-  
+
   return prisma.announcement.create({
     data,
   });

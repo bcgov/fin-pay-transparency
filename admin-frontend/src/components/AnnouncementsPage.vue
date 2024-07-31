@@ -22,7 +22,7 @@
         xl="8"
         class="d-flex justify-end align-center"
       >
-        <v-btn class="btn-primary" @click="addAnnouncement()">
+        <v-btn class="btn-primary" to="/add-announcement">
           Add announcement
         </v-btn>
       </v-col>
@@ -126,12 +126,6 @@
     </v-card>
   </v-dialog>
 </template>
-
-<script lang="ts">
-export default {
-  name: 'Announcements',
-};
-</script>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
@@ -260,10 +254,6 @@ async function updateSearch(options) {
 
 async function repeatSearch() {
   await announcementSearchStore.repeatSearch();
-}
-
-async function addAnnouncement() {
-  console.log('TODO: add announcement');
 }
 
 async function deleteAnnouncements(announcementIds: string[]) {

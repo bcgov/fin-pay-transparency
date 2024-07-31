@@ -46,7 +46,7 @@
       </v-col>
       <v-col cols="12" md="8" sm="12" class="d-flex flex-column">
         <h5 class="mb-2">Time settings</h5>
-        <v-row>
+        <v-row dense>
           <v-col cols="2" class="d-flex justify-end align-center">
             <p class="datetime-picker-label">Publish On</p>
           </v-col>
@@ -79,13 +79,43 @@
               arrow-navigation
               auto-apply
               prevent-min-max-navigation
-              v-model="expiresOn as any"
+              v-model="expiresOn"
+              :disabled="noExpiry"
             />
           </v-col>
         </v-row>
         <v-row class="mt-0">
           <v-col cols="8" class="d-flex justify-end pa-0">
-            <v-checkbox class="expiry-checkbox" label="No expiry"></v-checkbox>
+            <v-checkbox
+              v-model="noExpiry"
+              class="expiry-checkbox"
+              label="No expiry"
+            ></v-checkbox>
+          </v-col>
+        </v-row>
+      </v-col>
+      <v-col cols="12">
+        <h5 class="mb-2">Link</h5>
+        <v-row dense class="ml-3 mt-2">
+          <v-col cols="12">
+            <span class="attachment-label">Link URL</span>
+            <v-text-field
+              single-line
+              variant="outlined"
+              placeholder="https://example.com"
+              v-model="linkUrl"
+              :error-messages="errors.linkUrl"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <span class="attachment-label">Display Link As</span>
+            <v-text-field
+              single-line
+              variant="outlined"
+              placeholder="eg., DocumentName.pdf"
+              v-model="linkDisplayName"
+              :error-messages="errors.linkDisplayName"
+            ></v-text-field>
           </v-col>
         </v-row>
       </v-col>
@@ -95,9 +125,10 @@
 
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
-
+import { defineProps, defineEmits, watch } from 'vue';
 import { Announcement } from '../../types';
 import { useField, useForm } from 'vee-validate';
+import * as zod from 'zod';
 
 const emits = defineEmits(['save']);
 
@@ -114,6 +145,9 @@ const { handleReset, handleSubmit, setErrors, errors } = useForm({
     description: announcement?.description || '',
     published_on: announcement?.published_on || '',
     expires_on: announcement?.expires_on || '',
+    no_expiry: undefined,
+    linkUrl: announcement?.linkUrl || '',
+    linkDisplayName: announcement?.linkDisplayName || '',
   },
   validationSchema: {
     title(value) {
@@ -132,6 +166,19 @@ const { handleReset, handleSubmit, setErrors, errors } = useForm({
 
       return true;
     },
+    linkUrl(value) {
+      if (value && !zod.string().url().safeParse(value).success) {
+        return 'Invalid URL.';
+      }
+
+      return true;
+    },
+    linkText(value) {
+      if (value && value.length > 100)
+        return 'Link display name should be less than 100 characters.';
+
+      return true;
+    },
   },
 });
 
@@ -139,11 +186,30 @@ const { value: announcementTitle } = useField('title');
 const { value: announcementDescription } = useField('description');
 const { value: publishedOn } = useField('published_on') as any;
 const { value: expiresOn } = useField('expires_on') as any;
+const { value: noExpiry } = useField('no_expiry') as any;
+const { value: linkUrl } = useField('linkUrl') as any;
+const { value: linkDisplayName } = useField('linkDisplayName') as any;
+
+watch(noExpiry, () => {
+  if (noExpiry.value) {
+    expiresOn.value = null;
+  }
+});
 
 const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
   handleSubmit(async (values) => {
     if (!values.published_on && status === 'PUBLISHED') {
       setErrors({ published_on: 'Publish date is required.' });
+      return;
+    }
+
+    if (!values.linkDisplayName && values.linkUrl) {
+      setErrors({ linkDisplayName: 'Link display name is required.' });
+      return;
+    }
+
+    if (!values.linkUrl && values.linkDisplayName) {
+      setErrors({ linkUrl: 'Link URL is required.' });
       return;
     }
 
@@ -173,7 +239,8 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
   }
 }
 
-.datetime-picker-label {
+.datetime-picker-label,
+.attachment-label {
   font-size: small;
 }
 
