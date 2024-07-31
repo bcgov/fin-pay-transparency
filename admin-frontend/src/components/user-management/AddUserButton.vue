@@ -183,6 +183,7 @@ const submit = async () => {
     NotificationService.pushNotificationSuccess(
       'User successfully onboarded. An email has been sent for them to activate their account for the application. Once they activate their account the user will be displayed for user management',
     );
+    handleReset();
   } catch (error: any) {
     // Assume that any AxiosError with status == 400 and an included error
     // message has its message written in a user-friendly format that we

@@ -208,6 +208,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { range } from 'lodash';
 import { storeToRefs } from 'pinia';
 import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -235,7 +236,9 @@ const selectedLockedValues = ref(undefined);
 const selectedEmployeeCount = ref([]);
 
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
-const reportYearOptions = ref([null, 2024, 2023]);
+const startYear = 2024;
+const currentYear = new Date().getFullYear();
+const reportYearOptions = ref([null, ...range(startYear, currentYear + 1).reverse()]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
 
 function getReportSearchFilters(): ReportFilterType {
