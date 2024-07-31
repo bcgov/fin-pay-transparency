@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 import { Announcement } from '../types';
-import AnnouncementForm from './announcements/announcement-form.vue';
+import AnnouncementForm from './announcements/AnnouncementForm.vue';
 import { NotificationService } from '../services/notificationService';
 import ApiService from '../services/apiService';
 
