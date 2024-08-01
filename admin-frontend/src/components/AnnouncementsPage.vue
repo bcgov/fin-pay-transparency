@@ -207,13 +207,13 @@ const headers = ref<any>([
     key: AnnouncementKeys.TITLE,
   },
   {
-    title: 'Publish date',
+    title: 'Publish on',
     align: 'start',
     sortable: true,
     key: AnnouncementKeys.PUBLISH_DATE,
   },
   {
-    title: 'Expiry date',
+    title: 'Expires on',
     align: 'start',
     sortable: true,
     key: AnnouncementKeys.EXPIRY_DATE,
