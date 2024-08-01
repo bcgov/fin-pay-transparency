@@ -79,7 +79,13 @@
           arrow-navigation
           auto-apply
           prevent-min-max-navigation
-        />
+        >
+          <template #day="{ day, date }">
+              <span :aria-label="formatDate(date)">
+                {{ day }}
+              </span>
+          </template>
+        </VueDatePicker>
       </v-col>
 
       <v-col sm="6" md="6" lg="4" xl="2" class="d-flex flex-column">
@@ -243,7 +249,9 @@ import {
   nativeJs,
   DateTimeFormatter,
   ZoneId,
+  LocalDate
 } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
@@ -265,6 +273,12 @@ const reportYearOptions = ref([
   ...range(startYear, currentYear + 1).reverse(),
 ]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
+
+const formatDate = (date: Date) => {
+  return LocalDate.from(nativeJs(date)).format(
+    DateTimeFormatter.ofPattern('EEEE d MMMM yyyy').withLocale(Locale.CANADA),
+  );
+};
 
 function getReportSearchFilters(): ReportFilterType {
   const filters: any[] = [];
