@@ -283,5 +283,29 @@ describe('AddAnnouncementPage', () => {
     });
   });
 
-  describe('when add announcement fails', () => {});
+  describe('when add announcement fails', () => {
+    it('should show error message', async () => {
+      mockAddAnnouncement.mockImplementation(() => {
+        throw new Error('Failed to add announcement');
+      });
+      const { getByRole, getByLabelText } = await wrappedRender();
+      const publishButton = getByRole('button', { name: 'Publish' });
+      const title = getByLabelText('Title');
+      const description = getByLabelText('Description');
+      const linkUrl = getByLabelText('Link URL');
+      const displayLinkAs = getByLabelText('Display Link As');
+      await fireEvent.update(title, 'Test Title');
+      await fireEvent.update(description, 'Test Description');
+      const publishOn = getByLabelText('Publish On');
+      const expiresOn = getByLabelText('Expires On');
+      await setDate(publishOn, () => screen.getByText('15'));
+      await setDate(expiresOn, () => screen.getByText('20'));
+      await fireEvent.update(linkUrl, 'https://example.com');
+      await fireEvent.update(displayLinkAs, 'Example.pdf');
+      await fireEvent.click(publishButton);
+      await waitFor(() => {
+        expect(mockError).toHaveBeenCalled();
+      });
+    });
+  });
 });
