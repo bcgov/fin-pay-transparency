@@ -56,26 +56,26 @@
               :enable-time-picker="true"
               arrow-navigation
               auto-apply
-              aria-label="Publish On"
               prevent-min-max-navigation
               v-model="publishedOn"
+              :aria-labels="{ input: 'Publish On' }"
             >
             </VueDatePicker>
           </v-col>
         </v-row>
-        <v-row class="mt-0">
+        <v-row dense class="mt-0">
           <v-col cols="2" class="d-flex justify-end align-center pa-0"> </v-col>
-          <v-col cols="6 pa-0 ml-3">
+          <v-col cols="6" class="pa-0 ml-3">
             <span class="field-error">{{ errors.published_on }}</span>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row dense class="mt-2">
           <v-col cols="2" class="d-flex justify-end align-center">
             <p class="datetime-picker-label">Expires On</p>
           </v-col>
           <v-col cols="6" class="d-flex align-center">
             <VueDatePicker
-              aria-label="Expires On"
+              :aria-labels="{ input: 'Expires On' }"
               format="yyyy-MM-dd hh:mm a"
               :enable-time-picker="true"
               arrow-navigation
@@ -133,6 +133,7 @@ import { defineProps, defineEmits, watch } from 'vue';
 import { Announcement } from '../../types';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
+import { LocalDate } from '@js-joda/core';
 
 const emits = defineEmits(['save']);
 
@@ -158,7 +159,7 @@ const { handleReset, handleSubmit, setErrors, errors } = useForm({
       if (!value) return 'Title is required.';
 
       if (value.length > 100)
-        return 'Title should be less than 100 characters.';
+        return 'Title should have a maximum of 100 characters.';
 
       return true;
     },
@@ -166,7 +167,7 @@ const { handleReset, handleSubmit, setErrors, errors } = useForm({
       if (!value) return 'Description is required.';
 
       if (value.length > 2000)
-        return 'Description should be less than 2000 characters.';
+        return 'Description should have a maximum of 2000 characters.';
 
       return true;
     },
@@ -177,9 +178,10 @@ const { handleReset, handleSubmit, setErrors, errors } = useForm({
 
       return true;
     },
-    linkText(value) {
-      if (value && value.length > 100)
-        return 'Link display name should be less than 100 characters.';
+    linkDisplayName(value) {
+      if (value && value.length > 100) {
+        return 'Link display name should not be more than 100 characters.';
+      }
 
       return true;
     },
@@ -202,25 +204,31 @@ watch(noExpiry, () => {
 
 const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
   handleSubmit(async (values) => {
-    console.log('values 1', values);
     if (!values.published_on && status === 'PUBLISHED') {
       setErrors({ published_on: 'Publish date is required.' });
       return;
     }
 
-    console.log('values 2', values);
+    if (
+      values.expires_on &&
+      values.published_on &&
+      values.expires_on < values.published_on
+    ) {
+      setErrors({
+        expires_on: 'Expires on date should be greater than publish on date.',
+      });
+      return;
+    }
+
     if (!values.linkDisplayName && values.linkUrl) {
       setErrors({ linkDisplayName: 'Link display name is required.' });
       return;
     }
-    console.log('values 3', values);
 
     if (!values.linkUrl && values.linkDisplayName) {
       setErrors({ linkUrl: 'Link URL is required.' });
       return;
     }
-
-    console.log('values 4', values);
 
     await emits('save', {
       ...values,
