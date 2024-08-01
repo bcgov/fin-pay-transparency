@@ -47,10 +47,32 @@
   <div class="secondary-filters py-4" v-if="areSecondaryFiltersVisible">
     <v-row dense>
       <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Submission date</h5>
+        <h5>
+          Submission date range
+          <v-tooltip
+            text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
+            width="300px"
+            id="submission-date-range-tooltip"
+          >
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props"
+                icon="fa:fas fa-circle-info"
+                size="x-small"
+                color="primary"
+                class="ml-1"
+                tabindex="0"
+                role="tooltip"
+                aria-labeledby="submission-date-range-tooltip"
+              />
+            </template>
+          </v-tooltip>
+        </h5>
+
         <VueDatePicker
           v-model="submissionDateRange"
           range
+          placeholder="Select date range"
           format="yyyy-MM-dd"
           :max-date="new Date()"
           :enable-time-picker="false"
@@ -238,7 +260,10 @@ const selectedEmployeeCount = ref([]);
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
 const startYear = 2024;
 const currentYear = new Date().getFullYear();
-const reportYearOptions = ref([null, ...range(startYear, currentYear + 1).reverse()]);
+const reportYearOptions = ref([
+  null,
+  ...range(startYear, currentYear + 1).reverse(),
+]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
 
 function getReportSearchFilters(): ReportFilterType {
