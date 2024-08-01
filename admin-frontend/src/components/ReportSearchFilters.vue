@@ -50,9 +50,9 @@
         <h5>
           Submission date range
           <v-tooltip
-            text="Tooltip text goes here. Tooltip text goes here Tooltip text goes here Tooltip text goes here"
+            text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
             width="300px"
-            id="naics-tooltip"
+            id="submission-date-range-tooltip"
           >
             <template #activator="{ props }">
               <v-icon
@@ -63,7 +63,7 @@
                 class="ml-1"
                 tabindex="0"
                 role="tooltip"
-                aria-labeledby="naics-tooltip"
+                aria-labeledby="submission-date-range-tooltip"
               />
             </template>
           </v-tooltip>
