@@ -248,9 +248,9 @@ import {
   ZonedDateTime,
   nativeJs,
   DateTimeFormatter,
-  ZoneId
+  ZoneId,
+  LocalDate
 } from '@js-joda/core';
-import { LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 
 const reportSearchStore = useReportSearchStore();
