@@ -143,18 +143,18 @@ export const CreateAnnouncementSchema = z
     expires_on: z.string().optional(),
     status: z.enum(['PUBLISHED', 'DRAFT']),
     linkUrl: z.string().url({ message: 'Not a valid URL' }).optional(),
-    linkDisplayText: z
+    linkDisplayName: z
       .string()
       .max(100, { message: 'Link display name is required' })
       .optional(),
   })
   .refine(
     (data) => {
-      if (data.linkUrl && !data.linkDisplayText) {
+      if (data.linkUrl && !data.linkDisplayName) {
         return false;
       }
 
-      if (!data.linkUrl && data.linkDisplayText) {
+      if (!data.linkUrl && data.linkDisplayName) {
         return false;
       }
 

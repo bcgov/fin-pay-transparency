@@ -7,6 +7,7 @@ import {
   CreateAnnouncementType,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import isEmpty from 'lodash/isEmpty';
 
 const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
   const where: Prisma.announcementWhereInput = {};
@@ -134,8 +135,8 @@ export const createAnnouncement = async (
     announcement_status: {
       connect: { code: input.status },
     },
-    published_on: input.published_on,
-    expires_on: input.expires_on,
+    published_on: !isEmpty(input.published_on) ? input.published_on : undefined,
+    expires_on: !isEmpty(input.expires_on) ? input.expires_on : undefined,
     admin_user_announcement_created_byToadmin_user: {
       connect: { admin_user_id: currentUserId },
     },
@@ -147,7 +148,7 @@ export const createAnnouncement = async (
           createMany: {
             data: [
               {
-                display_name: input.linkDisplayText,
+                display_name: input.linkDisplayName,
                 resource_url: input.linkUrl,
                 resource_type: 'LINK',
                 created_by: currentUserId,
