@@ -8,9 +8,12 @@
 
 <script lang="ts" setup>
 import { Announcement } from '../types';
+import { useRouter } from 'vue-router';
 import AnnouncementForm from './announcements/AnnouncementForm.vue';
 import { NotificationService } from '../services/notificationService';
 import ApiService from '../services/apiService';
+
+const router = useRouter();
 
 const submit = async (data: Announcement) => {
   try {
@@ -18,6 +21,7 @@ const submit = async (data: Announcement) => {
     NotificationService.pushNotificationSuccess(
       'Announcement saved successfully',
     );
+    router.push('/announcements');
   } catch (error) {
     console.error('Failed to save announcement', error);
     NotificationService.pushNotificationError('Failed to save announcement');

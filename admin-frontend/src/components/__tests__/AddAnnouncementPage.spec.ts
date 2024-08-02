@@ -5,8 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
-import { get } from 'http';
-import exp from 'constants';
+import { use } from '@js-joda/core';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
@@ -38,6 +37,13 @@ vi.mock('../../services/notificationService', () => ({
     pushNotificationSuccess: () => mockSuccess(),
     pushNotificationError: () => mockError(),
   },
+}));
+
+const mockRouterPush = vi.fn();
+vi.mock('vue-router', () => ({
+  useRouter: () => ({
+    push: (...args) => mockRouterPush(...args),
+  }),
 }));
 
 const setDate = async (field: HTMLElement, getDateCell: () => HTMLElement) => {
@@ -92,6 +98,7 @@ describe('AddAnnouncementPage', () => {
         }),
       );
       expect(mockSuccess).toHaveBeenCalled();
+      expect(mockRouterPush).toHaveBeenCalledWith('/announcements');
     });
   });
   it('should show error message when title is empty', async () => {
@@ -150,7 +157,7 @@ describe('AddAnnouncementPage', () => {
       expect(getByText('Publish date is required.')).toBeInTheDocument();
     });
   });
-  
+
   describe('when published date is greater than expiry date', () => {
     it('should show error message', async () => {
       const { getByRole, getByLabelText, getByText } = await wrappedRender();
@@ -174,7 +181,6 @@ describe('AddAnnouncementPage', () => {
         ).toBeInTheDocument();
       });
     });
-
   });
   it('should show error message when link url is invalid', async () => {
     const { getByRole, getByText } = await wrappedRender();
@@ -270,7 +276,7 @@ describe('AddAnnouncementPage', () => {
       expect(expiresOn).toBeDisabled();
       expect(expiresOn).toHaveValue('');
     });
-  })
+  });
 
   describe('when no expiry is unchecked', () => {
     it('should enable the expires on field', async () => {
