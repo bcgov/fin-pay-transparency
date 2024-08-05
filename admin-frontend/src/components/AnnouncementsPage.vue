@@ -68,10 +68,10 @@
         </v-btn>
       </template>
       <template v-slot:item.published_on="{ item }">
-        {{ formatDate(item.published_on) }}
+        {{ item.published_on ? formatDate(item.published_on) : '-' }}
       </template>
       <template v-slot:item.expires_on="{ item }">
-        {{ formatDate(item.expires_on) }}
+        {{ item.expires_on ? formatDate(item.expires_on) : '-' }}
       </template>
       <template v-slot:item.status="{ item }">
         <AnnouncementStatusChip :status="item.status"></AnnouncementStatusChip>

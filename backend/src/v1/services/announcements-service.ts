@@ -61,6 +61,9 @@ export const getAnnouncements = async (
     orderBy,
     take: query.limit || DEFAULT_PAGE_SIZE,
     skip: query.offset || 0,
+    include: {
+      announcement_resource: true,
+    }
   });
   const total = await prisma.announcement.count({ where });
 
