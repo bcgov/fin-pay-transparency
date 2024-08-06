@@ -18,7 +18,7 @@ const ResizeObserverMock = vi.fn(() => ({
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
-describe('ReportSearchFilters', () => {
+describe('AnnouncementSearchFilters', () => {
   let wrapper;
   let pinia;
 

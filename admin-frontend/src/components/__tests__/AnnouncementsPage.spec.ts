@@ -46,10 +46,12 @@ const ResizeObserverMock = vi.fn(() => ({
 }));
 
 const mockGetAnnouncements = vi.fn();
+const mockDeleteAnnouncements = vi.fn();
 
 vi.mock('../../services/apiService', () => ({
   default: {
     getAnnouncements: (...args) => mockGetAnnouncements(...args),
+    deleteAnnouncements: (...args) => mockDeleteAnnouncements(...args),
   },
 }));
 
@@ -210,6 +212,17 @@ describe('AnnouncementsPage', () => {
           initialSelection,
         );
       });
+    });
+  });
+
+  describe('deleteAnnouncement', async () => {
+    it('delegates to the ApiService', async () => {
+      const announcementIds = ['1', '2'];
+      const repeatSearchSpy = vi.spyOn(announcementSearchStore, 'repeatSearch');
+      const resp = await wrapper.vm.deleteAnnouncements(announcementIds);
+      expect(mockDeleteAnnouncements).toHaveBeenCalledWith(announcementIds);
+      expect(repeatSearchSpy).toHaveBeenCalledTimes(1);
+      expect(wrapper.vm.isDeleting).toBeFalsy();
     });
   });
 });
