@@ -77,43 +77,16 @@
         <AnnouncementStatusChip :status="item.status"></AnnouncementStatusChip>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-btn
-          aria-label="Actions"
-          density="compact"
-          variant="plain"
-          icon="mdi-dots-vertical"
-          color="black"
-          class="btn-actions"
-        >
-          <v-icon color="black"></v-icon>
-          <v-menu activator="parent">
-            <v-list>
-              <v-list-item>
-                <v-btn variant="text" prepend-icon="mdi-pencil">Edit</v-btn>
-              </v-list-item>
-              <v-list-item v-if="item.status == 'DRAFT'">
-                <v-btn variant="text" prepend-icon="mdi-publish">Publish</v-btn>
-              </v-list-item>
-              <v-list-item v-if="item.status == 'PUBLISHED'">
-                <v-btn variant="text" prepend-icon="mdi-cancel"
-                  >Unpublish</v-btn
-                >
-              </v-list-item>
-              <v-list-item>
-                <v-btn class="text-red" variant="text" prepend-icon="mdi-delete"
-                  >Delete</v-btn
-                >
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-btn>
+        <AnnouncementActions :announcement="item"></AnnouncementActions>
       </template>
       <template v-slot:footer.prepend="">
         <v-row class="d-flex justify-start">
           <v-col>
             <v-btn
               class="btn-secondary"
-              :disabled="!selectedAnnouncementIds.length"
+              :disabled="!selectedAnnouncementIds.length || isDeleting"
+              :loading="isDeleting"
+              @click="deleteAnnouncements(selectedAnnouncementIds)"
               prepend-icon="mdi-delete"
               >Delete</v-btn
             >
@@ -159,9 +132,11 @@ import { storeToRefs } from 'pinia';
 import { ref, watch, computed } from 'vue';
 import AnnouncementSearchFilters from './announcements/AnnouncementSearchFilters.vue';
 import AnnouncementStatusChip from './announcements/AnnouncementStatusChip.vue';
+import AnnouncementActions from './announcements/AnnouncementActions.vue';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
 import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
+import ApiService from '../services/apiService';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
@@ -170,6 +145,7 @@ const announcementInDialog = ref<any>(undefined);
 const isAnnouncementDialogVisible = ref<boolean>(false);
 const isSelectedAnnouncementsHeaderChecked = ref<boolean>(false);
 const selectedAnnouncements = ref<object>({});
+const isDeleting = ref<boolean>(false);
 const selectedAnnouncementIds = computed(() =>
   Object.entries(selectedAnnouncements.value)
     .filter(([_, value]) => value)
@@ -280,6 +256,17 @@ async function repeatSearch() {
 
 async function addAnnouncement() {
   console.log('TODO: add announcement');
+}
+
+async function deleteAnnouncements(announcementIds: string[]) {
+  isDeleting.value = true;
+  try {
+    await ApiService.deleteAnnouncements(announcementIds);
+    announcementSearchStore.repeatSearch();
+  } catch (e) {
+  } finally {
+    isDeleting.value = false;
+  }
 }
 </script>
 
