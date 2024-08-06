@@ -229,6 +229,12 @@ button:disabled.v-btn {
   color: #f8bb47 !important;
 }
 
+.v-chip.error {
+  background-color: #f4e1e2 !important;
+  border-color: #f4e1e2 !important;
+  color: #ce3e39 !important;
+}
+
 @media screen and (max-width: 370px) {
   .v-toolbar__title {
     font-size: 0.9rem;
