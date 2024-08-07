@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
+import { before } from 'node:test';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
@@ -56,6 +57,9 @@ const setDate = async (field: HTMLElement, getDateCell: () => HTMLElement) => {
 };
 
 describe('AddAnnouncementPage', () => {
+  before(() => {
+    vi.clearAllMocks();
+  });
   it('should render the form', async () => {
     const { getByRole, getByLabelText } = await wrappedRender();
     expect(getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
