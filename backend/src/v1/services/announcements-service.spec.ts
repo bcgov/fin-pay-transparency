@@ -70,7 +70,7 @@ describe('AnnouncementsService', () => {
         expect(mockFindMany).toHaveBeenCalledWith({
           where: {},
           orderBy: [],
-          include: {announcement_resource: true},
+          include: { announcement_resource: true },
           take: 10,
           skip: 0,
         });
@@ -78,13 +78,14 @@ describe('AnnouncementsService', () => {
     });
 
     describe('when query is provided', () => {
-      
-
       describe('when filters are provided', () => {
-
         describe('when title is provided', () => {
           it('should return announcements', async () => {
-            await getAnnouncements({ filters: [{key: 'title', operation: 'like', value: 'Announcement 1'}] });
+            await getAnnouncements({
+              filters: [
+                { key: 'title', operation: 'like', value: 'Announcement 1' },
+              ],
+            });
             expect(mockFindMany).toHaveBeenCalledWith(
               expect.objectContaining({
                 where: expect.objectContaining({
