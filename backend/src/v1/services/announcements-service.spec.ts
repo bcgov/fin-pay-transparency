@@ -1,4 +1,4 @@
-import { fa, faker } from '@faker-js/faker';
+import { da, fa, faker } from '@faker-js/faker';
 import { CreateAnnouncementType } from '../types/announcements';
 import {
   createAnnouncement,
@@ -274,13 +274,56 @@ describe('AnnouncementsService', () => {
         expires_on: faker.date.recent().toISOString(),
         published_on: faker.date.future().toISOString(),
         status: 'PUBLISHED',
+        linkDisplayName: faker.lorem.words(3),
+        linkUrl: faker.internet.url(),
       };
       await createAnnouncement(announcementInput, 'user-id');
       expect(mockCreateAnnouncement).toHaveBeenCalledWith({
         data: {
-          ...omit(announcementInput, 'status'),
+          ...omit(announcementInput, 'status', 'linkDisplayName', 'linkUrl'),
           announcement_status: {
             connect: { code: 'PUBLISHED' },
+          },
+          announcement_resource: {
+            createMany: {
+              data: [
+                {
+                  display_name: announcementInput.linkDisplayName,
+                  resource_url: announcementInput.linkUrl,
+                  resource_type: 'LINK',
+                  created_by: 'user-id',
+                  updated_by: 'user-id',
+                },
+              ],
+            }
+          },
+          admin_user_announcement_created_byToadmin_user: {
+            connect: { admin_user_id: 'user-id' },
+          },
+          admin_user_announcement_updated_byToadmin_user: {
+            connect: { admin_user_id: 'user-id' },
+          },
+        },
+      });
+    });
+    it('should default to undefined dates', async () => {
+      const announcementInput: CreateAnnouncementType = {
+        title: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        expires_on: "",
+        published_on: "",
+        status: 'DRAFT',
+        linkDisplayName: "",
+        linkUrl: "",
+      };
+      await createAnnouncement(announcementInput, 'user-id');
+      expect(mockCreateAnnouncement).toHaveBeenCalledWith({
+        data: {
+          ...omit(announcementInput, 'status', 'linkDisplayName', 'linkUrl'),
+          expires_on: undefined,
+          published_on: undefined,
+          announcement_status: {
+            connect: { code: 'DRAFT' },
           },
           admin_user_announcement_created_byToadmin_user: {
             connect: { admin_user_id: 'user-id' },
