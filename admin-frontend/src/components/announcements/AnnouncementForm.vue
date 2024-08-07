@@ -9,7 +9,7 @@
       variant="outlined"
       color="primary"
       class="mr-2"
-      @click="handleSave('DRAFT')"
+      @click="handleSave('DRAFT')()"
       >Save draft</v-btn
     >
     <v-btn color="primary" @click="handleSave('PUBLISHED')()">Publish</v-btn>
@@ -133,7 +133,9 @@ import { defineProps, defineEmits, watch } from 'vue';
 import { Announcement } from '../../types';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
+import { isEmpty } from 'lodash';
 import { LocalDate } from '@js-joda/core';
+import { nativeJs } from '@js-joda/core';
 
 const emits = defineEmits(['save']);
 
@@ -148,8 +150,8 @@ const { handleReset, handleSubmit, setErrors, errors } = useForm({
   initialValues: {
     title: announcement?.title || '',
     description: announcement?.description || '',
-    published_on: announcement?.published_on || '',
-    expires_on: announcement?.expires_on || '',
+    published_on: announcement?.published_on || undefined,
+    expires_on: announcement?.expires_on || undefined,
     no_expiry: undefined,
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
@@ -209,15 +211,15 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
       return;
     }
 
-    if (
-      values.expires_on &&
-      values.published_on &&
-      values.expires_on < values.published_on
-    ) {
-      setErrors({
-        expires_on: 'Expires on date should be greater than publish on date.',
-      });
-      return;
+    if (values.published_on && values.expires_on) {
+      const expiryDate = LocalDate.from(nativeJs(values.expires_on));
+      const publishDate = LocalDate.from(nativeJs(values.published_on));
+      if (expiryDate.isBefore(publishDate)) {
+        setErrors({
+          published_on: 'Publish date should be before expiry date.',
+        });
+        return;
+      }
     }
 
     if (!values.linkDisplayName && values.linkUrl) {
@@ -232,6 +234,10 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
 
     await emits('save', {
       ...values,
+      linkDisplayName: isEmpty(values.linkDisplayName)
+        ? undefined
+        : values.linkDisplayName,
+      linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
       status,
     });
   });

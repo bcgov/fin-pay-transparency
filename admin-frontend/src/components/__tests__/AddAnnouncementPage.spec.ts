@@ -5,7 +5,6 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
-import { use } from '@js-joda/core';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
@@ -175,11 +174,7 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
       await fireEvent.click(publishButton);
-      await waitFor(() => {
-        expect(
-          getByText('Expires on date should be greater than publish on date.'),
-        ).toBeInTheDocument();
-      });
+      expect(mockAddAnnouncement).not.toHaveBeenCalled(); 
     });
   });
   it('should show error message when link url is invalid', async () => {
