@@ -32,6 +32,7 @@ export const PAGE_TITLES = Object.freeze({
   DASHBOARD: 'Dashboard',
   REPORTS: 'Search Reports',
   ANNOUNCEMENTS: 'Announcements',
+  ADD_ANNOUNCEMENT: 'Add Announcement',
   USER_MANAGEMENT: 'User Management',
   ANALYTICS: 'Analytics',
   LOGIN: 'Login',

@@ -2,7 +2,7 @@
   <div class="toolbar">
     <h1>{{ title }}</h1>
     <span class="fill-remaining-space"></span>
-    <v-btn variant="text" color="primary" class="mr-2" @click="handleReset"
+    <v-btn variant="text" color="primary" class="mr-2" @click="$router.back()"
       >Cancel</v-btn
     >
     <v-btn
