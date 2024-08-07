@@ -73,3 +73,13 @@ export type AnnouncementSortType = {
   field: 'published_on' | 'expires_on' | 'title' | 'status';
   order: 'asc' | 'desc';
 }[];
+
+
+export type AnnouncementFormValue = Pick<
+  IAnnouncement,
+  'title' | 'description' | 'published_on' | 'expires_on' | 'status'
+> & {
+  no_expiry?: boolean;
+  linkUrl: string;
+  linkDisplayName: string;
+};

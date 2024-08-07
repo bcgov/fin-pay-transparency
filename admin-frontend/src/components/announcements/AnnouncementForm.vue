@@ -130,7 +130,7 @@
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
 import { defineProps, defineEmits, watch } from 'vue';
-import { Announcement } from '../../types';
+import { AnnouncementFormValue } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
@@ -139,13 +139,13 @@ import { LocalDate, nativeJs } from '@js-joda/core';
 const emits = defineEmits(['save']);
 
 type Props = {
-  announcement: Announcement | null;
+  announcement: AnnouncementFormValue | null;
   title: string;
 };
 
 const { announcement } = defineProps<Props>();
 
-const { handleReset, handleSubmit, setErrors, errors } = useForm({
+const { handleSubmit, setErrors, errors } = useForm({
   initialValues: {
     title: announcement?.title || '',
     description: announcement?.description || '',

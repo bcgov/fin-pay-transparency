@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Announcement } from '../types';
+import { AnnouncementFormValue } from '../types/announcements';
 import { useRouter } from 'vue-router';
 import AnnouncementForm from './announcements/AnnouncementForm.vue';
 import { NotificationService } from '../services/notificationService';
@@ -15,7 +15,7 @@ import ApiService from '../services/apiService';
 
 const router = useRouter();
 
-const submit = async (data: Announcement) => {
+const submit = async (data: AnnouncementFormValue) => {
   try {
     await ApiService.addAnnouncement(data);
     NotificationService.pushNotificationSuccess(

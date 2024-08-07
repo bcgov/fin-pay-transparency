@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import {
-  Announcement,
   CreateUserInviteInput,
   IConfigValue,
   User,
   UserInvite,
 } from '../types';
 import {
+  AnnouncementFormValue,
   AnnouncementFilterType,
   AnnouncementSortType,
   IAnnouncementSearchResult,
@@ -339,7 +339,7 @@ export default {
     }
   },
 
-  async addAnnouncement(data: Announcement) {
+  async addAnnouncement(data: AnnouncementFormValue) {
     try {
       return await apiAxios.post(ApiRoutes.ANNOUNCEMENTS, data);
     } catch (e) {

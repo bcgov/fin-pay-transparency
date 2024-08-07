@@ -20,12 +20,3 @@ export type UserInvite = {
   role: string;
 };
 
-export type Announcement = {
-  title: string;
-  description: string;
-  published_on: string;
-  expires_on: string;
-  status: 'DRAFT' | 'PUBLISHED';
-  linkUrl: string;
-  linkDisplayName: string;
-};

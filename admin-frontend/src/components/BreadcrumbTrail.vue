@@ -41,7 +41,6 @@ function updateBreadcrumbItems(route) {
 
     items.push(...route.meta.breadcrumbs.map((b) => routeToBreadcrumbItem(router.getRoutes().find((r) => r.name == b))));
 
-    console.log(items);
     if (route?.name != dashboardRoute.name) {
       items.push(routeToBreadcrumbItem(route, false));
     }
