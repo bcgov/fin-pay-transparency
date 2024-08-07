@@ -5,13 +5,15 @@ $$
 declare
 
 adminUserId uuid;
+announcementId uuid;
 
 begin
 
-	select admin_user_id into adminUserId from pay_transparency.admin_user limit 1;
- 
+  set search_path = pay_transparency;
 
-  insert into pay_transparency.announcement (title, description, published_on, expires_on, status, created_by, updated_by)
+  -- add 11 announcements.  some draft and some published.
+	select admin_user_id into adminUserId from pay_transparency.admin_user limit 1;
+  insert into announcement (title, description, published_on, expires_on, status, created_by, updated_by)
 	values 
 		('Fugiat credo', 'Aeternus conculco nihil desparatus varietas curatio soleo sublime valetudo. Ulciscor comitatus tego atque deputo soluta suadeo concido compello. Et anser bos acsi alias.', now(), now() + interval '12 week', 'PUBLISHED', adminUserId, adminUserId),
 	('Totidem ambitus', 'Depraedor adfectus vita ventito stabilis. Vorax numquam sustineo cetera brevis laborum vos ex testimonium. Stultus valeo peccatus comes abscido vilis crepusculum viscus volo.', now() - interval '1 week', now() + interval '12 week', 'DRAFT', adminUserId, adminUserId),
@@ -24,6 +26,12 @@ begin
     ('Numquam tenus', 'Bonus combibo crebro blanditiis acer abbas acidus. Subnecto charisma viduo sulum expedita una excepturi recusandae causa pecto. Arceo voco cursus similique tempus claudeo sono cultellus abundans decerno.', now() - interval '3 week', now() + interval '5 week', 'DRAFT', adminUserId, adminUserId),
 	('Appono itaque', 'Antiquus acervus at vinum spectaculum adulescens adstringo villa. Tergiversatio assumenda defendo conventus usque calculus aeternus abutor cernuus totus. Arcus titulus stabilis perspiciatis.', now() - interval '2 week', now() + interval '8 week', 'PUBLISHED', adminUserId, adminUserId),
     ('Alarte Ascendare', 'Adficio sum perspiciatis umerus cetera cribro absum. Cubitum curiositas utrimque numquam aggredior talis aedificium sortitus aperio. Cetera administratio corpus suscipit patrocinor color suppono.', now() - interval '7 week', now() + interval '13 week', 'DRAFT', adminUserId, adminUserId);
+
+  -- add a 'resource' associated with one of the announcements
+  select announcement_id into announcementId from pay_transparency.announcement limit 1;
+  insert into announcement_resource (announcement_id, resource_type, display_name, resource_url, created_by, updated_by) 
+  values 
+  (announcementId, 'LINK', 'Mock resource', 'Mock Url', adminUserId, adminUserId);
 
 end
 

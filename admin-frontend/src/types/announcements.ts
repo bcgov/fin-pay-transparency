@@ -1,5 +1,17 @@
+export interface IAnnouncement {
+  announcement_id: string;
+  title: string;
+  description: string;
+  created_date: string;
+  updated_date: string;
+  created_by: string;
+  updated_by: string;
+  published_on: string;
+  expires_on: string;
+  status: string;
+}
 export interface IAnnouncementSearchResult {
-  items: any[];
+  items: IAnnouncement[];
   total: number;
 }
 export interface IAnnouncementSearchUpdateParams {
