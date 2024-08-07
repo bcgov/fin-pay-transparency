@@ -216,13 +216,41 @@ describe('AnnouncementsPage', () => {
   });
 
   describe('deleteAnnouncement', async () => {
-    it('delegates to the ApiService', async () => {
-      const announcementIds = ['1', '2'];
-      const repeatSearchSpy = vi.spyOn(announcementSearchStore, 'repeatSearch');
-      const resp = await wrapper.vm.deleteAnnouncements(announcementIds);
-      expect(mockDeleteAnnouncements).toHaveBeenCalledWith(announcementIds);
-      expect(repeatSearchSpy).toHaveBeenCalledTimes(1);
-      expect(wrapper.vm.isDeleting).toBeFalsy();
+    describe('confirm delete', () => {
+      it('delegates to the ApiService', async () => {
+        const announcementIds = ['1', '2'];
+        const repeatSearchSpy = vi.spyOn(
+          announcementSearchStore,
+          'repeatSearch',
+        );
+
+        //mock the confirm delete dialog.
+        //simulate the user clicking the 'confirm' button
+        vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(true);
+
+        const resp = await wrapper.vm.deleteAnnouncements(announcementIds);
+        expect(mockDeleteAnnouncements).toHaveBeenCalledWith(announcementIds);
+        expect(repeatSearchSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.isDeleting).toBeFalsy();
+      });
+    });
+    describe('cancel delete', () => {
+      it("doesn't delete anything", async () => {
+        const announcementIds = ['1', '2'];
+        const repeatSearchSpy = vi.spyOn(
+          announcementSearchStore,
+          'repeatSearch',
+        );
+
+        //mock the confirm delete dialog.
+        //simulate the user clicking the 'cancel' button
+        vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(false);
+
+        const resp = await wrapper.vm.deleteAnnouncements(announcementIds);
+        expect(mockDeleteAnnouncements).toHaveBeenCalledTimes(0);
+        expect(repeatSearchSpy).toHaveBeenCalledTimes(0);
+        expect(wrapper.vm.isDeleting).toBeFalsy();
+      });
     });
   });
 });

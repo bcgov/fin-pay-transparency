@@ -72,13 +72,38 @@ describe('AnnouncementActions', () => {
   });
 
   describe('deleteAnnouncement', async () => {
-    it('delegates to the ApiService', async () => {
-      const announcementId = '1';
-      const apiSpy = vi
-        .spyOn(ApiService, 'deleteAnnouncements')
-        .mockResolvedValue();
-      wrapper.vm.deleteAnnouncement(announcementId);
-      expect(apiSpy).toHaveBeenCalledWith([announcementId]);
+    describe('confirm delete', () => {
+      it('delegates to the ApiService', async () => {
+        const announcementId = '1';
+        const apiSpy = vi
+          .spyOn(ApiService, 'deleteAnnouncements')
+          .mockResolvedValue();
+
+        //mock the confirm delete dialog.
+        //simulate the user clicking the 'confirm' button
+        vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(true);
+
+        await wrapper.vm.deleteAnnouncement(announcementId);
+
+        expect(apiSpy).toHaveBeenCalledWith([announcementId]);
+      });
+    });
+
+    describe('cancel delete', () => {
+      it('does nothing', async () => {
+        const announcementId = '1';
+        const apiSpy = vi
+          .spyOn(ApiService, 'deleteAnnouncements')
+          .mockResolvedValue();
+
+        //mock the confirm delete dialog.
+        //simulate the user clicking the 'cancel' button
+        vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(false);
+
+        await wrapper.vm.deleteAnnouncement(announcementId);
+
+        expect(apiSpy).toHaveBeenCalledTimes(0);
+      });
     });
   });
 });

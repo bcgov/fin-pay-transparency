@@ -33,6 +33,9 @@
       </v-list>
     </v-menu>
   </v-btn>
+
+  <!-- dialogs -->
+  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
 
 <script lang="ts">
@@ -44,21 +47,33 @@ export default {
 
 <script setup lang="ts">
 import { AnnouncementStatus } from '../../types/announcements';
+import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import { ref } from 'vue';
 
 const announcementSearchStore = useAnnouncementSearchStore();
+const confirmDialog = ref<typeof ConfirmationDialog>();
 const isDeleting = ref<boolean>(false);
 
 async function deleteAnnouncement(announcementId: string) {
-  isDeleting.value = true;
-  try {
-    await ApiService.deleteAnnouncements([announcementId]);
-    announcementSearchStore.repeatSearch();
-  } catch (e) {
-  } finally {
-    isDeleting.value = false;
+  const isConfirmed = await confirmDialog.value?.open(
+    'Confirm Deletion',
+    `Are you sure you want to delete the selected announcement?  This action cannot be undone.`,
+    {
+      titleBold: true,
+      resolveText: `Confirm`,
+    },
+  );
+  if (isConfirmed) {
+    isDeleting.value = true;
+    try {
+      await ApiService.deleteAnnouncements([announcementId]);
+      announcementSearchStore.repeatSearch();
+    } catch (e) {
+    } finally {
+      isDeleting.value = false;
+    }
   }
 }
 </script>

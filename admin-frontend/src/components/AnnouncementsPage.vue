@@ -97,6 +97,7 @@
   </div>
 
   <!-- dialogs -->
+  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
   <v-dialog
     v-model="isAnnouncementDialogVisible"
     :close-on-content-click="true"
@@ -137,11 +138,13 @@ import { useAnnouncementSearchStore } from '../store/modules/announcementSearchS
 import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
 import ApiService from '../services/apiService';
+import ConfirmationDialog from './util/ConfirmationDialog.vue';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
   storeToRefs(announcementSearchStore);
 const announcementInDialog = ref<any>(undefined);
+const confirmDialog = ref<typeof ConfirmationDialog>();
 const isAnnouncementDialogVisible = ref<boolean>(false);
 const isSelectedAnnouncementsHeaderChecked = ref<boolean>(false);
 const selectedAnnouncements = ref<object>({});
@@ -259,13 +262,23 @@ async function addAnnouncement() {
 }
 
 async function deleteAnnouncements(announcementIds: string[]) {
-  isDeleting.value = true;
-  try {
-    await ApiService.deleteAnnouncements(announcementIds);
-    announcementSearchStore.repeatSearch();
-  } catch (e) {
-  } finally {
-    isDeleting.value = false;
+  const isConfirmed = await confirmDialog.value?.open(
+    'Confirm Deletion',
+    `Are you sure you want to delete the selected announcement${announcementIds.length != 1 ? 's' : ''}?  This action cannot be undone.`,
+    {
+      titleBold: true,
+      resolveText: `Confirm`,
+    },
+  );
+  if (isConfirmed) {
+    isDeleting.value = true;
+    try {
+      await ApiService.deleteAnnouncements(announcementIds);
+      announcementSearchStore.repeatSearch();
+    } catch (e) {
+    } finally {
+      isDeleting.value = false;
+    }
   }
 }
 </script>
