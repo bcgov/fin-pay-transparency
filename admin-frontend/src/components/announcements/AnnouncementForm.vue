@@ -199,7 +199,7 @@ const { value: linkDisplayName } = useField('linkDisplayName') as any;
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
-    expiresOn.value = null;
+    expiresOn.value = undefined;
   }
 });
 
