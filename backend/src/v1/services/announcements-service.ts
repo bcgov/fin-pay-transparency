@@ -88,9 +88,14 @@ export const patchAnnouncements = async (
     });
 
     for (const announcement of announcements) {
+      //exclude the 'announcement_resource' attribute from
+      //the new announcement_history record
+      const announcement_history = { ...announcement };
+      delete announcement_history.announcement_resource;
+
       await tx.announcement_history.create({
         data: {
-          ...announcement,
+          ...announcement_history,
           announcement_resource_history: {
             createMany: {
               data: announcement.announcement_resource.map((resource) => ({
