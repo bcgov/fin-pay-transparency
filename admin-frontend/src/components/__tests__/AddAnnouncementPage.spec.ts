@@ -220,7 +220,7 @@ describe('AddAnnouncementPage', () => {
 
   describe('when link display name is not empty', () => {
     describe('link display name is more than 100 characters', () => {
-      it.only('should show error message', async () => {
+      it('should show error message', async () => {
         const { getByRole, getByLabelText, getByText } = await wrappedRender();
         const publishButton = getByRole('button', { name: 'Publish' });
         const title = getByLabelText('Title');
