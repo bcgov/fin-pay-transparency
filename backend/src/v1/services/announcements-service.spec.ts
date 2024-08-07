@@ -70,6 +70,7 @@ describe('AnnouncementsService', () => {
         expect(mockFindMany).toHaveBeenCalledWith({
           where: {},
           orderBy: [],
+          include: {announcement_resource: true},
           take: 10,
           skip: 0,
         });
