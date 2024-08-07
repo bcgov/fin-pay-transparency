@@ -4,8 +4,10 @@ import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
 import {
   AnnouncementQueryType,
+  CreateAnnouncementType,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import isEmpty from 'lodash/isEmpty';
 
 const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
   const where: Prisma.announcementWhereInput = {};
@@ -59,6 +61,9 @@ export const getAnnouncements = async (
     orderBy,
     take: query.limit || DEFAULT_PAGE_SIZE,
     skip: query.offset || 0,
+    include: {
+      announcement_resource: true,
+    }
   });
   const total = await prisma.announcement.count({ where });
 
@@ -116,5 +121,49 @@ export const patchAnnouncements = async (
       },
       where: { announcement_id: { in: ids } },
     });
+  });
+};
+
+/**
+ * Create announcement
+ * @param data - announcement data
+ */
+export const createAnnouncement = async (
+  input: CreateAnnouncementType,
+  currentUserId: string,
+) => {
+  const data: Prisma.announcementCreateInput = {
+    title: input.title,
+    description: input.description,
+    announcement_status: {
+      connect: { code: input.status },
+    },
+    published_on: !isEmpty(input.published_on) ? input.published_on : undefined,
+    expires_on: !isEmpty(input.expires_on) ? input.expires_on : undefined,
+    admin_user_announcement_created_byToadmin_user: {
+      connect: { admin_user_id: currentUserId },
+    },
+    admin_user_announcement_updated_byToadmin_user: {
+      connect: { admin_user_id: currentUserId },
+    },
+    announcement_resource: input.linkUrl
+      ? {
+          createMany: {
+            data: [
+              {
+                display_name: input.linkDisplayName,
+                resource_url: input.linkUrl,
+                resource_type: 'LINK',
+                created_by: currentUserId,
+                updated_by: currentUserId,
+              },
+            ],
+          },
+        }
+      : undefined,
+  };
+
+  return prisma.announcement.create({
+    data,
   });
 };

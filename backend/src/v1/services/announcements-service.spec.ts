@@ -1,4 +1,12 @@
-import { getAnnouncements, patchAnnouncements } from './announcements-service';
+import { da, fa, faker } from '@faker-js/faker';
+import { CreateAnnouncementType } from '../types/announcements';
+import {
+  createAnnouncement,
+  getAnnouncements,
+  patchAnnouncements,
+} from './announcements-service';
+import omit from 'lodash/omit';
+import f from 'session-file-store';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -21,6 +29,7 @@ const mockFindMany = jest.fn().mockResolvedValue([
 
 const mockUpdateMany = jest.fn();
 const mockHistoryCreate = jest.fn();
+const mockCreateAnnouncement = jest.fn();
 jest.mock('../prisma/prisma-client', () => ({
   __esModule: true,
   default: {
@@ -28,6 +37,7 @@ jest.mock('../prisma/prisma-client', () => ({
       findMany: (...args) => mockFindMany(...args),
       count: jest.fn().mockResolvedValue(2),
       updateMany: (...args) => mockUpdateMany(...args),
+      create: (...args) => mockCreateAnnouncement(...args),
     },
     announcement_history: {
       create: (...args) => mockHistoryCreate(...args),
@@ -60,6 +70,7 @@ describe('AnnouncementsService', () => {
         expect(mockFindMany).toHaveBeenCalledWith({
           where: {},
           orderBy: [],
+          include: { announcement_resource: true },
           take: 10,
           skip: 0,
         });
@@ -67,13 +78,14 @@ describe('AnnouncementsService', () => {
     });
 
     describe('when query is provided', () => {
-      
-
       describe('when filters are provided', () => {
-
         describe('when title is provided', () => {
           it('should return announcements', async () => {
-            await getAnnouncements({ filters: [{key: 'title', operation: 'like', value: 'Announcement 1'}] });
+            await getAnnouncements({
+              filters: [
+                { key: 'title', operation: 'like', value: 'Announcement 1' },
+              ],
+            });
             expect(mockFindMany).toHaveBeenCalledWith(
               expect.objectContaining({
                 where: expect.objectContaining({
@@ -249,6 +261,76 @@ describe('AnnouncementsService', () => {
           status: 'DELETED',
           updated_by: 'user-id',
           updated_date: expect.any(Date),
+        },
+      });
+    });
+  });
+
+  describe('createAnnouncement', () => {
+    it('should create announcement', async () => {
+      const announcementInput: CreateAnnouncementType = {
+        title: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        expires_on: faker.date.recent().toISOString(),
+        published_on: faker.date.future().toISOString(),
+        status: 'PUBLISHED',
+        linkDisplayName: faker.lorem.words(3),
+        linkUrl: faker.internet.url(),
+      };
+      await createAnnouncement(announcementInput, 'user-id');
+      expect(mockCreateAnnouncement).toHaveBeenCalledWith({
+        data: {
+          ...omit(announcementInput, 'status', 'linkDisplayName', 'linkUrl'),
+          announcement_status: {
+            connect: { code: 'PUBLISHED' },
+          },
+          announcement_resource: {
+            createMany: {
+              data: [
+                {
+                  display_name: announcementInput.linkDisplayName,
+                  resource_url: announcementInput.linkUrl,
+                  resource_type: 'LINK',
+                  created_by: 'user-id',
+                  updated_by: 'user-id',
+                },
+              ],
+            }
+          },
+          admin_user_announcement_created_byToadmin_user: {
+            connect: { admin_user_id: 'user-id' },
+          },
+          admin_user_announcement_updated_byToadmin_user: {
+            connect: { admin_user_id: 'user-id' },
+          },
+        },
+      });
+    });
+    it('should default to undefined dates', async () => {
+      const announcementInput: CreateAnnouncementType = {
+        title: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        expires_on: "",
+        published_on: "",
+        status: 'DRAFT',
+        linkDisplayName: "",
+        linkUrl: "",
+      };
+      await createAnnouncement(announcementInput, 'user-id');
+      expect(mockCreateAnnouncement).toHaveBeenCalledWith({
+        data: {
+          ...omit(announcementInput, 'status', 'linkDisplayName', 'linkUrl'),
+          expires_on: undefined,
+          published_on: undefined,
+          announcement_status: {
+            connect: { code: 'DRAFT' },
+          },
+          admin_user_announcement_created_byToadmin_user: {
+            connect: { admin_user_id: 'user-id' },
+          },
+          admin_user_announcement_updated_byToadmin_user: {
+            connect: { admin_user_id: 'user-id' },
+          },
         },
       });
     });

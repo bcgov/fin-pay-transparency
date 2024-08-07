@@ -7,6 +7,7 @@ import {
   UserInvite,
 } from '../types';
 import {
+  AnnouncementFormValue,
   AnnouncementFilterType,
   AnnouncementSortType,
   IAnnouncementSearchResult,
@@ -334,6 +335,15 @@ export default {
       }
     } catch (e) {
       console.log(`Failed to get pdf report from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async addAnnouncement(data: AnnouncementFormValue) {
+    try {
+      return await apiAxios.post(ApiRoutes.ANNOUNCEMENTS, data);
+    } catch (e) {
+      console.log(`Failed to post from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },
