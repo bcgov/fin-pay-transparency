@@ -1,11 +1,10 @@
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createTestingPinia } from '@pinia/testing';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
-import { before } from 'node:test';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
@@ -57,7 +56,7 @@ const setDate = async (field: HTMLElement, getDateCell: () => HTMLElement) => {
 };
 
 describe('AddAnnouncementPage', () => {
-  before(() => {
+  beforeEach(() => {
     vi.clearAllMocks();
   });
   it('should render the form', async () => {
