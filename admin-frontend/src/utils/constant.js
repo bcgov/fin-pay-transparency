@@ -23,7 +23,6 @@ export const ApiRoutes = Object.freeze({
   EMPLOYEE_COUNT_RANGES: baseRoot + '/v1/codes/employee-count-ranges',
   NAICS_CODES: baseRoot + '/v1/codes/naics-codes',
   REPORTS: baseRoot + '/v1/reports',
-  ANNOUNCEMENTS: baseRoot + '/v1/announcements',
   USERS: `${baseRoot}/v1/users`,
   USER_INVITES: `${baseRoot}/v1/user-invites`,
   ANNOUNCEMENTS: `${baseRoot}/v1/announcements`,

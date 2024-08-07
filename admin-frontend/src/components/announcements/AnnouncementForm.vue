@@ -134,8 +134,7 @@ import { Announcement } from '../../types';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import { LocalDate } from '@js-joda/core';
-import { nativeJs } from '@js-joda/core';
+import { LocalDate, nativeJs } from '@js-joda/core';
 
 const emits = defineEmits(['save']);
 
