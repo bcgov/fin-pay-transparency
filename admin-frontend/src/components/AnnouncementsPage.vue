@@ -81,15 +81,20 @@
       </template>
       <template v-slot:footer.prepend="">
         <v-row class="d-flex justify-start">
-          <v-col>
-            <v-btn
-              class="btn-secondary"
-              :disabled="!selectedAnnouncementIds.length || isDeleting"
-              :loading="isDeleting"
-              @click="deleteAnnouncements(selectedAnnouncementIds)"
-              prepend-icon="mdi-delete"
-              >Delete</v-btn
-            >
+          <v-col class="d-flex justify-start">
+            <div class="mt-3 d-flex flex-column align-center">
+              <v-btn
+                class="btn-secondary"
+                :disabled="!selectedAnnouncementIds.length || isDeleting"
+                :loading="isDeleting"
+                @click="deleteAnnouncements(selectedAnnouncementIds)"
+                prepend-icon="mdi-delete"
+                >Delete</v-btn
+              >
+              <small v-if="selectedAnnouncementIds.length">
+                {{ selectedAnnouncementIds.length }} selected
+              </small>
+            </div>
           </v-col>
         </v-row>
       </template>
