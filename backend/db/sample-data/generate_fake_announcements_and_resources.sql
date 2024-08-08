@@ -18,7 +18,8 @@
   Change history
   Developer			DATE	 	Change
   D.Blake			20240724	Initial script
-
+  D.Blake			20240807	Made the announcement status more dynamic (PUBLISHED, DRAFT, EXPIRED)
+								Added some date logic to make the published and expired dates look a little more realistic.
 */
 
 do
@@ -27,12 +28,21 @@ $$
 DECLARE
 	adminCounter integer;
 	/*
+	Use adminUpperBound to configure the number of times the outer admin loop is executed
+	*/
+	adminUpperBound integer := 10;
+	/*
+	Use announcementUpperBound to configure the number of annoucements created for each execution of the admin loop.
+	*/
+	announcementUpperBound integer := 10;
+	/*
 	true:  uses admins that already exist in the ADMIN_USER table
 			Useful if you want to test admins that actually exist and can login
 	false: creates admins from random data
 			Useful if you want to just create a bunch of data.
 	*/
-	useExistingAdmins boolean := false;
+	useExistingAdmins boolean := true;
+	
 	
 	adminID uuid;
 	idirGuid uuid;
@@ -46,6 +56,10 @@ DECLARE
 	announcementId uuid;
 	announcementTitle varchar;
 	announcementDesc varchar;
+	announcementStatus varchar;
+	announcementPublished timestamp;
+	announcementExpires timestamp;
+	
 	
 	resourceCounter integer;
 	
@@ -383,7 +397,7 @@ BEGIN
 	
 	
 
-  FOR adminCounter in 1..10 LOOP
+  FOR adminCounter in 1..adminUpperBound LOOP
 	
 	
 	
@@ -433,11 +447,26 @@ BEGIN
 	
     
 	
-	FOR announcementCounter in 1..10 LOOP
+	FOR announcementCounter in 1..announcementUpperBound LOOP
 		
 		announcementId = gen_random_uuid();
 		
 		select description, title into announcementDesc, announcementTitle from temp_announce order by random() limit 1;
+		
+		--DELETED is excluded because deleted announcements are only found in the history table (removed from annoucement table)
+		select code into announcementStatus from announcement_status where code in ('DRAFT', 'EXPIRED', 'PUBLISHED') order by random() limit 1;
+		
+		IF (announcementStatus = 'PUBLISHED') THEN
+			announcementPublished := NOW() - INTERVAL '4 days';
+			announcementExpires   := NOW() + INTERVAL '90 days';
+		ELSIF(announcementStatus = 'DRAFT') THEN
+			announcementPublished := null;
+			announcementExpires := null; 
+		ELSIF(announcementStatus = 'EXPIRED') THEN
+			announcementPublished := NOW() - INTERVAL '7 days';
+		    announcementExpires := NOW() - INTERVAL '1 days';  
+		END if;
+		
 		
 		insert into announcement(
 			announcement_id
@@ -454,9 +483,9 @@ BEGIN
 			,announcementDesc
 			,adminID
 			,adminID
-			,null
-			,null
-			,'DRAFT');
+			,announcementPublished
+			,announcementExpires
+			,announcementStatus);
 		
 		FOR resourceCounter in 1..3 LOOP
 		
