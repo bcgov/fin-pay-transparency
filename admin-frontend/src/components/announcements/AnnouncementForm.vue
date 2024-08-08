@@ -2,9 +2,10 @@
   <div class="toolbar">
     <h1>{{ title }}</h1>
     <span class="fill-remaining-space"></span>
-    <v-btn variant="text" color="primary" class="mr-2" @click="$router.back()"
+    <v-btn variant="text" color="primary" class="mr-2" @click="handleCancel"
       >Cancel</v-btn
     >
+
     <v-btn
       variant="outlined"
       color="primary"
@@ -114,7 +115,7 @@
             <span class="attachment-label">Display Link As</span>
             <v-text-field
               single-line
-              variant="outlined"
+              variant="filled"
               placeholder="eg., DocumentName.pdf"
               label="Display Link As"
               v-model="linkDisplayName"
@@ -125,27 +126,43 @@
       </v-col>
     </v-row>
   </div>
+  <ConfirmationDialog ref="confirmDialog">
+    <template v-slot:message>
+      <p>
+        Are you sure want to cancel this changes. This process cannot be undone.
+      </p>
+    </template>
+  </ConfirmationDialog>
+  <ConfirmationDialog ref="publishConfirmationDialog">
+    <template v-slot:message>
+      <p>Are you sure you want to publish this announcement?</p>
+    </template>
+  </ConfirmationDialog>
 </template>
 
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { defineProps, defineEmits, watch } from 'vue';
+import { defineProps, defineEmits, watch, ref } from 'vue';
 import { AnnouncementFormValue } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
 import { LocalDate, nativeJs } from '@js-joda/core';
-
-const emits = defineEmits(['save']);
+import ConfirmationDialog from '../util/ConfirmationDialog.vue';
+import { useRouter } from 'vue-router';
 
 type Props = {
   announcement: AnnouncementFormValue | null;
   title: string;
 };
 
+const router = useRouter();
+const emits = defineEmits(['save']);
+const confirmDialog = ref<typeof ConfirmationDialog>();
+const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement } = defineProps<Props>();
 
-const { handleSubmit, setErrors, errors } = useForm({
+const { handleSubmit, setErrors, errors, meta } = useForm({
   initialValues: {
     title: announcement?.title || '',
     description: announcement?.description || '',
@@ -203,6 +220,22 @@ watch(noExpiry, () => {
   }
 });
 
+const handleCancel = async () => {
+  if (!meta.value.dirty) {
+    router.back();
+    return;
+  }
+
+  const result = await confirmDialog.value?.open('Confirm Cancel', undefined, {
+    titleBold: true,
+    resolveText: 'Continue',
+  });
+
+  if (result) {
+    router.back();
+  }
+};
+
 const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
   handleSubmit(async (values) => {
     if (!values.published_on && status === 'PUBLISHED') {
@@ -229,6 +262,22 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
     if (!values.linkUrl && values.linkDisplayName) {
       setErrors({ linkUrl: 'Link URL is required.' });
       return;
+    }
+
+    if (status === 'PUBLISHED') {
+      const confirmation = await publishConfirmationDialog.value?.open(
+        'Confirm Publish',
+        undefined,
+        {
+          titleBold: true,
+          resolveText: 'Confirm',
+          rejectText: 'Close',
+        },
+      );
+
+      if (!confirmation) {
+        return;
+      }
     }
 
     await emits('save', {
