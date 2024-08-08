@@ -2,14 +2,18 @@
 title: Pay Transparency Reporting Tool - Logical Data Flow Diagram (L1)
 ---
 flowchart LR
-    Org("Organization\nUser") -->|"Employee pay data"| SubmissionProcess(("Submission"))
-    SubmissionProcess --> |"Employee pay data"| ValidateAndCalculateProcess(("Validate and\nCalculate"))    
-    ValidateAndCalculateProcess --> |Save report calculations| CalculatedData[/"Calculated Data"/]
-    ValidateAndCalculateProcess --> |Save report| Report[/"Pay Transparency Report"/]    
+    Org["Organization\nUser"] -->|"Employee pay data"| SubmissionProcess(("Submit data"))
+    SubmissionProcess --> |"Employee pay data"| ValidateAndCalculateProcess(("Validate\nemployee pay data\n and calculate\nstatistics"))    
+    ValidateAndCalculateProcess --> |Pay statistics| CalculatedData[/"Calculated data"/]
+    ValidateAndCalculateProcess --> |Pay transparency report 'body'| Report[/"Pay transparency reports"/]    
     ValidateAndCalculateProcess --> |"Validation errors"| SubmissionProcess
-    Org("Organization\nUser") -->|"Report ID"| PublishProcess(("Publish"))
-    PublishProcess --> |Change report status| Report
-    Org --> |Report ID| DocGenProcess(("Document\nGeneration"))
-    DocGenProcess --> |HTML or PDF report| Org            
-    QueryProcess -->|List of published reports| Org
-    Report --> |Reports| QueryProcess
+    Org -->|"Report ID"| PublishProcess(("Publish report"))
+    PublishProcess --> |Report status| Report
+    Org --> |Report ID| DocGenProcess(("Generate\ndocument"))
+    DocGenProcess --> |HTML or PDF report| Org                
+    Org --> |Credentials|AuthenticateProcess((Authenticate\nbusiness BCeID\nuser))
+    AuthenticateProcess --> |Access token|Org    
+    PublishProcess -->|Report ID| HistoryProcess((Save report\nchange history))
+    HistoryProcess --> |Pay statistics| CalculatedDataHistory[/"Calculated data\n history"/]
+    HistoryProcess --> |Pay transparency report 'body'| ReportHistory[/"Pay transparency\nreport history"/]    
+    Backup(("Backup\ndata")) -->|Pay transparency data| ObjectStore[Object store]    
