@@ -220,7 +220,7 @@ function getAnnouncementSearchFilters(): AnnouncementFilterType {
 }
 
 async function searchAnnouncements() {
-  const params {
+  const params = {
     filter: getAnnouncementSearchFilters(),
   };
   announcementSearchStore.searchAnnouncements(params);
