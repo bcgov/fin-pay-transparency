@@ -52,12 +52,22 @@ export const useAnnouncementSearchStore = defineStore(
     const searchAnnouncements = async (
       params: IAnnouncementSearchParams = {},
     ) => {
-      const searchParams: any = { ...DEFAULT_SEARCH_PARAMS, ...params };
+      const existingStoreSettings: IAnnouncementSearchParams = {};
+      if (pageSize.value) {
+        existingStoreSettings.itemsPerPage = pageSize.value;
+      }
+      const searchParams: any = {
+        ...DEFAULT_SEARCH_PARAMS,
+        ...existingStoreSettings,
+        ...params,
+      };
 
       const offset = (searchParams.page - 1) * searchParams.itemsPerPage;
-      const limit = params.itemsPerPage;
-      let filters: AnnouncementFilterType = params?.filter ? params.filter : [];
-      let sort = params.sort;
+      const limit = searchParams.itemsPerPage;
+      let filters: AnnouncementFilterType = searchParams?.filter
+        ? searchParams.filter
+        : [];
+      let sort = searchParams.sort;
 
       if (!sort?.length) {
         sort = DEFAULT_SEARCH_PARAMS.sort;
@@ -81,7 +91,7 @@ export const useAnnouncementSearchStore = defineStore(
       }
 
       isSearching.value = true;
-      lastSubmittedSearchParams.value = params;
+      lastSubmittedSearchParams.value = searchParams;
 
       try {
         const resp: IAnnouncementSearchResult =
