@@ -91,7 +91,7 @@ export const useAnnouncementSearchStore = defineStore(
       }
 
       isSearching.value = true;
-      lastSubmittedSearchParams.value = searchParams;
+      lastSubmittedSearchParams.value = params;
 
       try {
         const resp: IAnnouncementSearchResult =
