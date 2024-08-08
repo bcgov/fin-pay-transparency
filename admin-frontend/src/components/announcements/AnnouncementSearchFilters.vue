@@ -157,7 +157,6 @@ export default {
 <script setup lang="ts">
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import { ref, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -174,7 +173,6 @@ import {
 
 const announcementSearchStore = useAnnouncementSearchStore();
 
-const { pageSize } = storeToRefs(announcementSearchStore);
 const searchText = ref<string | undefined>(undefined);
 const publishDateRange = ref<any[] | undefined>(undefined);
 const expiryDateRange = ref<any[] | undefined>(undefined);
@@ -222,7 +220,7 @@ function getAnnouncementSearchFilters(): AnnouncementFilterType {
 }
 
 async function searchAnnouncements() {
-  const params: any = {
+  const params {
     filter: getAnnouncementSearchFilters(),
   };
   announcementSearchStore.searchAnnouncements(params);
