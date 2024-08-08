@@ -138,6 +138,7 @@ import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
 import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
+import { NotificationService } from '../services/notificationService';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
@@ -270,6 +271,10 @@ async function deleteAnnouncements(announcementIds: string[]) {
     try {
       await ApiService.deleteAnnouncements(announcementIds);
       announcementSearchStore.repeatSearch();
+      NotificationService.pushNotificationSuccess(
+        `Announcement${announcementIds.length != 1 ? 's' : ''} deleted successfully.`,
+        '',
+      );
     } catch (e) {
     } finally {
       isDeleting.value = false;
