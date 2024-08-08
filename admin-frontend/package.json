@@ -23,6 +23,7 @@
     "@js-joda/locale_en": "^4.8.11",
     "@mdi/font": "^7.1.96",
     "@types/papaparse": "^5.3.14",
+    "@vee-validate/zod": "^4.13.2",
     "@vue/tsconfig": "^0.5.1",
     "@vuepic/vue-datepicker": "^8.8.0",
     "axios": "^1.6.7",

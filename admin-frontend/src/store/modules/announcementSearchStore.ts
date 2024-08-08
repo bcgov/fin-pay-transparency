@@ -2,10 +2,13 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import ApiService from '../../services/apiService';
 import {
+  AnnouncementFilterType,
   AnnouncementSortType,
+  AnnouncementStatus,
   IAnnouncementSearchParams,
   IAnnouncementSearchResult,
   IAnnouncementSearchUpdateParams,
+  StatusFilter,
 } from '../../types/announcements';
 
 export const DEFAULT_PAGE_SIZE = 10;
@@ -53,11 +56,28 @@ export const useAnnouncementSearchStore = defineStore(
 
       const offset = (searchParams.page - 1) * searchParams.itemsPerPage;
       const limit = params.itemsPerPage;
-      const filter = params.filter;
+      let filters: AnnouncementFilterType = params?.filter ? params.filter : [];
       let sort = params.sort;
 
       if (!sort?.length) {
         sort = DEFAULT_SEARCH_PARAMS.sort;
+      }
+
+      //Because the frontend should never see DELETED announcements,
+      //when no status filter is provided as a param to this function,
+      //create a default status filter which includes all status except DELETED.
+      if (!filters?.filter((f) => f.key == 'status').length) {
+        const allStatusesExceptDeleted = [
+          AnnouncementStatus.Published,
+          AnnouncementStatus.Draft,
+          AnnouncementStatus.Expired,
+        ];
+        const defaultStatusFilter: StatusFilter = {
+          key: 'status',
+          operation: 'in',
+          value: allStatusesExceptDeleted,
+        };
+        filters = [...filters, defaultStatusFilter];
       }
 
       isSearching.value = true;
@@ -65,7 +85,7 @@ export const useAnnouncementSearchStore = defineStore(
 
       try {
         const resp: IAnnouncementSearchResult =
-          await ApiService.getAnnouncements(offset, limit, filter, sort);
+          await ApiService.getAnnouncements(offset, limit, filters, sort);
         searchResults.value = resp?.items;
         totalNum.value = resp?.total;
       } catch (err) {

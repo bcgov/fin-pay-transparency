@@ -37,8 +37,10 @@ function routeToBreadcrumbItem(route, isEnabled = true) {
 
 function updateBreadcrumbItems(route) {
   const items = [];
-  if (route?.meta?.isBreadcrumbTrailVisible) {
-    items.push(dashboardItem);
+  if (route?.meta?.breadcrumbs?.length) {
+
+    items.push(...route.meta.breadcrumbs.map((b) => routeToBreadcrumbItem(router.getRoutes().find((r) => r.name == b))));
+
     if (route?.name != dashboardRoute.name) {
       items.push(routeToBreadcrumbItem(route, false));
     }

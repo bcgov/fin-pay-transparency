@@ -1,5 +1,17 @@
+export interface IAnnouncement {
+  announcement_id: string;
+  title: string;
+  description: string;
+  created_date: string;
+  updated_date: string;
+  created_by: string;
+  updated_by: string;
+  published_on: string;
+  expires_on: string;
+  status: string;
+}
 export interface IAnnouncementSearchResult {
-  items: any[];
+  items: IAnnouncement[];
   total: number;
 }
 export interface IAnnouncementSearchUpdateParams {
@@ -61,3 +73,13 @@ export type AnnouncementSortType = {
   field: 'published_on' | 'expires_on' | 'title' | 'status';
   order: 'asc' | 'desc';
 }[];
+
+
+export type AnnouncementFormValue = Pick<
+  IAnnouncement,
+  'title' | 'description' | 'published_on' | 'expires_on' | 'status'
+> & {
+  no_expiry?: boolean;
+  linkUrl: string;
+  linkDisplayName: string;
+};
