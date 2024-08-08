@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
+import { mock } from 'node:test';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
@@ -39,9 +40,11 @@ vi.mock('../../services/notificationService', () => ({
 }));
 
 const mockRouterPush = vi.fn();
+const mockRouterBack = vi.fn();
 vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: (...args) => mockRouterPush(...args),
+    back: () => mockRouterBack(),
   }),
 }));
 
@@ -89,6 +92,13 @@ describe('AddAnnouncementPage', () => {
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await fireEvent.click(publishButton);
     await waitFor(() => {
+      expect(
+        screen.getByText('Are you sure you want to publish this announcement?'),
+      ).toBeInTheDocument();
+    });
+    const continueButton = screen.getByRole('button', { name: 'Confirm' });
+    await fireEvent.click(continueButton);
+    await waitFor(() => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Test Title',
@@ -101,6 +111,33 @@ describe('AddAnnouncementPage', () => {
       );
       expect(mockSuccess).toHaveBeenCalled();
       expect(mockRouterPush).toHaveBeenCalledWith('/announcements');
+    });
+  });
+  it('should not publish when confirmation cancel is clicked', async () => {
+    const { getByRole, getByLabelText, getByText } = await wrappedRender();
+    const publishButton = getByRole('button', { name: 'Publish' });
+    const title = getByLabelText('Title');
+    const description = getByLabelText('Description');
+    const linkUrl = getByLabelText('Link URL');
+    const displayLinkAs = getByLabelText('Display Link As');
+    await fireEvent.update(title, 'Test Title');
+    await fireEvent.update(description, 'Test Description');
+    const publishOn = getByLabelText('Publish On');
+    const expiresOn = getByLabelText('Expires On');
+    await setDate(publishOn, () => getByText('15'));
+    await setDate(expiresOn, () => getByText('20'));
+    await fireEvent.update(linkUrl, 'https://example.com');
+    await fireEvent.update(displayLinkAs, 'Example.pdf');
+    await fireEvent.click(publishButton);
+    await waitFor(() => {
+      expect(
+        screen.getByText('Are you sure you want to publish this announcement?'),
+      ).toBeInTheDocument();
+    });
+    const cancelButton = screen.getByRole('button', { name: 'Close' });
+    await fireEvent.click(cancelButton);
+    await waitFor(() => {
+      expect(mockAddAnnouncement).not.toHaveBeenCalled();
     });
   });
   it('should show error message when title is empty', async () => {
@@ -177,7 +214,7 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
       await fireEvent.click(publishButton);
-      expect(mockAddAnnouncement).not.toHaveBeenCalled(); 
+      expect(mockAddAnnouncement).not.toHaveBeenCalled();
     });
   });
   it('should show error message when link url is invalid', async () => {
@@ -308,7 +345,50 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.update(displayLinkAs, 'Example.pdf');
       await fireEvent.click(publishButton);
       await waitFor(() => {
+        expect(
+          screen.getByText(
+            'Are you sure you want to publish this announcement?',
+          ),
+        ).toBeInTheDocument();
+      });
+      const continueButton = screen.getByRole('button', { name: 'Confirm' });
+      await fireEvent.click(continueButton);
+      await waitFor(() => {
         expect(mockError).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('when cancel button is clicked', () => {
+    it('should navigate to announcements page', async () => {
+      const { getByRole } = await wrappedRender();
+      const cancelButton = getByRole('button', { name: 'Cancel' });
+      await fireEvent.click(cancelButton);
+      await waitFor(() => {
+        expect(mockRouterBack).toHaveBeenCalled();
+      });
+    });
+
+    describe('when form is dirty', () => {
+      it('should show confirmation dialog', async () => {
+        const { getByRole } = await wrappedRender();
+        const title = screen.getByLabelText('Title');
+        await fireEvent.update(title, 'Test Title');
+        const cancelButton = getByRole('button', { name: 'Cancel' });
+        await fireEvent.click(cancelButton);
+        await waitFor(() => {
+          expect(
+            screen.getByText(
+              'Are you sure want to cancel this changes. This process cannot be undone.',
+            ),
+          ).toBeInTheDocument();
+        });
+
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        await fireEvent.click(continueButton);
+        await waitFor(() => {
+          expect(mockRouterBack).toHaveBeenCalled();
+        });
       });
     });
   });
