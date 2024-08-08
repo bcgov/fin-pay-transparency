@@ -23,7 +23,7 @@
         class="d-flex justify-end align-center"
       >
         <v-btn class="btn-primary" to="/add-announcement">
-          Add announcement
+          Add Announcement
         </v-btn>
       </v-col>
     </v-row>
@@ -186,13 +186,13 @@ const headers = ref<any>([
     key: AnnouncementKeys.TITLE,
   },
   {
-    title: 'Publish on',
+    title: 'Publish On',
     align: 'start',
     sortable: true,
     key: AnnouncementKeys.PUBLISH_DATE,
   },
   {
-    title: 'Expires on',
+    title: 'Expires On',
     align: 'start',
     sortable: true,
     key: AnnouncementKeys.EXPIRY_DATE,
