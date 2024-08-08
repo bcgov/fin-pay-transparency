@@ -19,3 +19,4 @@ export type UserInvite = {
   email: string;
   role: string;
 };
+

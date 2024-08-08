@@ -81,7 +81,7 @@ export default {
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
       this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
       this.isBreadcrumbTrailVisible =
-        to?.meta?.isBreadcrumbTrailVisible &&
+        to?.meta?.breadcrumbs?.length &&
         this.doesUserHaveRole(USER_ROLE_NAME);
     },
   },
@@ -227,6 +227,12 @@ button:disabled.v-btn {
   background-color: #fef1d8 !important;
   border-color: #fef1d8 !important;
   color: #f8bb47 !important;
+}
+
+.v-chip.error {
+  background-color: #f4e1e2 !important;
+  border-color: #f4e1e2 !important;
+  color: #ce3e39 !important;
 }
 
 @media screen and (max-width: 370px) {

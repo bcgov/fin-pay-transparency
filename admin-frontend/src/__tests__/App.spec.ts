@@ -138,7 +138,7 @@ describe('App', () => {
         const to = {
           meta: {
             requiresAuth: false,
-            isBreadcrumbTrailVisible: true,
+            breadcrumbs: ['dashboard'],
             pageTitle: 'sample route',
           },
         };

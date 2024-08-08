@@ -7,6 +7,7 @@ import {
   UserInvite,
 } from '../types';
 import {
+  AnnouncementFormValue,
   AnnouncementFilterType,
   AnnouncementSortType,
   IAnnouncementSearchResult,
@@ -259,6 +260,25 @@ export default {
     }
   },
 
+  async deleteAnnouncements(announcementIds: string[]): Promise<void> {
+    try {
+      const body = announcementIds?.map((id) => {
+        return {
+          id: id,
+          status: 'DELETED',
+        };
+      });
+      const resp = await apiAxios.patch(`${ApiRoutes.ANNOUNCEMENTS}`, body);
+      if (resp?.status == 201) {
+        return;
+      }
+      throw new Error('Unexpected response from API.');
+    } catch (e) {
+      console.log(`Failed to delete announcements: ${e}`);
+      throw e;
+    }
+  },
+
   /**
    * Download a list of reports in csv format.  This method also causes
    * the browser to save the resulting file.
@@ -315,6 +335,15 @@ export default {
       }
     } catch (e) {
       console.log(`Failed to get pdf report from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async addAnnouncement(data: AnnouncementFormValue) {
+    try {
+      return await apiAxios.post(ApiRoutes.ANNOUNCEMENTS, data);
+    } catch (e) {
+      console.log(`Failed to post from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },

@@ -134,3 +134,36 @@ export const PatchAnnouncementsSchema = z.array(
 );
 
 export type PatchAnnouncementsType = z.infer<typeof PatchAnnouncementsSchema>;
+
+export const CreateAnnouncementSchema = z
+  .object({
+    title: z.string().min(1).max(100),
+    description: z.string().min(1).max(2000),
+    published_on: z.string().optional(),
+    expires_on: z.string().optional(),
+    status: z.enum(['PUBLISHED', 'DRAFT']),
+    linkUrl: z.string().url({ message: 'Not a valid URL' }).optional(),
+    linkDisplayName: z
+      .string()
+      .max(100, { message: 'Link display name is required' })
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.linkUrl && !data.linkDisplayName) {
+        return false;
+      }
+
+      if (!data.linkUrl && data.linkDisplayName) {
+        return false;
+      }
+
+      return true;
+    },
+    {
+      path: ['linkUrl', 'linkDisplayText'],
+      message: 'Invalid link data',
+    },
+  );
+
+export type CreateAnnouncementType = z.infer<typeof CreateAnnouncementSchema>;

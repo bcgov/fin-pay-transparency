@@ -1,9 +1,13 @@
 <template>
   <v-chip
     :class="{
-      success: status == 'PUBLISHED',
-      warning: status == 'EXPIRED',
-      info: !['PUBLISHED', 'EXPIRED'].includes(status),
+      success: status == AnnouncementStatus.Published,
+      warning: status == AnnouncementStatus.Expired,
+      info: ![
+        AnnouncementStatus.Published,
+        AnnouncementStatus.Expired,
+      ].includes(status),
+      error: status == AnnouncementStatus.Deleted,
     }"
     size="small"
   >
@@ -17,4 +21,6 @@ export default {
 };
 </script>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { AnnouncementStatus } from '../../types/announcements';
+</script>
