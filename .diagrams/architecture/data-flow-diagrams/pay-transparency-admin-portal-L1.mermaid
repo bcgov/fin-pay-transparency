@@ -2,11 +2,24 @@
 title: Pay Transparency Admin Portal - Logical Data Flow Diagram (L1)
 ---
 flowchart LR
-    AdminMgr(Admin Manager) -->|Change admin role| UserManagement
-    UserManagement((User Management)) --> KeyCloak(KeyCloak) 
-    KeyCloak --> UserManagement
-    
-    UserManagement --> |List admin users| AdminMgr
-    QueryProcess((Query)) -->|List published reports| AdminUser(Admin User)
-    AdminUser(Admin User) -->|Report ID| DocGenProcess((Document\nGeneration)) 
+    AdminMgr[Admin Manager] -->|User and roles| ChangePrivsProcess((Change user\nprivilege))
+    AdminMgr --> |Username and\nemail address| InviteProcess((Invite user))
+    InviteProcess --> |Invitation email| EmailService[Common hosted email service]
+    EmailService -->|Invitation email| AdminUser
+    InviteProcess -->|Username and\email address| AdminUserOnboarding[/Admin user onboarding/]    
+    AdminUser --> |User info| AcceptInviteProcess((Accept\ninvitation))
+    AdminUser -->|isLocked|LockUnlockReportProcess((Lock or unlock\nreport))
+    LockUnlockReportProcess -->|isLocked| PayTransparencyReports[/Pay transparency reports/] 
+    AcceptInviteProcess -->|Invitation status| AdminUserOnboarding
+    AcceptInviteProcess -->|User info| AdminUserTable[/Admin users/]
+    ChangePrivsProcess -->|User and roles|KeyCloak
+    QueryProcess((Query report)) -->|Published reports| AdminUser(Admin User)
+    PayTransparencyReports -->|Pay transparency report 'body'| QueryProcess
+    AdminUser -->|Credentials| AuthenticateProcess
+    AuthenticateProcess((Authenticate\nIDIR user)) --> |Access token|AdminUser
+    AdminUser[Admin User] -->|Report ID| DocGenProcess((Generate\ndocument)) 
     DocGenProcess -->|PDF report| AdminUser
+    Announcements[/Announcements/] <--> |Announcement|ManageAnnouncementsProcess((Manage\nannouncement))
+    AnnouncementResources[/Announcement resources/] <--> |Link or attachment|ManageAnnouncementsProcess
+    AdminUser -->|Announcement and resource| ManageAnnouncementsProcess
+
