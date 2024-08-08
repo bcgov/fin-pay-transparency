@@ -51,6 +51,7 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import { ref } from 'vue';
+import { NotificationService } from '../../services/notificationService';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();
@@ -70,6 +71,10 @@ async function deleteAnnouncement(announcementId: string) {
     try {
       await ApiService.deleteAnnouncements([announcementId]);
       announcementSearchStore.repeatSearch();
+      NotificationService.pushNotificationSuccess(
+        `Announcement deleted successfully.`,
+        '',
+      );
     } catch (e) {
     } finally {
       isDeleting.value = false;
