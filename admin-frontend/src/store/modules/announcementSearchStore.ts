@@ -14,7 +14,7 @@ import {
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_SEARCH_PARAMS: IAnnouncementSearchParams = {
   page: 1,
-  itemsPerPage: 20,
+  itemsPerPage: DEFAULT_PAGE_SIZE,
   filter: undefined,
   sort: [{ field: 'published_on', order: 'desc' }],
 };
