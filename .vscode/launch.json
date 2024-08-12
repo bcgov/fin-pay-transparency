@@ -9,7 +9,7 @@
       "request": "launch",
       "runtimeArgs": ["run-script", "dev"],
       "runtimeExecutable": "npm",
-      "skipFiles": ["backend/<node_internals>/**"],
+      "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/backend",
       "preLaunchTask": "Launch and migrate database",
@@ -25,7 +25,7 @@
       "request": "launch",
       "runtimeArgs": ["run-script", "dev"],
       "runtimeExecutable": "npm",
-      "skipFiles": ["backend-external/<node_internals>/**"],
+      "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/backend-external",
       "outputCapture": "std",
@@ -40,7 +40,7 @@
       "request": "launch",
       "runtimeArgs": ["run-script", "dev"],
       "runtimeExecutable": "npm",
-      "skipFiles": ["doc-gen-service/<node_internals>/**"],
+      "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/doc-gen-service",
       "outputCapture": "std",
@@ -55,7 +55,7 @@
       "request": "launch",
       "runtimeArgs": ["run-script", "serve"],
       "runtimeExecutable": "npm",
-      "skipFiles": ["admin-frontend/<node_internals>/**"],
+      "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/admin-frontend",
       "presentation": {
@@ -69,7 +69,7 @@
       "request": "launch",
       "runtimeArgs": ["run-script", "serve"],
       "runtimeExecutable": "npm",
-      "skipFiles": ["frontend/<node_internals>/**"],
+      "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/frontend",
       "presentation": {
@@ -161,7 +161,7 @@
     {
       // INFO:
       // Starts all the servers without launching any URL.
-      // Select One of the "Edge ***" options to debug the URL.
+      // Select One of the "Open ___ URL" options to debug the URL.
 
       "name": "Launch Servers Only",
       "configurations": [

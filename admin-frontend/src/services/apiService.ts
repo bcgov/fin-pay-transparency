@@ -375,4 +375,17 @@ export default {
       throw e;
     }
   },
+
+  async getPowerBiEmbedAnalytics() {
+    try {
+      const resp = await apiAxios.get(ApiRoutes.POWERBI_EMBED_ANALYTICS);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to get analytics token from API.');
+    } catch (e) {
+      console.log(`Failed to get analytics token from API - ${e}`);
+      throw e;
+    }
+  },
 };

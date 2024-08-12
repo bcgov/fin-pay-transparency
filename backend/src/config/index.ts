@@ -119,6 +119,17 @@ config.defaults({
     apiUrl: process.env.CHES_API_URL,
     emailRecipients: process.env.CHES_EMAIL_RECIPIENTS?.split(','), // comma separated email addresses
   },
+  entra: {
+    clientId: process.env.ENTRA_APP_CLIENT_ID,
+    clientSecret: process.env.ENTRA_APP_CLIENT_SECRET,
+    tenantId: process.env.ENTRA_APP_TENANT_ID,
+  },
+  powerbi: {
+    analytics: {
+      workspaceId: process.env.POWERBI_ANALYTICS_WORKSPACE_ID,
+      dashboardId: process.env.POWERBI_ANALYTICS_DASHBOARD_ID,
+    },
+  },
 });
 
 export { config };
