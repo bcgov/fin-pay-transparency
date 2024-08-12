@@ -1,13 +1,45 @@
-import { convert, LocalDate, ZoneId } from '@js-joda/core';
-import { announcement, Prisma } from '@prisma/client';
+import { convert, LocalDate, LocalDateTime, ZoneId } from '@js-joda/core';
+import {
+  announcement,
+  announcement_resource,
+  Prisma,
+  PrismaClient,
+} from '@prisma/client';
 import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
 import {
   AnnouncementQueryType,
-  CreateAnnouncementType,
+  AnnouncementDataType,
   PatchAnnouncementsType,
 } from '../types/announcements';
 import isEmpty from 'lodash/isEmpty';
+import { DefaultArgs } from '@prisma/client/runtime/library';
+
+const saveHistory = async (
+  tx: Omit<
+    PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
+    '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+  >,
+  announcement: announcement & {
+    announcement_resource: announcement_resource[];
+  },
+) => {
+  const announcement_history = { ...announcement };
+  delete announcement_history.announcement_resource;
+
+  return tx.announcement_history.create({
+    data: {
+      ...announcement_history,
+      announcement_resource_history: {
+        createMany: {
+          data: announcement.announcement_resource.map((resource) => ({
+            ...resource,
+          })),
+        },
+      },
+    },
+  });
+};
 
 const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
   const where: Prisma.announcementWhereInput = {};
@@ -63,7 +95,7 @@ export const getAnnouncements = async (
     skip: query.offset || 0,
     include: {
       announcement_resource: true,
-    }
+    },
   });
   const total = await prisma.announcement.count({ where });
 
@@ -93,23 +125,7 @@ export const patchAnnouncements = async (
     });
 
     for (const announcement of announcements) {
-      //exclude the 'announcement_resource' attribute from
-      //the new announcement_history record
-      const announcement_history = { ...announcement };
-      delete announcement_history.announcement_resource;
-
-      await tx.announcement_history.create({
-        data: {
-          ...announcement_history,
-          announcement_resource_history: {
-            createMany: {
-              data: announcement.announcement_resource.map((resource) => ({
-                ...resource,
-              })),
-            },
-          },
-        },
-      });
+      await saveHistory(tx, announcement);
     }
 
     const updateDate = LocalDate.now(ZoneId.UTC);
@@ -129,7 +145,7 @@ export const patchAnnouncements = async (
  * @param data - announcement data
  */
 export const createAnnouncement = async (
-  input: CreateAnnouncementType,
+  input: AnnouncementDataType,
   currentUserId: string,
 ) => {
   const data: Prisma.announcementCreateInput = {
@@ -165,5 +181,100 @@ export const createAnnouncement = async (
 
   return prisma.announcement.create({
     data,
+  });
+};
+
+/**
+ * Update announcement
+ * @param id - announcement id
+ * @param data - announcement data
+ */
+export const updateAnnouncement = async (
+  id: string,
+  input: AnnouncementDataType,
+  currentUserId: string,
+) => {
+  const updateDate = convert(LocalDateTime.now(ZoneId.UTC)).toDate();
+  await prisma.$transaction(async (tx) => {
+    const announcementData = await tx.announcement.findUniqueOrThrow({
+      where: {
+        announcement_id: id,
+      },
+      include: {
+        announcement_resource: true,
+      },
+    });
+
+    await saveHistory(tx, announcementData);
+
+    const currentLink = announcementData?.announcement_resource.find(
+      (x) => x.resource_type === 'LINK',
+    );
+
+    if (input.linkUrl) {
+      if (currentLink) {
+        await tx.announcement_resource.update({
+          where: {
+            announcement_resource_id: currentLink.announcement_resource_id,
+          },
+          data: {
+            display_name: input.linkDisplayName,
+            resource_url: input.linkUrl,
+            updated_by: currentUserId,
+            update_date: updateDate,
+          },
+        });
+      } else {
+        await tx.announcement_resource.create({
+          data: {
+            display_name: input.linkDisplayName,
+            resource_url: input.linkUrl,
+            announcement_resource_type: {
+              connect: { code: 'LINK' },
+            },
+            admin_user_announcement_resource_created_byToadmin_user: {
+              connect: { admin_user_id: currentUserId },
+            },
+            admin_user_announcement_resource_updated_byToadmin_user: {
+              connect: { admin_user_id: currentUserId },
+            },
+            announcement: {
+              connect: {
+                announcement_id: id,
+              },
+            },
+          },
+        });
+      }
+    } else {
+      if (currentLink) {
+        await tx.announcement_resource.delete({
+          where: {
+            announcement_resource_id: currentLink.announcement_resource_id,
+          },
+        });
+      }
+    }
+
+    const data: Prisma.announcementUpdateInput = {
+      title: input.title,
+      description: input.description,
+      updated_date: updateDate,
+      announcement_status: {
+        connect: { code: input.status },
+      },
+      published_on: !isEmpty(input.published_on)
+        ? input.published_on
+        : undefined,
+      expires_on: !isEmpty(input.expires_on) ? input.expires_on : undefined,
+      admin_user_announcement_updated_byToadmin_user: {
+        connect: { admin_user_id: currentUserId },
+      },
+    };
+
+    return tx.announcement.update({
+      where: { announcement_id: id },
+      data,
+    });
   });
 };

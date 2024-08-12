@@ -6,14 +6,18 @@
       >Cancel</v-btn
     >
 
-    <v-btn
-      variant="outlined"
-      color="primary"
-      class="mr-2"
-      @click="handleSave('DRAFT')()"
-      >Save draft</v-btn
-    >
-    <v-btn color="primary" @click="handleSave('PUBLISHED')()">Publish</v-btn>
+    <div class="d-flex flex-row align-center">
+      <div class="mr-2">Save as:</div>
+      <v-radio-group inline v-model="status" class="status-options mr-2">
+        <v-radio label="Draft" value="DRAFT" class="mr-2"></v-radio>
+        <v-radio label="Publish" value="PUBLISHED"></v-radio>
+      </v-radio-group>
+      <v-btn
+        color="primary"
+        class="ml-2"
+        @click="handleSave()"
+        >Save</v-btn>
+    </div>
   </div>
   <div class="content">
     <v-divider></v-divider>
@@ -171,6 +175,7 @@ const { handleSubmit, setErrors, errors, meta } = useForm({
     no_expiry: undefined,
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
+    status: announcement?.status || 'DRAFT',
   },
   validationSchema: {
     title(value) {
@@ -207,6 +212,7 @@ const { handleSubmit, setErrors, errors, meta } = useForm({
 });
 
 const { value: announcementTitle } = useField('title');
+const { value: status } = useField<string>('status');
 const { value: announcementDescription } = useField('description');
 const { value: publishedOn } = useField('published_on') as any;
 const { value: expiresOn } = useField('expires_on') as any;
@@ -236,9 +242,8 @@ const handleCancel = async () => {
   }
 };
 
-const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
-  handleSubmit(async (values) => {
-    if (!values.published_on && status === 'PUBLISHED') {
+const handleSave = handleSubmit(async (values) => {
+    if (!values.published_on && status.value === 'PUBLISHED') {
       setErrors({ published_on: 'Publish date is required.' });
       return;
     }
@@ -264,7 +269,7 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
       return;
     }
 
-    if (status === 'PUBLISHED') {
+    if (status.value === 'PUBLISHED') {
       const confirmation = await publishConfirmationDialog.value?.open(
         'Confirm Publish',
         undefined,
@@ -286,7 +291,7 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
         ? undefined
         : values.linkDisplayName,
       linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
-      status,
+      status: status.value,
     });
   });
 </script>
@@ -322,5 +327,9 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
 .field-error {
   color: red;
   font-size: x-small;
+}
+
+.status-options {
+  height: 40px;
 }
 </style>

@@ -1,12 +1,12 @@
-import { da, fa, faker } from '@faker-js/faker';
-import { CreateAnnouncementType } from '../types/announcements';
+import { faker } from '@faker-js/faker';
+import { AnnouncementDataType } from '../types/announcements';
 import {
   createAnnouncement,
   getAnnouncements,
   patchAnnouncements,
+  updateAnnouncement,
 } from './announcements-service';
 import omit from 'lodash/omit';
-import f from 'session-file-store';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -27,7 +27,12 @@ const mockFindMany = jest.fn().mockResolvedValue([
   },
 ]);
 
+const mockFindUniqueOrThrow = jest.fn();
 const mockUpdateMany = jest.fn();
+const mockUpdate = jest.fn();
+const mockCreateResource = jest.fn();
+const mockDeleteResource = jest.fn();
+const mockUpdateResource = jest.fn();
 const mockHistoryCreate = jest.fn();
 const mockCreateAnnouncement = jest.fn();
 jest.mock('../prisma/prisma-client', () => ({
@@ -47,9 +52,17 @@ jest.mock('../prisma/prisma-client', () => ({
         announcement: {
           findMany: (...args) => mockFindMany(...args),
           updateMany: (...args) => mockUpdateMany(...args),
+          findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
+          update: (...args) => mockUpdate(...args),
+        },
+        announcement_resource: {
+          create: (...args) => mockCreateResource(...args),
+          update: (...args) => mockUpdateResource(...args),
+          delete: (...args) => mockDeleteResource(...args),
         },
         announcement_history: {
           create: (...args) => mockHistoryCreate(...args),
+          update: (...args) => mockUpdateResource(...args),
         },
       }),
     ),
@@ -268,7 +281,7 @@ describe('AnnouncementsService', () => {
 
   describe('createAnnouncement', () => {
     it('should create announcement', async () => {
-      const announcementInput: CreateAnnouncementType = {
+      const announcementInput: AnnouncementDataType = {
         title: faker.lorem.words(3),
         description: faker.lorem.words(10),
         expires_on: faker.date.recent().toISOString(),
@@ -295,7 +308,7 @@ describe('AnnouncementsService', () => {
                   updated_by: 'user-id',
                 },
               ],
-            }
+            },
           },
           admin_user_announcement_created_byToadmin_user: {
             connect: { admin_user_id: 'user-id' },
@@ -307,14 +320,14 @@ describe('AnnouncementsService', () => {
       });
     });
     it('should default to undefined dates', async () => {
-      const announcementInput: CreateAnnouncementType = {
+      const announcementInput: AnnouncementDataType = {
         title: faker.lorem.words(3),
         description: faker.lorem.words(10),
-        expires_on: "",
-        published_on: "",
+        expires_on: '',
+        published_on: '',
         status: 'DRAFT',
-        linkDisplayName: "",
-        linkUrl: "",
+        linkDisplayName: '',
+        linkUrl: '',
       };
       await createAnnouncement(announcementInput, 'user-id');
       expect(mockCreateAnnouncement).toHaveBeenCalledWith({
@@ -333,6 +346,192 @@ describe('AnnouncementsService', () => {
           },
         },
       });
+    });
+  });
+
+  describe('updateAnnouncement', () => {
+    describe('with existing resource', () => {
+      it('should update announcement and resource', async () => {
+        mockFindUniqueOrThrow.mockResolvedValue({
+          id: 'announcement-id',
+          announcement_resource: [
+            { announcement_resource_id: 1, resource_type: 'LINK' },
+          ],
+        });
+        const announcementInput: AnnouncementDataType = {
+          title: faker.lorem.words(3),
+          description: faker.lorem.words(10),
+          expires_on: faker.date.recent().toISOString(),
+          published_on: faker.date.future().toISOString(),
+          status: 'PUBLISHED',
+          linkDisplayName: faker.lorem.words(3),
+          linkUrl: faker.internet.url(),
+        };
+        await updateAnnouncement(
+          'announcement-id',
+          announcementInput,
+          'user-id',
+        );
+        expect(mockHistoryCreate).toHaveBeenCalled();
+        expect(mockUpdateResource).toHaveBeenCalledWith({
+          where: { announcement_resource_id: 1 },
+          data: {
+            display_name: announcementInput.linkDisplayName,
+            resource_url: announcementInput.linkUrl,
+            updated_by: 'user-id',
+            update_date: expect.any(Date),
+          },
+        });
+        expect(mockUpdate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { announcement_id: 'announcement-id' },
+            data: expect.objectContaining({
+              title: announcementInput.title,
+              description: announcementInput.description,
+              expires_on: announcementInput.expires_on,
+              published_on: announcementInput.published_on,
+              updated_date: expect.any(Date),
+              announcement_status: {
+                connect: { code: 'PUBLISHED' },
+              },
+              admin_user_announcement_updated_byToadmin_user: {
+                connect: { admin_user_id: 'user-id' },
+              },
+            }),
+          }),
+        );
+      });
+
+      it('should delete resource', async () => {
+        mockFindUniqueOrThrow.mockResolvedValue({
+          id: 'announcement-id',
+          announcement_resource: [
+            { announcement_resource_id: 1, resource_type: 'LINK' },
+          ],
+        });
+        const announcementInput: AnnouncementDataType = {
+          title: faker.lorem.words(3),
+          description: faker.lorem.words(10),
+          expires_on: faker.date.recent().toISOString(),
+          published_on: faker.date.future().toISOString(),
+          status: 'PUBLISHED',
+        };
+        await updateAnnouncement(
+          'announcement-id',
+          announcementInput,
+          'user-id',
+        );
+        expect(mockHistoryCreate).toHaveBeenCalled();
+        expect(mockDeleteResource).toHaveBeenCalledWith({
+          where: { announcement_resource_id: 1 },
+        });
+        expect(mockUpdate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { announcement_id: 'announcement-id' },
+            data: expect.objectContaining({
+              title: announcementInput.title,
+              description: announcementInput.description,
+              expires_on: announcementInput.expires_on,
+              published_on: announcementInput.published_on,
+              updated_date: expect.any(Date),
+              announcement_status: {
+                connect: { code: 'PUBLISHED' },
+              },
+              admin_user_announcement_updated_byToadmin_user: {
+                connect: { admin_user_id: 'user-id' },
+              },
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('without existing resource', () => {
+      it('should update announcement and create resource', async () => {
+        mockFindUniqueOrThrow.mockResolvedValue({
+          id: 'announcement-id',
+          announcement_resource: [],
+        });
+        const announcementInput: AnnouncementDataType = {
+          title: faker.lorem.words(3),
+          description: faker.lorem.words(10),
+          expires_on: faker.date.recent().toISOString(),
+          published_on: faker.date.future().toISOString(),
+          status: 'PUBLISHED',
+          linkDisplayName: faker.lorem.words(3),
+          linkUrl: faker.internet.url(),
+        };
+        await updateAnnouncement(
+          'announcement-id',
+          announcementInput,
+          'user-id',
+        );
+        expect(mockHistoryCreate).toHaveBeenCalled();
+        expect(mockCreateResource).toHaveBeenCalledWith({
+          data: {
+            display_name: announcementInput.linkDisplayName,
+            resource_url: announcementInput.linkUrl,
+            admin_user_announcement_resource_created_byToadmin_user: {
+              connect: { admin_user_id: 'user-id' },
+            },
+            admin_user_announcement_resource_updated_byToadmin_user: {
+              connect: { admin_user_id: 'user-id' },
+            },
+            announcement: {
+              connect: {
+                announcement_id: 'announcement-id',
+              },
+            },
+            announcement_resource_type: {
+              connect: { code: 'LINK' },
+            },
+          },
+        });
+        expect(mockUpdate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { announcement_id: 'announcement-id' },
+            data: expect.objectContaining({
+              title: announcementInput.title,
+              description: announcementInput.description,
+              expires_on: announcementInput.expires_on,
+              published_on: announcementInput.published_on,
+              updated_date: expect.any(Date),
+              announcement_status: {
+                connect: { code: 'PUBLISHED' },
+              },
+              admin_user_announcement_updated_byToadmin_user: {
+                connect: { admin_user_id: 'user-id' },
+              },
+            }),
+          }),
+        );
+      });
+    });
+
+    it('should default to undefined dates', async () => {
+      mockFindUniqueOrThrow.mockResolvedValue({
+        id: 'announcement-id',
+        announcement_resource: [],
+      });
+      const announcementInput: AnnouncementDataType = {
+        title: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        expires_on: '',
+        published_on: '',
+        status: 'DRAFT',
+        linkDisplayName: '',
+        linkUrl: '',
+      };
+      await updateAnnouncement('announcement-id', announcementInput, 'user-id');
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { announcement_id: 'announcement-id' },
+          data: expect.objectContaining({
+            expires_on: undefined,
+            published_on: undefined,
+          }),
+        }),
+      );
     });
   });
 });
