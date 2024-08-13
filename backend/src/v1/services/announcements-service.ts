@@ -246,14 +246,12 @@ export const updateAnnouncement = async (
           },
         });
       }
-    } else {
-      if (currentLink) {
-        await tx.announcement_resource.delete({
-          where: {
-            announcement_resource_id: currentLink.announcement_resource_id,
-          },
-        });
-      }
+    } else if (currentLink) {
+      await tx.announcement_resource.delete({
+        where: {
+          announcement_resource_id: currentLink.announcement_resource_id,
+        },
+      });
     }
 
     const data: Prisma.announcementUpdateInput = {

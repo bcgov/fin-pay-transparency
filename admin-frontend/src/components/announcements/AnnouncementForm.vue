@@ -263,33 +263,45 @@ const handleCancel = async () => {
 };
 
 const handleSave = handleSubmit(async (values) => {
-  if (!values.published_on && status.value === 'PUBLISHED') {
-    setErrors({ published_on: 'Publish date is required.' });
+  if (!validatePublishDate(values) || !validateLink(values)) {
     return;
   }
 
-  if (values.published_on && values.expires_on) {
-    const expiryDate = LocalDate.from(nativeJs(values.expires_on));
-    const publishDate = LocalDate.from(nativeJs(values.published_on));
-    if (expiryDate.isBefore(publishDate)) {
-      setErrors({
-        published_on: 'Publish date should be before expiry date.',
-      });
-      return;
+  function validatePublishDate(values) {
+    if (!values.published_on && status.value === 'PUBLISHED') {
+      setErrors({ published_on: 'Publish date is required.' });
+      return false;
     }
+
+    if (values.published_on && values.expires_on) {
+      const expiryDate = LocalDate.from(nativeJs(values.expires_on));
+      const publishDate = LocalDate.from(nativeJs(values.published_on));
+      if (expiryDate.isBefore(publishDate)) {
+        setErrors({
+          published_on: 'Publish date should be before expiry date.',
+        });
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  if (!values.linkDisplayName && values.linkUrl) {
-    setErrors({ linkDisplayName: 'Link display name is required.' });
-    return;
+  function validateLink(values) {
+    if (!values.linkDisplayName && values.linkUrl) {
+      setErrors({ linkDisplayName: 'Link display name is required.' });
+      return false;
+    }
+
+    if (!values.linkUrl && values.linkDisplayName) {
+      setErrors({ linkUrl: 'Link URL is required.' });
+      return false;
+    }
+
+    return true;
   }
 
-  if (!values.linkUrl && values.linkDisplayName) {
-    setErrors({ linkUrl: 'Link URL is required.' });
-    return;
-  }
-
-  if (status.value === 'PUBLISHED' && announcement?.status !== 'PUBLISHED') {
+  if (status.value === 'PUBLISHED' && (mode === 'create' || announcement?.status !== 'PUBLISHED')) {
     const confirmation = await publishConfirmationDialog.value?.open(
       'Confirm Publish',
       undefined,
