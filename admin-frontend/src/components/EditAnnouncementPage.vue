@@ -1,24 +1,28 @@
 <template>
   <AnnouncementForm
-    :announcement="null"
-    title="Add Announcement"
+    :announcement="announcement"
+    title="Edit Announcement"
     @save="submit"
-    mode="create"
+    mode="edit"
   ></AnnouncementForm>
 </template>
 
 <script lang="ts" setup>
+import { onBeforeMount } from 'vue';
+import { storeToRefs } from 'pinia';
 import { AnnouncementFormValue } from '../types/announcements';
-import { useRouter } from 'vue-router';
 import AnnouncementForm from './announcements/AnnouncementForm.vue';
 import { NotificationService } from '../services/notificationService';
-import ApiService from '../services/apiService';
+import { useAnnouncementSelectionStore } from '../store/modules/announcementSelectionStore';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const selectionStore = useAnnouncementSelectionStore();
+const { announcement } = storeToRefs(selectionStore);
 
 const submit = async (data: AnnouncementFormValue) => {
   try {
-    await ApiService.addAnnouncement(data);
+    await selectionStore.saveChanges(data);
     NotificationService.pushNotificationSuccess(
       'Announcement saved successfully',
     );
@@ -28,4 +32,10 @@ const submit = async (data: AnnouncementFormValue) => {
     NotificationService.pushNotificationError('Failed to save announcement');
   }
 };
+
+onBeforeMount(() => {
+  if (!announcement.value) {
+    router.replace('/announcements');
+  }
+});
 </script>

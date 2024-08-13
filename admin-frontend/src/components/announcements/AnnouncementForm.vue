@@ -9,14 +9,15 @@
     <div class="d-flex flex-row align-center">
       <div class="mr-2">Save as:</div>
       <v-radio-group inline v-model="status" class="status-options mr-2">
-        <v-radio label="Draft" value="DRAFT" class="mr-2"></v-radio>
+        <v-radio
+          v-if="!(mode === 'edit' && announcement?.status === 'PUBLISHED')"
+          label="Draft"
+          value="DRAFT"
+          class="mr-2"
+        ></v-radio>
         <v-radio label="Publish" value="PUBLISHED"></v-radio>
       </v-radio-group>
-      <v-btn
-        color="primary"
-        class="ml-2"
-        @click="handleSave()"
-        >Save</v-btn>
+      <v-btn color="primary" class="ml-2" @click="handleSave()">Save</v-btn>
     </div>
   </div>
   <div class="content">
@@ -156,15 +157,16 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 
 type Props = {
-  announcement: AnnouncementFormValue | null;
+  announcement: AnnouncementFormValue | null | undefined;
   title: string;
+  mode: 'create' | 'edit';
 };
 
 const router = useRouter();
 const emits = defineEmits(['save']);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
-const { announcement } = defineProps<Props>();
+const { announcement, mode } = defineProps<Props>();
 
 const { handleSubmit, setErrors, errors, meta } = useForm({
   initialValues: {
@@ -243,57 +245,57 @@ const handleCancel = async () => {
 };
 
 const handleSave = handleSubmit(async (values) => {
-    if (!values.published_on && status.value === 'PUBLISHED') {
-      setErrors({ published_on: 'Publish date is required.' });
+  if (!values.published_on && status.value === 'PUBLISHED') {
+    setErrors({ published_on: 'Publish date is required.' });
+    return;
+  }
+
+  if (values.published_on && values.expires_on) {
+    const expiryDate = LocalDate.from(nativeJs(values.expires_on));
+    const publishDate = LocalDate.from(nativeJs(values.published_on));
+    if (expiryDate.isBefore(publishDate)) {
+      setErrors({
+        published_on: 'Publish date should be before expiry date.',
+      });
       return;
     }
+  }
 
-    if (values.published_on && values.expires_on) {
-      const expiryDate = LocalDate.from(nativeJs(values.expires_on));
-      const publishDate = LocalDate.from(nativeJs(values.published_on));
-      if (expiryDate.isBefore(publishDate)) {
-        setErrors({
-          published_on: 'Publish date should be before expiry date.',
-        });
-        return;
-      }
-    }
+  if (!values.linkDisplayName && values.linkUrl) {
+    setErrors({ linkDisplayName: 'Link display name is required.' });
+    return;
+  }
 
-    if (!values.linkDisplayName && values.linkUrl) {
-      setErrors({ linkDisplayName: 'Link display name is required.' });
+  if (!values.linkUrl && values.linkDisplayName) {
+    setErrors({ linkUrl: 'Link URL is required.' });
+    return;
+  }
+
+  if (status.value === 'PUBLISHED' && announcement?.status !== 'PUBLISHED') {
+    const confirmation = await publishConfirmationDialog.value?.open(
+      'Confirm Publish',
+      undefined,
+      {
+        titleBold: true,
+        resolveText: 'Confirm',
+        rejectText: 'Close',
+      },
+    );
+
+    if (!confirmation) {
       return;
     }
+  }
 
-    if (!values.linkUrl && values.linkDisplayName) {
-      setErrors({ linkUrl: 'Link URL is required.' });
-      return;
-    }
-
-    if (status.value === 'PUBLISHED') {
-      const confirmation = await publishConfirmationDialog.value?.open(
-        'Confirm Publish',
-        undefined,
-        {
-          titleBold: true,
-          resolveText: 'Confirm',
-          rejectText: 'Close',
-        },
-      );
-
-      if (!confirmation) {
-        return;
-      }
-    }
-
-    await emits('save', {
-      ...values,
-      linkDisplayName: isEmpty(values.linkDisplayName)
-        ? undefined
-        : values.linkDisplayName,
-      linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
-      status: status.value,
-    });
+  await emits('save', {
+    ...values,
+    linkDisplayName: isEmpty(values.linkDisplayName)
+      ? undefined
+      : values.linkDisplayName,
+    linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
+    status: status.value,
   });
+});
 </script>
 
 <style lang="scss">
