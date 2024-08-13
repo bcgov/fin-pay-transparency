@@ -176,7 +176,7 @@ const headers = ref<any>([
   {
     title: '',
     key: 'selection',
-    align: 'center',
+    align: 'start',
     sortable: false,
   },
   {

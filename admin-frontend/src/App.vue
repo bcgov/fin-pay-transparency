@@ -81,8 +81,7 @@ export default {
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
       this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
       this.isBreadcrumbTrailVisible =
-        to?.meta?.breadcrumbs?.length &&
-        this.doesUserHaveRole(USER_ROLE_NAME);
+        to?.meta?.breadcrumbs?.length && this.doesUserHaveRole(USER_ROLE_NAME);
     },
   },
 };
@@ -175,6 +174,7 @@ button:disabled.v-btn {
   background-color: transparent !important;
   border: none;
   box-shadow: none;
+  min-width: 0px;
   font-weight: normal !important;
   padding: 0px;
   letter-spacing: 1px;
