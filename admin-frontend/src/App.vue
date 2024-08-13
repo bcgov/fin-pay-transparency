@@ -81,8 +81,7 @@ export default {
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
       this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
       this.isBreadcrumbTrailVisible =
-        to?.meta?.breadcrumbs?.length &&
-        this.doesUserHaveRole(USER_ROLE_NAME);
+        to?.meta?.breadcrumbs?.length && this.doesUserHaveRole(USER_ROLE_NAME);
     },
   },
 };
