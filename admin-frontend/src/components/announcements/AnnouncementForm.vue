@@ -1,131 +1,150 @@
 <template>
-  <div class="toolbar">
-    <h1>{{ title }}</h1>
-    <span class="fill-remaining-space"></span>
-    <v-btn variant="text" color="primary" class="mr-2" @click="handleCancel"
-      >Cancel</v-btn
-    >
-
-    <v-btn
-      variant="outlined"
-      color="primary"
-      class="mr-2"
-      @click="handleSave('DRAFT')()"
-      >Save draft</v-btn
-    >
-    <v-btn color="primary" @click="handleSave('PUBLISHED')()">Publish</v-btn>
-  </div>
-  <div class="content">
-    <v-divider></v-divider>
-    <v-row dense class="mt-2 form-wrapper">
-      <v-col cols="12" md="12" sm="12">
-        <h5>Title *</h5>
-        <v-text-field
-          single-line
-          label="Title"
-          placeholder="Title"
+  <div class="extend-to-right-edge">
+    <v-row class="w-100 dense border-b-thin">
+      <v-col>
+        <h1>{{ title }}</h1>
+      </v-col>
+      <v-col class="d-flex justify-end mr-4">
+        <v-btn variant="text" color="primary" class="mr-2" @click="handleCancel"
+          >Cancel</v-btn
+        >
+        <v-btn
           variant="outlined"
-          counter
-          maxlength="100"
-          v-model="announcementTitle"
-          :error-messages="errors.title"
-        ></v-text-field>
+          color="primary"
+          class="mr-2"
+          @click="handleSave('DRAFT')()"
+          >Save draft</v-btn
+        >
+        <v-btn color="primary" @click="handleSave('PUBLISHED')()"
+          >Publish</v-btn
+        >
       </v-col>
-      <v-col cols="12" md="12" sm="12">
-        <h5>Description *</h5>
-        <v-textarea
-          single-line
-          variant="outlined"
-          label="Description"
-          placeholder="Description"
-          maxlength="2000"
-          counter
-          rows="3"
-          v-model="announcementDescription"
-          :error-messages="errors.description"
-        ></v-textarea>
+    </v-row>
+    <v-row class="w-100">
+      <v-col sm="6" md="7" lg="8" xl="9">
+        <div class="content">
+          <v-row dense class="mt-2 form-wrapper">
+            <v-col cols="12" md="12" sm="12">
+              <h5>Title *</h5>
+              <v-text-field
+                single-line
+                label="Title"
+                placeholder="Title"
+                variant="outlined"
+                counter
+                maxlength="100"
+                v-model="announcementTitle"
+                :error-messages="errors.title"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="12" sm="12">
+              <h5>Description *</h5>
+              <v-textarea
+                single-line
+                variant="outlined"
+                label="Description"
+                placeholder="Description"
+                maxlength="2000"
+                counter
+                rows="3"
+                v-model="announcementDescription"
+                :error-messages="errors.description"
+              ></v-textarea>
+            </v-col>
+            <v-col cols="12" md="8" sm="12" class="d-flex flex-column">
+              <h5 class="mb-2">Time settings</h5>
+              <v-row dense>
+                <v-col cols="2" class="d-flex justify-end align-center">
+                  <p class="datetime-picker-label">Publish On</p>
+                </v-col>
+                <v-col cols="6">
+                  <VueDatePicker
+                    format="yyyy-MM-dd hh:mm a"
+                    :enable-time-picker="true"
+                    arrow-navigation
+                    auto-apply
+                    prevent-min-max-navigation
+                    v-model="publishedOn"
+                    :aria-labels="{ input: 'Publish On' }"
+                  >
+                  </VueDatePicker>
+                </v-col>
+              </v-row>
+              <v-row dense class="mt-0">
+                <v-col cols="2" class="d-flex justify-end align-center pa-0">
+                </v-col>
+                <v-col cols="6" class="pa-0 ml-3">
+                  <span class="field-error">{{ errors.published_on }}</span>
+                </v-col>
+              </v-row>
+              <v-row dense class="mt-2">
+                <v-col cols="2" class="d-flex justify-end align-center">
+                  <p class="datetime-picker-label">Expires On</p>
+                </v-col>
+                <v-col cols="6" class="d-flex align-center">
+                  <VueDatePicker
+                    :aria-labels="{ input: 'Expires On' }"
+                    format="yyyy-MM-dd hh:mm a"
+                    :enable-time-picker="true"
+                    arrow-navigation
+                    auto-apply
+                    prevent-min-max-navigation
+                    v-model="expiresOn"
+                    :disabled="noExpiry"
+                  />
+                </v-col>
+              </v-row>
+              <v-row class="mt-0">
+                <v-col cols="8" class="d-flex justify-end pa-0">
+                  <v-checkbox
+                    v-model="noExpiry"
+                    class="expiry-checkbox"
+                    label="No expiry"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col cols="12">
+              <h5 class="mb-2">Link</h5>
+              <v-row dense class="ml-3 mt-2">
+                <v-col cols="12">
+                  <span class="attachment-label">Link URL</span>
+                  <v-text-field
+                    single-line
+                    variant="outlined"
+                    placeholder="https://example.com"
+                    v-model="linkUrl"
+                    label="Link URL"
+                    :error-messages="errors.linkUrl"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <span class="attachment-label">Display Link As</span>
+                  <v-text-field
+                    single-line
+                    variant="filled"
+                    placeholder="eg., DocumentName.pdf"
+                    label="Display Link As"
+                    v-model="linkDisplayName"
+                    :error-messages="errors.linkDisplayName"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </div>
       </v-col>
-      <v-col cols="12" md="8" sm="12" class="d-flex flex-column">
-        <h5 class="mb-2">Time settings</h5>
-        <v-row dense>
-          <v-col cols="2" class="d-flex justify-end align-center">
-            <p class="datetime-picker-label">Publish On</p>
-          </v-col>
-          <v-col cols="6">
-            <VueDatePicker
-              format="yyyy-MM-dd hh:mm a"
-              :enable-time-picker="true"
-              arrow-navigation
-              auto-apply
-              prevent-min-max-navigation
-              v-model="publishedOn"
-              :aria-labels="{ input: 'Publish On' }"
-            >
-            </VueDatePicker>
-          </v-col>
-        </v-row>
-        <v-row dense class="mt-0">
-          <v-col cols="2" class="d-flex justify-end align-center pa-0"> </v-col>
-          <v-col cols="6" class="pa-0 ml-3">
-            <span class="field-error">{{ errors.published_on }}</span>
-          </v-col>
-        </v-row>
-        <v-row dense class="mt-2">
-          <v-col cols="2" class="d-flex justify-end align-center">
-            <p class="datetime-picker-label">Expires On</p>
-          </v-col>
-          <v-col cols="6" class="d-flex align-center">
-            <VueDatePicker
-              :aria-labels="{ input: 'Expires On' }"
-              format="yyyy-MM-dd hh:mm a"
-              :enable-time-picker="true"
-              arrow-navigation
-              auto-apply
-              prevent-min-max-navigation
-              v-model="expiresOn"
-              :disabled="noExpiry"
-            />
-          </v-col>
-        </v-row>
-        <v-row class="mt-0">
-          <v-col cols="8" class="d-flex justify-end pa-0">
-            <v-checkbox
-              v-model="noExpiry"
-              class="expiry-checkbox"
-              label="No expiry"
-            ></v-checkbox>
-          </v-col>
-        </v-row>
-      </v-col>
-      <v-col cols="12">
-        <h5 class="mb-2">Link</h5>
-        <v-row dense class="ml-3 mt-2">
-          <v-col cols="12">
-            <span class="attachment-label">Link URL</span>
-            <v-text-field
-              single-line
-              variant="outlined"
-              placeholder="https://example.com"
-              v-model="linkUrl"
-              label="Link URL"
-              :error-messages="errors.linkUrl"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <span class="attachment-label">Display Link As</span>
-            <v-text-field
-              single-line
-              variant="filled"
-              placeholder="eg., DocumentName.pdf"
-              label="Display Link As"
-              v-model="linkDisplayName"
-              :error-messages="errors.linkDisplayName"
-            ></v-text-field>
-          </v-col>
-        </v-row>
+      <v-col sm="6" md="5" lg="4" xl="3" class="bg-previewPanel p-4">
+        <h3>Preview Announcement</h3>
+        <p>This is how the announcement will appear to the public</p>
+        <AnnouncementCarousel
+          :announcements="[announcementPreview]"
+          :pageSize="1"
+        ></AnnouncementCarousel>
       </v-col>
     </v-row>
   </div>
+
   <ConfirmationDialog ref="confirmDialog">
     <template v-slot:message>
       <p>
@@ -143,17 +162,32 @@
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
 import { defineProps, defineEmits, watch, ref } from 'vue';
-import { AnnouncementFormValue } from '../../types/announcements';
+import { AnnouncementFormValue, Announcement } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
 import { LocalDate, nativeJs } from '@js-joda/core';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
+import AnnouncementCarousel from './AnnouncementCarousel.vue';
 
 type Props = {
   announcement: AnnouncementFormValue | null;
   title: string;
+};
+
+const announcementPreview: Announcement = {
+  announcement_id: '123',
+  title: 'title',
+  description: 'd2rasdf aas warasdf.',
+  created_date: '',
+  created_by: '',
+  updated_date: '',
+  updated_by: '',
+  published_on: '',
+  expires_on: '',
+  status: 'PUBLISHED',
+  announcement_resource: [],
 };
 
 const router = useRouter();
@@ -322,5 +356,8 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
 .field-error {
   color: red;
   font-size: x-small;
+}
+.extend-to-right-edge {
+  margin-right: -40px !important;
 }
 </style>
