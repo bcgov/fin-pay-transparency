@@ -60,7 +60,7 @@
       <template v-slot:item.title="{ item }">
         <v-btn
           variant="text"
-          class="btn-link"
+          class="btn-link no-min-width"
           color="link"
           @click="showAnnouncement(item)"
         >
@@ -293,5 +293,8 @@ async function deleteAnnouncements(announcementIds: string[]) {
 }
 .checkbox-no-details > .v-input__details {
   display: none;
+}
+.no-min-width {
+  min-width: 0px !important;
 }
 </style>

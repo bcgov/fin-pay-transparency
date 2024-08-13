@@ -174,7 +174,6 @@ button:disabled.v-btn {
   background-color: transparent !important;
   border: none;
   box-shadow: none;
-  min-width: 0px;
   font-weight: normal !important;
   padding: 0px;
   letter-spacing: 1px;
