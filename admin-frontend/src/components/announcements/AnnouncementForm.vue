@@ -66,6 +66,11 @@
               v-model="publishedOn"
               :aria-labels="{ input: 'Publish On' }"
             >
+              <template #day="{ day, date }">
+                <span :aria-label="formatDate(date)">
+                  {{ day }}
+                </span>
+              </template>
             </VueDatePicker>
           </v-col>
         </v-row>
@@ -89,7 +94,13 @@
               prevent-min-max-navigation
               v-model="expiresOn"
               :disabled="noExpiry"
-            />
+            >
+              <template #day="{ day, date }">
+                <span :aria-label="formatDate(date)">
+                  {{ day }}
+                </span>
+              </template>
+            </VueDatePicker>
           </v-col>
         </v-row>
         <v-row class="mt-0">
@@ -152,7 +163,8 @@ import { AnnouncementFormValue } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import { LocalDate, nativeJs } from '@js-joda/core';
+import { DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 
@@ -227,6 +239,12 @@ watch(noExpiry, () => {
     expiresOn.value = undefined;
   }
 });
+
+const formatDate = (date: Date) => {
+  return LocalDate.from(nativeJs(date)).format(
+    DateTimeFormatter.ofPattern('EEEE d MMMM yyyy').withLocale(Locale.CANADA),
+  );
+};
 
 const handleCancel = async () => {
   if (!meta.value.dirty) {
