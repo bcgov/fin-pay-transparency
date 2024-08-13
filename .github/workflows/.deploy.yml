@@ -147,7 +147,9 @@ jobs:
           --set-string global.secrets.entraClientSecret="${{secrets.ENTRA_APP_CLIENT_SECRET }}" \
           --set-string global.secrets.entraTenantId="${{secrets.ENTRA_APP_TENANT_ID }}" \
           --set-string global.secrets.powerBiAnalyticsWorkspaceId="${{secrets.POWERBI_ANALYTICS_WORKSPACE_ID }}" \
-          --set-string global.secrets.powerBiAnalyticsDashboardId="${{secrets.POWERBI_ANALYTICS_DASHBOARD_ID }}" \
+          --set-string global.secrets.powerBiAnalyticsSubmissionAnalyticsId="${{secrets.POWERBI_ANALYTICS_SUBMISSIONANALYTICS_ID }}" \
+          --set-string global.secrets.powerBiAnalyticsUserBehaviourId="${{secrets.POWERBI_ANALYTICS_USERBEHAVIOUR_ID }}" \
+          --set-string global.secrets.powerBiAnalyticsDataAnalyticsId="${{secrets.POWERBI_ANALYTICS_DATAANALYTICS_ID }}" \
           --set-string global.serverAdminFrontend="${{ inputs.admin-frontend-url }}" \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
           --set-string crunchy.pgBackRest.s3.bucket="${{ secrets.S3_BUCKET }}"  \

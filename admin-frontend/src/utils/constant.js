@@ -49,3 +49,9 @@ export const REPORT_STATUS = Object.freeze({
   DRAFT: 'Draft',
   PUBLISHED: 'Published',
 });
+
+export const POWERBI_RESOURCE = Object.freeze({
+  SUBMISSIONANALYTICS: 'SubmissionAnalytics',
+  USERBEHAVIOUR: 'UserBehaviour',
+  DATAANALYTICS: 'DataAnalytics',
+});

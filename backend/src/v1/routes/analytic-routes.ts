@@ -5,12 +5,14 @@ import { utils } from '../services/utils-service';
 const router = Router();
 
 router.get(
-  '/embed',
-  utils.asyncHandler(async (req: Request, res: Response) => {
-    const info = await getEmbedInfo();
+  '/embed/:resourceName',
+  utils.asyncHandler(
+    async (req: Request<{ resourceName: string }>, res: Response) => {
+      const info = await getEmbedInfo(req.params.resourceName);
 
-    return res.status(200).json(info);
-  }),
+      return res.status(200).json(info);
+    },
+  ),
 );
 
 export default router;

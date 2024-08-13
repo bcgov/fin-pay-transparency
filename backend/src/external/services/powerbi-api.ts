@@ -64,8 +64,11 @@ export type GenerateTokenForDashboardInGroup_Body = {
 
 /** https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token#request-body */
 export type GenerateToken_Body = {
-  reports: { id: string }[];
-  datasets: { id: string }[];
+  reports: { id: string; allowEdit?: boolean }[];
+  datasets: {
+    id: string;
+    xmlaPermissions?: 'Off' | 'ReadOnly';
+  }[];
   targetWorkspaces?: { id: string }[];
   datasourceIdentities?: [];
   identities?: [];

@@ -127,7 +127,10 @@ config.defaults({
   powerbi: {
     analytics: {
       workspaceId: process.env.POWERBI_ANALYTICS_WORKSPACE_ID,
-      dashboardId: process.env.POWERBI_ANALYTICS_DASHBOARD_ID,
+      submissionAnalyticsId:
+        process.env.POWERBI_ANALYTICS_SUBMISSIONANALYTICS_ID,
+      userBehaviourId: process.env.POWERBI_ANALYTICS_USERBEHAVIOUR_ID,
+      dataAnalyticsId: process.env.POWERBI_ANALYTICS_DATAANALYTICS_ID,
     },
   },
 });

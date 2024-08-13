@@ -14,7 +14,9 @@ type PowerBiEmbedInfo = {
  * Generate embed token and embed urls for PowerBi resources
  * @return Details like Embed URL, Access token and Expiry
  */
-export async function getEmbedInfo(): Promise<PowerBiEmbedInfo> {
+export async function getEmbedInfo(
+  resourceName: string,
+): Promise<PowerBiEmbedInfo> {
   // Get the Report Embed details
   try {
     // Get report details and embed token
@@ -23,10 +25,24 @@ export async function getEmbedInfo(): Promise<PowerBiEmbedInfo> {
       config.get('entra:clientSecret'),
       config.get('entra:tenantId'),
     );
-    const embedParams = await powerBi.getEmbedParamsForDashboard(
-      config.get('powerbi:analytics:workspaceId'),
-      config.get('powerbi:analytics:dashboardId'),
-    );
+
+    let embedParams;
+    if (resourceName == 'SubmissionAnalytics') {
+      embedParams = await powerBi.getEmbedParamsForReports(
+        config.get('powerbi:analytics:workspaceId'),
+        config.get('powerbi:analytics:submissionAnalyticsId'),
+      );
+    } else if (resourceName == 'UserBehaviour') {
+      embedParams = await powerBi.getEmbedParamsForReports(
+        config.get('powerbi:analytics:workspaceId'),
+        config.get('powerbi:analytics:userBehaviourId'),
+      );
+    } else if (resourceName == 'DataAnalytics') {
+      embedParams = await powerBi.getEmbedParamsForReports(
+        config.get('powerbi:analytics:workspaceId'),
+        config.get('powerbi:analytics:dataAnalyticsId'),
+      );
+    }
 
     return {
       id: embedParams.resources[0].id,

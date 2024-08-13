@@ -376,9 +376,11 @@ export default {
     }
   },
 
-  async getPowerBiEmbedAnalytics() {
+  async getPowerBiEmbedAnalytics(resourceName: string) {
     try {
-      const resp = await apiAxios.get(ApiRoutes.POWERBI_EMBED_ANALYTICS);
+      const resp = await apiAxios.get(
+        `${ApiRoutes.POWERBI_EMBED_ANALYTICS}/${resourceName}`,
+      );
       if (resp?.data) {
         return resp.data;
       }

@@ -131,8 +131,11 @@ export class PowerBiService {
   ) {
     // Add report id in the request
     const body: PowerBi.GenerateToken_Body = {
-      reports: reportIds.map((id) => ({ id })),
-      datasets: datasetIds.map((id) => ({ id })),
+      reports: reportIds.map((id) => ({ id, allowEdit: false })),
+      datasets: datasetIds.map((id) => ({
+        id,
+        xmlaPermissions: 'ReadOnly',
+      })),
       targetWorkspaces: targetWorkspaceIds.map((id) => ({ id })),
     };
 
