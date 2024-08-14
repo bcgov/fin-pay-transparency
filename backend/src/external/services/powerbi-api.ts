@@ -9,7 +9,7 @@ export const Api = {
   /** https://learn.microsoft.com/en-us/rest/api/power-bi/dashboards/get-dashboard-in-group#dashboard */
   getDashboardInGroup: (
     url: DashboardInGroup_Url,
-    config?: AxiosRequestConfig,
+    config: AxiosRequestConfig,
   ): Promise<AxiosResponse<Dashboard>> =>
     axios.get<Dashboard>(
       `https://api.powerbi.com/v1.0/myorg/groups/${url.workspaceId}/dashboards/${url.dashboardId}`,
@@ -19,7 +19,7 @@ export const Api = {
   /** https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-report-in-group#report */
   getReportInGroup: (
     url: ReportInGroup_Url,
-    config?: AxiosRequestConfig,
+    config: AxiosRequestConfig,
   ): Promise<AxiosResponse<Report>> =>
     axios.get<Report>(
       `https://api.powerbi.com/v1.0/myorg/groups/${url.workspaceId}/reports/${url.reportId}`,
@@ -29,7 +29,7 @@ export const Api = {
   /** https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token */
   postGenerateToken: (
     body: GenerateToken_Body,
-    config?: AxiosRequestConfig,
+    config: AxiosRequestConfig,
   ): Promise<AxiosResponse<EmbedToken>> =>
     axios.post<EmbedToken, AxiosResponse<EmbedToken>, GenerateToken_Body>(
       'https://api.powerbi.com/v1.0/myorg/GenerateToken',
@@ -41,7 +41,7 @@ export const Api = {
   postGenerateTokenForDashboardInGroup: (
     url: DashboardInGroup_Url,
     body: GenerateTokenForDashboardInGroup_Body,
-    config?: AxiosRequestConfig,
+    config: AxiosRequestConfig,
   ): Promise<AxiosResponse<EmbedToken>> =>
     axios.post<EmbedToken>(
       `https://api.powerbi.com/v1.0/myorg/groups/${url.workspaceId}/dashboards/${url.dashboardId}/GenerateToken`,

@@ -1,19 +1,19 @@
 <template>
   <PowerBIReportEmbed
-    v-if="isDashboardLoaded"
+    v-if="configSubmissionAnalytics.isDashboardLoaded"
     :embed-config="configSubmissionAnalytics"
     :css-class-name="powerBiCssClass"
   ></PowerBIReportEmbed>
-  <!-- <PowerBIReportEmbed
-    v-if="isDashboardLoaded"
+  <PowerBIReportEmbed
+    v-if="configUserBehaviour.isDashboardLoaded"
     :embed-config="configUserBehaviour"
     :css-class-name="powerBiCssClass"
   ></PowerBIReportEmbed>
   <PowerBIReportEmbed
-    v-if="isDashboardLoaded"
+    v-if="configDataAnalytics.isDashboardLoaded"
     :embed-config="configDataAnalytics"
     :css-class-name="powerBiCssClass"
-  ></PowerBIReportEmbed> -->
+  ></PowerBIReportEmbed>
 </template>
 
 <script setup lang="ts">
@@ -24,33 +24,39 @@ import ApiService from '../services/apiService';
 import { ZonedDateTime, Duration } from '@js-joda/core';
 import { POWERBI_RESOURCE } from '../utils/constant';
 
-const isDashboardLoaded = ref<boolean>(false);
 const powerBiCssClass = 'powerbi-container';
 
+interface IReportEmbedConfigurationEx extends IReportEmbedConfiguration {
+  isDashboardLoaded: boolean;
+}
+
 // Bootstrap Dashboard by leaving some details undefined
-const configSubmissionAnalytics = ref<IReportEmbedConfiguration>({
+const configSubmissionAnalytics = ref<IReportEmbedConfigurationEx>({
   type: 'report',
   id: undefined,
   embedUrl: undefined,
   accessToken: undefined,
   tokenType: models.TokenType.Embed,
   hostname: 'https://app.powerbi.com',
+  isDashboardLoaded: false,
 });
-const configUserBehaviour = ref<IReportEmbedConfiguration>({
+const configUserBehaviour = ref<IReportEmbedConfigurationEx>({
   type: 'report',
   id: undefined,
   embedUrl: undefined,
   accessToken: undefined,
   tokenType: models.TokenType.Embed,
   hostname: 'https://app.powerbi.com',
+  isDashboardLoaded: false,
 });
-const configDataAnalytics = ref<IReportEmbedConfiguration>({
+const configDataAnalytics = ref<IReportEmbedConfigurationEx>({
   type: 'report',
   id: undefined,
   embedUrl: undefined,
   accessToken: undefined,
   tokenType: models.TokenType.Embed,
   hostname: 'https://app.powerbi.com',
+  isDashboardLoaded: false,
 });
 
 type PowerBiEmbedInfo = {
@@ -67,7 +73,7 @@ async function getAccessToken(resourceName, config) {
   config.value.id = embedInfo.id;
   config.value.embedUrl = embedInfo.embedUrl;
   config.value.accessToken = embedInfo.accessToken;
-  isDashboardLoaded.value = true;
+  config.value.isDashboardLoaded = true;
 
   const expiry = ZonedDateTime.parse(embedInfo.expiry);
   const now = ZonedDateTime.now();
@@ -76,8 +82,8 @@ async function getAccessToken(resourceName, config) {
 }
 
 getAccessToken(POWERBI_RESOURCE.SUBMISSIONANALYTICS, configSubmissionAnalytics);
-// getAccessToken(POWERBI_RESOURCE.USERBEHAVIOUR, configUserBehaviour);
-// getAccessToken(POWERBI_RESOURCE.DATAANALYTICS, configDataAnalytics);
+getAccessToken(POWERBI_RESOURCE.USERBEHAVIOUR, configUserBehaviour);
+getAccessToken(POWERBI_RESOURCE.DATAANALYTICS, configDataAnalytics);
 </script>
 
 <style lang="scss">

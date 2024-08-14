@@ -6,9 +6,9 @@
 // Licensed under the MIT license.
 // ----------------------------------------------------------------------------
 
-import { logger } from '../../logger';
 import msal from '@azure/msal-node';
 import * as PowerBi from './powerbi-api';
+import { AxiosError } from 'axios';
 
 type PowerBiResource = {
   id: string;
@@ -49,23 +49,23 @@ export class PowerBiService {
       );
 
       data = result.data;
-    } catch (e) {
-      logger.error('PowerBi Dashboard API error', e);
-      throw e;
+
+      const reportDetails: PowerBiResource = {
+        id: data.id,
+        name: data.name,
+        embedUrl: data.embedUrl,
+      };
+
+      // Get Embed token multiple resources
+      const embedToken = await this.getEmbedTokenForDashboard(
+        dashboardId,
+        workspaceId,
+      );
+      return { embedToken: embedToken, resources: [reportDetails] };
+    } catch (err) {
+      if (err instanceof AxiosError)
+        err.message = JSON.stringify(err.response.data);
     }
-
-    const reportDetails: PowerBiResource = {
-      id: data.id,
-      name: data.name,
-      embedUrl: data.embedUrl,
-    };
-
-    // Get Embed token multiple resources
-    const embedToken = await this.getEmbedTokenForDashboard(
-      dashboardId,
-      workspaceId,
-    );
-    return { embedToken: embedToken, resources: [reportDetails] };
   }
 
   /**
@@ -80,7 +80,6 @@ export class PowerBiService {
     workspaceId: string,
     reportId: string,
   ): Promise<EmbedConfig> {
-    let data;
     try {
       // Get report info by calling the PowerBI REST API
       const result = await PowerBi.Api.getReportInGroup(
@@ -90,26 +89,27 @@ export class PowerBiService {
         },
       );
 
-      data = result.data;
-    } catch (e) {
-      logger.error('PowerBi Report API', e);
-      throw e;
+      const data = result.data;
+
+      // Add report data for embedding
+      const reportDetails: PowerBiResource = {
+        id: data.id,
+        name: data.name,
+        embedUrl: data.embedUrl,
+      };
+
+      // Get Embed token multiple resources
+      const embedToken = await this.getEmbedTokenForV2Workspace(
+        [reportId],
+        [data.datasetId],
+        [workspaceId],
+      );
+      return { embedToken: embedToken, resources: [reportDetails] };
+    } catch (err) {
+      if (err instanceof AxiosError)
+        err.message = JSON.stringify(err.response.data);
+      throw err;
     }
-
-    // Add report data for embedding
-    const reportDetails: PowerBiResource = {
-      id: data.id,
-      name: data.name,
-      embedUrl: data.embedUrl,
-    };
-
-    // Get Embed token multiple resources
-    const embedToken = await this.getEmbedTokenForV2Workspace(
-      [reportId],
-      [data.datasetId],
-      [workspaceId],
-    );
-    return { embedToken: embedToken, resources: [reportDetails] };
   }
 
   /**
@@ -139,16 +139,11 @@ export class PowerBiService {
       targetWorkspaces: targetWorkspaceIds.map((id) => ({ id })),
     };
 
-    try {
-      const result = await PowerBi.Api.postGenerateToken(body, {
-        headers: await this.getEntraAuthorizationHeader(),
-      });
+    const result = await PowerBi.Api.postGenerateToken(body, {
+      headers: await this.getEntraAuthorizationHeader(),
+    });
 
-      return result.data;
-    } catch (e) {
-      logger.error('PowerBi V2 GenerateToken API', e);
-      throw e;
-    }
+    return result.data;
   }
 
   /**
@@ -158,55 +153,45 @@ export class PowerBiService {
     dashboardId: string,
     workspaceId: string,
   ) {
-    try {
-      const result = await PowerBi.Api.postGenerateTokenForDashboardInGroup(
-        {
-          workspaceId,
-          dashboardId,
-        },
-        {
-          accessLevel: 'View',
-        },
-        {
-          headers: await this.getEntraAuthorizationHeader(),
-        },
-      );
+    const result = await PowerBi.Api.postGenerateTokenForDashboardInGroup(
+      {
+        workspaceId,
+        dashboardId,
+      },
+      {
+        accessLevel: 'View',
+      },
+      {
+        headers: await this.getEntraAuthorizationHeader(),
+      },
+    );
 
-      return result.data;
-    } catch (e) {
-      logger.error('PowerBi Dashboard GenerateToken API', e);
-      throw e;
-    }
+    return result.data;
   }
 
   /**
    * @returns An access token for usage in the PowerBi REST API
    */
   private async getEntraAccessToken(): Promise<msal.AuthenticationResult> {
-    try {
-      const msalConfig = {
-        auth: {
-          clientId: this.clientId,
-          authority: 'https://login.microsoftonline.com/' + this.tenantId,
-          clientSecret: this.clientSecret,
-        },
-      };
+    const msalConfig = {
+      auth: {
+        clientId: this.clientId,
+        authority: 'https://login.microsoftonline.com/' + this.tenantId,
+        clientSecret: this.clientSecret,
+      },
+    };
 
-      const clientApplication = new msal.ConfidentialClientApplication(
-        msalConfig,
-      );
+    const clientApplication = new msal.ConfidentialClientApplication(
+      msalConfig,
+    );
 
-      const clientCredentialRequest = {
-        scopes: ['https://analysis.windows.net/powerbi/api/.default'],
-      };
+    const clientCredentialRequest = {
+      scopes: ['https://analysis.windows.net/powerbi/api/.default'],
+    };
 
-      return clientApplication.acquireTokenByClientCredential(
-        clientCredentialRequest,
-      );
-    } catch (e) {
-      logger.error('Entra for PowerBi Authentication', e);
-      throw e;
-    }
+    return clientApplication.acquireTokenByClientCredential(
+      clientCredentialRequest,
+    );
   }
 
   /**
