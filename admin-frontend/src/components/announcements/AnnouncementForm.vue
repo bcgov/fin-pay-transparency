@@ -21,9 +21,9 @@
       </v-col>
     </v-row>
     <v-row class="w-100">
-      <v-col sm="6" md="7" lg="8" xl="9">
+      <v-col sm="6" md="7" lg="7" xl="8">
         <div class="content">
-          <v-row dense class="mt-2 form-wrapper">
+          <v-row dense class="mt-2 w-100">
             <v-col cols="12" md="12" sm="12">
               <h5>Title *</h5>
               <v-text-field
@@ -132,16 +132,60 @@
               </v-row>
             </v-col>
           </v-row>
+          <v-row>
+            <v-col class="d-flex justify-end">
+              <v-btn
+                v-if="!announcementsToPreview?.length"
+                class="btn-primary"
+                prepend-icon="mdi-eye"
+                @click="preview()"
+                :disabled="!isPreviewAvailable"
+                >Preview</v-btn
+              >
+            </v-col>
+          </v-row>
         </div>
       </v-col>
-      <v-col sm="6" md="5" lg="4" xl="3" class="bg-previewPanel p-4">
-        <h3>Preview Announcement</h3>
-        <p>This is how the announcement will appear to the public</p>
-        <AnnouncementCarousel
-          :announcements="[announcementPreview]"
-          :pageSize="1"
-        ></AnnouncementCarousel>
-      </v-col>
+      <Transition name="slide-fade">
+        <v-col
+          sm="6"
+          md="5"
+          lg="5"
+          xl="4"
+          class="px-0 py-0 d-flex justify-end"
+          v-if="announcementsToPreview?.length"
+        >
+          <div class="previewPanel bg-previewPanel w-100 h-100 px-6 py-6">
+            <v-row dense>
+              <v-col>
+                <h3>Preview Announcement</h3>
+              </v-col>
+              <v-col cols="2" class="d-flex justify-end">
+                <v-btn
+                  density="compact"
+                  variant="plain"
+                  icon="mdi-close"
+                  @click="closePreview()"
+                ></v-btn>
+              </v-col>
+            </v-row>
+
+            <v-row dense class="mb-2">
+              <v-col>
+                <v-icon icon="mdi-information"></v-icon>
+                This is how the announcement will appear to the public.
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col>
+                <AnnouncementCarousel
+                  :announcements="announcementsToPreview"
+                  :pageSize="2"
+                ></AnnouncementCarousel> </v-col
+            ></v-row>
+          </div>
+        </v-col>
+      </Transition>
     </v-row>
   </div>
 
@@ -161,8 +205,13 @@
 
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { defineProps, defineEmits, watch, ref } from 'vue';
-import { AnnouncementFormValue, Announcement } from '../../types/announcements';
+import { defineProps, defineEmits, watch, ref, computed } from 'vue';
+import {
+  AnnouncementFormValue,
+  Announcement,
+  AnnouncementFilterType,
+  AnnouncementSortType,
+} from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
@@ -170,33 +219,24 @@ import { LocalDate, nativeJs } from '@js-joda/core';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementCarousel from './AnnouncementCarousel.vue';
+import ApiService from '../../services/apiService';
 
 type Props = {
   announcement: AnnouncementFormValue | null;
   title: string;
 };
 
-const announcementPreview: Announcement = {
-  announcement_id: '123',
-  title: 'title',
-  description: 'd2rasdf aas warasdf.',
-  created_date: '',
-  created_by: '',
-  updated_date: '',
-  updated_by: '',
-  published_on: '',
-  expires_on: '',
-  status: 'PUBLISHED',
-  announcement_resource: [],
-};
+let publishedAnnouncements: Announcement[] | undefined = undefined;
+const announcementsToPreview = ref<Announcement[]>();
 
 const router = useRouter();
 const emits = defineEmits(['save']);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement } = defineProps<Props>();
+const isPreviewAvailable = computed(() => values.title && values.description);
 
-const { handleSubmit, setErrors, errors, meta } = useForm({
+const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
     description: announcement?.description || '',
@@ -254,6 +294,15 @@ watch(noExpiry, () => {
   }
 });
 
+//Watch for changes to any form field.
+//If the 'preview' mode is active when the form changes
+//then refresh the preview
+watch(values, () => {
+  if (announcementsToPreview.value) {
+    preview();
+  }
+});
+
 const handleCancel = async () => {
   if (!meta.value.dirty) {
     router.back();
@@ -269,6 +318,73 @@ const handleCancel = async () => {
     router.back();
   }
 };
+
+/*
+Preview the current announcement alongside any other pre-existing (published)
+announcements.  The pre-existing announcements are fetched from the backend,
+and cached for quick subsequent access (because this function may be called 
+repeatedly).
+*/
+async function preview() {
+  if (!publishedAnnouncements) {
+    publishedAnnouncements = await getPublishedAnnouncements();
+  }
+  const currentAnnouncement = buildAnnouncementToPreview();
+  announcementsToPreview.value = [
+    currentAnnouncement as any,
+    ...publishedAnnouncements,
+  ];
+}
+
+/*
+Clears the 'announcementsToPreview' ref which triggers the
+preview panel to disappear.
+*/
+function closePreview() {
+  announcementsToPreview.value = undefined;
+}
+
+/* 
+Create a new Announcement object using the current form values.
+The resulting Announcement object is principally used for preview
+its appearance, so some of the unnecessary attributes aren't populated
+(created_date, updated_date, etc)
+*/
+function buildAnnouncementToPreview() {
+  const announcement = {
+    announcement_id: null,
+    title: announcementTitle.value,
+    description: announcementDescription.value,
+    announcement_resource: [] as any[],
+  };
+  if (linkDisplayName.value && linkUrl.value) {
+    announcement.announcement_resource.push({
+      display_name: linkDisplayName.value,
+      resource_url: linkUrl.value,
+    });
+  }
+  return announcement;
+}
+
+/*
+Downloads from the backend a list of Announcements with status=PUBLISHED.
+Results are ordered by update date (most recently updated are first).
+Implementation note: The backend returns Announcements in "pages".  For
+simplicity here, this function assumes all the published announcements 
+can be fetched in one large "page" (of 100).
+*/
+async function getPublishedAnnouncements(): Promise<Announcement[]> {
+  const filters: AnnouncementFilterType = [
+    {
+      key: 'status',
+      operation: 'in',
+      value: ['PUBLISHED'],
+    },
+  ];
+  const sort: AnnouncementSortType = [{ field: 'updated_date', order: 'desc' }];
+  const result = await ApiService.getAnnouncements(0, 100, filters, sort);
+  return result?.items;
+}
 
 const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
   handleSubmit(async (values) => {
@@ -338,10 +454,10 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
 
 .content {
   width: 100%;
-
-  .form-wrapper {
-    max-width: 800px;
-  }
+  max-width: 800px;
+}
+.previewPanel {
+  max-width: 500px !important;
 }
 
 .datetime-picker-label,

@@ -1,15 +1,17 @@
 <template>
-  <h1>{{ announcement.title }}</h1>
-  <p>{{ announcement.description }}</p>
-  <v-list :lines="false" density="compact">
-    <v-list-item
-      v-for="(item, i) in announcement.announcement_resource"
+  <div>
+    <h3 class="mb-1">{{ announcement.title }}</h3>
+    <p>{{ announcement.description }}</p>
+    <div
+      v-for="(announcementResource, i) in announcement.announcement_resource"
       :key="i"
-      :value="item"
-      :href="item.resource_url"
+      class="px-0 mt-2"
     >
-    </v-list-item>
-  </v-list>
+      <a :href="announcementResource.resource_url" target="_blank">{{
+        announcementResource.display_name
+      }}</a>
+    </div>
+  </div>
 </template>
 <script lang="ts">
 export default {

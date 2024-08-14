@@ -1,14 +1,21 @@
 <template>
   <v-card class="rounded-lg">
     <v-toolbar color="tab">
-      <v-toolbar-title>Announcements</v-toolbar-title>
+      <v-toolbar-title>Updates</v-toolbar-title>
     </v-toolbar>
-    <AnnouncementItem
-      v-for="(announcement, i) in page"
-      :announcement="announcement"
-    >
-    </AnnouncementItem>
-    <v-pagination v-model="pageNum" :length="numPages"></v-pagination>
+    <v-card-text>
+      <template v-for="(announcement, index) in page">
+        <AnnouncementItem :announcement="announcement"> </AnnouncementItem>
+        <v-divider v-if="index < page.length - 1" class="my-4"></v-divider>
+      </template>
+      <v-pagination
+        v-model="pageNum"
+        v-if="numPages > 1"
+        :length="numPages"
+        size="28"
+        class="mt-2"
+      ></v-pagination>
+    </v-card-text>
   </v-card>
 </template>
 <script lang="ts">
@@ -23,19 +30,27 @@ import AnnouncementItem from './AnnouncementItem.vue';
 import { ref, computed } from 'vue';
 
 const props = defineProps<{
-  announcements: Announcement[];
+  announcements: Announcement[] | undefined;
   pageSize: number;
 }>();
 
 const pageNum = ref<number>(1); //starts at 1
-const offset = computed<number>(() => pageNum.value * props.pageSize - 1); //index of start of current page.  starts at 0.
+const offset = computed<number>(() => {
+  return (pageNum.value - 1) * props.pageSize;
+}); //index of start of current page.  starts at 0.
 const numPages = computed<number>(() =>
-  Math.ceil(props.announcements.length / props.pageSize),
+  props.announcements?.length
+    ? Math.ceil(props.announcements?.length / props.pageSize)
+    : 0,
 );
 const page = computed<Announcement[]>(() => {
   const start = offset.value;
   let end = start + props.pageSize;
-  if (start >= 0 && start < props.announcements.length) {
+  if (
+    !props?.announcements?.length ||
+    start < 0 ||
+    start >= props.announcements.length
+  ) {
     return [];
   }
   if (end > props.announcements.length) {
