@@ -35,7 +35,7 @@ export type AnnouncementFilterType = (
 )[];
 
 export type AnnouncementSortType = {
-  field: 'published_on' | 'expires_on' | 'title' | 'status';
+  field: 'published_on' | 'expires_on' | 'title' | 'status' | 'updated_date';
   order: 'asc' | 'desc';
 }[];
 
@@ -101,7 +101,13 @@ const FilterItemSchema = z
   );
 
 const AnnouncementSortSchema = z.object({
-  field: z.enum(['published_on', 'expires_on', 'title', 'status']),
+  field: z.enum([
+    'published_on',
+    'expires_on',
+    'title',
+    'status',
+    'updated_date',
+  ]),
   order: z.enum(['asc', 'desc']),
 });
 
