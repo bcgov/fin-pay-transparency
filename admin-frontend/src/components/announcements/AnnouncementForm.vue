@@ -132,7 +132,7 @@
             <v-text-field
               single-line
               variant="filled"
-              placeholder="eg., DocumentName.pdf"
+              placeholder="eg. Pay Transparency in B.C."
               label="Display Link As"
               v-model="linkDisplayName"
               :error-messages="errors.linkDisplayName"
