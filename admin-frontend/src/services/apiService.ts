@@ -348,6 +348,15 @@ export default {
     }
   },
 
+  async updateAnnouncement(id: string, data: AnnouncementFormValue) {
+    try {
+      return await apiAxios.put(`${ApiRoutes.ANNOUNCEMENTS}/${id}`, data);
+    } catch (e) {
+      console.log(`Failed to put from Nodejs addAnnouncement API - ${e}`);
+      throw e;
+    }
+  },
+
   async lockUnlockReport(
     reportId: string,
     makeUnlocked: boolean,

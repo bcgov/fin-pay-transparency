@@ -6,14 +6,19 @@
       >Cancel</v-btn
     >
 
-    <v-btn
-      variant="outlined"
-      color="primary"
-      class="mr-2"
-      @click="handleSave('DRAFT')()"
-      >Save draft</v-btn
-    >
-    <v-btn color="primary" @click="handleSave('PUBLISHED')()">Publish</v-btn>
+    <div class="d-flex flex-row align-center">
+      <div class="mr-2">Save as:</div>
+      <v-radio-group inline v-model="status" class="status-options mr-2">
+        <v-radio
+          v-if="!(mode === 'edit' && announcement?.status === 'PUBLISHED')"
+          label="Draft"
+          value="DRAFT"
+          class="mr-2"
+        ></v-radio>
+        <v-radio label="Publish" value="PUBLISHED"></v-radio>
+      </v-radio-group>
+      <v-btn color="primary" class="ml-2" @click="handleSave()">Save</v-btn>
+    </div>
   </div>
   <div class="content">
     <v-divider></v-divider>
@@ -61,6 +66,11 @@
               v-model="publishedOn"
               :aria-labels="{ input: 'Publish On' }"
             >
+              <template #day="{ day, date }">
+                <span :aria-label="formatDate(date)">
+                  {{ day }}
+                </span>
+              </template>
             </VueDatePicker>
           </v-col>
         </v-row>
@@ -84,7 +94,13 @@
               prevent-min-max-navigation
               v-model="expiresOn"
               :disabled="noExpiry"
-            />
+            >
+              <template #day="{ day, date }">
+                <span :aria-label="formatDate(date)">
+                  {{ day }}
+                </span>
+              </template>
+            </VueDatePicker>
           </v-col>
         </v-row>
         <v-row class="mt-0">
@@ -116,7 +132,7 @@
             <v-text-field
               single-line
               variant="filled"
-              placeholder="eg., DocumentName.pdf"
+              placeholder="eg. Pay Transparency in B.C."
               label="Display Link As"
               v-model="linkDisplayName"
               :error-messages="errors.linkDisplayName"
@@ -147,20 +163,22 @@ import { AnnouncementFormValue } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import { LocalDate, nativeJs } from '@js-joda/core';
+import { DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 
 type Props = {
-  announcement: AnnouncementFormValue | null;
+  announcement: AnnouncementFormValue | null | undefined;
   title: string;
+  mode: 'create' | 'edit';
 };
 
 const router = useRouter();
 const emits = defineEmits(['save']);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
-const { announcement } = defineProps<Props>();
+const { announcement, mode } = defineProps<Props>();
 
 const { handleSubmit, setErrors, errors, meta } = useForm({
   initialValues: {
@@ -171,6 +189,7 @@ const { handleSubmit, setErrors, errors, meta } = useForm({
     no_expiry: undefined,
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
+    status: announcement?.status || 'DRAFT',
   },
   validationSchema: {
     title(value) {
@@ -207,6 +226,7 @@ const { handleSubmit, setErrors, errors, meta } = useForm({
 });
 
 const { value: announcementTitle } = useField('title');
+const { value: status } = useField<string>('status');
 const { value: announcementDescription } = useField('description');
 const { value: publishedOn } = useField('published_on') as any;
 const { value: expiresOn } = useField('expires_on') as any;
@@ -219,6 +239,12 @@ watch(noExpiry, () => {
     expiresOn.value = undefined;
   }
 });
+
+const formatDate = (date: Date) => {
+  return LocalDate.from(nativeJs(date)).format(
+    DateTimeFormatter.ofPattern('EEEE d MMMM yyyy').withLocale(Locale.CANADA),
+  );
+};
 
 const handleCancel = async () => {
   if (!meta.value.dirty) {
@@ -236,11 +262,15 @@ const handleCancel = async () => {
   }
 };
 
-const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
-  handleSubmit(async (values) => {
-    if (!values.published_on && status === 'PUBLISHED') {
+const handleSave = handleSubmit(async (values) => {
+  if (!validatePublishDate(values) || !validateLink(values)) {
+    return;
+  }
+
+  function validatePublishDate(values) {
+    if (!values.published_on && status.value === 'PUBLISHED') {
       setErrors({ published_on: 'Publish date is required.' });
-      return;
+      return false;
     }
 
     if (values.published_on && values.expires_on) {
@@ -250,45 +280,52 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
         setErrors({
           published_on: 'Publish date should be before expiry date.',
         });
-        return;
+        return false;
       }
     }
 
+    return true;
+  }
+
+  function validateLink(values) {
     if (!values.linkDisplayName && values.linkUrl) {
       setErrors({ linkDisplayName: 'Link display name is required.' });
-      return;
+      return false;
     }
 
     if (!values.linkUrl && values.linkDisplayName) {
       setErrors({ linkUrl: 'Link URL is required.' });
+      return false;
+    }
+
+    return true;
+  }
+
+  if (status.value === 'PUBLISHED' && (mode === 'create' || announcement?.status !== 'PUBLISHED')) {
+    const confirmation = await publishConfirmationDialog.value?.open(
+      'Confirm Publish',
+      undefined,
+      {
+        titleBold: true,
+        resolveText: 'Confirm',
+        rejectText: 'Close',
+      },
+    );
+
+    if (!confirmation) {
       return;
     }
+  }
 
-    if (status === 'PUBLISHED') {
-      const confirmation = await publishConfirmationDialog.value?.open(
-        'Confirm Publish',
-        undefined,
-        {
-          titleBold: true,
-          resolveText: 'Confirm',
-          rejectText: 'Close',
-        },
-      );
-
-      if (!confirmation) {
-        return;
-      }
-    }
-
-    await emits('save', {
-      ...values,
-      linkDisplayName: isEmpty(values.linkDisplayName)
-        ? undefined
-        : values.linkDisplayName,
-      linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
-      status,
-    });
+  await emits('save', {
+    ...values,
+    linkDisplayName: isEmpty(values.linkDisplayName)
+      ? undefined
+      : values.linkDisplayName,
+    linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
+    status: status.value,
   });
+});
 </script>
 
 <style lang="scss">
@@ -322,5 +359,9 @@ const handleSave = (status: 'DRAFT' | 'PUBLISHED') =>
 .field-error {
   color: red;
   font-size: x-small;
+}
+
+.status-options {
+  height: 40px;
 }
 </style>
