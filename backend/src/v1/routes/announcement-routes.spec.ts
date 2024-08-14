@@ -13,12 +13,14 @@ const mockGetAnnouncements = jest.fn().mockResolvedValue({
 });
 const mockPatchAnnouncements = jest.fn();
 const mockCreateAnnouncement = jest.fn();
+const mockUpdateAnnouncement = jest.fn();
 jest.mock('../services/announcements-service', () => ({
   getAnnouncements: (...args) => {
     return mockGetAnnouncements(...args);
   },
   patchAnnouncements: (...args) => mockPatchAnnouncements(...args),
   createAnnouncement: (...args) => mockCreateAnnouncement(...args),
+  updateAnnouncement: (...args) => mockUpdateAnnouncement(...args),
 }));
 
 jest.mock('../middlewares/authorization/authenticate-admin', () => ({
@@ -382,6 +384,49 @@ describe('announcement-routes', () => {
           expect(response.status).toBe(400);
           expect(response.body.error).toBeDefined();
         });
+      });
+    });
+  });
+
+  describe('PUT /:id', () => {
+    describe('when body is invalid', () => {
+      it('should return 400', async () => {
+        const response = await request(app).put('/123');
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ error: expect.any(String) });
+      });
+    });
+
+    describe('when body is valid', () => {
+      it('should return 200', async () => {
+        const response = await request(app)
+          .put('/123')
+          .send({
+            title: 'Test',
+            description: 'Test',
+            expires_on: faker.date.recent(),
+            published_on: faker.date.future(),
+            status: 'DRAFT',
+          });
+        expect(response.status).toBe(200);
+      });
+    });
+
+    describe('when service throws error', () => {
+      it('should return 400', async () => {
+        mockUpdateAnnouncement.mockRejectedValue(new Error('Invalid request'));
+        const response = await request(app)
+          .put('/123')
+          .send({
+            title: 'Test',
+            description: 'Test',
+            expires_on: faker.date.recent(),
+            published_on: faker.date.future(),
+            status: 'DRAFT',
+          });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBeDefined();
       });
     });
   });

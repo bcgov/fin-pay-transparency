@@ -93,6 +93,6 @@ export type AnnouncementFormValue = Pick<
   'title' | 'description' | 'published_on' | 'expires_on' | 'status'
 > & {
   no_expiry?: boolean;
-  linkUrl: string;
-  linkDisplayName: string;
+  linkUrl?: string;
+  linkDisplayName?: string;
 };

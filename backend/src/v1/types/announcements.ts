@@ -141,7 +141,7 @@ export const PatchAnnouncementsSchema = z.array(
 
 export type PatchAnnouncementsType = z.infer<typeof PatchAnnouncementsSchema>;
 
-export const CreateAnnouncementSchema = z
+export const AnnouncementDataSchema = z
   .object({
     title: z.string().min(1).max(100),
     description: z.string().min(1).max(2000),
@@ -172,4 +172,4 @@ export const CreateAnnouncementSchema = z
     },
   );
 
-export type CreateAnnouncementType = z.infer<typeof CreateAnnouncementSchema>;
+export type AnnouncementDataType = z.infer<typeof AnnouncementDataSchema>;
