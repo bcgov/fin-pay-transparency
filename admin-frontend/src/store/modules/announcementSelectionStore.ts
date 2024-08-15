@@ -44,7 +44,7 @@ export const useAnnouncementSelectionStore = defineStore(
     const saveChanges = async (data: AnnouncementFormValue) => {
       if (announcement.value!?.announcement_id) {
         await ApiService.updateAnnouncement(
-          announcement.value!.announcement_id,
+          announcement.value.announcement_id,
           data,
         );
       }
