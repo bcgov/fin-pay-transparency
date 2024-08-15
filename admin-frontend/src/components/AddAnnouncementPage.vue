@@ -1,14 +1,10 @@
 <template>
-  <v-row dense class="mt-0 w-100 mb-4">
-    <v-col class="py-0 px-0">
-      <AnnouncementForm
-        :announcement="null"
-        title="Add Announcement"
-        @save="submit"
-        mode="create"
-      ></AnnouncementForm>
-    </v-col>
-  </v-row>
+  <AnnouncementForm
+    :announcement="null"
+    title="Add Announcement"
+    @save="submit"
+    mode="create"
+  ></AnnouncementForm>
 </template>
 
 <script lang="ts" setup>
