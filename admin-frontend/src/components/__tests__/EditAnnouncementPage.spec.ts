@@ -1,12 +1,11 @@
-import { beforeEach, describe, it, vi, expect } from 'vitest';
-import EditAnnouncementPage from '../EditAnnouncementPage.vue';
 import { fireEvent, render, waitFor } from '@testing-library/vue';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
-import { createVuetify } from 'vuetify';
-import { createTestingPinia } from '@pinia/testing';
-import { createPinia, setActivePinia } from 'pinia';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
+import EditAnnouncementPage from '../EditAnnouncementPage.vue';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -96,6 +95,7 @@ describe('EditAnnouncementPage', () => {
     describe('when announcement is updated', () => {
       it('should show success notification', async () => {
         store.setAnnouncement({
+          announcement_id: '1',
           title: 'title',
           description: 'description',
           published_on: new Date(),
@@ -126,6 +126,7 @@ describe('EditAnnouncementPage', () => {
     describe('when announcement update fails', () => {
       it('should show error notification', async () => {
         store.setAnnouncement({
+          announcement_id: '1',
           title: 'title',
           description: 'description',
           published_on: new Date(),
