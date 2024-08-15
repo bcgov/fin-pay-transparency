@@ -34,7 +34,7 @@ DECLARE
 	/*
 	Use announcementUpperBound to configure the number of annoucements created for each execution of the admin loop.
 	*/
-	announcementUpperBound integer := 10;
+	announcementUpperBound integer := 2;
 	/*
 	true:  uses admins that already exist in the ADMIN_USER table
 			Useful if you want to test admins that actually exist and can login
