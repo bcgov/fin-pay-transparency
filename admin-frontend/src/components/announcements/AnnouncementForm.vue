@@ -174,6 +174,7 @@
             </v-col>
             <v-col cols="2" class="d-flex justify-end">
               <v-btn
+                aria-label="Close preview"
                 density="compact"
                 variant="plain"
                 icon="mdi-close"
@@ -190,10 +191,10 @@
           </v-row>
           <v-row dense>
             <v-col>
-              <AnnouncementCarousel
+              <AnnouncementPager
                 :announcements="announcementsToPreview"
                 :pageSize="2"
-              ></AnnouncementCarousel> </v-col
+              ></AnnouncementPager> </v-col
           ></v-row>
         </div>
       </v-col>
@@ -230,7 +231,7 @@ import { DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
-import AnnouncementCarousel from './AnnouncementCarousel.vue';
+import AnnouncementPager from './AnnouncementPager.vue';
 import ApiService from '../../services/apiService';
 
 type Props = {
@@ -349,6 +350,7 @@ repeatedly).
 async function preview() {
   if (!publishedAnnouncements) {
     publishedAnnouncements = await getPublishedAnnouncements();
+    console.log(publishedAnnouncements);
   }
   const currentAnnouncement = buildAnnouncementToPreview();
   announcementsToPreview.value = [
