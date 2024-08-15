@@ -10,6 +10,7 @@
       <a
         :href="sanitizeUrl(announcementResource.resource_url)"
         target="_blank"
+        rel="noopener"
         >{{ announcementResource.display_name }}</a
       >
     </div>
