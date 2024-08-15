@@ -100,7 +100,12 @@
         "hidden": false,
         "group": "Browser",
         "order": 1
-      }
+      },
+      // This is a hack to get rid of some warnings
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "name": "Open Backend-External URL to Debug",
@@ -128,7 +133,12 @@
         "hidden": false,
         "group": "Browser",
         "order": 1
-      }
+      },
+      // This is a hack to get rid of some warnings
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     }
   ],
   "compounds": [

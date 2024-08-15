@@ -1,57 +1,66 @@
 import { config } from '../../config';
-import { logger } from '../../logger';
-import { PowerBiService } from '../../external/services/powerbi-service';
+import {
+  PowerBiService,
+  ReportInWorkspace,
+} from '../../external/services/powerbi-service';
 
 // Embed info for Reports, Dashboards, and other resources
-type PowerBiEmbedInfo = {
-  id: string;
+export type PowerBiEmbedInfo = {
+  resources: { name: PowerBiResourceName; id: string; embedUrl: string }[];
   accessToken: string;
-  embedUrl: string;
   expiry: string;
 };
 
-export enum PowerBiResource {
+export enum PowerBiResourceName {
   SubmissionAnalytics = 'SubmissionAnalytics',
   UserBehaviour = 'UserBehaviour',
   DataAnalytics = 'DataAnalytics',
 }
+
+const resourceIds: Record<PowerBiResourceName, ReportInWorkspace> = {
+  SubmissionAnalytics: {
+    workspaceId: config.get('powerbi:analytics:workspaceId'),
+    reportId: config.get('powerbi:analytics:submissionAnalyticsId'),
+  },
+  UserBehaviour: {
+    workspaceId: config.get('powerbi:analytics:workspaceId'),
+    reportId: config.get('powerbi:analytics:userBehaviourId'),
+  },
+  DataAnalytics: {
+    workspaceId: config.get('powerbi:analytics:workspaceId'),
+    reportId: config.get('powerbi:analytics:dataAnalyticsId'),
+  },
+};
 
 /**
  * Generate embed token and embed urls for PowerBi resources
  * @return Details like Embed URL, Access token and Expiry
  */
 export async function getEmbedInfo(
-  resourceName: string,
+  resourceNames: PowerBiResourceName[],
 ): Promise<PowerBiEmbedInfo> {
-  // Get report details and embed token
   const powerBi = new PowerBiService(
     config.get('entra:clientId'),
     config.get('entra:clientSecret'),
     config.get('entra:tenantId'),
   );
 
-  let embedParams;
-  if (resourceName == PowerBiResource.SubmissionAnalytics) {
-    embedParams = await powerBi.getEmbedParamsForReports(
-      config.get('powerbi:analytics:workspaceId'),
-      config.get('powerbi:analytics:submissionAnalyticsId'),
-    );
-  } else if (resourceName == PowerBiResource.UserBehaviour) {
-    embedParams = await powerBi.getEmbedParamsForReports(
-      config.get('powerbi:analytics:workspaceId'),
-      config.get('powerbi:analytics:userBehaviourId'),
-    );
-  } else if (resourceName == PowerBiResource.DataAnalytics) {
-    embedParams = await powerBi.getEmbedParamsForReports(
-      config.get('powerbi:analytics:workspaceId'),
-      config.get('powerbi:analytics:dataAnalyticsId'),
-    );
+  const embedParams = await powerBi.getEmbedParamsForReports(
+    resourceNames.map((name) => resourceIds[name]),
+  );
+
+  const resources = [];
+  for (let i = 0; i < resourceNames.length; ++i) {
+    resources.push({
+      name: resourceNames[i],
+      id: embedParams.resources[i].id,
+      embedUrl: embedParams.resources[i].embedUrl,
+    });
   }
 
   return {
-    id: embedParams.resources[0].id,
+    resources: resources,
     accessToken: embedParams.embedToken.token,
-    embedUrl: embedParams.resources[0].embedUrl,
     expiry: embedParams.embedToken.expiration,
   };
 }

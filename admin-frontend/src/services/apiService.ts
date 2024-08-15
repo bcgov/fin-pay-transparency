@@ -13,7 +13,7 @@ import {
   IAnnouncementSearchResult,
 } from '../types/announcements';
 import { IReportSearchResult } from '../types/reports';
-import { ApiRoutes } from '../utils/constant';
+import { ApiRoutes, POWERBI_RESOURCE } from '../utils/constant';
 import AuthService from './authService';
 
 export const LOCAL_STORAGE_KEY_JWT = 'pay-transparency-admin-jwt';
@@ -376,10 +376,10 @@ export default {
     }
   },
 
-  async getPowerBiEmbedAnalytics(resourceName: string) {
+  async getPowerBiEmbedAnalytics(resources: POWERBI_RESOURCE[]) {
     try {
       const resp = await apiAxios.get(
-        `${ApiRoutes.POWERBI_EMBED_ANALYTICS}/${resourceName}`,
+        `${ApiRoutes.POWERBI_EMBED_ANALYTICS}?resources[]=${resources.join('&resources[]=')}`,
       );
       if (resp?.data) {
         return resp.data;

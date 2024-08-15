@@ -9,6 +9,7 @@
 import msal from '@azure/msal-node';
 import * as PowerBi from './powerbi-api';
 import { AxiosError } from 'axios';
+import { uniq } from 'lodash';
 
 type PowerBiResource = {
   id: string;
@@ -20,6 +21,8 @@ type EmbedConfig = {
   resources: PowerBiResource[];
   embedToken: PowerBi.EmbedToken;
 };
+
+export type ReportInWorkspace = { workspaceId: string; reportId: string };
 
 /**
  * Class to authenticate and make use of the PowerBi REST API.
@@ -77,34 +80,36 @@ export class PowerBiService {
    * @return EmbedConfig object
    */
   public async getEmbedParamsForReports(
-    workspaceId: string,
-    reportId: string,
+    reportInWorkspace: ReportInWorkspace[],
   ): Promise<EmbedConfig> {
     try {
       // Get report info by calling the PowerBI REST API
-      const result = await PowerBi.Api.getReportInGroup(
-        { workspaceId, reportId },
-        {
-          headers: await this.getEntraAuthorizationHeader(),
-        },
+      const header = await this.getEntraAuthorizationHeader();
+      const result = await Promise.all(
+        reportInWorkspace.map((res) =>
+          PowerBi.Api.getReportInGroup(
+            { workspaceId: res.workspaceId, reportId: res.reportId },
+            {
+              headers: header,
+            },
+          ),
+        ),
       );
 
-      const data = result.data;
-
       // Add report data for embedding
-      const reportDetails: PowerBiResource = {
-        id: data.id,
-        name: data.name,
-        embedUrl: data.embedUrl,
-      };
+      const reportDetails: PowerBiResource[] = result.map((res) => ({
+        id: res.data.id,
+        name: res.data.name,
+        embedUrl: res.data.embedUrl,
+      }));
 
       // Get Embed token multiple resources
       const embedToken = await this.getEmbedTokenForV2Workspace(
-        [reportId],
-        [data.datasetId],
-        [workspaceId],
+        uniq(reportInWorkspace.map((res) => res.reportId)),
+        uniq(result.map((res) => res.data.datasetId)),
+        uniq(reportInWorkspace.map((res) => res.workspaceId)),
       );
-      return { embedToken: embedToken, resources: [reportDetails] };
+      return { embedToken: embedToken, resources: reportDetails };
     } catch (err) {
       if (err instanceof AxiosError)
         err.message = JSON.stringify(err.response.data);
@@ -128,7 +133,7 @@ export class PowerBiService {
     reportIds: string[],
     datasetIds: string[],
     targetWorkspaceIds: string[],
-  ) {
+  ): Promise<PowerBi.EmbedToken> {
     // Add report id in the request
     const body: PowerBi.GenerateToken_Body = {
       reports: reportIds.map((id) => ({ id, allowEdit: false })),
@@ -152,7 +157,7 @@ export class PowerBiService {
   private async getEmbedTokenForDashboard(
     dashboardId: string,
     workspaceId: string,
-  ) {
+  ): Promise<PowerBi.EmbedToken> {
     const result = await PowerBi.Api.postGenerateTokenForDashboardInGroup(
       {
         workspaceId,

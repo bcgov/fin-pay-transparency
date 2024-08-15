@@ -1,89 +1,89 @@
 <template>
   <PowerBIReportEmbed
-    v-if="configSubmissionAnalytics.isDashboardLoaded"
+    v-if="configSubmissionAnalytics.embedUrl"
     :embed-config="configSubmissionAnalytics"
     :css-class-name="powerBiCssClass"
-  ></PowerBIReportEmbed>
+  />
   <PowerBIReportEmbed
-    v-if="configUserBehaviour.isDashboardLoaded"
+    v-if="configUserBehaviour.embedUrl"
     :embed-config="configUserBehaviour"
     :css-class-name="powerBiCssClass"
-  ></PowerBIReportEmbed>
+  />
   <PowerBIReportEmbed
-    v-if="configDataAnalytics.isDashboardLoaded"
+    v-if="configDataAnalytics.embedUrl"
     :embed-config="configDataAnalytics"
     :css-class-name="powerBiCssClass"
-  ></PowerBIReportEmbed>
+  />
 </template>
 
 <script setup lang="ts">
 import { PowerBIReportEmbed } from 'powerbi-client-vue-js';
 import { models, IReportEmbedConfiguration } from 'powerbi-client';
-import { ref } from 'vue';
+import { Ref, ref } from 'vue';
 import ApiService from '../services/apiService';
 import { ZonedDateTime, Duration } from '@js-joda/core';
 import { POWERBI_RESOURCE } from '../utils/constant';
 
 const powerBiCssClass = 'powerbi-container';
 
-interface IReportEmbedConfigurationEx extends IReportEmbedConfiguration {
-  isDashboardLoaded: boolean;
-}
-
 // Bootstrap Dashboard by leaving some details undefined
-const configSubmissionAnalytics = ref<IReportEmbedConfigurationEx>({
+const configSubmissionAnalytics = ref<IReportEmbedConfiguration>({
   type: 'report',
   id: undefined,
   embedUrl: undefined,
   accessToken: undefined,
   tokenType: models.TokenType.Embed,
   hostname: 'https://app.powerbi.com',
-  isDashboardLoaded: false,
 });
-const configUserBehaviour = ref<IReportEmbedConfigurationEx>({
+const configUserBehaviour = ref<IReportEmbedConfiguration>({
   type: 'report',
   id: undefined,
   embedUrl: undefined,
   accessToken: undefined,
   tokenType: models.TokenType.Embed,
   hostname: 'https://app.powerbi.com',
-  isDashboardLoaded: false,
 });
-const configDataAnalytics = ref<IReportEmbedConfigurationEx>({
+const configDataAnalytics = ref<IReportEmbedConfiguration>({
   type: 'report',
   id: undefined,
   embedUrl: undefined,
   accessToken: undefined,
   tokenType: models.TokenType.Embed,
   hostname: 'https://app.powerbi.com',
-  isDashboardLoaded: false,
 });
+
+const config = new Map<POWERBI_RESOURCE, Ref<IReportEmbedConfiguration>>([
+  [POWERBI_RESOURCE.SUBMISSIONANALYTICS, configSubmissionAnalytics],
+  [POWERBI_RESOURCE.USERBEHAVIOUR, configUserBehaviour],
+  [POWERBI_RESOURCE.DATAANALYTICS, configDataAnalytics],
+]);
 
 type PowerBiEmbedInfo = {
-  id: string;
+  resources: { name: string; id: string; embedUrl: string }[];
   accessToken: string;
-  embedUrl: string;
   expiry: string;
 };
 
-// Get the embed config from the service and set the reportConfigResponse
-async function getAccessToken(resourceName, config) {
-  const embedInfo: PowerBiEmbedInfo =
-    await ApiService.getPowerBiEmbedAnalytics(resourceName);
-  config.value.id = embedInfo.id;
-  config.value.embedUrl = embedInfo.embedUrl;
-  config.value.accessToken = embedInfo.accessToken;
-  config.value.isDashboardLoaded = true;
+// Get the embed config from the service
+async function getAccessToken() {
+  const embedInfo: PowerBiEmbedInfo = await ApiService.getPowerBiEmbedAnalytics(
+    Array.from(config.keys()),
+  );
+  for (let resource of embedInfo.resources) {
+    const ref = config.get(resource.name);
+    if (!ref) continue;
+    ref.value.id = resource.id;
+    ref.value.accessToken = embedInfo.accessToken;
+    ref.value.embedUrl = resource.embedUrl;
+  }
 
   const expiry = ZonedDateTime.parse(embedInfo.expiry);
   const now = ZonedDateTime.now();
   const msToExpiry = Duration.between(now, expiry).minusMinutes(1).toMillis();
-  setTimeout(() => getAccessToken(resourceName, config), msToExpiry);
+  setTimeout(getAccessToken, msToExpiry);
 }
 
-getAccessToken(POWERBI_RESOURCE.SUBMISSIONANALYTICS, configSubmissionAnalytics);
-getAccessToken(POWERBI_RESOURCE.USERBEHAVIOUR, configUserBehaviour);
-getAccessToken(POWERBI_RESOURCE.DATAANALYTICS, configDataAnalytics);
+getAccessToken();
 </script>
 
 <style lang="scss">
