@@ -12,14 +12,25 @@
           <div class="mr-2">Save as:</div>
           <v-radio-group inline v-model="status" class="status-options mr-2">
             <v-radio
-              v-if="!(mode === 'edit' && announcement?.status === 'PUBLISHED')"
+              v-if="
+                !(
+                  mode === AnnouncementFormMode.EDIT &&
+                  announcement?.status === 'PUBLISHED'
+                )
+              "
               label="Draft"
               value="DRAFT"
               class="mr-2"
             ></v-radio>
             <v-radio label="Publish" value="PUBLISHED"></v-radio>
           </v-radio-group>
-          <v-btn color="primary" class="ml-2" @click="handleSave()">Save</v-btn>
+          <v-btn
+            color="primary"
+            class="ml-2"
+            @click="handleSave()"
+            :disabled="!isPreviewVisible"
+            >Save</v-btn
+          >
         </div>
       </div>
 
@@ -167,7 +178,7 @@
             lg="5"
             xl="4"
             class="px-0 py-0 d-flex justify-end"
-            v-if="announcementsToPreview?.length"
+            v-if="isPreviewVisible"
           >
             <div class="previewPanel bg-previewPanel w-100 h-100 px-6 py-6">
               <v-row dense>
@@ -227,6 +238,7 @@ import {
   Announcement,
   AnnouncementFilterType,
   AnnouncementSortType,
+  AnnouncementFormMode,
 } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
@@ -241,7 +253,7 @@ import ApiService from '../../services/apiService';
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;
   title: string;
-  mode: 'create' | 'edit';
+  mode: AnnouncementFormMode.CREATE | AnnouncementFormMode.EDIT;
 };
 
 let publishedAnnouncements: Announcement[] | undefined = undefined;
@@ -253,6 +265,7 @@ const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement, mode } = defineProps<Props>();
 const isPreviewAvailable = computed(() => values.title && values.description);
+const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
@@ -354,12 +367,19 @@ repeatedly).
 async function preview() {
   if (!publishedAnnouncements) {
     publishedAnnouncements = await getPublishedAnnouncements();
-    console.log(publishedAnnouncements);
   }
+  //if this is edit mode, filter out the anouncement being edited from the
+  //published announcements (we don't want it to appear twice in the preview area)
+  const publishedAnnouncementsFiltered =
+    mode == AnnouncementFormMode.CREATE
+      ? publishedAnnouncements
+      : publishedAnnouncements.filter(
+          (a) => a.announcement_id != announcement?.announcement_id,
+        );
   const currentAnnouncement = buildAnnouncementToPreview();
   announcementsToPreview.value = [
     currentAnnouncement as any,
-    ...publishedAnnouncements,
+    ...publishedAnnouncementsFiltered,
   ];
 }
 
@@ -454,7 +474,8 @@ const handleSave = handleSubmit(async (values) => {
 
   if (
     status.value === 'PUBLISHED' &&
-    (mode === 'create' || announcement?.status !== 'PUBLISHED')
+    (mode === AnnouncementFormMode.CREATE ||
+      announcement?.status !== 'PUBLISHED')
   ) {
     const confirmation = await publishConfirmationDialog.value?.open(
       'Confirm Publish',
