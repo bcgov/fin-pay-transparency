@@ -7,9 +7,11 @@
       :key="i"
       class="px-0 mt-2"
     >
-      <a :href="announcementResource.resource_url" target="_blank">{{
-        announcementResource.display_name
-      }}</a>
+      <a
+        :href="sanitizeUrl(announcementResource.resource_url)"
+        target="_blank"
+        >{{ announcementResource.display_name }}</a
+      >
     </div>
   </div>
 </template>
@@ -21,6 +23,7 @@ export default {
 
 <script setup lang="ts">
 import { Announcement } from '../../types/announcements';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 const props = defineProps<{
   announcement: Announcement;
