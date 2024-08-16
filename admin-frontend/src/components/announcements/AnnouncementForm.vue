@@ -192,10 +192,11 @@
                 </v-col>
               </v-row>
               <v-row dense>
-                <v-col>
+                <v-col class="announcements">
                   <AnnouncementPager
                     :announcements="announcementsToPreview"
                     :pageSize="2"
+                    class="h-100"
                   ></AnnouncementPager> </v-col
               ></v-row>
             </div>
@@ -499,6 +500,9 @@ const handleSave = handleSubmit(async (values) => {
 }
 .previewPanel {
   max-width: 500px !important;
+}
+.previewPanel .announcements {
+  height: 500px;
 }
 
 .datetime-picker-label,

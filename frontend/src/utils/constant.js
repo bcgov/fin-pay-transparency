@@ -27,6 +27,7 @@ export const ApiRoutes = Object.freeze({
   NAICS_CODES: baseRoot + '/v1/codes/naics-codes',
   POST_SUBMISSION: baseRoot + '/v1/file-upload',
   REPORT: baseRoot + '/v1/report/',
+  ANNOUNCEMENTS: baseRoot + '/v1/announcements/',
 });
 
 export const PAGE_TITLES = Object.freeze({
