@@ -164,6 +164,6 @@ export default {
   box-shadow: none;
 }
 .right-column {
-  height: 500px;
+  height: 535px;
 }
 </style>
