@@ -8,7 +8,7 @@
     </v-row>
     <v-row class="mb-4">
       <v-col class="d-flex flex-column">
-        <div>
+        <div class="mb-12">
           <p class="mt-4 mb-4">
             This tool will help you generate a Pay Transparency report in
             compliance with the
@@ -36,7 +36,7 @@
           <v-btn class="mb-4 btn-primary" to="generate-report-form">
             Upload your CSV here
           </v-btn>
-          <p class="text-caption mb-2">
+          <p class="text-caption">
             This application does not collect, record or publish personal
             information.
           </p>
