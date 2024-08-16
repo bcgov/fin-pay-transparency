@@ -1,20 +1,15 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import {
-  AnnouncementFormValue,
-  IAnnouncement,
-} from '../../types/announcements';
 import ApiService from '../../services/apiService';
+import { Announcement, AnnouncementFormValue } from '../../types/announcements';
 
 export const useAnnouncementSelectionStore = defineStore(
   'announcementSelection',
   () => {
-    const announcement = ref<
-      (AnnouncementFormValue & { id: string }) | undefined
-    >(undefined);
+    const announcement = ref<AnnouncementFormValue | undefined>(undefined);
 
     const setAnnouncement = (
-      data: IAnnouncement & {
+      data: Announcement & {
         announcement_resource: {
           resource_type: string;
           display_name: string;
@@ -26,7 +21,7 @@ export const useAnnouncementSelectionStore = defineStore(
         (r) => r.resource_type === 'LINK',
       );
       announcement.value = {
-        id: data.announcement_id,
+        announcement_id: data.announcement_id,
         title: data.title,
         description: data.description,
         published_on: data.published_on
@@ -47,7 +42,12 @@ export const useAnnouncementSelectionStore = defineStore(
     };
 
     const saveChanges = async (data: AnnouncementFormValue) => {
-      await ApiService.updateAnnouncement(announcement.value!.id, data);
+      if (announcement.value!?.announcement_id) {
+        await ApiService.updateAnnouncement(
+          announcement.value.announcement_id,
+          data,
+        );
+      }
     };
 
     return {

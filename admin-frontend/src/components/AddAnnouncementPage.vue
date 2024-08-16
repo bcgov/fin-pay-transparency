@@ -3,12 +3,15 @@
     :announcement="null"
     title="Add Announcement"
     @save="submit"
-    mode="create"
+    :mode="AnnouncementFormMode.CREATE"
   ></AnnouncementForm>
 </template>
 
 <script lang="ts" setup>
-import { AnnouncementFormValue } from '../types/announcements';
+import {
+  AnnouncementFormValue,
+  AnnouncementFormMode,
+} from '../types/announcements';
 import { useRouter } from 'vue-router';
 import AnnouncementForm from './announcements/AnnouncementForm.vue';
 import { NotificationService } from '../services/notificationService';

@@ -92,7 +92,13 @@ export type AnnouncementFormValue = Pick<
   Announcement,
   'title' | 'description' | 'published_on' | 'expires_on' | 'status'
 > & {
+  announcement_id?: string;
   no_expiry?: boolean;
   linkUrl?: string;
   linkDisplayName?: string;
 };
+
+export enum AnnouncementFormMode {
+  CREATE = 'create',
+  EDIT = 'edit',
+}

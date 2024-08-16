@@ -3,14 +3,17 @@
     :announcement="announcement"
     title="Edit Announcement"
     @save="submit"
-    mode="edit"
+    :mode="AnnouncementFormMode.EDIT"
   ></AnnouncementForm>
 </template>
 
 <script lang="ts" setup>
 import { onBeforeMount } from 'vue';
 import { storeToRefs } from 'pinia';
-import { AnnouncementFormValue } from '../types/announcements';
+import {
+  AnnouncementFormValue,
+  AnnouncementFormMode,
+} from '../types/announcements';
 import AnnouncementForm from './announcements/AnnouncementForm.vue';
 import { NotificationService } from '../services/notificationService';
 import { useAnnouncementSelectionStore } from '../store/modules/announcementSelectionStore';
