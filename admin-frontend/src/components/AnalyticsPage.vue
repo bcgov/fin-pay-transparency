@@ -1,62 +1,86 @@
 <template>
-  <PowerBIReportEmbed
-    v-if="configSubmissionAnalytics.embedUrl"
-    :embed-config="configSubmissionAnalytics"
-    :css-class-name="powerBiCssClass"
-  />
-  <PowerBIReportEmbed
-    v-if="configUserBehaviour.embedUrl"
-    :embed-config="configUserBehaviour"
-    :css-class-name="powerBiCssClass"
-  />
-  <PowerBIReportEmbed
-    v-if="configDataAnalytics.embedUrl"
-    :embed-config="configDataAnalytics"
-    :css-class-name="powerBiCssClass"
-  />
+  <div
+    v-for="[name, details] in resourceDetails"
+    :key="name"
+    class="powerbi-container"
+  >
+    <PowerBIReportEmbed
+      v-if="details.config.embedUrl"
+      :style="details.css"
+      :embed-config="details.config"
+      :event-handlers="details.eventHandlersMap"
+      @report-obj="(report) => (details.report = report)"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { PowerBIReportEmbed } from 'powerbi-client-vue-js';
-import { models, IReportEmbedConfiguration } from 'powerbi-client';
-import { Ref, ref } from 'vue';
+import { EventHandler } from 'powerbi-client-vue-js/dist/types/src/utils/utils';
+import { models, IReportEmbedConfiguration, Report } from 'powerbi-client';
+import { reactive, CSSProperties } from 'vue';
 import ApiService from '../services/apiService';
 import { ZonedDateTime, Duration } from '@js-joda/core';
 import { POWERBI_RESOURCE } from '../utils/constant';
 
-const powerBiCssClass = 'powerbi-container';
+const resourcesToLoad = [
+  POWERBI_RESOURCE.SUBMISSIONANALYTICS,
+  POWERBI_RESOURCE.USERBEHAVIOUR,
+  POWERBI_RESOURCE.DATAANALYTICS,
+];
+const resourceDetails = reactive(
+  new Map<
+    POWERBI_RESOURCE,
+    {
+      config: IReportEmbedConfiguration;
+      report?: Report;
+      css: CSSProperties;
+      eventHandlersMap: Map<string, EventHandler>;
+    }
+  >(),
+);
 
-// Bootstrap Dashboard by leaving some details undefined
-const configSubmissionAnalytics = ref<IReportEmbedConfiguration>({
-  type: 'report',
-  id: undefined,
-  embedUrl: undefined,
-  accessToken: undefined,
-  tokenType: models.TokenType.Embed,
-  hostname: 'https://app.powerbi.com',
-});
-const configUserBehaviour = ref<IReportEmbedConfiguration>({
-  type: 'report',
-  id: undefined,
-  embedUrl: undefined,
-  accessToken: undefined,
-  tokenType: models.TokenType.Embed,
-  hostname: 'https://app.powerbi.com',
-});
-const configDataAnalytics = ref<IReportEmbedConfiguration>({
-  type: 'report',
-  id: undefined,
-  embedUrl: undefined,
-  accessToken: undefined,
-  tokenType: models.TokenType.Embed,
-  hostname: 'https://app.powerbi.com',
-});
-
-const config = new Map<POWERBI_RESOURCE, Ref<IReportEmbedConfiguration>>([
-  [POWERBI_RESOURCE.SUBMISSIONANALYTICS, configSubmissionAnalytics],
-  [POWERBI_RESOURCE.USERBEHAVIOUR, configUserBehaviour],
-  [POWERBI_RESOURCE.DATAANALYTICS, configDataAnalytics],
-]);
+for (const name of resourcesToLoad) {
+  resourceDetails.set(name, {
+    // Bootstrap Dashboard by leaving some details undefined
+    config: {
+      type: 'report',
+      id: undefined,
+      embedUrl: undefined,
+      accessToken: undefined,
+      tokenType: models.TokenType.Embed,
+      hostname: 'https://app.powerbi.com',
+    },
+    css: { width: '200px', height: '400px' },
+    // eventHandlersMap - https://learn.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events#report-events
+    eventHandlersMap: new Map([
+      [
+        'loaded', // The loaded event is raised when the report initializes.
+        () => {
+          /** Set the css size of the report to be the size of the maximum page of all pages. */
+          const setCssSize = async () => {
+            const pages = await resourceDetails.get(name)!.report?.getPages();
+            if (pages) {
+              const sizes = pages.reduce(
+                (prev, current) => ({
+                  width: Math.max(prev.width, current.defaultSize.width ?? 0),
+                  height: Math.max(
+                    prev.height,
+                    current.defaultSize.height ?? 0,
+                  ),
+                }),
+                { width: 0, height: 0 },
+              );
+              resourceDetails.get(name)!.css.width = sizes.width + 'px';
+              resourceDetails.get(name)!.css.height = sizes.height + 'px';
+            }
+          };
+          setCssSize();
+        },
+      ],
+    ]),
+  });
+}
 
 type PowerBiEmbedInfo = {
   resources: { name: string; id: string; embedUrl: string }[];
@@ -67,14 +91,14 @@ type PowerBiEmbedInfo = {
 // Get the embed config from the service
 async function getAccessToken() {
   const embedInfo: PowerBiEmbedInfo = await ApiService.getPowerBiEmbedAnalytics(
-    Array.from(config.keys()),
+    Array.from(resourceDetails.keys()),
   );
   for (let resource of embedInfo.resources) {
-    const ref = config.get(resource.name);
+    const ref = resourceDetails.get(resource.name);
     if (!ref) continue;
-    ref.value.id = resource.id;
-    ref.value.accessToken = embedInfo.accessToken;
-    ref.value.embedUrl = resource.embedUrl;
+    ref.config.id = resource.id;
+    ref.config.accessToken = embedInfo.accessToken;
+    ref.config.embedUrl = resource.embedUrl;
   }
 
   const expiry = ZonedDateTime.parse(embedInfo.expiry);
@@ -91,7 +115,6 @@ iframe {
   border: none;
 }
 .powerbi-container {
-  height: 720px;
-  width: 1280px;
+  margin: 10px 0px;
 }
 </style>
