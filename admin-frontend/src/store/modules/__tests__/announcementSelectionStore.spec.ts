@@ -1,5 +1,5 @@
+import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { setActivePinia, createPinia } from 'pinia';
 import { useAnnouncementSelectionStore } from '../announcementSelectionStore';
 
 const mockUpdateAnnouncement = vi.fn();
@@ -48,7 +48,7 @@ describe('announcementSelectionStore', () => {
         expect(store.announcement).toEqual(
           expect.objectContaining({
             title: 'title',
-            id: '1',
+            announcement_id: '1',
             description: 'description',
             published_on: expect.any(Date),
             expires_on: expect.any(Date),
@@ -65,7 +65,7 @@ describe('announcementSelectionStore', () => {
       it('should reset announcement', () => {
         const store = useAnnouncementSelectionStore();
         store.announcement = {
-          id: '1',
+          announcement_id: '1',
           title: 'title',
           description: 'description',
           published_on: 'published_on',
@@ -84,7 +84,7 @@ describe('announcementSelectionStore', () => {
       it('should save changes', async () => {
         const store = useAnnouncementSelectionStore();
         store.announcement = {
-          id: '1',
+          announcement_id: '1',
           title: 'title',
           description: 'description',
           published_on: 'published_on',
