@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AnnouncementStatus } from '../../types/announcements';
 import { REPORT_STATUS } from '../../utils/constant';
 import ApiService from '../apiService';
 
@@ -253,9 +254,7 @@ describe('ApiService', () => {
           mockAxiosError,
         );
 
-        expect(ApiService.getConfig()).rejects.toEqual(
-          mockAxiosError,
-        );
+        expect(ApiService.getConfig()).rejects.toEqual(mockAxiosError);
       });
     });
   });
@@ -287,9 +286,7 @@ describe('ApiService', () => {
           mockAxiosError,
         );
 
-        expect(ApiService.getUserInfo()).rejects.toEqual(
-          mockAxiosError,
-        );
+        expect(ApiService.getUserInfo()).rejects.toEqual(mockAxiosError);
       });
     });
   });
@@ -427,6 +424,77 @@ describe('ApiService', () => {
           mockAxiosError,
         );
       });
+    });
+  });
+
+  describe('getAnnouncements', () => {
+    describe('when data are successfully retrieved from the backend', () => {
+      it('returns a list of objects in the expected format', async () => {
+        const mockBackendResponse = {
+          items: [
+            {
+              announcement_id: '1',
+              title: 'mock announcement 1',
+              description: 'desc 1',
+            },
+            {
+              announcement_id: '2',
+              title: 'mock announcement 2',
+              description: 'desc 2',
+            },
+          ],
+        };
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        const axiosGetSpy = vi
+          .spyOn(ApiService.apiAxios, 'get')
+          .mockResolvedValueOnce(mockAxiosResponse);
+        const offset = 1;
+        const limit = 2;
+        const filter = [];
+        const sort = [];
+        const resp = await ApiService.getAnnouncements(
+          offset,
+          limit,
+          filter,
+          sort,
+        );
+        const queryParamsToBackend: any = axiosGetSpy.mock.calls[0][1];
+        expect(queryParamsToBackend.params.sort).toBe(sort);
+        expect(queryParamsToBackend.params.filters).toBe(filter);
+        expect(queryParamsToBackend.params.offset).toBe(offset);
+        expect(queryParamsToBackend.params.limit).toBe(limit);
+        expect(resp).toEqual(mockBackendResponse);
+      });
+    });
+    describe('when data are not successfully retrieved from the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+        expect(ApiService.getAnnouncements(1, 2, [], [])).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
+    });
+  });
+
+  describe('getPublishedAnnouncements', () => {
+    it('requests only announcements with "status" == PUBLISHED', async () => {
+      const getAnnouncementsSpy = vi
+        .spyOn(ApiService, 'getAnnouncements')
+        .mockResolvedValue({ items: [], total: 0 });
+      await ApiService.getPublishedAnnouncements();
+      const filter = getAnnouncementsSpy.mock.calls[0][2];
+      expect(filter).toStrictEqual([
+        {
+          key: 'status',
+          operation: 'in',
+          value: [AnnouncementStatus.Published],
+        },
+      ]);
     });
   });
 });

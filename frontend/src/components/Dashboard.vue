@@ -1,60 +1,64 @@
 <template>
-  <v-row class="mt-3">
-    <v-col>
-      <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
-      <v-divider class="mt-2"></v-divider>
-    </v-col>
-  </v-row>
-  <v-row class="mb-4">
-    <v-col class="d-flex flex-column">
-      <div>
-        <p class="mt-4 mb-4">
-          This tool will help you generate a Pay Transparency report in
-          compliance with the
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_ACT_URL)"
-            >Pay Transparency Act (gov.bc.ca)</a
-          >
-          and the
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_REGULATION_URL)"
-            >Pay Transparency Regulation (gov.bc.ca)</a
-          >. The report can be saved for posting on your webpage or in your
-          workplace.
-        </p>
-        <p class="mb-6">
-          Once your CSV file is ready, click on the button below to upload the
-          file and generate a report.
-        </p>
-        <v-btn class="mb-4 btn-primary" to="generate-report-form">
-          Upload your CSV here
-        </v-btn>
-        <p class="text-caption mb-2">
-          This application does not collect, record or publish personal
-          information.
-        </p>
-      </div>
+  <div class="asdf">
+    <v-row class="mt-3">
+      <v-col>
+        <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
+        <v-divider class="mt-2"></v-divider>
+      </v-col>
+    </v-row>
+    <v-row class="mb-4">
+      <v-col class="d-flex flex-column">
+        <div>
+          <p class="mt-4 mb-4">
+            This tool will help you generate a Pay Transparency report in
+            compliance with the
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              :href="sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_ACT_URL)"
+              >Pay Transparency Act (gov.bc.ca)</a
+            >
+            and the
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              :href="
+                sanitizeUrl(frontendConfig.PAY_TRANSPARENCY_REGULATION_URL)
+              "
+              >Pay Transparency Regulation (gov.bc.ca)</a
+            >. The report can be saved for posting on your webpage or in your
+            workplace.
+          </p>
+          <p class="mb-6">
+            Once your CSV file is ready, click on the button below to upload the
+            file and generate a report.
+          </p>
+          <v-btn class="mb-4 btn-primary" to="generate-report-form">
+            Upload your CSV here
+          </v-btn>
+          <p class="text-caption mb-2">
+            This application does not collect, record or publish personal
+            information.
+          </p>
+        </div>
 
-      <v-card class="rounded-lg flex-grow-1" min-height="230px">
-        <v-toolbar color="tab">
-          <v-toolbar-title>Submitted Reports</v-toolbar-title>
-        </v-toolbar>
-        <ReportsTable />
-      </v-card>
-    </v-col>
-    <v-col md="4" cols="12" class="d-flex flex-column right-column">
-      <AnnouncementPager
-        :announcements="announcements"
-        :pageSize="2"
-        :isLoading="areAnnouncementLoading"
-        class="h-100"
-      ></AnnouncementPager>
-    </v-col>
-  </v-row>
+        <v-card class="rounded-lg flex-grow-1" min-height="230px">
+          <v-toolbar color="tab">
+            <v-toolbar-title>Submitted Reports</v-toolbar-title>
+          </v-toolbar>
+          <ReportsTable />
+        </v-card>
+      </v-col>
+      <v-col md="4" cols="12" class="d-flex flex-column right-column">
+        <AnnouncementPager
+          :announcements="announcements"
+          :pageSize="2"
+          :isLoading="areAnnouncementLoading"
+          class="h-100"
+        ></AnnouncementPager>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script lang="ts">
