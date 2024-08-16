@@ -1,5 +1,5 @@
 <template>
-  <div class="asdf">
+  <div>
     <v-row class="mt-3">
       <v-col>
         <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
