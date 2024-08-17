@@ -377,8 +377,14 @@ export default {
   },
 
   async getPowerBiEmbedAnalytics(resources: POWERBI_RESOURCE[]) {
+    type PowerBiEmbedInfo = {
+      resources: { name: string; id: string; embedUrl: string }[];
+      accessToken: string;
+      expiry: string;
+    };
+
     try {
-      const resp = await apiAxios.get(
+      const resp = await apiAxios.get<PowerBiEmbedInfo>(
         `${ApiRoutes.POWERBI_EMBED_ANALYTICS}?resources[]=${resources.join('&resources[]=')}`,
       );
       if (resp?.data) {

@@ -23,74 +23,75 @@ import ApiService from '../services/apiService';
 import { ZonedDateTime, Duration } from '@js-joda/core';
 import { POWERBI_RESOURCE } from '../utils/constant';
 
-const resourcesToLoad = [
+type PowerBiDetails = {
+  config: IReportEmbedConfiguration;
+  report?: Report;
+  css: CSSProperties;
+  eventHandlersMap: Map<string, EventHandler>;
+};
+
+const resourceDetails = createDefaultPowerBiDetailsMap([
   POWERBI_RESOURCE.SUBMISSIONANALYTICS,
   POWERBI_RESOURCE.USERBEHAVIOUR,
   POWERBI_RESOURCE.DATAANALYTICS,
-];
-const resourceDetails = reactive(
-  new Map<
-    POWERBI_RESOURCE,
-    {
-      config: IReportEmbedConfiguration;
-      report?: Report;
-      css: CSSProperties;
-      eventHandlersMap: Map<string, EventHandler>;
-    }
-  >(),
-);
+]);
+getPowerBiAccessToken(resourceDetails);
 
-for (const name of resourcesToLoad) {
-  resourceDetails.set(name, {
-    // Bootstrap Dashboard by leaving some details undefined
-    config: {
-      type: 'report',
-      id: undefined,
-      embedUrl: undefined,
-      accessToken: undefined,
-      tokenType: models.TokenType.Embed,
-      hostname: 'https://app.powerbi.com',
-    },
-    css: { width: '200px', height: '400px' },
-    // eventHandlersMap - https://learn.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events#report-events
-    eventHandlersMap: new Map([
-      [
-        'loaded', // The loaded event is raised when the report initializes.
-        () => {
-          /** Set the css size of the report to be the size of the maximum page of all pages. */
-          const setCssSize = async () => {
-            const pages = await resourceDetails.get(name)!.report?.getPages();
-            if (pages) {
-              const sizes = pages.reduce(
-                (prev, current) => ({
-                  width: Math.max(prev.width, current.defaultSize.width ?? 0),
-                  height: Math.max(
-                    prev.height,
-                    current.defaultSize.height ?? 0,
-                  ),
-                }),
-                { width: 0, height: 0 },
-              );
-              resourceDetails.get(name)!.css.width = sizes.width + 'px';
-              resourceDetails.get(name)!.css.height = sizes.height + 'px';
-            }
-          };
-          setCssSize();
-        },
-      ],
-    ]),
-  });
+/** Create a Map containing the details of the resources. */
+function createDefaultPowerBiDetailsMap(resourcesToLoad: POWERBI_RESOURCE[]) {
+  const resourceDetails = reactive(new Map<POWERBI_RESOURCE, PowerBiDetails>());
+
+  for (const name of resourcesToLoad) {
+    resourceDetails.set(name, {
+      // Bootstrap Dashboard by leaving some details undefined
+      config: {
+        type: 'report',
+        id: undefined,
+        embedUrl: undefined,
+        accessToken: undefined,
+        tokenType: models.TokenType.Embed,
+        hostname: 'https://app.powerbi.com',
+      },
+      css: { width: '200px', height: '400px' },
+      // eventHandlersMap - https://learn.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events#report-events
+      eventHandlersMap: new Map([
+        [
+          'loaded', // The loaded event is raised when the report initializes.
+          () => {
+            /** Set the css size of the report to be the size of the maximum page of all pages. */
+            const setCssSize = async () => {
+              const pages = await resourceDetails.get(name)!.report?.getPages();
+              if (pages) {
+                const sizes = pages.reduce(
+                  (prev, current) => ({
+                    width: Math.max(prev.width, current.defaultSize.width ?? 0),
+                    height: Math.max(
+                      prev.height,
+                      current.defaultSize.height ?? 0,
+                    ),
+                  }),
+                  { width: 0, height: 0 },
+                );
+                resourceDetails.get(name)!.css.width = sizes.width + 'px';
+                resourceDetails.get(name)!.css.height = sizes.height + 'px';
+              }
+            };
+            setCssSize();
+          },
+        ],
+      ]),
+    });
+  }
+
+  return resourceDetails;
 }
 
-type PowerBiEmbedInfo = {
-  resources: { name: string; id: string; embedUrl: string }[];
-  accessToken: string;
-  expiry: string;
-};
-
-// Get the embed config from the service
-async function getAccessToken() {
-  const embedInfo: PowerBiEmbedInfo = await ApiService.getPowerBiEmbedAnalytics(
+/**
+ * Get the embed config from the service.
+ * Auto refresh the token before it expires.
+ */
+async function getPowerBiAccessToken(resourceDetails) {
+  const embedInfo = await ApiService.getPowerBiEmbedAnalytics(
     Array.from(resourceDetails.keys()),
   );
   for (let resource of embedInfo.resources) {
@@ -104,10 +105,8 @@ async function getAccessToken() {
   const expiry = ZonedDateTime.parse(embedInfo.expiry);
   const now = ZonedDateTime.now();
   const msToExpiry = Duration.between(now, expiry).minusMinutes(1).toMillis();
-  setTimeout(getAccessToken, msToExpiry);
+  setTimeout(getPowerBiAccessToken, msToExpiry);
 }
-
-getAccessToken();
 </script>
 
 <style lang="scss">
