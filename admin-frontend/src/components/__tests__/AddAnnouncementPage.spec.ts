@@ -140,7 +140,7 @@ describe('AddAnnouncementPage', () => {
         screen.getByText('Are you sure you want to publish this announcement?'),
       ).toBeInTheDocument();
     });
-    const cancelButton = screen.getByRole('button', { name: 'Close' });
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await fireEvent.click(cancelButton);
     await waitFor(() => {
       expect(mockAddAnnouncement).not.toHaveBeenCalled();
