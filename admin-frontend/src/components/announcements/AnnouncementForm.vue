@@ -4,7 +4,7 @@
       <div class="toolbar">
         <h1>{{ title }}</h1>
         <span class="fill-remaining-space"></span>
-        <v-btn variant="text" color="primary" class="mr-2" @click="handleCancel"
+        <v-btn v-if="!isConfirmDialogVisible" variant="outlined" color="primary" class="mr-2" @click="handleCancel"
           >Cancel</v-btn
         >
 
@@ -267,6 +267,7 @@ const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement, mode } = defineProps<Props>();
 const isPreviewAvailable = computed(() => values.title && values.description);
 const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
+const isConfirmDialogVisible = ref(false);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
@@ -478,15 +479,17 @@ const handleSave = handleSubmit(async (values) => {
     (mode === AnnouncementFormMode.CREATE ||
       announcement?.status !== 'PUBLISHED')
   ) {
+    isConfirmDialogVisible.value = true;
     const confirmation = await publishConfirmationDialog.value?.open(
       'Confirm Publish',
       undefined,
       {
         titleBold: true,
         resolveText: 'Confirm',
-        rejectText: 'Close',
+        rejectText: 'Cancel',
       },
     );
+    isConfirmDialogVisible.value = false;
 
     if (!confirmation) {
       return;
