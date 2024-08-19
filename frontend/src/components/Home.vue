@@ -1,6 +1,6 @@
 <!--suppress ALL -->
 <template>
-  <v-container class="d-flex justify-center fill-height">
+  <v-container class="d-flex justify-center fill-height align-start">
     <dashboard></dashboard>
   </v-container>
 </template>
