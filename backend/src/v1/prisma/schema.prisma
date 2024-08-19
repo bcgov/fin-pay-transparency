@@ -295,14 +295,14 @@ model announcement {
   description                                    String                          @db.VarChar(2000)
   created_date                                   DateTime                        @default(now()) @db.Timestamp(6)
   updated_date                                   DateTime                        @default(now()) @db.Timestamp(6)
-  created_by                                     String                          @db.Uuid
-  updated_by                                     String                          @db.Uuid
+  created_by                                     String?                         @db.Uuid
+  updated_by                                     String?                         @db.Uuid
   published_on                                   DateTime?                       @db.Timestamp(6)
   expires_on                                     DateTime?                       @db.Timestamp(6)
   status                                         String?                         @db.VarChar(100)
-  admin_user_announcement_created_byToadmin_user admin_user                      @relation("announcement_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_created_by_fk")
+  admin_user_announcement_created_byToadmin_user admin_user?                     @relation("announcement_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_created_by_fk")
   announcement_status                            announcement_status?            @relation(fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_status_fk")
-  admin_user_announcement_updated_byToadmin_user admin_user                      @relation("announcement_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_updated_by_fk")
+  admin_user_announcement_updated_byToadmin_user admin_user?                     @relation("announcement_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_updated_by_fk")
   announcement_resource                          announcement_resource[]
   announcement_resource_history                  announcement_resource_history[]
 
@@ -317,13 +317,13 @@ model announcement_history {
   description                                            String                          @db.VarChar(2000)
   created_date                                           DateTime                        @default(now()) @db.Timestamp(6)
   updated_date                                           DateTime                        @default(now()) @db.Timestamp(6)
-  created_by                                             String                          @db.Uuid
-  updated_by                                             String                          @db.Uuid
+  created_by                                             String?                         @db.Uuid
+  updated_by                                             String?                         @db.Uuid
   published_on                                           DateTime?                       @db.Timestamp(6)
   expires_on                                             DateTime?                       @db.Timestamp(6)
   status                                                 String?                         @db.VarChar(100)
-  admin_user_announcement_history_created_byToadmin_user admin_user                      @relation("announcement_history_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_history_created_by_fk")
-  admin_user_announcement_history_updated_byToadmin_user admin_user                      @relation("announcement_history_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_history_updated_by_fk")
+  admin_user_announcement_history_created_byToadmin_user admin_user?                     @relation("announcement_history_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_history_created_by_fk")
+  admin_user_announcement_history_updated_byToadmin_user admin_user?                     @relation("announcement_history_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_history_updated_by_fk")
   announcement_status                                    announcement_status?            @relation(fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_status_fk")
   announcement_resource_history                          announcement_resource_history[]
 
@@ -338,13 +338,13 @@ model announcement_resource {
   resource_url                                            String                          @db.VarChar(255)
   created_date                                            DateTime                        @default(now()) @db.Timestamp(6)
   update_date                                             DateTime                        @default(now()) @db.Timestamp(6)
-  created_by                                              String                          @db.Uuid
-  updated_by                                              String                          @db.Uuid
+  created_by                                              String?                         @db.Uuid
+  updated_by                                              String?                         @db.Uuid
   resource_type                                           String                          @db.VarChar(20)
-  admin_user_announcement_resource_created_byToadmin_user admin_user                      @relation("announcement_resource_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_created_by_fk")
+  admin_user_announcement_resource_created_byToadmin_user admin_user?                     @relation("announcement_resource_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_created_by_fk")
   announcement                                            announcement                    @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_fk")
   announcement_resource_type                              announcement_resource_type      @relation(fields: [resource_type], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_type_fk")
-  admin_user_announcement_resource_updated_byToadmin_user admin_user                      @relation("announcement_resource_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_updated_by_fk")
+  admin_user_announcement_resource_updated_byToadmin_user admin_user?                     @relation("announcement_resource_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_updated_by_fk")
   announcement_resource_history                           announcement_resource_history[]
 
   @@index([resource_type], map: "announcement_resource_type_idx")
@@ -358,15 +358,15 @@ model announcement_resource_history {
   resource_url                                                    String                     @db.VarChar(255)
   created_date                                                    DateTime                   @default(now()) @db.Timestamp(6)
   update_date                                                     DateTime                   @default(now()) @db.Timestamp(6)
-  created_by                                                      String                     @db.Uuid
-  updated_by                                                      String                     @db.Uuid
+  created_by                                                      String?                    @db.Uuid
+  updated_by                                                      String?                    @db.Uuid
   resource_type                                                   String                     @db.VarChar(20)
   announcement_history_id                                         String                     @db.Uuid
   announcement                                                    announcement               @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_fk")
   announcement_history                                            announcement_history       @relation(fields: [announcement_history_id], references: [announcement_history_id], onDelete: NoAction, onUpdate: NoAction)
   announcement_resource                                           announcement_resource?     @relation(fields: [announcement_resource_id], references: [announcement_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_resource_fk")
-  admin_user_announcement_resource_history_created_byToadmin_user admin_user                 @relation("announcement_resource_history_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_created_by_fk")
-  admin_user_announcement_resource_history_updated_byToadmin_user admin_user                 @relation("announcement_resource_history_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_updated_by_fk")
+  admin_user_announcement_resource_history_created_byToadmin_user admin_user?                @relation("announcement_resource_history_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_created_by_fk")
+  admin_user_announcement_resource_history_updated_byToadmin_user admin_user?                @relation("announcement_resource_history_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_updated_by_fk")
   announcement_resource_type                                      announcement_resource_type @relation(fields: [resource_type], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_type_fk")
 
   @@index([resource_type])
