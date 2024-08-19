@@ -13,7 +13,7 @@ import {
   IAnnouncementSearchResult,
 } from '../types/announcements';
 import { IReportSearchResult } from '../types/reports';
-import { ApiRoutes } from '../utils/constant';
+import { ApiRoutes, POWERBI_RESOURCE } from '../utils/constant';
 import AuthService from './authService';
 
 export const LOCAL_STORAGE_KEY_JWT = 'pay-transparency-admin-jwt';
@@ -372,6 +372,27 @@ export default {
       throw new Error('Unexpected response from API.');
     } catch (e) {
       console.log(`Failed to ${un}lock report: ${e}`);
+      throw e;
+    }
+  },
+
+  async getPowerBiEmbedAnalytics(resources: POWERBI_RESOURCE[]) {
+    type PowerBiEmbedInfo = {
+      resources: { name: string; id: string; embedUrl: string }[];
+      accessToken: string;
+      expiry: string;
+    };
+
+    try {
+      const resp = await apiAxios.get<PowerBiEmbedInfo>(
+        `${ApiRoutes.POWERBI_EMBED_ANALYTICS}?resources[]=${resources.join('&resources[]=')}`,
+      );
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to get analytics token from API.');
+    } catch (e) {
+      console.log(`Failed to get analytics token from API - ${e}`);
       throw e;
     }
   },
