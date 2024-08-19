@@ -78,10 +78,10 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="false" remarks="Description of the announcement" size="2000" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="created_date" nullable="false" remarks="Date when the announcement was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="updated_date" nullable="false" remarks="Date when the announcement was last updated" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="false" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="updated_by" nullable="false" remarks="The ID of the user who last updated the announcement" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="updated_by" nullable="true" remarks="The ID of the user who last updated the announcement" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="published_on" nullable="true" remarks="Date when the announcement was published" size="29" type="timestamp" typeCode="93"/>
@@ -112,10 +112,10 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="description" nullable="false" remarks="Description of the announcement" size="2000" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="created_date" nullable="false" remarks="Date when the announcement was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="updated_date" nullable="false" remarks="Date when the announcement was last updated" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="false" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_history_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="false" remarks="The ID of the user who last updated the announcement" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="true" remarks="The ID of the user who last updated the announcement" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_history_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="published_on" nullable="true" remarks="Date when the announcement was published" size="29" type="timestamp" typeCode="93"/>
@@ -146,10 +146,10 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="resource_url" nullable="false" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="created_date" nullable="false" remarks="Date when the resource was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="update_date" nullable="false" remarks="Date when the resource was last updated" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="false" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_resource_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="false" remarks="The ID of the user who last updated the resource" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="true" remarks="The ID of the user who last updated the resource" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_resource_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="resource_type" nullable="false" remarks="Type of the resource (Link, Attachment)" size="20" type="varchar" typeCode="12">
@@ -175,10 +175,10 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="resource_url" nullable="false" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="created_date" nullable="false" remarks="Date when the resource was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="update_date" nullable="false" remarks="Date when the resource was last updated" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="created_by" nullable="false" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="created_by" nullable="true" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_resource_history_created_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="updated_by" nullable="false" remarks="The ID of the user who last updated the resource" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="updated_by" nullable="true" remarks="The ID of the user who last updated the resource" size="2147483647" type="uuid" typeCode="1111">
             <parent column="admin_user_id" foreignKey="announcement_resource_history_updated_by_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="admin_user"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="resource_type" nullable="false" remarks="Type of the resource (Link, Attachment)" size="20" type="varchar" typeCode="12">
