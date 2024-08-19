@@ -1,18 +1,5 @@
 import * as z from 'zod';
 
-export type FilterOperationType =
-  | 'between'
-  | 'like'
-  | 'eq'
-  | 'neq'
-  | 'gt'
-  | 'gte'
-  | 'lt'
-  | 'lte'
-  | 'in'
-  | 'notin'
-  | 'isnull';
-
 export type FilterValueType = string[] | null | undefined | boolean;
 
 export type FilterKeyType =

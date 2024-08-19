@@ -40,6 +40,7 @@ const ALL_VALID_GENDER_CODES = [
   ...GENDER_CODES.NON_BINARY,
   ...GENDER_CODES.UNKNOWN,
 ];
+
 const ZERO_SYNONYMS = ['', null];
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
@@ -351,6 +352,24 @@ const validateService = {
     return standardizedGenderCode;
   },
 
+  unstandardizeGenderCode(standardizedGenderCode: string) {
+    const pieces = standardizedGenderCode.split('_');
+    if (pieces?.length) {
+      const genderCode = pieces[0];
+      try {
+        this.standardizeGenderCode(genderCode);
+      } catch {
+        throw new Error(
+          `Unknown standardized gender code ${standardizedGenderCode}`,
+        );
+      }
+      return genderCode;
+    }
+    throw new Error(
+      `Unknown standardized gender code ${standardizedGenderCode}`,
+    );
+  },
+
   /*
   Returns true if the given value is one of the accepted synonyms meaning
   zero, otherwise returns false.
@@ -393,6 +412,13 @@ const validateService = {
   },
 };
 
+const STANDARDIZED_GENDER_CODES = {
+  MALE: validateService.standardizeGenderCode(GENDER_CODES.MALE[0]),
+  FEMALE: validateService.standardizeGenderCode(GENDER_CODES.FEMALE[0]),
+  NON_BINARY: validateService.standardizeGenderCode(GENDER_CODES.NON_BINARY[0]),
+  UNKNOWN: validateService.standardizeGenderCode(GENDER_CODES.UNKNOWN[0]),
+};
+
 export {
   EXPECTED_COLUMNS,
   FIELD_DATA_CONSTRAINTS,
@@ -401,7 +427,8 @@ export {
   NUMERIC_COLUMNS,
   Row,
   RowError,
+  STANDARDIZED_GENDER_CODES,
   SUBMISSION_ROW_COLUMNS,
-  ValidationError,
   validateService,
+  ValidationError,
 };

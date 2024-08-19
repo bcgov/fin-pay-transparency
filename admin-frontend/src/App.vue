@@ -2,9 +2,9 @@
   <v-app id="app">
     <MsieBanner v-if="isIE" />
     <div v-if="!isIE">
-      <Header v-if="areHeaderAndSidebarVisible" />
       <SnackBar />
       <SideBar v-if="areHeaderAndSidebarVisible" />
+      <Header v-if="areHeaderAndSidebarVisible" />
       <v-main
         fluid
         class="d-flex flex-column align-start"
@@ -81,8 +81,7 @@ export default {
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
       this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
       this.isBreadcrumbTrailVisible =
-        to?.meta?.isBreadcrumbTrailVisible &&
-        this.doesUserHaveRole(USER_ROLE_NAME);
+        to?.meta?.breadcrumbs?.length && this.doesUserHaveRole(USER_ROLE_NAME);
     },
   },
 };
@@ -171,11 +170,16 @@ button:disabled.v-btn {
 }
 
 .v-btn.btn-link {
-  text-decoration: underline;
   color: $link-color;
   background-color: transparent !important;
   border: none;
   box-shadow: none;
+  font-weight: normal !important;
+  padding: 0px;
+  letter-spacing: 1px;
+}
+.v-btn.btn-link:hover > .v-btn__overlay {
+  opacity: 0 !important;
 }
 
 .v-alert .v-icon {
@@ -204,6 +208,30 @@ button:disabled.v-btn {
 .v-alert.alert-error {
   background-color: #f4e1e2 !important;
   border-color: #ce3e39 !important;
+}
+
+.v-chip.success {
+  background-color: #d6e8da !important;
+  border-color: #d6e8da !important;
+  color: #207d33 !important;
+}
+
+.v-chip.info {
+  background-color: #efefef !important;
+  border-color: #efefef !important;
+  color: #313131 !important;
+}
+
+.v-chip.warning {
+  background-color: #fef1d8 !important;
+  border-color: #fef1d8 !important;
+  color: #f8bb47 !important;
+}
+
+.v-chip.error {
+  background-color: #f4e1e2 !important;
+  border-color: #f4e1e2 !important;
+  color: #ce3e39 !important;
 }
 
 @media screen and (max-width: 370px) {
@@ -258,5 +286,45 @@ button:disabled.v-btn {
 
 .theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
   background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/*
+Override default styles of VueDatepicker component to better match the
+style of vuetify components
+*/
+input.dp__input {
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+  box-shadow:
+    0px 3px 1px -2px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
+    0px 2px 2px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
+    0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
+}
+
+/*
+Transitions to be used with Vue's <Transition> component
+*/
+
+//Transition name="fade"
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+//Transition name="slide-fade"
+.slide-fade-enter-active {
+  transition: all 0.2s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
 }
 </style>

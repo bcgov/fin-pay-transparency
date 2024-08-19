@@ -56,6 +56,7 @@
     "@types/express-session": "^1.17.10",
     "@types/jest": "^29.5.11",
     "@types/jsonwebtoken": "^9.0.5",
+    "@types/lodash": "^4.17.7",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.10.4",
     "@types/passport": "^1.0.16",
@@ -151,9 +152,11 @@
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
       "ecmaVersion": 2022,
-      "sourceType": "module"
+      "sourceType": "module",
+      "project": true
     },
     "rules": {
+      "@typescript-eslint/no-floating-promises": "error",
       "jest/expect-expect": [
         "error",
         {

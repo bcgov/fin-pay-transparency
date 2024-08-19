@@ -3,7 +3,7 @@
   <v-data-table
     :headers="headers"
     :items="reports"
-    :items-per-page="5"
+    :items-per-page="3"
     :disable-sort="true"
     no-data-text="No generated reports yet."
     :loading="isLoading"
@@ -115,6 +115,10 @@ const editReport = async (report: IReport) => {
 }
 
 .v-data-table-headers--mobile {
+  display: none !important;
+}
+
+.v-data-table-footer__items-per-page {
   display: none !important;
 }
 

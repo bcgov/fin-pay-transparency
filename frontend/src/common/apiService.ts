@@ -1,5 +1,11 @@
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import {
+  Announcement,
+  AnnouncementFilterType,
+  AnnouncementSortType,
+  IAnnouncementSearchResult,
+} from '../types/announcements';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 import { IConfigValue, IReport } from './types';
@@ -270,6 +276,56 @@ export default {
       throw new Error('Unexpected response from publishReport API');
     } catch (e) {
       console.log(`Failed to get reports from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async getPublishedAnnouncements(): Promise<Announcement[]> {
+    const filters: AnnouncementFilterType = [
+      {
+        key: 'status',
+        operation: 'in',
+        value: ['PUBLISHED'],
+      },
+    ];
+    const sort: AnnouncementSortType = [
+      { field: 'updated_date', order: 'desc' },
+    ];
+    const result = await this.getAnnouncements(0, 100, filters, sort);
+    return result?.items;
+  },
+
+  async getAnnouncements(
+    offset: number = 0,
+    limit: number = 20,
+    filter: AnnouncementFilterType | null = null,
+    sort: AnnouncementSortType | null = null,
+  ): Promise<IAnnouncementSearchResult> {
+    try {
+      if (!filter) {
+        filter = [];
+      }
+      if (!sort) {
+        sort = [{ field: 'published_on', order: 'asc' }];
+      }
+      const params = {
+        offset: offset,
+        limit: limit,
+        filters: filter,
+        sort: sort,
+      };
+      const resp = await apiAxios.get<IAnnouncementSearchResult>(
+        ApiRoutes.ANNOUNCEMENTS,
+        {
+          params: params,
+        },
+      );
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to get announcements from API');
+    } catch (e) {
+      console.log(`Failed to get announcements from API - ${e}`);
       throw e;
     }
   },

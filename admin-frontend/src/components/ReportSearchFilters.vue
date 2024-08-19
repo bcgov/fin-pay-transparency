@@ -47,15 +47,45 @@
   <div class="secondary-filters py-4" v-if="areSecondaryFiltersVisible">
     <v-row dense>
       <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Submission date</h5>
+        <h5>
+          Submission date range
+          <v-tooltip
+            text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
+            width="300px"
+            id="submission-date-range-tooltip"
+          >
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props"
+                icon="fa:fas fa-circle-info"
+                size="x-small"
+                color="primary"
+                class="ml-1"
+                tabindex="0"
+                role="tooltip"
+                aria-labeledby="submission-date-range-tooltip"
+              />
+            </template>
+          </v-tooltip>
+        </h5>
+
         <VueDatePicker
           v-model="submissionDateRange"
           range
+          placeholder="Select date range"
           format="yyyy-MM-dd"
           :max-date="new Date()"
-          :multi-calendars="{ static: false }"
           :enable-time-picker="false"
-        />
+          arrow-navigation
+          auto-apply
+          prevent-min-max-navigation
+        >
+          <template #day="{ day, date }">
+              <span :aria-label="formatDate(date)">
+                {{ day }}
+              </span>
+          </template>
+        </VueDatePicker>
       </v-col>
 
       <v-col sm="6" md="6" lg="4" xl="2" class="d-flex flex-column">
@@ -206,19 +236,22 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { range } from 'lodash';
 import { storeToRefs } from 'pinia';
 import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import { useCodeStore } from '../store/modules/codeStore';
 import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { ReportFilterType } from '../types';
+import { ReportFilterType } from '../types/reports';
 import {
   ZonedDateTime,
   nativeJs,
   DateTimeFormatter,
   ZoneId,
+  LocalDate
 } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
@@ -233,8 +266,19 @@ const selectedLockedValues = ref(undefined);
 const selectedEmployeeCount = ref([]);
 
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
-const reportYearOptions = ref([null, 2024, 2023]);
+const startYear = 2024;
+const currentYear = new Date().getFullYear();
+const reportYearOptions = ref([
+  null,
+  ...range(startYear, currentYear + 1).reverse(),
+]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
+
+const formatDate = (date: Date) => {
+  return LocalDate.from(nativeJs(date)).format(
+    DateTimeFormatter.ofPattern('EEEE d MMMM yyyy').withLocale(Locale.CANADA),
+  );
+};
 
 function getReportSearchFilters(): ReportFilterType {
   const filters: any[] = [];

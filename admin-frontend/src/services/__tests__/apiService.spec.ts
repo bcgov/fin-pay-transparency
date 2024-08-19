@@ -1,8 +1,6 @@
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ApiService from '../apiService';
-import { de } from '@faker-js/faker';
-import { i } from 'vitest/dist/reporters-yx5ZTtEV.js';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -197,7 +195,9 @@ describe('ApiService', () => {
           mockAxiosError,
         );
 
-        expect(ApiService.deleteUserInvite('1')).rejects.toEqual(mockAxiosError);
+        expect(ApiService.deleteUserInvite('1')).rejects.toEqual(
+          mockAxiosError,
+        );
       });
     });
   });
@@ -357,6 +357,83 @@ describe('ApiService', () => {
 
         const resp = await ApiService.getPdfReportAsBlob(mockReportId);
         expect(resp).toEqual(mockResponse.data);
+      });
+    });
+  });
+
+  describe('deleteAnnouncements', () => {
+    describe('when the API request to the backend is successful', () => {
+      it('returns a promise that eventually resolves', async () => {
+        const announcementIdsToDelete = ['1', '2'];
+        const mockResponse = {
+          data: {},
+          status: 201,
+        };
+        const patchSpy = vi
+          .spyOn(ApiService.apiAxios, 'patch')
+          .mockResolvedValueOnce(mockResponse);
+
+        await expect(ApiService.deleteAnnouncements(announcementIdsToDelete))
+          .resolves;
+
+        const expectedPatchBody = announcementIdsToDelete?.map((id) => {
+          return {
+            id: id,
+            status: 'DELETED',
+          };
+        });
+        expect(patchSpy).toHaveBeenCalledOnce();
+        expect(patchSpy.mock.calls[0][1]).toEqual(expectedPatchBody);
+      });
+    });
+    describe('when the API request to the backend is unsuccessful', () => {
+      it('returns a promise that eventually rejects', async () => {
+        const announcementIdsToDelete = ['1', '2'];
+        const mockResponse = {
+          data: {},
+          status: 400,
+        };
+        vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        await expect(
+          ApiService.deleteAnnouncements(announcementIdsToDelete),
+        ).rejects.toThrow();
+      });
+    });
+  });
+  describe('updateAnnouncements', () => {
+    describe('when the API request to the backend is successful', () => {
+      it('returns a promise that eventually resolves', async () => {
+        const payload: any = { title: "test" };
+        const mockResponse = {
+          data: {},
+          status: 201,
+        };
+        const putSpy = vi
+          .spyOn(ApiService.apiAxios, 'put')
+          .mockResolvedValueOnce(mockResponse);
+
+        await expect(ApiService.updateAnnouncement(`1`, payload))
+
+        expect(putSpy).toHaveBeenCalledOnce();
+      });
+    });
+    describe('when the API request to the backend is unsuccessful', () => {
+      it('returns a promise that eventually rejects', async () => {
+        const payload = {} as any;
+        const mockResponse = {
+          data: {},
+          status: 400,
+        };
+        vi.spyOn(ApiService.apiAxios, 'put').mockRejectedValueOnce(
+          mockResponse,
+        );
+
+        await expect(
+          ApiService.updateAnnouncement("", payload),
+        ).rejects.toThrow();
       });
     });
   });

@@ -25,12 +25,15 @@ export const ApiRoutes = Object.freeze({
   REPORTS: baseRoot + '/v1/reports',
   USERS: `${baseRoot}/v1/users`,
   USER_INVITES: `${baseRoot}/v1/user-invites`,
+  ANNOUNCEMENTS: `${baseRoot}/v1/announcements`,
 });
 
 export const PAGE_TITLES = Object.freeze({
   DASHBOARD: 'Dashboard',
   REPORTS: 'Search Reports',
   ANNOUNCEMENTS: 'Announcements',
+  ADD_ANNOUNCEMENT: 'Add Announcement',
+  EDIT_ANNOUNCEMENT: 'Edit Announcement',
   USER_MANAGEMENT: 'User Management',
   ANALYTICS: 'Analytics',
   LOGIN: 'Login',

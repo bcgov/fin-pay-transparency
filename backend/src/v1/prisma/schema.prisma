@@ -234,20 +234,29 @@ model user_error {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model admin_user {
-  admin_user_id           String                    @id(map: "admin_user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  idir_user_guid          String                    @unique(map: "admin_user_idir_user_guid_uk") @db.Uuid
-  display_name            String                    @db.VarChar(255)
-  create_date             DateTime                  @default(now()) @db.Timestamp(6)
-  create_user             String                    @db.VarChar(255)
-  update_date             DateTime                  @default(now()) @db.Timestamp(6)
-  update_user             String                    @db.VarChar(255)
-  is_active               Boolean                   @default(true)
-  assigned_roles          String                    @db.VarChar(255)
-  preferred_username      String                    @default("") @db.VarChar(255)
-  last_login              DateTime                  @default(now()) @db.Timestamp(6)
-  admin_user_history      admin_user_history[]
-  pay_transparency_report pay_transparency_report[]
-  report_history          report_history[]
+  admin_user_id                                                                      String                          @id(map: "admin_user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  idir_user_guid                                                                     String                          @unique(map: "admin_user_idir_user_guid_uk") @db.Uuid
+  display_name                                                                       String                          @db.VarChar(255)
+  create_date                                                                        DateTime                        @default(now()) @db.Timestamp(6)
+  create_user                                                                        String                          @db.VarChar(255)
+  update_date                                                                        DateTime                        @default(now()) @db.Timestamp(6)
+  update_user                                                                        String                          @db.VarChar(255)
+  is_active                                                                          Boolean                         @default(true)
+  assigned_roles                                                                     String                          @db.VarChar(255)
+  preferred_username                                                                 String                          @default("") @db.VarChar(255)
+  last_login                                                                         DateTime                        @default(now()) @db.Timestamp(6)
+  email                                                                              String                          @default("") @db.VarChar(255)
+  admin_user_history                                                                 admin_user_history[]
+  announcement_announcement_created_byToadmin_user                                   announcement[]                  @relation("announcement_created_byToadmin_user")
+  announcement_announcement_updated_byToadmin_user                                   announcement[]                  @relation("announcement_updated_byToadmin_user")
+  announcement_history_announcement_history_created_byToadmin_user                   announcement_history[]          @relation("announcement_history_created_byToadmin_user")
+  announcement_history_announcement_history_updated_byToadmin_user                   announcement_history[]          @relation("announcement_history_updated_byToadmin_user")
+  announcement_resource_announcement_resource_created_byToadmin_user                 announcement_resource[]         @relation("announcement_resource_created_byToadmin_user")
+  announcement_resource_announcement_resource_updated_byToadmin_user                 announcement_resource[]         @relation("announcement_resource_updated_byToadmin_user")
+  announcement_resource_history_announcement_resource_history_created_byToadmin_user announcement_resource_history[] @relation("announcement_resource_history_created_byToadmin_user")
+  announcement_resource_history_announcement_resource_history_updated_byToadmin_user announcement_resource_history[] @relation("announcement_resource_history_updated_byToadmin_user")
+  pay_transparency_report                                                            pay_transparency_report[]
+  report_history                                                                     report_history[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -264,6 +273,7 @@ model admin_user_history {
   assigned_roles        String     @db.VarChar(255)
   preferred_username    String     @default("") @db.VarChar(255)
   last_login            DateTime   @default(now()) @db.Timestamp(6)
+  email                 String     @default("") @db.VarChar(255)
   admin_user            admin_user @relation(fields: [admin_user_id], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_user_fk")
 }
 
@@ -277,6 +287,108 @@ model admin_user_onboarding {
   created_by               String   @db.Uuid
   is_onboarded             Boolean  @default(false)
   expiry_date              DateTime @db.Timestamp(6)
+}
+
+model announcement {
+  announcement_id                                String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                                          String                          @db.VarChar(100)
+  description                                    String                          @db.VarChar(2000)
+  created_date                                   DateTime                        @default(now()) @db.Timestamp(6)
+  updated_date                                   DateTime                        @default(now()) @db.Timestamp(6)
+  created_by                                     String?                         @db.Uuid
+  updated_by                                     String?                         @db.Uuid
+  published_on                                   DateTime?                       @db.Timestamp(6)
+  expires_on                                     DateTime?                       @db.Timestamp(6)
+  status                                         String?                         @db.VarChar(100)
+  admin_user_announcement_created_byToadmin_user admin_user?                     @relation("announcement_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_created_by_fk")
+  announcement_status                            announcement_status?            @relation(fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_status_fk")
+  admin_user_announcement_updated_byToadmin_user admin_user?                     @relation("announcement_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_updated_by_fk")
+  announcement_resource                          announcement_resource[]
+  announcement_resource_history                  announcement_resource_history[]
+
+  @@index([published_on, expires_on], map: "announcement_dates_idx")
+  @@index([status])
+}
+
+model announcement_history {
+  announcement_history_id                                String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  announcement_id                                        String?                         @db.Uuid
+  title                                                  String                          @db.VarChar(100)
+  description                                            String                          @db.VarChar(2000)
+  created_date                                           DateTime                        @default(now()) @db.Timestamp(6)
+  updated_date                                           DateTime                        @default(now()) @db.Timestamp(6)
+  created_by                                             String?                         @db.Uuid
+  updated_by                                             String?                         @db.Uuid
+  published_on                                           DateTime?                       @db.Timestamp(6)
+  expires_on                                             DateTime?                       @db.Timestamp(6)
+  status                                                 String?                         @db.VarChar(100)
+  admin_user_announcement_history_created_byToadmin_user admin_user?                     @relation("announcement_history_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_history_created_by_fk")
+  admin_user_announcement_history_updated_byToadmin_user admin_user?                     @relation("announcement_history_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_history_updated_by_fk")
+  announcement_status                                    announcement_status?            @relation(fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_status_fk")
+  announcement_resource_history                          announcement_resource_history[]
+
+  @@index([status])
+  @@index([published_on, expires_on], map: "announcement_history_dates_idx")
+}
+
+model announcement_resource {
+  announcement_resource_id                                String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  announcement_id                                         String                          @db.Uuid
+  display_name                                            String                          @db.VarChar(100)
+  resource_url                                            String                          @db.VarChar(255)
+  created_date                                            DateTime                        @default(now()) @db.Timestamp(6)
+  update_date                                             DateTime                        @default(now()) @db.Timestamp(6)
+  created_by                                              String?                         @db.Uuid
+  updated_by                                              String?                         @db.Uuid
+  resource_type                                           String                          @db.VarChar(20)
+  admin_user_announcement_resource_created_byToadmin_user admin_user?                     @relation("announcement_resource_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_created_by_fk")
+  announcement                                            announcement                    @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_fk")
+  announcement_resource_type                              announcement_resource_type      @relation(fields: [resource_type], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_type_fk")
+  admin_user_announcement_resource_updated_byToadmin_user admin_user?                     @relation("announcement_resource_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_updated_by_fk")
+  announcement_resource_history                           announcement_resource_history[]
+
+  @@index([resource_type], map: "announcement_resource_type_idx")
+}
+
+model announcement_resource_history {
+  announcement_resource_history_id                                String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  announcement_resource_id                                        String?                    @db.Uuid
+  announcement_id                                                 String                     @db.Uuid
+  display_name                                                    String                     @db.VarChar(100)
+  resource_url                                                    String                     @db.VarChar(255)
+  created_date                                                    DateTime                   @default(now()) @db.Timestamp(6)
+  update_date                                                     DateTime                   @default(now()) @db.Timestamp(6)
+  created_by                                                      String?                    @db.Uuid
+  updated_by                                                      String?                    @db.Uuid
+  resource_type                                                   String                     @db.VarChar(20)
+  announcement_history_id                                         String                     @db.Uuid
+  announcement                                                    announcement               @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_fk")
+  announcement_history                                            announcement_history       @relation(fields: [announcement_history_id], references: [announcement_history_id], onDelete: NoAction, onUpdate: NoAction)
+  announcement_resource                                           announcement_resource?     @relation(fields: [announcement_resource_id], references: [announcement_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_resource_fk")
+  admin_user_announcement_resource_history_created_byToadmin_user admin_user?                @relation("announcement_resource_history_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_created_by_fk")
+  admin_user_announcement_resource_history_updated_byToadmin_user admin_user?                @relation("announcement_resource_history_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_updated_by_fk")
+  announcement_resource_type                                      announcement_resource_type @relation(fields: [resource_type], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_type_fk")
+
+  @@index([resource_type])
+}
+
+model announcement_status {
+  code                 String                 @id @db.VarChar(20)
+  description          String                 @db.VarChar(255)
+  created_date         DateTime               @default(now()) @db.Timestamp(6)
+  updated_date         DateTime               @default(now()) @db.Timestamp(6)
+  announcement         announcement[]
+  announcement_history announcement_history[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model announcement_resource_type {
+  code                          String                          @id @db.VarChar(20)
+  description                   String                          @db.VarChar(255)
+  created_date                  DateTime                        @default(now()) @db.Timestamp(6)
+  updated_date                  DateTime                        @default(now()) @db.Timestamp(6)
+  announcement_resource         announcement_resource[]
+  announcement_resource_history announcement_resource_history[]
 }
 
 view reports_view {

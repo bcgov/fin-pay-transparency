@@ -1,4 +1,4 @@
-import { de, faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { SSO } from './sso-service';
 
 const mockAxiosGet = jest.fn();
@@ -35,9 +35,32 @@ const mockPrisma = {
 jest.mock('../prisma/prisma-client', () => ({
   admin_user: {
     findMany: (...args) => mockFindMany(...args),
+    findUniqueOrThrow: (...args) => {
+      return mockFindUniqueOrThrow(...args);
+    },
   },
   $transaction: jest.fn().mockImplementation((fn) => fn(mockPrisma)),
 }));
+
+const mockStoreUserInfoWithHistory = jest.fn();
+jest.mock('../services/admin-auth-service', () => {
+  const actualAdminAuth = jest.requireActual(
+    '../services/admin-auth-service',
+  ) as any;
+  const mockedAdminAuth = jest.createMockFromModule(
+    '../services/admin-auth-service',
+  ) as any;
+
+  const mocked = {
+    ...mockedAdminAuth,
+    adminAuth: { ...actualAdminAuth.adminAuth },
+  };
+
+  mocked.adminAuth.storeUserInfoWithHistory = () =>
+    mockStoreUserInfoWithHistory();
+
+  return mocked;
+});
 
 describe('sso-service', () => {
   beforeEach(() => {
@@ -56,16 +79,24 @@ describe('sso-service', () => {
   });
 
   describe('getUsers', () => {
-    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
-      const preferredUsername1 = faker.internet.userName();
-      const preferredUsername2 = faker.internet.userName();
-      mockFindMany.mockResolvedValue([
-        {admin_user_id: faker.string.uuid(), preferred_username: preferredUsername1},
-        {admin_user_id: faker.string.uuid(), preferred_username: preferredUsername2},
-      ]);
+    const preferredUsername1 = faker.internet.userName();
+    const preferredUsername2 = faker.internet.userName();
+
+    beforeEach(() => {
       mockAxiosPost.mockResolvedValue({
         data: { access_token: 'jwt', token_type: 'Bearer' },
       });
+
+      mockFindMany.mockResolvedValue([
+        {
+          admin_user_id: faker.string.uuid(),
+          preferred_username: preferredUsername1,
+        },
+        {
+          admin_user_id: faker.string.uuid(),
+          preferred_username: preferredUsername2,
+        },
+      ]);
       mockAxiosGet.mockResolvedValue({
         data: {
           data: [
@@ -90,11 +121,64 @@ describe('sso-service', () => {
           ],
         },
       });
+    });
+    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
+      mockStoreUserInfoWithHistory.mockResolvedValue(true);
       const client = await SSO.init();
       const users = await client.getUsers();
       expect(mockAxiosGet).toHaveBeenCalledTimes(2);
       expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
       expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
+      expect(mockFindMany).toHaveBeenCalledTimes(2);
+    });
+    it('should throw error if SSO returns no users', async () => {
+      mockAxiosGet.mockResolvedValue({
+        data: {
+          data: [],
+        },
+      });
+      const client = await SSO.init();
+      await expect(client.getUsers()).rejects.toThrow();
+    });
+    it('should not query the database twice if there were no db updates', async () => {
+      mockStoreUserInfoWithHistory.mockResolvedValue(false);
+      const client = await SSO.init();
+      const users = await client.getUsers();
+      expect(mockAxiosGet).toHaveBeenCalledTimes(2);
+      expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
+      expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
+      expect(mockFindMany).toHaveBeenCalledTimes(1);
+    });
+    it('should de-activate users in database that have no permissions in sso', async () => {
+      mockFindMany
+        .mockResolvedValueOnce([
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername1,
+          },
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername2,
+          },
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: faker.internet.userName(),
+          },
+        ])
+        .mockResolvedValue([
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername1,
+          },
+          {
+            admin_user_id: faker.string.uuid(),
+            preferred_username: preferredUsername2,
+          },
+        ]);
+
+      const client = await SSO.init();
+      await client.getUsers();
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -269,7 +353,9 @@ describe('sso-service', () => {
         mockFindUniqueOrThrow.mockImplementation(() => {
           throw new Error('User not found');
         });
-        await expect(client.deleteUser(faker.string.uuid())).rejects.toThrow();
+        await expect(
+          client.deleteUser(faker.string.uuid(), faker.string.uuid()),
+        ).rejects.toThrow();
       });
     });
 
@@ -282,7 +368,9 @@ describe('sso-service', () => {
             assigned_roles: [],
           });
           const userId = faker.string.uuid();
-          await expect(client.deleteUser(userId)).rejects.toThrow(
+          await expect(
+            client.deleteUser(userId, faker.string.uuid()),
+          ).rejects.toThrow(
             `User not found with id: ${userId}. User name is missing.`,
           );
         });
@@ -291,6 +379,7 @@ describe('sso-service', () => {
       it('should delete user', async () => {
         mockUpdate.mockClear();
         const userId = faker.string.uuid();
+        const modifiedByUserId = faker.string.uuid();
         const user = {
           admin_user_id: userId,
           idirUserGuid: faker.string.uuid(),
@@ -299,7 +388,7 @@ describe('sso-service', () => {
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
         };
         mockFindUniqueOrThrow.mockResolvedValue(user);
-        await client.deleteUser(userId);
+        await client.deleteUser(userId, modifiedByUserId);
         expect(mockAxiosDelete).toHaveBeenCalledTimes(2);
         expect(mockAxiosDelete).toHaveBeenCalledWith(
           `/users/${user.preferred_username}/roles/PTRT-ADMIN`,
@@ -309,7 +398,10 @@ describe('sso-service', () => {
         );
         expect(mockUpdate).toHaveBeenCalledWith({
           where: { admin_user_id: userId },
-          data: { is_active: false },
+          data: expect.objectContaining({
+            is_active: false,
+            update_user: modifiedByUserId,
+          }),
         });
         expect(mockCreateHistory).toHaveBeenCalledTimes(1);
       });

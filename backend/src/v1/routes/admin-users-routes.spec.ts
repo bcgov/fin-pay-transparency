@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import request from 'supertest';
 import router from './admin-users-routes';
 import bodyParser from 'body-parser';
+import { faker } from '@faker-js/faker';
 
 const mockGetUsers = jest.fn();
 const mockInitSSO = jest.fn();
@@ -20,6 +21,16 @@ jest.mock('../services/utils-service', () => ({
 
 jest.mock('../middlewares/authorization/authorize', () => ({
   authorize: () => (req, res, next) => next(),
+}));
+
+jest.mock('../middlewares/authorization/authenticate-admin', () => ({
+  authenticateAdmin:
+    (...args) =>
+    (req, res, next) => {
+      console.log('mockAuthenticateAdmin');
+      req.user = { admin_user_id: faker.string.uuid(), userInfo: {} };
+      next();
+    },
 }));
 
 let app: Application;

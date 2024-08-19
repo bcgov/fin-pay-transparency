@@ -250,6 +250,18 @@ describe('validate-service', () => {
     });
   });
 
+  describe('unstandardizeGenderCode', () => {
+    it('converts the given standardized gender code into a primary (unstandardized) gender code', () => {
+      const primaryGenderCode = GENDER_CODES.FEMALE[0];
+      const secondaryGenderCode = GENDER_CODES.FEMALE[1];
+      const standardized =
+        validateService.standardizeGenderCode(secondaryGenderCode);
+      const unstandardizedGenderCode =
+        validateService.unstandardizeGenderCode(standardized);
+      expect(unstandardizedGenderCode).toBe(primaryGenderCode);
+    });
+  });
+
   describe('isZeroSynonym', () => {
     NO_DATA_VALUES.forEach((value) => {
       describe(`given a value ('${value}') that should be treated as zero`, () => {

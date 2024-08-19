@@ -3,10 +3,16 @@ import { saveAs } from 'file-saver';
 import {
   CreateUserInviteInput,
   IConfigValue,
-  IReportSearchResult,
   User,
   UserInvite,
 } from '../types';
+import {
+  AnnouncementFormValue,
+  AnnouncementFilterType,
+  AnnouncementSortType,
+  IAnnouncementSearchResult,
+} from '../types/announcements';
+import { IReportSearchResult } from '../types/reports';
 import { ApiRoutes } from '../utils/constant';
 import AuthService from './authService';
 
@@ -219,6 +225,59 @@ export default {
       throw e;
     }
   },
+  async getAnnouncements(
+    offset: number = 0,
+    limit: number = 20,
+    filter: AnnouncementFilterType | null = null,
+    sort: AnnouncementSortType | null = null,
+  ): Promise<IAnnouncementSearchResult> {
+    try {
+      if (!filter) {
+        filter = [];
+      }
+      if (!sort) {
+        sort = [{ field: 'published_on', order: 'asc' }];
+      }
+      const params = {
+        offset: offset,
+        limit: limit,
+        filters: filter,
+        sort: sort,
+      };
+      const resp = await apiAxios.get<IAnnouncementSearchResult>(
+        ApiRoutes.ANNOUNCEMENTS,
+        {
+          params: params,
+        },
+      );
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to get announcements from API');
+    } catch (e) {
+      console.log(`Failed to get announcements from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async deleteAnnouncements(announcementIds: string[]): Promise<void> {
+    try {
+      const body = announcementIds?.map((id) => {
+        return {
+          id: id,
+          status: 'DELETED',
+        };
+      });
+      const resp = await apiAxios.patch(`${ApiRoutes.ANNOUNCEMENTS}`, body);
+      if (resp?.status == 201) {
+        return;
+      }
+      throw new Error('Unexpected response from API.');
+    } catch (e) {
+      console.log(`Failed to delete announcements: ${e}`);
+      throw e;
+    }
+  },
 
   /**
    * Download a list of reports in csv format.  This method also causes
@@ -276,6 +335,24 @@ export default {
       }
     } catch (e) {
       console.log(`Failed to get pdf report from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async addAnnouncement(data: AnnouncementFormValue) {
+    try {
+      return await apiAxios.post(ApiRoutes.ANNOUNCEMENTS, data);
+    } catch (e) {
+      console.log(`Failed to post from Nodejs addAnnouncement API - ${e}`);
+      throw e;
+    }
+  },
+
+  async updateAnnouncement(id: string, data: AnnouncementFormValue) {
+    try {
+      return await apiAxios.put(`${ApiRoutes.ANNOUNCEMENTS}/${id}`, data);
+    } catch (e) {
+      console.log(`Failed to put from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },

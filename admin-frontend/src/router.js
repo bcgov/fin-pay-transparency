@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import DashboardPage from './components/DashboardPage.vue';
 import ReportsPage from './components/ReportsPage.vue';
 import AnnouncementsPage from './components/AnnouncementsPage.vue';
+import AddAnnouncementPage from './components/AddAnnouncementPage.vue';
+import EditAnnouncementPage from './components/EditAnnouncementPage.vue';
 import UserManagementPage from './components/UserManagementPage.vue';
 import InvitationExpired from './components/InvitationExpired.vue';
 import UnauthorizedError from './components/UnauthorizedError.vue';
@@ -16,6 +18,8 @@ import Login from './components/Login.vue';
 import { authStore } from './store/modules/auth';
 import Logout from './components/Logout.vue';
 import { ADMIN_ROLE_NAME, USER_ROLE_NAME } from './constants';
+
+const baseBreadcrumb = 'dashboard';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -52,7 +56,7 @@ const router = createRouter({
         requiresAuth: true,
         requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
-        isBreadcrumbTrailVisible: true,
+        breadcrumbs: [baseBreadcrumb],
       },
     },
     {
@@ -64,7 +68,31 @@ const router = createRouter({
         requiresAuth: true,
         requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
-        isBreadcrumbTrailVisible: true,
+        breadcrumbs: [baseBreadcrumb],
+      },
+    },
+    {
+      path: '/add-announcement',
+      name: 'add-announcement',
+      component: AddAnnouncementPage,
+      meta: {
+        pageTitle: PAGE_TITLES.ADD_ANNOUNCEMENT,
+        requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
+        isTitleVisible: true,
+        breadcrumbs: [baseBreadcrumb, 'announcements'],
+      },
+    },
+    {
+      path: '/edit-announcement',
+      name: 'edit-announcement',
+      component: EditAnnouncementPage,
+      meta: {
+        pageTitle: PAGE_TITLES.EDIT_ANNOUNCEMENT,
+        requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
+        isTitleVisible: true,
+        breadcrumbs: [baseBreadcrumb, 'announcements'],
       },
     },
     {
@@ -76,7 +104,7 @@ const router = createRouter({
         requiresAuth: true,
         requiresRole: ADMIN_ROLE_NAME,
         isTitleVisible: true,
-        isBreadcrumbTrailVisible: true,
+        breadcrumbs: [baseBreadcrumb],
       },
     },
     {
@@ -88,7 +116,7 @@ const router = createRouter({
         requiresAuth: true,
         requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
-        isBreadcrumbTrailVisible: true,
+        breadcrumbs: [baseBreadcrumb],
       },
     },
     {

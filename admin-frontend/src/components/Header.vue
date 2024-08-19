@@ -1,14 +1,10 @@
 <template>
   <v-app-bar absolute style="z-index: 1002" class="d-flex justify-center">
     <v-spacer />
-
-    <v-btn
-      prepend-icon="mdi-account"
-      v-if="isAuthenticated"
-      data-testid="account-info"
-    >
+    <div v-if="isAuthenticated" data-testid="account-info">
+      <v-icon icon="mdi-account" size="small" />
       {{ userInfo?.displayName }}
-    </v-btn>
+    </div>
 
     <v-btn
       class="btn-link"

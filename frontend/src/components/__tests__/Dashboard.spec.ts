@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { render } from '@testing-library/vue';
-import Dashboard from '../Dashboard.vue';
 import { createTestingPinia } from '@pinia/testing';
+import { render } from '@testing-library/vue';
 import { authStore } from '../../store/modules/auth';
+import Dashboard from '../Dashboard.vue';
 
 //mock window.config
 Object.defineProperty(window, 'config', {
@@ -19,6 +19,9 @@ const mockRouter = {
 vi.mock('../../common/apiService', () => ({
   default: {
     getReports: async () => {
+      return [];
+    },
+    getAnnouncements: async () => {
       return [];
     },
   },

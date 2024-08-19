@@ -18,7 +18,6 @@ import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 
-
 const myCustomLightTheme = {
   dark: false,
   colors: {
@@ -29,6 +28,7 @@ const myCustomLightTheme = {
     success: '#00A54F',
     link: '#255A90',
     tab: '#1E5189',
+    white: '#ffffff',
   },
   variables: {
     'border-opacity': 0.24, //default 0.12

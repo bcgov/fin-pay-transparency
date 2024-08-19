@@ -3,6 +3,7 @@
 | Service in Monorepo | SonarCloud                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | frontend          | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_frontend&metric=alert_status)](https://sonarcloud.io/project/overview?id=fin-pay-transparency_frontend) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fin-pay-transparency_frontend)                                 |
+| admin-frontend    | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_admin-frontend&metric=alert_status)](https://sonarcloud.io/project/overview?id=fin-pay-transparency_admin-frontend) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_admin-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fin-pay-transparency_admin-frontend)                     |
 | backend           | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_backend&metric=alert_status)](https://sonarcloud.io/project/overview?id=fin-pay-transparency_backend) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_backend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fin-pay-transparency_backend)                                     |
 | doc-gen-service   | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_doc-gen-service&metric=alert_status)](https://sonarcloud.io/project/overview?id=fin-pay-transparency_doc-gen-service) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_doc-gen-service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fin-pay-transparency_doc-gen-service)     |
 | backend-external  | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_backend-external&metric=alert_status)](https://sonarcloud.io/project/overview?id=fin-pay-transparency_backend-external) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fin-pay-transparency_backend-external&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fin-pay-transparency_backend-external) |
@@ -45,6 +46,7 @@ Pay Transparency Reporting Tool is a webapp that employers use to generate a pdf
 1. Node.js
 1. Ports need to be available for the application to work locally
    - 8081 frontend
+   - 8084 admin-frontend
    - 3000 backend
    - 3001 doc-gen-service
    - 3002 backend-external
@@ -54,19 +56,25 @@ Pay Transparency Reporting Tool is a webapp that employers use to generate a pdf
 
 1. Clone repo
 
-1. Create .env for backend
+1. Create and populate environment variable files
+
+   `/backend/.env`
+
+   `/frontend/env.js`
 
 1. (Optional) A VSCode workspace is provided in .vscode/fin-pay-transparency.code-workspace which can easily install npm packages and launch all services.
 
 1. Install npm packages for each project in repo
 
-   `npm -C backend install`
+   `npm -C backend ci`
 
-   `npm -C backend-external install`
+   `npm -C backend-external ci`
 
-   `npm -C doc-gen-service install`
+   `npm -C doc-gen-service ci`
 
-   `npm -C frontend install`
+   `npm -C frontend ci`
+
+   `npm -C admin-frontend ci`
 
 1. Build and start the database container
 
@@ -90,6 +98,8 @@ Pay Transparency Reporting Tool is a webapp that employers use to generate a pdf
 
 `npm -C frontend run serve`
 
+`npm -C admin-frontend run serve`
+
 ### Tests
 
 #### Unit
@@ -108,24 +118,14 @@ Only backend-external has integration tests. Requires that backend-external and 
 
 The frontend end-to-end test is performed by playwright.
 
-First install playwright tools:
+1. Install playwright tools:
 
-`npx playwright install --with-deps`
+   `npx playwright install --with-deps`
 
-Then run the tests:
+1. Create and populate environment variable file
 
-`npm run e2e`
+   '/frontend/.env.playwright'
 
-## Hotfix Process
+1. Run the tests:
 
-```mermaid
-flowchart 
-    A[Last Released To Production Tag ex: 1.17.2] -->|create a hotfix branch from the tag ex: hotfix/v1.17.2_hotfix.1| B(Make Changes)
-    A[Last Released To Production Tag ex: 1.17.2] -->|create releases/hotfix branch from the tag | C( Branch to Which pull request will be raised)
-    B --> C[Create pull request to releases/hotfix branch, from the hotfix/x.x.x_hotfix.x branch]
-    C --> D[Changes Deployed to Dev environment with Crunchy DB, follow .github/workflows/ci_cd_on_pr_hotfix.yml]
-    D -->|On Approval and Merge to releases/hotfix| E[Clean up PR environment and create the new Docker Tags and GitHub Tag]
-    E -->|Promote to PROD, using the tag that was generated in previous step | F[Promote to Prod using branch releases/hotfix using existing github workflow, cd-to-prod-on-workflow-dispatch.yml]
-    F -->|Create a PR to main branch from releases/hotfix| G[Resolve Merge Conflicts here and promote through, DEV and TEST]
-
-```
+   `npm run e2e`
