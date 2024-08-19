@@ -486,7 +486,6 @@ const handleSave = handleSubmit(async (values) => {
       {
         titleBold: true,
         resolveText: 'Confirm',
-        rejectText: 'Cancel',
       },
     );
     isConfirmDialogVisible.value = false;
