@@ -153,7 +153,26 @@ export const AnnouncementDataSchema = z
       .string()
       .max(100, { message: 'Link display name is required' })
       .optional(),
+    fileDisplayName: z.string().optional(),
+    attachmentId: z.string().optional(),
   })
+  .refine(
+    (data) => {
+      if (data.attachmentId && !data.fileDisplayName) {
+        return false;
+      }
+
+      if (!data.attachmentId && data.fileDisplayName) {
+        return false;
+      }
+
+      return true;
+    },
+    {
+      path: ['attachmentId', 'fileDisplayName'],
+      message: 'Attachment data is invalid',
+    },
+  )
   .refine(
     (data) => {
       if (data.linkUrl && !data.linkDisplayName) {

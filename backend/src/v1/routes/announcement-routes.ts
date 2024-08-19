@@ -17,6 +17,10 @@ import {
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import multer from 'multer';
+import multerS3 from 'multer-s3';
+import { getS3Client } from '../../external/services/s3-service';
+import { config } from '../../config';
 
 const router = Router();
 
@@ -59,10 +63,24 @@ router.patch(
   },
 );
 
+const upload = multer({
+  storage: multerS3({
+    s3: getS3Client(),
+    bucket: config.get('s3:bucket'),
+    metadata: function (req, file, cb) {
+      cb(null, { fileName: file.originalname });
+    },
+    key: function (req, file, cb) {
+      cb(null, req.body.attachmentId);
+    },
+  }),
+});
+
 router.post(
   '',
   authenticateAdmin(),
   authorize(['PTRT-ADMIN']),
+  upload.single('file'),
   useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {
@@ -83,6 +101,7 @@ router.put(
   '/:id',
   authenticateAdmin(),
   authorize(['PTRT-ADMIN']),
+  upload.single('file'),
   useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {

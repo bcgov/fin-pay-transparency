@@ -4,6 +4,7 @@
   "main": "src/server.ts",
   "dependencies": {
     "@azure/msal-node": "^2.12.0",
+    "@aws-sdk/client-s3": "^3.631.0",
     "@js-joda/core": "^5.6.1",
     "@js-joda/locale_en": "^4.8.11",
     "@prisma/client": "^5.7.0",
@@ -32,6 +33,7 @@
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "multer-s3": "^3.0.1",
     "nconf": "^0.12.1",
     "nocache": "^4.0.0",
     "papaparse": "^5.4.1",

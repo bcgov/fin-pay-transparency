@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import config from 'nconf';
 import { logger } from '../logger';
+import { access } from 'fs';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
@@ -134,6 +135,13 @@ config.defaults({
       dataAnalyticsId: process.env.POWERBI_ANALYTICS_DATAANALYTICS_ID,
     },
   },
+  s3: {
+    accessKeyId: process.env.S3_ACCESS_KEY_ID,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    region: process.env.S3_REGION || 'ca-central-1',
+    endpoint: process.env.S3_ENDPOINT,
+    bucket: process.env.S3_BUCKET_NAME,
+  }
 });
 
 export { config };

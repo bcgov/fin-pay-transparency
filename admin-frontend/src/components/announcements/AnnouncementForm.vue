@@ -250,6 +250,7 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
 import ApiService from '../../services/apiService';
+import { v4 } from 'node-uuid';
 
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;
@@ -268,6 +269,7 @@ const { announcement, mode } = defineProps<Props>();
 const isPreviewAvailable = computed(() => values.title && values.description);
 const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
+const attachment = ref<File | null>(null);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
@@ -278,6 +280,8 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     no_expiry: undefined,
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
+    fileDisplayName: announcement?.fileDisplayName || '',
+    attachmentId: announcement?.attachmentId || v4(),
     status: announcement?.status || 'DRAFT',
   },
   validationSchema: {
@@ -311,6 +315,13 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
       return true;
     },
+    fileDisplayName(value) {
+      if (value && value.length > 100) {
+        return 'File name should not be more than 100 characters.';
+      }
+
+      return true;
+    },
   },
 });
 
@@ -322,6 +333,7 @@ const { value: expiresOn } = useField('expires_on') as any;
 const { value: noExpiry } = useField('no_expiry') as any;
 const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
+const { value: fileDisplayName } = useField('fileDisplayName') as any;
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
@@ -502,6 +514,7 @@ const handleSave = handleSubmit(async (values) => {
       : values.linkDisplayName,
     linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
     status: status.value,
+    attachment: attachment.value,
   });
 });
 </script>
@@ -546,5 +559,10 @@ const handleSave = handleSubmit(async (values) => {
 }
 .status-options {
   height: 40px;
+}
+.attachment {
+  .v-input__prepend {
+    display: none;
+  }
 }
 </style>

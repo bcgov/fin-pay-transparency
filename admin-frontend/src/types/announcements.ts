@@ -96,6 +96,9 @@ export type AnnouncementFormValue = Pick<
   no_expiry?: boolean;
   linkUrl?: string;
   linkDisplayName?: string;
+  fileDisplayName?: string;
+  attachmentId?: string;
+  attachment?: File;
 };
 
 export enum AnnouncementFormMode {
