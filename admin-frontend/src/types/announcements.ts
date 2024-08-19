@@ -1,4 +1,4 @@
-export interface IAnnouncement {
+export type Announcement = {
   announcement_id: string;
   title: string;
   description: string;
@@ -9,9 +9,23 @@ export interface IAnnouncement {
   published_on: string;
   expires_on: string;
   status: string;
-}
+  announcement_resource: AnnouncementResource[];
+};
+export type AnnouncementResource = {
+  announcement_id: string;
+  announcement_resource_id: string;
+  created_by: string;
+  created_date: string;
+  display_name: string;
+  resource_type: AnnouncementResourceType;
+  resource_url: string;
+  update_date: string;
+  updated_by: string;
+};
+export type AnnouncementResourceType = 'LINK' | 'ATTACHMENT';
+
 export interface IAnnouncementSearchResult {
-  items: IAnnouncement[];
+  items: Announcement[];
   total: number;
 }
 export interface IAnnouncementSearchUpdateParams {
@@ -70,16 +84,21 @@ export type AnnouncementFilterType = (
 )[];
 
 export type AnnouncementSortType = {
-  field: 'published_on' | 'expires_on' | 'title' | 'status';
+  field: 'published_on' | 'expires_on' | 'title' | 'status' | 'updated_date';
   order: 'asc' | 'desc';
 }[];
 
-
 export type AnnouncementFormValue = Pick<
-  IAnnouncement,
+  Announcement,
   'title' | 'description' | 'published_on' | 'expires_on' | 'status'
 > & {
+  announcement_id?: string;
   no_expiry?: boolean;
-  linkUrl: string;
-  linkDisplayName: string;
+  linkUrl?: string;
+  linkDisplayName?: string;
 };
+
+export enum AnnouncementFormMode {
+  CREATE = 'create',
+  EDIT = 'edit',
+}

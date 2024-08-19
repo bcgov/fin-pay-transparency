@@ -35,7 +35,7 @@ export type AnnouncementFilterType = (
 )[];
 
 export type AnnouncementSortType = {
-  field: 'published_on' | 'expires_on' | 'title' | 'status';
+  field: 'published_on' | 'expires_on' | 'title' | 'status' | 'updated_date';
   order: 'asc' | 'desc';
 }[];
 
@@ -101,7 +101,13 @@ const FilterItemSchema = z
   );
 
 const AnnouncementSortSchema = z.object({
-  field: z.enum(['published_on', 'expires_on', 'title', 'status']),
+  field: z.enum([
+    'published_on',
+    'expires_on',
+    'title',
+    'status',
+    'updated_date',
+  ]),
   order: z.enum(['asc', 'desc']),
 });
 
@@ -135,7 +141,7 @@ export const PatchAnnouncementsSchema = z.array(
 
 export type PatchAnnouncementsType = z.infer<typeof PatchAnnouncementsSchema>;
 
-export const CreateAnnouncementSchema = z
+export const AnnouncementDataSchema = z
   .object({
     title: z.string().min(1).max(100),
     description: z.string().min(1).max(2000),
@@ -166,4 +172,4 @@ export const CreateAnnouncementSchema = z
     },
   );
 
-export type CreateAnnouncementType = z.infer<typeof CreateAnnouncementSchema>;
+export type AnnouncementDataType = z.infer<typeof AnnouncementDataSchema>;

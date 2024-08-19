@@ -7,12 +7,13 @@ import {
   createAnnouncement,
   getAnnouncements,
   patchAnnouncements,
+  updateAnnouncement,
 } from '../services/announcements-service';
 import { ExtendedRequest } from '../types';
 import {
   AnnouncementQuerySchema,
   AnnouncementQueryType,
-  CreateAnnouncementSchema,
+  AnnouncementDataSchema,
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
@@ -62,7 +63,7 @@ router.post(
   '',
   authenticateAdmin(),
   authorize(['PTRT-ADMIN']),
-  useValidate({ mode: 'body', schema: CreateAnnouncementSchema }),
+  useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {
       const { user } = req;
@@ -71,6 +72,30 @@ router.post(
       // Create announcement
       const announcement = await createAnnouncement(data, user.admin_user_id);
       res.status(201).json(announcement);
+    } catch (error) {
+      logger.error(error);
+      res.status(400).json({ message: 'Invalid request', error });
+    }
+  },
+);
+
+router.put(
+  '/:id',
+  authenticateAdmin(),
+  authorize(['PTRT-ADMIN']),
+  useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
+  async (req: ExtendedRequest, res) => {
+    try {
+      const { user } = req;
+      // Request body is validated
+      const data = req.body;
+      // Create announcement
+      const announcement = await updateAnnouncement(
+        req.params.id,
+        data,
+        user.admin_user_id,
+      );
+      return res.json(announcement);
     } catch (error) {
       logger.error(error);
       res.status(400).json({ message: 'Invalid request', error });

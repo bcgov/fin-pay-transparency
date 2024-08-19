@@ -11,7 +11,12 @@
     <v-menu activator="parent">
       <v-list>
         <v-list-item>
-          <v-btn variant="text" prepend-icon="mdi-pencil">Edit</v-btn>
+          <v-btn
+            variant="text"
+            prepend-icon="mdi-pencil"
+            @click="editAnnouncement"
+            >Edit</v-btn
+          >
         </v-list-item>
         <v-list-item v-if="announcement.status == AnnouncementStatus.Draft">
           <v-btn variant="text" prepend-icon="mdi-publish">Publish</v-btn>
@@ -37,20 +42,22 @@
   <!-- dialogs -->
   <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
-
-<script lang="ts">
-export default {
-  name: 'AnnouncementActions',
-  props: ['announcement'],
-};
-</script>
-
 <script setup lang="ts">
 import { AnnouncementStatus } from '../../types/announcements';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
+import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import { ref } from 'vue';
+import { NotificationService } from '../../services/notificationService';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const announcementSelectionStore = useAnnouncementSelectionStore();
+const { announcement } = defineProps<{
+  announcement: any;
+}>();
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();
@@ -70,10 +77,20 @@ async function deleteAnnouncement(announcementId: string) {
     try {
       await ApiService.deleteAnnouncements([announcementId]);
       announcementSearchStore.repeatSearch();
+      NotificationService.pushNotificationSuccess(
+        `Announcement deleted successfully.`,
+        '',
+      );
     } catch (e) {
     } finally {
       isDeleting.value = false;
     }
   }
 }
+
+const editAnnouncement = () => {
+  console.log('edit announcement', announcement);
+  announcementSelectionStore.setAnnouncement(announcement);
+  router.push('/edit-announcement');
+};
 </script>

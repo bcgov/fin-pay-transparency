@@ -5,7 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import ApiService from '../../../services/apiService';
-import { IAnnouncement } from '../../../types/announcements';
+import { Announcement } from '../../../types/announcements';
 import AnnouncementActions from '../AnnouncementActions.vue';
 
 // Mock the ResizeObserver
@@ -19,7 +19,7 @@ const ResizeObserverMock = vi.fn(() => ({
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
-const mockDraftAnnouncement: IAnnouncement = {
+const mockDraftAnnouncement: Announcement = {
   announcement_id: '24b9455e-154b-46ce-91c7-5ec4474ad6fd',
   title: 'Eum benigne',
   description: 'Consectetur adstringo calculus talis',
@@ -30,6 +30,7 @@ const mockDraftAnnouncement: IAnnouncement = {
   published_on: '2024-07-30T18:56:35.825Z',
   expires_on: '2024-10-29T18:56:35.825Z',
   status: 'DRAFT',
+  announcement_resource: [],
 };
 
 describe('AnnouncementActions', () => {

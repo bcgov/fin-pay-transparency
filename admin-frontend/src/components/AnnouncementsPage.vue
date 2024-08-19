@@ -23,7 +23,7 @@
         class="d-flex justify-end align-center"
       >
         <v-btn class="btn-primary" to="/add-announcement">
-          Add announcement
+          Add Announcement
         </v-btn>
       </v-col>
     </v-row>
@@ -60,7 +60,7 @@
       <template v-slot:item.title="{ item }">
         <v-btn
           variant="text"
-          class="btn-link"
+          class="btn-link no-min-width"
           color="link"
           @click="showAnnouncement(item)"
         >
@@ -138,6 +138,7 @@ import { formatDate } from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
 import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
+import { NotificationService } from '../services/notificationService';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
@@ -175,7 +176,7 @@ const headers = ref<any>([
   {
     title: '',
     key: 'selection',
-    align: 'center',
+    align: 'start',
     sortable: false,
   },
   {
@@ -185,13 +186,13 @@ const headers = ref<any>([
     key: AnnouncementKeys.TITLE,
   },
   {
-    title: 'Publish on',
+    title: 'Publish On',
     align: 'start',
     sortable: true,
     key: AnnouncementKeys.PUBLISH_DATE,
   },
   {
-    title: 'Expires on',
+    title: 'Expires On',
     align: 'start',
     sortable: true,
     key: AnnouncementKeys.EXPIRY_DATE,
@@ -270,6 +271,10 @@ async function deleteAnnouncements(announcementIds: string[]) {
     try {
       await ApiService.deleteAnnouncements(announcementIds);
       announcementSearchStore.repeatSearch();
+      NotificationService.pushNotificationSuccess(
+        `Announcement${announcementIds.length != 1 ? 's' : ''} deleted successfully.`,
+        '',
+      );
     } catch (e) {
     } finally {
       isDeleting.value = false;
@@ -288,5 +293,8 @@ async function deleteAnnouncements(announcementIds: string[]) {
 }
 .checkbox-no-details > .v-input__details {
   display: none;
+}
+.no-min-width {
+  min-width: 0px !important;
 }
 </style>

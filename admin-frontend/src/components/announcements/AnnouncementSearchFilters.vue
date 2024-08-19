@@ -53,12 +53,19 @@
         <VueDatePicker
           v-model="publishDateRange"
           range
+          placeholder="Select date range"
           format="yyyy-MM-dd"
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
           prevent-min-max-navigation
-        />
+        >
+          <template #day="{ day, date }">
+            <span :aria-label="formatDate(date)">
+              {{ day }}
+            </span>
+          </template>
+        </VueDatePicker>
       </v-col>
 
       <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
@@ -71,7 +78,14 @@
           arrow-navigation
           auto-apply
           prevent-min-max-navigation
-        />
+          placeholder="Select date range"
+        >
+          <template #day="{ day, date }">
+            <span :aria-label="formatDate(date)">
+              {{ day }}
+            </span>
+          </template>
+        </VueDatePicker>
       </v-col>
 
       <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
@@ -169,7 +183,9 @@ import {
   nativeJs,
   DateTimeFormatter,
   ZoneId,
+  LocalDate,
 } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 
@@ -185,6 +201,12 @@ const statusOptions = ref([
   AnnouncementStatus.Draft,
   AnnouncementStatus.Expired,
 ]);
+
+const formatDate = (date: Date) => {
+  return LocalDate.from(nativeJs(date)).format(
+    DateTimeFormatter.ofPattern('EEEE d MMMM yyyy').withLocale(Locale.CANADA),
+  );
+};
 
 function getAnnouncementSearchFilters(): AnnouncementFilterType {
   const filters: any[] = [];

@@ -30,6 +30,7 @@ const myCustomLightTheme = {
     link: '#255A90',
     tab: '#1E5189',
     sidebar: '#39598a',
+    previewPanel: '#ddf3ff',
   },
   variables: {
     'border-opacity': 0.24, //default 0.12
