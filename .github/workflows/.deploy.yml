@@ -146,6 +146,7 @@ jobs:
           --set-string global.secrets.entraClientId="${{secrets.ENTRA_APP_CLIENT_ID }}" \
           --set-string global.secrets.entraClientSecret="${{secrets.ENTRA_APP_CLIENT_SECRET }}" \
           --set-string global.secrets.entraTenantId="${{secrets.ENTRA_APP_TENANT_ID }}" \
+          --set-string global.secrets.powerBiUrl="${{secrets.BACKEND_POWERBI_URL }}" \
           --set-string global.secrets.powerBiAnalyticsWorkspaceId="${{secrets.POWERBI_ANALYTICS_WORKSPACE_ID }}" \
           --set-string global.secrets.powerBiAnalyticsSubmissionAnalyticsId="${{secrets.POWERBI_ANALYTICS_SUBMISSIONANALYTICS_ID }}" \
           --set-string global.secrets.powerBiAnalyticsUserBehaviourId="${{secrets.POWERBI_ANALYTICS_USERBEHAVIOUR_ID }}" \

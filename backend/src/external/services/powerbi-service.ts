@@ -28,11 +28,16 @@ export type ReportInWorkspace = { workspaceId: string; reportId: string };
  * Class to authenticate and make use of the PowerBi REST API.
  */
 export class PowerBiService {
+  private powerBiApi: PowerBi.Api;
+
   constructor(
+    powerBiUrl: string,
     private clientId: string,
     private clientSecret: string,
     private tenantId: string,
-  ) {}
+  ) {
+    this.powerBiApi = new PowerBi.Api(powerBiUrl);
+  }
 
   /**
    * https://learn.microsoft.com/en-us/rest/api/power-bi/dashboards/get-dashboard-in-group
@@ -44,7 +49,7 @@ export class PowerBiService {
     let data;
     try {
       // Get dashboard info by calling the PowerBI REST API
-      const result = await PowerBi.Api.getDashboardInGroup(
+      const result = await this.powerBiApi.getDashboardInGroup(
         { workspaceId, dashboardId },
         {
           headers: await this.getEntraAuthorizationHeader(),
@@ -66,7 +71,7 @@ export class PowerBiService {
       );
       return { embedToken: embedToken, resources: [reportDetails] };
     } catch (err) {
-      if (err instanceof AxiosError)
+      if (err instanceof AxiosError && err?.response?.data)
         err.message = JSON.stringify(err.response.data);
     }
   }
@@ -74,20 +79,18 @@ export class PowerBiService {
   /**
    * Get embed params for a single report for a single workspace
    * https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-report-in-group
-   * @param {string} workspaceId
-   * @param {string} reportId
-   * @param {string} additionalDatasetId - Optional Parameter
    * @return EmbedConfig object
    */
   public async getEmbedParamsForReports(
     reportInWorkspace: ReportInWorkspace[],
   ): Promise<EmbedConfig> {
     try {
-      // Get report info by calling the PowerBI REST API
       const header = await this.getEntraAuthorizationHeader();
+
+      // Get report info by calling the PowerBI REST API
       const result = await Promise.all(
         reportInWorkspace.map((res) =>
-          PowerBi.Api.getReportInGroup(
+          this.powerBiApi.getReportInGroup(
             { workspaceId: res.workspaceId, reportId: res.reportId },
             {
               headers: header,
@@ -111,7 +114,7 @@ export class PowerBiService {
       );
       return { embedToken: embedToken, resources: reportDetails };
     } catch (err) {
-      if (err instanceof AxiosError)
+      if (err instanceof AxiosError && err?.response?.data)
         err.message = JSON.stringify(err.response.data);
       throw err;
     }
@@ -144,7 +147,7 @@ export class PowerBiService {
       targetWorkspaces: targetWorkspaceIds.map((id) => ({ id })),
     };
 
-    const result = await PowerBi.Api.postGenerateToken(body, {
+    const result = await this.powerBiApi.postGenerateToken(body, {
       headers: await this.getEntraAuthorizationHeader(),
     });
 
@@ -158,7 +161,7 @@ export class PowerBiService {
     dashboardId: string,
     workspaceId: string,
   ): Promise<PowerBi.EmbedToken> {
-    const result = await PowerBi.Api.postGenerateTokenForDashboardInGroup(
+    const result = await this.powerBiApi.postGenerateTokenForDashboardInGroup(
       {
         workspaceId,
         dashboardId,

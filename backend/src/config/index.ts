@@ -125,6 +125,7 @@ config.defaults({
     tenantId: process.env.ENTRA_APP_TENANT_ID,
   },
   powerbi: {
+    powerBiUrl: process.env.BACKEND_POWERBI_URL,
     analytics: {
       workspaceId: process.env.POWERBI_ANALYTICS_WORKSPACE_ID,
       submissionAnalyticsId:

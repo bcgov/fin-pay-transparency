@@ -50,7 +50,6 @@ function createDefaultPowerBiDetailsMap(resourcesToLoad: POWERBI_RESOURCE[]) {
         embedUrl: undefined,
         accessToken: undefined,
         tokenType: models.TokenType.Embed,
-        hostname: 'https://app.powerbi.com',
       },
       css: { width: '200px', height: '400px' },
       // eventHandlersMap - https://learn.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events#report-events

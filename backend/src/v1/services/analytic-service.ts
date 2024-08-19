@@ -40,6 +40,7 @@ export async function getEmbedInfo(
   resourceNames: PowerBiResourceName[],
 ): Promise<PowerBiEmbedInfo> {
   const powerBi = new PowerBiService(
+    config.get('powerbi:powerBiUrl'),
     config.get('entra:clientId'),
     config.get('entra:clientSecret'),
     config.get('entra:tenantId'),

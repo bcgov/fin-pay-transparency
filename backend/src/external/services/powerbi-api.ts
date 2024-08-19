@@ -1,54 +1,59 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 /**
  * This file contains all the PowerBi Types and a wrapper to access the REST API endpoints
  */
 
 // A wrapper for all the REST API endpoints
-export const Api = {
+export class Api {
+  private api: AxiosInstance;
+  constructor(url: string) {
+    this.api = axios.create({ baseURL: url });
+  }
+
   /** https://learn.microsoft.com/en-us/rest/api/power-bi/dashboards/get-dashboard-in-group#dashboard */
-  getDashboardInGroup: (
+  public getDashboardInGroup = (
     url: DashboardInGroup_Url,
     config: AxiosRequestConfig,
   ): Promise<AxiosResponse<Dashboard>> =>
-    axios.get<Dashboard>(
-      `https://api.powerbi.com/v1.0/myorg/groups/${url.workspaceId}/dashboards/${url.dashboardId}`,
+    this.api.get<Dashboard>(
+      `/v1.0/myorg/groups/${url.workspaceId}/dashboards/${url.dashboardId}`,
       config,
-    ),
+    );
 
   /** https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-report-in-group#report */
-  getReportInGroup: (
+  public getReportInGroup = (
     url: ReportInGroup_Url,
     config: AxiosRequestConfig,
   ): Promise<AxiosResponse<Report>> =>
-    axios.get<Report>(
-      `https://api.powerbi.com/v1.0/myorg/groups/${url.workspaceId}/reports/${url.reportId}`,
+    this.api.get<Report>(
+      `/v1.0/myorg/groups/${url.workspaceId}/reports/${url.reportId}`,
       config,
-    ),
+    );
 
   /** https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token */
-  postGenerateToken: (
+  public postGenerateToken = (
     body: GenerateToken_Body,
     config: AxiosRequestConfig,
   ): Promise<AxiosResponse<EmbedToken>> =>
-    axios.post<EmbedToken, AxiosResponse<EmbedToken>, GenerateToken_Body>(
-      'https://api.powerbi.com/v1.0/myorg/GenerateToken',
+    this.api.post<EmbedToken, AxiosResponse<EmbedToken>, GenerateToken_Body>(
+      `/v1.0/myorg/GenerateToken`,
       body,
       config,
-    ),
+    );
 
   /** https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/dashboards-generate-token-in-group */
-  postGenerateTokenForDashboardInGroup: (
+  public postGenerateTokenForDashboardInGroup = (
     url: DashboardInGroup_Url,
     body: GenerateTokenForDashboardInGroup_Body,
     config: AxiosRequestConfig,
   ): Promise<AxiosResponse<EmbedToken>> =>
-    axios.post<EmbedToken>(
-      `https://api.powerbi.com/v1.0/myorg/groups/${url.workspaceId}/dashboards/${url.dashboardId}/GenerateToken`,
+    this.api.post<EmbedToken>(
+      `/v1.0/myorg/groups/${url.workspaceId}/dashboards/${url.dashboardId}/GenerateToken`,
       body,
       config,
-    ),
-};
+    );
+}
 
 type DashboardInGroup_Url = { workspaceId: string; dashboardId: string };
 type ReportInGroup_Url = { workspaceId: string; reportId: string };
