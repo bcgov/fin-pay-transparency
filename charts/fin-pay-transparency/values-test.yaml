@@ -195,6 +195,7 @@ crunchy:
         memory: 32Mi
 
   pgBackRest:
+    enabled: true
     backupPath: /backups/cluster/version
     clusterCounter: 1 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
     image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
