@@ -17,6 +17,7 @@ export type AnnouncementResource = {
   created_by: string;
   created_date: string;
   display_name: string;
+  attachment_file_id: string;
   resource_type: AnnouncementResourceType;
   resource_url: string;
   update_date: string;

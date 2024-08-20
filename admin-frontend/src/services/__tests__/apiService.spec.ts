@@ -403,10 +403,19 @@ describe('ApiService', () => {
       });
     });
   });
-  describe('updateAnnouncements', () => {
+  describe('addAnnouncement', () => {
     describe('when the API request to the backend is successful', () => {
       it('returns a promise that eventually resolves', async () => {
-        const payload: any = { title: "test" };
+        const payload: any = {
+          title: 'test',
+          describe: 'test',
+          status: 'PUBLISHED',
+          expires_on: '2021-12-31',
+          published_on: '2021-12-31',
+          linkUrl: 'https://example.com',
+          linkDisplayName: 'example',
+          attachment: 'test',
+        };
         const mockResponse = {
           data: {},
           status: 201,
@@ -415,7 +424,7 @@ describe('ApiService', () => {
           .spyOn(ApiService.apiAxios, 'put')
           .mockResolvedValueOnce(mockResponse);
 
-        await expect(ApiService.updateAnnouncement(`1`, payload))
+        await expect(ApiService.updateAnnouncement(`1`, payload));
 
         expect(putSpy).toHaveBeenCalledOnce();
       });
@@ -432,7 +441,41 @@ describe('ApiService', () => {
         );
 
         await expect(
-          ApiService.updateAnnouncement("", payload),
+          ApiService.updateAnnouncement('', payload),
+        ).rejects.toThrow();
+      });
+    });
+  });
+  describe('updateAnnouncements', () => {
+    describe('when the API request to the backend is successful', () => {
+      it('returns a promise that eventually resolves', async () => {
+        const payload: any = { title: 'test' };
+        const mockResponse = {
+          data: {},
+          status: 201,
+        };
+        const putSpy = vi
+          .spyOn(ApiService.apiAxios, 'put')
+          .mockResolvedValueOnce(mockResponse);
+
+        await expect(ApiService.updateAnnouncement(`1`, payload));
+
+        expect(putSpy).toHaveBeenCalledOnce();
+      });
+    });
+    describe('when the API request to the backend is unsuccessful', () => {
+      it('returns a promise that eventually rejects', async () => {
+        const payload = {} as any;
+        const mockResponse = {
+          data: {},
+          status: 400,
+        };
+        vi.spyOn(ApiService.apiAxios, 'put').mockRejectedValueOnce(
+          mockResponse,
+        );
+
+        await expect(
+          ApiService.updateAnnouncement('', payload),
         ).rejects.toThrow();
       });
     });

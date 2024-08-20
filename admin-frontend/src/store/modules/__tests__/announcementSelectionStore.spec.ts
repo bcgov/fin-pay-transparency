@@ -42,9 +42,15 @@ describe('announcementSelectionStore', () => {
               display_name: 'display_name',
               resource_url: 'resource_url',
             },
+            {
+              resource_type: 'ATTACHMENT',
+              display_name: 'display_name',
+              resource_url: 'resource_url',
+              attachment_file_id: 'attachment_file_id',
+            },
           ],
         };
-        store.setAnnouncement(data);
+        store.setAnnouncement(data as any);
         expect(store.announcement).toEqual(
           expect.objectContaining({
             title: 'title',

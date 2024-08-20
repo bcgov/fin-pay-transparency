@@ -156,6 +156,38 @@
                   </v-col>
                 </v-row>
               </v-col>
+              <v-col cols="12">
+                <h5 class="mb-2">Link</h5>
+                <v-row dense class="ml-3 mt-2">
+                  <v-col cols="12">
+                    <span class="attachment-label">File Name</span>
+                    <v-text-field
+                      single-line
+                      variant="outlined"
+                      placeholder="eg. Pay Transparency in B.C."
+                      label="File Name"
+                      v-model="fileDisplayName"
+                      :error-messages="errors.fileDisplayName"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <span class="attachment-label">Attachment</span>
+                    <v-file-input
+                      single-line
+                      label="Attachment"
+                      v-model="attachment"
+                      class="attachment"
+                      variant="outlined"
+                    >
+                      <template #prepend-inner>
+                        <v-btn
+                          color="primary"
+                          >Choose File</v-btn>
+                      </template>
+                    </v-file-input>
+                  </v-col>
+                </v-row>
+              </v-col>
             </v-row>
             <v-row>
               <v-col class="d-flex justify-end">
@@ -448,6 +480,7 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 }
 
 const handleSave = handleSubmit(async (values) => {
+  console.log(values)
   if (!validatePublishDate(values) || !validateLink(values)) {
     return;
   }

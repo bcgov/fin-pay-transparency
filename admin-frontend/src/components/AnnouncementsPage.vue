@@ -115,10 +115,6 @@
 
       <v-card-text>
         {{ announcementInDialog?.description }}
-        <a
-          href="/admin-api/v1/files/ad87822e-0c80-4693-ac1d-b61494c801cb"
-          target="_blank"
-          >File</a>
       </v-card-text>
 
       <v-card-actions>
@@ -301,4 +297,6 @@ async function deleteAnnouncements(announcementIds: string[]) {
 .no-min-width {
   min-width: 0px !important;
 }
+
+
 </style>

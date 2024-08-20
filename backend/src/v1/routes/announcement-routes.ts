@@ -19,8 +19,11 @@ import {
 } from '../types/announcements';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-import { getS3Client } from '../../external/services/s3-service';
+import {
+  multerS3StorageOptions,
+} from '../../external/services/s3-service';
 import { config } from '../../config';
+import { S3Client } from '@aws-sdk/client-s3';
 
 const router = Router();
 
@@ -63,15 +66,28 @@ router.patch(
   },
 );
 
+const accessKeyId = config.get('s3:accessKeyId');
+const secretAccessKey = config.get('s3:secretAccessKey');
+const region = config.get('s3:region');
+const endpoint = config.get('s3:endpoint');
+const bucket = config.get('s3:bucket');
 const upload = multer({
   storage: multerS3({
-    s3: getS3Client(),
-    bucket: config.get('s3:bucket'),
+    s3: new S3Client({
+      credentials: {
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+      },
+      endpoint: endpoint,
+      forcePathStyle: true,
+      region,
+    }),
+    bucket: bucket,
     metadata: function (req, file, cb) {
       cb(null, { fileName: file.originalname });
     },
-    key: function (req, file, cb) {
-      cb(null, req.body.attachmentId);
+    key: function (req: any, file, cb) {
+      cb(null, `app/announcement/${req.body.attachmentId}/${file.originalname}`);
     },
   }),
 });

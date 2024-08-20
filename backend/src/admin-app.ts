@@ -252,7 +252,6 @@ adminApp.use(/(\/admin-api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
 });
-apiRouter.use('/v1/files', fileRoutes);
 apiRouter.use('/auth', adminAuthRouter);
 
 // check for valid passport session and backend token for all routes below.
