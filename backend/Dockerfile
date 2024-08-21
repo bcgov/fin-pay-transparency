@@ -19,7 +19,7 @@ RUN npm ci --omit=dev --ignore-scripts
 
 # Deployment container
 FROM gcr.io/distroless/nodejs20-debian11:nonroot
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Copy over app.ts
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules

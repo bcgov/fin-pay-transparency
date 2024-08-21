@@ -298,6 +298,13 @@ crunchy:
       limits:
         cpu: 20m
         memory: 64Mi
+    jobs:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        cpu: 20m
+        memory: 64Mi
 
   patroni:
     postgresql:
