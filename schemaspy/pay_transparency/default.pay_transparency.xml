@@ -143,7 +143,7 @@
             <parent column="announcement_id" foreignKey="announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="display_name" nullable="false" remarks="Display name of the resource" size="100" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="resource_url" nullable="false" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="resource_url" nullable="true" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="created_date" nullable="false" remarks="Date when the resource was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="update_date" nullable="false" remarks="Date when the resource was last updated" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
@@ -155,6 +155,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="resource_type" nullable="false" remarks="Type of the resource (Link, Attachment)" size="20" type="varchar" typeCode="12">
             <parent column="code" foreignKey="announcement_resource_type_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_type"/>
          </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="attachment_file_id" nullable="true" remarks="The file id of the attachment file." size="2147483647" type="uuid" typeCode="1111"/>
          <primaryKey column="announcement_resource_id" sequenceNumberInPK="1"/>
          <index name="announcement_resource_pkey" unique="true">
             <column ascending="true" name="announcement_resource_id"/>
@@ -172,7 +173,7 @@
             <parent column="announcement_id" foreignKey="announcement_resource_history_announcement_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="display_name" nullable="false" remarks="Display name of the resource" size="100" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="resource_url" nullable="false" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="resource_url" nullable="true" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="created_date" nullable="false" remarks="Date when the resource was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="update_date" nullable="false" remarks="Date when the resource was last updated" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="created_by" nullable="true" remarks="The ID of the user who created the resource" size="2147483647" type="uuid" typeCode="1111">
@@ -187,6 +188,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="announcement_history_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="announcement_history_id" foreignKey="announcement_resource_history_announcement_history_id_fkey" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_history"/>
          </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="attachment_file_id" nullable="true" remarks="The file id of the attachment file." size="2147483647" type="uuid" typeCode="1111"/>
          <primaryKey column="announcement_resource_history_id" sequenceNumberInPK="1"/>
          <index name="announcement_resource_history_pkey" unique="true">
             <column ascending="true" name="announcement_resource_history_id"/>
