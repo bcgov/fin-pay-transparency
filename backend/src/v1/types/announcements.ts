@@ -155,6 +155,7 @@ export const AnnouncementDataSchema = z
       .optional(),
     fileDisplayName: z.string().optional(),
     attachmentId: z.string().optional(),
+    file: z.any().optional(),
   })
   .refine(
     (data) => {

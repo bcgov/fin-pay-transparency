@@ -42,23 +42,6 @@ jest.mock('../middlewares/authorization/authorize', () => ({
     },
 }));
 
-jest.mock('multer-s3', () => ({
-  __esModule: true,
-  default: jest.fn(),
-}));
-
-jest.mock('multer', () => ({
-  __esModule: true,
-  default: jest.fn(() => {
-    return {
-      single: () => (req, res, next) => {
-        console.log('mockMulter');
-        next();
-      },
-    };
-  }),
-}));
-
 describe('announcement-routes', () => {
   let app: Application;
   beforeEach(() => {

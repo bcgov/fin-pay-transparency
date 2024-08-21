@@ -32,23 +32,6 @@ jest.mock('./v1/services/utils-service', () => {
   };
 });
 
-jest.mock('multer-s3', () => ({
-  __esModule: true,
-  default: jest.fn(),
-}));
-
-jest.mock('multer', () => ({
-  __esModule: true,
-  default: jest.fn(() => {
-    return {
-      single: () => (req, res, next) => {
-        console.log('mockMulter');
-        next();
-      },
-    };
-  }),
-}));
-
 // Mock any functions in the object-relational model that may be involved in database
 // queries executed as a result of any API cals tested by this module.  The mocks defined
 // just wipe out the default implementation.  Override the default mocks by individual
