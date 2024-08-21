@@ -6,6 +6,7 @@ import {
   PutObjectCommandInput,
   S3Client,
 } from '@aws-sdk/client-s3';
+import os from 'os';
 
 interface Options {
   folder: string;
@@ -26,6 +27,11 @@ export const useUpload = (options: Options) => {
     logger.log('info', 'Uploading file to S3');
 
     const { path, name, type, size } = file;
+
+    if (!path.startsWith(os.tmpdir())) {
+      logger.error('File not uploaded to temp directory');
+      return res.status(400).json({ message: 'Invalid request' });
+    }
 
     try {
       const s3 = new S3Client({

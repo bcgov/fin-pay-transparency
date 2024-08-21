@@ -1,5 +1,7 @@
 import { create } from 'lodash';
 import { useUpload } from './upload';
+import path from 'path';
+import os from 'os';
 
 const mockSend = jest.fn();
 jest.mock('@aws-sdk/client-s3', () => ({
@@ -25,6 +27,7 @@ describe('upload', () => {
       body: {
         attachmentId: '123',
         file: {
+          path: path.join(os.tmpdir(), 'test.jpg'),
           name: 'test.jpg',
           size: 100,
           type: 'image/jpeg',
@@ -57,11 +60,33 @@ describe('upload', () => {
     expect(mockSend).not.toHaveBeenCalled();
   });
 
+  describe('file not uploaded to temp directory', () => {
+    it('should return 400', async () => {
+      const req = {
+        body: {
+          attachmentId: '123',
+          file: {
+            path: '/invalid/test.jpg',
+          },
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+      await useUpload({ folder: 'app' })(req, res, jest.fn());
+      expect(res.status).toHaveBeenCalledWith(400);
+
+    });
+  });
+
   it('should handle error', async () => {
     const req = {
       body: {
         attachmentId: '123',
         file: {
+          path: path.join(os.tmpdir(), 'test.jpg'),
           name: 'test.jpg',
           size: 100,
           type: 'image/jpeg',
@@ -78,6 +103,9 @@ describe('upload', () => {
     mockSend.mockRejectedValue(new Error('Invalid request'));
     await useUpload({ folder: 'app' })(req, res, next);
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Invalid request', error: new Error('Invalid request') });
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Invalid request',
+      error: new Error('Invalid request'),
+    });
   });
 });

@@ -19,7 +19,7 @@ import {
 } from '../types/announcements';
 import formData from 'express-form-data';
 import { useUpload } from '../middlewares/storage/upload';
-const os = require('os');
+import os from 'os';
 
 const router = Router();
 

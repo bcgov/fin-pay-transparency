@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import config from 'nconf';
 import { logger } from '../logger';
-import { access } from 'fs';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
