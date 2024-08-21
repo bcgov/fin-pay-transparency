@@ -18,7 +18,7 @@ import {
   PatchAnnouncementsType,
 } from '../types/announcements';
 import formData from 'express-form-data';
-import { useUpload } from '../middlewares/storage/upload';
+import { APP_ANNOUNCEMENTS_FOLDER, useUpload } from '../middlewares/storage/upload';
 import os from 'os';
 
 const router = Router();
@@ -71,7 +71,7 @@ router.post(
     autoClean: true,
   }),
   formData.union(),
-  useUpload({ folder: 'app/announcements' }),
+  useUpload({ folder: APP_ANNOUNCEMENTS_FOLDER }),
   useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {
@@ -97,7 +97,7 @@ router.put(
     autoClean: true,
   }),
   formData.union(),
-  useUpload({ folder: 'app/announcements' }),
+  useUpload({ folder: APP_ANNOUNCEMENTS_FOLDER }),
   useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {

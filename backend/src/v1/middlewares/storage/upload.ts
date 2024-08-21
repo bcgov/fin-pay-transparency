@@ -8,6 +8,8 @@ import {
 } from '@aws-sdk/client-s3';
 import os from 'os';
 
+export const APP_ANNOUNCEMENTS_FOLDER = 'app/announcements';
+
 interface Options {
   folder: string;
 }
