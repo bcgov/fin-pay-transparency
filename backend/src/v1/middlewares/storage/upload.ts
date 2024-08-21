@@ -19,15 +19,13 @@ const bucket = config.get('s3:bucket');
 
 export const useUpload = (options: Options) => {
   return async (req, res, next) => {
-    logger.log('info', 'Uploading file to S3');
     const { file, ...data } = req.body;
     if (!file || !data.attachmentId) {
       return next();
     }
+    logger.log('info', 'Uploading file to S3');
 
     const { path, name, type, size } = file;
-
-    console.log('Uploading file: ', name, type, size);
 
     try {
       const s3 = new S3Client({

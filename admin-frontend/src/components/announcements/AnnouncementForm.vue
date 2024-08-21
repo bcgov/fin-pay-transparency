@@ -480,7 +480,6 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 }
 
 const handleSave = handleSubmit(async (values) => {
-  console.log(values)
   if (!validatePublishDate(values) || !validateLink(values)) {
     return;
   }

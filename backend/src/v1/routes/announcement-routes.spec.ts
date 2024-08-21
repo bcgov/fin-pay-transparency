@@ -27,7 +27,6 @@ jest.mock('../middlewares/authorization/authenticate-admin', () => ({
   authenticateAdmin:
     (...args) =>
     (req, res, next) => {
-      console.log('mockAuthenticateAdmin');
       req.user = { admin_user_id: faker.string.uuid(), userInfo: {} };
       next();
     },
@@ -37,7 +36,6 @@ jest.mock('../middlewares/authorization/authorize', () => ({
   authorize:
     (...args) =>
     (req, res, next) => {
-      console.log('mockAuthorize');
       next();
     },
 }));
