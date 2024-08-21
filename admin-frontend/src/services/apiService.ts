@@ -340,8 +340,12 @@ export default {
   },
 
   async addAnnouncement(data: AnnouncementFormValue) {
+    const formData = buildFormData(data);
+
     try {
-      return await apiAxios.post(ApiRoutes.ANNOUNCEMENTS, data);
+      return await apiAxios.post(ApiRoutes.ANNOUNCEMENTS, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
     } catch (e) {
       console.log(`Failed to post from Nodejs addAnnouncement API - ${e}`);
       throw e;
@@ -349,8 +353,11 @@ export default {
   },
 
   async updateAnnouncement(id: string, data: AnnouncementFormValue) {
+    const formData = buildFormData(data);
     try {
-      return await apiAxios.put(`${ApiRoutes.ANNOUNCEMENTS}/${id}`, data);
+      return await apiAxios.put(`${ApiRoutes.ANNOUNCEMENTS}/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
     } catch (e) {
       console.log(`Failed to put from Nodejs addAnnouncement API - ${e}`);
       throw e;
@@ -396,4 +403,28 @@ export default {
       throw e;
     }
   },
+};
+
+const buildFormData = (data: AnnouncementFormValue) => {
+  const formData = new FormData();
+  formData.append('title', data.title);
+  formData.append('description', data.description);
+  formData.append('status', data.status);
+  if (data.published_on) {
+    formData.append('published_on', data.published_on);
+  }
+  if (data.expires_on) {
+    formData.append('expires_on', data.expires_on);
+  }
+  if (data.linkUrl && data.linkDisplayName) {
+    formData.append('linkUrl', data.linkUrl);
+    formData.append('linkDisplayName', data.linkDisplayName);
+  }
+
+  if (data.attachment) {
+    formData.append('fileDisplayName', data.fileDisplayName!);
+    formData.append('attachmentId', data.attachmentId!);
+    formData.append('file', data.attachment);
+  }
+  return formData;
 };

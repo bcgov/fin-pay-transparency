@@ -147,6 +147,10 @@ jobs:
           --set-string global.secrets.entraClientSecret="${{secrets.ENTRA_APP_CLIENT_SECRET }}" \
           --set-string global.secrets.entraTenantId="${{secrets.ENTRA_APP_TENANT_ID }}" \
           --set-string global.secrets.powerBiUrl="${{secrets.BACKEND_POWERBI_URL }}" \
+          --set-string global.secrets.s3AccessKeyId="${{secrets.S3_ACCESS_KEY }}" \
+          --set-string global.secrets.s3SecretAccessKey="${{secrets.S3_SECRET_ACCESS_KEY }}" \
+          --set-string global.secrets.s3Endpoint="${{secrets.S3_ENDPOINT }}" \
+          --set-string global.secrets.s3Bucket="${{secrets.S3_BUCKET }}" \
           --set-string global.secrets.powerBiAnalyticsWorkspaceId="${{secrets.POWERBI_ANALYTICS_WORKSPACE_ID }}" \
           --set-string global.secrets.powerBiAnalyticsSubmissionAnalyticsId="${{secrets.POWERBI_ANALYTICS_SUBMISSIONANALYTICS_ID }}" \
           --set-string global.secrets.powerBiAnalyticsUserBehaviourId="${{secrets.POWERBI_ANALYTICS_USERBEHAVIOUR_ID }}" \

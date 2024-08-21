@@ -17,6 +17,9 @@ import {
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import formData from 'express-form-data';
+import { APP_ANNOUNCEMENTS_FOLDER, useUpload } from '../middlewares/storage/upload';
+import os from 'os';
 
 const router = Router();
 
@@ -63,6 +66,12 @@ router.post(
   '',
   authenticateAdmin(),
   authorize(['PTRT-ADMIN']),
+  formData.parse({
+    uploadDir: os.tmpdir(),
+    autoClean: true,
+  }),
+  formData.union(),
+  useUpload({ folder: APP_ANNOUNCEMENTS_FOLDER }),
   useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {
@@ -83,12 +92,18 @@ router.put(
   '/:id',
   authenticateAdmin(),
   authorize(['PTRT-ADMIN']),
+  formData.parse({
+    uploadDir: os.tmpdir(),
+    autoClean: true,
+  }),
+  formData.union(),
+  useUpload({ folder: APP_ANNOUNCEMENTS_FOLDER }),
   useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {
       const { user } = req;
       // Request body is validated
-      const data = req.body;
+      const { file, ...data } = req.body;
       // Create announcement
       const announcement = await updateAnnouncement(
         req.params.id,
