@@ -18,6 +18,13 @@ jest.mock('fs', () => ({
     createReadStream: jest.fn(),
   },
 }));
+
+const mock_asyncRetry = jest.fn((fn) => fn());
+jest.mock('async-retry', () => ({
+  __esModule: true,
+  default: async (fn) => mock_asyncRetry(fn),
+}));
+
 describe('upload', () => {
   beforeEach(() => {
     jest.clearAllMocks();

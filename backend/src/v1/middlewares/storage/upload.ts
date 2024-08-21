@@ -7,6 +7,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import os from 'os';
+import retry from 'async-retry';
 
 export const APP_ANNOUNCEMENTS_FOLDER = 'app/announcements';
 
@@ -54,8 +55,8 @@ export const useUpload = (options: Options) => {
         ContentLength: size,
       };
       const command = new PutObjectCommand(uploadParams);
-      const results = await s3.send(command);
-      logger.info('Upload results', results);
+      await retry(async () => await s3.send(command), { retries: 3 });
+      logger.info('Upload successful');
       next();
     } catch (error) {
       logger.error(error);
