@@ -16,11 +16,12 @@ RUN yum -y update && \
 # copy our configs to where clamav expects
 COPY config/clamd.conf /usr/local/etc/clamd.conf
 COPY config/freshclam.conf /usr/local/etc/freshclam.conf
+
+
+RUN mkdir -p /opt/app-root/src
 # copy health check script to app-root
 COPY clamdcheck.sh /opt/app-root
-
-RUN mkdir -p /opt/app-root/src && \
-    chown -R 1001:0 /opt/app-root/src && \
+RUN chown -R 1001:0 /opt/app-root/src && \
     chmod -R ug+rwx /opt/app-root/src && \
     chmod ug+rwx /opt/app-root/clamdcheck.sh
 

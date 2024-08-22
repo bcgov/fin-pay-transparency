@@ -14,8 +14,6 @@ spec:
     metadata:
       labels:
         {{- include "clamav.selectorLabels" . | nindent 8 }}
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       {{- if .Values.clamav.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.clamav.podSecurityContext "enabled" | toYaml | nindent 8 }}
@@ -24,9 +22,6 @@ spec:
         - name: clamav
           image: "{{ .Values.clamav.image }}:{{ default .Chart.AppVersion .Values.clamav.tag }}"
           imagePullPolicy: "{{ .Values.clamav.imagePullPolicy }}"
-        {{- if .Values.clamav.containerSecurityContext.enabled }}
-          securityContext: {{- omit .Values.clamav.containerSecurityContext "enabled" | toYaml | nindent 12 }}
-        {{- end }}
           ports:
             - containerPort: 3310
               name: clamav
@@ -47,7 +42,12 @@ spec:
             successThreshold: 1
             timeoutSeconds: 3
           resources:
-          {{- toYaml .Values.clamav.resources | nindent 10 }}
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1500Mi
           volumeMounts:
             - mountPath: /opt/app-root/src
               name: signatures
