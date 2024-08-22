@@ -50,7 +50,7 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import { useRouter } from 'vue-router';
 
@@ -60,6 +60,11 @@ const announcementSelectionStore = useAnnouncementSelectionStore();
 const { announcement } = defineProps<{
   announcement: any;
 }>();
+
+watch(() => announcement, () => {
+  console.log('announcement changed', announcement);
+});
+console.log('announcement', announcement);
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();

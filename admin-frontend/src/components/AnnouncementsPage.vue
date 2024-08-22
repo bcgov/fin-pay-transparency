@@ -115,6 +115,10 @@
 
       <v-card-text>
         {{ announcementInDialog?.description }}
+        <a
+          href="http://localhost:8084/admin-api/files/067967bc-f7cd-49b2-a99a-fc4977d2d079"
+          >Link</a
+        >
       </v-card-text>
 
       <v-card-actions>
@@ -143,6 +147,12 @@ import { NotificationService } from '../services/notificationService';
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
   storeToRefs(announcementSearchStore);
+watch(
+  () => searchResults.value,
+  () => {
+    console.log('searchResults changed', searchResults.value);
+  },
+);
 const announcementInDialog = ref<any>(undefined);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const isAnnouncementDialogVisible = ref<boolean>(false);
@@ -297,6 +307,4 @@ async function deleteAnnouncements(announcementIds: string[]) {
 .no-min-width {
   min-width: 0px !important;
 }
-
-
 </style>

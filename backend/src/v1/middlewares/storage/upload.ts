@@ -2,25 +2,19 @@ import fs from 'fs';
 import { logger } from '../../../logger';
 import { config } from '../../../config';
 import {
-  GetBucketVersioningCommand,
   PutObjectCommand,
   PutObjectCommandInput,
+  S3,
   S3Client,
 } from '@aws-sdk/client-s3';
 import os from 'os';
 import retry from 'async-retry';
+import { bucket, S3_OPTIONS } from '../../../external/services/s3-api';
 
-export const APP_ANNOUNCEMENTS_FOLDER = 'app/announcements';
 
 interface Options {
   folder: string;
 }
-
-const accessKeyId = config.get('s3:accessKeyId');
-const secretAccessKey = config.get('s3:secretAccessKey');
-const region = config.get('s3:region');
-const endpoint = config.get('s3:endpoint');
-const bucket = config.get('s3:bucket');
 
 export const useUpload = (options: Options) => {
   return async (req, res, next) => {
@@ -38,15 +32,7 @@ export const useUpload = (options: Options) => {
     }
 
     try {
-      const s3 = new S3Client({
-        credentials: {
-          accessKeyId,
-          secretAccessKey,
-        },
-        endpoint,
-        forcePathStyle: true,
-        region,
-      });
+      const s3 = new S3Client(S3_OPTIONS);
       const stream = fs.createReadStream(path);
       const uploadParams: PutObjectCommandInput = {
         Bucket: bucket,
@@ -56,17 +42,14 @@ export const useUpload = (options: Options) => {
         ContentLength: size,
       };
 
-      const x = await s3.send(new GetBucketVersioningCommand({ Bucket: bucket }));
       const command = new PutObjectCommand(uploadParams);
-      const results = await retry(
+      await retry(
         async () => {
           const results = await s3.send(command);
           return results;
         },
         { retries: 3 },
       );
-      logger.info('Upload successful');
-      req.body.attachmentPath = uploadParams.Key;
       next();
     } catch (error) {
       logger.error(error);
