@@ -50,10 +50,6 @@ const schedulerService = {
       },
     };
 
-    // const announcements = await prisma.announcement.findFirst({
-    //   where: where,
-    // });
-
     await prisma.announcement.updateMany({
       data: {
         status: 'EXPIRED',
