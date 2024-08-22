@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           # CLAMAV_API_KEY is a secret stored in GitHub at repo level
-          helm upgrade --debug --install --wait --atomic clamav-service ./clamav-service/charts/clamav-service \
+          helm upgrade --debug --install --wait --atomic clamav-service  \
           --set-string global.secrets.apiKey=${{ secrets.CLAMAV_API_KEY }} \
           --timeout 9m ./clamav-service-1.0.0.tgz
           
