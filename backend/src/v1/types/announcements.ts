@@ -11,8 +11,8 @@ export type TitleFilter = {
 
 export type DateFilter<T> = {
   key: T;
-  operation: 'between';
-  value: string[];
+  operation: 'between' | 'lte' | 'gt';
+  value: string | string[];
 };
 
 export type AnnouncementStatusType =
@@ -48,10 +48,10 @@ const FILTER_OPERATION_SCHEMA: {
   title: z.enum(['like'], {
     message: 'Only "like" operation is allowed',
   }),
-  published_on: z.enum(['between'], {
+  published_on: z.enum(['between', 'lte', 'gt'], {
     message: 'Only "between" operation is allowed',
   }),
-  expires_on: z.enum(['between'], {
+  expires_on: z.enum(['between', 'lte', 'gt'], {
     message: 'Only "between" operation is allowed',
   }),
   status: z.enum(['in', 'notin'], {
@@ -62,8 +62,8 @@ const FILTER_OPERATION_SCHEMA: {
 const STATUSES = ['PUBLISHED', 'DRAFT', 'EXPIRED', 'DELETED'] as const;
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   title: z.string().optional(),
-  published_on: z.array(z.string()).optional(),
-  expires_on: z.array(z.string()).optional(),
+  published_on: z.string().or(z.array(z.string())).optional(),
+  expires_on: z.string().or(z.array(z.string())).optional(),
   status: z.array(z.enum(STATUSES)).or(z.enum(STATUSES)).optional(),
 };
 

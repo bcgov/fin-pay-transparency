@@ -1,3 +1,9 @@
+import {
+  DateTimeFormatter,
+  ZoneId,
+  ZonedDateTime,
+  nativeJs,
+} from '@js-joda/core';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import {
@@ -281,11 +287,22 @@ export default {
   },
 
   async getPublishedAnnouncements(): Promise<Announcement[]> {
+    const now: string = ApiServicePrivate.dateToApiDateTimeString(new Date());
     const filters: AnnouncementFilterType = [
       {
         key: 'status',
         operation: 'in',
         value: ['PUBLISHED'],
+      },
+      {
+        key: 'published_on',
+        operation: 'lte',
+        value: now,
+      },
+      {
+        key: 'expires_on',
+        operation: 'gt',
+        value: now,
       },
     ];
     const sort: AnnouncementSortType = [
@@ -328,5 +345,14 @@ export default {
       console.log(`Failed to get announcements from API - ${e}`);
       throw e;
     }
+  },
+};
+
+export const ApiServicePrivate = {
+  dateToApiDateTimeString(date: Date) {
+    const jodaZonedDateTime = ZonedDateTime.from(
+      nativeJs(date),
+    ).withZoneSameLocal(ZoneId.of('UTC'));
+    return DateTimeFormatter.ISO_DATE_TIME.format(jodaZonedDateTime);
   },
 };
