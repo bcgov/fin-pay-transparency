@@ -122,47 +122,138 @@ describe('AnnouncementsService', () => {
           });
         });
         describe('when published_on filter is provided', () => {
-          it('should return announcements', async () => {
-            await getAnnouncements({
-              filters: [
-                {
-                  key: 'published_on',
-                  operation: 'between',
-                  value: ['2022-01-01', '2022-12-31'],
-                },
-              ],
-            });
-            expect(mockFindMany).toHaveBeenCalledWith(
-              expect.objectContaining({
-                where: expect.objectContaining({
-                  AND: [
-                    { published_on: { gte: '2022-01-01', lt: '2022-12-31' } },
-                  ],
+          describe('when operation is "between"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'published_on',
+                    operation: 'between',
+                    value: ['2022-01-01', '2022-12-31'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [
+                      { published_on: { gte: '2022-01-01', lt: '2022-12-31' } },
+                    ],
+                  }),
                 }),
-              }),
-            );
+              );
+            });
+          });
+          describe('when operation is "lte"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'published_on',
+                    operation: 'lte',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [{ published_on: { lte: ['2022-01-01'] } }],
+                  }),
+                }),
+              );
+            });
+          });
+          describe('when operation is "gt"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'published_on',
+                    operation: 'gt',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [{ published_on: { gt: ['2022-01-01'] } }],
+                  }),
+                }),
+              );
+            });
           });
         });
         describe('when expires_on filter is provided', () => {
-          it('should return announcements', async () => {
-            await getAnnouncements({
-              filters: [
-                {
-                  key: 'expires_on',
-                  operation: 'between',
-                  value: ['2022-01-01', '2022-12-31'],
-                },
-              ],
-            });
-            expect(mockFindMany).toHaveBeenCalledWith(
-              expect.objectContaining({
-                where: expect.objectContaining({
-                  AND: [
-                    { expires_on: { gte: '2022-01-01', lt: '2022-12-31' } },
-                  ],
+          describe('when operation is "between"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'expires_on',
+                    operation: 'between',
+                    value: ['2022-01-01', '2022-12-31'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [
+                      { expires_on: { gte: '2022-01-01', lt: '2022-12-31' } },
+                    ],
+                  }),
                 }),
-              }),
-            );
+              );
+            });
+          });
+          describe('when operation is "lte"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'expires_on',
+                    operation: 'lte',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [{ expires_on: { lte: ['2022-01-01'] } }],
+                  }),
+                }),
+              );
+            });
+          });
+          describe('when operation is "gt"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'expires_on',
+                    operation: 'gt',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [
+                      {
+                        OR: [
+                          { expires_on: { gt: ['2022-01-01'] } },
+                          { expires_on: null },
+                        ],
+                      },
+                    ],
+                  }),
+                }),
+              );
+            });
           });
         });
 
