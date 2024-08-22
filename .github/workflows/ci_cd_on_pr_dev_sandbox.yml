@@ -12,6 +12,7 @@ on:
       - ".graphics/**"
       - "sysdig/**"
       - ".github/workflows/sysdig.yml"
+      - "clamav-service/**"
     branches:
       - main
 
