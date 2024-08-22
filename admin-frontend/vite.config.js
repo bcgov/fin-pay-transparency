@@ -25,6 +25,13 @@ export default defineConfig({
         target: 'http://localhost:3004',
         changeOrigin: true,
       },
+      '/clamav-api': {
+        target: 'http://localhost:3011',
+        changeOrigin: true,
+        headers: {
+          'x-api-key': 'default',
+        },
+      },
     },
   },
   publicDir: 'public',

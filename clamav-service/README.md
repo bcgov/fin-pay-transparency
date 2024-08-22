@@ -7,5 +7,5 @@
 ### Local Development
 1. Run clamav container using podman or docker
     1. `docker/podman run -p 3310:3310 clamav/clamav`
-2. Run clamav node api which will start the api on port `3003`
+2. Run clamav node api which will start the api on port `3011`
 3. All the port mappings are described in main [README.md](../README.md)
