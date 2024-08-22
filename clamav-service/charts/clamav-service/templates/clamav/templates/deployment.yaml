@@ -14,8 +14,6 @@ spec:
     metadata:
       labels:
         {{- include "clamav.selectorLabels" . | nindent 8 }}
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       {{- if .Values.clamav.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.clamav.podSecurityContext "enabled" | toYaml | nindent 8 }}
