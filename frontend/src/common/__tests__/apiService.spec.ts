@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnnouncementStatus } from '../../types/announcements';
 import { REPORT_STATUS } from '../../utils/constant';
-import ApiService from '../apiService';
+import ApiService, { ApiServicePrivate } from '../apiService';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -482,19 +482,60 @@ describe('ApiService', () => {
   });
 
   describe('getPublishedAnnouncements', () => {
-    it('requests only announcements with "status" == PUBLISHED', async () => {
+    it('request filters by status, published_on and expired_on', async () => {
+      const mockTimeNow = '1234';
+      const dateSpy = vi
+        .spyOn(ApiServicePrivate, 'dateToApiDateTimeString')
+        .mockReturnValue(mockTimeNow);
       const getAnnouncementsSpy = vi
         .spyOn(ApiService, 'getAnnouncements')
         .mockResolvedValue({ items: [], total: 0 });
       await ApiService.getPublishedAnnouncements();
+
       const filter = getAnnouncementsSpy.mock.calls[0][2];
-      expect(filter).toStrictEqual([
+      const statusFilter = filter?.filter((f) => f.key == 'status');
+      const publishedOnFilter: any = filter?.filter(
+        (f) => f.key == 'published_on',
+      )[0];
+      const expiresOnFilter: any = filter?.filter(
+        (f) => f.key == 'expires_on',
+      )[0];
+      expect(dateSpy).toHaveBeenCalled();
+      expect(statusFilter).toStrictEqual([
         {
           key: 'status',
           operation: 'in',
           value: [AnnouncementStatus.Published],
         },
       ]);
+      expect(publishedOnFilter).toStrictEqual({
+        key: 'published_on',
+        operation: 'lte',
+        value: mockTimeNow,
+      });
+      expect(expiresOnFilter).toStrictEqual({
+        key: 'expires_on',
+        operation: 'gt',
+        value: mockTimeNow,
+      });
+    });
+  });
+});
+
+describe('ApiServicePrivate', () => {
+  describe('dateToApiDateTimeString', () => {
+    it('converts the given date object into a date time string in the format expected by the API', () => {
+      const d = new Date(
+        2019, //year
+        0, //month (0=January)
+        1, //day
+        0, //hour
+        0, //minute
+        0, //seconds
+        0, //ms
+      );
+      const result = ApiServicePrivate.dateToApiDateTimeString(d);
+      expect(result).toBe('2019-01-01T00:00:00Z');
     });
   });
 });

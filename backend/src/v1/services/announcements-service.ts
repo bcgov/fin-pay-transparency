@@ -5,15 +5,15 @@ import {
   Prisma,
   PrismaClient,
 } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
+import isEmpty from 'lodash/isEmpty';
 import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
 import {
-  AnnouncementQueryType,
   AnnouncementDataType,
+  AnnouncementQueryType,
   PatchAnnouncementsType,
 } from '../types/announcements';
-import isEmpty from 'lodash/isEmpty';
-import { DefaultArgs } from '@prisma/client/runtime/library';
 
 const saveHistory = async (
   tx: Omit<
@@ -42,27 +42,60 @@ const saveHistory = async (
 };
 
 const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
-  const where: Prisma.announcementWhereInput = {};
+  const allFilters = [];
 
   if (query.filters) {
     (query.filters as any[]).forEach((filter) => {
+      const attrFilter = {};
       switch (filter.key) {
         case 'published_on':
+          if (filter.operation === 'between') {
+            attrFilter[filter.key] = {
+              gte: filter.value[0],
+              lt: filter.value[1],
+            };
+          } else if (filter.operation === 'lte') {
+            attrFilter[filter.key] = { lte: filter.value };
+          } else if (filter.operation === 'gt') {
+            attrFilter[filter.key] = { gt: filter.value };
+          }
+          break;
         case 'expires_on':
-          where[filter.key] = { gte: filter.value[0], lt: filter.value[1] };
+          if (filter.operation === 'between') {
+            attrFilter[filter.key] = {
+              gte: filter.value[0],
+              lt: filter.value[1],
+            };
+          } else if (filter.operation === 'lte') {
+            attrFilter[filter.key] = { lte: filter.value };
+          } else if (filter.operation === 'gt') {
+            //For 'expires_on' filters with operation='gt', assume we also want
+            //to return records with a null values (null means never expires)
+            const lteFilter = {};
+            lteFilter[filter.key] = { gt: filter.value };
+            const nullFilter = {};
+            nullFilter[filter.key] = null;
+            attrFilter['OR'] = [lteFilter, nullFilter];
+          }
           break;
         case 'status':
-          where.status =
+          attrFilter[filter.key] =
             filter.operation === 'in'
               ? { in: filter.value }
               : { not: { in: filter.value } };
           break;
         case 'title':
-          where.title = { contains: filter.value, mode: 'insensitive' };
+          attrFilter[filter.key] = {
+            contains: filter.value,
+            mode: 'insensitive',
+          };
           break;
       }
+      allFilters.push(attrFilter);
     });
   }
+
+  const where: Prisma.announcementWhereInput = { AND: allFilters };
   return where;
 };
 

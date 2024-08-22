@@ -235,7 +235,7 @@ model user_error {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model admin_user {
   admin_user_id                                                                      String                          @id(map: "admin_user_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  idir_user_guid                                                                     String                          @unique(map: "admin_user_guid_unique") @db.Uuid
+  idir_user_guid                                                                     String                          @unique(map: "admin_user_idir_user_guid_uk") @db.Uuid
   display_name                                                                       String                          @db.VarChar(255)
   create_date                                                                        DateTime                        @default(now()) @db.Timestamp(6)
   create_user                                                                        String                          @db.VarChar(255)
@@ -341,8 +341,8 @@ model announcement_resource {
   created_by                                              String?                         @db.Uuid
   updated_by                                              String?                         @db.Uuid
   resource_type                                           String                          @db.VarChar(20)
-  admin_user_announcement_resource_created_byToadmin_user admin_user?                     @relation("announcement_resource_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_created_by_fk")
   attachment_file_id                                      String?                         @db.Uuid
+  admin_user_announcement_resource_created_byToadmin_user admin_user?                     @relation("announcement_resource_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_created_by_fk")
   announcement                                            announcement                    @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_fk")
   announcement_resource_type                              announcement_resource_type      @relation(fields: [resource_type], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_type_fk")
   admin_user_announcement_resource_updated_byToadmin_user admin_user?                     @relation("announcement_resource_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_updated_by_fk")

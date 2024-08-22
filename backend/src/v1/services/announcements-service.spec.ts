@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import omit from 'lodash/omit';
 import { AnnouncementDataType } from '../types/announcements';
 import {
   createAnnouncement,
@@ -6,8 +7,6 @@ import {
   patchAnnouncements,
   updateAnnouncement,
 } from './announcements-service';
-import omit from 'lodash/omit';
-import { at } from 'lodash';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -71,6 +70,10 @@ jest.mock('../prisma/prisma-client', () => ({
 }));
 
 describe('AnnouncementsService', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('getAnnouncements', () => {
     describe('when no query is provided', () => {
       it('should return announcements', async () => {
@@ -82,7 +85,9 @@ describe('AnnouncementsService', () => {
         expect(announcements.totalPages).toBe(1);
         expect(mockFindMany).toHaveBeenCalledTimes(1);
         expect(mockFindMany).toHaveBeenCalledWith({
-          where: {},
+          where: {
+            AND: [],
+          },
           orderBy: [],
           include: { announcement_resource: true },
           take: 10,
@@ -103,56 +108,152 @@ describe('AnnouncementsService', () => {
             expect(mockFindMany).toHaveBeenCalledWith(
               expect.objectContaining({
                 where: expect.objectContaining({
-                  title: { contains: 'Announcement 1', mode: 'insensitive' },
+                  AND: [
+                    {
+                      title: {
+                        contains: 'Announcement 1',
+                        mode: 'insensitive',
+                      },
+                    },
+                  ],
                 }),
               }),
             );
           });
         });
         describe('when published_on filter is provided', () => {
-          it('should return announcements', async () => {
-            await getAnnouncements({
-              filters: [
-                {
-                  key: 'published_on',
-                  operation: 'between',
-                  value: ['2022-01-01', '2022-12-31'],
-                },
-              ],
-            });
-            expect(mockFindMany).toHaveBeenCalledWith(
-              expect.objectContaining({
-                where: expect.objectContaining({
-                  published_on: {
-                    gte: '2022-01-01',
-                    lt: '2022-12-31',
+          describe('when operation is "between"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'published_on',
+                    operation: 'between',
+                    value: ['2022-01-01', '2022-12-31'],
                   },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [
+                      { published_on: { gte: '2022-01-01', lt: '2022-12-31' } },
+                    ],
+                  }),
                 }),
-              }),
-            );
+              );
+            });
+          });
+          describe('when operation is "lte"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'published_on',
+                    operation: 'lte',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [{ published_on: { lte: ['2022-01-01'] } }],
+                  }),
+                }),
+              );
+            });
+          });
+          describe('when operation is "gt"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'published_on',
+                    operation: 'gt',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [{ published_on: { gt: ['2022-01-01'] } }],
+                  }),
+                }),
+              );
+            });
           });
         });
         describe('when expires_on filter is provided', () => {
-          it('should return announcements', async () => {
-            await getAnnouncements({
-              filters: [
-                {
-                  key: 'expires_on',
-                  operation: 'between',
-                  value: ['2022-01-01', '2022-12-31'],
-                },
-              ],
-            });
-            expect(mockFindMany).toHaveBeenCalledWith(
-              expect.objectContaining({
-                where: expect.objectContaining({
-                  expires_on: {
-                    gte: '2022-01-01',
-                    lt: '2022-12-31',
+          describe('when operation is "between"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'expires_on',
+                    operation: 'between',
+                    value: ['2022-01-01', '2022-12-31'],
                   },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [
+                      { expires_on: { gte: '2022-01-01', lt: '2022-12-31' } },
+                    ],
+                  }),
                 }),
-              }),
-            );
+              );
+            });
+          });
+          describe('when operation is "lte"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'expires_on',
+                    operation: 'lte',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [{ expires_on: { lte: ['2022-01-01'] } }],
+                  }),
+                }),
+              );
+            });
+          });
+          describe('when operation is "gt"', () => {
+            it('should return announcements', async () => {
+              await getAnnouncements({
+                filters: [
+                  {
+                    key: 'expires_on',
+                    operation: 'gt',
+                    value: ['2022-01-01'],
+                  },
+                ],
+              });
+              expect(mockFindMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  where: expect.objectContaining({
+                    AND: [
+                      {
+                        OR: [
+                          { expires_on: { gt: ['2022-01-01'] } },
+                          { expires_on: null },
+                        ],
+                      },
+                    ],
+                  }),
+                }),
+              );
+            });
           });
         });
 
@@ -171,7 +272,7 @@ describe('AnnouncementsService', () => {
               expect(mockFindMany).toHaveBeenCalledWith(
                 expect.objectContaining({
                   where: expect.objectContaining({
-                    status: { in: ['DRAFT'] },
+                    AND: [{ status: { in: ['DRAFT'] } }],
                   }),
                 }),
               );
@@ -192,7 +293,7 @@ describe('AnnouncementsService', () => {
               expect(mockFindMany).toHaveBeenCalledWith(
                 expect.objectContaining({
                   where: expect.objectContaining({
-                    status: { not: { in: ['DRAFT'] } },
+                    AND: [{ status: { not: { in: ['DRAFT'] } } }],
                   }),
                 }),
               );
@@ -530,7 +631,10 @@ describe('AnnouncementsService', () => {
         mockFindUniqueOrThrow.mockResolvedValue({
           id: 'announcement-id',
           announcement_resource: [
-            { announcement_resource_id: attachmentId, resource_type: 'ATTACHMENT' },
+            {
+              announcement_resource_id: attachmentId,
+              resource_type: 'ATTACHMENT',
+            },
           ],
         });
         const announcementInput: AnnouncementDataType = {
