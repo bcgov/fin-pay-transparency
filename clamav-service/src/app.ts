@@ -133,7 +133,7 @@ apiRouter.post('',validateApiKey(config.get('server:apiKey')),
       res.end();
       return;
     }
-    const stream = fs.createReadStream(path);
+    const stream = fs.createReadStream(filePath);
     const ClamAVScanner = await _getClamAvScanner();
 
     const clamavScanResult = await ClamAVScanner.scanStream(stream);
