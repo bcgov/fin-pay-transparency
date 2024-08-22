@@ -54,8 +54,8 @@ type ExpiresOnField = 'expires_on';
 
 export type DateFilter<T> = {
   key: T;
-  operation: 'between';
-  value: string[];
+  operation: 'between' | 'lte' | 'gt';
+  value: string | string[];
 };
 
 export type AnnouncementStatusType =

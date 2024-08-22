@@ -108,8 +108,34 @@ describe('AddAnnouncementPage', () => {
         expect.objectContaining({
           title: 'Test Title',
           description: 'Test Description',
-          published_on: expect.any(Date),
-          expires_on: expect.any(Date),
+          published_on: expect.any(String),
+          expires_on: expect.any(String),
+          linkUrl: 'https://example.com',
+          linkDisplayName: 'Example.pdf',
+        }),
+      );
+      expect(mockSuccess).toHaveBeenCalled();
+      expect(mockRouterPush).toHaveBeenCalledWith('/announcements');
+    });
+  });
+  it('should submit the form as draft', async () => {
+    const { getByRole, getByLabelText, getByText } = await wrappedRender();
+    const saveButton = getByRole('button', { name: 'Save' });
+    const title = getByLabelText('Title');
+    const description = getByLabelText('Description');
+    const linkUrl = getByLabelText('Link URL');
+    const displayLinkAs = getByLabelText('Display Link As');
+    await fireEvent.update(title, 'Test Title');
+    await fireEvent.update(description, 'Test Description');
+    await fireEvent.update(linkUrl, 'https://example.com');
+    await fireEvent.update(displayLinkAs, 'Example.pdf');
+    await fireEvent.click(saveButton);
+    
+    await waitFor(() => {
+      expect(mockAddAnnouncement).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Test Title',
+          description: 'Test Description',
           linkUrl: 'https://example.com',
           linkDisplayName: 'Example.pdf',
         }),
