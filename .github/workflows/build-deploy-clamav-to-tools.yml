@@ -16,9 +16,11 @@ jobs:
         include:
           - package: clamav-service/clamav
             build_file: ./clamav-service/clamav/Dockerfile
+            triggers: ('clamav-service/')
             build_context: ./clamav-service/clamav
           - package: clamav-service/clamav-node
             build_file: ./clamav-service/Dockerfile
+            triggers: ('clamav-service/')
             build_context: ./clamav-service
 
     steps:
@@ -27,8 +29,9 @@ jobs:
         with:
           package: ${{ matrix.package }}
           tag: latest
-          tag_fallback: test
+          tag_fallback: latest
           build_context: ${{ matrix.build_context }}
+          triggers: ${{ matrix.triggers }}
   deploy:
     name: Deploy
     runs-on: ubuntu-22.04
