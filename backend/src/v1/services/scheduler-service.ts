@@ -13,7 +13,7 @@ const schedulerService = {
     const delete_date =
       LocalDateTime.now(ZoneId.UTC).minusDays(1).toString() + 'Z';
 
-    logger.info('deleteDraftReports older than : ' + delete_date);
+    logger.info('Delete Draft Reports older than : ' + delete_date);
 
     const reportWhereClause: Prisma.pay_transparency_reportWhereInput = {
       report_status: enumReportStatus.Draft,
@@ -32,6 +32,33 @@ const schedulerService = {
       await tx.pay_transparency_report.deleteMany({
         where: reportWhereClause,
       });
+    });
+  },
+
+  async expireAnnouncements() {
+    const now = LocalDateTime.now(ZoneId.UTC).toString() + 'Z';
+
+    logger.info('Expire Announcements older than : ' + now);
+
+    const where: Prisma.announcementWhereInput = {
+      status: {
+        not: { in: ['DRAFT', 'EXPIRED'] },
+      },
+      expires_on: {
+        not: null,
+        lte: now,
+      },
+    };
+
+    // const announcements = await prisma.announcement.findFirst({
+    //   where: where,
+    // });
+
+    await prisma.announcement.updateMany({
+      data: {
+        status: 'EXPIRED',
+      },
+      where: where,
     });
   },
 };
