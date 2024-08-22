@@ -12,7 +12,7 @@ import NodeClam from 'clamscan';
 import formData from 'express-form-data';
 import os from 'os';
 import bodyParser from 'body-parser';
-
+import PATH from 'path';
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
 const metricsMiddleware = promBundle({
@@ -125,6 +125,13 @@ apiRouter.post('',validateApiKey(config.get('server:apiKey')),
       res.status(400).send({
         message: 'File path is missing in the request body',
       });
+    }
+    const filePath = fs.realpathSync(PATH.resolve(os.tmpdir(), path));
+    if (!filePath.startsWith(os.tmpdir())) {
+      logger.error('File path is not starting with temp directory.');
+      res.statusCode = 403;
+      res.end();
+      return;
     }
     const stream = fs.createReadStream(path);
     const ClamAVScanner = await _getClamAvScanner();
