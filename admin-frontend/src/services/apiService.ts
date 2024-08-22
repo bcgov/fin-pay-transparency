@@ -369,7 +369,7 @@ export default {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     } catch (e) {
-      console.log(`Failed to post from Nodejs addAnnouncement API - ${e}`);
+      console.error(`Failed to post from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },
@@ -381,7 +381,7 @@ export default {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     } catch (e) {
-      console.log(`Failed to put from Nodejs addAnnouncement API - ${e}`);
+      console.error(`Failed to put from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },

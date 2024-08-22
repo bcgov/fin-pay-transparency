@@ -2,6 +2,7 @@ import fs from 'fs';
 import { logger } from '../../../logger';
 import { config } from '../../../config';
 import {
+  GetBucketVersioningCommand,
   PutObjectCommand,
   PutObjectCommandInput,
   S3Client,
@@ -54,9 +55,18 @@ export const useUpload = (options: Options) => {
         ContentType: type,
         ContentLength: size,
       };
+
+      const x = await s3.send(new GetBucketVersioningCommand({ Bucket: bucket }));
       const command = new PutObjectCommand(uploadParams);
-      await retry(async () => await s3.send(command), { retries: 3 });
+      const results = await retry(
+        async () => {
+          const results = await s3.send(command);
+          return results;
+        },
+        { retries: 3 },
+      );
       logger.info('Upload successful');
+      req.body.attachmentPath = uploadParams.Key;
       next();
     } catch (error) {
       logger.error(error);
