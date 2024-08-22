@@ -22,9 +22,6 @@ spec:
         - name: clamav
           image: "{{ .Values.clamav.image }}:{{ default .Chart.AppVersion .Values.clamav.tag }}"
           imagePullPolicy: "{{ .Values.clamav.imagePullPolicy }}"
-        {{- if .Values.clamav.containerSecurityContext.enabled }}
-          securityContext: {{- omit .Values.clamav.containerSecurityContext "enabled" | toYaml | nindent 12 }}
-        {{- end }}
           ports:
             - containerPort: 3310
               name: clamav
@@ -45,7 +42,12 @@ spec:
             successThreshold: 1
             timeoutSeconds: 3
           resources:
-          {{- toYaml .Values.clamav.resources | nindent 10 }}
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 300m
+              memory: 1024Mi
           volumeMounts:
             - mountPath: /opt/app-root/src
               name: signatures
