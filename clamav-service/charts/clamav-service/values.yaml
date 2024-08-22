@@ -38,8 +38,8 @@ clamav:
       cpu: 100m
       memory: 512Mi
     limits:
-      cpu: 500m
-      memory: 2048Mi
+      cpu: 300m
+      memory: 1024Mi
 
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
