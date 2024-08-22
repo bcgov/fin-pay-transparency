@@ -32,6 +32,7 @@ global:
     chesClientSecret: ~
     chesAPIURL: ~
     chesEmailRecipients: ~
+    clamavApiKey: ~
     annotation:
       helm.sh/policy: "keep"
   domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
