@@ -276,7 +276,7 @@ import {
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import { DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
+import { convert, DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
@@ -303,6 +303,7 @@ const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
 const attachment = ref<File | null>(null);
 
+console.log(announcement)
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
@@ -541,6 +542,8 @@ const handleSave = handleSubmit(async (values) => {
 
   await emits('save', {
     ...values,
+    published_on: values.published_on ? convert(LocalDate.from(nativeJs(values.published_on))).toDate().toISOString() : undefined,
+    expires_on: values.expires_on ? convert(LocalDate.from(nativeJs(values.expires_on))).toDate().toISOString() : undefined,
     linkDisplayName: isEmpty(values.linkDisplayName)
       ? undefined
       : values.linkDisplayName,
