@@ -44,7 +44,14 @@ spec:
             - name: BACKEND_URL
               value: "http://{{ .Release.Name }}-backend:3004" #3004 is the port used for the backend's admin API
             - name: LOG_LEVEL
-              value: {{ .Values.env.logLevel }}    
+              value: {{ .Values.env.logLevel }}
+            - name: CLAMAV_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: CLAMAV_API_KEY
+            - name: CLAMAV_API_URL
+              value: "http://clamav-node.db4642-tools.svc.cluster.local"
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
