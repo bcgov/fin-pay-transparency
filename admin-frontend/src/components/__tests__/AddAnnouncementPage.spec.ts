@@ -130,7 +130,7 @@ describe('AddAnnouncementPage', () => {
     await fireEvent.update(linkUrl, 'https://example.com');
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await fireEvent.click(saveButton);
-    
+
     await waitFor(() => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -142,6 +142,31 @@ describe('AddAnnouncementPage', () => {
       );
       expect(mockSuccess).toHaveBeenCalled();
       expect(mockRouterPush).toHaveBeenCalledWith('/announcements');
+    });
+  });
+
+  describe('when no expiry is not checked', () => {
+    it('should display expiry date is required error message', async () => {
+      const { getByRole, getByLabelText, getByText } = await wrappedRender();
+      const saveButton = getByRole('button', { name: 'Save' });
+      const title = getByLabelText('Title');
+      const description = getByLabelText('Description');
+      const linkUrl = getByLabelText('Link URL');
+      const displayLinkAs = getByLabelText('Display Link As');
+      await fireEvent.update(title, 'Test Title');
+      await fireEvent.update(description, 'Test Description');
+      await fireEvent.update(linkUrl, 'https://example.com');
+      await fireEvent.update(displayLinkAs, 'Example.pdf');
+      const publishOn = getByLabelText('Publish On');
+      const expiresOn = getByLabelText('Expires On');
+      await setDate(publishOn, () => getByText('15'));
+      await fireEvent.update(linkUrl, 'https://example.com');
+      await fireEvent.update(displayLinkAs, 'Example.pdf');
+      await markAsPublish();
+      await fireEvent.click(saveButton);
+      await waitFor(() => {
+        expect(getByText('Expiry date is required.')).toBeInTheDocument();
+      });
     });
   });
   it('should not publish when confirmation cancel is clicked', async () => {
@@ -320,7 +345,7 @@ describe('AddAnnouncementPage', () => {
     describe('when link url is empty', () => {
       it('should show error message', async () => {
         const { getByRole, getByLabelText, getByText } = await wrappedRender();
-    const saveButton = getByRole('button', { name: 'Save' });
+        const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
         const publishOn = getByLabelText('Publish On');
@@ -370,7 +395,7 @@ describe('AddAnnouncementPage', () => {
     describe('when link url is empty', () => {
       it('should show error message', async () => {
         const { getByRole, getByLabelText, getByText } = await wrappedRender();
-    const saveButton = getByRole('button', { name: 'Save' });
+        const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
         const publishOn = getByLabelText('Publish On');
@@ -418,7 +443,7 @@ describe('AddAnnouncementPage', () => {
         throw new Error('Failed to add announcement');
       });
       const { getByRole, getByLabelText } = await wrappedRender();
-    const saveButton = getByRole('button', { name: 'Save' });
+      const saveButton = getByRole('button', { name: 'Save' });
       const title = getByLabelText('Title');
       const description = getByLabelText('Description');
       const linkUrl = getByLabelText('Link URL');
