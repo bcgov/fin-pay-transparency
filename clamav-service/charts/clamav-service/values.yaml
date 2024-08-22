@@ -32,14 +32,6 @@ clamav:
     # clamav.sendBufTimeout -- This option specifies how long to wait (in milliseconds) if the send buffer is full, keep low to avoid clamd hanging
     sendBufTimeout: 500
 
-  resources:
-    # clamav.resources -- The resource requests and limits for the clamav service
-    requests:
-      cpu: 100m
-      memory: 512Mi
-    limits:
-      cpu: 300m
-      memory: 1024Mi
 
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod

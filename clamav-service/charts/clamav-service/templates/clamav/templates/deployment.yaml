@@ -46,8 +46,8 @@ spec:
               cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 300m
-              memory: 1024Mi
+              cpu: 500m
+              memory: 1500Mi
           volumeMounts:
             - mountPath: /opt/app-root/src
               name: signatures
