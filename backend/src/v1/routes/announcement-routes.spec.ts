@@ -27,7 +27,6 @@ jest.mock('../middlewares/authorization/authenticate-admin', () => ({
   authenticateAdmin:
     (...args) =>
     (req, res, next) => {
-      console.log('mockAuthenticateAdmin');
       req.user = { admin_user_id: faker.string.uuid(), userInfo: {} };
       next();
     },
@@ -37,7 +36,6 @@ jest.mock('../middlewares/authorization/authorize', () => ({
   authorize:
     (...args) =>
     (req, res, next) => {
-      console.log('mockAuthorize');
       next();
     },
 }));
@@ -162,7 +160,13 @@ describe('announcement-routes', () => {
             it('should return announcements', async () => {
               const response = await request(app)
                 .get('/')
-                .query(qs.stringify({ filters: [{key: 'title', operation: 'like', value: 'test'}] }));
+                .query(
+                  qs.stringify({
+                    filters: [
+                      { key: 'title', operation: 'like', value: 'test' },
+                    ],
+                  }),
+                );
               expect(mockGetAnnouncements).toHaveBeenCalledWith(
                 expect.objectContaining({
                   filters: [{ key: 'title', operation: 'like', value: 'test' }],
@@ -354,32 +358,32 @@ describe('announcement-routes', () => {
 
     describe('when body is valid', () => {
       it('should return 201', async () => {
-        mockCreateAnnouncement.mockResolvedValue({message: 'Announcement created'});
-        const response = await request(app)
-          .post('/')
-          .send({
-            title: 'Test',
-            description: 'Test',
-            expires_on: faker.date.recent(),
-            published_on: faker.date.future(),
-            status: 'DRAFT',
-          });
+        mockCreateAnnouncement.mockResolvedValue({
+          message: 'Announcement created',
+        });
+        const response = await request(app).post('/').send({
+          title: 'Test',
+          description: 'Test',
+          expires_on: faker.date.recent(),
+          published_on: faker.date.future(),
+          status: 'DRAFT',
+        });
         expect(response.status).toBe(201);
         expect(response.body).toEqual({ message: 'Announcement created' });
       });
 
       describe('when service throws error', () => {
         it('should return 400', async () => {
-          mockCreateAnnouncement.mockRejectedValue(new Error('Invalid request'));
-          const response = await request(app)
-            .post('/')
-            .send({
-              title: 'Test',
-              description: 'Test',
-              expires_on: faker.date.recent(),
-              published_on: faker.date.future(),
-              status: 'DRAFT',
-            });
+          mockCreateAnnouncement.mockRejectedValue(
+            new Error('Invalid request'),
+          );
+          const response = await request(app).post('/').send({
+            title: 'Test',
+            description: 'Test',
+            expires_on: faker.date.recent(),
+            published_on: faker.date.future(),
+            status: 'DRAFT',
+          });
 
           expect(response.status).toBe(400);
           expect(response.body.error).toBeDefined();
@@ -399,15 +403,13 @@ describe('announcement-routes', () => {
 
     describe('when body is valid', () => {
       it('should return 200', async () => {
-        const response = await request(app)
-          .put('/123')
-          .send({
-            title: 'Test',
-            description: 'Test',
-            expires_on: faker.date.recent(),
-            published_on: faker.date.future(),
-            status: 'DRAFT',
-          });
+        const response = await request(app).put('/123').send({
+          title: 'Test',
+          description: 'Test',
+          expires_on: faker.date.recent(),
+          published_on: faker.date.future(),
+          status: 'DRAFT',
+        });
         expect(response.status).toBe(200);
       });
     });
@@ -415,15 +417,13 @@ describe('announcement-routes', () => {
     describe('when service throws error', () => {
       it('should return 400', async () => {
         mockUpdateAnnouncement.mockRejectedValue(new Error('Invalid request'));
-        const response = await request(app)
-          .put('/123')
-          .send({
-            title: 'Test',
-            description: 'Test',
-            expires_on: faker.date.recent(),
-            published_on: faker.date.future(),
-            status: 'DRAFT',
-          });
+        const response = await request(app).put('/123').send({
+          title: 'Test',
+          description: 'Test',
+          expires_on: faker.date.recent(),
+          published_on: faker.date.future(),
+          status: 'DRAFT',
+        });
 
         expect(response.status).toBe(400);
         expect(response.body.error).toBeDefined();

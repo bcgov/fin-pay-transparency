@@ -300,17 +300,33 @@ describe('AnnouncementsService', () => {
         status: 'PUBLISHED',
         linkDisplayName: faker.lorem.words(3),
         linkUrl: faker.internet.url(),
+        attachmentId: 'attachment-id',
+        fileDisplayName: faker.lorem.words(3),
       };
       await createAnnouncement(announcementInput, 'user-id');
       expect(mockCreateAnnouncement).toHaveBeenCalledWith({
         data: {
-          ...omit(announcementInput, 'status', 'linkDisplayName', 'linkUrl'),
+          ...omit(
+            announcementInput,
+            'status',
+            'linkDisplayName',
+            'linkUrl',
+            'attachmentId',
+            'fileDisplayName',
+          ),
           announcement_status: {
             connect: { code: 'PUBLISHED' },
           },
           announcement_resource: {
             createMany: {
               data: [
+                {
+                  display_name: announcementInput.fileDisplayName,
+                  attachment_file_id: 'attachment-id',
+                  resource_type: 'ATTACHMENT',
+                  created_by: 'user-id',
+                  updated_by: 'user-id',
+                },
                 {
                   display_name: announcementInput.linkDisplayName,
                   resource_url: announcementInput.linkUrl,
@@ -361,7 +377,7 @@ describe('AnnouncementsService', () => {
   });
 
   describe('updateAnnouncement', () => {
-    describe('with existing resource', () => {
+    describe('with existing link resource', () => {
       it('should update announcement and resource', async () => {
         mockFindUniqueOrThrow.mockResolvedValue({
           id: 'announcement-id',
@@ -457,7 +473,7 @@ describe('AnnouncementsService', () => {
       });
     });
 
-    describe('without existing resource', () => {
+    describe('without existing link resource', () => {
       it('should update announcement and create resource', async () => {
         mockFindUniqueOrThrow.mockResolvedValue({
           id: 'announcement-id',
@@ -495,6 +511,124 @@ describe('AnnouncementsService', () => {
             },
             announcement_resource_type: {
               connect: { code: 'LINK' },
+            },
+          },
+        });
+        expect(mockUpdate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { announcement_id: 'announcement-id' },
+            data: expect.objectContaining({
+              title: announcementInput.title,
+              description: announcementInput.description,
+              expires_on: announcementInput.expires_on,
+              published_on: announcementInput.published_on,
+              updated_date: expect.any(Date),
+              announcement_status: {
+                connect: { code: 'PUBLISHED' },
+              },
+              admin_user_announcement_updated_byToadmin_user: {
+                connect: { admin_user_id: 'user-id' },
+              },
+            }),
+          }),
+        );
+      });
+    });
+    describe('with existing attachment resource', () => {
+      it('should update announcement and resource', async () => {
+        const attachmentId = faker.string.uuid();
+        mockFindUniqueOrThrow.mockResolvedValue({
+          id: 'announcement-id',
+          announcement_resource: [
+            {
+              announcement_resource_id: attachmentId,
+              resource_type: 'ATTACHMENT',
+            },
+          ],
+        });
+        const announcementInput: AnnouncementDataType = {
+          title: faker.lorem.words(3),
+          description: faker.lorem.words(10),
+          expires_on: faker.date.recent().toISOString(),
+          published_on: faker.date.future().toISOString(),
+          status: 'PUBLISHED',
+          attachmentId: attachmentId,
+          fileDisplayName: faker.lorem.words(3),
+        };
+        await updateAnnouncement(
+          'announcement-id',
+          announcementInput,
+          'user-id',
+        );
+        expect(mockHistoryCreate).toHaveBeenCalled();
+        expect(mockUpdateResource).toHaveBeenCalledWith({
+          where: { announcement_resource_id: attachmentId },
+          data: {
+            display_name: announcementInput.fileDisplayName,
+            attachment_file_id: announcementInput.attachmentId,
+            updated_by: 'user-id',
+            update_date: expect.any(Date),
+          },
+        });
+        expect(mockUpdate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { announcement_id: 'announcement-id' },
+            data: expect.objectContaining({
+              title: announcementInput.title,
+              description: announcementInput.description,
+              expires_on: announcementInput.expires_on,
+              published_on: announcementInput.published_on,
+              updated_date: expect.any(Date),
+              announcement_status: {
+                connect: { code: 'PUBLISHED' },
+              },
+              admin_user_announcement_updated_byToadmin_user: {
+                connect: { admin_user_id: 'user-id' },
+              },
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('without existing attachment resource', () => {
+      it('should update announcement and create resource', async () => {
+        mockFindUniqueOrThrow.mockResolvedValue({
+          id: 'announcement-id',
+          announcement_resource: [],
+        });
+        const announcementInput: AnnouncementDataType = {
+          title: faker.lorem.words(3),
+          description: faker.lorem.words(10),
+          expires_on: faker.date.recent().toISOString(),
+          published_on: faker.date.future().toISOString(),
+          status: 'PUBLISHED',
+          attachmentId: faker.string.uuid(),
+          fileDisplayName: faker.lorem.word(),
+        };
+        await updateAnnouncement(
+          'announcement-id',
+          announcementInput,
+          'user-id',
+        );
+        expect(mockHistoryCreate).toHaveBeenCalled();
+        expect(mockCreateResource).toHaveBeenCalledWith({
+          data: {
+            display_name: announcementInput.fileDisplayName,
+            attachment_file_id: announcementInput.attachmentId,
+            admin_user_announcement_resource_created_byToadmin_user: {
+              connect: { admin_user_id: 'user-id' },
+            },
+            admin_user_announcement_resource_updated_byToadmin_user: {
+              connect: { admin_user_id: 'user-id' },
+            },
+            announcement: {
+              connect: {
+                announcement_id: 'announcement-id',
+              },
+            },
+            announcement_resource_type: {
+              connect: { code: 'ATTACHMENT' },
             },
           },
         });

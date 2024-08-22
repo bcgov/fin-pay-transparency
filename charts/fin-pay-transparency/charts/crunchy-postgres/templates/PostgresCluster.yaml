@@ -178,11 +178,11 @@ spec:
       jobs:
         resources:
           requests:
-            cpu: {{ .Values.pgBackRest.sidecars.requests.cpu }}
-            memory: {{ .Values.pgBackRest.sidecars.requests.memory }}
+            cpu: {{ .Values.pgBackRest.jobs.requests.cpu }}
+            memory: {{ .Values.pgBackRest.jobs.requests.memory }}
           limits:
-            cpu: {{ .Values.pgBackRest.sidecars.limits.cpu }}
-            memory: {{ .Values.pgBackRest.sidecars.limits.memory }}
+            cpu: {{ .Values.pgBackRest.jobs.limits.cpu }}
+            memory: {{ .Values.pgBackRest.jobs.limits.memory }}
   {{- end }}
   patroni:
     dynamicConfiguration:

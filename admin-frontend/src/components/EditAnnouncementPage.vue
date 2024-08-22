@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, onBeforeUnmount } from 'vue';
 import { storeToRefs } from 'pinia';
 import {
   AnnouncementFormValue,
@@ -17,10 +17,12 @@ import {
 import AnnouncementForm from './announcements/AnnouncementForm.vue';
 import { NotificationService } from '../services/notificationService';
 import { useAnnouncementSelectionStore } from '../store/modules/announcementSelectionStore';
+import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const selectionStore = useAnnouncementSelectionStore();
+const announcementSearch = useAnnouncementSearchStore();
 const { announcement } = storeToRefs(selectionStore);
 
 const submit = async (data: AnnouncementFormValue) => {
@@ -29,6 +31,7 @@ const submit = async (data: AnnouncementFormValue) => {
     NotificationService.pushNotificationSuccess(
       'Announcement saved successfully',
     );
+    await announcementSearch.repeatSearch();
     router.push('/announcements');
   } catch (error) {
     console.error('Failed to save announcement', error);
@@ -40,5 +43,9 @@ onBeforeMount(() => {
   if (!announcement.value) {
     router.replace('/announcements');
   }
+});
+
+onBeforeUnmount(() => {
+  selectionStore.reset();
 });
 </script>

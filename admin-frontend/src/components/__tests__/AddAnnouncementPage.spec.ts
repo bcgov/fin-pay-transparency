@@ -313,6 +313,56 @@ describe('AddAnnouncementPage', () => {
       });
     });
   });
+  describe('when file name is not empty', () => {
+    describe('file name is more than 100 characters', () => {
+      it('should show error message', async () => {
+        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const saveButton = getByRole('button', { name: 'Save' });
+        const title = getByLabelText('Title');
+        const description = getByLabelText('Description');
+        const publishOn = getByLabelText('Publish On');
+        const expiresOn = getByLabelText('Expires On');
+        const linkUrl = getByLabelText('Link URL');
+        const displayLinkAs = getByLabelText('Display Link As');
+        const fileName = getByLabelText('File Name');
+        await fireEvent.update(title, 'Test Title');
+        await fireEvent.update(description, 'Test Description');
+        await setDate(publishOn, () => getByText('15'));
+        await setDate(expiresOn, () => getByText('20'));
+        await fireEvent.update(linkUrl, 'https://example.com');
+        await fireEvent.update(displayLinkAs, 'a'.repeat(50));
+        await fireEvent.update(fileName, 'a'.repeat(101));
+        await markAsPublish();
+        await fireEvent.click(saveButton);
+        await waitFor(() => {
+          expect(
+            getByText('File name should not be more than 100 characters.'),
+          ).toBeInTheDocument();
+        });
+      });
+    });
+    describe('when link url is empty', () => {
+      it('should show error message', async () => {
+        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+    const saveButton = getByRole('button', { name: 'Save' });
+        const title = getByLabelText('Title');
+        const description = getByLabelText('Description');
+        const publishOn = getByLabelText('Publish On');
+        const expiresOn = getByLabelText('Expires On');
+        const displayLinkAs = getByLabelText('Display Link As');
+        await fireEvent.update(title, 'Test Title');
+        await fireEvent.update(description, 'Test Description');
+        await setDate(publishOn, () => getByText('15'));
+        await setDate(expiresOn, () => getByText('20'));
+        await fireEvent.update(displayLinkAs, 'Example.pdf');
+        await markAsPublish();
+        await fireEvent.click(saveButton);
+        await waitFor(() => {
+          expect(getByText('Link URL is required.')).toBeInTheDocument();
+        });
+      });
+    });
+  });
 
   describe('when no expiry is checked', () => {
     it('should disable the expires on field', async () => {

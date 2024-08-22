@@ -14,12 +14,17 @@ export const useAnnouncementSelectionStore = defineStore(
           resource_type: string;
           display_name: string;
           resource_url: string;
+          attachment_file_id: string;
         }[];
       },
     ) => {
       const link = data.announcement_resource.find(
         (r) => r.resource_type === 'LINK',
       );
+      const attachment = data.announcement_resource.find(
+        (r) => r.resource_type === 'ATTACHMENT',
+      );
+
       announcement.value = {
         announcement_id: data.announcement_id,
         title: data.title,
@@ -34,6 +39,8 @@ export const useAnnouncementSelectionStore = defineStore(
         no_expiry: data.expires_on === null,
         linkUrl: link?.resource_url,
         linkDisplayName: link?.display_name,
+        attachmentId: attachment?.attachment_file_id,
+        fileDisplayName: attachment?.display_name,
       };
     };
 

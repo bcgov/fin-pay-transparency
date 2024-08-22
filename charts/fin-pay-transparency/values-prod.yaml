@@ -220,7 +220,7 @@ crunchy:
       incrementalBackupSchedule: 0 0,4,12,16,20 * * *
       volume:
         accessModes: "ReadWriteOnce"
-        storage: 1024Mi
+        storage: 1750Mi
         storageClassName: netapp-file-backup
 
     config:
@@ -232,11 +232,11 @@ crunchy:
         memory: 64Mi
     repoHost:
       requests:
-        cpu: 5m
-        memory: 32Mi
+        cpu: 50m
+        memory: 128Mi
       limits:
-        cpu: 20m
-        memory: 64Mi
+        cpu: 200m
+        memory: 256Mi
     sidecars:
       requests:
         cpu: 5m
@@ -244,7 +244,13 @@ crunchy:
       limits:
         cpu: 20m
         memory: 64Mi
-
+    jobs:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
   patroni:
     postgresql:
       pg_hba: "host all all 0.0.0.0/0 md5"

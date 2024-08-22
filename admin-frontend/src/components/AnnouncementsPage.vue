@@ -297,4 +297,6 @@ async function deleteAnnouncements(announcementIds: string[]) {
 .no-min-width {
   min-width: 0px !important;
 }
+
+
 </style>

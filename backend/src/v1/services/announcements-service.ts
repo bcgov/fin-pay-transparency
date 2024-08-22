@@ -181,6 +181,28 @@ export const createAnnouncement = async (
   input: AnnouncementDataType,
   currentUserId: string,
 ) => {
+  const resources: Prisma.announcement_resourceCreateManyAnnouncementInput[] =
+    [];
+  if (input.attachmentId && input.fileDisplayName) {
+    resources.push({
+      display_name: input.fileDisplayName,
+      attachment_file_id: input.attachmentId,
+      resource_type: 'ATTACHMENT',
+      created_by: currentUserId,
+      updated_by: currentUserId,
+    });
+  }
+
+  if (input.linkUrl) {
+    resources.push({
+      display_name: input.linkDisplayName,
+      resource_url: input.linkUrl,
+      resource_type: 'LINK',
+      created_by: currentUserId,
+      updated_by: currentUserId,
+    });
+  }
+
   const data: Prisma.announcementCreateInput = {
     title: input.title,
     description: input.description,
@@ -195,21 +217,8 @@ export const createAnnouncement = async (
     admin_user_announcement_updated_byToadmin_user: {
       connect: { admin_user_id: currentUserId },
     },
-    announcement_resource: input.linkUrl
-      ? {
-          createMany: {
-            data: [
-              {
-                display_name: input.linkDisplayName,
-                resource_url: input.linkUrl,
-                resource_type: 'LINK',
-                created_by: currentUserId,
-                updated_by: currentUserId,
-              },
-            ],
-          },
-        }
-      : undefined,
+    announcement_resource:
+      resources.length > 0 ? { createMany: { data: resources } } : undefined,
   };
 
   return prisma.announcement.create({
@@ -285,6 +294,47 @@ export const updateAnnouncement = async (
           announcement_resource_id: currentLink.announcement_resource_id,
         },
       });
+    }
+
+    if (input.attachmentId) {
+      const currentAttachment = announcementData?.announcement_resource.find(
+        (x) => x.resource_type === 'ATTACHMENT',
+      );
+
+      if (currentAttachment) {
+        await tx.announcement_resource.update({
+          where: {
+            announcement_resource_id: currentAttachment.announcement_resource_id,
+          },
+          data: {
+            display_name: input.fileDisplayName,
+            attachment_file_id: input.attachmentId,
+            updated_by: currentUserId,
+            update_date: updateDate,
+          },
+        });
+      } else {
+        await tx.announcement_resource.create({
+          data: {
+            display_name: input.fileDisplayName,
+            attachment_file_id: input.attachmentId,
+            announcement_resource_type: {
+              connect: { code: 'ATTACHMENT' },
+            },
+            admin_user_announcement_resource_created_byToadmin_user: {
+              connect: { admin_user_id: currentUserId },
+            },
+            admin_user_announcement_resource_updated_byToadmin_user: {
+              connect: { admin_user_id: currentUserId },
+            },
+            announcement: {
+              connect: {
+                announcement_id: id,
+              },
+            },
+          },
+        });
+      }
     }
 
     const data: Prisma.announcementUpdateInput = {
