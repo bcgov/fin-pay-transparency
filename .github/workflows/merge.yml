@@ -15,6 +15,7 @@ on:
       - ".graphics/**"
       - "sysdig/**"
       - ".github/workflows/sysdig.yml"
+      - "clamav-service/**"
   workflow_dispatch:
     inputs:
       pr_no:

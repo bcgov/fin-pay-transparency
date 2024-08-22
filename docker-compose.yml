@@ -146,7 +146,14 @@ services:
         condition: service_healthy
     networks:
       - default
-
+  clamav:
+    image: clamav:latest
+    container_name: clamav
+    build:
+      context: clamav-service/clamav
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3310"
 networks:
   default:
     driver: bridge
