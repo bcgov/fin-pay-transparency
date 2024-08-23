@@ -189,7 +189,7 @@ router.beforeEach((to, _from, next) => {
   if (!to.meta.requiresAuth) {
     //Proceed normally to the requested route
     const apStore = appStore();
-    apStore.setsectionTitle(to?.meta?.sectionTitle ?? '');
+    apStore.setPageTitle(to?.meta?.pageTitle ?? '');
     next();
     return;
   }
