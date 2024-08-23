@@ -39,4 +39,3 @@ export default {
   height: 100%;
 }
 </style>
-../services/notificationService
