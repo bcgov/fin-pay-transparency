@@ -50,6 +50,8 @@ Pay Transparency Reporting Tool is a webapp that employers use to generate a pdf
    - 3000 backend
    - 3001 doc-gen-service
    - 3002 backend-external
+   - 3011 clamav-service ( node.js api)
+   - 3310 clamav (clamav daemon)
    - 5432 postgres
 
 ### Repo setup

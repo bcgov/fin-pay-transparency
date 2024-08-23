@@ -146,7 +146,6 @@ services:
         condition: service_healthy
     networks:
       - default
-
 networks:
   default:
     driver: bridge

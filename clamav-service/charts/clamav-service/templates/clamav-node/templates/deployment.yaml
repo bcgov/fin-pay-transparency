@@ -1,0 +1,103 @@
+{{- if .Values.node.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "clamav-node.fullname" . }}
+  labels:
+    {{- include "clamav-node.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.node.deploymentStrategy }}
+  replicas: {{ .Values.node.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "clamav-node.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/prom-metrics"
+        rollme: {{ randAlphaNum 5 | quote }}
+      labels:
+        {{- include "clamav-node.labels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.node.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "clamav-node.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.node.securityContext | nindent 12 }}
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/fin-pay-transparency/clamav-service/clamav-node:{{ .Values.node.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.node.image.pullPolicy }}
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: {{ .Values.node.service.targetPort | quote }}
+            - name: IS_RATE_LIMIT_ENABLED
+              value: 'true'
+            - name: RATE_LIMIT_WINDOW_MS
+              value: '60000'
+            - name: RATE_LIMIT_LIMIT
+              value: '1000'
+            - name: LOG_LEVEL
+              value: {{.Values.node.app.env.logLevel}}
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Release.Name}}
+                  key: API_KEY
+            - name: CLAMAV_HOST
+              value: "clamav.db4642-tools.svc.cluster.local"
+            - name: CLAMAV_PORT
+              value: "80"
+          ports:
+            - name: http
+              containerPort: {{ .Values.node.service.targetPort }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.node.resources | nindent 12 }}
+      {{- with .Values.node.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.node.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "clamav-node.fullname" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+
+{{- end }}

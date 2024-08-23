@@ -1,0 +1,64 @@
+name: Build And Deploy ClamAV To Tools
+on:
+  workflow_dispatch:
+
+jobs:
+  builds:
+    name: Builds
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [ clamav-service/clamav,
+                   clamav-service/clamav-node
+        ]
+        include:
+          - package: clamav-service/clamav
+            build_file: ./clamav-service/clamav/Dockerfile
+            triggers: ('clamav-service/')
+            build_context: ./clamav-service/clamav
+          - package: clamav-service/clamav-node
+            build_file: ./clamav-service/Dockerfile
+            triggers: ('clamav-service/')
+            build_context: ./clamav-service
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bcgov-nr/action-builder-ghcr@v2.2.0
+        with:
+          package: ${{ matrix.package }}
+          tag: latest
+          tag_fallback: latest
+          build_context: ${{ matrix.build_context }}
+          triggers: ${{ matrix.triggers }}
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-22.04
+    needs: builds
+    environment: tools
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        name: checkout
+      - name: Login to OpenShift
+        shell: bash
+        run: |
+          # Allow pipefail, since we could be catching oc create errors
+          set +o pipefail
+          
+          # Login to OpenShift (NOTE: project command is a safeguard)
+          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
+          oc project ${{ vars.oc_namespace }}
+      - name: Package ClamAV Helm Chart
+        shell: bash
+        run: |
+          helm package -u  ./clamav-service/charts/clamav-service
+      - name: Deploy ClamAV Helm Chart
+        shell: bash
+        run: |
+          # CLAMAV_API_KEY is a secret stored in GitHub at repo level
+          helm upgrade --debug --install --wait --atomic clamav-service  \
+          --set-string global.secrets.apiKey=${{ secrets.CLAMAV_API_KEY }} \
+          --timeout 9m ./clamav-service-1.0.0.tgz
+          

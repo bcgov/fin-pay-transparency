@@ -24,7 +24,7 @@
   encode zstd gzip
   file_server
   @spa_router {
-    not path /admin-api/* /env.js
+    not path /admin-api/* /env.js /clamav-api/*
     file {
         try_files {path} /index.html
     }
@@ -54,6 +54,10 @@
   # Proxy requests to API service
   reverse_proxy /admin-api/* {$BACKEND_URL}{
     header_up X-Forwarded-Proto https
+  }
+  reverse_proxy /clamav-api/* {$CLAMAV_API_URL}{
+    header_up X-Forwarded-Proto https
+    header_up x-api-key {$CLAMAV_API_KEY}
   }
 }
 :3001 {
