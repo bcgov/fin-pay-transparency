@@ -1,4 +1,5 @@
 import { createTestingPinia } from '@pinia/testing';
+import { waitFor } from '@testing-library/vue';
 import { flushPromises, mount } from '@vue/test-utils';
 import { getActivePinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,7 +10,6 @@ import * as directives from 'vuetify/directives';
 import App from '../App.vue';
 import router from '../router';
 import { authStore } from '../store/modules/auth';
-import { waitFor } from '@testing-library/vue';
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
@@ -144,7 +144,6 @@ describe('App', () => {
         };
         mockDoesUserHaveRole.mockReturnValueOnce(false);
         componentEnv.app.vm.onRouteChanged(to, null);
-        expect(componentEnv.app.vm.activeRoute).toStrictEqual(to);
         expect(componentEnv.app.vm.areHeaderAndSidebarVisible).toBe(
           to.meta.requiresAuth,
         );

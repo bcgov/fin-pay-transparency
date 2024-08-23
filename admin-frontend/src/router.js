@@ -76,6 +76,7 @@ const router = createRouter({
       name: 'add-announcement',
       component: AddAnnouncementPage,
       meta: {
+        sectionTitle: PAGE_TITLES.ANNOUNCEMENTS,
         pageTitle: PAGE_TITLES.ADD_ANNOUNCEMENT,
         requiresAuth: true,
         requiresRole: USER_ROLE_NAME,
@@ -88,6 +89,7 @@ const router = createRouter({
       name: 'edit-announcement',
       component: EditAnnouncementPage,
       meta: {
+        sectionTitle: PAGE_TITLES.ANNOUNCEMENTS,
         pageTitle: PAGE_TITLES.EDIT_ANNOUNCEMENT,
         requiresAuth: true,
         requiresRole: USER_ROLE_NAME,

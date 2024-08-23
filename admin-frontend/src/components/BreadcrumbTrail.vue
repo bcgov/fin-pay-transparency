@@ -1,9 +1,9 @@
 <template>
-  <v-breadcrumbs
-    :items="breadcrumbItems"
-    divider=">"
-    class="px-0"
-  ></v-breadcrumbs>
+  <v-breadcrumbs :items="breadcrumbItems" class="px-0">
+    <template v-slot:divider>
+      <v-icon icon="mdi-chevron-right" size="x-small" class="px-0"></v-icon>
+    </template>
+  </v-breadcrumbs>
 </template>
 
 <script>
@@ -38,8 +38,11 @@ function routeToBreadcrumbItem(route, isEnabled = true) {
 function updateBreadcrumbItems(route) {
   const items = [];
   if (route?.meta?.breadcrumbs?.length) {
-
-    items.push(...route.meta.breadcrumbs.map((b) => routeToBreadcrumbItem(router.getRoutes().find((r) => r.name == b))));
+    items.push(
+      ...route.meta.breadcrumbs.map((b) =>
+        routeToBreadcrumbItem(router.getRoutes().find((r) => r.name == b)),
+      ),
+    );
 
     if (route?.name != dashboardRoute.name) {
       items.push(routeToBreadcrumbItem(route, false));
@@ -60,14 +63,15 @@ watch(
 <style>
 .v-breadcrumbs-item {
   padding-left: 0px !important;
+  padding-right: 0px !important;
   font-size: 0.8em;
 }
 .v-breadcrumbs-item--link {
   color: revert !important;
 }
 .v-breadcrumbs-divider {
-  padding-left: 2px !important;
-  padding-right: 2px !important;
+  padding-left: 0px !important;
+  padding-right: 0px !important;
 }
 .v-breadcrumbs-item--disabled {
   opacity: 1 !important;
