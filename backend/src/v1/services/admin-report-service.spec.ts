@@ -328,14 +328,14 @@ describe('admin-report-service', () => {
             ).toBeTruthy();
           });
 
-          it('should not return reports', async () => {
+          it('should all reports if values not provided to update_date', async () => {
             const response = await adminReportService.searchReport(
               0,
               10,
               '[]',
               '[{"key": "update_date", "operation": "between", "value": [] }]',
             );
-            expect(response.reports.length).toBe(0);
+            expect(response.reports.length).toBe(3);
           });
         });
         describe('is_unlocked', () => {
