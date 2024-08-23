@@ -306,7 +306,6 @@ const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
 const attachment = ref<File | null>(null);
 
-console.log(announcement);
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
