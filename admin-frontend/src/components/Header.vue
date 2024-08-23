@@ -1,5 +1,16 @@
 <template>
-  <v-app-bar absolute style="z-index: 1002" class="d-flex justify-center">
+  <v-app-bar
+    absolute
+    style="z-index: 1002"
+    class="d-flex justify-center ps-6 pe-6"
+  >
+    <h2 v-if="isTitleVisible">
+      {{
+        activeRoute.meta.sectionTitle
+          ? activeRoute.meta.sectionTitle
+          : activeRoute.meta.pageTitle
+      }}
+    </h2>
     <v-spacer />
     <div v-if="isAuthenticated" data-testid="account-info">
       <v-icon icon="mdi-account" size="small" />
@@ -7,7 +18,7 @@
     </div>
 
     <v-btn
-      class="btn-link"
+      class="btn-link ms-2"
       v-if="isAuthenticated"
       @click="redirectToLogout()"
       data-testid="logout-btn"
@@ -34,7 +45,17 @@ export default {
       message: false,
       hints: true,
       authRoutesLogout: sanitizeUrl(AuthRoutes.LOGOUT),
+      isTitleVisible: false,
+      activeRoute: null,
     };
+  },
+  watch: {
+    $route: {
+      handler(to, from) {
+        this.onRouteChanged(to, from);
+      },
+      immediate: true,
+    },
   },
   computed: {
     ...mapState(authStore, ['isAuthenticated']),
@@ -43,6 +64,10 @@ export default {
   methods: {
     redirectToLogout() {
       window.location.href = this.authRoutesLogout;
+    },
+    onRouteChanged(to, from) {
+      this.activeRoute = to;
+      this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
     },
   },
 };
