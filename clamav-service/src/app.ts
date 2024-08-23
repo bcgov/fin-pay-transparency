@@ -91,7 +91,7 @@ app.get(
   }),
 );
 
-app.use(/(\/api)?/, apiRouter);
+app.use(/(\/clamav-api)?/, apiRouter);
 apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
 });
@@ -112,13 +112,14 @@ const validateApiKey =
       });
     }
   };
-apiRouter.post('',validateApiKey(config.get('server:apiKey')),
+apiRouter.post('/scan',validateApiKey(config.get('server:apiKey')),
   formData.parse({
     uploadDir: os.tmpdir(),
     autoClean: true,
   }),
   formData.union(),
   utils.asyncHandler(async (req: Request, res: Response) => {
+    logger.info('Scanning file for virus');
     const { path, name } = req.body?.file;
     if(!path){
       logger.error('File path is missing in the request body');
@@ -126,14 +127,14 @@ apiRouter.post('',validateApiKey(config.get('server:apiKey')),
         message: 'File path is missing in the request body',
       });
     }
-    const filePath = fs.realpathSync(PATH.resolve(os.tmpdir(), path));
-    if (!filePath.startsWith(os.tmpdir())) {
+
+    if (!path.startsWith(os.tmpdir())) {
       logger.error('File path is not starting with temp directory.');
       res.statusCode = 403;
       res.end();
       return;
     }
-    const stream = fs.createReadStream(filePath);
+    const stream = fs.createReadStream(path);
     const ClamAVScanner = await _getClamAvScanner();
 
     const clamavScanResult = await ClamAVScanner.scanStream(stream);
