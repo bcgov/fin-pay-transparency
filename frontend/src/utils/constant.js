@@ -28,6 +28,7 @@ export const ApiRoutes = Object.freeze({
   POST_SUBMISSION: baseRoot + '/v1/file-upload',
   REPORT: baseRoot + '/v1/report/',
   ANNOUNCEMENTS: baseRoot + '/v1/announcements/',
+  RESOURCES: `${baseRoot}/v1/resources`,
 });
 
 export const PAGE_TITLES = Object.freeze({

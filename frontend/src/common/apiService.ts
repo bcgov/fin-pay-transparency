@@ -346,6 +346,35 @@ export default {
       throw e;
     }
   },
+  async downloadFile(fileId: string) {
+    try {
+      const { data, headers } = await apiAxios.get(
+        `${ApiRoutes.RESOURCES}/${fileId}`,
+        {
+          responseType: 'blob',
+        },
+      );
+      let name = headers['content-disposition']
+        .split('filename="')[1]
+        .split('.')[0];
+      let extension = headers['content-disposition']
+        .split('.')[1]
+        .split('"')[0];
+
+      const filename = `${name}.${extension}`;
+
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      return url;
+    } catch (error) {
+      console.log(`Failed to get from Nodejs downloadFile API - ${error}`);
+      throw error;
+    }
+  },
 };
 
 export const ApiServicePrivate = {

@@ -115,10 +115,6 @@
 
       <v-card-text>
         {{ announcementInDialog?.description }}
-        <a
-          href="http://localhost:8084/admin-api/files/067967bc-f7cd-49b2-a99a-fc4977d2d079"
-          >Link</a
-        >
       </v-card-text>
 
       <v-card-actions>

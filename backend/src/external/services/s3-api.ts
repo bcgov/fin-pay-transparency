@@ -1,33 +1,19 @@
 import {
-  DeleteObjectsCommand,
   GetObjectCommand,
   ListObjectsCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { config } from '../../config';
+import prisma from '../../v1/prisma/prisma-client';
+import os from 'os';
+import fs from 'fs';
+import { logger } from '../../logger';
+import { APP_ANNOUNCEMENTS_FOLDER, S3_BUCKET, S3_OPTIONS } from '../../constants/admin';
 
-export const APP_ANNOUNCEMENTS_FOLDER = 'app/announcements';
-
-const accessKeyId = config.get('s3:accessKeyId');
-const secretAccessKey = config.get('s3:secretAccessKey');
-const region = config.get('s3:region');
-const endpoint = config.get('s3:endpoint');
-export const bucket = config.get('s3:bucket');
-
-export const S3_OPTIONS = {
-  credentials: {
-    accessKeyId,
-    secretAccessKey,
-  },
-  endpoint,
-  forcePathStyle: true,
-  region,
-};
 
 const getMostRecentFile = async (s3Client: S3Client, key: string) => {
   const response = await s3Client.send(
     new ListObjectsCommand({
-      Bucket: bucket,
+      Bucket: S3_BUCKET,
       Prefix: `${APP_ANNOUNCEMENTS_FOLDER}/${key}`,
     }),
   );
@@ -39,17 +25,7 @@ const getMostRecentFile = async (s3Client: S3Client, key: string) => {
   return sortedData[0];
 };
 
-const getObjectsInFolder = async (s3Client: S3Client, folderKey: string) => {
-  const response = await s3Client.send(
-    new ListObjectsCommand({
-      Bucket: bucket,
-      Prefix: folderKey,
-    }),
-  );
-  return response.Contents.map((object) => object.Key);
-};
-
-export const downloadFile = async (key: string) => {
+export const getFile = async (key: string) => {
   const s3Client = new S3Client(S3_OPTIONS);
   const object = await getMostRecentFile(s3Client, key);
   if (!object) {
@@ -60,7 +36,7 @@ export const downloadFile = async (key: string) => {
 
   const result = await s3Client.send(
     new GetObjectCommand({
-      Bucket: bucket,
+      Bucket: S3_BUCKET,
       Key: fileName,
     }),
   );
@@ -68,16 +44,54 @@ export const downloadFile = async (key: string) => {
   return { data: result, fileName };
 };
 
-export const deleteFiles = async (folder: string) => {
-  const s3Client = new S3Client(S3_OPTIONS);
-  const files = await getObjectsInFolder(s3Client, folder);
-
-  await s3Client.send(
-    new DeleteObjectsCommand({
-      Bucket: bucket,
-      Delete: {
-        Objects: files.map((file) => ({ Key: file })),
+export const downloadFile = async (res, fileId: string) => {
+  try {
+    const attachment = await prisma.announcement_resource.findFirstOrThrow({
+      where: {
+        announcement_resource_id: fileId,
+        resource_type: 'ATTACHMENT',
       },
-    }),
-  );
+    });
+    const { data, fileName } = await getFile(attachment.attachment_file_id);
+    const tempFile = os.tmpdir() + '/' + attachment.attachment_file_id;
+    const writeStream = fs.createWriteStream(tempFile);
+    const x = await data.Body.transformToByteArray();
+    const fileNameTokens = fileName.split('/');
+    const name = fileNameTokens[fileNameTokens.length - 1];
+    const extension = name.split('.')[name.split('.').length - 1];
+    writeStream.write(x, (err) => {
+      /* istanbul ignore next */
+      if (err) {
+        logger.error('Failed to write s3 download', err);
+        return res.status(400).send('Failed to download file');
+      }
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=${attachment.display_name}.${extension}`,
+      );
+      res.download(
+        tempFile,
+        `${attachment.display_name}.${extension}`,
+        (err) => {
+          /* istanbul ignore next */
+          if (err) {
+            logger.error('Failed to download file', err);
+            if (!res.headersSent) {
+              return res.status(400).send('Failed to download file');
+            }
+          }
+
+          fs.unlink(tempFile, function (err) {
+            /* istanbul ignore next */
+            if (err) {
+              logger.error(err);
+            }
+          });
+        },
+      );
+    });
+  } catch (error) {
+    logger.error(error);
+    res.status(400).json({ message: 'Invalid request', error });
+  }
 };

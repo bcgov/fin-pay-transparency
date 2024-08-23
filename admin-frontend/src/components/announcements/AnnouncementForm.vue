@@ -466,19 +466,26 @@ its appearance, so some of the unnecessary attributes aren't populated
 (created_date, updated_date, etc)
 */
 function buildAnnouncementToPreview() {
-  const announcement = {
+  const previewAnnouncement = {
     announcement_id: null,
     title: announcementTitle.value,
     description: announcementDescription.value,
     announcement_resource: [] as any[],
   };
   if (linkDisplayName.value && linkUrl.value) {
-    announcement.announcement_resource.push({
+    previewAnnouncement.announcement_resource.push({
       display_name: linkDisplayName.value,
       resource_url: linkUrl.value,
     });
   }
-  return announcement;
+
+  if (announcement?.file_resource_id && fileDisplayName.value) {
+    previewAnnouncement.announcement_resource.push({
+      display_name: fileDisplayName.value,
+      announcement_resource_id: announcement?.file_resource_id,
+    });
+  }
+  return previewAnnouncement;
 }
 
 /*

@@ -1,15 +1,13 @@
 import fs from 'fs';
 import { logger } from '../../../logger';
-import { config } from '../../../config';
 import {
   PutObjectCommand,
   PutObjectCommandInput,
-  S3,
   S3Client,
 } from '@aws-sdk/client-s3';
 import os from 'os';
 import retry from 'async-retry';
-import { bucket, S3_OPTIONS } from '../../../external/services/s3-api';
+import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';
 
 
 interface Options {
@@ -35,7 +33,7 @@ export const useUpload = (options: Options) => {
       const s3 = new S3Client(S3_OPTIONS);
       const stream = fs.createReadStream(path);
       const uploadParams: PutObjectCommandInput = {
-        Bucket: bucket,
+        Bucket: S3_BUCKET,
         Key: `${options.folder}/${data.attachmentId}/${name}`,
         Body: stream,
         ContentType: type,

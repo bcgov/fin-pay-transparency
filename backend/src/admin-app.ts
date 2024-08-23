@@ -29,16 +29,14 @@ import adminUserRouter from './v1/routes/admin-user-info-routes';
 import codeRouter from './v1/routes/code-routes';
 import announcementsRoutes from './v1/routes/announcement-routes';
 import analyticRoutes from './v1/routes/analytic-routes';
+import resourcesRoutes from './v1/routes/resources-routes';
 import { adminAuth } from './v1/services/admin-auth-service';
 import { utils } from './v1/services/utils-service';
-import os from 'os';
-import fs from 'fs';
 
 export const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
 
 import { run as startJobs } from './schedulers/run.all';
 import adminUserInvitesRoutes from './v1/routes/admin-user-invites-routes';
-import { downloadFile } from './external/services/s3-api';
 startJobs();
 
 const register = new prom.Registry();
@@ -257,51 +255,6 @@ apiRouter.get('/', (_req, res) => {
   res.sendStatus(200); // generally for route verification and health check.
 });
 apiRouter.use('/auth', adminAuthRouter);
-apiRouter.get('/files/:fileId', async (req, res) => {
-  try {
-    const { fileId } = req.params;
-    const attachment = await prisma.announcement_resource.findFirstOrThrow({
-      where: {
-        announcement_resource_id: fileId,
-        resource_type: 'ATTACHMENT',
-      },
-    });
-    const { data, fileName } = await downloadFile(
-      attachment.attachment_file_id,
-    );
-    const tempFile = os.tmpdir() + '/' + attachment.attachment_file_id;
-    const writeStream = fs.createWriteStream(tempFile);
-    const x = await data.Body.transformToByteArray();
-    const fileNameTokens = fileName.split('/');
-    const name = fileNameTokens[fileNameTokens.length - 1];
-    const extension = name.split('.')[name.split('.').length - 1];
-    writeStream.write(x, (err) => {
-      if (err) {
-        logger.error('Failed to write s3 download', err);
-        return res.status(400).send('Failed to download file');
-      }
-
-      res.download(tempFile, `${attachment.display_name}.${extension}`, (err) => {
-        if (err) {
-          logger.error('Failed to download file', err);
-          if (!res.headersSent) {
-            return res.status(400).send('Failed to download file');
-          }
-        }
-
-        fs.unlink(tempFile, function (err) {
-          if (err) {
-            logger.error(err);
-          }
-          console.log('Temp File Delete');
-        });
-      });
-    });
-  } catch (error) {
-    logger.error(error);
-    res.status(400).json({ message: 'Invalid request', error });
-  }
-});
 // check for valid passport session and backend token for all routes below.
 apiRouter.use(
   passport.authenticate('jwt_admin', { session: false }),
@@ -316,6 +269,7 @@ apiRouter.use('/v1/users', adminUsersRoutes);
 apiRouter.use('/v1/user-invites', adminUserInvitesRoutes);
 apiRouter.use('/v1/announcements', announcementsRoutes);
 apiRouter.use('/v1/analytics', analyticRoutes);
+apiRouter.use('/v1/resources', resourcesRoutes);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });

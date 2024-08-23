@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnnouncementStatus } from '../../types/announcements';
 import ApiService from '../apiService';
+import { de } from '@faker-js/faker';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -20,6 +21,8 @@ const mockSaveAs = vi.fn();
 vi.mock('file-saver', async () => {
   return { saveAs: (...args) => mockSaveAs(...args) };
 });
+
+const originalWindow = {...window}
 
 describe('ApiService', () => {
   beforeEach(() => {});
@@ -550,6 +553,38 @@ describe('ApiService', () => {
         );
 
         await expect(ApiService.clamavScanFile(mockFile)).rejects.toThrow();
+      });
+    });
+  });
+  describe('downloadFile', () => {
+    describe('when the given file id is valid', () => {
+      it('returns a blob', async () => {
+        const mockFileId = '1';
+        const mockResponse = {
+          data: new File([], 'test.pdf'),
+          headers: {
+            'content-disposition': 'attachment; filename="test.pdf"',
+          }
+        };
+        global.URL.createObjectURL = vi.fn().mockReturnValueOnce("test.pdf");
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.downloadFile(mockFileId);
+        expect(resp).toEqual('test.pdf');
+      });
+    });
+    describe('when the given file id is invalid', () => {
+      it('throws an error', async () => {
+        const mockFileId = '1';
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          new Error('Some backend error occurred'),
+        );
+
+        await expect(
+          ApiService.downloadFile(mockFileId),
+        ).rejects.toThrow();
       });
     });
   });
