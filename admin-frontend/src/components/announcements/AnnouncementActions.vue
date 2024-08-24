@@ -94,7 +94,7 @@ async function deleteAnnouncement(announcementId: string) {
 async function unpublishAnnouncement(announcementId: string) {
   const isConfirmed = await confirmDialog.value?.open(
     'Confirm Unpublish',
-    `Unpublishing an announcement will return it to the DRAFT state, making it unavailable to the public. Are you sure you want to continue? `,
+    `Unpublishing an announcement will return it to the ${AnnouncementStatus.Draft} status, making it unavailable to the public. Are you sure you want to continue? `,
     {
       titleBold: true,
       resolveText: `Confirm`,

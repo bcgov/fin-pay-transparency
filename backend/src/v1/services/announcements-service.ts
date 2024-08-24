@@ -12,6 +12,7 @@ import { PaginatedResult } from '../types';
 import {
   AnnouncementDataType,
   AnnouncementQueryType,
+  AnnouncementStatus,
   PatchAnnouncementsType,
 } from '../types/announcements';
 import { UserInputError } from '../types/errors';
@@ -154,13 +155,16 @@ export const patchAnnouncements = async (
   data: PatchAnnouncementsType,
   userId: string,
 ) => {
-  const targetStatuses = ['DELETED', 'DRAFT'];
+  const supportedStatuses = [
+    AnnouncementStatus.Deleted,
+    AnnouncementStatus.Draft,
+  ];
   const hasUnsupportedUpdates = data.filter(
-    (item) => targetStatuses.indexOf(item.status) < 0,
+    (item) => supportedStatuses.indexOf(item.status as any) < 0,
   ).length;
   if (hasUnsupportedUpdates) {
     throw new UserInputError(
-      `Invalid status. Only the following statuses are supported: ${targetStatuses}`,
+      `Invalid status. Only the following statuses are supported: ${supportedStatuses}`,
     );
   }
   return prisma.$transaction(async (tx) => {
@@ -176,7 +180,7 @@ export const patchAnnouncements = async (
     const updateDate = LocalDate.now(ZoneId.UTC);
 
     const updates = data
-      .filter((item) => targetStatuses.indexOf(item.status) >= 0)
+      .filter((item) => supportedStatuses.indexOf(item.status as any) >= 0)
       .map((item) => ({
         announcement_id: item.id,
         status: item.status,
@@ -188,6 +192,7 @@ export const patchAnnouncements = async (
       updated_by: 'UUID',
     };
 
+    //of all the data passed to this method, only the target 'status' is
     await utils.updateManyUnsafe(
       tx,
       updates,

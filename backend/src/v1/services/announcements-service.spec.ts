@@ -1,6 +1,9 @@
 import { faker } from '@faker-js/faker';
 import omit from 'lodash/omit';
-import { AnnouncementDataType } from '../types/announcements';
+import {
+  AnnouncementDataType,
+  AnnouncementStatus,
+} from '../types/announcements';
 import { UserInputError } from '../types/errors';
 import {
   createAnnouncement,
@@ -346,8 +349,8 @@ describe('AnnouncementsService', () => {
     describe('when provided a list of objects with and at least one requests an invalid status change', () => {
       it('throws a UserInputError', async () => {
         const data: any = [
-          { id: '1', status: 'DELETED' },
-          { id: '2', status: 'PUBLISHED' },
+          { id: '1', status: AnnouncementStatus.Deleted }, //is supported
+          { id: '2', status: AnnouncementStatus.Published }, //isn't supported
         ];
         const mockUserId = 'user-id';
         await expect(patchAnnouncements(data, mockUserId)).rejects.toThrow(
@@ -374,8 +377,8 @@ describe('AnnouncementsService', () => {
         ]);
         await patchAnnouncements(
           [
-            { id: '1', status: 'DELETED' },
-            { id: '2', status: 'DRAFT' },
+            { id: '1', status: AnnouncementStatus.Deleted },
+            { id: '2', status: AnnouncementStatus.Draft },
           ],
           'user-id',
         );
@@ -393,13 +396,13 @@ describe('AnnouncementsService', () => {
         expect(updates).toStrictEqual([
           {
             announcement_id: '1',
-            status: 'DELETED',
+            status: AnnouncementStatus.Deleted,
             updated_by: 'user-id',
             updated_date: expect.any(Date),
           },
           {
             announcement_id: '2',
-            status: 'DRAFT',
+            status: AnnouncementStatus.Draft,
             updated_by: 'user-id',
             updated_date: expect.any(Date),
           },
