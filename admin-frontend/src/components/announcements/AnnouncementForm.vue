@@ -39,8 +39,8 @@
         </div>
       </div>
 
-      <v-row class="extend-to-right-edge border-t">
-        <v-col sm="6" md="7" lg="7" xl="8">
+      <v-row dense class="extend-to-right-edge border-t">
+        <v-col sm="6" md="7" lg="7" xl="8" class="px-0">
           <div class="content">
             <v-row dense class="mt-2 form-wrapper">
               <v-col cols="12" md="12" sm="12">
@@ -306,7 +306,6 @@ const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
 const attachment = ref<File | null>(null);
 
-console.log(announcement);
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
@@ -565,7 +564,7 @@ const handleSave = handleSubmit(async (values) => {
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .toolbar {
   display: flex;
   margin-bottom: 1rem;
@@ -575,7 +574,9 @@ const handleSave = handleSubmit(async (values) => {
     flex: 1 1 auto;
   }
 }
-
+.v-row {
+  margin-left: 0px !important;
+}
 .content {
   width: 100%;
   max-width: 800px;
