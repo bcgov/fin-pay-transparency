@@ -330,7 +330,7 @@ describe('announcement-routes', () => {
         expect(mockPatchAnnouncements).toHaveBeenCalled();
         expect(response.status).toBe(201);
         expect(response.body).toEqual({
-          message: `Set the status on ${data.length} announcement(s)`,
+          message: `Updated the status of the announcement(s)`,
         });
       });
     });
