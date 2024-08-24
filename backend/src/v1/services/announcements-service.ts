@@ -168,7 +168,6 @@ export const patchAnnouncements = async (
     );
   }
   return prisma.$transaction(async (tx) => {
-    const ids = data.map((item) => item.id);
     const announcements = await tx.announcement.findMany({
       where: { announcement_id: { in: data.map((item) => item.id) } },
       include: { announcement_resource: true },

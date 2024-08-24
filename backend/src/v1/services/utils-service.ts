@@ -139,7 +139,8 @@ async function postData(url, body, axiosConfig) {
     {colName: 'UUID'}, or {colName: 'TIMESTAMP'}
   which gives a hint about the data type that the value should be cast to
   Currently 'UUID' and 'TIMESTAMP' are the only supported typeHints.
-  Type hints aren't necessary for dates because they can be inferred automatically
+  Type hints aren't necessary for dates because they can be inferred automatically.
+  Specify a value if null if no typeHints are needed.
   @param tableName: name of the table to update
   @param primaryKeyCol: the name of the primary key column in the table 
   being updated (note: the primary key column must be one of the columns 
@@ -148,7 +149,7 @@ async function postData(url, body, axiosConfig) {
 async function updateManyUnsafe(
   tx,
   updates,
-  typeHints = null,
+  typeHints,
   tableName: string,
   primaryKeyCol: string,
 ) {
