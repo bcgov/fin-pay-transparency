@@ -4,7 +4,12 @@
       <div class="toolbar">
         <h1>{{ title }}</h1>
         <span class="fill-remaining-space"></span>
-        <v-btn v-if="!isConfirmDialogVisible" variant="outlined" color="primary" class="mr-2" @click="handleCancel"
+        <v-btn
+          v-if="!isConfirmDialogVisible"
+          variant="outlined"
+          color="primary"
+          class="mr-2"
+          @click="handleCancel"
           >Cancel</v-btn
         >
 
@@ -180,9 +185,7 @@
                       variant="outlined"
                     >
                       <template #prepend-inner>
-                        <v-btn
-                          color="primary"
-                          >Choose File</v-btn>
+                        <v-btn color="primary">Choose File</v-btn>
                       </template>
                     </v-file-input>
                   </v-col>
@@ -303,7 +306,7 @@ const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
 const attachment = ref<File | null>(null);
 
-console.log(announcement)
+console.log(announcement);
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
@@ -542,8 +545,16 @@ const handleSave = handleSubmit(async (values) => {
 
   await emits('save', {
     ...values,
-    published_on: values.published_on ? convert(LocalDate.from(nativeJs(values.published_on))).toDate().toISOString() : undefined,
-    expires_on: values.expires_on ? convert(LocalDate.from(nativeJs(values.expires_on))).toDate().toISOString() : undefined,
+    published_on: values.published_on
+      ? convert(LocalDate.from(nativeJs(values.published_on)))
+          .toDate()
+          .toISOString()
+      : undefined,
+    expires_on: values.expires_on
+      ? convert(LocalDate.from(nativeJs(values.expires_on)))
+          .toDate()
+          .toISOString()
+      : undefined,
     linkDisplayName: isEmpty(values.linkDisplayName)
       ? undefined
       : values.linkDisplayName,

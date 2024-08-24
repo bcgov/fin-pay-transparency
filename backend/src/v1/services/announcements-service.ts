@@ -14,6 +14,8 @@ import {
   AnnouncementQueryType,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import { UserInputError } from '../types/errors';
+import { utils } from './utils-service';
 
 const saveHistory = async (
   tx: Omit<
@@ -143,13 +145,24 @@ export const getAnnouncements = async (
 
 /**
  * Patch announcements by ids
- * @param data - array of announcement ids to delete
- * @param userId - user id who is deleting the announcements
+ * @param data - array of objects with format:
+ * { id: announcement_id, status: status}
+ * where status is one of ['DELETED', 'DRAFT']
+ * @param userId - user id who is patching the announcements
  */
 export const patchAnnouncements = async (
   data: PatchAnnouncementsType,
   userId: string,
 ) => {
+  const targetStatuses = ['DELETED', 'DRAFT'];
+  const hasUnsupportedUpdates = data.filter(
+    (item) => targetStatuses.indexOf(item.status) < 0,
+  ).length;
+  if (hasUnsupportedUpdates) {
+    throw new UserInputError(
+      `Invalid status. Only the following statuses are supported: ${targetStatuses}`,
+    );
+  }
   return prisma.$transaction(async (tx) => {
     const ids = data.map((item) => item.id);
     const announcements = await tx.announcement.findMany({
@@ -160,16 +173,28 @@ export const patchAnnouncements = async (
     for (const announcement of announcements) {
       await saveHistory(tx, announcement);
     }
-
     const updateDate = LocalDate.now(ZoneId.UTC);
-    await tx.announcement.updateMany({
-      data: {
-        status: 'DELETED',
+
+    const updates = data
+      .filter((item) => targetStatuses.indexOf(item.status) >= 0)
+      .map((item) => ({
+        announcement_id: item.id,
+        status: item.status,
         updated_by: userId,
         updated_date: convert(updateDate).toDate(),
-      },
-      where: { announcement_id: { in: ids } },
-    });
+      }));
+
+    const typeHints = {
+      updated_by: 'UUID',
+    };
+
+    await utils.updateManyUnsafe(
+      tx,
+      updates,
+      typeHints,
+      'announcement',
+      'announcement_id',
+    );
   });
 };
 
@@ -304,7 +329,8 @@ export const updateAnnouncement = async (
       if (currentAttachment) {
         await tx.announcement_resource.update({
           where: {
-            announcement_resource_id: currentAttachment.announcement_resource_id,
+            announcement_resource_id:
+              currentAttachment.announcement_resource_id,
           },
           data: {
             display_name: input.fileDisplayName,

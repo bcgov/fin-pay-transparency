@@ -279,6 +279,28 @@ export default {
     }
   },
 
+  /*
+  Changes the status of an announcement to DRAFT
+  */
+  async unpublishAnnouncement(announcementId: string): Promise<void> {
+    try {
+      const body = [
+        {
+          id: announcementId,
+          status: 'DRAFT',
+        },
+      ];
+      const resp = await apiAxios.patch(`${ApiRoutes.ANNOUNCEMENTS}`, body);
+      if (resp?.status == 201) {
+        return;
+      }
+      throw new Error('Unexpected response from API.');
+    } catch (e) {
+      console.log(`Failed to unpublish announcement: ${e}`);
+      throw e;
+    }
+  },
+
   /**
    * Download a list of reports in csv format.  This method also causes
    * the browser to save the resulting file.

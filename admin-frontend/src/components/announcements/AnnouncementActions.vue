@@ -18,11 +18,13 @@
             >Edit</v-btn
           >
         </v-list-item>
-        <v-list-item v-if="announcement.status == AnnouncementStatus.Draft">
-          <v-btn variant="text" prepend-icon="mdi-publish">Publish</v-btn>
-        </v-list-item>
         <v-list-item v-if="announcement.status == AnnouncementStatus.Published">
-          <v-btn variant="text" prepend-icon="mdi-cancel">Unpublish</v-btn>
+          <v-btn
+            variant="text"
+            prepend-icon="mdi-cancel"
+            @click="unpublishAnnouncement(announcement.announcement_id)"
+            >Unpublish</v-btn
+          >
         </v-list-item>
         <v-list-item v-if="announcement.status != AnnouncementStatus.Deleted">
           <v-btn
@@ -62,6 +64,7 @@ const { announcement } = defineProps<{
 const announcementSearchStore = useAnnouncementSearchStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const isDeleting = ref<boolean>(false);
+const isUnpublishing = ref<boolean>(false);
 
 async function deleteAnnouncement(announcementId: string) {
   const isConfirmed = await confirmDialog.value?.open(
@@ -88,8 +91,32 @@ async function deleteAnnouncement(announcementId: string) {
   }
 }
 
+async function unpublishAnnouncement(announcementId: string) {
+  const isConfirmed = await confirmDialog.value?.open(
+    'Confirm Unpublish',
+    `Unpublishing an announcement will return it to the DRAFT state, making it unavailable to the public. Are you sure you want to continue? `,
+    {
+      titleBold: true,
+      resolveText: `Confirm`,
+    },
+  );
+  if (isConfirmed) {
+    isUnpublishing.value = true;
+    try {
+      await ApiService.unpublishAnnouncement(announcementId);
+      announcementSearchStore.repeatSearch();
+      NotificationService.pushNotificationSuccess(
+        `Announcement unpublished successfully.`,
+        '',
+      );
+    } catch (e) {
+    } finally {
+      isUnpublishing.value = false;
+    }
+  }
+}
+
 const editAnnouncement = () => {
-  console.log('edit announcement', announcement);
   announcementSelectionStore.setAnnouncement(announcement);
   router.push('/edit-announcement');
 };

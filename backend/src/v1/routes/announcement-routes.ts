@@ -1,7 +1,13 @@
 import { Router } from 'express';
+import formData from 'express-form-data';
+import os from 'os';
 import { logger } from '../../logger';
 import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
 import { authorize } from '../middlewares/authorization/authorize';
+import {
+  APP_ANNOUNCEMENTS_FOLDER,
+  useUpload,
+} from '../middlewares/storage/upload';
 import { useValidate } from '../middlewares/validations';
 import {
   createAnnouncement,
@@ -11,15 +17,12 @@ import {
 } from '../services/announcements-service';
 import { ExtendedRequest } from '../types';
 import {
+  AnnouncementDataSchema,
   AnnouncementQuerySchema,
   AnnouncementQueryType,
-  AnnouncementDataSchema,
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
-import formData from 'express-form-data';
-import { APP_ANNOUNCEMENTS_FOLDER, useUpload } from '../middlewares/storage/upload';
-import os from 'os';
 
 const router = Router();
 
@@ -42,7 +45,8 @@ router.get(
 /**
  * Patch announcements, only PTRT-ADMIN can patch announcements
  * @route PATCH /announcements
- * @summary Currently only used to delete announcements
+ * @summary Currently the only announcement attribute that can be changed
+ * by this endoint is the status.  It can be set to either DELETED or DRAFT.
  */
 router.patch(
   '',
@@ -54,7 +58,9 @@ router.patch(
       const { user } = req;
       const data: PatchAnnouncementsType = req.body;
       await patchAnnouncements(data, user.admin_user_id);
-      res.status(201).json({ message: 'Announcement deleted' });
+      res
+        .status(201)
+        .json({ message: `Set the status on ${data.length} announcement(s)` });
     } catch (error) {
       logger.error(error);
       res.status(400).json({ message: 'Invalid request', error });
