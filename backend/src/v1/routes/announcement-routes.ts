@@ -60,7 +60,7 @@ router.patch(
       await patchAnnouncements(data, user.admin_user_id);
       res
         .status(201)
-        .json({ message: `Set the status on ${data.length} announcement(s)` });
+        .json({ message: `Updated the status of the announcement(s)` });
     } catch (error) {
       logger.error(error);
       res.status(400).json({ message: 'Invalid request', error });
