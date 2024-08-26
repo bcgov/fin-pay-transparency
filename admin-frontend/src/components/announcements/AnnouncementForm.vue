@@ -183,6 +183,7 @@
                       v-model="attachment"
                       class="attachment"
                       variant="outlined"
+                      :error-messages="errors.attachment"
                     >
                       <template #prepend-inner>
                         <v-btn color="primary">Choose File</v-btn>
@@ -304,7 +305,6 @@ const { announcement, mode } = defineProps<Props>();
 const isPreviewAvailable = computed(() => values.title && values.description);
 const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
-const attachment = ref<File | null>(null);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
@@ -318,6 +318,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     fileDisplayName: announcement?.fileDisplayName || '',
     attachmentId: announcement?.attachmentId || v4(),
     status: announcement?.status || 'DRAFT',
+    attachment: undefined,
   },
   validationSchema: {
     title(value) {
@@ -357,6 +358,16 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
       return true;
     },
+    async attachment(value) {
+      if (!value) return true;
+      try {
+        await ApiService.clamavScanFile(value);
+      } catch (error) {
+        return 'File is invalid.';
+      }
+
+      return true;
+    },
   },
 });
 
@@ -369,6 +380,7 @@ const { value: noExpiry } = useField('no_expiry') as any;
 const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
 const { value: fileDisplayName } = useField('fileDisplayName') as any;
+const { value: attachment } = useField('attachment') as any;
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
