@@ -1,5 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { SSO } from './sso-service';
+import { admin_user } from '@prisma/client';
+import {
+  PTRT_ADMIN_ROLE_NAME,
+  PTRT_USER_ROLE_NAME,
+} from '../../constants/admin';
 
 const mockAxiosGet = jest.fn();
 const mockAxiosPost = jest.fn();
@@ -62,6 +67,21 @@ jest.mock('../services/admin-auth-service', () => {
   return mocked;
 });
 
+const mockDBAdminUsers: Partial<admin_user>[] = [
+  {
+    admin_user_id: faker.internet.userName(),
+    preferred_username: faker.internet.userName(),
+    display_name: faker.person.fullName(),
+    assigned_roles: PTRT_ADMIN_ROLE_NAME + ',' + PTRT_USER_ROLE_NAME,
+  },
+  {
+    admin_user_id: faker.string.uuid(),
+    preferred_username: faker.internet.userName(),
+    display_name: faker.person.fullName(),
+    assigned_roles: PTRT_USER_ROLE_NAME,
+  },
+];
+
 describe('sso-service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -79,30 +99,20 @@ describe('sso-service', () => {
   });
 
   describe('getUsers', () => {
-    const preferredUsername1 = faker.internet.userName();
-    const preferredUsername2 = faker.internet.userName();
+    let client: SSO;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       mockAxiosPost.mockResolvedValue({
         data: { access_token: 'jwt', token_type: 'Bearer' },
       });
 
-      mockFindMany.mockResolvedValue([
-        {
-          admin_user_id: faker.string.uuid(),
-          preferred_username: preferredUsername1,
-        },
-        {
-          admin_user_id: faker.string.uuid(),
-          preferred_username: preferredUsername2,
-        },
-      ]);
+      mockFindMany.mockResolvedValue(mockDBAdminUsers);
       mockAxiosGet.mockResolvedValue({
         data: {
           data: [
             {
               email: faker.internet.email(),
-              username: preferredUsername1,
+              username: mockDBAdminUsers[0].preferred_username,
               attributes: {
                 idir_user_guid: [faker.string.uuid()],
                 idir_username: [faker.internet.userName()],
@@ -111,7 +121,7 @@ describe('sso-service', () => {
             },
             {
               email: faker.internet.email(),
-              username: preferredUsername2,
+              username: mockDBAdminUsers[1].preferred_username,
               attributes: {
                 idir_user_guid: [faker.string.uuid()],
                 idir_username: [faker.internet.userName()],
@@ -121,15 +131,14 @@ describe('sso-service', () => {
           ],
         },
       });
+      client = await SSO.init();
     });
-    it('should get users for the PTRT-ADMIN and PTRT-USER roles', async () => {
+    it('should get users for the PTRT-ADMIN and PTRT-USER roles and perform db updates if there is a missmatch', async () => {
       mockStoreUserInfoWithHistory.mockResolvedValue(true);
-      const client = await SSO.init();
       const users = await client.getUsers();
-      expect(mockAxiosGet).toHaveBeenCalledTimes(2);
-      expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
-      expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
-      expect(mockFindMany).toHaveBeenCalledTimes(2);
+      expect(users).toHaveLength(2);
+      expect(mockAxiosGet).toHaveBeenCalledTimes(2); // called axios once for every role
+      expect(mockFindMany).toHaveBeenCalledTimes(2); // called once to check if there are any difference, the second time is to get the updates
     });
     it('should throw error if SSO returns no users', async () => {
       mockAxiosGet.mockResolvedValue({
@@ -137,48 +146,55 @@ describe('sso-service', () => {
           data: [],
         },
       });
-      const client = await SSO.init();
       await expect(client.getUsers()).rejects.toThrow();
     });
     it('should not query the database twice if there were no db updates', async () => {
-      mockStoreUserInfoWithHistory.mockResolvedValue(false);
-      const client = await SSO.init();
+      mockStoreUserInfoWithHistory.mockResolvedValue(false); // Storing info returns false to signify nothing was changed in the database
       const users = await client.getUsers();
-      expect(mockAxiosGet).toHaveBeenCalledTimes(2);
-      expect(users.every((u) => u.effectiveRole === 'PTRT-ADMIN')).toBeTruthy();
-      expect(users.every((u) => u.roles.length === 2)).toBeTruthy();
-      expect(mockFindMany).toHaveBeenCalledTimes(1);
+      expect(users).toHaveLength(2);
+      expect(mockFindMany).toHaveBeenCalledTimes(1); // only 1 call at the beginning to get the details, nothing in the database changed, so no second call
     });
     it('should de-activate users in database that have no permissions in sso', async () => {
       mockFindMany
         .mockResolvedValueOnce([
+          ...mockDBAdminUsers,
           {
-            admin_user_id: faker.string.uuid(),
-            preferred_username: preferredUsername1,
-          },
-          {
-            admin_user_id: faker.string.uuid(),
-            preferred_username: preferredUsername2,
-          },
-          {
-            admin_user_id: faker.string.uuid(),
+            admin_user_id: faker.string.uuid(), // add a bonus user that should not be there
             preferred_username: faker.internet.userName(),
           },
         ])
-        .mockResolvedValue([
-          {
-            admin_user_id: faker.string.uuid(),
-            preferred_username: preferredUsername1,
-          },
-          {
-            admin_user_id: faker.string.uuid(),
-            preferred_username: preferredUsername2,
-          },
-        ]);
+        .mockResolvedValue(mockDBAdminUsers);
 
-      const client = await SSO.init();
       await client.getUsers();
-      expect(mockUpdate).toHaveBeenCalledTimes(1);
+      expect(mockUpdate).toHaveBeenCalledTimes(1); // one user is different, so update the DB once
+    });
+  });
+
+  describe('getUsersForDisplay', () => {
+    let client: SSO;
+    beforeEach(async () => {
+      mockAxiosPost.mockResolvedValue({
+        data: { access_token: 'jwt', token_type: 'Bearer' },
+      });
+      client = await SSO.init();
+    });
+    it('should convert the list of users into an object for the frontend', async () => {
+      jest
+        .spyOn(client, 'getUsers')
+        .mockResolvedValueOnce(mockDBAdminUsers as admin_user[]);
+      const users = await client.getUsersForDisplay();
+      expect(users).toStrictEqual([
+        {
+          displayName: mockDBAdminUsers[0].display_name,
+          effectiveRole: PTRT_ADMIN_ROLE_NAME,
+          id: mockDBAdminUsers[0].admin_user_id,
+        },
+        {
+          displayName: mockDBAdminUsers[1].display_name,
+          effectiveRole: PTRT_USER_ROLE_NAME,
+          id: mockDBAdminUsers[1].admin_user_id,
+        },
+      ]);
     });
   });
 
