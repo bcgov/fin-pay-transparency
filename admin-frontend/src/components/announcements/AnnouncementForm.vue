@@ -293,7 +293,7 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
 import ApiService from '../../services/apiService';
-import { v4 } from 'node-uuid';
+import { v4 } from 'uuid'
 
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;

@@ -67,7 +67,7 @@ export const downloadFile = async (res, fileId: string) => {
       }
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename=${attachment.display_name}.${extension}`,
+        `inline; filename=${attachment.display_name}.${extension}`,
       );
       res.download(
         tempFile,
