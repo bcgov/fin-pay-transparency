@@ -124,6 +124,13 @@
                     </VueDatePicker>
                   </v-col>
                 </v-row>
+                <v-row dense class="mt-0">
+                  <v-col cols="2" class="d-flex justify-end align-center pa-0">
+                  </v-col>
+                  <v-col cols="6" class="pa-0 ml-3">
+                    <span class="field-error">{{ errors.expires_on }}</span>
+                  </v-col>
+                </v-row>
                 <v-row class="mt-0">
                   <v-col cols="8" class="d-flex justify-end pa-0">
                     <v-checkbox
@@ -495,14 +502,41 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 }
 
 const handleSave = handleSubmit(async (values) => {
-  if (!validatePublishDate(values) || !validateLink(values)) {
+  if (
+    !validatePublishDate(values) ||
+    !validateLink(values) ||
+    !validateExpiry()
+  ) {
     return;
+  }
+
+  function validateExpiry() {
+    if (
+      values.status === 'PUBLISHED' &&
+      !values.expires_on &&
+      !values.no_expiry
+    ) {
+      setErrors({ expires_on: 'Please choose an Expiry date.' });
+      return false;
+    }
+    return true;
   }
 
   function validatePublishDate(values) {
     if (!values.published_on && status.value === 'PUBLISHED') {
       setErrors({ published_on: 'Publish date is required.' });
       return false;
+    }
+
+    if (announcement?.status === 'DRAFT' && status.value === 'PUBLISHED') {
+      const publishDate = LocalDate.from(nativeJs(values.published_on));
+
+      if (publishDate.isBefore(LocalDate.now())) {
+        setErrors({
+          published_on: 'Publish date cannot be in the past. Please select a new date.',
+        });
+        return false;
+      }     
     }
 
     if (values.published_on && values.expires_on) {

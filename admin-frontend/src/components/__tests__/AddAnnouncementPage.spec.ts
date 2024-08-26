@@ -55,7 +55,6 @@ vi.mock('vue-router', () => ({
 const setDate = async (field: HTMLElement, getDateCell: () => HTMLElement) => {
   await fireEvent.click(field);
   await waitFor(() => {
-    screen.debug();
     const dateCell = getDateCell();
     expect(dateCell).toBeInTheDocument();
     fireEvent.click(dateCell!);
@@ -147,6 +146,30 @@ describe('AddAnnouncementPage', () => {
       );
       expect(mockSuccess).toHaveBeenCalled();
       expect(mockRouterPush).toHaveBeenCalledWith('/announcements');
+    });
+  });
+
+  describe('when no expiry is not checked', () => {
+    it('should display expiry date is required error message', async () => {
+      const { getByRole, getByLabelText, getByText } = await wrappedRender();
+      const saveButton = getByRole('button', { name: 'Save' });
+      const title = getByLabelText('Title');
+      const description = getByLabelText('Description');
+      const linkUrl = getByLabelText('Link URL');
+      const displayLinkAs = getByLabelText('Display Link As');
+      await fireEvent.update(title, 'Test Title');
+      await fireEvent.update(description, 'Test Description');
+      await fireEvent.update(linkUrl, 'https://example.com');
+      await fireEvent.update(displayLinkAs, 'Example.pdf');
+      const publishOn = getByLabelText('Publish On');
+      await setDate(publishOn, () => getByText('15'));
+      await fireEvent.update(linkUrl, 'https://example.com');
+      await fireEvent.update(displayLinkAs, 'Example.pdf');
+      await markAsPublish();
+      await fireEvent.click(saveButton);
+      await waitFor(() => {
+        expect(getByText('Please choose an Expiry date.')).toBeInTheDocument();
+      });
     });
   });
   it('should not publish when confirmation cancel is clicked', async () => {
