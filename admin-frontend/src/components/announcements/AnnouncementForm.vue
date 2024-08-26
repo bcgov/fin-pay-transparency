@@ -504,8 +504,7 @@ const handleSave = handleSubmit(async (values) => {
       !values.expires_on &&
       !values.no_expiry
     ) {
-      console.log('Expiry date is required.');
-      setErrors({ expires_on: 'Expiry date is required.' });
+      setErrors({ expires_on: 'Please choose an Expiry date.' });
       return false;
     }
     return true;

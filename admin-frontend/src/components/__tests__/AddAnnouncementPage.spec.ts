@@ -164,7 +164,7 @@ describe('AddAnnouncementPage', () => {
       await markAsPublish();
       await fireEvent.click(saveButton);
       await waitFor(() => {
-        expect(getByText('Expiry date is required.')).toBeInTheDocument();
+        expect(getByText('Please choose an Expiry date.')).toBeInTheDocument();
       });
     });
   });
