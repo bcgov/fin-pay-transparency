@@ -157,7 +157,6 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
       const publishOn = getByLabelText('Publish On');
-      const expiresOn = getByLabelText('Expires On');
       await setDate(publishOn, () => getByText('15'));
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
