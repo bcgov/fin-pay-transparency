@@ -26,7 +26,7 @@ const _getClamAvScanner = async (): Promise<NodeClam> => {
     clamdscan: {
       host: config.get('clamav:host'),
       port: config.get('clamav:port'),
-    }
+    },
   });
 };
 const app = express();
@@ -45,7 +45,7 @@ app.use(
   bodyParser.urlencoded({
     extended: true,
     limit: `50MB`,
-  }),
+  })
 );
 
 if ('production' === config.get('environment')) {
@@ -62,8 +62,8 @@ app.use(
           req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
         );
       },
-    },
-  ),
+    }
+  )
 );
 
 if (config.get('server:rateLimit:enabled')) {
@@ -88,7 +88,7 @@ app.get(
       /* istanbul ignore next  */
       res.status(500).send('Health check failed');
     }
-  }),
+  })
 );
 
 app.use(/(\/clamav-api)?/, apiRouter);
@@ -112,7 +112,9 @@ const validateApiKey =
       });
     }
   };
-apiRouter.post('/scan',validateApiKey(config.get('server:apiKey')),
+apiRouter.post(
+  '/scan',
+  validateApiKey(config.get('server:apiKey')),
   formData.parse({
     uploadDir: os.tmpdir(),
     autoClean: true,
@@ -121,20 +123,22 @@ apiRouter.post('/scan',validateApiKey(config.get('server:apiKey')),
   utils.asyncHandler(async (req: Request, res: Response) => {
     logger.info('Scanning file for virus');
     const { path, name } = req.body?.file;
-    if(!path){
+    if (!path) {
       logger.error('File path is missing in the request body');
       res.status(400).send({
         message: 'File path is missing in the request body',
       });
     }
 
-    if (!path.startsWith(os.tmpdir())) {
+    const filePath = fs.realpathSync(PATH.resolve(os.tmpdir(), path));
+    logger.info(`File path: ${filePath}`);
+    if (!filePath.startsWith(os.tmpdir())) {
       logger.error('File path is not starting with temp directory.');
       res.statusCode = 403;
       res.end();
       return;
     }
-    const stream = fs.createReadStream(path);
+    const stream = fs.createReadStream(filePath);
     const ClamAVScanner = await _getClamAvScanner();
 
     const clamavScanResult = await ClamAVScanner.scanStream(stream);
@@ -142,17 +146,16 @@ apiRouter.post('/scan',validateApiKey(config.get('server:apiKey')),
       logger.error(`File ${name} is infected`);
       res.status(400).send({
         message: `File ${name} is infected`,
-        clamavScanResult
+        clamavScanResult,
       });
-    }else{
+    } else {
       logger.info(`File ${name} is not infected`);
       res.status(200).send({
         message: `File ${name} is not infected`,
-        clamavScanResult
+        clamavScanResult,
       });
     }
-
-}),
+  })
 );
 app.use((_req: Request, res: Response) => {
   res.sendStatus(404);
@@ -165,8 +168,7 @@ app.use(
       logger.error(err);
     }
     res.sendStatus(500);
-  },
+  }
 );
-
 
 export { app };
