@@ -1,6 +1,8 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createTestingPinia } from '@pinia/testing';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import useEvents, { userEvent } from '@testing-library/user-event';
+
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -19,12 +21,15 @@ const wrappedRender = async () => {
 };
 
 const mockAddAnnouncement = vi.fn();
-
+const mockClamavScanFile = vi.fn();
 vi.mock('../../services/apiService', () => ({
   default: {
     addAnnouncement: (...args) => {
       console.log('mockAddAnnouncement.....', args);
       mockAddAnnouncement(...args);
+    },
+    clamavScanFile: (...args) => {
+      return mockClamavScanFile(...args)
     },
   },
 }));
@@ -432,6 +437,49 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.click(noExpiry);
       await fireEvent.click(noExpiry);
       expect(expiresOn).toBeEnabled();
+    });
+  });
+  describe('file upload', () => {
+    describe('when clamav scan fails', () => {
+      it('should show error message', async () => {
+        mockClamavScanFile.mockImplementation(() => {
+          console.log('mockClamavScanFile..... 11111');
+          throw new Error('Failed to scan file');
+        });
+        const {getByLabelText, getByText} = await wrappedRender();
+        const attachment = getByLabelText('Attachment');
+        const file = new File(['hello'], 'chucknorris.png', {
+          type: 'image/png',
+        });
+        await waitFor(() =>
+          userEvent.upload(attachment, file),
+        );
+        await waitFor(() => {
+          expect(mockClamavScanFile).toHaveBeenCalled();
+        });
+        await waitFor(() => {
+          expect(getByText('File is invalid.')).toBeInTheDocument();
+        });
+      });
+    });
+    describe('when clamav scan pass', () => {
+      it('should not show error message', async () => {
+        mockClamavScanFile.mockResolvedValue({});
+        const {getByLabelText, queryByText } = await wrappedRender();
+        const attachment = getByLabelText('Attachment');
+        const file = new File(['hello'], 'chucknorris.png', {
+          type: 'image/png',
+        });
+        await waitFor(() =>
+          userEvent.upload(attachment, file),
+        );
+        await waitFor(() => {
+          expect(mockClamavScanFile).toHaveBeenCalled();
+        });
+        await waitFor(() => {
+          expect(queryByText('File is invalid.')).toBeNull();
+        });
+      });
     });
   });
 
