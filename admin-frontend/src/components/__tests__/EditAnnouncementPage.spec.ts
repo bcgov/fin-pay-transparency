@@ -6,6 +6,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
+import { faker } from '@faker-js/faker';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -90,6 +91,31 @@ describe('EditAnnouncementPage', () => {
         expect(getByRole('radio', { name: 'Draft' })).toBeInTheDocument();
         expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
       });
+
+      describe('when publishing announcement', () => {
+        it('should require publish date to be not in the past', async () => {
+          store.setAnnouncement({
+            title: 'title',
+            description: 'description',
+            published_on: faker.date.past(),
+            status: 'DRAFT',
+            announcement_resource: [],
+          } as any);
+          const { getByRole, getByText } = await wrappedRender();
+          const publishButton = getByRole('radio', { name: 'Publish' });
+          expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
+          await fireEvent.click(publishButton);
+          const saveButton = getByRole('button', { name: 'Save' });
+          await fireEvent.click(saveButton);
+          await waitFor(() => {
+            expect(
+              getByText(
+                'Publish date cannot be in the past. Please select a new date.',
+              ),
+            ).toBeInTheDocument();
+          });
+        });
+      });
     });
 
     describe('when announcement is updated', () => {
@@ -114,6 +140,8 @@ describe('EditAnnouncementPage', () => {
         expect(getByLabelText('Description')).toHaveValue('description');
         expect(getByLabelText('Display Link As')).toHaveValue('link');
         expect(getByLabelText('Link URL')).toHaveValue('https://example.com');
+        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
+        await fireEvent.click(noExpiry);
         const saveButton = getByRole('button', { name: 'Save' });
         await fireEvent.click(saveButton);
         await waitFor(() => {
@@ -140,8 +168,11 @@ describe('EditAnnouncementPage', () => {
           ],
         } as any);
         mockUpdateAnnouncement.mockRejectedValueOnce(new Error('error'));
-        const { getByRole, getByLabelText } = await wrappedRender();
+        const { getByRole } = await wrappedRender();
+        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
+        await fireEvent.click(noExpiry);
         const saveButton = getByRole('button', { name: 'Save' });
+
         await fireEvent.click(saveButton);
         await waitFor(() => {
           expect(mockUpdateAnnouncement).toHaveBeenCalled();

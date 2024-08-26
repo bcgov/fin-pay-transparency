@@ -50,7 +50,6 @@ vi.mock('vue-router', () => ({
 const setDate = async (field: HTMLElement, getDateCell: () => HTMLElement) => {
   await fireEvent.click(field);
   await waitFor(() => {
-    screen.debug();
     const dateCell = getDateCell();
     expect(dateCell).toBeInTheDocument();
     fireEvent.click(dateCell!);
