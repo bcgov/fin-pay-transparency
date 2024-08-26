@@ -10,15 +10,11 @@
         class="d-flex flex-column align-start"
         :class="{ 'ptap-panel': areHeaderAndSidebarVisible }"
       >
-        <div v-if="isTitleVisible || isBreadcrumbTrailVisible" class="mb-3">
-          <h2 class="page-title" v-if="isTitleVisible">
-            {{ activeRoute.meta.pageTitle }}
-          </h2>
-          <BreadcrumbTrail
-            class="pt-0 pb-0"
-            v-if="isBreadcrumbTrailVisible"
-          ></BreadcrumbTrail>
-        </div>
+        <BreadcrumbTrail
+          class="pt-0 pb-0 mb-3"
+          v-if="isBreadcrumbTrailVisible"
+        ></BreadcrumbTrail>
+
         <router-view />
       </v-main>
     </div>
@@ -49,9 +45,7 @@ export default {
   data() {
     return {
       areHeaderAndSidebarVisible: false,
-      isTitleVisible: false,
       isBreadcrumbTrailVisible: false,
-      activeRoute: null,
     };
   },
   computed: {
@@ -73,13 +67,11 @@ export default {
     appStore,
     ...mapActions(authStore, ['doesUserHaveRole']),
     onRouteChanged(to, from) {
-      this.activeRoute = to;
       if (to.fullPath != '/error') {
         //Reset error page message back to the default
         NotificationService.setErrorPageMessage();
       }
       this.areHeaderAndSidebarVisible = to.meta.requiresAuth;
-      this.isTitleVisible = to?.meta?.isTitleVisible && to?.meta?.pageTitle;
       this.isBreadcrumbTrailVisible =
         to?.meta?.breadcrumbs?.length && this.doesUserHaveRole(USER_ROLE_NAME);
     },
