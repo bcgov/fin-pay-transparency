@@ -72,36 +72,36 @@ describe('AnnouncementActions', () => {
     }
   });
 
-  describe('deleteAnnouncement', async () => {
-    describe('confirm delete', () => {
+  describe('archiveAnnouncement', async () => {
+    describe('confirm archive', () => {
       it('delegates to the ApiService', async () => {
         const announcementId = '1';
         const apiSpy = vi
           .spyOn(ApiService, 'deleteAnnouncements')
           .mockResolvedValue();
 
-        //mock the confirm delete dialog.
+        //mock the confirm dialog.
         //simulate the user clicking the 'confirm' button
         vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(true);
 
-        await wrapper.vm.deleteAnnouncement(announcementId);
+        await wrapper.vm.archiveAnnouncement(announcementId);
 
         expect(apiSpy).toHaveBeenCalledWith([announcementId]);
       });
     });
 
-    describe('cancel delete', () => {
+    describe('cancel archive', () => {
       it('does nothing', async () => {
         const announcementId = '1';
         const apiSpy = vi
           .spyOn(ApiService, 'deleteAnnouncements')
           .mockResolvedValue();
 
-        //mock the confirm delete dialog.
+        //mock the confirm dialog.
         //simulate the user clicking the 'cancel' button
         vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(false);
 
-        await wrapper.vm.deleteAnnouncement(announcementId);
+        await wrapper.vm.archiveAnnouncement(announcementId);
 
         expect(apiSpy).toHaveBeenCalledTimes(0);
       });
