@@ -342,7 +342,6 @@ model announcement_resource {
   updated_by                                              String?                         @db.Uuid
   resource_type                                           String                          @db.VarChar(20)
   attachment_file_id                                      String?                         @db.Uuid
-  attachment_path                                         String?                         @db.VarChar(255)
   admin_user_announcement_resource_created_byToadmin_user admin_user?                     @relation("announcement_resource_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_created_by_fk")
   announcement                                            announcement                    @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_fk")
   announcement_resource_type                              announcement_resource_type      @relation(fields: [resource_type], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_type_fk")
@@ -365,7 +364,6 @@ model announcement_resource_history {
   resource_type                                                   String                     @db.VarChar(20)
   announcement_history_id                                         String                     @db.Uuid
   attachment_file_id                                              String?                    @db.Uuid
-  attachment_path                                                 String?                    @db.VarChar(255)
   announcement                                                    announcement               @relation(fields: [announcement_id], references: [announcement_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_fk")
   announcement_history                                            announcement_history       @relation(fields: [announcement_history_id], references: [announcement_history_id], onDelete: NoAction, onUpdate: NoAction)
   announcement_resource                                           announcement_resource?     @relation(fields: [announcement_resource_id], references: [announcement_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_resource_history_announcement_resource_fk")
