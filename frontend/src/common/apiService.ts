@@ -1,9 +1,4 @@
-import {
-  DateTimeFormatter,
-  ZoneId,
-  ZonedDateTime,
-  nativeJs,
-} from '@js-joda/core';
+import { DateTimeFormatter, ZonedDateTime, nativeJs } from '@js-joda/core';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import {
@@ -378,10 +373,11 @@ export default {
 };
 
 export const ApiServicePrivate = {
+  /* converts the given date into an ISO 8601 datetime string in the local 
+     timezone.  For example: "2024-08-27T10:25:48.29-07:00"
+  */
   dateToApiDateTimeString(date: Date) {
-    const jodaZonedDateTime = ZonedDateTime.from(
-      nativeJs(date),
-    ).withZoneSameLocal(ZoneId.of('UTC'));
-    return DateTimeFormatter.ISO_DATE_TIME.format(jodaZonedDateTime);
+    const jodaZonedDateTime = ZonedDateTime.from(nativeJs(date));
+    return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(jodaZonedDateTime);
   },
 };

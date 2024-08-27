@@ -287,7 +287,12 @@ import {
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import { convert, DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
+import {
+  DateTimeFormatter,
+  LocalDate,
+  ZonedDateTime,
+  nativeJs,
+} from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
@@ -540,10 +545,11 @@ const handleSave = handleSubmit(async (values) => {
 
       if (publishDate.isBefore(LocalDate.now())) {
         setErrors({
-          published_on: 'Publish On date cannot be in the past. Please select a new date.',
+          published_on:
+            'Publish On date cannot be in the past. Please select a new date.',
         });
         return false;
-      }     
+      }
     }
 
     if (values.published_on && values.expires_on) {
@@ -598,14 +604,14 @@ const handleSave = handleSubmit(async (values) => {
   await emits('save', {
     ...values,
     published_on: values.published_on
-      ? convert(LocalDate.from(nativeJs(values.published_on)))
-          .toDate()
-          .toISOString()
+      ? DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+          ZonedDateTime.from(nativeJs(values.published_on)),
+        )
       : undefined,
     expires_on: values.expires_on
-      ? convert(LocalDate.from(nativeJs(values.expires_on)))
-          .toDate()
-          .toISOString()
+      ? DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+          ZonedDateTime.from(nativeJs(values.expires_on)),
+        )
       : undefined,
     linkDisplayName: isEmpty(values.linkDisplayName)
       ? undefined
