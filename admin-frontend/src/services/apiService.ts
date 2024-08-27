@@ -198,6 +198,13 @@ export default {
         .split('"')[0];
 
       const filename = `${name}.${extension}`;
+      if (filename.toLowerCase().includes('pdf')) {
+        const file = window.URL.createObjectURL(
+          new Blob([data], { type: 'application/pdf' }),
+        );
+        window.open(file);
+        return;
+      }
 
       const url = window.URL.createObjectURL(data);
       const link = document.createElement('a');
