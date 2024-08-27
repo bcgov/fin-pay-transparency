@@ -112,6 +112,24 @@ describe('S3Api', () => {
         expect(res.status).toHaveBeenCalledWith(400);
       });
     });
+    describe('get most recent file fails', () => {
+      it('should return 400', async () => {
+        mockFindFirstOrThrow.mockResolvedValue({
+          attachment_file_id: faker.string.uuid(),
+          display_name: faker.lorem.word(),
+        });
+        const res = {
+          status: jest.fn().mockReturnThis(),
+          json: jest.fn(),
+        };
+
+        mockSend.mockRejectedValue(new Error('error'));
+
+        const fileId = 'fileId';
+        await downloadFile(res, fileId);
+        expect(res.status).toHaveBeenCalledWith(400);
+      });
+    });
     it('should return 400', async () => {
       mockFindFirstOrThrow.mockRejectedValue(new Error('error'));
 

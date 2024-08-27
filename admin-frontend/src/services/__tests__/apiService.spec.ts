@@ -2,7 +2,6 @@ import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnnouncementStatus } from '../../types/announcements';
 import ApiService from '../apiService';
-import { de } from '@faker-js/faker';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -21,8 +20,6 @@ const mockSaveAs = vi.fn();
 vi.mock('file-saver', async () => {
   return { saveAs: (...args) => mockSaveAs(...args) };
 });
-
-const originalWindow = {...window}
 
 describe('ApiService', () => {
   beforeEach(() => {});

@@ -7,22 +7,29 @@ import prisma from '../../v1/prisma/prisma-client';
 import os from 'os';
 import fs from 'fs';
 import { logger } from '../../logger';
-import { APP_ANNOUNCEMENTS_FOLDER, S3_BUCKET, S3_OPTIONS } from '../../constants/admin';
-
+import {
+  APP_ANNOUNCEMENTS_FOLDER,
+  S3_BUCKET,
+  S3_OPTIONS,
+} from '../../constants/admin';
 
 const getMostRecentFile = async (s3Client: S3Client, key: string) => {
-  const response = await s3Client.send(
-    new ListObjectsCommand({
-      Bucket: S3_BUCKET,
-      Prefix: `${APP_ANNOUNCEMENTS_FOLDER}/${key}`,
-    }),
-  );
-  const sortedData: any = response.Contents.sort((a: any, b: any) => {
-    const modifiedDateA: any = new Date(a.LastModified);
-    const modifiedDateB: any = new Date(b.LastModified);
-    return modifiedDateB - modifiedDateA;
-  });
-  return sortedData[0];
+  try {
+    const response = await s3Client.send(
+      new ListObjectsCommand({
+        Bucket: S3_BUCKET,
+        Prefix: `${APP_ANNOUNCEMENTS_FOLDER}/${key}`,
+      }),
+    );
+    const sortedData: any = response.Contents.sort((a: any, b: any) => {
+      const modifiedDateA: any = new Date(a.LastModified);
+      const modifiedDateB: any = new Date(b.LastModified);
+      return modifiedDateB - modifiedDateA;
+    });
+    return sortedData[0];
+  } catch (error) {
+    return undefined;
+  }
 };
 
 export const getFile = async (key: string) => {

@@ -143,12 +143,7 @@ import { NotificationService } from '../services/notificationService';
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
   storeToRefs(announcementSearchStore);
-watch(
-  () => searchResults.value,
-  () => {
-    console.log('searchResults changed', searchResults.value);
-  },
-);
+
 const announcementInDialog = ref<any>(undefined);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const isAnnouncementDialogVisible = ref<boolean>(false);
