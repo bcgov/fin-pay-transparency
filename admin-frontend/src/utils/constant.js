@@ -28,7 +28,7 @@ export const ApiRoutes = Object.freeze({
   USERS: `${baseRoot}/v1/users`,
   USER_INVITES: `${baseRoot}/v1/user-invites`,
   ANNOUNCEMENTS: `${baseRoot}/v1/announcements`,
-  CLAMAV_SCAN: `${clamavBaseRoot}`,
+  CLAMAV_SCAN: `${clamavBaseRoot}/`,
 });
 
 export const PAGE_TITLES = Object.freeze({

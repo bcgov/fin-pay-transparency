@@ -113,7 +113,7 @@ const validateApiKey =
     }
   };
 apiRouter.post(
-  '',
+  '/',
   validateApiKey(config.get('server:apiKey')),
   formData.parse({
     uploadDir: os.tmpdir(),
