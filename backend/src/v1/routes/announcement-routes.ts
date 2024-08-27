@@ -22,6 +22,7 @@ import {
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
 
 const router = Router();
 
