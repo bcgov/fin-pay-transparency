@@ -5,7 +5,6 @@ import { logger } from '../../logger';
 import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
 import { authorize } from '../middlewares/authorization/authorize';
 import {
-  APP_ANNOUNCEMENTS_FOLDER,
   useUpload,
 } from '../middlewares/storage/upload';
 import { useValidate } from '../middlewares/validations';
@@ -23,6 +22,7 @@ import {
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
 
 const router = Router();
 
@@ -123,5 +123,6 @@ router.put(
     }
   },
 );
+
 
 export default router;
