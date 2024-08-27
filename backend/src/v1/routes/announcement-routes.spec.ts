@@ -1,8 +1,8 @@
+import { faker } from '@faker-js/faker';
 import bodyParser from 'body-parser';
 import { Application } from 'express';
-import request from 'supertest';
 import qs from 'qs';
-import { de, faker } from '@faker-js/faker';
+import request from 'supertest';
 
 const mockGetAnnouncements = jest.fn().mockResolvedValue({
   items: [],
@@ -325,12 +325,13 @@ describe('announcement-routes', () => {
 
     describe('when body is valid', () => {
       it('should return 201', async () => {
-        const response = await request(app)
-          .patch('/')
-          .send([{ id: faker.string.uuid(), status: 'DELETED' }]);
+        const data = [{ id: faker.string.uuid(), status: 'DELETED' }];
+        const response = await request(app).patch('/').send(data);
         expect(mockPatchAnnouncements).toHaveBeenCalled();
         expect(response.status).toBe(201);
-        expect(response.body).toEqual({ message: 'Announcement deleted' });
+        expect(response.body).toEqual({
+          message: `Updated the status of the announcement(s)`,
+        });
       });
     });
 

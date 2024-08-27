@@ -21,6 +21,13 @@ export type AnnouncementStatusType =
   | 'EXPIRED'
   | 'DELETED';
 
+export enum AnnouncementStatus {
+  Published = 'PUBLISHED',
+  Draft = 'DRAFT',
+  Expired = 'EXPIRED',
+  Deleted = 'DELETED',
+}
+
 export type StatusFilter = {
   key: 'status';
   operation: 'in' | 'notin';
@@ -135,7 +142,7 @@ export type AnnouncementQueryType = z.infer<typeof AnnouncementQuerySchema>;
 export const PatchAnnouncementsSchema = z.array(
   z.object({
     id: z.string().uuid(),
-    status: z.enum(['DELETED']),
+    status: z.enum(['DELETED', 'DRAFT']),
   }),
 );
 
