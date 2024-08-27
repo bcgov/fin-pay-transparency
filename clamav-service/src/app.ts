@@ -113,7 +113,7 @@ const validateApiKey =
     }
   };
 apiRouter.post(
-  '/scan',
+  '',
   validateApiKey(config.get('server:apiKey')),
   formData.parse({
     uploadDir: os.tmpdir(),

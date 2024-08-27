@@ -110,7 +110,7 @@ describe('EditAnnouncementPage', () => {
           await waitFor(() => {
             expect(
               getByText(
-                'Publish date cannot be in the past. Please select a new date.',
+                'Publish On date cannot be in the past. Please select a new date.',
               ),
             ).toBeInTheDocument();
           });
