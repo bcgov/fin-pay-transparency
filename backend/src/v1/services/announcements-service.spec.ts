@@ -346,7 +346,7 @@ describe('AnnouncementsService', () => {
   });
 
   describe('patchAnnouncements', () => {
-    describe('when provided a list of objects with and at least one requests an invalid status change', () => {
+    describe('when provided a list of objects and at least one requests an invalid status change', () => {
       it('throws a UserInputError', async () => {
         const data: any = [
           { id: '1', status: AnnouncementStatus.Deleted }, //is supported

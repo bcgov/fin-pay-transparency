@@ -191,7 +191,11 @@ export const patchAnnouncements = async (
       updated_by: 'UUID',
     };
 
-    //of all the data passed to this method, only the target 'status' is
+    //None of the data passed to this method is directly from user input.
+    //The input 'data' object is validated and then translated into another form
+    //(the 'updates' object).  For these reasons it is considerer safe to
+    //run a database statement ('updateManyUnsafe') that does not internally
+    //perform data safety checks.
     await utils.updateManyUnsafe(
       tx,
       updates,
