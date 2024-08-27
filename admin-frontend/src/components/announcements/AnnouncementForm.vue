@@ -533,7 +533,7 @@ const handleSave = handleSubmit(async (values) => {
 
       if (publishDate.isBefore(LocalDate.now())) {
         setErrors({
-          published_on: 'Publish date cannot be in the past. Please select a new date.',
+          published_on: 'Publish On date cannot be in the past. Please select a new date.',
         });
         return false;
       }     
