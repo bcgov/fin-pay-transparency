@@ -1,4 +1,3 @@
-import { create } from 'lodash';
 import { useUpload } from './upload';
 import path from 'path';
 import os from 'os';

@@ -182,6 +182,42 @@ export default {
       throw e;
     }
   },
+  async downloadFile(fileId: string) {
+    try {
+      const { data, headers } = await apiAxios.get(
+        `${ApiRoutes.RESOURCES}/${fileId}`,
+        {
+          responseType: 'blob',
+        },
+      );
+      let name = headers['content-disposition']
+        .split('filename="')[1]
+        .split('.')[0];
+      let extension = headers['content-disposition']
+        .split('.')[1]
+        .split('"')[0];
+
+      const filename = `${name}.${extension}`;
+      if (filename.toLowerCase().includes('pdf')) {
+        const file = window.URL.createObjectURL(
+          new Blob([data], { type: 'application/pdf' }),
+        );
+        window.open(file);
+        return { mode: 'open', filename };
+      }
+
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      return { mode: 'download', filename };
+    } catch (error) {
+      console.log(`Failed to get from Nodejs downloadFile API - ${error}`);
+      throw error;
+    }
+  },
   async getNaicsCodes() {
     try {
       const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
@@ -369,7 +405,7 @@ export default {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     } catch (e) {
-      console.log(`Failed to post from Nodejs addAnnouncement API - ${e}`);
+      console.error(`Failed to post from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },
@@ -381,7 +417,7 @@ export default {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     } catch (e) {
-      console.log(`Failed to put from Nodejs addAnnouncement API - ${e}`);
+      console.error(`Failed to put from Nodejs addAnnouncement API - ${e}`);
       throw e;
     }
   },
