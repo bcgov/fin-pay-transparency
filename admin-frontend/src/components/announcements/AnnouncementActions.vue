@@ -30,11 +30,11 @@
           <v-btn
             class="text-red"
             variant="text"
-            prepend-icon="mdi-delete"
-            @click="deleteAnnouncement(announcement.announcement_id)"
-            :loading="isDeleting"
-            :disabled="isDeleting"
-            >Delete</v-btn
+            prepend-icon="mdi-archive"
+            @click="archiveAnnouncement(announcement.announcement_id)"
+            :loading="isArchiving"
+            :disabled="isArchiving"
+            >Archive</v-btn
           >
         </v-list-item>
       </v-list>
@@ -63,30 +63,30 @@ const { announcement } = defineProps<{
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();
-const isDeleting = ref<boolean>(false);
+const isArchiving = ref<boolean>(false);
 const isUnpublishing = ref<boolean>(false);
 
-async function deleteAnnouncement(announcementId: string) {
+async function archiveAnnouncement(announcementId: string) {
   const isConfirmed = await confirmDialog.value?.open(
-    'Confirm Deletion',
-    `Are you sure you want to delete the selected announcement?  This action cannot be undone.`,
+    'Confirm Archive',
+    `Are you sure you want to archive the selected announcement?  This action cannot be undone.`,
     {
       titleBold: true,
       resolveText: `Confirm`,
     },
   );
   if (isConfirmed) {
-    isDeleting.value = true;
+    isArchiving.value = true;
     try {
       await ApiService.deleteAnnouncements([announcementId]);
       announcementSearchStore.repeatSearch();
       NotificationService.pushNotificationSuccess(
-        `Announcement deleted successfully.`,
+        `Announcement archived successfully.`,
         '',
       );
     } catch (e) {
     } finally {
-      isDeleting.value = false;
+      isArchiving.value = false;
     }
   }
 }
