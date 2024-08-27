@@ -1,7 +1,7 @@
-import { utils } from './utils-service';
-import { config } from '../../config';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import { config } from '../../config';
+import { utils } from './utils-service';
 
 jest.mock('axios');
 
@@ -93,8 +93,10 @@ describe('utils-service', () => {
             iat: 1516239022,
             display_name: 'Kevin O’Riely',
           };
-  
-          const output = utils.parseJwt('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJkaXNwbGF5X25hbWUiOiJLZXZpbiBP4oCZUmllbHkifQ.ab6ATknTP8_gksT7mnGV9XdEbE8JatEEeAYD4ipPQMg');
+
+          const output = utils.parseJwt(
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJkaXNwbGF5X25hbWUiOiJLZXZpbiBP4oCZUmllbHkifQ.ab6ATknTP8_gksT7mnGV9XdEbE8JatEEeAYD4ipPQMg',
+          );
           expect(output).toEqual(expectedPayload);
         });
       });
@@ -114,8 +116,87 @@ describe('utils-service', () => {
           expect(output).toEqual(expectedPayload);
         });
       });
+    });
+  });
 
-    })
-    
+  describe('updateManyUnsafe', () => {
+    describe('when requesting that multiple records in a given table be updated', () => {
+      it('creates and executes a bulk update statement against the database', () => {
+        const mockTx = {
+          $executeRawUnsafe: jest.fn(),
+        };
+        const updates = [
+          { mock_table_id: '1', another_col: 'aaa' },
+          { mock_table_id: '2', another_col: 'bbb' },
+        ];
+        const typeHints = null;
+        const mockTableName = 'mock_table';
+        const primaryKeyCol = 'mock_table_id';
+
+        utils.updateManyUnsafe(
+          mockTx,
+          updates,
+          typeHints,
+          mockTableName,
+          primaryKeyCol,
+        );
+
+        expect(mockTx.$executeRawUnsafe).toHaveBeenCalledTimes(1);
+
+        // Get the SQL was was submitted to the database
+        const executedSql = mockTx.$executeRawUnsafe.mock.calls[0][0];
+
+        // Check that the submitted SQL includes several expected keywords
+        // (We stop short of checking the exact format of the SQL and that
+        // it is valid according to the database engine.)
+        expect(executedSql.toLowerCase()).toContain(`update ${mockTableName}`);
+        expect(executedSql.toLowerCase()).toContain('set');
+        expect(executedSql.toLowerCase()).toContain('where');
+        Object.keys(updates[0]).forEach((k) => {
+          expect(executedSql).toContain(k);
+        });
+      });
+    });
+    describe('when typeHints are provided', () => {
+      it('the executed SQL includes casts to te specified hints', () => {
+        const mockTx = {
+          $executeRawUnsafe: jest.fn(),
+        };
+        const updates = [
+          { mock_table_id: '1', second_col: 'aaa', third_col: 'bbb' },
+        ];
+        const typeHints = { second_col: 'UUID', third_col: 'TIMESTAMP' };
+        const mockTableName = 'mock_table';
+        const primaryKeyCol = 'mock_table_id';
+
+        utils.updateManyUnsafe(
+          mockTx,
+          updates,
+          typeHints,
+          mockTableName,
+          primaryKeyCol,
+        );
+
+        expect(mockTx.$executeRawUnsafe).toHaveBeenCalledTimes(1);
+
+        // Get the SQL was was submitted to the database
+        const executedSql = mockTx.$executeRawUnsafe.mock.calls[0][0];
+
+        // Check that the submitted SQL includes several expected keywords
+        // (We stop short of checking the exact format of the SQL and that
+        // it is valid according to the database engine.)
+        expect(executedSql.toLowerCase()).toContain(`update ${mockTableName}`);
+        expect(executedSql.toLowerCase()).toContain('set');
+        expect(executedSql.toLowerCase()).toContain('where');
+
+        //check that values with type hints are cast
+        expect(executedSql).toContain(
+          `'${updates[0].second_col}'::${typeHints.second_col}`,
+        );
+        expect(executedSql).toContain(
+          `'${updates[0].third_col}'::${typeHints.third_col}`,
+        );
+      });
+    });
   });
 });

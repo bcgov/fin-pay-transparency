@@ -1,12 +1,17 @@
 import { faker } from '@faker-js/faker';
 import omit from 'lodash/omit';
-import { AnnouncementDataType } from '../types/announcements';
+import {
+  AnnouncementDataType,
+  AnnouncementStatus,
+} from '../types/announcements';
+import { UserInputError } from '../types/errors';
 import {
   createAnnouncement,
   getAnnouncements,
   patchAnnouncements,
   updateAnnouncement,
 } from './announcements-service';
+import { utils } from './utils-service';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -64,6 +69,7 @@ jest.mock('../prisma/prisma-client', () => ({
           create: (...args) => mockHistoryCreate(...args),
           update: (...args) => mockUpdateResource(...args),
         },
+        $executeRawUnsafe: jest.fn(),
       }),
     ),
   },
@@ -340,43 +346,67 @@ describe('AnnouncementsService', () => {
   });
 
   describe('patchAnnouncements', () => {
-    it('should delete announcements', async () => {
-      mockFindMany.mockResolvedValue([
-        {
-          announcement_id: 4,
-          title: 'Announcement 4',
-          announcement_resource: [],
-        },
-        {
-          announcement_id: 5,
-          title: 'Announcement 5',
-          announcement_resource: [],
-        },
-      ]);
-      await patchAnnouncements(
-        [
-          { id: '1', status: 'DELETED' },
-          { id: '2', status: 'DELETED' },
-        ],
-        'user-id',
-      );
-      expect(mockFindMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: {
-            announcement_id: {
-              in: ['1', '2'],
-            },
+    describe('when provided a list of objects and at least one requests an invalid status change', () => {
+      it('throws a UserInputError', async () => {
+        const data: any = [
+          { id: '1', status: AnnouncementStatus.Deleted }, //is supported
+          { id: '2', status: AnnouncementStatus.Published }, //isn't supported
+        ];
+        const mockUserId = 'user-id';
+        await expect(patchAnnouncements(data, mockUserId)).rejects.toThrow(
+          UserInputError,
+        );
+      });
+    });
+    describe('when provided a list of objects with valid status changes', () => {
+      it("should change status and update the 'updated_by' and 'updated_date' cols", async () => {
+        const mockUpdateManyUnsafe = jest
+          .spyOn(utils, 'updateManyUnsafe')
+          .mockResolvedValue(null);
+        mockFindMany.mockResolvedValue([
+          {
+            announcement_id: 4,
+            title: 'Announcement 4',
+            announcement_resource: [],
           },
-        }),
-      );
-      expect(mockHistoryCreate).toHaveBeenCalledTimes(2);
-      expect(mockUpdateMany).toHaveBeenCalledWith({
-        where: { announcement_id: { in: ['1', '2'] } },
-        data: {
-          status: 'DELETED',
-          updated_by: 'user-id',
-          updated_date: expect.any(Date),
-        },
+          {
+            announcement_id: 5,
+            title: 'Announcement 5',
+            announcement_resource: [],
+          },
+        ]);
+        await patchAnnouncements(
+          [
+            { id: '1', status: AnnouncementStatus.Deleted },
+            { id: '2', status: AnnouncementStatus.Draft },
+          ],
+          'user-id',
+        );
+        expect(mockFindMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: {
+              announcement_id: {
+                in: ['1', '2'],
+              },
+            },
+          }),
+        );
+        expect(mockHistoryCreate).toHaveBeenCalledTimes(2);
+        const updates = mockUpdateManyUnsafe.mock.calls[0][1];
+        expect(updates).toStrictEqual([
+          {
+            announcement_id: '1',
+            status: AnnouncementStatus.Deleted,
+            updated_by: 'user-id',
+            updated_date: expect.any(Date),
+          },
+          {
+            announcement_id: '2',
+            status: AnnouncementStatus.Draft,
+            updated_by: 'user-id',
+            updated_date: expect.any(Date),
+          },
+        ]);
       });
     });
   });
