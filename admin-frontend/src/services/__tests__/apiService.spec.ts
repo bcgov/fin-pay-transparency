@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AnnouncementStatus } from '../../types/announcements';
 import ApiService from '../apiService';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
@@ -403,6 +404,51 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('unpublishAnnouncement', () => {
+    describe('when the API request to the backend is successful', () => {
+      it('returns a promise that eventually resolves', async () => {
+        const announcementIdToUnpublish = '234243';
+        const mockResponse = {
+          data: {},
+          status: 201,
+        };
+        const patchSpy = vi
+          .spyOn(ApiService.apiAxios, 'patch')
+          .mockResolvedValueOnce(mockResponse);
+
+        await expect(
+          ApiService.unpublishAnnouncement(announcementIdToUnpublish),
+        ).resolves;
+
+        const expectedPatchBody = [
+          {
+            id: announcementIdToUnpublish,
+            status: AnnouncementStatus.Draft,
+          },
+        ];
+        expect(patchSpy).toHaveBeenCalledOnce();
+        expect(patchSpy.mock.calls[0][1]).toEqual(expectedPatchBody);
+      });
+    });
+    describe('when the API request to the backend is unsuccessful', () => {
+      it('returns a promise that eventually rejects', async () => {
+        const announcementIdToUnpublish = '234243';
+        const mockResponse = {
+          data: {},
+          status: 400,
+        };
+        vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        await expect(
+          ApiService.unpublishAnnouncement(announcementIdToUnpublish),
+        ).rejects.toThrow();
+      });
+    });
+  });
+
   describe('addAnnouncement', () => {
     describe('when the API request to the backend is successful', () => {
       it('returns a promise that eventually resolves', async () => {
@@ -477,6 +523,33 @@ describe('ApiService', () => {
         await expect(
           ApiService.updateAnnouncement('', payload),
         ).rejects.toThrow();
+      });
+    });
+  });
+
+  describe('clamavScanFile', () => {
+    describe('when the given file is valid', () => {
+      it('returns a response', async () => {
+        const mockFile = new File([], 'test.pdf');
+        const mockResponse = {
+          data: { message: 'success' },
+        };
+        vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.clamavScanFile(mockFile);
+        expect(resp).toEqual(mockResponse.data);
+      });
+    });
+    describe('when the given file is invalid', () => {
+      it('throws an error', async () => {
+        const mockFile = new File([], 'test.pdf');
+        vi.spyOn(ApiService.apiAxios, 'post').mockRejectedValueOnce(
+          new Error('Some backend error occurred'),
+        );
+
+        await expect(ApiService.clamavScanFile(mockFile)).rejects.toThrow();
       });
     });
   });

@@ -1,6 +1,8 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createTestingPinia } from '@pinia/testing';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import useEvents, { userEvent } from '@testing-library/user-event';
+
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -19,12 +21,15 @@ const wrappedRender = async () => {
 };
 
 const mockAddAnnouncement = vi.fn();
-
+const mockClamavScanFile = vi.fn();
 vi.mock('../../services/apiService', () => ({
   default: {
     addAnnouncement: (...args) => {
       console.log('mockAddAnnouncement.....', args);
       mockAddAnnouncement(...args);
+    },
+    clamavScanFile: (...args) => {
+      return mockClamavScanFile(...args)
     },
   },
 }));
@@ -50,7 +55,6 @@ vi.mock('vue-router', () => ({
 const setDate = async (field: HTMLElement, getDateCell: () => HTMLElement) => {
   await fireEvent.click(field);
   await waitFor(() => {
-    screen.debug();
     const dateCell = getDateCell();
     expect(dateCell).toBeInTheDocument();
     fireEvent.click(dateCell!);
@@ -130,7 +134,7 @@ describe('AddAnnouncementPage', () => {
     await fireEvent.update(linkUrl, 'https://example.com');
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await fireEvent.click(saveButton);
-    
+
     await waitFor(() => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -142,6 +146,30 @@ describe('AddAnnouncementPage', () => {
       );
       expect(mockSuccess).toHaveBeenCalled();
       expect(mockRouterPush).toHaveBeenCalledWith('/announcements');
+    });
+  });
+
+  describe('when no expiry is not checked', () => {
+    it('should display expiry date is required error message', async () => {
+      const { getByRole, getByLabelText, getByText } = await wrappedRender();
+      const saveButton = getByRole('button', { name: 'Save' });
+      const title = getByLabelText('Title');
+      const description = getByLabelText('Description');
+      const linkUrl = getByLabelText('Link URL');
+      const displayLinkAs = getByLabelText('Display Link As');
+      await fireEvent.update(title, 'Test Title');
+      await fireEvent.update(description, 'Test Description');
+      await fireEvent.update(linkUrl, 'https://example.com');
+      await fireEvent.update(displayLinkAs, 'Example.pdf');
+      const publishOn = getByLabelText('Publish On');
+      await setDate(publishOn, () => getByText('15'));
+      await fireEvent.update(linkUrl, 'https://example.com');
+      await fireEvent.update(displayLinkAs, 'Example.pdf');
+      await markAsPublish();
+      await fireEvent.click(saveButton);
+      await waitFor(() => {
+        expect(getByText('Please choose an Expiry date.')).toBeInTheDocument();
+      });
     });
   });
   it('should not publish when confirmation cancel is clicked', async () => {
@@ -320,7 +348,7 @@ describe('AddAnnouncementPage', () => {
     describe('when link url is empty', () => {
       it('should show error message', async () => {
         const { getByRole, getByLabelText, getByText } = await wrappedRender();
-    const saveButton = getByRole('button', { name: 'Save' });
+        const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
         const publishOn = getByLabelText('Publish On');
@@ -370,7 +398,7 @@ describe('AddAnnouncementPage', () => {
     describe('when link url is empty', () => {
       it('should show error message', async () => {
         const { getByRole, getByLabelText, getByText } = await wrappedRender();
-    const saveButton = getByRole('button', { name: 'Save' });
+        const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
         const publishOn = getByLabelText('Publish On');
@@ -411,6 +439,49 @@ describe('AddAnnouncementPage', () => {
       expect(expiresOn).toBeEnabled();
     });
   });
+  describe('file upload', () => {
+    describe('when clamav scan fails', () => {
+      it('should show error message', async () => {
+        mockClamavScanFile.mockImplementation(() => {
+          console.log('mockClamavScanFile..... 11111');
+          throw new Error('Failed to scan file');
+        });
+        const {getByLabelText, getByText} = await wrappedRender();
+        const attachment = getByLabelText('Attachment');
+        const file = new File(['hello'], 'chucknorris.png', {
+          type: 'image/png',
+        });
+        await waitFor(() =>
+          userEvent.upload(attachment, file),
+        );
+        await waitFor(() => {
+          expect(mockClamavScanFile).toHaveBeenCalled();
+        });
+        await waitFor(() => {
+          expect(getByText('File is invalid.')).toBeInTheDocument();
+        });
+      });
+    });
+    describe('when clamav scan pass', () => {
+      it('should not show error message', async () => {
+        mockClamavScanFile.mockResolvedValue({});
+        const {getByLabelText, queryByText } = await wrappedRender();
+        const attachment = getByLabelText('Attachment');
+        const file = new File(['hello'], 'chucknorris.png', {
+          type: 'image/png',
+        });
+        await waitFor(() =>
+          userEvent.upload(attachment, file),
+        );
+        await waitFor(() => {
+          expect(mockClamavScanFile).toHaveBeenCalled();
+        });
+        await waitFor(() => {
+          expect(queryByText('File is invalid.')).toBeNull();
+        });
+      });
+    });
+  });
 
   describe('when add announcement fails', () => {
     it('should show error message', async () => {
@@ -418,7 +489,7 @@ describe('AddAnnouncementPage', () => {
         throw new Error('Failed to add announcement');
       });
       const { getByRole, getByLabelText } = await wrappedRender();
-    const saveButton = getByRole('button', { name: 'Save' });
+      const saveButton = getByRole('button', { name: 'Save' });
       const title = getByLabelText('Title');
       const description = getByLabelText('Description');
       const linkUrl = getByLabelText('Link URL');

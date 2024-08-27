@@ -107,4 +107,40 @@ describe('AnnouncementActions', () => {
       });
     });
   });
+
+  describe('unpublishAnnouncement', async () => {
+    describe('confirm unpublish', () => {
+      it('delegates to the ApiService', async () => {
+        const announcementId = '1';
+        const apiSpy = vi
+          .spyOn(ApiService, 'unpublishAnnouncement')
+          .mockResolvedValue();
+
+        //mock the confirm dialog.
+        //simulate the user clicking the 'confirm' button
+        vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(true);
+
+        await wrapper.vm.unpublishAnnouncement(announcementId);
+
+        expect(apiSpy).toHaveBeenCalledWith(announcementId);
+      });
+    });
+
+    describe('cancel unpublish', () => {
+      it('does nothing', async () => {
+        const announcementId = '1';
+        const apiSpy = vi
+          .spyOn(ApiService, 'unpublishAnnouncement')
+          .mockResolvedValue();
+
+        //mock the confirm dialog.
+        //simulate the user clicking the 'cancel' button
+        vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(false);
+
+        await wrapper.vm.unpublishAnnouncement(announcementId);
+
+        expect(apiSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+  });
 });

@@ -4,68 +4,65 @@ import createPrismaMock from 'prisma-mock';
 import lockReportsJob from './lock-reports-scheduler';
 import { Prisma, PrismaClient } from '@prisma/client';
 
-let prismaClient: PrismaClient<
+const prismaClient: PrismaClient<
   Prisma.PrismaClientOptions,
   'query' | 'info' | 'warn' | 'error'
-> = createPrismaMock(
-  {
-    pay_transparency_report: [
-      // Cannot be locked
-      {
-        report_id: '1',
-        is_unlocked: true,
-        report_status: 'Published',
-        create_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
-        report_unlock_date: null,
-      },
-      // Can be locked, older than default editable period (30 days)
-      {
-        report_id: '2',
-        is_unlocked: true,
-        report_status: 'Published',
-        create_date: convert(
-          LocalDateTime.now(ZoneId.UTC).minusDays(40),
-        ).toDate(),
-        report_unlock_date: null,
-      },
-      // Cannot be locked, before report_unlock_date
-      {
-        report_id: '3',
-        is_unlocked: true,
-        report_status: 'Published',
-        create_date: convert(
-          LocalDateTime.now(ZoneId.UTC).minusDays(40),
-        ).toDate(),
-        report_unlock_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
-      },
-      // Can be locked, past report_unlock_date
-      {
-        report_id: '4',
-        is_unlocked: true,
-        report_status: 'Published',
-        create_date: convert(
-          LocalDateTime.now(ZoneId.UTC).minusDays(40),
-        ).toDate(),
-        report_unlock_date: convert(
-          LocalDateTime.now(ZoneId.UTC).minusDays(3),
-        ).toDate(),
-      },
-      // Cannot be locked, not published
-      {
-        report_id: '5',
-        is_unlocked: true,
-        report_status: 'Draft',
-        create_date: convert(
-          LocalDateTime.now(ZoneId.UTC).minusDays(40),
-        ).toDate(),
-        report_unlock_date: convert(
-          LocalDateTime.now(ZoneId.UTC).plusDays(3),
-        ).toDate(),
-      },
-    ],
-  },
-  Prisma.dmmf.datamodel,
-);
+> = createPrismaMock({
+  pay_transparency_report: [
+    // Cannot be locked
+    {
+      report_id: '1',
+      is_unlocked: true,
+      report_status: 'Published',
+      create_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
+      report_unlock_date: null,
+    },
+    // Can be locked, older than default editable period (30 days)
+    {
+      report_id: '2',
+      is_unlocked: true,
+      report_status: 'Published',
+      create_date: convert(
+        LocalDateTime.now(ZoneId.UTC).minusDays(40),
+      ).toDate(),
+      report_unlock_date: null,
+    },
+    // Cannot be locked, before report_unlock_date
+    {
+      report_id: '3',
+      is_unlocked: true,
+      report_status: 'Published',
+      create_date: convert(
+        LocalDateTime.now(ZoneId.UTC).minusDays(40),
+      ).toDate(),
+      report_unlock_date: convert(LocalDateTime.now(ZoneId.UTC)).toDate(),
+    },
+    // Can be locked, past report_unlock_date
+    {
+      report_id: '4',
+      is_unlocked: true,
+      report_status: 'Published',
+      create_date: convert(
+        LocalDateTime.now(ZoneId.UTC).minusDays(40),
+      ).toDate(),
+      report_unlock_date: convert(
+        LocalDateTime.now(ZoneId.UTC).minusDays(3),
+      ).toDate(),
+    },
+    // Cannot be locked, not published
+    {
+      report_id: '5',
+      is_unlocked: true,
+      report_status: 'Draft',
+      create_date: convert(
+        LocalDateTime.now(ZoneId.UTC).minusDays(40),
+      ).toDate(),
+      report_unlock_date: convert(
+        LocalDateTime.now(ZoneId.UTC).plusDays(3),
+      ).toDate(),
+    },
+  ],
+});
 
 jest.mock('../v1/prisma/prisma-client', () => ({
   __esModule: true,

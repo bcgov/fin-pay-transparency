@@ -29,7 +29,6 @@ describe('expire-announcements-scheduler', () => {
     mock_tryLock.mockReturnValue(mock_unlock);
     expireAnnouncementsJob.start();
     await waitFor(async () => {
-      log.info('where is this printed?');
       expect(mock_tryLock).toHaveBeenCalledTimes(1);
       expect(mock_expireAnnouncements).toHaveBeenCalled();
       expect(mock_unlock).toHaveBeenCalledTimes(1);
