@@ -23,6 +23,8 @@ import authRouter from './v1/routes/public-auth-routes';
 import { reportRouter } from './v1/routes/report-routes';
 import userRouter from './v1/routes/user-info-routes';
 import announcementRouter from './v1/routes/announcement-routes';
+import resourcesRoutes from './v1/routes/resources-routes';
+
 import { publicAuth } from './v1/services/public-auth-service';
 import { utils } from './v1/services/utils-service';
 
@@ -281,6 +283,8 @@ apiRouter.use('/v1/file-upload', fileUploadRouter);
 apiRouter.use('/v1/codes', codeRouter);
 apiRouter.use('/v1/report', reportRouter);
 apiRouter.use('/v1/announcements', announcementRouter);
+apiRouter.use('/v1/resources', resourcesRoutes);
+
 app.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });

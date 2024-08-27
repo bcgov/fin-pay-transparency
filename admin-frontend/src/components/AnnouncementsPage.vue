@@ -143,6 +143,7 @@ import { NotificationService } from '../services/notificationService';
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
   storeToRefs(announcementSearchStore);
+
 const announcementInDialog = ref<any>(undefined);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const isAnnouncementDialogVisible = ref<boolean>(false);
@@ -297,6 +298,4 @@ async function deleteAnnouncements(announcementIds: string[]) {
 .no-min-width {
   min-width: 0px !important;
 }
-
-
 </style>

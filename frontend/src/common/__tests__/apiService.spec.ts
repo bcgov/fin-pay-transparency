@@ -1,3 +1,4 @@
+import { DateTimeFormatter, ZonedDateTime, nativeJs } from '@js-joda/core';
 import { AxiosError } from 'axios';
 import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -520,12 +521,43 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('downloadFile', () => {
+    describe('when the given file id is valid', () => {
+      it('returns a blob', async () => {
+        const mockFileId = '1';
+        const mockResponse = {
+          data: new File([], 'test.pdf'),
+          headers: {
+            'content-disposition': 'attachment; filename="test.pdf"',
+          },
+        };
+        global.URL.createObjectURL = vi.fn().mockReturnValueOnce('test.pdf');
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.downloadFile(mockFileId);
+        expect(resp).toEqual('test.pdf');
+      });
+    });
+    describe('when the given file id is invalid', () => {
+      it('throws an error', async () => {
+        const mockFileId = '1';
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          new Error('Some backend error occurred'),
+        );
+
+        await expect(ApiService.downloadFile(mockFileId)).rejects.toThrow();
+      });
+    });
+  });
 });
 
 describe('ApiServicePrivate', () => {
   describe('dateToApiDateTimeString', () => {
     it('converts the given date object into a date time string in the format expected by the API', () => {
-      const d = new Date(
+      const date = new Date(
         2019, //year
         0, //month (0=January)
         1, //day
@@ -534,8 +566,16 @@ describe('ApiServicePrivate', () => {
         0, //seconds
         0, //ms
       );
-      const result = ApiServicePrivate.dateToApiDateTimeString(d);
-      expect(result).toBe('2019-01-01T00:00:00Z');
+
+      const result = ApiServicePrivate.dateToApiDateTimeString(date);
+
+      //expect the result to be an ISO 8601 datetime string in the local timezone
+      //(with timezone offset included).  For example: '2011-12-03T10:15:30+01:00'
+      const expected = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+        ZonedDateTime.from(nativeJs(date)),
+      );
+
+      expect(result).toBe(expected);
     });
   });
 });

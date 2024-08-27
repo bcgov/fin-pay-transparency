@@ -100,6 +100,7 @@ export type AnnouncementFormValue = Pick<
   fileDisplayName?: string;
   attachmentId?: string;
   attachment?: File;
+  file_resource_id?: string;
 };
 
 export enum AnnouncementFormMode {

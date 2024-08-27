@@ -287,13 +287,18 @@ import {
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import { convert, DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
+import {
+  DateTimeFormatter,
+  LocalDate,
+  ZonedDateTime,
+  nativeJs,
+} from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
 import ApiService from '../../services/apiService';
-import { v4 } from 'node-uuid';
+import { v4 } from 'uuid'
 
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;
@@ -466,19 +471,26 @@ its appearance, so some of the unnecessary attributes aren't populated
 (created_date, updated_date, etc)
 */
 function buildAnnouncementToPreview() {
-  const announcement = {
+  const previewAnnouncement = {
     announcement_id: null,
     title: announcementTitle.value,
     description: announcementDescription.value,
     announcement_resource: [] as any[],
   };
   if (linkDisplayName.value && linkUrl.value) {
-    announcement.announcement_resource.push({
+    previewAnnouncement.announcement_resource.push({
       display_name: linkDisplayName.value,
       resource_url: linkUrl.value,
     });
   }
-  return announcement;
+
+  if (announcement?.file_resource_id && fileDisplayName.value) {
+    previewAnnouncement.announcement_resource.push({
+      display_name: fileDisplayName.value,
+      announcement_resource_id: announcement?.file_resource_id,
+    });
+  }
+  return previewAnnouncement;
 }
 
 /*
@@ -533,10 +545,11 @@ const handleSave = handleSubmit(async (values) => {
 
       if (publishDate.isBefore(LocalDate.now())) {
         setErrors({
-          published_on: 'Publish On date cannot be in the past. Please select a new date.',
+          published_on:
+            'Publish On date cannot be in the past. Please select a new date.',
         });
         return false;
-      }     
+      }
     }
 
     if (values.published_on && values.expires_on) {
@@ -591,14 +604,14 @@ const handleSave = handleSubmit(async (values) => {
   await emits('save', {
     ...values,
     published_on: values.published_on
-      ? convert(LocalDate.from(nativeJs(values.published_on)))
-          .toDate()
-          .toISOString()
+      ? DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+          ZonedDateTime.from(nativeJs(values.published_on)),
+        )
       : undefined,
     expires_on: values.expires_on
-      ? convert(LocalDate.from(nativeJs(values.expires_on)))
-          .toDate()
-          .toISOString()
+      ? DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+          ZonedDateTime.from(nativeJs(values.expires_on)),
+        )
       : undefined,
     linkDisplayName: isEmpty(values.linkDisplayName)
       ? undefined

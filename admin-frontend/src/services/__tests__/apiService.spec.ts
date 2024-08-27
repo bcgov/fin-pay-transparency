@@ -553,4 +553,54 @@ describe('ApiService', () => {
       });
     });
   });
+  describe('downloadFile', () => {
+    describe('when the given file id is valid', () => {
+      it('opens pdf in new tab', async () => {
+        const mockFileId = '1';
+        const mockResponse = {
+          data: new File([], 'test.pdf'),
+          headers: {
+            'content-disposition': 'attachment; filename="test.pdf"',
+          }
+        };
+        global.URL.createObjectURL = vi.fn().mockReturnValueOnce("test.pdf");
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.downloadFile(mockFileId);
+        
+        expect(resp.mode).toEqual('open');
+      });
+      it('download file', async () => {
+        const mockFileId = '1';
+        const mockResponse = {
+          data: new File([], 'test.pdf'),
+          headers: {
+            'content-disposition': 'attachment; filename="test.jpg"',
+          }
+        };
+        global.URL.createObjectURL = vi.fn().mockReturnValueOnce("test.jpg");
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.downloadFile(mockFileId);
+        
+        expect(resp.mode).toEqual('download');
+      });
+    });
+    describe('when the given file id is invalid', () => {
+      it('throws an error', async () => {
+        const mockFileId = '1';
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          new Error('Some backend error occurred'),
+        );
+
+        await expect(
+          ApiService.downloadFile(mockFileId),
+        ).rejects.toThrow();
+      });
+    });
+  });
 });

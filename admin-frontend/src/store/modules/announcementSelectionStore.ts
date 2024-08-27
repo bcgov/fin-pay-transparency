@@ -41,6 +41,7 @@ export const useAnnouncementSelectionStore = defineStore(
         linkDisplayName: link?.display_name,
         attachmentId: attachment?.attachment_file_id,
         fileDisplayName: attachment?.display_name,
+        file_resource_id: attachment?.announcement_resource_id,
       };
     };
 

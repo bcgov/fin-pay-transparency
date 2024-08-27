@@ -8,10 +8,20 @@
       class="px-0 mt-2"
     >
       <a
+        v-if="announcementResource.resource_type === 'LINK'"
         :href="sanitizeUrl(announcementResource.resource_url)"
         target="_blank"
         rel="noopener"
         >{{ announcementResource.display_name }}</a
+      >
+      <v-btn
+        v-else
+        class="download-link"
+        @click="
+          ApiService.downloadFile(announcementResource.announcement_resource_id)
+        "
+        variant="text"
+        >{{ announcementResource.display_name }}</v-btn
       >
     </div>
   </div>
@@ -25,8 +35,14 @@ export default {
 <script setup lang="ts">
 import { Announcement } from '../../types/announcements';
 import { sanitizeUrl } from '@braintree/sanitize-url';
+import ApiService from '../../services/apiService';
 
 const props = defineProps<{
   announcement: Announcement;
 }>();
 </script>
+<style scoped lang="scss">
+.download-link {
+  color: #255a90;
+}
+</style>
