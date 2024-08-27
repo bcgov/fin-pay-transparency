@@ -344,7 +344,9 @@ export default {
 };
 
 export const ApiServicePrivate = {
-  /* converts into an ISO 8601 datetime string in the local timezone */
+  /* converts the given date into an ISO 8601 datetime string in the local 
+     timezone.  For example: "2024-08-27T10:25:48.29-07:00"
+  */
   dateToApiDateTimeString(date: Date) {
     const jodaZonedDateTime = ZonedDateTime.from(nativeJs(date));
     return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(jodaZonedDateTime);

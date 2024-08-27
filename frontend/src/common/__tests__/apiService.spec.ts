@@ -1,3 +1,4 @@
+import { DateTimeFormatter, ZonedDateTime, nativeJs } from '@js-joda/core';
 import { AxiosError } from 'axios';
 import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -525,7 +526,7 @@ describe('ApiService', () => {
 describe('ApiServicePrivate', () => {
   describe('dateToApiDateTimeString', () => {
     it('converts the given date object into a date time string in the format expected by the API', () => {
-      const d = new Date(
+      const date = new Date(
         2019, //year
         0, //month (0=January)
         1, //day
@@ -534,8 +535,16 @@ describe('ApiServicePrivate', () => {
         0, //seconds
         0, //ms
       );
-      const result = ApiServicePrivate.dateToApiDateTimeString(d);
-      expect(result).toBe('2019-01-01T00:00:00Z');
+
+      const result = ApiServicePrivate.dateToApiDateTimeString(date);
+
+      //expect the result to be an ISO 8601 datetime string in the local timezone
+      //(with timezone offset included).  For example: '2011-12-03T10:15:30+01:00'
+      const expected = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+        ZonedDateTime.from(nativeJs(date)),
+      );
+
+      expect(result).toBe(expected);
     });
   });
 });
