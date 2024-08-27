@@ -526,4 +526,31 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('clamavScanFile', () => {
+    describe('when the given file is valid', () => {
+      it('returns a response', async () => {
+        const mockFile = new File([], 'test.pdf');
+        const mockResponse = {
+          data: { message: 'success' },
+        };
+        vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.clamavScanFile(mockFile);
+        expect(resp).toEqual(mockResponse.data);
+      });
+    });
+    describe('when the given file is invalid', () => {
+      it('throws an error', async () => {
+        const mockFile = new File([], 'test.pdf');
+        vi.spyOn(ApiService.apiAxios, 'post').mockRejectedValueOnce(
+          new Error('Some backend error occurred'),
+        );
+
+        await expect(ApiService.clamavScanFile(mockFile)).rejects.toThrow();
+      });
+    });
+  });
 });

@@ -425,6 +425,17 @@ export default {
       throw e;
     }
   },
+  async clamavScanFile(file: File) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await apiAxios.post(ApiRoutes.CLAMAV_SCAN, formData);
+      return data;
+    } catch (error) {
+      console.log(`Failed to post from Nodejs clamavScanFile API - ${error}`);
+      throw error;
+    }
+  },
 };
 
 const buildFormData = (data: AnnouncementFormValue) => {

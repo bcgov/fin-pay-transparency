@@ -124,6 +124,13 @@
                     </VueDatePicker>
                   </v-col>
                 </v-row>
+                <v-row dense class="mt-0">
+                  <v-col cols="2" class="d-flex justify-end align-center pa-0">
+                  </v-col>
+                  <v-col cols="6" class="pa-0 ml-3">
+                    <span class="field-error">{{ errors.expires_on }}</span>
+                  </v-col>
+                </v-row>
                 <v-row class="mt-0">
                   <v-col cols="8" class="d-flex justify-end pa-0">
                     <v-checkbox
@@ -183,6 +190,7 @@
                       v-model="attachment"
                       class="attachment"
                       variant="outlined"
+                      :error-messages="errors.attachment"
                     >
                       <template #prepend-inner>
                         <v-btn color="primary">Choose File</v-btn>
@@ -304,7 +312,6 @@ const { announcement, mode } = defineProps<Props>();
 const isPreviewAvailable = computed(() => values.title && values.description);
 const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
-const attachment = ref<File | null>(null);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
@@ -318,6 +325,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     fileDisplayName: announcement?.fileDisplayName || '',
     attachmentId: announcement?.attachmentId || v4(),
     status: announcement?.status || 'DRAFT',
+    attachment: undefined,
   },
   validationSchema: {
     title(value) {
@@ -357,6 +365,16 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
       return true;
     },
+    async attachment(value) {
+      if (!value) return true;
+      try {
+        await ApiService.clamavScanFile(value);
+      } catch (error) {
+        return 'File is invalid.';
+      }
+
+      return true;
+    },
   },
 });
 
@@ -369,6 +387,7 @@ const { value: noExpiry } = useField('no_expiry') as any;
 const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
 const { value: fileDisplayName } = useField('fileDisplayName') as any;
+const { value: attachment } = useField('attachment') as any;
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
@@ -483,14 +502,41 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 }
 
 const handleSave = handleSubmit(async (values) => {
-  if (!validatePublishDate(values) || !validateLink(values)) {
+  if (
+    !validatePublishDate(values) ||
+    !validateLink(values) ||
+    !validateExpiry()
+  ) {
     return;
+  }
+
+  function validateExpiry() {
+    if (
+      values.status === 'PUBLISHED' &&
+      !values.expires_on &&
+      !values.no_expiry
+    ) {
+      setErrors({ expires_on: 'Please choose an Expiry date.' });
+      return false;
+    }
+    return true;
   }
 
   function validatePublishDate(values) {
     if (!values.published_on && status.value === 'PUBLISHED') {
       setErrors({ published_on: 'Publish date is required.' });
       return false;
+    }
+
+    if (announcement?.status === 'DRAFT' && status.value === 'PUBLISHED') {
+      const publishDate = LocalDate.from(nativeJs(values.published_on));
+
+      if (publishDate.isBefore(LocalDate.now())) {
+        setErrors({
+          published_on: 'Publish date cannot be in the past. Please select a new date.',
+        });
+        return false;
+      }     
     }
 
     if (values.published_on && values.expires_on) {
