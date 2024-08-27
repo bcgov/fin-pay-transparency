@@ -203,7 +203,7 @@ export default {
           new Blob([data], { type: 'application/pdf' }),
         );
         window.open(file);
-        return;
+        return { mode: 'open', filename };
       }
 
       const url = window.URL.createObjectURL(data);
@@ -212,7 +212,7 @@ export default {
       link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
-      return url;
+      return { mode: 'download', filename };
     } catch (error) {
       console.log(`Failed to get from Nodejs downloadFile API - ${error}`);
       throw error;

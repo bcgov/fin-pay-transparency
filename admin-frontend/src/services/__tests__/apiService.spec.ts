@@ -558,7 +558,7 @@ describe('ApiService', () => {
   });
   describe('downloadFile', () => {
     describe('when the given file id is valid', () => {
-      it('returns a blob', async () => {
+      it('opens pdf in new tab', async () => {
         const mockFileId = '1';
         const mockResponse = {
           data: new File([], 'test.pdf'),
@@ -572,7 +572,25 @@ describe('ApiService', () => {
         );
 
         const resp = await ApiService.downloadFile(mockFileId);
-        expect(resp).toEqual('test.pdf');
+        
+        expect(resp.mode).toEqual('open');
+      });
+      it('download file', async () => {
+        const mockFileId = '1';
+        const mockResponse = {
+          data: new File([], 'test.pdf'),
+          headers: {
+            'content-disposition': 'attachment; filename="test.jpg"',
+          }
+        };
+        global.URL.createObjectURL = vi.fn().mockReturnValueOnce("test.jpg");
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockResponse,
+        );
+
+        const resp = await ApiService.downloadFile(mockFileId);
+        
+        expect(resp.mode).toEqual('download');
       });
     });
     describe('when the given file id is invalid', () => {
