@@ -1,10 +1,4 @@
-import {
-  convert,
-  LocalDate,
-  LocalDateTime,
-  ZonedDateTime,
-  ZoneId,
-} from '@js-joda/core';
+import { convert, LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
 import {
   announcement,
   announcement_resource,
@@ -13,6 +7,7 @@ import {
 } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import isEmpty from 'lodash/isEmpty';
+import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
 import {
@@ -153,19 +148,27 @@ export const getAnnouncements = async (
 };
 
 /**
- * Patch announcements by ids
+ * Patch announcements by ids.
+ * This method also copies the original record into the announcement history table.
  * @param data - array of objects with format:
  * { id: announcement_id, status: status}
- * where status is one of ['DELETED', 'DRAFT']
- * @param userId - user id who is patching the announcements
+ * Currently the 'status' attribute is the only attribute that supports patching,
+ * and the only status values that are supported are ['DELETED', 'DRAFT', 'EXPIRED']
+ * @param userId - user id who is patching the announcements, or undefined
+ * if no 'updated_by' user should be recorded
+ * @param tx - an optional Prisma transaction.  if specified, performs the work within
+ * the given existing transaction.  if omitted, performs the workin within a new
+ * transaction
  */
 export const patchAnnouncements = async (
   data: PatchAnnouncementsType,
-  userId: string,
+  userId: string | null = null,
+  tx?: any,
 ) => {
   const supportedStatuses = [
     AnnouncementStatus.Deleted,
     AnnouncementStatus.Draft,
+    AnnouncementStatus.Expired,
   ];
   const hasUnsupportedUpdates = data.filter(
     (item) => supportedStatuses.indexOf(item.status as any) < 0,
@@ -175,7 +178,10 @@ export const patchAnnouncements = async (
       `Invalid status. Only the following statuses are supported: ${supportedStatuses}`,
     );
   }
-  return prisma.$transaction(async (tx) => {
+
+  //An inner function which performs the database updates associated with
+  //this patch operation.
+  const applyPatch = async (tx) => {
     const announcements = await tx.announcement.findMany({
       where: { announcement_id: { in: data.map((item) => item.id) } },
       include: { announcement_resource: true },
@@ -184,7 +190,7 @@ export const patchAnnouncements = async (
     for (const announcement of announcements) {
       await saveHistory(tx, announcement);
     }
-    const updateDate = LocalDate.now(ZoneId.UTC);
+    const updateDate = ZonedDateTime.now(ZoneId.UTC);
 
     const updates = data
       .filter((item) => supportedStatuses.indexOf(item.status as any) >= 0)
@@ -198,7 +204,6 @@ export const patchAnnouncements = async (
     const typeHints = {
       updated_by: 'UUID',
     };
-
     //None of the data passed to this method is directly from user input.
     //The input 'data' object is validated and then translated into another form
     //(the 'updates' object).  For these reasons it is considerer safe to
@@ -211,7 +216,15 @@ export const patchAnnouncements = async (
       'announcement',
       'announcement_id',
     );
-  });
+  };
+
+  //If there is an existing transaction, apply the patch within it, otherwise
+  //create a new transaction and apply the patch within that.
+  const enterTransaction = tx
+    ? applyPatch(tx)
+    : prisma.$transaction(applyPatch);
+
+  return enterTransaction;
 };
 
 /**
@@ -399,6 +412,40 @@ export const updateAnnouncement = async (
       where: { announcement_id: id },
       data,
     });
+  });
+};
+
+/* Identifies announcements that should be expired.  If any such announcements
+are found, marks them as expired */
+export const expireAnnouncements = async () => {
+  const nowUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
+  await prisma.$transaction(async (tx) => {
+    const announcements = await prisma.announcement.findMany({
+      select: {
+        announcement_id: true,
+      },
+      where: {
+        status: 'PUBLISHED',
+        expires_on: {
+          not: null,
+          lte: nowUtc,
+        },
+      },
+    });
+    const patchData = announcements.map((a) => {
+      return {
+        id: a.announcement_id,
+        status: AnnouncementStatus.Expired as any,
+      };
+    });
+    if (patchData.length) {
+      logger.info(
+        `Marking ${patchData.length} announcement(s) as ${AnnouncementStatus.Expired}`,
+      );
+      await patchAnnouncements(patchData, undefined, tx);
+    } else {
+      logger.info(`Found no announcements that need to be expired`);
+    }
   });
 };
 

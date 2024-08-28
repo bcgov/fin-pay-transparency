@@ -24,7 +24,7 @@ const schedulerService = {
     const delete_date =
       LocalDateTime.now(ZoneId.UTC).minusDays(1).toString() + 'Z';
 
-    logger.info('deleteDraftReports older than : ' + delete_date);
+    logger.info('Delete Draft Reports older than : ' + delete_date);
 
     const reportWhereClause: Prisma.pay_transparency_reportWhereInput = {
       report_status: enumReportStatus.Draft,
