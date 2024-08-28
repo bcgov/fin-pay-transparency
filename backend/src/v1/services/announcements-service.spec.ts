@@ -77,7 +77,7 @@ jest.mock('../prisma/prisma-client', () => ({
   },
 }));
 
-jest.mock('../config', () => ({
+jest.mock('../../config', () => ({
   config: {
     get: (key: string) => {
       const settings = {
