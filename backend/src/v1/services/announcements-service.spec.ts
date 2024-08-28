@@ -77,6 +77,17 @@ jest.mock('../prisma/prisma-client', () => ({
   },
 }));
 
+jest.mock('../config', () => ({
+  config: {
+    get: (key: string) => {
+      const settings = {
+        'server:schedulerTimeZone': 'America/Vancouver',
+      };
+      return settings[key];
+    },
+  },
+}));
+
 describe('AnnouncementsService', () => {
   afterEach(() => {
     jest.clearAllMocks();
