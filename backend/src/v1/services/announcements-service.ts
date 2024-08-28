@@ -425,7 +425,7 @@ export const expireAnnouncements = async () => {
         announcement_id: true,
       },
       where: {
-        status: 'PUBLISHED',
+        status: AnnouncementStatus.Published,
         expires_on: {
           not: null,
           lte: nowUtc,
@@ -460,7 +460,7 @@ export const getExpiringAnnouncements = async (): Promise<announcement[]> => {
     .withNano(0);
   const items = await prisma.announcement.findMany({
     where: {
-      status: 'PUBLISHED',
+      status: AnnouncementStatus.Published,
       expires_on: {
         gte: convert(targetDate).toDate(),
         lt: convert(targetDate.plusDays(1)).toDate(),
