@@ -1,7 +1,4 @@
-<template>Dashboard placeholder</template>
+<template>Dashboard placeholder testing123</template>
 
 <script lang="ts"></script>
-<div>
-Dashboard here testing blahhhhfdff
-</div>
 <style></style>
