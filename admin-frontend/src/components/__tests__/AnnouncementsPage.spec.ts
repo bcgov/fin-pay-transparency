@@ -215,8 +215,8 @@ describe('AnnouncementsPage', () => {
     });
   });
 
-  describe('deleteAnnouncement', async () => {
-    describe('confirm delete', () => {
+  describe('archiveAnnouncement', async () => {
+    describe('confirm archive', () => {
       it('delegates to the ApiService', async () => {
         const announcementIds = ['1', '2'];
         const repeatSearchSpy = vi.spyOn(
@@ -224,32 +224,32 @@ describe('AnnouncementsPage', () => {
           'repeatSearch',
         );
 
-        //mock the confirm delete dialog.
+        //mock the confirm dialog.
         //simulate the user clicking the 'confirm' button
         vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(true);
 
-        const resp = await wrapper.vm.deleteAnnouncements(announcementIds);
+        const resp = await wrapper.vm.archiveAnnouncements(announcementIds);
         expect(mockDeleteAnnouncements).toHaveBeenCalledWith(announcementIds);
         expect(repeatSearchSpy).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.isDeleting).toBeFalsy();
+        expect(wrapper.vm.isArchiving).toBeFalsy();
       });
     });
-    describe('cancel delete', () => {
-      it("doesn't delete anything", async () => {
+    describe('cancel archive', () => {
+      it("doesn't archive anything", async () => {
         const announcementIds = ['1', '2'];
         const repeatSearchSpy = vi.spyOn(
           announcementSearchStore,
           'repeatSearch',
         );
 
-        //mock the confirm delete dialog.
+        //mock the confirm dialog.
         //simulate the user clicking the 'cancel' button
         vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(false);
 
-        const resp = await wrapper.vm.deleteAnnouncements(announcementIds);
+        const resp = await wrapper.vm.archiveAnnouncements(announcementIds);
         expect(mockDeleteAnnouncements).toHaveBeenCalledTimes(0);
         expect(repeatSearchSpy).toHaveBeenCalledTimes(0);
-        expect(wrapper.vm.isDeleting).toBeFalsy();
+        expect(wrapper.vm.isArchiving).toBeFalsy();
       });
     });
   });

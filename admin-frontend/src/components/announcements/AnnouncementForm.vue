@@ -169,7 +169,7 @@
                 </v-row>
               </v-col>
               <v-col cols="12">
-                <h5 class="mb-2">Link</h5>
+                <h5 class="mb-2">File</h5>
                 <v-row dense class="ml-3 mt-2">
                   <v-col cols="12">
                     <span class="attachment-label">File Name</span>

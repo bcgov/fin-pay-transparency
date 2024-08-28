@@ -85,11 +85,11 @@
             <div class="mt-3 d-flex flex-column align-center">
               <v-btn
                 class="btn-secondary"
-                :disabled="!selectedAnnouncementIds.length || isDeleting"
-                :loading="isDeleting"
-                @click="deleteAnnouncements(selectedAnnouncementIds)"
-                prepend-icon="mdi-delete"
-                >Delete</v-btn
+                :disabled="!selectedAnnouncementIds.length || isArchiving"
+                :loading="isArchiving"
+                @click="archiveAnnouncements(selectedAnnouncementIds)"
+                prepend-icon="mdi-archive"
+                >Archive</v-btn
               >
               <small v-if="selectedAnnouncementIds.length">
                 {{ selectedAnnouncementIds.length }} selected
@@ -149,7 +149,7 @@ const confirmDialog = ref<typeof ConfirmationDialog>();
 const isAnnouncementDialogVisible = ref<boolean>(false);
 const isSelectedAnnouncementsHeaderChecked = ref<boolean>(false);
 const selectedAnnouncements = ref<object>({});
-const isDeleting = ref<boolean>(false);
+const isArchiving = ref<boolean>(false);
 const selectedAnnouncementIds = computed(() =>
   Object.entries(selectedAnnouncements.value)
     .filter(([_, value]) => value)
@@ -258,27 +258,27 @@ async function repeatSearch() {
   await announcementSearchStore.repeatSearch();
 }
 
-async function deleteAnnouncements(announcementIds: string[]) {
+async function archiveAnnouncements(announcementIds: string[]) {
   const isConfirmed = await confirmDialog.value?.open(
-    'Confirm Deletion',
-    `Are you sure you want to delete the selected announcement${announcementIds.length != 1 ? 's' : ''}?  This action cannot be undone.`,
+    'Confirm Archive',
+    `Are you sure you want to archive the selected announcement${announcementIds.length != 1 ? 's' : ''}?  This action cannot be undone.`,
     {
       titleBold: true,
       resolveText: `Confirm`,
     },
   );
   if (isConfirmed) {
-    isDeleting.value = true;
+    isArchiving.value = true;
     try {
       await ApiService.deleteAnnouncements(announcementIds);
       announcementSearchStore.repeatSearch();
       NotificationService.pushNotificationSuccess(
-        `Announcement${announcementIds.length != 1 ? 's' : ''} deleted successfully.`,
+        `Announcement${announcementIds.length != 1 ? 's' : ''} archived successfully.`,
         '',
       );
     } catch (e) {
     } finally {
-      isDeleting.value = false;
+      isArchiving.value = false;
     }
   }
 }
