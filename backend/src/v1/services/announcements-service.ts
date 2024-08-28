@@ -160,7 +160,7 @@ export const getAnnouncements = async (
  */
 export const patchAnnouncements = async (
   data: PatchAnnouncementsType,
-  userId: string | undefined = undefined,
+  userId: string | null = null,
   tx?: any,
 ) => {
   const supportedStatuses = [
@@ -195,7 +195,7 @@ export const patchAnnouncements = async (
       .map((item) => ({
         announcement_id: item.id,
         status: item.status,
-        updated_by: userId ? userId : null,
+        updated_by: userId,
         updated_date: convert(updateDate).toDate(),
       }));
 
