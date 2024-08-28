@@ -27,11 +27,21 @@ jest.mock('./delete-draft-service-scheduler', () => ({
   },
 }));
 
+const mockExpireAnnouncementsLock = jest.fn();
+jest.mock('./expire-announcements-scheduler', () => ({
+  __esModule: true,
+
+  default: {
+    start: () => mockExpireAnnouncementsLock(),
+  },
+}));
+
 describe('run.all', () => {
   it('should start all jobs', async () => {
     run();
     expect(mockDeleteDraftReportLock).toHaveBeenCalled();
     expect(mockDeleteUserErrorsLock).toHaveBeenCalled();
     expect(mockStartReportLock).toHaveBeenCalled();
+    expect(mockExpireAnnouncementsLock).toHaveBeenCalled();
   });
 });

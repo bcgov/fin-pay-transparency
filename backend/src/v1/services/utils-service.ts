@@ -170,16 +170,14 @@ async function updateManyUnsafe(
   //   javascript Dates are converted into an ISO8601 string and cast to TIMESTAMP
   //   javascript numbers, bools and other types are left "as is"
   const formatColValue = (v, typeHint = null) => {
+    const isTypeHintSupported =
+      supportedTypeHints.find((v) => v == typeHint) != null;
     if (v === null) {
-      return 'null';
-    }
-    if (supportedTypeHints.find((v) => v == typeHint)) {
-      //column values of strings with a type hint of UUID should be cast to UUID
-      return `'${v}'::${typeHint}`;
+      return isTypeHintSupported ? `null::${typeHint}` : 'null';
     }
     if (typeof v == 'string') {
       //column values of 'string' type should be quoted
-      return `'${v}'`;
+      return isTypeHintSupported ? `'${v}'::${typeHint}` : `'${v}'`;
     }
     if (v instanceof Date) {
       //column values of 'Date' type should be converted to iso8601 strings.

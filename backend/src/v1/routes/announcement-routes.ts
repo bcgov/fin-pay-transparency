@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import formData from 'express-form-data';
 import os from 'os';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
 import { logger } from '../../logger';
 import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
 import { authorize } from '../middlewares/authorization/authorize';
-import {
-  useUpload,
-} from '../middlewares/storage/upload';
+import { useUpload } from '../middlewares/storage/upload';
 import { useValidate } from '../middlewares/validations';
 import {
   createAnnouncement,
@@ -19,10 +18,10 @@ import {
   AnnouncementDataSchema,
   AnnouncementQuerySchema,
   AnnouncementQueryType,
+  AnnouncementStatus,
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
-import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
 
 const router = Router();
 
@@ -54,9 +53,21 @@ router.patch(
   authenticateAdmin(),
   authorize(['PTRT-ADMIN']),
   async (req: ExtendedRequest, res) => {
+    const supportedStatuses = [
+      AnnouncementStatus.Deleted,
+      AnnouncementStatus.Draft,
+    ];
     try {
       const { user } = req;
       const data: PatchAnnouncementsType = req.body;
+      const invalidRecs = data.filter(
+        (d) => supportedStatuses.indexOf(d.status as any) < 0,
+      );
+      if (invalidRecs.length) {
+        throw new Error(
+          `Only the following statuses are supported: ${supportedStatuses}`,
+        );
+      }
       await patchAnnouncements(data, user.admin_user_id);
       res
         .status(201)
@@ -123,6 +134,5 @@ router.put(
     }
   },
 );
-
 
 export default router;

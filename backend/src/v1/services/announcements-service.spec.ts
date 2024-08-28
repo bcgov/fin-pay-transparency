@@ -5,12 +5,7 @@ import {
   AnnouncementStatus,
 } from '../types/announcements';
 import { UserInputError } from '../types/errors';
-import {
-  createAnnouncement,
-  getAnnouncements,
-  patchAnnouncements,
-  updateAnnouncement,
-} from './announcements-service';
+import * as AnnouncementService from './announcements-service';
 import { utils } from './utils-service';
 
 const mockFindMany = jest.fn().mockResolvedValue([
@@ -83,7 +78,7 @@ describe('AnnouncementsService', () => {
   describe('getAnnouncements', () => {
     describe('when no query is provided', () => {
       it('should return announcements', async () => {
-        const announcements = await getAnnouncements();
+        const announcements = await AnnouncementService.getAnnouncements();
         expect(announcements.items).toHaveLength(2);
         expect(announcements.total).toBe(2);
         expect(announcements.offset).toBe(0);
@@ -106,7 +101,7 @@ describe('AnnouncementsService', () => {
       describe('when filters are provided', () => {
         describe('when title is provided', () => {
           it('should return announcements', async () => {
-            await getAnnouncements({
+            await AnnouncementService.getAnnouncements({
               filters: [
                 { key: 'title', operation: 'like', value: 'Announcement 1' },
               ],
@@ -130,7 +125,7 @@ describe('AnnouncementsService', () => {
         describe('when published_on filter is provided', () => {
           describe('when operation is "between"', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'published_on',
@@ -152,7 +147,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "lte"', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'published_on',
@@ -172,7 +167,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "gt"', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'published_on',
@@ -194,7 +189,7 @@ describe('AnnouncementsService', () => {
         describe('when expires_on filter is provided', () => {
           describe('when operation is "between"', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'expires_on',
@@ -216,7 +211,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "lte"', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'expires_on',
@@ -236,7 +231,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "gt"', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'expires_on',
@@ -266,7 +261,7 @@ describe('AnnouncementsService', () => {
         describe('when status filter is provided', () => {
           describe('in operation', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'status',
@@ -287,7 +282,7 @@ describe('AnnouncementsService', () => {
 
           describe('notin operation', () => {
             it('should return announcements', async () => {
-              await getAnnouncements({
+              await AnnouncementService.getAnnouncements({
                 filters: [
                   {
                     key: 'status',
@@ -310,7 +305,7 @@ describe('AnnouncementsService', () => {
 
       describe('when sort is provided', () => {
         it('should return announcements', async () => {
-          await getAnnouncements({
+          await AnnouncementService.getAnnouncements({
             sort: [{ field: 'title', order: 'asc' }],
           });
           expect(mockFindMany).toHaveBeenCalledWith(
@@ -323,7 +318,7 @@ describe('AnnouncementsService', () => {
 
       describe('when limit is provided', () => {
         it('should return announcements', async () => {
-          await getAnnouncements({ limit: 5 });
+          await AnnouncementService.getAnnouncements({ limit: 5 });
           expect(mockFindMany).toHaveBeenCalledWith(
             expect.objectContaining({
               take: 5,
@@ -334,7 +329,7 @@ describe('AnnouncementsService', () => {
 
       describe('when offset is provided', () => {
         it('should return announcements', async () => {
-          await getAnnouncements({ offset: 5 });
+          await AnnouncementService.getAnnouncements({ offset: 5 });
           expect(mockFindMany).toHaveBeenCalledWith(
             expect.objectContaining({
               skip: 5,
@@ -353,13 +348,14 @@ describe('AnnouncementsService', () => {
           { id: '2', status: AnnouncementStatus.Published }, //isn't supported
         ];
         const mockUserId = 'user-id';
-        await expect(patchAnnouncements(data, mockUserId)).rejects.toThrow(
-          UserInputError,
-        );
+        await expect(
+          AnnouncementService.patchAnnouncements(data, mockUserId),
+        ).rejects.toThrow(UserInputError);
       });
     });
     describe('when provided a list of objects with valid status changes', () => {
       it("should change status and update the 'updated_by' and 'updated_date' cols", async () => {
+        const mockUserId = 'user-id';
         const mockUpdateManyUnsafe = jest
           .spyOn(utils, 'updateManyUnsafe')
           .mockResolvedValue(null);
@@ -375,18 +371,19 @@ describe('AnnouncementsService', () => {
             announcement_resource: [],
           },
         ]);
-        await patchAnnouncements(
+        await AnnouncementService.patchAnnouncements(
           [
             { id: '1', status: AnnouncementStatus.Deleted },
             { id: '2', status: AnnouncementStatus.Draft },
+            { id: '3', status: AnnouncementStatus.Expired },
           ],
-          'user-id',
+          mockUserId,
         );
         expect(mockFindMany).toHaveBeenCalledWith(
           expect.objectContaining({
             where: {
               announcement_id: {
-                in: ['1', '2'],
+                in: ['1', '2', '3'],
               },
             },
           }),
@@ -397,13 +394,19 @@ describe('AnnouncementsService', () => {
           {
             announcement_id: '1',
             status: AnnouncementStatus.Deleted,
-            updated_by: 'user-id',
+            updated_by: mockUserId,
             updated_date: expect.any(Date),
           },
           {
             announcement_id: '2',
             status: AnnouncementStatus.Draft,
-            updated_by: 'user-id',
+            updated_by: mockUserId,
+            updated_date: expect.any(Date),
+          },
+          {
+            announcement_id: '3',
+            status: AnnouncementStatus.Expired,
+            updated_by: mockUserId,
             updated_date: expect.any(Date),
           },
         ]);
@@ -424,7 +427,10 @@ describe('AnnouncementsService', () => {
         attachmentId: 'attachment-id',
         fileDisplayName: faker.lorem.words(3),
       };
-      await createAnnouncement(announcementInput, 'user-id');
+      await AnnouncementService.createAnnouncement(
+        announcementInput,
+        'user-id',
+      );
       expect(mockCreateAnnouncement).toHaveBeenCalledWith({
         data: {
           ...omit(
@@ -477,7 +483,10 @@ describe('AnnouncementsService', () => {
         linkDisplayName: '',
         linkUrl: '',
       };
-      await createAnnouncement(announcementInput, 'user-id');
+      await AnnouncementService.createAnnouncement(
+        announcementInput,
+        'user-id',
+      );
       expect(mockCreateAnnouncement).toHaveBeenCalledWith({
         data: {
           ...omit(announcementInput, 'status', 'linkDisplayName', 'linkUrl'),
@@ -515,7 +524,7 @@ describe('AnnouncementsService', () => {
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
         };
-        await updateAnnouncement(
+        await AnnouncementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -564,7 +573,7 @@ describe('AnnouncementsService', () => {
           published_on: faker.date.future().toISOString(),
           status: 'PUBLISHED',
         };
-        await updateAnnouncement(
+        await AnnouncementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -609,7 +618,7 @@ describe('AnnouncementsService', () => {
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
         };
-        await updateAnnouncement(
+        await AnnouncementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -676,7 +685,7 @@ describe('AnnouncementsService', () => {
           attachmentId: attachmentId,
           fileDisplayName: faker.lorem.words(3),
         };
-        await updateAnnouncement(
+        await AnnouncementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -727,7 +736,7 @@ describe('AnnouncementsService', () => {
           attachmentId: faker.string.uuid(),
           fileDisplayName: faker.lorem.word(),
         };
-        await updateAnnouncement(
+        await AnnouncementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -788,7 +797,11 @@ describe('AnnouncementsService', () => {
         linkDisplayName: '',
         linkUrl: '',
       };
-      await updateAnnouncement('announcement-id', announcementInput, 'user-id');
+      await AnnouncementService.updateAnnouncement(
+        'announcement-id',
+        announcementInput,
+        'user-id',
+      );
       expect(mockUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { announcement_id: 'announcement-id' },
@@ -798,6 +811,32 @@ describe('AnnouncementsService', () => {
           }),
         }),
       );
+    });
+  });
+
+  describe('expireAnnouncement', () => {
+    describe('when there are no announcements to expire', () => {
+      it('exits without updating any announcements', async () => {
+        mockFindMany.mockResolvedValue([]);
+        const patchAnnouncementsMock = jest
+          .spyOn(AnnouncementService, 'patchAnnouncements')
+          .mockImplementation();
+        await AnnouncementService.expireAnnouncements();
+        expect(mockFindMany).toHaveBeenCalled();
+        expect(patchAnnouncementsMock).not.toHaveBeenCalled();
+      });
+    });
+    describe('when there are some announcements to expire', () => {
+      it('updates the announcements', async () => {
+        mockFindMany.mockResolvedValue([{ announcement_id: '123' }]);
+        const patchAnnouncementsMock = jest.spyOn(
+          AnnouncementService,
+          'patchAnnouncements',
+        );
+        await AnnouncementService.expireAnnouncements();
+        expect(mockFindMany).toHaveBeenCalled();
+        expect(patchAnnouncementsMock).toHaveBeenCalled();
+      });
     });
   });
 });

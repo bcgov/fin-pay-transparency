@@ -40,6 +40,8 @@ config.defaults({
     schedulerDeleteDraftCronTime: process.env.DELETE_DRAFT_REPORT_CRON_CRONTIME,
     schedulerLockReportCronTime: process.env.LOCK_REPORT_CRON_CRONTIME,
     schedulerTimeZone: process.env.REPORTS_SCHEDULER_CRON_TIMEZONE,
+    schedulerExpireAnnountmentsCronTime:
+      process.env.EXPIRE_ANNOUNCEMENTS_CRON_CRONTIME,
     databaseUrl: datasourceUrl,
     firstYearWithPrevReportingYearOption: parseInt(
       process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',
@@ -140,7 +142,7 @@ config.defaults({
     region: process.env.S3_REGION || 'ca-central-1',
     endpoint: `https://${process.env.S3_ENDPOINT}`,
     bucket: process.env.S3_BUCKET_NAME,
-  }
+  },
 });
 
 export { config };
