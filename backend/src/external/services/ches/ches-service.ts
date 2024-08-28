@@ -25,19 +25,25 @@ export class ChesService {
   private axios: Axios;
   private readonly apiUrl: string;
 
-  constructor({ tokenUrl, clientId, clientSecret, apiUrl, clientConnectionInstance=null }) {
+  constructor({
+    tokenUrl,
+    clientId,
+    clientSecret,
+    apiUrl,
+    clientConnectionInstance = null,
+  }) {
     if (!tokenUrl || !clientId || !clientSecret || !apiUrl) {
       logger.error('Invalid configuration.', { function: 'constructor' });
       throw new Error('ChesService is not configured. Check configuration.');
     }
-    if(!clientConnectionInstance){
+    if (!clientConnectionInstance) {
       this.connection = new ClientConnection({
         tokenUrl,
         clientId,
-        clientSecret
+        clientSecret,
       });
       this.axios = this.connection.getAxios();
-    }else{
+    } else {
       this.axios = clientConnectionInstance.getAxios();
     }
 
@@ -48,16 +54,14 @@ export class ChesService {
     try {
       const { data, status } = await this.axios.get(`${this.apiUrl}/health`, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
       return { data, status };
     } catch (e) {
       logger.error(SERVICE, e);
     }
   }
-
-
 
   async send(email: Email) {
     try {
@@ -66,11 +70,11 @@ export class ChesService {
         email,
         {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           maxContentLength: Infinity,
-          maxBodyLength: Infinity
-        }
+          maxBodyLength: Infinity,
+        },
       );
       return { data, status };
     } catch (e) {
@@ -82,9 +86,9 @@ export class ChesService {
   /**
    * Send an email with retries
    * @param email
-   * @param retries , optional , default value 3
+   * @param retries , optional , default value 5
    */
-  async sendEmailWithRetry(email: Email, retries?: number):Promise<string>  {
+  async sendEmailWithRetry(email: Email, retries?: number): Promise<string> {
     const retryCount = retries || 5;
     try {
       await retry(
@@ -95,7 +99,7 @@ export class ChesService {
             if (status === 201) {
               logger.info(
                 SERVICE,
-                `Email sent successfully , transactionId : ${data.txId}`
+                `Email sent successfully , transactionId : ${data.txId}`,
               );
               return data.txId;
             } else {
@@ -106,8 +110,8 @@ export class ChesService {
           }
         },
         {
-          retries: retryCount
-        }
+          retries: retryCount,
+        },
       );
     } catch (e) {
       logger.error(SERVICE, e);
@@ -116,19 +120,20 @@ export class ChesService {
   }
 
   /**
-   * Generate an email object with HTML content
+   * Generate an email object with HTML content. Must provide emailHTMLContent, or, title and body.
    * @param subjectLine SUBJECT of email
    * @param to array of email addresses
    * @param title TITLE of email
    * @param body BODY of email
-   * @param emailHTMLContent HTML content of email
+   * @param emailHTMLContent (Optional) HTML content of email.
+   *    If provided, title and body is ignored. Otherwise will use title and body to create HTML content.
    */
   generateHtmlEmail(
     subjectLine: string,
     to: string[],
     title: string,
     body: string,
-    emailHTMLContent?: string
+    emailHTMLContent?: string,
   ): Email {
     const emailContents =
       emailHTMLContent ||
@@ -149,7 +154,7 @@ export class ChesService {
       from: 'no-reply-paytransparency@gov.bc.ca',
       priority: 'normal',
       subject: subjectLine,
-      to: to
+      to: to,
     };
   }
 }

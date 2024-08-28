@@ -8,10 +8,12 @@ import { UserInputError } from '../types/errors';
 import {
   createAnnouncement,
   getAnnouncements,
+  getExpiringAnnouncements,
   patchAnnouncements,
   updateAnnouncement,
 } from './announcements-service';
 import { utils } from './utils-service';
+import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -798,6 +800,30 @@ describe('AnnouncementsService', () => {
           }),
         }),
       );
+    });
+  });
+
+  describe('getExpiringAnnouncements', () => {
+    it('should return only announcements that will expire', async () => {
+      jest
+        .spyOn(ZonedDateTime, 'now')
+        .mockImplementationOnce((zone) =>
+          ZonedDateTime.of(
+            LocalDateTime.parse('2024-08-26T11:38:23.561'),
+            zone as ZoneId,
+          ),
+        );
+      await getExpiringAnnouncements();
+
+      expect(mockFindMany).toHaveBeenCalledWith({
+        where: {
+          expires_on: {
+            gte: new Date('2024-09-05T07:00:00.000Z'),
+            lt: new Date('2024-09-06T07:00:00.000Z'),
+          },
+          status: 'PUBLISHED',
+        },
+      });
     });
   });
 });

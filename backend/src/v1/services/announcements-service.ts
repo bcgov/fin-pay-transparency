@@ -1,4 +1,10 @@
-import { convert, LocalDate, LocalDateTime, ZoneId } from '@js-joda/core';
+import {
+  convert,
+  LocalDate,
+  LocalDateTime,
+  ZonedDateTime,
+  ZoneId,
+} from '@js-joda/core';
 import {
   announcement,
   announcement_resource,
@@ -17,6 +23,8 @@ import {
 } from '../types/announcements';
 import { UserInputError } from '../types/errors';
 import { utils } from './utils-service';
+import { config } from '../../config';
+import '@js-joda/timezone';
 
 const saveHistory = async (
   tx: Omit<
@@ -392,4 +400,26 @@ export const updateAnnouncement = async (
       data,
     });
   });
+};
+
+/** Get announcements that are 10 days away from expiring */
+export const getExpiringAnnouncements = async (): Promise<announcement[]> => {
+  const zone = ZoneId.of(config.get('server:schedulerTimeZone'));
+  const targetDate = ZonedDateTime.now(zone)
+    .plusDays(10)
+    .withHour(0)
+    .withMinute(0)
+    .withSecond(0)
+    .withNano(0);
+  const items = await prisma.announcement.findMany({
+    where: {
+      status: 'PUBLISHED',
+      expires_on: {
+        gte: convert(targetDate).toDate(),
+        lt: convert(targetDate.plusDays(1)).toDate(),
+      },
+    },
+  });
+
+  return items;
 };
