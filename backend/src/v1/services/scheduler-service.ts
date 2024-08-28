@@ -1,8 +1,8 @@
 import { LocalDateTime, ZoneId } from '@js-joda/core';
+import { Prisma } from '@prisma/client';
+import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { enumReportStatus } from './report-service';
-import { logger } from '../../logger';
-import { Prisma } from '@prisma/client';
 
 const schedulerService = {
   /*
@@ -32,29 +32,6 @@ const schedulerService = {
       await tx.pay_transparency_report.deleteMany({
         where: reportWhereClause,
       });
-    });
-  },
-
-  async expireAnnouncements() {
-    const now = LocalDateTime.now(ZoneId.UTC).toString() + 'Z';
-
-    logger.info('Expire Announcements older than : ' + now);
-
-    const where: Prisma.announcementWhereInput = {
-      status: {
-        not: { in: ['DRAFT', 'EXPIRED'] },
-      },
-      expires_on: {
-        not: null,
-        lte: now,
-      },
-    };
-
-    await prisma.announcement.updateMany({
-      data: {
-        status: 'EXPIRED',
-      },
-      where: where,
     });
   },
 };

@@ -1,6 +1,5 @@
 import waitFor from 'wait-for-expect';
 import expireAnnouncementsJob from './expire-announcements-scheduler';
-import { logger as log } from '../logger';
 
 jest.mock('../v1/services/utils-service', () => ({
   utils: {
@@ -8,30 +7,42 @@ jest.mock('../v1/services/utils-service', () => ({
   },
 }));
 
-const mock_expireAnnouncements = jest.fn();
-jest.mock('../v1/services/scheduler-service', () => ({
-  schedulerService: { expireAnnouncements: () => mock_expireAnnouncements() },
+const mockExpireAnnouncements = jest.fn();
+jest.mock('../v1/services/announcements-service', () => ({
+  expireAnnouncements: () => mockExpireAnnouncements(),
 }));
 
-const mock_tryLock = jest.fn();
-const mock_unlock = jest.fn();
+jest.mock('cron', () => ({
+  CronJob: class MockCron {
+    constructor(
+      public expression: string,
+      public cb: Function,
+    ) {}
+    async start() {
+      return this.cb();
+    }
+  },
+}));
+
+const mockTryLock = jest.fn();
+const mockUnlock = jest.fn();
 jest.mock('advisory-lock', () => ({
   ...jest.requireActual('advisory-lock'),
   default: () => {
     return () => ({
-      tryLock: () => mock_tryLock(),
+      tryLock: () => mockTryLock(),
     });
   },
 }));
 
 describe('expire-announcements-scheduler', () => {
-  it('should expire invalid announcements', async () => {
-    mock_tryLock.mockReturnValue(mock_unlock);
+  it('should delegate the task to the service layer', async () => {
+    mockTryLock.mockReturnValue(mockUnlock);
     expireAnnouncementsJob.start();
     await waitFor(async () => {
-      expect(mock_tryLock).toHaveBeenCalledTimes(1);
-      expect(mock_expireAnnouncements).toHaveBeenCalled();
-      expect(mock_unlock).toHaveBeenCalledTimes(1);
+      expect(mockTryLock).toHaveBeenCalledTimes(1);
+      expect(mockExpireAnnouncements).toHaveBeenCalled();
+      expect(mockUnlock).toHaveBeenCalledTimes(1);
     }, 10000);
   });
 });
