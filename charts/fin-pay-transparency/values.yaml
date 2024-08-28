@@ -47,7 +47,7 @@ global:
     delete_draft_report_cron_crontime: "0 0 0 * * *" # 12:00 AM PST/PDT
     delete_user_errors_cron_crontime: "30 0 1 */6 *" #At 12:30 AM on the 1st day of every 6th month
     lock_report_cron_crontime: "0 15 0 * * *" # 12:15 AM PST/PDT
-    expire_announcements_cron_crontime: "* * * * *" #"* 6,18 *  * *" # 6am & 6pm daily
+    expire_announcements_cron_crontime: "* 6,18 *  * *" # 6am & 6pm daily
     reports_scheduler_cron_timezone: "America/Vancouver"
     first_year_with_prev_reporting_year_option: "2025"
     admin_invitation_duration_in_hours: "72"
