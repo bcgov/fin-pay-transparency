@@ -48,7 +48,7 @@ global:
     delete_user_errors_cron_crontime: "30 0 1 */6 *" #At 12:30 AM on the 1st day of every 6th month
     lock_report_cron_crontime: "0 15 0 * * *" # 12:15 AM PST/PDT
     expire_announcements_cron_crontime: "* 6,18 *  * *" # 6am & 6pm daily
-    email_expiring_announcements_cron_crontime: "0 7 0 * * *" # 7:00 AM PST/PDT
+    email_expiring_announcements_cron_crontime: "30 15 0 * * *" # 7:00 AM PST/PDT
     enable_email_expiring_announcements: true
     reports_scheduler_cron_timezone: "America/Vancouver"
     first_year_with_prev_reporting_year_option: "2025"
