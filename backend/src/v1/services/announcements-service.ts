@@ -413,6 +413,8 @@ export const updateAnnouncement = async (
   });
 };
 
+/* Identifies announcements that should be expired.  If any such announcements
+are found, marks them as expired */
 export const expireAnnouncements = async () => {
   const nowUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
   await prisma.$transaction(async (tx) => {
@@ -436,7 +438,7 @@ export const expireAnnouncements = async () => {
     });
     if (patchData.length) {
       logger.info(
-        `Marking ${patchData.length} announcements as ${AnnouncementStatus.Expired}`,
+        `Marking ${patchData.length} announcement(s) as ${AnnouncementStatus.Expired}`,
       );
       await patchAnnouncements(patchData, undefined, tx);
     } else {
