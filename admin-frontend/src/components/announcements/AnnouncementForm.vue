@@ -283,6 +283,7 @@ import {
   AnnouncementFilterType,
   AnnouncementSortType,
   AnnouncementFormMode,
+  AnnouncementResourceType,
 } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
@@ -298,7 +299,7 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
 import ApiService from '../../services/apiService';
-import { v4 } from 'uuid'
+import { v4 } from 'uuid';
 
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;
@@ -481,6 +482,7 @@ function buildAnnouncementToPreview() {
     previewAnnouncement.announcement_resource.push({
       display_name: linkDisplayName.value,
       resource_url: linkUrl.value,
+      resource_type: AnnouncementResourceType.LINK,
     });
   }
 
@@ -488,6 +490,7 @@ function buildAnnouncementToPreview() {
     previewAnnouncement.announcement_resource.push({
       display_name: fileDisplayName.value,
       announcement_resource_id: announcement?.file_resource_id,
+      resource_type: AnnouncementResourceType.ATTACHMENT,
     });
   }
   return previewAnnouncement;

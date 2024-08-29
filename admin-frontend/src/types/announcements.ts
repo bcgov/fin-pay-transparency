@@ -23,7 +23,11 @@ export type AnnouncementResource = {
   update_date: string;
   updated_by: string;
 };
-export type AnnouncementResourceType = 'LINK' | 'ATTACHMENT';
+
+export enum AnnouncementResourceType {
+  LINK = 'LINK',
+  ATTACHMENT = 'ATTACHMENT',
+}
 
 export interface IAnnouncementSearchResult {
   items: Announcement[];
