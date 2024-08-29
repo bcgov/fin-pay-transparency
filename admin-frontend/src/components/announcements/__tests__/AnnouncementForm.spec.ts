@@ -11,11 +11,15 @@ const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
 const mockGetAnnouncements = vi.fn().mockResolvedValue({ items: [] });
+const mockClamavScan = vi.fn();
 
 vi.mock('../../../services/apiService', () => ({
   default: {
     getAnnouncements: (...args) => {
       return mockGetAnnouncements(...args);
+    },
+    clamavScanFile: (...args) => {
+      return mockClamavScan;
     },
   },
 }));
@@ -63,6 +67,12 @@ describe('AnnouncementForm', () => {
     await waitFor(() => {
       expect(screen.queryByText('Preview Announcement')).toBeInTheDocument();
     });
+
+    //Fill in the link details
+    const linkDisplayName = screen.getByLabelText('Display Link As');
+    const linkUrl = screen.getByLabelText('Link URL');
+    await fireEvent.update(linkDisplayName, 'MockLinkName');
+    await fireEvent.update(linkUrl, 'MockUrl');
 
     const closePreviewButton = screen.getByRole('button', {
       name: 'Close preview',
