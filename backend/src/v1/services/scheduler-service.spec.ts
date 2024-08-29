@@ -61,35 +61,6 @@ const mockCalculatedDatasInDB = [
   { ...mockDraftReport, report_id: '456769' },
 ];
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-describe('deleteDraftReports', () => {
-  it('cron job executes once at configured cron time', async () => {
-    (prisma.pay_transparency_report.findMany as jest.Mock).mockResolvedValue(
-      mockCalculatedDatasInDB,
-    );
-    await schedulerService.deleteDraftReports();
-
-    //verify that it was called with one day previous
-    const delete_date = LocalDate.now(ZoneId.UTC).minusDays(1).toString();
-    const call = (prisma.pay_transparency_report.deleteMany as jest.Mock).mock
-      .calls[0][0];
-    const callDate = LocalDateTime.from(
-      nativeJs(new Date(call.where.create_date.lte), ZoneId.UTC),
-    )
-      .toLocalDate()
-      .toString();
-    expect(callDate).toBe(delete_date);
-
-    expect(
-      prisma.pay_transparency_calculated_data.deleteMany,
-    ).toHaveBeenCalledTimes(1);
-    expect(prisma.pay_transparency_report.deleteMany).toHaveBeenCalledTimes(1);
-  });
-});
-
 const mock_generateHtmlEmail = jest.fn();
 const mock_sendEmailWithRetry = jest.fn();
 
@@ -138,6 +109,35 @@ const mockDBAnnouncement: Partial<announcement>[] = [
   },
 ];
 
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('deleteDraftReports', () => {
+  it('cron job executes once at configured cron time', async () => {
+    (prisma.pay_transparency_report.findMany as jest.Mock).mockResolvedValue(
+      mockCalculatedDatasInDB,
+    );
+    await schedulerService.deleteDraftReports();
+
+    //verify that it was called with one day previous
+    const delete_date = LocalDate.now(ZoneId.UTC).minusDays(1).toString();
+    const call = (prisma.pay_transparency_report.deleteMany as jest.Mock).mock
+      .calls[0][0];
+    const callDate = LocalDateTime.from(
+      nativeJs(new Date(call.where.create_date.lte), ZoneId.UTC),
+    )
+      .toLocalDate()
+      .toString();
+    expect(callDate).toBe(delete_date);
+
+    expect(
+      prisma.pay_transparency_calculated_data.deleteMany,
+    ).toHaveBeenCalledTimes(1);
+    expect(prisma.pay_transparency_report.deleteMany).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('sendAnnouncementExpiringEmails', () => {
   beforeEach(async () => {
     mockInitSSO.mockResolvedValue({
@@ -152,7 +152,6 @@ describe('sendAnnouncementExpiringEmails', () => {
         'ches:enabled': true,
         'server:enableEmailExpiringAnnouncements': true,
       };
-
       return settings[key];
     });
   });
@@ -160,10 +159,11 @@ describe('sendAnnouncementExpiringEmails', () => {
     await schedulerService.sendAnnouncementExpiringEmails();
     expect(mock_sendEmailWithRetry).toHaveBeenCalledTimes(2); //2 expired announcements, 2 emails
     // verify details of email
-    expect(mock_generateHtmlEmail.mock.lastCall[0]).toMatch(/\[DEV\] /);
+    expect(mock_generateHtmlEmail.mock.lastCall[0]).toContain('[DEV]');
     expect(mock_generateHtmlEmail.mock.lastCall[1]).toHaveLength(3);
-    expect(mock_generateHtmlEmail.mock.lastCall[3]).toMatch(
-      /test title.*2020-05-10 at 1:50 a.m./,
+    expect(mock_generateHtmlEmail.mock.lastCall[3]).toContain('test title');
+    expect(mock_generateHtmlEmail.mock.lastCall[3]).toContain(
+      '2020-05-10 at 1:50 a.m.',
     );
   });
   it("doesn't do anything if the feature is disabled in the settings", async () => {
@@ -176,5 +176,21 @@ describe('sendAnnouncementExpiringEmails', () => {
     });
     await schedulerService.sendAnnouncementExpiringEmails();
     expect(mock_sendEmailWithRetry).toHaveBeenCalledTimes(0); //2 expired announcements, 2 emails
+  });
+
+  it('Prod should not contain prefix', async () => {
+    mockConfigGet.mockImplementation((key: string) => {
+      const settings = {
+        'server:openshiftEnv': 'PROD',
+        'server:schedulerTimeZone': 'America/Vancouver',
+        'ches:enabled': true,
+        'server:enableEmailExpiringAnnouncements': true,
+      };
+      return settings[key];
+    });
+    await schedulerService.sendAnnouncementExpiringEmails();
+    expect(mock_sendEmailWithRetry).toHaveBeenCalledTimes(2); //2 expired announcements, 2 emails
+    // verify details of email
+    expect(mock_generateHtmlEmail.mock.lastCall[0]).not.toContain('[');
   });
 });
