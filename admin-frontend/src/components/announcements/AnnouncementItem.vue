@@ -10,22 +10,18 @@
       >
         <a
           v-if="announcementResource.resource_type === 'LINK'"
-          class="btn-link"
           :href="sanitizeUrl(announcementResource.resource_url)"
           target="_blank"
           rel="noopener"
-          variant="text"
           >{{ announcementResource.display_name }}</a
         >
         <a
           v-if="announcementResource.resource_type === 'ATTACHMENT'"
-          class="btn-link"
           @click="
             ApiService.downloadFile(
               announcementResource.announcement_resource_id,
             )
           "
-          variant="text"
           >{{ announcementResource.display_name }}</a
         >
       </div>
