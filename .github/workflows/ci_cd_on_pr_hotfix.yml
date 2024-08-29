@@ -51,7 +51,7 @@ jobs:
     name: Check Quota
     needs: [builds]
     uses: ./.github/workflows/.quota-check.yml
-
+    secrets: inherit
 
   deploys:
     name: Deploys
