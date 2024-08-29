@@ -51,6 +51,8 @@ jobs:
       - name: Create Hotfix GitHub Tag
         shell: bash
         run: |
+          git config --global user.email "finptrtdevteam@gov.bc.ca"
+          git config --global user.name "PTRTDEV"
           git fetch --all
           # create Tag based on the name of the branch after removing hotfix/, find the branch name in the PR
           # e.g. hotfix/v1.72.3_hotfix.1 -> v1.72.3_hotfix.1
@@ -74,7 +76,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Find Tag From Base Branch
         id: vars
-        shell: Bash
+        shell: bash
         run: |
           # e.g. hotfix/v1.72.3_hotfix.1 -> 1.72.3_hotfix.1
           TAG=$(echo "${{ github.head_ref }}" | sed 's/hotfix\/v//')
