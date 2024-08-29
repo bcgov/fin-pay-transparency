@@ -350,11 +350,10 @@ export const updateAnnouncement = async (
       });
     }
 
+    const currentAttachment = announcementData?.announcement_resource.find(
+      (x) => x.resource_type === 'ATTACHMENT',
+    );
     if (input.attachmentId) {
-      const currentAttachment = announcementData?.announcement_resource.find(
-        (x) => x.resource_type === 'ATTACHMENT',
-      );
-
       if (currentAttachment) {
         await tx.announcement_resource.update({
           where: {
@@ -390,6 +389,17 @@ export const updateAnnouncement = async (
           },
         });
       }
+    } else if (currentAttachment && !input.attachmentId) {
+      await tx.announcement_resource.update({
+        where: {
+          announcement_resource_id: currentAttachment.announcement_resource_id,
+        },
+        data: {
+          attachment_file_id: null,
+          updated_by: currentUserId,
+          update_date: updateDate,
+        },
+      });
     }
 
     const data: Prisma.announcementUpdateInput = {

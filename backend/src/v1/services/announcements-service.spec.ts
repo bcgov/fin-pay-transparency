@@ -731,6 +731,42 @@ describe('AnnouncementsService', () => {
           }),
         );
       });
+
+      describe("and attachmentId is not provided in the input", () => {
+        it("should set attachment id to null", async () => {
+          const attachmentId = faker.string.uuid();
+          mockFindUniqueOrThrow.mockResolvedValue({
+            id: 'announcement-id',
+            announcement_resource: [
+              {
+                announcement_resource_id: attachmentId,
+                resource_type: 'ATTACHMENT',
+              },
+            ],
+          });
+          const announcementInput: AnnouncementDataType = {
+            title: faker.lorem.words(3),
+            description: faker.lorem.words(10),
+            expires_on: faker.date.recent().toISOString(),
+            published_on: faker.date.future().toISOString(),
+            status: 'PUBLISHED',
+          };
+          await updateAnnouncement(
+            'announcement-id',
+            announcementInput,
+            'user-id',
+          );
+          expect(mockHistoryCreate).toHaveBeenCalled();
+          expect(mockUpdateResource).toHaveBeenCalledWith({
+            where: { announcement_resource_id: attachmentId },
+            data: {
+              attachment_file_id: null,
+              updated_by: 'user-id',
+              update_date: expect.any(Date),
+            },
+          });
+        });
+      });
     });
 
     describe('without existing attachment resource', () => {

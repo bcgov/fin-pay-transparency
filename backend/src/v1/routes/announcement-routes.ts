@@ -22,6 +22,7 @@ import {
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
+import { omit } from 'lodash';
 
 const router = Router();
 
@@ -124,7 +125,8 @@ router.put(
       // Create announcement
       const announcement = await updateAnnouncement(
         req.params.id,
-        data,
+        /* istanbul ignore next */
+        file ? data : omit(data, 'attachmentId'),
         user.admin_user_id,
       );
       return res.json(announcement);

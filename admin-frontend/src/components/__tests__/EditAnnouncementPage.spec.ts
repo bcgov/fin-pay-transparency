@@ -38,9 +38,11 @@ const wrappedRender = () => {
 };
 
 const mockUpdateAnnouncement = vi.fn();
+const mockDownloadFile = vi.fn();
 vi.mock('../../services/apiService', () => ({
   default: {
     updateAnnouncement: (...args) => mockUpdateAnnouncement(...args),
+    downloadFile: (...args) => mockDownloadFile(...args),
   },
 }));
 
@@ -148,6 +150,138 @@ describe('EditAnnouncementPage', () => {
           expect(mockUpdateAnnouncement).toHaveBeenCalled();
           expect(mockSuccess).toHaveBeenCalled();
         });
+      });
+    });
+
+    describe('when announcement has an attachment', () => {
+      it('should display attachment', async () => {
+        store.setAnnouncement({
+          announcement_id: '1',
+          title: 'title',
+          description: 'description',
+          published_on: new Date(),
+          status: 'PUBLISHED',
+          announcement_resource: [
+            {
+              announcement_resource_id: '1',
+              resource_type: 'ATTACHMENT',
+              display_name: 'file name',
+              attachment_file_id: '1',
+            },
+          ],
+        } as any);
+        const { getByRole } = await wrappedRender();
+        expect(getByRole('button', { name: 'file name' })).toBeInTheDocument();
+        expect(getByRole('button', { name: 'Edit file' })).toBeInTheDocument();
+        expect(
+          getByRole('button', { name: 'Delete file' }),
+        ).toBeInTheDocument();
+      });
+
+      describe('when attachment is deleted', () => {
+        it('should remove attachment', async () => {
+          store.setAnnouncement({
+            announcement_id: '1',
+            title: 'title',
+            description: 'description',
+            published_on: new Date(),
+            status: 'PUBLISHED',
+            announcement_resource: [
+              {
+                announcement_resource_id: '1',
+                resource_type: 'ATTACHMENT',
+                display_name: 'file name',
+                attachment_file_id: '1',
+              },
+            ],
+          } as any);
+          const { getByRole, getByLabelText } = await wrappedRender();
+          const deleteButton = getByRole('button', { name: 'Delete file' });
+          await fireEvent.click(deleteButton);
+          const fileNameInput = getByLabelText('File Name');
+          await waitFor(() => {
+            expect(fileNameInput).toHaveValue('');
+          });
+        });
+      });
+
+      describe('when attachment edit is clicked', () => {
+        it('should update attachment', async () => {
+          store.setAnnouncement({
+            announcement_id: '1',
+            title: 'title',
+            description: 'description',
+            published_on: new Date(),
+            status: 'PUBLISHED',
+            announcement_resource: [
+              {
+                announcement_resource_id: '1',
+                resource_type: 'ATTACHMENT',
+                display_name: 'file name',
+                attachment_file_id: '1',
+              },
+            ],
+          } as any);
+          const { getByRole, getByLabelText } = await wrappedRender();
+          const editButton = getByRole('button', { name: 'Edit file' });
+          await fireEvent.click(editButton);
+          const fileNameInput = getByLabelText('File Name');
+          await waitFor(() => {
+            expect(fileNameInput).toHaveValue('file name');
+          });
+          const cancelEditButton = getByRole('button', {
+            name: 'Edit file',
+          });
+          await fireEvent.click(cancelEditButton);
+          const deleteButton = getByRole('button', { name: 'Delete file' });
+          await waitFor(() => {
+            expect(deleteButton).toBeInTheDocument();
+          });
+        });
+      });
+
+      describe('when link is clicked', () => {
+        it('should download file', async () => {
+          store.setAnnouncement({
+            announcement_id: '1',
+            title: 'title',
+            description: 'description',
+            published_on: new Date(),
+            status: 'PUBLISHED',
+            announcement_resource: [
+              {
+                announcement_resource_id: '1',
+                resource_type: 'ATTACHMENT',
+                display_name: 'file name',
+                attachment_file_id: '1',
+              },
+            ],
+          } as any);
+          const { getByRole } = await wrappedRender();
+          const fileButton = getByRole('button', { name: 'file name' });
+          await fireEvent.click(fileButton);
+          await waitFor(() => {
+            expect(mockDownloadFile).toHaveBeenCalled();
+          });
+        });
+      });
+    });
+
+    describe('when announcement has no attachment', () => {
+      it('should display form', async () => {
+        store.setAnnouncement({
+          announcement_id: '1',
+          title: 'title',
+          description: 'description',
+          published_on: new Date(),
+          status: 'PUBLISHED',
+          announcement_resource: [],
+        } as any);
+        const { getByRole, getByLabelText } = await wrappedRender();
+        const fileNameInput = getByLabelText('File Name');
+        const fileInput = getByLabelText('Attachment');
+        expect(fileNameInput).toHaveValue('');
+        expect(fileInput).toBeInTheDocument();
       });
     });
 

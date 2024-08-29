@@ -169,8 +169,23 @@
                 </v-row>
               </v-col>
               <v-col cols="12">
-                <h5 class="mb-2">File</h5>
-                <v-row dense class="ml-3 mt-2">
+                <div class="section-title">
+                  <h5 class="mb-2">File</h5>
+                  <span class="fill-remaining-space" />
+                  <v-btn
+                    v-if="
+                      !fileDisplayOnly &&
+                      mode === AnnouncementFormMode.EDIT &&
+                      announcement?.fileDisplayName
+                    "
+                    variant="text"
+                    @click="cancelEdit"
+                    class="ml-2"
+                    aria-label="Edit file"
+                    >Cancel edit file</v-btn
+                  >
+                </div>
+                <v-row v-if="!fileDisplayOnly" dense class="ml-3 mt-2">
                   <v-col cols="12">
                     <span class="attachment-label">File Name</span>
                     <v-text-field
@@ -196,6 +211,16 @@
                         <v-btn color="primary">Choose File</v-btn>
                       </template>
                     </v-file-input>
+                  </v-col>
+                </v-row>
+                <v-row v-else dense class="ml-3 mt-2">
+                  <v-col cols="12">
+                    <AttachmentResource
+                      :id="announcement?.file_resource_id!"
+                      :name="announcement?.fileDisplayName!"
+                      @on-edit="onEdit"
+                      @on-delete="handleDelete"
+                    ></AttachmentResource>
                   </v-col>
                 </v-row>
               </v-col>
@@ -298,6 +323,7 @@ import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
+import AttachmentResource from './AttachmentResource.vue';
 import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
 
@@ -315,6 +341,7 @@ const emits = defineEmits(['save']);
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement, mode } = defineProps<Props>();
+const fileDisplayOnly = ref(!!announcement?.file_resource_id);
 const isPreviewAvailable = computed(() => values.title && values.description);
 const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
@@ -371,6 +398,13 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
       return true;
     },
+    published_on(value) {
+      if (!value && status.value === 'PUBLISHED') {
+        return 'Publish date is required.';
+      }
+
+      return true;
+    },
     async attachment(value) {
       if (!value) return true;
       try {
@@ -414,6 +448,21 @@ const formatDate = (date: Date) => {
   return LocalDate.from(nativeJs(date)).format(
     DateTimeFormatter.ofPattern('EEEE d MMMM yyyy').withLocale(Locale.CANADA),
   );
+};
+
+const onEdit = () => {
+  fileDisplayOnly.value = false;
+};
+
+const handleDelete = () => {
+  fileDisplayName.value = undefined;
+  fileDisplayOnly.value = false;
+};
+
+const cancelEdit = () => {
+  fileDisplayOnly.value = true;
+  fileDisplayName.value = announcement?.fileDisplayName;
+  attachment.value = undefined;
 };
 
 const handleCancel = async () => {
@@ -558,16 +607,14 @@ const handleSave = handleSubmit(async (values) => {
       return false;
     }
 
-    if (announcement?.status === 'DRAFT' && status.value === 'PUBLISHED') {
-      const publishDate = LocalDate.from(nativeJs(values.published_on));
+    const publishDate = LocalDate.from(nativeJs(values.published_on));
 
-      if (publishDate.isBefore(LocalDate.now())) {
-        setErrors({
-          published_on:
-            'Publish On date cannot be in the past. Please select a new date.',
-        });
-        return false;
-      }
+    if (publishDate.isBefore(LocalDate.now())) {
+      setErrors({
+        published_on:
+          'Publish On date cannot be in the past. Please select a new date.',
+      });
+      return false;
     }
 
     if (values.published_on && values.expires_on) {
@@ -688,5 +735,11 @@ const handleSave = handleSubmit(async (values) => {
   .v-input__prepend {
     display: none;
   }
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
