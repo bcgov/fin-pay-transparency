@@ -17,11 +17,7 @@
         >
         <a
           v-if="announcementResource.resource_type === 'ATTACHMENT'"
-          @click="
-            ApiService.downloadFile(
-              announcementResource.announcement_resource_id,
-            )
-          "
+          @click="downloadAnnouncementResource(announcementResource)"
           >{{ announcementResource.display_name }}</a
         >
       </div>
@@ -35,17 +31,17 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { Announcement } from '../../types/announcements';
+import { Announcement, AnnouncementResource } from '../../types/announcements';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import ApiService from '../../common/apiService';
 
 const props = defineProps<{
   announcement: Announcement;
 }>();
-</script>
-<style scoped lang="scss">
-.download-link {
-  padding-left: 0;
-  color: #255a90;
+
+async function downloadAnnouncementResource(
+  announcementResource: AnnouncementResource,
+) {
+  await ApiService.downloadFile(announcementResource.announcement_resource_id);
 }
-</style>
+</script>

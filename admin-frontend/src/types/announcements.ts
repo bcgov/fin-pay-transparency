@@ -22,6 +22,12 @@ export type AnnouncementResource = {
   resource_url: string;
   update_date: string;
   updated_by: string;
+  //This property isn't supported on the backend, but is used in the frontend
+  //to support AnnouncementResources in which the file hasn't yet been uploaded
+  //to the backend.  In this case, the not-yet-uploaded file is saved directly
+  //to the announcement_resource_file property, and components
+  //that need to present a download link do so from the file saved here.
+  announcement_resource_file?: File;
 };
 
 export enum AnnouncementResourceType {

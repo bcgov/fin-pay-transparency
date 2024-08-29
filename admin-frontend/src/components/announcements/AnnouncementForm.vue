@@ -486,10 +486,10 @@ function buildAnnouncementToPreview() {
     });
   }
 
-  if (announcement?.file_resource_id && fileDisplayName.value) {
+  if (attachment.value && fileDisplayName.value) {
     previewAnnouncement.announcement_resource.push({
       display_name: fileDisplayName.value,
-      announcement_resource_id: announcement?.file_resource_id,
+      announcement_resource_file: attachment.value,
       resource_type: AnnouncementResourceType.ATTACHMENT,
     });
   }
