@@ -1,4 +1,4 @@
-<template>Dashboard placeholder testing123</template>
+<template>Dashboard placeholder</template>
 
 <script lang="ts"></script>
 <style></style>
