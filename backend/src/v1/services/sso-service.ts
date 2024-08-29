@@ -188,8 +188,6 @@ export class SSO {
         },
       });
 
-    console.log(JSON.stringify(localUsers, null, 2));
-
     return localUsers;
   }
 
