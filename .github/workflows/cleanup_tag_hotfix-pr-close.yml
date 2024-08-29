@@ -55,7 +55,7 @@ jobs:
           git config --global user.name "PTRTDEV"
           git fetch --all
           # create Tag based on the name of the branch after removing hotfix/, find the branch name in the PR
-          # e.g. hotfix/v1.72.3_hotfix.1 -> v1.72.3_hotfix.1
+          # e.g. hotfix/1.72.3_hotfix.1 -> 1.72.3_hotfix.1
           TAG=$(echo "${{ github.head_ref }}" | sed 's/hotfix\///')
           git tag -a "$TAG" -m "Hotfix $TAG"
           git push origin "$TAG"
@@ -78,8 +78,8 @@ jobs:
         id: vars
         shell: bash
         run: |
-          # e.g. hotfix/v1.72.3_hotfix.1 -> 1.72.3_hotfix.1
-          TAG=$(echo "${{ github.head_ref }}" | sed 's/hotfix\/v//')
+          # e.g. hotfix/1.72.3_hotfix.1 -> 1.72.3_hotfix.1
+          TAG=$(echo "${{ github.head_ref }}" | sed 's/hotfix\///')
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Tag Docker Images
