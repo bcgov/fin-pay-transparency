@@ -283,6 +283,7 @@ import {
   AnnouncementFilterType,
   AnnouncementSortType,
   AnnouncementFormMode,
+  AnnouncementResourceType,
 } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
@@ -298,7 +299,7 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
 import ApiService from '../../services/apiService';
-import { v4 } from 'uuid'
+import { v4 } from 'uuid';
 
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;
@@ -434,7 +435,7 @@ const handleCancel = async () => {
 /*
 Preview the current announcement alongside any other pre-existing (published)
 announcements.  The pre-existing announcements are fetched from the backend,
-and cached for quick subsequent access (because this function may be called 
+and cached for quick subsequent access (because this function may be called
 repeatedly).
 */
 async function preview() {
@@ -464,7 +465,7 @@ function closePreview() {
   announcementsToPreview.value = undefined;
 }
 
-/* 
+/*
 Create a new Announcement object using the current form values.
 The resulting Announcement object is principally used for preview
 its appearance, so some of the unnecessary attributes aren't populated
@@ -477,18 +478,35 @@ function buildAnnouncementToPreview() {
     description: announcementDescription.value,
     announcement_resource: [] as any[],
   };
+
+  //include resource with type LINK
   if (linkDisplayName.value && linkUrl.value) {
     previewAnnouncement.announcement_resource.push({
       display_name: linkDisplayName.value,
       resource_url: linkUrl.value,
+      resource_type: AnnouncementResourceType.LINK,
     });
   }
 
-  if (announcement?.file_resource_id && fileDisplayName.value) {
-    previewAnnouncement.announcement_resource.push({
+  //include resource with type ATTACHMENT
+  //we handle the attachment slightly differently depending on whether
+  //it is a pre-existing (already saved) file, or a not-yet-saved file.
+  if (
+    (attachment.value || announcement?.file_resource_id) &&
+    fileDisplayName.value
+  ) {
+    const resource: any = {
       display_name: fileDisplayName.value,
-      announcement_resource_id: announcement?.file_resource_id,
-    });
+      resource_type: AnnouncementResourceType.ATTACHMENT,
+    };
+    //if there is a new, not-yet-saved attachment, include it in the
+    //preview in preference to the any pre-existing attachment
+    if (attachment.value) {
+      resource.announcement_resource_file = attachment.value;
+    } else if (announcement?.file_resource_id) {
+      resource.announcement_resource_id = announcement?.file_resource_id;
+    }
+    previewAnnouncement.announcement_resource.push(resource);
   }
   return previewAnnouncement;
 }
@@ -497,7 +515,7 @@ function buildAnnouncementToPreview() {
 Downloads from the backend a list of Announcements with status=PUBLISHED.
 Results are ordered by update date (most recently updated are first).
 Implementation note: The backend returns Announcements in "pages".  For
-simplicity here, this function assumes all the published announcements 
+simplicity here, this function assumes all the published announcements
 can be fetched in one large "page" (of 100).
 */
 async function getPublishedAnnouncements(): Promise<Announcement[]> {
