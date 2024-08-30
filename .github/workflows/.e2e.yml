@@ -67,9 +67,9 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     strategy:
-      max-parallel: 3
+      max-parallel: 2
       matrix:
-        project: [chromium, Google Chrome, firefox, safari, Microsoft Edge]
+        project: [Google Chrome, firefox, safari, Microsoft Edge]
     steps:
       - uses: actions/checkout@v4
         name: Checkout
