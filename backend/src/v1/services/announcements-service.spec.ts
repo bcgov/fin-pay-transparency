@@ -8,6 +8,7 @@ import { UserInputError } from '../types/errors';
 import * as AnnouncementService from './announcements-service';
 import { utils } from './utils-service';
 import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
+import { updateAnnouncement } from './announcements-service';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {

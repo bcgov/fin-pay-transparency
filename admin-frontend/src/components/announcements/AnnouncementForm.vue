@@ -607,9 +607,10 @@ const handleSave = handleSubmit(async (values) => {
       return false;
     }
 
-    const publishDate = LocalDate.from(nativeJs(values.published_on));
-
-    if (publishDate.isBefore(LocalDate.now())) {
+    if (
+      values.published_on &&
+      LocalDate.from(nativeJs(values.published_on)).isBefore(LocalDate.now())
+    ) {
       setErrors({
         published_on:
           'Publish On date cannot be in the past. Please select a new date.',
