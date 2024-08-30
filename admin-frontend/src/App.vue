@@ -287,10 +287,14 @@ style of vuetify components
 input.dp__input {
   padding-top: 7px !important;
   padding-bottom: 7px !important;
-  box-shadow:
-    0px 3px 1px -2px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
-    0px 2px 2px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
-    0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
+}
+
+// VueDatepicker theme
+.dp__theme_light {
+  --dp-border-color: rgba(var(--v-border-color), 0.4);
+  --dp-border-color-hover: rgba(var(--v-border-color), 0.8);
+  --dp-border-color-focus: rgba(var(--v-border-color), 1);
+  --dp-danger-color: #ff0000;
 }
 
 /*
