@@ -39,9 +39,13 @@ config.defaults({
     uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
     schedulerDeleteDraftCronTime: process.env.DELETE_DRAFT_REPORT_CRON_CRONTIME,
     schedulerLockReportCronTime: process.env.LOCK_REPORT_CRON_CRONTIME,
+    emailExpiringAnnouncementsCronTime:
+      process.env.EMAIL_EXPIRING_ANNOUNCEMENTS_CRON_CRONTIME,
     schedulerTimeZone: process.env.REPORTS_SCHEDULER_CRON_TIMEZONE,
     schedulerExpireAnnountmentsCronTime:
       process.env.EXPIRE_ANNOUNCEMENTS_CRON_CRONTIME,
+    enableEmailExpiringAnnouncements:
+      process.env.ENABLE_EMAIL_EXPIRING_ANNOUNCEMENTS?.toUpperCase() == 'TRUE',
     databaseUrl: datasourceUrl,
     firstYearWithPrevReportingYearOption: parseInt(
       process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',

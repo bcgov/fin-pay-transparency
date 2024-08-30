@@ -3,7 +3,6 @@ export interface IConfigValue {}
 export type User = {
   id: string;
   displayName: string;
-  roles: string[];
   effectiveRole: string;
 };
 
@@ -19,4 +18,3 @@ export type UserInvite = {
   email: string;
   role: string;
 };
-

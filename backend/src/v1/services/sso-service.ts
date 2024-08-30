@@ -44,7 +44,6 @@ type GetUserResponse = {
 type User = {
   id: string;
   displayName: string;
-  roles: string[];
   effectiveRole: string;
 };
 type SsoUser = {
@@ -85,9 +84,26 @@ export class SSO {
     return new SSO(client);
   }
 
-  async getUsers(): Promise<
-    (Omit<User, 'role'> & { roles: string[]; effectiveRole: string })[]
-  > {
+  /** Get simplified user list to pass to frontend */
+  async getUsersForDisplay(): Promise<User[]> {
+    const users = await this.getUsers();
+
+    const ret = users.map<User>((u) => ({
+      displayName: u.display_name,
+      id: u.admin_user_id,
+      effectiveRole: u.assigned_roles
+        .split(',')
+        .slice()
+        .includes(PTRT_ADMIN_ROLE_NAME)
+        ? PTRT_ADMIN_ROLE_NAME
+        : PTRT_USER_ROLE_NAME,
+    }));
+
+    return ret;
+  }
+
+  /**  Get all users from SSO while ensuring DB is up to date. (To ensure our history is accurate) */
+  async getUsers(): Promise<admin_user[]> {
     // create dictionary of users from SSO
     const ssoUsers: Record<string, SsoUser> = {};
     for (const roleName of ROLE_NAMES) {
@@ -172,22 +188,7 @@ export class SSO {
         },
       });
 
-    // merge local database id with sso object
-    const ret: User[] = Object.values(ssoUsers).map(
-      (user) =>
-        <User>{
-          id: localUsers.find(
-            (x) => x.preferred_username == user.preferredUserName,
-          ).admin_user_id,
-          displayName: user.displayName,
-          effectiveRole: user.roles.includes(PTRT_ADMIN_ROLE_NAME)
-            ? PTRT_ADMIN_ROLE_NAME
-            : PTRT_USER_ROLE_NAME,
-          roles: user.roles,
-        },
-    );
-
-    return ret;
+    return localUsers;
   }
 
   /**

@@ -36,6 +36,15 @@ jest.mock('./expire-announcements-scheduler', () => ({
   },
 }));
 
+const mockEmailExpiringAnnouncementsScheduler = jest.fn();
+jest.mock('./email-expiring-announcements-scheduler', () => ({
+  __esModule: true,
+
+  default: {
+    start: () => mockEmailExpiringAnnouncementsScheduler(),
+  },
+}));
+
 describe('run.all', () => {
   it('should start all jobs', async () => {
     run();
@@ -43,5 +52,6 @@ describe('run.all', () => {
     expect(mockDeleteUserErrorsLock).toHaveBeenCalled();
     expect(mockStartReportLock).toHaveBeenCalled();
     expect(mockExpireAnnouncementsLock).toHaveBeenCalled();
+    expect(mockEmailExpiringAnnouncementsScheduler).toHaveBeenCalled();
   });
 });

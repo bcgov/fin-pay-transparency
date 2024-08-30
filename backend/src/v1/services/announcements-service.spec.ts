@@ -7,6 +7,7 @@ import {
 import { UserInputError } from '../types/errors';
 import * as AnnouncementService from './announcements-service';
 import { utils } from './utils-service';
+import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -67,6 +68,17 @@ jest.mock('../prisma/prisma-client', () => ({
         $executeRawUnsafe: jest.fn(),
       }),
     ),
+  },
+}));
+
+jest.mock('../../config', () => ({
+  config: {
+    get: (key: string) => {
+      const settings = {
+        'server:schedulerTimeZone': 'America/Vancouver',
+      };
+      return settings[key];
+    },
   },
 }));
 
@@ -421,7 +433,7 @@ describe('AnnouncementsService', () => {
         description: faker.lorem.words(10),
         expires_on: faker.date.recent().toISOString(),
         published_on: faker.date.future().toISOString(),
-        status: 'PUBLISHED',
+        status: AnnouncementStatus.Published,
         linkDisplayName: faker.lorem.words(3),
         linkUrl: faker.internet.url(),
         attachmentId: 'attachment-id',
@@ -442,7 +454,7 @@ describe('AnnouncementsService', () => {
             'fileDisplayName',
           ),
           announcement_status: {
-            connect: { code: 'PUBLISHED' },
+            connect: { code: AnnouncementStatus.Published },
           },
           announcement_resource: {
             createMany: {
@@ -520,7 +532,7 @@ describe('AnnouncementsService', () => {
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
           published_on: faker.date.future().toISOString(),
-          status: 'PUBLISHED',
+          status: AnnouncementStatus.Published,
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
         };
@@ -549,7 +561,7 @@ describe('AnnouncementsService', () => {
               published_on: announcementInput.published_on,
               updated_date: expect.any(Date),
               announcement_status: {
-                connect: { code: 'PUBLISHED' },
+                connect: { code: AnnouncementStatus.Published },
               },
               admin_user_announcement_updated_byToadmin_user: {
                 connect: { admin_user_id: 'user-id' },
@@ -571,7 +583,7 @@ describe('AnnouncementsService', () => {
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
           published_on: faker.date.future().toISOString(),
-          status: 'PUBLISHED',
+          status: AnnouncementStatus.Published,
         };
         await AnnouncementService.updateAnnouncement(
           'announcement-id',
@@ -592,7 +604,7 @@ describe('AnnouncementsService', () => {
               published_on: announcementInput.published_on,
               updated_date: expect.any(Date),
               announcement_status: {
-                connect: { code: 'PUBLISHED' },
+                connect: { code: AnnouncementStatus.Published },
               },
               admin_user_announcement_updated_byToadmin_user: {
                 connect: { admin_user_id: 'user-id' },
@@ -614,7 +626,7 @@ describe('AnnouncementsService', () => {
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
           published_on: faker.date.future().toISOString(),
-          status: 'PUBLISHED',
+          status: AnnouncementStatus.Published,
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
         };
@@ -654,7 +666,7 @@ describe('AnnouncementsService', () => {
               published_on: announcementInput.published_on,
               updated_date: expect.any(Date),
               announcement_status: {
-                connect: { code: 'PUBLISHED' },
+                connect: { code: AnnouncementStatus.Published },
               },
               admin_user_announcement_updated_byToadmin_user: {
                 connect: { admin_user_id: 'user-id' },
@@ -681,7 +693,7 @@ describe('AnnouncementsService', () => {
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
           published_on: faker.date.future().toISOString(),
-          status: 'PUBLISHED',
+          status: AnnouncementStatus.Published,
           attachmentId: attachmentId,
           fileDisplayName: faker.lorem.words(3),
         };
@@ -710,7 +722,7 @@ describe('AnnouncementsService', () => {
               published_on: announcementInput.published_on,
               updated_date: expect.any(Date),
               announcement_status: {
-                connect: { code: 'PUBLISHED' },
+                connect: { code: AnnouncementStatus.Published },
               },
               admin_user_announcement_updated_byToadmin_user: {
                 connect: { admin_user_id: 'user-id' },
@@ -732,7 +744,7 @@ describe('AnnouncementsService', () => {
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
           published_on: faker.date.future().toISOString(),
-          status: 'PUBLISHED',
+          status: AnnouncementStatus.Published,
           attachmentId: faker.string.uuid(),
           fileDisplayName: faker.lorem.word(),
         };
@@ -772,7 +784,7 @@ describe('AnnouncementsService', () => {
               published_on: announcementInput.published_on,
               updated_date: expect.any(Date),
               announcement_status: {
-                connect: { code: 'PUBLISHED' },
+                connect: { code: AnnouncementStatus.Published },
               },
               admin_user_announcement_updated_byToadmin_user: {
                 connect: { admin_user_id: 'user-id' },
@@ -836,6 +848,30 @@ describe('AnnouncementsService', () => {
         await AnnouncementService.expireAnnouncements();
         expect(mockFindMany).toHaveBeenCalled();
         expect(patchAnnouncementsMock).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('getExpiringAnnouncements', () => {
+    it('should return only announcements that will expire', async () => {
+      jest
+        .spyOn(ZonedDateTime, 'now')
+        .mockImplementationOnce((zone) =>
+          ZonedDateTime.of(
+            LocalDateTime.parse('2024-08-26T11:38:23.561'),
+            zone as ZoneId,
+          ),
+        );
+      await AnnouncementService.getExpiringAnnouncements();
+
+      expect(mockFindMany).toHaveBeenCalledWith({
+        where: {
+          expires_on: {
+            gte: new Date('2024-09-05T07:00:00.000Z'),
+            lt: new Date('2024-09-06T07:00:00.000Z'),
+          },
+          status: AnnouncementStatus.Published,
+        },
       });
     });
   });

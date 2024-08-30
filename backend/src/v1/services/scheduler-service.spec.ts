@@ -2,13 +2,20 @@ import {
   LocalDate,
   LocalDateTime,
   ZoneId,
+  ZonedDateTime,
   convert,
   nativeJs,
 } from '@js-joda/core';
-import { Prisma, pay_transparency_report } from '@prisma/client';
+import {
+  Prisma,
+  admin_user,
+  announcement,
+  pay_transparency_report,
+} from '@prisma/client';
 import prisma from '../prisma/prisma-client';
 import { enumReportStatus } from './report-service';
 import { schedulerService } from './scheduler-service';
+import { faker } from '@faker-js/faker';
 
 jest.mock('./utils-service');
 jest.mock('../prisma/prisma-client', () => {
@@ -54,6 +61,54 @@ const mockCalculatedDatasInDB = [
   { ...mockDraftReport, report_id: '456769' },
 ];
 
+const mock_generateHtmlEmail = jest.fn();
+const mock_sendEmailWithRetry = jest.fn();
+
+jest.mock('../../external/services/ches', () => ({
+  __esModule: true,
+  default: {
+    generateHtmlEmail: (...args) => mock_generateHtmlEmail(...args),
+    sendEmailWithRetry: (...args) => mock_sendEmailWithRetry(...args),
+  },
+}));
+
+const mockGetExpiringAnnouncements = jest.fn();
+jest.mock('./announcements-service', () => ({
+  getExpiringAnnouncements: () => mockGetExpiringAnnouncements(),
+}));
+
+const mockGetUsers = jest.fn();
+const mockInitSSO = jest.fn();
+jest.mock('./sso-service', () => ({
+  SSO: {
+    init: () => mockInitSSO(),
+  },
+}));
+
+const mockConfigGet = jest.fn();
+jest.mock('../../config', () => ({
+  config: {
+    get: (...args) => mockConfigGet(...args),
+  },
+}));
+
+const mockDBAdminUsers: Partial<admin_user>[] = Array(3).fill({
+  email: faker.internet.email(),
+});
+
+const mockDBAnnouncement: Partial<announcement>[] = [
+  {
+    title: faker.lorem.sentence(),
+    expires_on: faker.date.soon(),
+  },
+  {
+    title: 'test title',
+    expires_on: convert(
+      ZonedDateTime.parse('2020-05-10T08:50:00.000Z'),
+    ).toDate(),
+  },
+];
+
 afterEach(() => {
   jest.clearAllMocks();
 });
@@ -80,5 +135,62 @@ describe('deleteDraftReports', () => {
       prisma.pay_transparency_calculated_data.deleteMany,
     ).toHaveBeenCalledTimes(1);
     expect(prisma.pay_transparency_report.deleteMany).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('sendAnnouncementExpiringEmails', () => {
+  beforeEach(async () => {
+    mockInitSSO.mockResolvedValue({
+      getUsers: () => mockGetUsers(),
+    });
+    mockGetUsers.mockResolvedValue(mockDBAdminUsers);
+    mockGetExpiringAnnouncements.mockResolvedValue(mockDBAnnouncement);
+    mockConfigGet.mockImplementation((key: string) => {
+      const settings = {
+        'server:openshiftEnv': 'DEV',
+        'server:schedulerTimeZone': 'America/Vancouver',
+        'ches:enabled': true,
+        'server:enableEmailExpiringAnnouncements': true,
+      };
+      return settings[key];
+    });
+  });
+  it('sends emails', async () => {
+    await schedulerService.sendAnnouncementExpiringEmails();
+    expect(mock_sendEmailWithRetry).toHaveBeenCalledTimes(2); //2 expired announcements, 2 emails
+    // verify details of email
+    expect(mock_generateHtmlEmail.mock.lastCall[0]).toContain('[DEV]');
+    expect(mock_generateHtmlEmail.mock.lastCall[1]).toHaveLength(3);
+    expect(mock_generateHtmlEmail.mock.lastCall[3]).toContain('test title');
+    expect(mock_generateHtmlEmail.mock.lastCall[3]).toContain(
+      '2020-05-10 at 1:50 a.m.',
+    );
+  });
+  it("doesn't do anything if the feature is disabled in the settings", async () => {
+    mockConfigGet.mockImplementation((key: string) => {
+      const settings = {
+        'server:enableEmailExpiringAnnouncements': false,
+      };
+
+      return settings[key];
+    });
+    await schedulerService.sendAnnouncementExpiringEmails();
+    expect(mock_sendEmailWithRetry).toHaveBeenCalledTimes(0); //2 expired announcements, 2 emails
+  });
+
+  it('Prod should not contain prefix', async () => {
+    mockConfigGet.mockImplementation((key: string) => {
+      const settings = {
+        'server:openshiftEnv': 'PROD',
+        'server:schedulerTimeZone': 'America/Vancouver',
+        'ches:enabled': true,
+        'server:enableEmailExpiringAnnouncements': true,
+      };
+      return settings[key];
+    });
+    await schedulerService.sendAnnouncementExpiringEmails();
+    expect(mock_sendEmailWithRetry).toHaveBeenCalledTimes(2); //2 expired announcements, 2 emails
+    // verify details of email
+    expect(mock_generateHtmlEmail.mock.lastCall[0]).not.toContain('[');
   });
 });

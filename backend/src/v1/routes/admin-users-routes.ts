@@ -35,7 +35,7 @@ router.use(async (req: SsoRequest, _, next) => {
  */
 router.get('', async (req: SsoRequest, res: Response) => {
   try {
-    const users = await req.sso.getUsers();
+    const users = await req.sso.getUsersForDisplay();
     return res.status(200).json(users);
   } catch (error) {
     logger.error(error);

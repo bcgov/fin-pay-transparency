@@ -4,7 +4,7 @@ import router from './admin-users-routes';
 import bodyParser from 'body-parser';
 import { faker } from '@faker-js/faker';
 
-const mockGetUsers = jest.fn();
+const mockGetUsersForDisplay = jest.fn();
 const mockInitSSO = jest.fn();
 jest.mock('../services/sso-service', () => ({
   SSO: {
@@ -66,9 +66,11 @@ describe('admin-users-router', () => {
     describe('css sso middleware passes', () => {
       describe('/ [GET] - get users', () => {
         it('400 - if getUsers fails', () => {
-          mockGetUsers.mockRejectedValue(new Error('Failed to get users'));
+          mockGetUsersForDisplay.mockRejectedValue(
+            new Error('Failed to get users'),
+          );
           mockInitSSO.mockReturnValue({
-            getUsers: () => mockGetUsers(),
+            getUsersForDisplay: () => mockGetUsersForDisplay(),
           });
           return request(app)
             .get('')
@@ -78,9 +80,9 @@ describe('admin-users-router', () => {
             });
         });
         it('200 - return a list of users', () => {
-          mockGetUsers.mockResolvedValue([]);
+          mockGetUsersForDisplay.mockResolvedValue([]);
           mockInitSSO.mockReturnValue({
-            getUsers: () => mockGetUsers(),
+            getUsersForDisplay: () => mockGetUsersForDisplay(),
           });
           return request(app)
             .get('')
