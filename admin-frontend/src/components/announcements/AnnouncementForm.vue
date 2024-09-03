@@ -788,7 +788,7 @@ const handleSave = handleSubmit(async (values) => {
 }
 
 .field-error {
-  color: red;
+  color: rgb(var(--v-theme-error));
   font-size: x-small;
 }
 .extend-to-right-edge {
