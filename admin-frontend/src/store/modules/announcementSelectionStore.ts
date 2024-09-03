@@ -22,7 +22,7 @@ export const useAnnouncementSelectionStore = defineStore(
         (r) => r.resource_type === 'LINK',
       );
       const attachment = data.announcement_resource.find(
-        (r) => r.resource_type === 'ATTACHMENT',
+        (r) => r.resource_type === 'ATTACHMENT' && r.attachment_file_id,
       );
 
       announcement.value = {
