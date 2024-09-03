@@ -280,21 +280,22 @@ button:disabled.v-btn {
   background-color: rgba(0, 0, 0, 0.12) !important;
 }
 
-/*
-Override default styles of VueDatepicker component to better match the
-style of vuetify components
-*/
-input.dp__input {
-  padding-top: 7px !important;
-  padding-bottom: 7px !important;
-}
-
-// VueDatepicker theme
+/* VueDatepicker theme */
 .dp__theme_light {
   --dp-border-color: rgba(var(--v-border-color), 0.4);
   --dp-border-color-hover: rgba(var(--v-border-color), 0.8);
   --dp-border-color-focus: rgba(var(--v-border-color), 1);
-  --dp-danger-color: #ff0000;
+  --dp-danger-color: rgb(var(--v-theme-error));
+}
+
+/* Override default styles of VueDatepicker component to better match the style of vuetify components */
+input.dp__input {
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
+.dp__input_invalid {
+  box-shadow: 0 0 0px var(--dp-danger-color) !important;
+  border-color: var(--dp-danger-color) !important;
 }
 
 /*
