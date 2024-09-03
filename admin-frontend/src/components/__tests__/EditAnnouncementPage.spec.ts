@@ -79,8 +79,8 @@ describe('EditAnnouncementPage', () => {
           status: 'PUBLISHED',
           announcement_resource: [],
         } as any);
-        const { queryByRole } = await wrappedRender();
-        expect(queryByRole('radio', { name: 'Draft' })).toBeNull();
+        const { queryByLabelText } = await wrappedRender();
+        expect(queryByLabelText('Draft')).toBeNull();
       });
     });
     describe('when announcement is draft', () => {
@@ -91,9 +91,9 @@ describe('EditAnnouncementPage', () => {
           status: 'DRAFT',
           announcement_resource: [],
         } as any);
-        const { getByRole } = await wrappedRender();
-        expect(getByRole('radio', { name: 'Draft' })).toBeInTheDocument();
-        expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
+        const { getByLabelText } = await wrappedRender();
+        expect(getByLabelText('Draft')).toBeInTheDocument();
+        expect(getByLabelText('Publish')).toBeInTheDocument();
       });
 
       describe('when publishing announcement', () => {
@@ -105,9 +105,10 @@ describe('EditAnnouncementPage', () => {
             status: 'DRAFT',
             announcement_resource: [],
           } as any);
-          const { getByRole, getByText } = await wrappedRender();
-          const publishButton = getByRole('radio', { name: 'Publish' });
-          expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
+          const { getByRole, getByText, getByLabelText } =
+            await wrappedRender();
+          const publishButton = getByLabelText('Publish');
+          expect(publishButton).toBeInTheDocument();
           await fireEvent.click(publishButton);
           const saveButton = getByRole('button', { name: 'Save' });
           await fireEvent.click(saveButton);
@@ -139,7 +140,7 @@ describe('EditAnnouncementPage', () => {
           ],
         } as any);
         const { getByRole, getByLabelText } = await wrappedRender();
-        expect(getByRole('radio', { name: 'Publish' })).toBeChecked();
+        expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
         expect(getByLabelText('Display Link As')).toHaveValue('link');

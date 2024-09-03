@@ -23,6 +23,7 @@
                   announcement?.status === 'PUBLISHED'
                 )
               "
+              label="Draft"
               value="DRAFT"
               class="mr-2"
             >
@@ -32,7 +33,7 @@
                 ></AnnouncementStatusChip>
               </template>
             </v-radio>
-            <v-radio value="PUBLISHED">
+            <v-radio value="PUBLISHED" label="Publish">
               <template #label>
                 <AnnouncementStatusChip
                   :status="AnnouncementStatus.Published"
@@ -480,7 +481,7 @@ async function refreshPreview() {
   const publishedAnnouncementsFiltered =
     mode == AnnouncementFormMode.CREATE
       ? publishedAnnouncements
-      : publishedAnnouncements.filter(
+      : publishedAnnouncements?.filter(
           (a) => a.announcement_id != announcement?.announcement_id,
         );
   currentAnnouncement.value = buildAnnouncementToPreview();
@@ -496,7 +497,9 @@ async function refreshPreview() {
   if (!isCurrentAnnouncementEmpty) {
     announcements.push(currentAnnouncement.value);
   }
-  announcements.push(...publishedAnnouncementsFiltered);
+  if (publishedAnnouncementsFiltered?.length) {
+    announcements.push(...publishedAnnouncementsFiltered);
+  }
   announcementsToPreview.value = announcements;
 }
 
