@@ -59,10 +59,7 @@
                   Title *
                 </h5>
                 <v-text-field
-ref="announcementTitleRef" <<<<<<<
-                  HEAD
-=======
->>>>>>> main
+                  ref="announcementTitleRef"
                   v-model="announcementTitle"
                   single-line
                   label="Title"
@@ -84,10 +81,7 @@ ref="announcementTitleRef" <<<<<<<
                   Description *
                 </h5>
                 <v-textarea
-ref="announcementDescriptionRef" <<<<<<<
-                  HEAD
-=======
->>>>>>> main
+                  ref="announcementDescriptionRef"
                   v-model="announcementDescription"
                   single-line
                   variant="outlined"
@@ -115,18 +109,11 @@ ref="announcementDescriptionRef" <<<<<<<
                   <v-col cols="6">
                     <VueDatePicker
                       v-model="publishedOn"
-<<<<<<< HEAD
-=======
                       :state="errors.published_on == null ? undefined : false"
->>>>>>> main
                       format="yyyy-MM-dd hh:mm a"
                       :enable-time-picker="true"
                       arrow-navigation
                       auto-apply
-<<<<<<< HEAD
-                      prevent-min-max-navigation
-=======
->>>>>>> main
                       :aria-labels="{ input: 'Publish On' }"
                     >
                       <template #day="{ day, date }">
@@ -203,10 +190,7 @@ ref="announcementDescriptionRef" <<<<<<<
                       >Link URL</span
                     >
                     <v-text-field
-ref="linkUrlRef" <<<<<<<
-                      HEAD
-=======
->>>>>>> main
+                      ref="linkUrlRef"
                       v-model="linkUrl"
                       single-line
                       variant="outlined"
@@ -225,10 +209,7 @@ ref="linkUrlRef" <<<<<<<
                       >Display Link As</span
                     >
                     <v-text-field
-ref="linkDisplayNameRef" <<<<<<<
-                      HEAD
-=======
->>>>>>> main
+                      ref="linkDisplayNameRef"
                       v-model="linkDisplayName"
                       single-line
                       variant="filled"
@@ -267,10 +248,7 @@ ref="linkDisplayNameRef" <<<<<<<
                       >File Name</span
                     >
                     <v-text-field
-ref="fileDisplayNameRef" <<<<<<<
-                      HEAD
-=======
->>>>>>> main
+                      ref="fileDisplayNameRef"
                       v-model="fileDisplayName"
                       single-line
                       variant="outlined"
