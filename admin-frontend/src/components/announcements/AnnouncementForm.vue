@@ -15,7 +15,7 @@
 
         <div class="d-flex flex-row align-center">
           <div class="mr-2">Save as:</div>
-          <v-radio-group inline v-model="status" class="status-options mr-2">
+          <v-radio-group v-model="status" inline class="status-options mr-2">
             <v-radio
               v-if="
                 !(
@@ -23,19 +23,24 @@
                   announcement?.status === 'PUBLISHED'
                 )
               "
-              label="Draft"
               value="DRAFT"
               class="mr-2"
-            ></v-radio>
-            <v-radio label="Publish" value="PUBLISHED"></v-radio>
+            >
+              <template #label>
+                <AnnouncementStatusChip
+                  :status="AnnouncementStatus.Draft"
+                ></AnnouncementStatusChip>
+              </template>
+            </v-radio>
+            <v-radio value="PUBLISHED">
+              <template #label>
+                <AnnouncementStatusChip
+                  :status="AnnouncementStatus.Published"
+                ></AnnouncementStatusChip>
+              </template>
+            </v-radio>
           </v-radio-group>
-          <v-btn
-            color="primary"
-            class="ml-2"
-            @click="handleSave()"
-            :disabled="!isPreviewVisible"
-            >Save</v-btn
-          >
+          <v-btn color="primary" class="ml-2" @click="handleSave()">Save</v-btn>
         </div>
       </div>
 
@@ -46,19 +51,20 @@
               <v-col cols="12" md="12" sm="12">
                 <h5>Title *</h5>
                 <v-text-field
+                  v-model="announcementTitle"
                   single-line
                   label="Title"
                   placeholder="Title"
                   variant="outlined"
                   counter
                   maxlength="100"
-                  v-model="announcementTitle"
                   :error-messages="errors.title"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" md="12" sm="12">
                 <h5>Description *</h5>
                 <v-textarea
+                  v-model="announcementDescription"
                   single-line
                   variant="outlined"
                   label="Description"
@@ -66,7 +72,6 @@
                   maxlength="2000"
                   counter
                   rows="3"
-                  v-model="announcementDescription"
                   :error-messages="errors.description"
                 ></v-textarea>
               </v-col>
@@ -78,12 +83,12 @@
                   </v-col>
                   <v-col cols="6">
                     <VueDatePicker
+                      v-model="publishedOn"
                       format="yyyy-MM-dd hh:mm a"
                       :enable-time-picker="true"
                       arrow-navigation
                       auto-apply
                       prevent-min-max-navigation
-                      v-model="publishedOn"
                       :aria-labels="{ input: 'Publish On' }"
                     >
                       <template #day="{ day, date }">
@@ -107,13 +112,13 @@
                   </v-col>
                   <v-col cols="6" class="d-flex align-center">
                     <VueDatePicker
+                      v-model="expiresOn"
                       :aria-labels="{ input: 'Expires On' }"
                       format="yyyy-MM-dd hh:mm a"
                       :enable-time-picker="true"
                       arrow-navigation
                       auto-apply
                       prevent-min-max-navigation
-                      v-model="expiresOn"
                       :disabled="noExpiry"
                     >
                       <template #day="{ day, date }">
@@ -147,10 +152,10 @@
                   <v-col cols="12">
                     <span class="attachment-label">Link URL</span>
                     <v-text-field
+                      v-model="linkUrl"
                       single-line
                       variant="outlined"
                       placeholder="https://example.com"
-                      v-model="linkUrl"
                       label="Link URL"
                       :error-messages="errors.linkUrl"
                     ></v-text-field>
@@ -158,11 +163,11 @@
                   <v-col cols="12">
                     <span class="attachment-label">Display Link As</span>
                     <v-text-field
+                      v-model="linkDisplayName"
                       single-line
                       variant="filled"
                       placeholder="eg. Pay Transparency in B.C."
                       label="Display Link As"
-                      v-model="linkDisplayName"
                       :error-messages="errors.linkDisplayName"
                     ></v-text-field>
                   </v-col>
@@ -179,9 +184,9 @@
                       announcement?.fileDisplayName
                     "
                     variant="text"
-                    @click="cancelEdit"
                     class="ml-2"
                     aria-label="Edit file"
+                    @click="cancelEdit"
                     >Cancel edit file</v-btn
                   >
                 </div>
@@ -189,20 +194,20 @@
                   <v-col cols="12">
                     <span class="attachment-label">File Name</span>
                     <v-text-field
+                      v-model="fileDisplayName"
                       single-line
                       variant="outlined"
                       placeholder="eg. Pay Transparency in B.C."
                       label="File Name"
-                      v-model="fileDisplayName"
                       :error-messages="errors.fileDisplayName"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
                     <span class="attachment-label">Attachment</span>
                     <v-file-input
+                      v-model="attachment"
                       single-line
                       label="Attachment"
-                      v-model="attachment"
                       class="attachment"
                       variant="outlined"
                       :error-messages="errors.attachment"
@@ -225,75 +230,51 @@
                 </v-row>
               </v-col>
             </v-row>
-            <v-row>
-              <v-col class="d-flex justify-end">
-                <v-btn
-                  v-if="!announcementsToPreview?.length"
-                  class="btn-primary"
-                  prepend-icon="mdi-eye"
-                  @click="preview()"
-                  :disabled="!isPreviewAvailable"
-                  >Preview</v-btn
-                >
-              </v-col>
-            </v-row>
           </div>
         </v-col>
-        <Transition name="slide-fade">
-          <v-col
-            sm="6"
-            md="5"
-            lg="5"
-            xl="4"
-            class="px-0 py-0 d-flex justify-end"
-            v-if="isPreviewVisible"
-          >
-            <div class="previewPanel bg-previewPanel w-100 h-100 px-6 py-6">
-              <v-row dense>
-                <v-col>
-                  <h3>Preview Announcement</h3>
-                </v-col>
-                <v-col cols="2" class="d-flex justify-end">
-                  <v-btn
-                    aria-label="Close preview"
-                    density="compact"
-                    variant="plain"
-                    icon="mdi-close"
-                    @click="closePreview()"
-                  ></v-btn>
-                </v-col>
-              </v-row>
+        <v-col
+          sm="6"
+          md="5"
+          lg="5"
+          xl="4"
+          class="px-0 py-0 d-flex justify-end extend-to-bottom"
+        >
+          <div class="previewPanel bg-previewPanel w-100 h-100 px-6 py-6">
+            <v-row dense>
+              <v-col>
+                <h3>Preview Announcement</h3>
+              </v-col>
+            </v-row>
 
-              <v-row dense class="mb-2">
-                <v-col>
-                  <v-icon icon="mdi-information"></v-icon>
-                  This is how the announcement will appear to the public.
-                </v-col>
-              </v-row>
-              <v-row dense>
-                <v-col class="announcements">
-                  <AnnouncementPager
-                    :announcements="announcementsToPreview"
-                    :pageSize="2"
-                    class="h-100"
-                  ></AnnouncementPager> </v-col
-              ></v-row>
-            </div>
-          </v-col>
-        </Transition>
+            <v-row dense class="mb-2">
+              <v-col>
+                <v-icon icon="mdi-information"></v-icon>
+                This is how the announcement will appear to the public.
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col class="announcements">
+                <AnnouncementPager
+                  :announcements="announcementsToPreview"
+                  :page-size="2"
+                  class="h-100"
+                ></AnnouncementPager> </v-col
+            ></v-row>
+          </div>
+        </v-col>
       </v-row>
     </v-col>
   </v-row>
 
   <ConfirmationDialog ref="confirmDialog">
-    <template v-slot:message>
+    <template #message>
       <p>
         Are you sure want to cancel this changes. This process cannot be undone.
       </p>
     </template>
   </ConfirmationDialog>
   <ConfirmationDialog ref="publishConfirmationDialog">
-    <template v-slot:message>
+    <template #message>
       <p>Are you sure you want to publish this announcement?</p>
     </template>
   </ConfirmationDialog>
@@ -301,7 +282,7 @@
 
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { defineProps, defineEmits, watch, ref, computed } from 'vue';
+import { defineProps, defineEmits, watch, ref } from 'vue';
 import {
   AnnouncementFormValue,
   Announcement,
@@ -309,6 +290,7 @@ import {
   AnnouncementSortType,
   AnnouncementFormMode,
   AnnouncementResourceType,
+  AnnouncementStatus,
 } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
@@ -326,6 +308,7 @@ import AnnouncementPager from './AnnouncementPager.vue';
 import AttachmentResource from './AttachmentResource.vue';
 import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
+import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;
@@ -334,6 +317,7 @@ type Props = {
 };
 
 let publishedAnnouncements: Announcement[] | undefined = undefined;
+const currentAnnouncement = ref<any>(null);
 const announcementsToPreview = ref<Announcement[]>();
 
 const router = useRouter();
@@ -342,8 +326,6 @@ const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement, mode } = defineProps<Props>();
 const fileDisplayOnly = ref(!!announcement?.file_resource_id);
-const isPreviewAvailable = computed(() => values.title && values.description);
-const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
@@ -438,11 +420,13 @@ watch(noExpiry, () => {
 //Watch for changes to any form field.
 //If the 'preview' mode is active when the form changes
 //then refresh the preview
-watch(values, () => {
-  if (announcementsToPreview.value) {
-    preview();
-  }
-});
+watch(
+  values,
+  () => {
+    refreshPreview();
+  },
+  { immediate: true },
+);
 
 const formatDate = (date: Date) => {
   return LocalDate.from(nativeJs(date)).format(
@@ -487,7 +471,7 @@ announcements.  The pre-existing announcements are fetched from the backend,
 and cached for quick subsequent access (because this function may be called
 repeatedly).
 */
-async function preview() {
+async function refreshPreview() {
   if (!publishedAnnouncements) {
     publishedAnnouncements = await getPublishedAnnouncements();
   }
@@ -499,19 +483,21 @@ async function preview() {
       : publishedAnnouncements.filter(
           (a) => a.announcement_id != announcement?.announcement_id,
         );
-  const currentAnnouncement = buildAnnouncementToPreview();
-  announcementsToPreview.value = [
-    currentAnnouncement as any,
-    ...publishedAnnouncementsFiltered,
-  ];
-}
+  currentAnnouncement.value = buildAnnouncementToPreview();
 
-/*
-Clears the 'announcementsToPreview' ref which triggers the
-preview panel to disappear.
-*/
-function closePreview() {
-  announcementsToPreview.value = undefined;
+  //combine the currentAnnouncement with a list of already-published
+  //announcements
+  const announcements: any[] = [];
+  const isCurrentAnnouncementEmpty =
+    !currentAnnouncement.value.announcement_id &&
+    !currentAnnouncement.value.title &&
+    !currentAnnouncement.value.description &&
+    !currentAnnouncement.value.announcement_resource.length;
+  if (!isCurrentAnnouncementEmpty) {
+    announcements.push(currentAnnouncement.value);
+  }
+  announcements.push(...publishedAnnouncementsFiltered);
+  announcementsToPreview.value = announcements;
 }
 
 /*
@@ -522,7 +508,7 @@ its appearance, so some of the unnecessary attributes aren't populated
 */
 function buildAnnouncementToPreview() {
   const previewAnnouncement = {
-    announcement_id: null,
+    announcement_id: announcement?.announcement_id,
     title: announcementTitle.value,
     description: announcementDescription.value,
     announcement_resource: [] as any[],
@@ -557,6 +543,7 @@ function buildAnnouncementToPreview() {
     }
     previewAnnouncement.announcement_resource.push(resource);
   }
+
   return previewAnnouncement;
 }
 
@@ -729,6 +716,9 @@ const handleSave = handleSubmit(async (values) => {
 }
 .extend-to-right-edge {
   margin-right: -40px !important;
+}
+.extend-to-bottom {
+  margin-bottom: -36px;
 }
 .status-options {
   height: 40px;

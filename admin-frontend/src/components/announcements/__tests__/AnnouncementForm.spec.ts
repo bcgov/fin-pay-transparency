@@ -20,7 +20,7 @@ vi.mock('../../../services/apiService', () => ({
       return mockGetAnnouncements(...args);
     },
     clamavScanFile: (...args) => {
-      return mockClamavScan;
+      return mockClamavScan(...args);
     },
   },
 }));
