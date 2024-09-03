@@ -48,16 +48,6 @@ export default defineConfig({
       },
     },
     {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: baseURL,
-        storageState: 'user.json',
-      },
-      dependencies: ['setup'],
-      teardown: 'teardown',
-    },
-    {
       name: 'Google Chrome',
       use: {
         ...devices['Desktop Chrome'],
