@@ -608,6 +608,7 @@ const handleSave = handleSubmit(async (values) => {
     }
 
     if (
+      announcement?.status !== 'PUBLISHED' &&
       values.published_on &&
       LocalDate.from(nativeJs(values.published_on)).isBefore(LocalDate.now())
     ) {
