@@ -50,8 +50,19 @@
           <div class="content">
             <v-row dense class="mt-2 form-wrapper">
               <v-col cols="12" md="12" sm="12">
-                <h5>Title *</h5>
+                <h5
+                  :class="{
+                    'text-error':
+                      announcementTitleRef && !announcementTitleRef?.isValid,
+                  }"
+                >
+                  Title *
+                </h5>
                 <v-text-field
+ref="announcementTitleRef" <<<<<<<
+                  HEAD
+=======
+>>>>>>> main
                   v-model="announcementTitle"
                   single-line
                   label="Title"
@@ -63,8 +74,20 @@
                 ></v-text-field>
               </v-col>
               <v-col cols="12" md="12" sm="12">
-                <h5>Description *</h5>
+                <h5
+                  :class="{
+                    'text-error':
+                      announcementTitleRef &&
+                      !announcementDescriptionRef?.isValid,
+                  }"
+                >
+                  Description *
+                </h5>
                 <v-textarea
+ref="announcementDescriptionRef" <<<<<<<
+                  HEAD
+=======
+>>>>>>> main
                   v-model="announcementDescription"
                   single-line
                   variant="outlined"
@@ -80,16 +103,30 @@
                 <h5 class="mb-2">Time settings</h5>
                 <v-row dense>
                   <v-col cols="2" class="d-flex justify-end align-center">
-                    <p class="datetime-picker-label">Publish On</p>
+                    <p
+                      class="datetime-picker-label"
+                      :class="{
+                        'text-error': errors.published_on != null,
+                      }"
+                    >
+                      Publish On
+                    </p>
                   </v-col>
                   <v-col cols="6">
                     <VueDatePicker
                       v-model="publishedOn"
+<<<<<<< HEAD
+=======
+                      :state="errors.published_on == null ? undefined : false"
+>>>>>>> main
                       format="yyyy-MM-dd hh:mm a"
                       :enable-time-picker="true"
                       arrow-navigation
                       auto-apply
+<<<<<<< HEAD
                       prevent-min-max-navigation
+=======
+>>>>>>> main
                       :aria-labels="{ input: 'Publish On' }"
                     >
                       <template #day="{ day, date }">
@@ -109,7 +146,14 @@
                 </v-row>
                 <v-row dense class="mt-2">
                   <v-col cols="2" class="d-flex justify-end align-center">
-                    <p class="datetime-picker-label">Expires On</p>
+                    <p
+                      class="datetime-picker-label"
+                      :class="{
+                        'text-error': errors.expires_on != null,
+                      }"
+                    >
+                      Expires On
+                    </p>
                   </v-col>
                   <v-col cols="6" class="d-flex align-center">
                     <VueDatePicker
@@ -151,8 +195,18 @@
                 <h5 class="mb-2">Link</h5>
                 <v-row dense class="ml-3 mt-2">
                   <v-col cols="12">
-                    <span class="attachment-label">Link URL</span>
+                    <span
+                      class="attachment-label"
+                      :class="{
+                        'text-error': linkUrlRef && !linkUrlRef?.isValid,
+                      }"
+                      >Link URL</span
+                    >
                     <v-text-field
+ref="linkUrlRef" <<<<<<<
+                      HEAD
+=======
+>>>>>>> main
                       v-model="linkUrl"
                       single-line
                       variant="outlined"
@@ -162,8 +216,19 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
-                    <span class="attachment-label">Display Link As</span>
+                    <span
+                      class="attachment-label"
+                      :class="{
+                        'text-error':
+                          linkDisplayNameRef && !linkDisplayNameRef?.isValid,
+                      }"
+                      >Display Link As</span
+                    >
                     <v-text-field
+ref="linkDisplayNameRef" <<<<<<<
+                      HEAD
+=======
+>>>>>>> main
                       v-model="linkDisplayName"
                       single-line
                       variant="filled"
@@ -193,8 +258,19 @@
                 </div>
                 <v-row v-if="!fileDisplayOnly" dense class="ml-3 mt-2">
                   <v-col cols="12">
-                    <span class="attachment-label">File Name</span>
+                    <span
+                      class="attachment-label"
+                      :class="{
+                        'text-error':
+                          fileDisplayNameRef && !fileDisplayNameRef?.isValid,
+                      }"
+                      >File Name</span
+                    >
                     <v-text-field
+ref="fileDisplayNameRef" <<<<<<<
+                      HEAD
+=======
+>>>>>>> main
                       v-model="fileDisplayName"
                       single-line
                       variant="outlined"
@@ -204,8 +280,15 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
-                    <span class="attachment-label">Attachment</span>
+                    <span
+                      class="attachment-label"
+                      :class="{
+                        'text-error': attachmentRef && !attachmentRef?.isValid,
+                      }"
+                      >Attachment</span
+                    >
                     <v-file-input
+                      ref="attachmentRef"
                       v-model="attachment"
                       single-line
                       label="Attachment"
@@ -310,6 +393,15 @@ import AttachmentResource from './AttachmentResource.vue';
 import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
+import type { VTextField } from 'vuetify/components';
+
+// References to component's exported properties
+const announcementTitleRef = ref<VTextField | null>(null);
+const announcementDescriptionRef = ref<VTextField | null>(null);
+const linkUrlRef = ref<VTextField | null>(null);
+const linkDisplayNameRef = ref<VTextField | null>(null);
+const fileDisplayNameRef = ref<VTextField | null>(null);
+const attachmentRef = ref<VTextField | null>(null);
 
 type Props = {
   announcement: AnnouncementFormValue | null | undefined;
@@ -714,7 +806,7 @@ const handleSave = handleSubmit(async (values) => {
 }
 
 .field-error {
-  color: red;
+  color: rgb(var(--v-theme-error));
   font-size: x-small;
 }
 .extend-to-right-edge {
