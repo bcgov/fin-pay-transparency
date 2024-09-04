@@ -7,6 +7,12 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
+<<<<<<< HEAD
+=======
+import { faker } from '@faker-js/faker';
+import { a } from 'vitest/dist/chunks/suite.CcK46U-P.js';
+import { AnnouncementResourceType } from '../../types/announcements';
+>>>>>>> b1464449 (create link display in announcement edit form)
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -143,8 +149,7 @@ describe('EditAnnouncementPage', () => {
         expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
-        expect(getByLabelText('Display Link As')).toHaveValue('link');
-        expect(getByLabelText('Link URL')).toHaveValue('https://example.com');
+        
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
         const saveButton = getByRole('button', { name: 'Save' });
@@ -201,7 +206,7 @@ describe('EditAnnouncementPage', () => {
           const { getByRole, getByLabelText } = await wrappedRender();
           const deleteButton = getByRole('button', { name: 'Delete file' });
           await fireEvent.click(deleteButton);
-          const fileNameInput = getByLabelText('File Name');
+          const fileNameInput = getByLabelText('Display File Link As');
           await waitFor(() => {
             expect(fileNameInput).toHaveValue('');
           });
@@ -228,7 +233,7 @@ describe('EditAnnouncementPage', () => {
           const { getByRole, getByLabelText } = await wrappedRender();
           const editButton = getByRole('button', { name: 'Edit file' });
           await fireEvent.click(editButton);
-          const fileNameInput = getByLabelText('File Name');
+          const fileNameInput = getByLabelText('Display File Link As');
           await waitFor(() => {
             expect(fileNameInput).toHaveValue('file name');
           });
@@ -280,14 +285,109 @@ describe('EditAnnouncementPage', () => {
           status: 'PUBLISHED',
           announcement_resource: [],
         } as any);
-        const { getByRole, getByLabelText } = await wrappedRender();
-        const fileNameInput = getByLabelText('File Name');
+        const { getByLabelText } = await wrappedRender();
+        const fileNameInput = getByLabelText('Display File Link As');
         const fileInput = getByLabelText('Attachment');
         expect(fileNameInput).toHaveValue('');
         expect(fileInput).toBeInTheDocument();
       });
     });
 
+    describe('when announcement has a link', () => {
+      it('should display link', async () => {
+        store.setAnnouncement({
+          announcement_id: '1',
+          title: 'title',
+          description: 'description',
+          published_on: new Date().toDateString(),
+          status: 'PUBLISHED',
+          announcement_resource: [
+            {
+              announcement_resource_id: '1',
+              resource_type: AnnouncementResourceType.ATTACHMENT,
+              display_name: 'file name',
+              attachment_file_id: '1',
+              resource_url: '',
+            },
+            {
+              announcement_resource_id: '2',
+              resource_type: AnnouncementResourceType.LINK,
+              display_name: 'link display name',
+              resource_url: 'https://example.com',
+              attachment_file_id: '',
+            },
+          ],
+        } as any);
+        const { getByRole } = await wrappedRender();
+        expect(
+          getByRole('link', { name: 'link display name' }),
+        ).toBeInTheDocument();
+        expect(getByRole('button', { name: 'Edit link' })).toBeInTheDocument();
+        expect(
+          getByRole('button', { name: 'Delete link' }),
+        ).toBeInTheDocument();
+      });
+
+      describe('when link is deleted', () => {
+        it('should remove link', async () => {
+          store.setAnnouncement({
+            announcement_id: '1',
+            title: 'title',
+            description: 'description',
+            published_on: new Date(),
+            status: 'PUBLISHED',
+            announcement_resource: [
+              {
+                announcement_resource_id: '2',
+                resource_type: AnnouncementResourceType.LINK,
+                display_name: 'link display name',
+                resource_url: 'https://example.com',
+                attachment_file_id: '',
+              },
+            ],
+          } as any);
+          const { getByRole, getByLabelText } = await wrappedRender();
+          const deleteButton = getByRole('button', { name: 'Delete link' });
+          await fireEvent.click(deleteButton);
+          const linkNameInput = getByLabelText('Display URL As');
+          const linkUrlInput = getByLabelText('Link URL');
+          await waitFor(() => {
+            expect(linkNameInput).toHaveValue('');
+            expect(linkUrlInput).toHaveValue('');
+          });
+        });
+      });
+
+      describe('when link edit is clicked', () => {
+        it('should update link', async () => {
+          store.setAnnouncement({
+            announcement_id: '1',
+            title: 'title',
+            description: 'description',
+            published_on: new Date(),
+            status: 'PUBLISHED',
+            announcement_resource: [
+              {
+                announcement_resource_id: '2',
+                resource_type: AnnouncementResourceType.LINK,
+                display_name: 'link display name',
+                resource_url: 'https://example.com',
+                attachment_file_id: '',
+              },
+            ],
+          } as any);
+          const { getByRole, getByLabelText } = await wrappedRender();
+          const editButton = getByRole('button', { name: 'Edit link' });
+          await fireEvent.click(editButton);
+          const linkNameInput = getByLabelText('Display URL As');
+          const linkURLInput = getByLabelText('Link URL');
+          await waitFor(() => {
+            expect(linkNameInput).toHaveValue('link display name');
+            expect(linkURLInput).toHaveValue('https://example.com');
+          });
+        });
+      });
+    });
     describe('when announcement update fails', () => {
       it('should show error notification', async () => {
         store.setAnnouncement({

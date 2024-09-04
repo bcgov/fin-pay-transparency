@@ -180,7 +180,7 @@
               </v-col>
               <v-col cols="12">
                 <h5 class="mb-2">Link</h5>
-                <v-row dense class="ml-3 mt-2">
+                <v-row v-if="!linkDisplayOnly" dense class="ml-3 mt-2">
                   <v-col cols="12">
                     <span
                       class="attachment-label"
@@ -195,7 +195,8 @@
                       single-line
                       variant="outlined"
                       placeholder="https://example.com"
-                      label="Link URL"
+                      label="https://example.com"
+                      aria-label="Link URL"
                       :error-messages="errors.linkUrl"
                     ></v-text-field>
                   </v-col>
@@ -214,9 +215,20 @@
                       single-line
                       variant="filled"
                       placeholder="eg. Pay Transparency in B.C."
-                      label="Display Link As"
+                      label="eg. Pay Transparency in B.C."
+                      aria-label="Display URL As"
                       :error-messages="errors.linkDisplayName"
                     ></v-text-field>
+                  </v-col>
+                </v-row>
+                <v-row v-else dense class="ml-3 mt-2">
+                  <v-col cols="12">
+                    <LinkResource
+                      :url="linkUrl"
+                      :text="linkDisplayName"
+                      @on-edit="onEditLink"
+                      @on-delete="handleDeleteLink"
+                    ></LinkResource>
                   </v-col>
                 </v-row>
               </v-col>
@@ -245,15 +257,16 @@
                         'text-error':
                           fileDisplayNameRef && !fileDisplayNameRef?.isValid,
                       }"
-                      >File Name</span
+                      >Display File Link As</span
                     >
                     <v-text-field
                       ref="fileDisplayNameRef"
                       v-model="fileDisplayName"
                       single-line
                       variant="outlined"
-                      placeholder="eg. Pay Transparency in B.C."
-                      label="File Name"
+                      placeholder="eg. Updated Pay Transparency Guidance Document"
+                      label="eg. Updated Pay Transparency Guidance Document"
+                      aria-label="Display File Link As"
                       :error-messages="errors.fileDisplayName"
                     ></v-text-field>
                   </v-col>
@@ -285,8 +298,8 @@
                     <AttachmentResource
                       :id="announcement?.file_resource_id!"
                       :name="announcement?.fileDisplayName!"
-                      @on-edit="onEdit"
-                      @on-delete="handleDelete"
+                      @on-edit="onEditFile"
+                      @on-delete="handleDeleteFile"
                     ></AttachmentResource>
                   </v-col>
                 </v-row>
@@ -368,6 +381,7 @@ import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
 import AttachmentResource from './AttachmentResource.vue';
+import LinkResource from './LinkResource.vue';
 import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
@@ -397,6 +411,9 @@ const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement, mode } = defineProps<Props>();
 const fileDisplayOnly = ref(!!announcement?.file_resource_id);
+const linkDisplayOnly = ref(
+  !isEmpty(announcement?.linkUrl) && !isEmpty(announcement?.linkDisplayName),
+);
 const isConfirmDialogVisible = ref(false);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
@@ -481,6 +498,9 @@ const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
 const { value: fileDisplayName } = useField('fileDisplayName') as any;
 const { value: attachment } = useField('attachment') as any;
+watch(linkUrl, () => {
+  console.log('xxxx', linkUrl.value);
+});
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
@@ -505,11 +525,21 @@ const formatDate = (date: Date) => {
   );
 };
 
-const onEdit = () => {
+const onEditFile = () => {
   fileDisplayOnly.value = false;
 };
 
-const handleDelete = () => {
+const onEditLink = () => {
+  linkDisplayOnly.value = false;
+};
+
+const handleDeleteLink = () => {
+  linkDisplayOnly.value = false;
+  linkDisplayName.value = undefined;
+  linkUrl.value = undefined;
+};
+
+const handleDeleteFile = () => {
   fileDisplayName.value = undefined;
   fileDisplayOnly.value = false;
 };

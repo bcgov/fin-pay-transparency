@@ -91,16 +91,16 @@ describe('AddAnnouncementPage', () => {
     expect(getByLabelText('Expires On')).toBeInTheDocument();
     expect(getByRole('checkbox', { name: 'No expiry' })).toBeInTheDocument();
     expect(getByLabelText('Link URL')).toBeInTheDocument();
-    expect(getByLabelText('Display Link As')).toBeInTheDocument();
+    expect(getByLabelText('Display URL As')).toBeInTheDocument();
   });
   it('should submit the form', async () => {
-    const { getByRole, getByLabelText, queryAllByText, getAllByText } =
+    const { getByRole, getByLabelText } =
       await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
     const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
-    const displayLinkAs = getByLabelText('Display Link As');
+    const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
     const publishOn = getByLabelText('Publish On');
@@ -142,7 +142,7 @@ describe('AddAnnouncementPage', () => {
     const title = getByLabelText('Title');
     const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
-    const displayLinkAs = getByLabelText('Display Link As');
+    const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
     await fireEvent.update(linkUrl, 'https://example.com');
@@ -170,7 +170,7 @@ describe('AddAnnouncementPage', () => {
       const title = getByLabelText('Title');
       const description = getByLabelText('Description');
       const linkUrl = getByLabelText('Link URL');
-      const displayLinkAs = getByLabelText('Display Link As');
+      const displayLinkAs = getByLabelText('Display URL As');
       await fireEvent.update(title, 'Test Title');
       await fireEvent.update(description, 'Test Description');
       await fireEvent.update(linkUrl, 'https://example.com');
@@ -195,7 +195,7 @@ describe('AddAnnouncementPage', () => {
     const title = getByLabelText('Title');
     const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
-    const displayLinkAs = getByLabelText('Display Link As');
+    const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
     const publishOn = getByLabelText('Publish On');
@@ -266,7 +266,7 @@ describe('AddAnnouncementPage', () => {
     const title = getByLabelText('Title');
     const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
-    const displayLinkAs = getByLabelText('Display Link As');
+    const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
     await fireEvent.update(linkUrl, 'https://example.com');
@@ -290,7 +290,7 @@ describe('AddAnnouncementPage', () => {
   });
 
   describe('when link url is not empty', () => {
-    describe('when display link as is empty', () => {
+    describe('when Display URL As is empty', () => {
       it('should show error message', async () => {
         const { getByRole, getByLabelText, getByText } = await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
@@ -326,7 +326,7 @@ describe('AddAnnouncementPage', () => {
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
         const linkUrl = getByLabelText('Link URL');
-        const displayLinkAs = getByLabelText('Display Link As');
+        const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
         const publishOn = getByLabelText('Publish On');
@@ -334,7 +334,6 @@ describe('AddAnnouncementPage', () => {
         await setDate(publishOn, () => {
           return getByLabelText(publishDate);
         });
-        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.update(linkUrl, 'https://example.com');
         await fireEvent.update(displayLinkAs, 'a'.repeat(101));
         await markAsPublish();
@@ -354,7 +353,7 @@ describe('AddAnnouncementPage', () => {
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
-        const displayLinkAs = getByLabelText('Display Link As');
+        const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
         const publishOn = getByLabelText('Publish On');
@@ -381,8 +380,8 @@ describe('AddAnnouncementPage', () => {
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
         const linkUrl = getByLabelText('Link URL');
-        const displayLinkAs = getByLabelText('Display Link As');
-        const fileName = getByLabelText('File Name');
+        const displayLinkAs = getByLabelText('Display URL As');
+        const fileName = getByLabelText('Display File Link As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
         const publishOn = getByLabelText('Publish On');
@@ -410,7 +409,7 @@ describe('AddAnnouncementPage', () => {
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
         const description = getByLabelText('Description');
-        const displayLinkAs = getByLabelText('Display Link As');
+        const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
         const publishOn = getByLabelText('Publish On');
@@ -501,7 +500,7 @@ describe('AddAnnouncementPage', () => {
       const title = getByLabelText('Title');
       const description = getByLabelText('Description');
       const linkUrl = getByLabelText('Link URL');
-      const displayLinkAs = getByLabelText('Display Link As');
+      const displayLinkAs = getByLabelText('Display URL As');
       await fireEvent.update(title, 'Test Title');
       await fireEvent.update(description, 'Test Description');
       const publishOn = getByLabelText('Publish On');
