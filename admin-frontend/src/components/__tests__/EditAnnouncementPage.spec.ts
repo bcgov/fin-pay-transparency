@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { fireEvent, render, waitFor } from '@testing-library/vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -6,7 +7,6 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
-import { faker } from '@faker-js/faker';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -39,9 +39,11 @@ const wrappedRender = () => {
 
 const mockUpdateAnnouncement = vi.fn();
 const mockDownloadFile = vi.fn();
+const mockGetAnnouncement = vi.fn();
 vi.mock('../../services/apiService', () => ({
   default: {
     updateAnnouncement: (...args) => mockUpdateAnnouncement(...args),
+    getAnnouncements: (...args) => mockGetAnnouncement(...args),
     downloadFile: (...args) => mockDownloadFile(...args),
   },
 }));
@@ -77,8 +79,8 @@ describe('EditAnnouncementPage', () => {
           status: 'PUBLISHED',
           announcement_resource: [],
         } as any);
-        const { queryByRole } = await wrappedRender();
-        expect(queryByRole('radio', { name: 'Draft' })).toBeNull();
+        const { queryByLabelText } = await wrappedRender();
+        expect(queryByLabelText('Draft')).toBeNull();
       });
     });
     describe('when announcement is draft', () => {
@@ -89,9 +91,9 @@ describe('EditAnnouncementPage', () => {
           status: 'DRAFT',
           announcement_resource: [],
         } as any);
-        const { getByRole } = await wrappedRender();
-        expect(getByRole('radio', { name: 'Draft' })).toBeInTheDocument();
-        expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
+        const { getByLabelText } = await wrappedRender();
+        expect(getByLabelText('Draft')).toBeInTheDocument();
+        expect(getByLabelText('Publish')).toBeInTheDocument();
       });
 
       describe('when publishing announcement', () => {
@@ -103,9 +105,10 @@ describe('EditAnnouncementPage', () => {
             status: 'DRAFT',
             announcement_resource: [],
           } as any);
-          const { getByRole, getByText } = await wrappedRender();
-          const publishButton = getByRole('radio', { name: 'Publish' });
-          expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
+          const { getByRole, getByText, getByLabelText } =
+            await wrappedRender();
+          const publishButton = getByLabelText('Publish');
+          expect(publishButton).toBeInTheDocument();
           await fireEvent.click(publishButton);
           const saveButton = getByRole('button', { name: 'Save' });
           await fireEvent.click(saveButton);
@@ -137,7 +140,7 @@ describe('EditAnnouncementPage', () => {
           ],
         } as any);
         const { getByRole, getByLabelText } = await wrappedRender();
-        expect(getByRole('radio', { name: 'Publish' })).toBeChecked();
+        expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
         expect(getByLabelText('Display Link As')).toHaveValue('link');

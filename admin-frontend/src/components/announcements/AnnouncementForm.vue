@@ -26,8 +26,20 @@
               label="Draft"
               value="DRAFT"
               class="mr-2"
-            ></v-radio>
-            <v-radio label="Publish" value="PUBLISHED"></v-radio>
+            >
+              <template #label>
+                <AnnouncementStatusChip
+                  :status="AnnouncementStatus.Draft"
+                ></AnnouncementStatusChip>
+              </template>
+            </v-radio>
+            <v-radio value="PUBLISHED" label="Publish">
+              <template #label>
+                <AnnouncementStatusChip
+                  :status="AnnouncementStatus.Published"
+                ></AnnouncementStatusChip>
+              </template>
+            </v-radio>
           </v-radio-group>
           <v-btn color="primary" class="ml-2" @click="handleSave()">Save</v-btn>
         </div>
@@ -219,9 +231,9 @@
                       announcement?.fileDisplayName
                     "
                     variant="text"
-                    @click="cancelEdit"
                     class="ml-2"
                     aria-label="Edit file"
+                    @click="cancelEdit"
                     >Cancel edit file</v-btn
                   >
                 </div>
@@ -280,62 +292,38 @@
                 </v-row>
               </v-col>
             </v-row>
-            <v-row>
-              <v-col class="d-flex justify-end">
-                <v-btn
-                  v-if="!announcementsToPreview?.length"
-                  class="btn-primary"
-                  prepend-icon="mdi-eye"
-                  :disabled="!isPreviewAvailable"
-                  @click="preview()"
-                  >Preview</v-btn
-                >
-              </v-col>
-            </v-row>
           </div>
         </v-col>
-        <Transition name="slide-fade">
-          <v-col
-            v-if="isPreviewVisible"
-            sm="6"
-            md="5"
-            lg="5"
-            xl="4"
-            class="px-0 py-0 d-flex justify-end"
-          >
-            <div class="previewPanel bg-previewPanel w-100 h-100 px-6 py-6">
-              <v-row dense>
-                <v-col>
-                  <h3>Preview Announcement</h3>
-                </v-col>
-                <v-col cols="2" class="d-flex justify-end">
-                  <v-btn
-                    aria-label="Close preview"
-                    density="compact"
-                    variant="plain"
-                    icon="mdi-close"
-                    @click="closePreview()"
-                  ></v-btn>
-                </v-col>
-              </v-row>
+        <v-col
+          sm="6"
+          md="5"
+          lg="5"
+          xl="4"
+          class="px-0 py-0 d-flex justify-end extend-to-bottom"
+        >
+          <div class="previewPanel bg-previewPanel w-100 h-100 px-6 py-6">
+            <v-row dense>
+              <v-col>
+                <h3>Preview Announcement</h3>
+              </v-col>
+            </v-row>
 
-              <v-row dense class="mb-2">
-                <v-col>
-                  <v-icon icon="mdi-information"></v-icon>
-                  This is how the announcement will appear to the public.
-                </v-col>
-              </v-row>
-              <v-row dense>
-                <v-col class="announcements">
-                  <AnnouncementPager
-                    :announcements="announcementsToPreview"
-                    :page-size="2"
-                    class="h-100"
-                  ></AnnouncementPager> </v-col
-              ></v-row>
-            </div>
-          </v-col>
-        </Transition>
+            <v-row dense class="mb-2">
+              <v-col>
+                <v-icon icon="mdi-information"></v-icon>
+                This is how the announcement will appear to the public.
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col class="announcements">
+                <AnnouncementPager
+                  :announcements="announcementsToPreview"
+                  :page-size="2"
+                  class="h-100"
+                ></AnnouncementPager> </v-col
+            ></v-row>
+          </div>
+        </v-col>
       </v-row>
     </v-col>
   </v-row>
@@ -356,7 +344,7 @@
 
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { defineProps, defineEmits, watch, ref, computed } from 'vue';
+import { defineProps, defineEmits, watch, ref } from 'vue';
 import {
   AnnouncementFormValue,
   Announcement,
@@ -364,6 +352,7 @@ import {
   AnnouncementSortType,
   AnnouncementFormMode,
   AnnouncementResourceType,
+  AnnouncementStatus,
 } from '../../types/announcements';
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
@@ -381,6 +370,7 @@ import AnnouncementPager from './AnnouncementPager.vue';
 import AttachmentResource from './AttachmentResource.vue';
 import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
+import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import type { VTextField } from 'vuetify/components';
 
 // References to component's exported properties
@@ -398,6 +388,7 @@ type Props = {
 };
 
 let publishedAnnouncements: Announcement[] | undefined = undefined;
+const currentAnnouncement = ref<any>(null);
 const announcementsToPreview = ref<Announcement[]>();
 
 const router = useRouter();
@@ -406,8 +397,6 @@ const confirmDialog = ref<typeof ConfirmationDialog>();
 const publishConfirmationDialog = ref<typeof ConfirmationDialog>();
 const { announcement, mode } = defineProps<Props>();
 const fileDisplayOnly = ref(!!announcement?.file_resource_id);
-const isPreviewAvailable = computed(() => values.title && values.description);
-const isPreviewVisible = computed(() => announcementsToPreview.value?.length);
 const isConfirmDialogVisible = ref(false);
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
@@ -502,11 +491,13 @@ watch(noExpiry, () => {
 //Watch for changes to any form field.
 //If the 'preview' mode is active when the form changes
 //then refresh the preview
-watch(values, () => {
-  if (announcementsToPreview.value) {
-    preview();
-  }
-});
+watch(
+  values,
+  () => {
+    refreshPreview();
+  },
+  { immediate: true },
+);
 
 const formatDate = (date: Date) => {
   return LocalDate.from(nativeJs(date)).format(
@@ -551,7 +542,7 @@ announcements.  The pre-existing announcements are fetched from the backend,
 and cached for quick subsequent access (because this function may be called
 repeatedly).
 */
-async function preview() {
+async function refreshPreview() {
   if (!publishedAnnouncements) {
     publishedAnnouncements = await getPublishedAnnouncements();
   }
@@ -560,22 +551,26 @@ async function preview() {
   const publishedAnnouncementsFiltered =
     mode == AnnouncementFormMode.CREATE
       ? publishedAnnouncements
-      : publishedAnnouncements.filter(
+      : publishedAnnouncements?.filter(
           (a) => a.announcement_id != announcement?.announcement_id,
         );
-  const currentAnnouncement = buildAnnouncementToPreview();
-  announcementsToPreview.value = [
-    currentAnnouncement as any,
-    ...publishedAnnouncementsFiltered,
-  ];
-}
+  currentAnnouncement.value = buildAnnouncementToPreview();
 
-/*
-Clears the 'announcementsToPreview' ref which triggers the
-preview panel to disappear.
-*/
-function closePreview() {
-  announcementsToPreview.value = undefined;
+  //combine the currentAnnouncement with a list of already-published
+  //announcements
+  const announcements: any[] = [];
+  const isCurrentAnnouncementEmpty =
+    !currentAnnouncement.value.announcement_id &&
+    !currentAnnouncement.value.title &&
+    !currentAnnouncement.value.description &&
+    !currentAnnouncement.value.announcement_resource.length;
+  if (!isCurrentAnnouncementEmpty) {
+    announcements.push(currentAnnouncement.value);
+  }
+  if (publishedAnnouncementsFiltered?.length) {
+    announcements.push(...publishedAnnouncementsFiltered);
+  }
+  announcementsToPreview.value = announcements;
 }
 
 /*
@@ -586,7 +581,7 @@ its appearance, so some of the unnecessary attributes aren't populated
 */
 function buildAnnouncementToPreview() {
   const previewAnnouncement = {
-    announcement_id: null,
+    announcement_id: announcement?.announcement_id,
     title: announcementTitle.value,
     description: announcementDescription.value,
     announcement_resource: [] as any[],
@@ -621,6 +616,7 @@ function buildAnnouncementToPreview() {
     }
     previewAnnouncement.announcement_resource.push(resource);
   }
+
   return previewAnnouncement;
 }
 
@@ -793,6 +789,9 @@ const handleSave = handleSubmit(async (values) => {
 }
 .extend-to-right-edge {
   margin-right: -40px !important;
+}
+.extend-to-bottom {
+  margin-bottom: -36px;
 }
 .status-options {
   height: 40px;

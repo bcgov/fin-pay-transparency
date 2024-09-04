@@ -1,13 +1,13 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { DateTimeFormatter, LocalDate } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { userEvent } from '@testing-library/user-event';
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
-import { DateTimeFormatter, LocalDate } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
@@ -22,12 +22,15 @@ const wrappedRender = async () => {
 };
 
 const mockAddAnnouncement = vi.fn();
+const mockGetAnnouncement = vi.fn();
 const mockClamavScanFile = vi.fn();
 vi.mock('../../services/apiService', () => ({
   default: {
     addAnnouncement: (...args) => {
-      console.log('mockAddAnnouncement.....', args);
       mockAddAnnouncement(...args);
+    },
+    getAnnouncements: (...args) => {
+      mockGetAnnouncement(...args);
     },
     clamavScanFile: (...args) => {
       return mockClamavScanFile(...args);
@@ -62,7 +65,6 @@ const formatDate = (date: LocalDate) => {
 const setDate = async (field: HTMLElement, getDateCell: () => HTMLElement) => {
   await fireEvent.click(field);
   await waitFor(() => {
-    
     const dateCell = getDateCell();
     expect(dateCell).toBeInTheDocument();
     fireEvent.click(dateCell!);
@@ -104,7 +106,7 @@ describe('AddAnnouncementPage', () => {
     const publishOn = getByLabelText('Publish On');
     const publishDate = formatDate(LocalDate.now());
     await setDate(publishOn, () => {
-      return getByLabelText(publishDate)
+      return getByLabelText(publishDate);
     });
     const noExpiry = getByRole('checkbox', { name: 'No expiry' });
     await fireEvent.click(noExpiry);
