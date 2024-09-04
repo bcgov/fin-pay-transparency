@@ -498,9 +498,6 @@ const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
 const { value: fileDisplayName } = useField('fileDisplayName') as any;
 const { value: attachment } = useField('attachment') as any;
-watch(linkUrl, () => {
-  console.log('xxxx', linkUrl.value);
-});
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
