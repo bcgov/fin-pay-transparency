@@ -321,7 +321,7 @@ const docGenServicePrivate = {
 
     // Organize all 'blocks' and their corresponding 'explanatory-notes'
     // into 'page' elements
-    for (let block of blocksToOrganize) {
+    for (const block of blocksToOrganize) {
       const isBlockEmpty = await docGenServicePrivate.isElementEmpty(
         puppeteerPage,
         block,
@@ -397,7 +397,7 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} .${docGenServicePrivate.STYLE_CLASSES.EXPLANATORY_NOTES}`,
     );
     if (allExplanatoryNotes?.length) {
-      for (let explanatoryNotes of allExplanatoryNotes) {
+      for (const explanatoryNotes of allExplanatoryNotes) {
         const blockExplanatoryNotes = await explanatoryNotes.$$(
           `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_EXPLANATORY_NOTES}`,
         );
@@ -415,7 +415,7 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT} .${docGenServicePrivate.STYLE_CLASSES.FOOTNOTES}`,
     );
     if (allFootnotes?.length) {
-      for (let footnotes of allFootnotes) {
+      for (const footnotes of allFootnotes) {
         const footnoteGroups = await footnotes.$$(
           `.${docGenServicePrivate.STYLE_CLASSES.FOOTNOTE_GROUP}`,
         );
@@ -911,8 +911,9 @@ async function generateReport(
         width: `${PDF_PAGE_SIZE_PIXELS.width}px`,
         height: `${PDF_PAGE_SIZE_PIXELS.height}px`,
       };
-      const pdf = await puppeteerPage.pdf(pdfOptions);
-      result = pdf;
+      const pdfAsByteArray = await puppeteerPage.pdf(pdfOptions);
+      const pdfAsBuffer = Buffer.from(pdfAsByteArray);
+      result = pdfAsBuffer;
     }
 
     if (!result) {
