@@ -4,7 +4,7 @@
       variant="text"
       color="primary"
       append-icon="mdi-open-in-new"
-      :href="props.url"
+      :href="sanitizeUrl(props.url)"
       target="_blank"
       >{{ props.text }}</v-btn
     >
@@ -24,7 +24,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { defineProps, watch } from 'vue';
+import { defineProps } from 'vue';
+import { sanitizeUrl } from '@braintree/sanitize-url';
+
 
 type LinkResourceProps = {
   text: string;
@@ -32,9 +34,6 @@ type LinkResourceProps = {
 };
 
 const props = defineProps<LinkResourceProps>();
-watch(props, () => {
-  console.log(props);
-});
 const emits = defineEmits(['onEdit', 'onDelete']);
 </script>
 <style scoped></style>
