@@ -1,0 +1,4 @@
+SET search_path TO pay_transparency;
+
+ALTER TABLE announcement_resource_history DROP CONSTRAINT announcement_resource_history_announcement_fk;
+ALTER TABLE announcement_resource_history DROP CONSTRAINT announcement_resource_history_announcement_resource_fk;
