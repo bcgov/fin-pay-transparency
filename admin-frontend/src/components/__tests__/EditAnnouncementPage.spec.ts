@@ -7,12 +7,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
-<<<<<<< HEAD
-=======
-import { faker } from '@faker-js/faker';
-import { a } from 'vitest/dist/chunks/suite.CcK46U-P.js';
 import { AnnouncementResourceType } from '../../types/announcements';
->>>>>>> b1464449 (create link display in announcement edit form)
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
