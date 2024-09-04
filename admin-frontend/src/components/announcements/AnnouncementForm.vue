@@ -197,8 +197,18 @@
                       placeholder="https://example.com"
                       label="https://example.com"
                       aria-label="Link URL"
+                      counter
                       :error-messages="errors.linkUrl"
-                    ></v-text-field>
+                    >
+                      <template #counter="{ value }">
+                        <span
+                          :class="{
+                            'text-error': linkUrlRef && !linkUrlRef?.isValid,
+                          }"
+                          >{{ value }}/255</span
+                        >
+                      </template>
+                    </v-text-field>
                   </v-col>
                   <v-col cols="12">
                     <span
@@ -217,6 +227,8 @@
                       placeholder="eg. Pay Transparency in B.C."
                       label="eg. Pay Transparency in B.C."
                       aria-label="Display URL As"
+                      counter
+                      maxlength="100"
                       :error-messages="errors.linkDisplayName"
                     ></v-text-field>
                   </v-col>
@@ -267,6 +279,8 @@
                       placeholder="eg. Updated Pay Transparency Guidance Document"
                       label="eg. Updated Pay Transparency Guidance Document"
                       aria-label="Display File Link As"
+                      counter
+                      maxlength="100"
                       :error-messages="errors.fileDisplayName"
                     ></v-text-field>
                   </v-col>
@@ -451,6 +465,9 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
       if (value && !zod.string().url().safeParse(value).success) {
         return 'Invalid URL.';
       }
+
+      if (value.length > 255)
+        return 'URL max length is 255 characters. Please shorten the URL.';
 
       return true;
     },
