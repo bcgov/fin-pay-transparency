@@ -41,23 +41,23 @@
       "
       @update:options="updateSearch"
     >
-      <template v-slot:header.selection="{ column }">
+      <template #header.selection="{ column }">
         <v-checkbox
-          class="checkbox-no-details"
           v-model="isSelectedAnnouncementsHeaderChecked"
+          class="checkbox-no-details"
           @click="
             toggleSelectAllAnnouncements(!isSelectedAnnouncementsHeaderChecked)
           "
         ></v-checkbox>
       </template>
-      <template v-slot:item.selection="{ item }">
+      <template #item.selection="{ item }">
         <v-checkbox
-          class="checkbox-no-details"
           v-model="selectedAnnouncements[item.announcement_id]"
+          class="checkbox-no-details"
         >
         </v-checkbox>
       </template>
-      <template v-slot:item.title="{ item }">
+      <template #item.title="{ item }">
         <v-btn
           variant="text"
           class="btn-link no-min-width"
@@ -67,19 +67,31 @@
           {{ item.title }}
         </v-btn>
       </template>
-      <template v-slot:item.published_on="{ item }">
-        {{ item.published_on ? formatDate(item.published_on) : '-' }}
+      <template #item.published_on="{ item }">
+        <div v-if="item.published_on">
+          <div>{{ formatIsoDateTimeAsLocalDate(item.published_on) }}</div>
+          <small class="text-grey">{{
+            formatIsoDateTimeAsLocalTime(item.published_on)
+          }}</small>
+        </div>
+        <div v-else>-</div>
       </template>
-      <template v-slot:item.expires_on="{ item }">
-        {{ item.expires_on ? formatDate(item.expires_on) : '-' }}
+      <template #item.expires_on="{ item }">
+        <div v-if="item.expires_on">
+          <div>{{ formatIsoDateTimeAsLocalDate(item.expires_on) }}</div>
+          <small class="text-grey">{{
+            formatIsoDateTimeAsLocalTime(item.expires_on)
+          }}</small>
+        </div>
+        <div v-else>-</div>
       </template>
-      <template v-slot:item.status="{ item }">
+      <template #item.status="{ item }">
         <AnnouncementStatusChip :status="item.status"></AnnouncementStatusChip>
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template #item.actions="{ item }">
         <AnnouncementActions :announcement="item"></AnnouncementActions>
       </template>
-      <template v-slot:footer.prepend="">
+      <template #footer.prepend="">
         <v-row class="d-flex justify-start">
           <v-col class="d-flex justify-start">
             <div class="mt-3 d-flex flex-column align-center">
@@ -87,8 +99,8 @@
                 class="btn-secondary"
                 :disabled="!selectedAnnouncementIds.length || isArchiving"
                 :loading="isArchiving"
-                @click="archiveAnnouncements(selectedAnnouncementIds)"
                 prepend-icon="mdi-archive"
+                @click="archiveAnnouncements(selectedAnnouncementIds)"
                 >Archive</v-btn
               >
               <small v-if="selectedAnnouncementIds.length">
@@ -134,7 +146,10 @@ import AnnouncementSearchFilters from './announcements/AnnouncementSearchFilters
 import AnnouncementStatusChip from './announcements/AnnouncementStatusChip.vue';
 import AnnouncementActions from './announcements/AnnouncementActions.vue';
 import { useAnnouncementSearchStore } from '../store/modules/announcementSearchStore';
-import { formatDate } from '../utils/date';
+import {
+  formatIsoDateTimeAsLocalDate,
+  formatIsoDateTimeAsLocalTime,
+} from '../utils/date';
 import { AnnouncementKeys } from '../types/announcements';
 import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
