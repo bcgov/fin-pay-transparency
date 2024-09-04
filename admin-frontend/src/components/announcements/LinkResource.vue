@@ -27,7 +27,6 @@
 import { defineProps } from 'vue';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
-
 type LinkResourceProps = {
   text: string;
   url: string;
