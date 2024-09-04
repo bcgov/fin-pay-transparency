@@ -12,16 +12,16 @@ export type Announcement = {
   announcement_resource: AnnouncementResource[];
 };
 export type AnnouncementResource = {
-  announcement_id: string;
+  announcement_id?: string;
   announcement_resource_id: string;
-  created_by: string;
-  created_date: string;
+  created_by?: string;
+  created_date?: string;
   display_name: string;
-  attachment_file_id: string;
+  attachment_file_id?: string;
   resource_type: AnnouncementResourceType;
-  resource_url: string;
-  update_date: string;
-  updated_by: string;
+  resource_url?: string;
+  update_date?: string;
+  updated_by?: string;
   //This property isn't supported on the backend, but is used in the frontend
   //to support AnnouncementResources in which the file hasn't yet been uploaded
   //to the backend.  In this case, the not-yet-uploaded file is saved directly
