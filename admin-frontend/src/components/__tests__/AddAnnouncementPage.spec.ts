@@ -94,8 +94,7 @@ describe('AddAnnouncementPage', () => {
     expect(getByLabelText('Display URL As')).toBeInTheDocument();
   });
   it('should submit the form', async () => {
-    const { getByRole, getByLabelText } =
-      await wrappedRender();
+    const { getByRole, getByLabelText } = await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
     const description = getByLabelText('Description');
@@ -312,6 +311,35 @@ describe('AddAnnouncementPage', () => {
         await waitFor(() => {
           expect(
             getByText('Link display name is required.'),
+          ).toBeInTheDocument();
+        });
+      });
+    });
+    describe('link link url is more than 255 characters', () => {
+      it('should show error message', async () => {
+        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const saveButton = getByRole('button', { name: 'Save' });
+        const title = getByLabelText('Title');
+        const description = getByLabelText('Description');
+        const linkUrl = getByLabelText('Link URL');
+        const displayLinkAs = getByLabelText('Display URL As');
+        await fireEvent.update(title, 'Test Title');
+        await fireEvent.update(description, 'Test Description');
+        const publishOn = getByLabelText('Publish On');
+        const publishDate = formatDate(LocalDate.now());
+        await setDate(publishOn, () => {
+          return getByLabelText(publishDate);
+        });
+        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
+        await fireEvent.update(linkUrl, 'https://' + 'x'.repeat(255));
+        await fireEvent.update(displayLinkAs, 'a');
+        await markAsPublish();
+        await fireEvent.click(saveButton);
+        await waitFor(() => {
+          expect(
+            getByText(
+              'URL max length is 255 characters. Please shorten the URL.',
+            ),
           ).toBeInTheDocument();
         });
       });
