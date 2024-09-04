@@ -35,4 +35,3 @@ type LinkResourceProps = {
 const props = defineProps<LinkResourceProps>();
 const emits = defineEmits(['onEdit', 'onDelete']);
 </script>
-<style scoped></style>
