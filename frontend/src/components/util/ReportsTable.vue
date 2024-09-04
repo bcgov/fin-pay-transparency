@@ -9,13 +9,13 @@
     :loading="isLoading"
     loading-text="Loading reports..."
   >
-    <template v-slot:item="{ item }">
+    <template #item="{ item }">
       <tr>
         <td :data-testid="`reporting_year-${item.report_id}`">
           {{ item.reporting_year }}
         </td>
         <td :data-testid="`report_published_date-${item.report_id}`">
-          {{ formatDateTime(item.create_date) }}
+          {{ formatDateTime(item.update_date) }}
         </td>
         <td class="actions">
           <v-btn
@@ -66,7 +66,7 @@ const headers: any = [
   { title: 'Reporting Year', key: 'reporting_year', sortable: false },
   {
     title: 'Submission Date',
-    key: 'create_date',
+    key: 'update_date',
     sortable: false,
   },
   { title: 'Action', sortable: false, key: 'actions', align: 'end' },

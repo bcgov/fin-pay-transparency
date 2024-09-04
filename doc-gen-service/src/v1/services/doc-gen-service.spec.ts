@@ -120,6 +120,19 @@ describe('generateReport', () => {
       TEST_TIMEOUT_MS,
     );
   });
+  describe('when a pdf report is requested', () => {
+    it(
+      'returns a Buffer object',
+      async () => {
+        const report = await generateReport(
+          REPORT_FORMAT.PDF,
+          submittedReportData as any,
+        );
+        expect(report instanceof Buffer).toBeTruthy();
+      },
+      TEST_TIMEOUT_MS,
+    );
+  });
 });
 
 describe('buildEjsTemplate', () => {
@@ -250,8 +263,8 @@ describe('moveElementInto', () => {
         await puppeteerPage.close();
       }
 
-      expect(childrenOf1.length).toBe(0);
-      expect(childrenOf2.length).toBe(1);
+      expect(childrenOf1).toHaveLength(0);
+      expect(childrenOf2).toHaveLength(1);
     });
   });
 });

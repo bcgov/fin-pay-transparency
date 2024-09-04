@@ -10,6 +10,7 @@ export interface IReport {
   report_end_date: string;
   reporting_year: number;
   create_date: string;
+  update_date: string;
   is_unlocked: boolean;
   naics_code: string;
   report_status: string;
