@@ -1,9 +1,9 @@
-import { expect, describe, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { render, waitFor, fireEvent } from '@testing-library/vue';
-import { createTestingPinia } from '@pinia/testing';
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
+import { createTestingPinia } from '@pinia/testing';
+import { fireEvent, render, waitFor } from '@testing-library/vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -17,17 +17,17 @@ const vuetify = createVuetify({
 const pinia = createTestingPinia();
 const mockRouterPush = vi.fn();
 vi.mock('vue-router', () => ({
-    useRouter: () => ({
-        push: mockRouterPush
-    })
-}))
+  useRouter: () => ({
+    push: mockRouterPush,
+  }),
+}));
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
 const wrappedRender = async () => {
   return render(ReportsTable, {
     global: {
-      plugins: [pinia, vuetify]
+      plugins: [pinia, vuetify],
     },
   });
 };
@@ -55,6 +55,7 @@ describe('ReportsTable', () => {
         report_end_date: '2023-02-01',
         reporting_year: 2023,
         create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
       },
     ]);
     const { getByTestId } = await wrappedRender();
@@ -76,6 +77,7 @@ describe('ReportsTable', () => {
         report_start_date: '2023-01-01',
         report_end_date: '2023-02-01',
         create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
       },
     ]);
     const { getByTestId } = await wrappedRender();
@@ -93,6 +95,7 @@ describe('ReportsTable', () => {
         report_start_date: '2023-01-01',
         report_end_date: '2023-02-01',
         create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
         is_unlocked: true,
       },
     ]);
