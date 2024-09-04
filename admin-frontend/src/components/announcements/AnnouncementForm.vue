@@ -466,7 +466,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
         return 'Invalid URL.';
       }
 
-      if (value.length > 255)
+      if (value && value.length > 255)
         return 'URL max length is 255 characters. Please shorten the URL.';
 
       return true;

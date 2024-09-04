@@ -79,4 +79,13 @@ describe('AnnouncementItem - Vue Test Utils tests', () => {
       });
     });
   });
+
+  describe('Link Url', () => {
+    it('should display the length and max length even if it is too long', async () => {
+      const longUrl = 'http://' + 'x'.repeat(255);
+      const test = wrapper.findComponent({ ref: 'linkUrlRef' });
+      await test.setValue(longUrl);
+      expect(test.html()).toContain('>262/255<');
+    });
+  });
 });
