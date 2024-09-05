@@ -1,4 +1,4 @@
-import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
+import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { admin_user_onboarding } from '@prisma/client';
 import { config } from '../../config';
 import {
@@ -37,12 +37,12 @@ const createInvite = async (
     where: {
       email: email,
       is_onboarded: false,
-      expiry_date: { lte: convert(LocalDateTime.now(ZoneId.UTC)).toDate() },
+      expiry_date: { lte: convert(ZonedDateTime.now(ZoneId.UTC)).toDate() },
     },
   });
 
   const expiryDate = convert(
-    LocalDateTime.now(ZoneId.UTC).plusHours(
+    ZonedDateTime.now(ZoneId.UTC).plusHours(
       config.get('server:adminInvitationDurationInHours'),
     ),
   ).toDate();
@@ -93,7 +93,7 @@ const resendInvite = async (invitationId: string) => {
   );
 
   const expiryDate = convert(
-    LocalDateTime.now(ZoneId.UTC).plusHours(
+    ZonedDateTime.now(ZoneId.UTC).plusHours(
       config.get('server:adminInvitationDurationInHours'),
     ),
   ).toDate();

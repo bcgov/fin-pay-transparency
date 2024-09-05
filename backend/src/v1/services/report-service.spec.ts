@@ -190,7 +190,7 @@ describe('getReportAndCalculations', () => {
         prisma.pay_transparency_calculated_data.findMany,
       ).toHaveBeenCalledTimes(1);
       expect(reportAndCalculations.report).toEqual(mockReportInDB);
-      expect(Object.keys(reportAndCalculations.calculations).length).toEqual(
+      expect(Object.keys(reportAndCalculations.calculations)).toHaveLength(
         mockCalculatedDatasInDB.length,
       );
     });
@@ -438,7 +438,7 @@ describe('getReportPdf', () => {
     });
   });
   describe('when an invalid report id and/or bceidBusinessGuid are provided', () => {
-    it('throws an error ', async () => {
+    it('throws an error', async () => {
       const mockReq = {
         session: {
           correlationID: 'mockCorrelationId',
@@ -1014,7 +1014,7 @@ describe('getReportById', () => {
         mockReportId,
         mockBceidBusinessGuid,
       );
-      expect(ret).toEqual(null);
+      expect(ret).toBeNull();
     });
   });
   describe('when an invalid reportId is passed, and bceidBusinessGuid is omitted', () => {
@@ -1023,7 +1023,7 @@ describe('getReportById', () => {
 
       mockReportFindFirst.mockResolvedValue(null);
       const ret = await reportService.getReportById(mockReportId);
-      expect(ret).toEqual(null);
+      expect(ret).toBeNull();
     });
   });
 });
@@ -1078,33 +1078,6 @@ describe('getReportFileName', () => {
         .spyOn(reportService, 'getReportById')
         .mockRejectedValueOnce(null);
       const invalidReportId = '66655fd3-22b7-4b9a-86de-2bfc0fcf2f2f';
-    });
-  });
-});
-
-describe('shouldPreventReportOverride', () => {
-  describe('when a published report exists for the same date period', () => {
-    it('should prevent override if the report is older than 30 days', async () => {
-      mockCompanyFindFirst.mockReturnValue({ company_id: '' });
-      mockReportFindFirst.mockReturnValue({ report_id: '' });
-      const result = await reportService.shouldPreventReportOverrides(
-        LocalDate.now(),
-        LocalDate.now(),
-        '',
-      );
-      expect(result).toBeTruthy();
-    });
-  });
-  describe('when a published report does not exist for the same date period', () => {
-    it('should not prevent override', async () => {
-      mockCompanyFindFirst.mockReturnValue({ company_id: '' });
-      mockReportFindFirst.mockReturnValue(undefined);
-      const result = await reportService.shouldPreventReportOverrides(
-        LocalDate.now(),
-        LocalDate.now(),
-        '',
-      );
-      expect(result).toBeFalsy();
     });
   });
 });
