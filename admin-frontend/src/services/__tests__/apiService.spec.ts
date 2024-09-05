@@ -527,6 +527,34 @@ describe('ApiService', () => {
     });
   });
 
+  describe('getAnnouncement', () => {
+    it('returns an announcement', async () => {
+      const mockBackendResponse = { title: 'test' };
+      const mockAxiosResponse = {
+        data: mockBackendResponse,
+      };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+
+      const resp = await ApiService.getAnnouncement('1');
+      expect(resp).toEqual(mockBackendResponse);
+    });
+
+    describe('when the data are not successfully retrieved from the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        await expect(ApiService.getAnnouncement('1')).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
+    });
+  });
+
   describe('clamavScanFile', () => {
     describe('when the given file is valid', () => {
       it('returns a response', async () => {

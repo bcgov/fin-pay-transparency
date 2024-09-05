@@ -53,12 +53,13 @@ import { useAnnouncementSelectionStore } from '../../store/modules/announcementS
 import { ref } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import { useRouter } from 'vue-router';
+import { Announcement } from '../../types/announcements';
 
 const router = useRouter();
 
 const announcementSelectionStore = useAnnouncementSelectionStore();
-const { announcement } = defineProps<{
-  announcement: any;
+const props = defineProps<{
+  announcement: Announcement;
 }>();
 
 const announcementSearchStore = useAnnouncementSearchStore();
@@ -116,8 +117,18 @@ async function unpublishAnnouncement(announcementId: string) {
   }
 }
 
-const editAnnouncement = () => {
-  announcementSelectionStore.setAnnouncement(announcement);
-  router.push('/edit-announcement');
+const editAnnouncement = async () => {
+  const { announcement_id } = props.announcement;
+  try {
+    const announcement = await ApiService.getAnnouncement(announcement_id);
+    announcementSelectionStore.setAnnouncement(announcement);
+    router.push(`/edit-announcement`);
+  } catch (e) {
+    console.error(e);
+    NotificationService.pushNotificationError(
+      'Error',
+      'An error occurred while trying to load the announcement.',
+    );
+  }
 };
 </script>

@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import ApiService from '../../../services/apiService';
+import { NotificationService } from '../../../services/notificationService';
 import { Announcement } from '../../../types/announcements';
 import AnnouncementActions from '../AnnouncementActions.vue';
 
@@ -140,6 +141,38 @@ describe('AnnouncementActions', () => {
         await wrapper.vm.unpublishAnnouncement(announcementId);
 
         expect(apiSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+  });
+
+  describe('edit announcement', () => {
+    it('sets the announcement to edit mode', async () => {
+      const apiSpy = vi
+        .spyOn(ApiService, 'getAnnouncement')
+        .mockImplementation(() => {
+          return Promise.resolve(mockDraftAnnouncement as any);
+        });
+      await wrapper.vm.editAnnouncement();
+
+      expect(apiSpy).toHaveBeenCalledWith(
+        mockDraftAnnouncement.announcement_id,
+      );
+    });
+
+    describe('when the announcement is not successfully retrieved', () => {
+      it('shows an error message', async () => {
+        vi.spyOn(ApiService, 'getAnnouncement').mockImplementation(() => {
+          return Promise.reject();
+        });
+
+        const errorSnackbarSpy = vi.spyOn(
+          NotificationService,
+          'pushNotificationError',
+        );
+
+        await wrapper.vm.editAnnouncement();
+
+        expect(errorSnackbarSpy).toHaveBeenCalled();
       });
     });
   });

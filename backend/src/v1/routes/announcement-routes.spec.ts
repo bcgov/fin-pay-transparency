@@ -14,6 +14,7 @@ const mockGetAnnouncements = jest.fn().mockResolvedValue({
 const mockPatchAnnouncements = jest.fn();
 const mockCreateAnnouncement = jest.fn();
 const mockUpdateAnnouncement = jest.fn();
+const mockGetAnnouncementById = jest.fn();
 jest.mock('../services/announcements-service', () => ({
   getAnnouncements: (...args) => {
     return mockGetAnnouncements(...args);
@@ -21,6 +22,7 @@ jest.mock('../services/announcements-service', () => ({
   patchAnnouncements: (...args) => mockPatchAnnouncements(...args),
   createAnnouncement: (...args) => mockCreateAnnouncement(...args),
   updateAnnouncement: (...args) => mockUpdateAnnouncement(...args),
+  getAnnouncementById: (...args) => mockGetAnnouncementById(...args),
 }));
 
 jest.mock('../middlewares/authorization/authenticate-admin', () => ({
@@ -431,4 +433,22 @@ describe('announcement-routes', () => {
       });
     });
   });
+
+  describe('GET /:id - get announcement by id', () => {
+    it('should return 200', async () => {
+      const response = await request(app).get('/123');
+      expect(response.status).toBe(200);
+      expect(mockGetAnnouncementById).toHaveBeenCalledWith("123");
+    });
+
+    describe('when service throws error', () => {
+      it('should return 400', async () => {
+        mockGetAnnouncementById.mockRejectedValue(new Error('Invalid request'));
+        const response = await request(app).get('/123');
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBeDefined();
+      });
+    });
+  })
 });

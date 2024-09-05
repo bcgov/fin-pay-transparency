@@ -45,6 +45,7 @@ jest.mock('../prisma/prisma-client', () => ({
       count: jest.fn().mockResolvedValue(2),
       updateMany: (...args) => mockUpdateMany(...args),
       create: (...args) => mockCreateAnnouncement(...args),
+      findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
     },
     announcement_history: {
       create: (...args) => mockHistoryCreate(...args),
@@ -832,7 +833,7 @@ describe('AnnouncementsService', () => {
       });
     });
 
-    it('should default to undefined dates', async () => {
+    it('should default to null dates', async () => {
       mockFindUniqueOrThrow.mockResolvedValue({
         id: 'announcement-id',
         announcement_resource: [],
@@ -855,8 +856,8 @@ describe('AnnouncementsService', () => {
         expect.objectContaining({
           where: { announcement_id: 'announcement-id' },
           data: expect.objectContaining({
-            expires_on: undefined,
-            published_on: undefined,
+            expires_on: null,
+            published_on: null,
           }),
         }),
       );
@@ -909,6 +910,16 @@ describe('AnnouncementsService', () => {
           },
           status: AnnouncementStatus.Published,
         },
+      });
+    });
+  });
+
+  describe('getAnnouncementById', () => {
+    it('should return announcement by id', async () => {
+      await AnnouncementService.getAnnouncementById('1');
+      expect(mockFindUniqueOrThrow).toHaveBeenCalledWith({
+        where: { announcement_id: '1' },
+        include: { announcement_resource: true },
       });
     });
   });
