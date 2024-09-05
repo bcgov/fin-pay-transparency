@@ -27,9 +27,9 @@
         <v-btn
           class="btn-primary"
           prepend-icon="mdi-export"
-          @click="exportResults()"
           :disabled="!searchResults?.length || isDownloadingCsv"
           :loading="isDownloadingCsv"
+          @click="exportResults()"
         >
           Export results (CSV)
         </v-btn>
@@ -49,10 +49,10 @@
       "
       @update:options="updateSearch"
     >
-      <template v-slot:item.update_date="{ item }">
+      <template #item.update_date="{ item }">
         {{ formatDate(item.update_date) }}
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template #item.actions="{ item }">
         <v-btn
           aria-label="Open Report"
           density="compact"
@@ -93,6 +93,7 @@ import { ReportKeys } from '../types/reports';
 import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { formatDate } from '../utils/date';
+import { NotificationService } from '../services/notificationService';
 
 const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
@@ -109,7 +110,7 @@ const confirmDialog = ref<typeof ConfirmationDialog>();
 const itemsPerPageOptions = ref([
   { value: 10, title: '10' },
   { value: 25, title: '25' },
-  { value: 50, title: '50' }
+  { value: 50, title: '50' },
 ]);
 
 const headers = ref<any>([
@@ -187,7 +188,9 @@ async function viewReportInNewTab(reportId: string) {
     window.open(objectUrl);
   } catch (e) {
     console.log(e);
-    //Todo: show a Snackbar notification describing the error
+    NotificationService.pushNotificationError(
+      'Something went wrong.  Unable to download report.',
+    );
   }
   clearReportDownloadInProgress(reportId);
 }
