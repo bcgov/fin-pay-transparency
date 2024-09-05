@@ -11,8 +11,8 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "announcement_resource":"elipses":w -> "admin_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "announcement_resource":"elipses":w -> "admin_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "announcement_resource_history":"elipses":w -> "announcement_history":"announcement_history_id":e [arrowhead=none dir=back arrowtail=crowodot];
-  "announcement_resource_history":"elipses":w -> "announcement":"announcement_id":e [arrowhead=none dir=back arrowtail=crowodot];
-  "announcement_resource_history":"elipses":w -> "announcement_resource":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "announcement_resource_history":"elipses":w -> "announcement":"announcement_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "announcement_resource_history":"elipses":w -> "announcement_resource":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "announcement_resource_history":"elipses":w -> "admin_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "announcement_resource_history":"elipses":w -> "admin_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "admin_user" [

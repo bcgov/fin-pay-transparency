@@ -72,7 +72,7 @@
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="announcement_id" nullable="false" remarks="Unique identifier/Primary key for an announcement" size="2147483647" type="uuid" typeCode="1111">
             <child column="announcement_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement_history"/>
             <child column="announcement_id" foreignKey="announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
-            <child column="announcement_id" foreignKey="announcement_resource_history_announcement_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
+            <child column="announcement_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="title" nullable="false" remarks="Title of the announcement" size="100" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="false" remarks="Description of the announcement" size="2000" type="varchar" typeCode="12"/>
@@ -137,7 +137,7 @@
       </table>
       <table name="announcement_resource" remarks="To track resources(links or attachments) associated with an announcement" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="announcement_resource_id" nullable="false" remarks="Unique identifier/Primary key for an announcement resource" size="2147483647" type="uuid" typeCode="1111">
-            <child column="announcement_resource_id" foreignKey="announcement_resource_history_announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
+            <child column="announcement_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="announcement_id" nullable="false" remarks="The ID of the announcement to which the resource is associated" size="2147483647" type="uuid" typeCode="1111">
             <parent column="announcement_id" foreignKey="announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
@@ -167,10 +167,10 @@
       <table name="announcement_resource_history" remarks="Announcement resource history is updated whenever there is change in any record of an announcement resource." schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="announcement_resource_history_id" nullable="false" remarks="Unique identifier/Primary key for an announcement resource history record" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="announcement_resource_id" nullable="true" remarks="The ID of the original announcement resource" size="2147483647" type="uuid" typeCode="1111">
-            <parent column="announcement_resource_id" foreignKey="announcement_resource_history_announcement_resource_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
+            <parent column="announcement_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="announcement_id" nullable="false" remarks="The ID of the announcement to which the resource is associated" size="2147483647" type="uuid" typeCode="1111">
-            <parent column="announcement_id" foreignKey="announcement_resource_history_announcement_fk" implied="false" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
+            <parent column="announcement_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="display_name" nullable="false" remarks="Display name of the resource" size="100" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="resource_url" nullable="true" remarks="URL of the resource" size="255" type="varchar" typeCode="12"/>

@@ -8,7 +8,7 @@ digraph "oneDegreeRelationshipsDiagramImplied" {
   "announcement_history":"status":w -> "announcement_status":"code":e [arrowhead=none dir=back arrowtail=crowodot];
   "announcement_history":"updated_by":w -> "admin_user":"admin_user_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "announcement_resource_history":"announcement_history_id":w -> "announcement_history":"announcement_history_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
-  "announcement_resource_history":"announcement_id":w -> "announcement":"announcement_id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "announcement_resource_history":"announcement_id":w -> "announcement":"announcement_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "announcement_resource_history":"created_by":w -> "admin_user":"admin_user_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "announcement_resource_history":"updated_by":w -> "admin_user":"admin_user_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "admin_user" [
