@@ -87,7 +87,7 @@ describe('AddAnnouncementPage', () => {
     expect(getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(getByLabelText('Title')).toBeInTheDocument();
     expect(getByLabelText('Description')).toBeInTheDocument();
-    expect(getByLabelText('Publish On')).toBeInTheDocument();
+    expect(getByLabelText('Active On')).toBeInTheDocument();
     expect(getByLabelText('Expires On')).toBeInTheDocument();
     expect(getByRole('checkbox', { name: 'No expiry' })).toBeInTheDocument();
     expect(getByLabelText('Link URL')).toBeInTheDocument();
@@ -102,7 +102,7 @@ describe('AddAnnouncementPage', () => {
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
-    const publishOn = getByLabelText('Publish On');
+    const publishOn = getByLabelText('Active On');
     const publishDate = formatDate(LocalDate.now());
     await setDate(publishOn, () => {
       return getByLabelText(publishDate);
@@ -174,7 +174,7 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.update(description, 'Test Description');
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
-      const publishOn = getByLabelText('Publish On');
+      const publishOn = getByLabelText('Active On');
       const publishDate = formatDate(LocalDate.now());
       await setDate(publishOn, () => {
         return getByLabelText(publishDate);
@@ -197,7 +197,7 @@ describe('AddAnnouncementPage', () => {
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
-    const publishOn = getByLabelText('Publish On');
+    const publishOn = getByLabelText('Active On');
     const publishDate = formatDate(LocalDate.now());
     await setDate(publishOn, () => {
       return getByLabelText(publishDate);
@@ -298,7 +298,7 @@ describe('AddAnnouncementPage', () => {
         const linkUrl = getByLabelText('Link URL');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Publish On');
+        const publishOn = getByLabelText('Active On');
         const publishDate = formatDate(LocalDate.now());
         await setDate(publishOn, () => {
           return getByLabelText(publishDate);
@@ -325,7 +325,7 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Publish On');
+        const publishOn = getByLabelText('Active On');
         const publishDate = formatDate(LocalDate.now());
         await setDate(publishOn, () => {
           return getByLabelText(publishDate);
@@ -357,7 +357,7 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Publish On');
+        const publishOn = getByLabelText('Active On');
         const publishDate = formatDate(LocalDate.now());
         await setDate(publishOn, () => {
           return getByLabelText(publishDate);
@@ -384,7 +384,7 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Publish On');
+        const publishOn = getByLabelText('Active On');
         const publishDate = formatDate(LocalDate.now());
         await setDate(publishOn, () => {
           return getByLabelText(publishDate);
@@ -412,7 +412,7 @@ describe('AddAnnouncementPage', () => {
         const fileName = getByLabelText('Display File Link As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Publish On');
+        const publishOn = getByLabelText('Active On');
         const publishDate = formatDate(LocalDate.now());
         await setDate(publishOn, () => {
           return getByLabelText(publishDate);
@@ -440,7 +440,7 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Publish On');
+        const publishOn = getByLabelText('Active On');
         const publishDate = formatDate(LocalDate.now());
         await setDate(publishOn, () => {
           return getByLabelText(publishDate);
@@ -531,7 +531,7 @@ describe('AddAnnouncementPage', () => {
       const displayLinkAs = getByLabelText('Display URL As');
       await fireEvent.update(title, 'Test Title');
       await fireEvent.update(description, 'Test Description');
-      const publishOn = getByLabelText('Publish On');
+      const publishOn = getByLabelText('Active On');
       const publishDate = formatDate(LocalDate.now());
       await setDate(publishOn, () => {
         return getByLabelText(publishDate);
