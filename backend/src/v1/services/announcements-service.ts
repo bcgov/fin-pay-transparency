@@ -148,6 +148,22 @@ export const getAnnouncements = async (
 };
 
 /**
+ * Get announcement by id
+ * @param id
+ * @returns
+ */
+export const getAnnouncementById = async (id: string): Promise<announcement> => {
+  return prisma.announcement.findUniqueOrThrow({
+    where: {
+      announcement_id: id,
+    },
+    include: {
+      announcement_resource: true,
+    },
+  });
+}
+
+/**
  * Patch announcements by ids.
  * This method also copies the original record into the announcement history table.
  * @param data - array of objects with format:
@@ -411,8 +427,8 @@ export const updateAnnouncement = async (
       },
       published_on: !isEmpty(input.published_on)
         ? input.published_on
-        : undefined,
-      expires_on: !isEmpty(input.expires_on) ? input.expires_on : undefined,
+        : null,
+      expires_on: !isEmpty(input.expires_on) ? input.expires_on : null,
       admin_user_announcement_updated_byToadmin_user: {
         connect: { admin_user_id: currentUserId },
       },
