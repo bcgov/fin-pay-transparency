@@ -145,6 +145,7 @@
                   <v-col cols="6" class="d-flex align-center">
                     <VueDatePicker
                       v-model="expiresOn"
+                      :state="errors.expires_on == null ? undefined : false"
                       :aria-labels="{ input: 'Expires On' }"
                       format="yyyy-MM-dd hh:mm a"
                       :enable-time-picker="true"
