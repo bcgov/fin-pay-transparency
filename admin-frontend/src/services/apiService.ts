@@ -7,6 +7,7 @@ import {
   UserInvite,
 } from '../types';
 import {
+  Announcement,
   AnnouncementFilterType,
   AnnouncementFormValue,
   AnnouncementSortType,
@@ -333,6 +334,25 @@ export default {
       throw new Error('Unexpected response from API.');
     } catch (e) {
       console.log(`Failed to unpublish announcement: ${e}`);
+      throw e;
+    }
+  },
+
+  async getAnnouncement(id: string) {
+    try {
+      const { data } = await apiAxios.get<
+        Announcement & {
+          announcement_resource: {
+            resource_type: string;
+            display_name: string;
+            resource_url: string;
+            attachment_file_id: string;
+          }[];
+        }
+      >(`${ApiRoutes.ANNOUNCEMENTS}/${id}`);
+      return data;
+    } catch (e) {
+      console.log(`Failed to get announcement from API - ${e}`);
       throw e;
     }
   },
