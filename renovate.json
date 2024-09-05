@@ -52,6 +52,11 @@
       "description": "JS - puppeteer",
       "groupName": "puppeteer",
       "matchPackagePatterns": ["puppeteer"]
+    },
+    {
+      "description": "JS - group microsoft",
+      "groupName": "microsoft",
+      "matchPackagePatterns": ["msal-node"]
     }
   ],
   "lockFileMaintenance": { "enabled": true },
