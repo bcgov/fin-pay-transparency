@@ -18,6 +18,7 @@
 import { authStore } from '../store/modules/auth';
 import { AuthRoutes } from '../utils/constant';
 import { sanitizeUrl } from '@braintree/sanitize-url';
+import AuthLayout from './util/AuthLayout.vue';
 
 const authRoutesLogin = sanitizeUrl(AuthRoutes.LOGIN_AZUREIDIR);
 
