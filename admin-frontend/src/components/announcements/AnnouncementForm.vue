@@ -495,7 +495,6 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
       return true;
     },
     expires_on(value) {
-      debugger
       if (!value) {
         return true;
       }
