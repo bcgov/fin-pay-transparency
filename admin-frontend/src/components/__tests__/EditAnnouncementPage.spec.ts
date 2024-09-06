@@ -8,6 +8,7 @@ import * as directives from 'vuetify/directives';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
 import { AnnouncementResourceType } from '../../types/announcements';
+import { convert, LocalDate } from '@js-joda/core';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -124,6 +125,39 @@ describe('EditAnnouncementPage', () => {
       });
     });
 
+    describe('when expires_on is in the past', () => {
+      it('should show error message', async () => {
+        store.setAnnouncement({
+          announcement_id: '1',
+          title: 'title',
+          description: 'description',
+          published_on: new Date(),
+          expires_on: convert(LocalDate.now().minusDays(1)).toDate(),
+          status: 'PUBLISHED',
+          announcement_resource: [
+            {
+              resource_type: 'LINK',
+              display_name: 'link',
+              resource_url: 'https://example.com',
+            },
+          ],
+        } as any);
+        const { getByText, getByLabelText, getByRole } = await wrappedRender();
+        expect(getByLabelText('Publish')).toBeChecked();
+        expect(getByLabelText('Title')).toHaveValue('title');
+        expect(getByLabelText('Description')).toHaveValue('description');
+        const saveButton = getByRole('button', { name: 'Save' });
+        await fireEvent.click(saveButton);
+        await waitFor(() => {
+          expect(
+            getByText(
+              'Expires On date cannot be in the past. Please choose another date.',
+            ),
+          ).toBeVisible();
+        });
+      });
+    });
+
     describe('when announcement is updated', () => {
       it('should show success notification', async () => {
         store.setAnnouncement({
@@ -144,7 +178,7 @@ describe('EditAnnouncementPage', () => {
         expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
-        
+
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
         const saveButton = getByRole('button', { name: 'Save' });

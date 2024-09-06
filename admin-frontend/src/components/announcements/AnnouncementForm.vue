@@ -103,7 +103,7 @@
                         'text-error': errors.published_on != null,
                       }"
                     >
-                      Publish On
+                      Active On
                     </p>
                   </v-col>
                   <v-col cols="6">
@@ -114,7 +114,8 @@
                       :enable-time-picker="true"
                       arrow-navigation
                       auto-apply
-                      :aria-labels="{ input: 'Publish On' }"
+                      :disabled="announcement?.status === 'PUBLISHED'"
+                      :aria-labels="{ input: 'Active On' }"
                     >
                       <template #day="{ day, date }">
                         <span :aria-label="formatDate(date)">
@@ -489,6 +490,19 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     published_on(value) {
       if (!value && status.value === 'PUBLISHED') {
         return 'Publish date is required.';
+      }
+
+      return true;
+    },
+    expires_on(value) {
+      debugger
+      if (!value) {
+        return true;
+      }
+
+      const expiryDate = LocalDate.from(nativeJs(value));
+      if (expiryDate.isBefore(LocalDate.now())) {
+        return 'Expires On date cannot be in the past. Please choose another date.';
       }
 
       return true;
