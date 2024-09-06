@@ -37,7 +37,6 @@ const { announcement } = storeToRefs(selectionStore);
 const submit = async (data: AnnouncementFormValue) => {
   try {
     isProcessing.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 2000));
     await selectionStore.saveChanges(data);
     NotificationService.pushNotificationSuccess(
       'Announcement saved successfully',

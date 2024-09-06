@@ -174,7 +174,7 @@ describe('EditAnnouncementPage', () => {
             },
           ],
         } as any);
-        const { getByRole, getByLabelText } = await wrappedRender();
+        const { queryByRole, getByRole, getByLabelText } = await wrappedRender();
         expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
@@ -186,6 +186,10 @@ describe('EditAnnouncementPage', () => {
         await waitFor(async () => {
           const confirmButton = getByRole('button', { name: 'Confirm' });
           await fireEvent.click(confirmButton);
+        });
+        await waitFor(() => {
+          const confirmButton = queryByRole('button', { name: 'Confirm' }); 
+          expect(confirmButton).toBeNull();
         });
         await waitFor(() => {
           expect(mockUpdateAnnouncement).toHaveBeenCalled();
