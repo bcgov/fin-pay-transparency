@@ -183,6 +183,10 @@ describe('EditAnnouncementPage', () => {
         await fireEvent.click(noExpiry);
         const saveButton = getByRole('button', { name: 'Save' });
         await fireEvent.click(saveButton);
+        await waitFor(async () => {
+          const confirmButton = getByRole('button', { name: 'Confirm' });
+          await fireEvent.click(confirmButton);
+        });
         await waitFor(() => {
           expect(mockUpdateAnnouncement).toHaveBeenCalled();
           expect(mockSuccess).toHaveBeenCalled();
@@ -440,6 +444,10 @@ describe('EditAnnouncementPage', () => {
         const saveButton = getByRole('button', { name: 'Save' });
 
         await fireEvent.click(saveButton);
+        await waitFor(async () => {
+          const confirmButton = getByRole('button', { name: 'Confirm' });
+          await fireEvent.click(confirmButton);
+        });
         await waitFor(() => {
           expect(mockUpdateAnnouncement).toHaveBeenCalled();
           expect(mockError).toHaveBeenCalled();

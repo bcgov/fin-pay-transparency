@@ -113,13 +113,10 @@ describe('AddAnnouncementPage', () => {
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await markAsPublish();
     await fireEvent.click(saveButton);
-    await waitFor(() => {
-      expect(
-        screen.getByText('Are you sure you want to publish this announcement?'),
-      ).toBeInTheDocument();
+    await waitFor(async () => {
+      const confirmButton = getByRole('button', { name: 'Confirm' });
+      await fireEvent.click(confirmButton);
     });
-    const continueButton = screen.getByRole('button', { name: 'Confirm' });
-    await fireEvent.click(continueButton);
     await waitFor(() => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -147,6 +144,10 @@ describe('AddAnnouncementPage', () => {
     await fireEvent.update(linkUrl, 'https://example.com');
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await fireEvent.click(saveButton);
+    await waitFor(async () => {
+      const confirmButton = getByRole('button', { name: 'Confirm' });
+      await fireEvent.click(confirmButton);
+    });
 
     await waitFor(() => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
@@ -208,13 +209,10 @@ describe('AddAnnouncementPage', () => {
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await markAsPublish();
     await fireEvent.click(saveButton);
-    await waitFor(() => {
-      expect(
-        screen.getByText('Are you sure you want to publish this announcement?'),
-      ).toBeInTheDocument();
+    await waitFor(async () => {
+      const cancelButton = getByRole('button', { name: 'Cancel' });
+      await fireEvent.click(cancelButton);
     });
-    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-    await fireEvent.click(cancelButton);
     await waitFor(() => {
       expect(mockAddAnnouncement).not.toHaveBeenCalled();
     });
@@ -542,15 +540,11 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.update(displayLinkAs, 'Example.pdf');
       await markAsPublish();
       await fireEvent.click(saveButton);
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            'Are you sure you want to publish this announcement?',
-          ),
-        ).toBeInTheDocument();
+
+      await waitFor(async () => {
+        const confirmButton = getByRole('button', { name: 'Confirm' });
+        await fireEvent.click(confirmButton);
       });
-      const continueButton = screen.getByRole('button', { name: 'Confirm' });
-      await fireEvent.click(continueButton);
       await waitFor(() => {
         expect(mockError).toHaveBeenCalled();
       });
