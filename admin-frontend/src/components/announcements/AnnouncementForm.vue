@@ -364,11 +364,7 @@
       </p>
     </template>
   </ConfirmationDialog>
-  <ConfirmationDialog ref="publishConfirmationDialog">
-    <template #message>
-      <p>Are you sure you want to publish this announcement?</p>
-    </template>
-  </ConfirmationDialog>
+  <ConfirmationDialog ref="publishConfirmationDialog"> </ConfirmationDialog>
 </template>
 
 <script lang="ts" setup>
@@ -402,6 +398,7 @@ import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import type { VTextField } from 'vuetify/components';
+import { LocalDateTime } from '@js-joda/core';
 
 // References to component's exported properties
 const announcementTitleRef = ref<VTextField | null>(null);
@@ -765,15 +762,44 @@ const handleSave = handleSubmit(async (values) => {
     return true;
   }
 
-  if (
-    status.value === 'PUBLISHED' &&
-    (mode === AnnouncementFormMode.CREATE ||
-      announcement?.status !== 'PUBLISHED')
-  ) {
+  let confirmationSettings;
+
+  if (values.status === 'DRAFT') {
+    confirmationSettings = {
+      title: 'Confirm Draft',
+      message:
+        'Do you want to save the announcement as a draft? It will not be published to the public site. Do you want to continue?',
+    };
+  } else {
+    if (
+      mode === AnnouncementFormMode.CREATE ||
+      announcement?.status !== 'PUBLISHED'
+    ) {
+      const publishDate = LocalDateTime.from(nativeJs(values.published_on));
+      const publishDateString = publishDate.format(
+        DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(Locale.CANADA),
+      );
+      const publishTimeString = publishDate.format(
+        DateTimeFormatter.ofPattern('hh:mm a').withLocale(Locale.CANADA),
+      );
+      confirmationSettings = {
+        title: 'Confirm Publish',
+        message: `This announcement will be published to the public site on ${publishDateString} at ${publishTimeString}. Do you want to continue?`,
+      };
+    } else {
+      confirmationSettings = {
+        title: 'Confirm Update',
+        message:
+          'This published message will be updated on the public site with the changes you’ve made. Do you want to continue?',
+      };
+    }
+  }
+
+  if (confirmationSettings) {
     isConfirmDialogVisible.value = true;
     const confirmation = await publishConfirmationDialog.value?.open(
-      'Confirm Publish',
-      undefined,
+      confirmationSettings.title,
+      confirmationSettings.message,
       {
         titleBold: true,
         resolveText: 'Confirm',
