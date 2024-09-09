@@ -7,7 +7,7 @@
           prepend-inner-icon="mdi-magnify"
           density="compact"
           label="Search by title"
-          variant="outlined"
+          variant="solo"
           hide-details
           :single-line="true"
           @keyup.enter="searchAnnouncements()"
@@ -96,7 +96,7 @@
           :persistent-placeholder="true"
           multiple
           placeholder="All"
-          variant="outlined"
+          variant="solo"
           density="compact"
         >
           <template v-slot:item="{ props, item }">

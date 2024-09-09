@@ -67,7 +67,6 @@
                 single-line
                 label="Title"
                 placeholder="Title"
-                variant="outlined"
                 counter
                 maxlength="100"
                 :error-messages="errors.title"
@@ -87,10 +86,10 @@
                 ref="announcementDescriptionRef"
                 v-model="announcementDescription"
                 single-line
-                variant="outlined"
                 label="Description"
                 placeholder="Description"
                 maxlength="2000"
+                variant="solo"
                 counter
                 rows="3"
                 :error-messages="errors.description"
@@ -115,6 +114,7 @@
                     :enable-time-picker="true"
                     arrow-navigation
                     auto-apply
+                    class="large"
                     :disabled="announcement?.status === 'PUBLISHED'"
                     :aria-labels="{ input: 'Active On' }"
                   >
@@ -148,6 +148,7 @@
                     format="yyyy-MM-dd hh:mm a"
                     :enable-time-picker="true"
                     arrow-navigation
+                    class="large"
                     auto-apply
                     prevent-min-max-navigation
                     :disabled="noExpiry"
@@ -191,7 +192,6 @@
                     ref="linkUrlRef"
                     v-model="linkUrl"
                     single-line
-                    variant="outlined"
                     placeholder="https://example.com"
                     label="https://example.com"
                     aria-label="Link URL"
@@ -221,7 +221,7 @@
                     ref="linkDisplayNameRef"
                     v-model="linkDisplayName"
                     single-line
-                    variant="filled"
+                    variant="solo-filled"
                     placeholder="eg. Pay Transparency in B.C."
                     label="eg. Pay Transparency in B.C."
                     aria-label="Display URL As"
@@ -273,7 +273,6 @@
                     ref="fileDisplayNameRef"
                     v-model="fileDisplayName"
                     single-line
-                    variant="outlined"
                     placeholder="eg. Updated Pay Transparency Guidance Document"
                     label="eg. Updated Pay Transparency Guidance Document"
                     aria-label="Display File Link As"
@@ -296,7 +295,7 @@
                     single-line
                     label="Attachment"
                     class="attachment"
-                    variant="outlined"
+                    variant="solo"
                     :error-messages="errors.attachment"
                   >
                     <template #prepend-inner>
