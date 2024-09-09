@@ -1,361 +1,360 @@
 <template>
-  <v-row dense class="mt-0 w-100 mb-4">
-    <v-col class="py-0 px-0">
-      <div class="toolbar">
-        <h1>{{ title }}</h1>
-        <span class="fill-remaining-space"></span>
+  <v-container fluid class="pa-0">
+    <div class="toolbar mr-4">
+      <h1>{{ title }}</h1>
+      <div class="flex-fill"></div>
+      <div>
+        <v-radio-group v-model="status" inline class="d-flex">
+          <div class="align-self-center">Save as:</div>
+          <v-radio
+            v-if="
+              !(
+                mode === AnnouncementFormMode.EDIT &&
+                announcement?.status === 'PUBLISHED'
+              )
+            "
+            label="Draft"
+            value="DRAFT"
+            class="mr-2"
+          >
+            <template #label>
+              <AnnouncementStatusChip
+                :status="AnnouncementStatus.Draft"
+              ></AnnouncementStatusChip>
+            </template>
+          </v-radio>
+          <v-radio value="PUBLISHED" label="Publish">
+            <template #label>
+              <AnnouncementStatusChip
+                :status="AnnouncementStatus.Published"
+              ></AnnouncementStatusChip>
+            </template>
+          </v-radio>
+        </v-radio-group>
+      </div>
+
+      <div class="ml-0">
         <v-btn
           v-if="!isConfirmDialogVisible"
           variant="outlined"
           color="primary"
-          class="mr-2"
+          class="mr-3"
           @click="handleCancel"
-          >Cancel</v-btn
         >
-
-        <div class="d-flex flex-row align-center">
-          <div class="mr-2">Save as:</div>
-          <v-radio-group v-model="status" inline class="status-options mr-2">
-            <v-radio
-              v-if="
-                !(
-                  mode === AnnouncementFormMode.EDIT &&
-                  announcement?.status === 'PUBLISHED'
-                )
-              "
-              label="Draft"
-              value="DRAFT"
-              class="mr-2"
-            >
-              <template #label>
-                <AnnouncementStatusChip
-                  :status="AnnouncementStatus.Draft"
-                ></AnnouncementStatusChip>
-              </template>
-            </v-radio>
-            <v-radio value="PUBLISHED" label="Publish">
-              <template #label>
-                <AnnouncementStatusChip
-                  :status="AnnouncementStatus.Published"
-                ></AnnouncementStatusChip>
-              </template>
-            </v-radio>
-          </v-radio-group>
-          <v-btn color="primary" class="ml-2" @click="handleSave()">Save</v-btn>
-        </div>
+          Cancel
+        </v-btn>
+        <v-btn color="primary" @click="handleSave()">Save</v-btn>
       </div>
+    </div>
 
-      <v-row dense class="extend-to-right-edge border-t">
-        <v-col sm="6" md="7" lg="7" xl="8" class="px-0">
-          <div class="content">
-            <v-row dense class="mt-2 form-wrapper">
-              <v-col cols="12" md="12" sm="12">
-                <h5
-                  :class="{
-                    'text-error':
-                      announcementTitleRef && !announcementTitleRef?.isValid,
-                  }"
-                >
-                  Title *
-                </h5>
-                <v-text-field
-                  ref="announcementTitleRef"
-                  v-model="announcementTitle"
-                  single-line
-                  label="Title"
-                  placeholder="Title"
-                  variant="outlined"
-                  counter
-                  maxlength="100"
-                  :error-messages="errors.title"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="12" sm="12">
-                <h5
-                  :class="{
-                    'text-error':
-                      announcementTitleRef &&
-                      !announcementDescriptionRef?.isValid,
-                  }"
-                >
-                  Description *
-                </h5>
-                <v-textarea
-                  ref="announcementDescriptionRef"
-                  v-model="announcementDescription"
-                  single-line
-                  variant="outlined"
-                  label="Description"
-                  placeholder="Description"
-                  maxlength="2000"
-                  counter
-                  rows="3"
-                  :error-messages="errors.description"
-                ></v-textarea>
-              </v-col>
-              <v-col cols="12" md="8" sm="12" class="d-flex flex-column">
-                <h5 class="mb-2">Time settings</h5>
-                <v-row dense>
-                  <v-col cols="2" class="d-flex justify-end align-center">
-                    <p
-                      class="datetime-picker-label"
-                      :class="{
-                        'text-error': errors.published_on != null,
-                      }"
-                    >
-                      Active On
-                    </p>
-                  </v-col>
-                  <v-col cols="6">
-                    <VueDatePicker
-                      v-model="publishedOn"
-                      :state="errors.published_on == null ? undefined : false"
-                      format="yyyy-MM-dd hh:mm a"
-                      :enable-time-picker="true"
-                      arrow-navigation
-                      auto-apply
-                      :disabled="announcement?.status === 'PUBLISHED'"
-                      :aria-labels="{ input: 'Active On' }"
-                    >
-                      <template #day="{ day, date }">
-                        <span :aria-label="formatDate(date)">
-                          {{ day }}
-                        </span>
-                      </template>
-                    </VueDatePicker>
-                  </v-col>
-                </v-row>
-                <v-row dense class="mt-0">
-                  <v-col cols="2" class="d-flex justify-end align-center pa-0">
-                  </v-col>
-                  <v-col cols="6" class="pa-0 ml-3">
-                    <span class="field-error">{{ errors.published_on }}</span>
-                  </v-col>
-                </v-row>
-                <v-row dense class="mt-2">
-                  <v-col cols="2" class="d-flex justify-end align-center">
-                    <p
-                      class="datetime-picker-label"
-                      :class="{
-                        'text-error': errors.expires_on != null,
-                      }"
-                    >
-                      Expires On
-                    </p>
-                  </v-col>
-                  <v-col cols="6" class="d-flex align-center">
-                    <VueDatePicker
-                      v-model="expiresOn"
-                      :state="errors.expires_on == null ? undefined : false"
-                      :aria-labels="{ input: 'Expires On' }"
-                      format="yyyy-MM-dd hh:mm a"
-                      :enable-time-picker="true"
-                      arrow-navigation
-                      auto-apply
-                      prevent-min-max-navigation
-                      :disabled="noExpiry"
-                    >
-                      <template #day="{ day, date }">
-                        <span :aria-label="formatDate(date)">
-                          {{ day }}
-                        </span>
-                      </template>
-                    </VueDatePicker>
-                  </v-col>
-                </v-row>
-                <v-row dense class="mt-0">
-                  <v-col cols="2" class="d-flex justify-end align-center pa-0">
-                  </v-col>
-                  <v-col cols="6" class="pa-0 ml-3">
-                    <span class="field-error">{{ errors.expires_on }}</span>
-                  </v-col>
-                </v-row>
-                <v-row class="mt-0">
-                  <v-col cols="8" class="d-flex justify-end pa-0">
-                    <v-checkbox
-                      v-model="noExpiry"
-                      class="expiry-checkbox"
-                      label="No expiry"
-                    ></v-checkbox>
-                  </v-col>
-                </v-row>
-              </v-col>
-              <v-col cols="12">
-                <h5 class="mb-2">Link</h5>
-                <v-row v-if="!linkDisplayOnly" dense class="ml-3 mt-2">
-                  <v-col cols="12">
-                    <span
-                      class="attachment-label"
-                      :class="{
-                        'text-error': linkUrlRef && !linkUrlRef?.isValid,
-                      }"
-                      >Link URL</span
-                    >
-                    <v-text-field
-                      ref="linkUrlRef"
-                      v-model="linkUrl"
-                      single-line
-                      variant="outlined"
-                      placeholder="https://example.com"
-                      label="https://example.com"
-                      aria-label="Link URL"
-                      counter
-                      :error-messages="errors.linkUrl"
-                    >
-                      <template #counter="{ value }">
-                        <span
-                          :class="{
-                            'text-error': linkUrlRef && !linkUrlRef?.isValid,
-                          }"
-                          >{{ value }}/255</span
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <span
-                      class="attachment-label"
-                      :class="{
-                        'text-error':
-                          linkDisplayNameRef && !linkDisplayNameRef?.isValid,
-                      }"
-                      >Display Link As</span
-                    >
-                    <v-text-field
-                      ref="linkDisplayNameRef"
-                      v-model="linkDisplayName"
-                      single-line
-                      variant="filled"
-                      placeholder="eg. Pay Transparency in B.C."
-                      label="eg. Pay Transparency in B.C."
-                      aria-label="Display URL As"
-                      counter
-                      maxlength="100"
-                      :error-messages="errors.linkDisplayName"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-                <v-row v-else dense class="ml-3 mt-2">
-                  <v-col cols="12">
-                    <LinkResource
-                      :url="linkUrl"
-                      :text="linkDisplayName"
-                      @on-edit="onEditLink"
-                      @on-delete="handleDeleteLink"
-                    ></LinkResource>
-                  </v-col>
-                </v-row>
-              </v-col>
-              <v-col cols="12">
-                <div class="section-title">
-                  <h5 class="mb-2">File</h5>
-                  <span class="fill-remaining-space" />
-                  <v-btn
-                    v-if="
-                      !fileDisplayOnly &&
-                      mode === AnnouncementFormMode.EDIT &&
-                      announcement?.fileDisplayName
-                    "
-                    variant="text"
-                    class="ml-2"
-                    aria-label="Edit file"
-                    @click="cancelEdit"
-                    >Cancel edit file</v-btn
+    <v-row no-gutters class="extend-to-right-edge border-t">
+      <!-- FORM -->
+      <v-col sm="6" md="7" lg="7" xl="8" class="px-0">
+        <div class="form-content pr-5">
+          <v-row dense class="mt-2">
+            <v-col cols="12" md="12" sm="12">
+              <h5
+                :class="{
+                  'text-error':
+                    announcementTitleRef && !announcementTitleRef?.isValid,
+                }"
+              >
+                Title *
+              </h5>
+              <v-text-field
+                ref="announcementTitleRef"
+                v-model="announcementTitle"
+                single-line
+                label="Title"
+                placeholder="Title"
+                variant="outlined"
+                counter
+                maxlength="100"
+                :error-messages="errors.title"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="12" sm="12">
+              <h5
+                :class="{
+                  'text-error':
+                    announcementTitleRef &&
+                    !announcementDescriptionRef?.isValid,
+                }"
+              >
+                Description *
+              </h5>
+              <v-textarea
+                ref="announcementDescriptionRef"
+                v-model="announcementDescription"
+                single-line
+                variant="outlined"
+                label="Description"
+                placeholder="Description"
+                maxlength="2000"
+                counter
+                rows="3"
+                :error-messages="errors.description"
+              ></v-textarea>
+            </v-col>
+            <v-col cols="12" md="12" sm="12">
+              <h5 class="mb-2">Time settings</h5>
+              <v-row dense>
+                <v-col cols="12">
+                  <span
+                    class="datetime-picker-label"
+                    :class="{
+                      'text-error': errors.published_on != null,
+                    }"
                   >
-                </div>
-                <v-row v-if="!fileDisplayOnly" dense class="ml-3 mt-2">
-                  <v-col cols="12">
-                    <span
-                      class="attachment-label"
-                      :class="{
-                        'text-error':
-                          fileDisplayNameRef && !fileDisplayNameRef?.isValid,
-                      }"
-                      >Display File Link As</span
-                    >
-                    <v-text-field
-                      ref="fileDisplayNameRef"
-                      v-model="fileDisplayName"
-                      single-line
-                      variant="outlined"
-                      placeholder="eg. Updated Pay Transparency Guidance Document"
-                      label="eg. Updated Pay Transparency Guidance Document"
-                      aria-label="Display File Link As"
-                      counter
-                      maxlength="100"
-                      :error-messages="errors.fileDisplayName"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <span
-                      class="attachment-label"
-                      :class="{
-                        'text-error': attachmentRef && !attachmentRef?.isValid,
-                      }"
-                      >Attachment</span
-                    >
-                    <v-file-input
-                      ref="attachmentRef"
-                      v-model="attachment"
-                      single-line
-                      label="Attachment"
-                      class="attachment"
-                      variant="outlined"
-                      :error-messages="errors.attachment"
-                    >
-                      <template #prepend-inner>
-                        <v-btn color="primary">Choose File</v-btn>
-                      </template>
-                    </v-file-input>
-                  </v-col>
-                </v-row>
-                <v-row v-else dense class="ml-3 mt-2">
-                  <v-col cols="12">
-                    <AttachmentResource
-                      :id="announcement?.file_resource_id!"
-                      :name="announcement?.fileDisplayName!"
-                      @on-edit="onEditFile"
-                      @on-delete="handleDeleteFile"
-                    ></AttachmentResource>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-          </div>
-        </v-col>
-        <v-col
-          sm="6"
-          md="5"
-          lg="5"
-          xl="4"
-          class="px-0 py-0 d-flex justify-end extend-to-bottom"
-        >
-          <div class="previewPanel bg-previewPanel w-100 h-100 px-6 py-6">
-            <v-row dense>
-              <v-col>
-                <h3>Preview Announcement</h3>
-              </v-col>
-            </v-row>
+                    Active On
+                  </span>
+                  <VueDatePicker
+                    v-model="publishedOn"
+                    :state="errors.published_on == null ? undefined : false"
+                    format="yyyy-MM-dd hh:mm a"
+                    :enable-time-picker="true"
+                    arrow-navigation
+                    auto-apply
+                    :disabled="announcement?.status === 'PUBLISHED'"
+                    :aria-labels="{ input: 'Active On' }"
+                  >
+                    <template #day="{ day, date }">
+                      <span :aria-label="formatDate(date)">
+                        {{ day }}
+                      </span>
+                    </template>
+                  </VueDatePicker>
+                </v-col>
+              </v-row>
+              <v-row dense class="mt-0">
+                <v-col offset="2" cols="10" class="pa-0 ml-3">
+                  <span class="field-error">{{ errors.published_on }}</span>
+                </v-col>
+              </v-row>
+              <v-row dense class="mt-2">
+                <v-col cols="12">
+                  <span
+                    class="datetime-picker-label"
+                    :class="{
+                      'text-error': errors.expires_on != null,
+                    }"
+                  >
+                    Expires On
+                  </span>
+                  <VueDatePicker
+                    v-model="expiresOn"
+                    :state="errors.expires_on == null ? undefined : false"
+                    :aria-labels="{ input: 'Expires On' }"
+                    format="yyyy-MM-dd hh:mm a"
+                    :enable-time-picker="true"
+                    arrow-navigation
+                    auto-apply
+                    prevent-min-max-navigation
+                    :disabled="noExpiry"
+                  >
+                    <template #day="{ day, date }">
+                      <span :aria-label="formatDate(date)">
+                        {{ day }}
+                      </span>
+                    </template>
+                  </VueDatePicker>
+                </v-col>
+              </v-row>
+              <v-row dense class="mt-0">
+                <v-col cols="12" class="pa-0 ml-3">
+                  <span class="field-error">{{ errors.expires_on }}</span>
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-checkbox
+                    v-model="noExpiry"
+                    class="expiry-checkbox"
+                    label="No expiry"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col cols="12">
+              <h5 class="mb-2">Link</h5>
+              <v-row v-if="!linkDisplayOnly" dense class="ml-3 mt-2">
+                <v-col cols="12">
+                  <span
+                    class="attachment-label"
+                    :class="{
+                      'text-error': linkUrlRef && !linkUrlRef?.isValid,
+                    }"
+                  >
+                    Link URL
+                  </span>
+                  <v-text-field
+                    ref="linkUrlRef"
+                    v-model="linkUrl"
+                    single-line
+                    variant="outlined"
+                    placeholder="https://example.com"
+                    label="https://example.com"
+                    aria-label="Link URL"
+                    counter
+                    :error-messages="errors.linkUrl"
+                  >
+                    <template #counter="{ value }">
+                      <span
+                        :class="{
+                          'text-error': linkUrlRef && !linkUrlRef?.isValid,
+                        }"
+                        >{{ value }}/255</span
+                      >
+                    </template>
+                  </v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <span
+                    class="attachment-label"
+                    :class="{
+                      'text-error':
+                        linkDisplayNameRef && !linkDisplayNameRef?.isValid,
+                    }"
+                    >Display Link As</span
+                  >
+                  <v-text-field
+                    ref="linkDisplayNameRef"
+                    v-model="linkDisplayName"
+                    single-line
+                    variant="filled"
+                    placeholder="eg. Pay Transparency in B.C."
+                    label="eg. Pay Transparency in B.C."
+                    aria-label="Display URL As"
+                    counter
+                    maxlength="100"
+                    :error-messages="errors.linkDisplayName"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row v-else dense class="ml-3 mt-2">
+                <v-col cols="12">
+                  <LinkResource
+                    :url="linkUrl"
+                    :text="linkDisplayName"
+                    @on-edit="onEditLink"
+                    @on-delete="handleDeleteLink"
+                  ></LinkResource>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col cols="12">
+              <div class="section-title">
+                <h5 class="mb-2">File</h5>
+                <span class="fill-remaining-space" />
+                <v-btn
+                  v-if="
+                    !fileDisplayOnly &&
+                    mode === AnnouncementFormMode.EDIT &&
+                    announcement?.fileDisplayName
+                  "
+                  variant="text"
+                  class="ml-2"
+                  aria-label="Edit file"
+                  @click="cancelEdit"
+                  >Cancel edit file</v-btn
+                >
+              </div>
+              <v-row v-if="!fileDisplayOnly" dense class="ml-3 mt-2">
+                <v-col cols="12">
+                  <span
+                    class="attachment-label"
+                    :class="{
+                      'text-error':
+                        fileDisplayNameRef && !fileDisplayNameRef?.isValid,
+                    }"
+                    >Display File Link As</span
+                  >
+                  <v-text-field
+                    ref="fileDisplayNameRef"
+                    v-model="fileDisplayName"
+                    single-line
+                    variant="outlined"
+                    placeholder="eg. Updated Pay Transparency Guidance Document"
+                    label="eg. Updated Pay Transparency Guidance Document"
+                    aria-label="Display File Link As"
+                    counter
+                    maxlength="100"
+                    :error-messages="errors.fileDisplayName"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <span
+                    class="attachment-label"
+                    :class="{
+                      'text-error': attachmentRef && !attachmentRef?.isValid,
+                    }"
+                    >Attachment</span
+                  >
+                  <v-file-input
+                    ref="attachmentRef"
+                    v-model="attachment"
+                    single-line
+                    label="Attachment"
+                    class="attachment"
+                    variant="outlined"
+                    :error-messages="errors.attachment"
+                  >
+                    <template #prepend-inner>
+                      <v-btn color="primary">Choose File</v-btn>
+                    </template>
+                  </v-file-input>
+                </v-col>
+              </v-row>
+              <v-row v-else dense class="ml-3 mt-2">
+                <v-col cols="12">
+                  <AttachmentResource
+                    :id="announcement?.file_resource_id!"
+                    :name="announcement?.fileDisplayName!"
+                    @on-edit="onEditFile"
+                    @on-delete="handleDeleteFile"
+                  ></AttachmentResource>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </div>
+      </v-col>
 
-            <v-row dense class="mb-2">
-              <v-col>
-                <v-icon icon="mdi-information"></v-icon>
-                This is how the announcement will appear to the public.
-              </v-col>
-            </v-row>
-            <v-row dense>
-              <v-col class="announcements">
-                <AnnouncementPager
-                  :announcements="announcementsToPreview"
-                  :page-size="2"
-                  class="h-100"
-                ></AnnouncementPager> </v-col
-            ></v-row>
-          </div>
-        </v-col>
-      </v-row>
-    </v-col>
-  </v-row>
+      <!-- PREVIEW -->
+      <v-col
+        sm="6"
+        md="5"
+        lg="5"
+        xl="4"
+        class="px-0 py-0 d-flex justify-end extend-to-bottom"
+      >
+        <div class="previewPanel bg-previewPanel w-100 h-100 px-3 py-6">
+          <v-row dense>
+            <v-col>
+              <h3>Preview Announcement</h3>
+            </v-col>
+          </v-row>
+
+          <v-row dense class="mb-2">
+            <v-col>
+              <v-icon icon="mdi-information"></v-icon>
+              This is how the announcement will appear to the public.
+            </v-col>
+          </v-row>
+
+          <v-row no-gutters>
+            <v-col class="announcements">
+              <AnnouncementPager
+                :announcements="announcementsToPreview"
+                :page-size="2"
+                class="h-100"
+              />
+            </v-col>
+          </v-row>
+        </div>
+      </v-col>
+    </v-row>
+  </v-container>
 
   <ConfirmationDialog ref="confirmDialog">
     <template #message>
@@ -837,19 +836,16 @@ const handleSave = handleSubmit(async (values) => {
 <style scoped lang="scss">
 .toolbar {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
   margin-bottom: 1rem;
-  flex: 1;
   width: 100%;
-  .fill-remaining-space {
-    flex: 1 1 auto;
-  }
 }
-.v-row {
-  margin-left: 0px !important;
-}
-.content {
+.form-content {
   width: 100%;
   max-width: 800px;
+  padding-right: 5px;
 }
 .previewPanel {
   max-width: 500px !important;
@@ -872,13 +868,10 @@ const handleSave = handleSubmit(async (values) => {
   font-size: x-small;
 }
 .extend-to-right-edge {
-  margin-right: -40px !important;
+  margin-right: -24px !important;
 }
 .extend-to-bottom {
   margin-bottom: -36px;
-}
-.status-options {
-  height: 40px;
 }
 .attachment {
   .v-input__prepend {
