@@ -432,15 +432,7 @@ input::placeholder {
 input::-ms-input-placeholder {
   color: black !important;
 }
-/* Override styles of the Vue3DatePicker so it looks similar to a
-  Vuetify control */
-input.dp__input {
-  height: $inputHeight !important;
-  box-shadow:
-    0px 3px 1px -2px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
-    0px 2px 2px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
-    0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
-}
+
 button.dp__action_button {
   padding: 16px 16px 16px 16px !important;
   min-width: 64px;
