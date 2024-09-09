@@ -1,6 +1,11 @@
 <template>
   <div class="root">
-    <a :href="sanitizeUrl(props.url)" target="_blank" class="mr-2">
+    <a
+      :href="sanitizeUrl(props.url)"
+      target="_blank"
+      rel="noopener"
+      class="mr-2"
+    >
       {{ props.text }}
     </a>
     <v-btn
