@@ -28,7 +28,7 @@ const mockDraftAnnouncement: Announcement = {
   updated_date: '2024-08-06T18:56:35.825Z',
   created_by: '7e53edd6-f50f-4002-be1a-06dc506c138a',
   updated_by: '7e53edd6-f50f-4002-be1a-06dc506c138a',
-  published_on: '2024-07-30T18:56:35.825Z',
+  active_on: '2024-07-30T18:56:35.825Z',
   expires_on: '2024-10-29T18:56:35.825Z',
   status: 'DRAFT',
   announcement_resource: [],

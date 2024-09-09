@@ -103,14 +103,14 @@
                   <span
                     class="datetime-picker-label"
                     :class="{
-                      'text-error': errors.published_on != null,
+                      'text-error': errors.active_on != null,
                     }"
                   >
                     Active On
                   </span>
                   <VueDatePicker
-                    v-model="publishedOn"
-                    :state="errors.published_on == null ? undefined : false"
+                    v-model="activeOn"
+                    :state="errors.active_on == null ? undefined : false"
                     format="yyyy-MM-dd hh:mm a"
                     :enable-time-picker="true"
                     arrow-navigation
@@ -128,7 +128,7 @@
               </v-row>
               <v-row dense class="mt-0">
                 <v-col offset="2" cols="10" class="pa-0 ml-3">
-                  <span class="field-error">{{ errors.published_on }}</span>
+                  <span class="field-error">{{ errors.active_on }}</span>
                 </v-col>
               </v-row>
               <v-row dense class="mt-2">
@@ -215,7 +215,7 @@
                       'text-error':
                         linkDisplayNameRef && !linkDisplayNameRef?.isValid,
                     }"
-                    >Display Link As</span
+                    >Display URL As</span
                   >
                   <v-text-field
                     ref="linkDisplayNameRef"
@@ -432,7 +432,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
     description: announcement?.description || '',
-    published_on: announcement?.published_on || undefined,
+    active_on: announcement?.active_on || undefined,
     expires_on: announcement?.expires_on || undefined,
     no_expiry: undefined,
     linkUrl: announcement?.linkUrl || '',
@@ -483,9 +483,9 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
       return true;
     },
-    published_on(value) {
+    active_on(value) {
       if (!value && status.value === 'PUBLISHED') {
-        return 'Publish date is required.';
+        return 'Active On date is required.';
       }
 
       return true;
@@ -518,7 +518,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 const { value: announcementTitle } = useField('title');
 const { value: status } = useField<string>('status');
 const { value: announcementDescription } = useField('description');
-const { value: publishedOn } = useField('published_on') as any;
+const { value: activeOn } = useField('active_on') as any;
 const { value: expiresOn } = useField('expires_on') as any;
 const { value: noExpiry } = useField('no_expiry') as any;
 const { value: linkUrl } = useField('linkUrl') as any;
@@ -696,7 +696,7 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 
 const handleSave = handleSubmit(async (values) => {
   if (
-    !validatePublishDate(values) ||
+    !validateActiveOnDate(values) ||
     !validateLink(values) ||
     !validateExpiry()
   ) {
@@ -715,30 +715,30 @@ const handleSave = handleSubmit(async (values) => {
     return true;
   }
 
-  function validatePublishDate(values) {
-    if (!values.published_on && status.value === 'PUBLISHED') {
-      setErrors({ published_on: 'Publish date is required.' });
+  function validateActiveOnDate(values) {
+    if (!values.active_on && status.value === 'PUBLISHED') {
+      setErrors({ active_on: 'Active On date is required.' });
       return false;
     }
 
     if (
       announcement?.status !== 'PUBLISHED' &&
-      values.published_on &&
-      LocalDate.from(nativeJs(values.published_on)).isBefore(LocalDate.now())
+      values.active_on &&
+      LocalDate.from(nativeJs(values.active_on)).isBefore(LocalDate.now())
     ) {
       setErrors({
-        published_on:
-          'Publish On date cannot be in the past. Please select a new date.',
+        active_on:
+          'Active On date cannot be in the past. Please select a new date.',
       });
       return false;
     }
 
-    if (values.published_on && values.expires_on) {
+    if (values.active_on && values.expires_on) {
       const expiryDate = LocalDate.from(nativeJs(values.expires_on));
-      const publishDate = LocalDate.from(nativeJs(values.published_on));
-      if (expiryDate.isBefore(publishDate)) {
+      const activeDate = LocalDate.from(nativeJs(values.active_on));
+      if (expiryDate.isBefore(activeDate)) {
         setErrors({
-          published_on: 'Publish date should be before expiry date.',
+          active_on: 'Publish On date should be before expiry date.',
         });
         return false;
       }
@@ -774,16 +774,16 @@ const handleSave = handleSubmit(async (values) => {
       mode === AnnouncementFormMode.CREATE ||
       announcement?.status !== 'PUBLISHED'
     ) {
-      const publishDate = LocalDateTime.from(nativeJs(values.published_on));
-      const publishDateString = publishDate.format(
+      const activeDate = LocalDateTime.from(nativeJs(values.active_on));
+      const activeDateString = activeDate.format(
         DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(Locale.CANADA),
       );
-      const publishTimeString = publishDate.format(
+      const activeTimeString = activeDate.format(
         DateTimeFormatter.ofPattern('hh:mm a').withLocale(Locale.CANADA),
       );
       confirmationSettings = {
         title: 'Confirm Publish',
-        message: `This announcement will be published to the public site on ${publishDateString} at ${publishTimeString}. Do you want to continue?`,
+        message: `This announcement will be published to the public site on ${activeDateString} at ${activeTimeString} Do you want to continue?`,
       };
     } else {
       confirmationSettings = {
@@ -813,9 +813,9 @@ const handleSave = handleSubmit(async (values) => {
 
   await emits('save', {
     ...values,
-    published_on: values.published_on
+    active_on: values.active_on
       ? DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-          ZonedDateTime.from(nativeJs(values.published_on)),
+          ZonedDateTime.from(nativeJs(values.active_on)),
         )
       : undefined,
     expires_on: values.expires_on

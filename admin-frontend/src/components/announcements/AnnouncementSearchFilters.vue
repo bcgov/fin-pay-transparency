@@ -49,7 +49,7 @@
   <div class="secondary-filters py-4" v-if="areSecondaryFiltersVisible">
     <v-row dense>
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Publish date</h5>
+        <h5>Active On date</h5>
         <VueDatePicker
           v-model="publishDateRange"
           range
@@ -209,7 +209,7 @@ function getAnnouncementSearchFilters(): AnnouncementFilterType {
   }
   if (publishDateRange.value) {
     filters.push({
-      key: 'published_on',
+      key: 'active_on',
       operation: 'between',
       value: publishDateRange.value.map(toApiDateTime),
     });

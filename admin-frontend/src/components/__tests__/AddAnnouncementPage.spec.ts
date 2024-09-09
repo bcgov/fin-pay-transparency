@@ -102,10 +102,10 @@ describe('AddAnnouncementPage', () => {
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
-    const publishOn = getByLabelText('Active On');
-    const publishDate = formatDate(LocalDate.now());
-    await setDate(publishOn, () => {
-      return getByLabelText(publishDate);
+    const activeOn = getByLabelText('Active On');
+    const activeOnDate = formatDate(LocalDate.now());
+    await setDate(activeOn, () => {
+      return getByLabelText(activeOnDate);
     });
     const noExpiry = getByRole('checkbox', { name: 'No expiry' });
     await fireEvent.click(noExpiry);
@@ -122,7 +122,7 @@ describe('AddAnnouncementPage', () => {
         expect.objectContaining({
           title: 'Test Title',
           description: 'Test Description',
-          published_on: expect.any(String),
+          active_on: expect.any(String),
           expires_on: undefined,
           linkUrl: 'https://example.com',
           linkDisplayName: 'Example.pdf',
@@ -175,10 +175,10 @@ describe('AddAnnouncementPage', () => {
       await fireEvent.update(description, 'Test Description');
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
-      const publishOn = getByLabelText('Active On');
-      const publishDate = formatDate(LocalDate.now());
-      await setDate(publishOn, () => {
-        return getByLabelText(publishDate);
+      const activeOn = getByLabelText('Active On');
+      const activeOnDate = formatDate(LocalDate.now());
+      await setDate(activeOn, () => {
+        return getByLabelText(activeOnDate);
       });
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
@@ -190,7 +190,7 @@ describe('AddAnnouncementPage', () => {
     });
   });
   it('should not publish when confirmation cancel is clicked', async () => {
-    const { getByRole, getByLabelText, getByText } = await wrappedRender();
+    const { getByRole, getByLabelText } = await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
     const description = getByLabelText('Description');
@@ -198,10 +198,10 @@ describe('AddAnnouncementPage', () => {
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
     await fireEvent.update(description, 'Test Description');
-    const publishOn = getByLabelText('Active On');
-    const publishDate = formatDate(LocalDate.now());
-    await setDate(publishOn, () => {
-      return getByLabelText(publishDate);
+    const activeOn = getByLabelText('Active On');
+    const activeOnDate = formatDate(LocalDate.now());
+    await setDate(activeOn, () => {
+      return getByLabelText(activeOnDate);
     });
     const noExpiry = getByRole('checkbox', { name: 'No expiry' });
     await fireEvent.click(noExpiry);
@@ -257,7 +257,7 @@ describe('AddAnnouncementPage', () => {
       ).toBeInTheDocument();
     });
   });
-  it('should show error message when publish date is empty and attempting to publish', async () => {
+  it('should show error message when Active On date is empty and attempting to publish', async () => {
     const { getByRole, getByLabelText, getByText } = await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
@@ -271,7 +271,7 @@ describe('AddAnnouncementPage', () => {
     await markAsPublish();
     await fireEvent.click(saveButton);
     await waitFor(() => {
-      expect(getByText('Publish date is required.')).toBeInTheDocument();
+      expect(getByText('Active On date is required.')).toBeInTheDocument();
     });
   });
   it('should show error message when link url is invalid', async () => {
@@ -296,10 +296,10 @@ describe('AddAnnouncementPage', () => {
         const linkUrl = getByLabelText('Link URL');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Active On');
-        const publishDate = formatDate(LocalDate.now());
-        await setDate(publishOn, () => {
-          return getByLabelText(publishDate);
+        const activeOn = getByLabelText('Active On');
+        const activeOnDate = formatDate(LocalDate.now());
+        await setDate(activeOn, () => {
+          return getByLabelText(activeOnDate);
         });
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
@@ -323,12 +323,11 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Active On');
-        const publishDate = formatDate(LocalDate.now());
-        await setDate(publishOn, () => {
-          return getByLabelText(publishDate);
+        const activeOn = getByLabelText('Active On');
+        const activeOnDate = formatDate(LocalDate.now());
+        await setDate(activeOn, () => {
+          return getByLabelText(activeOnDate);
         });
-        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.update(linkUrl, 'https://' + 'x'.repeat(255));
         await fireEvent.update(displayLinkAs, 'a');
         await markAsPublish();
@@ -355,10 +354,10 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Active On');
-        const publishDate = formatDate(LocalDate.now());
-        await setDate(publishOn, () => {
-          return getByLabelText(publishDate);
+        const activeOn = getByLabelText('Active On');
+        const activeOnDate = formatDate(LocalDate.now());
+        await setDate(activeOn, () => {
+          return getByLabelText(activeOnDate);
         });
         await fireEvent.update(linkUrl, 'https://example.com');
         await fireEvent.update(displayLinkAs, 'a'.repeat(101));
@@ -382,10 +381,10 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Active On');
-        const publishDate = formatDate(LocalDate.now());
-        await setDate(publishOn, () => {
-          return getByLabelText(publishDate);
+        const activeOn = getByLabelText('Active On');
+        const activeOnDate = formatDate(LocalDate.now());
+        await setDate(activeOn, () => {
+          return getByLabelText(activeOnDate);
         });
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
@@ -410,10 +409,10 @@ describe('AddAnnouncementPage', () => {
         const fileName = getByLabelText('Display File Link As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Active On');
-        const publishDate = formatDate(LocalDate.now());
-        await setDate(publishOn, () => {
-          return getByLabelText(publishDate);
+        const activeOn = getByLabelText('Active On');
+        const activeOnDate = formatDate(LocalDate.now());
+        await setDate(activeOn, () => {
+          return getByLabelText(activeOnDate);
         });
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
@@ -438,10 +437,10 @@ describe('AddAnnouncementPage', () => {
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
         await fireEvent.update(description, 'Test Description');
-        const publishOn = getByLabelText('Active On');
-        const publishDate = formatDate(LocalDate.now());
-        await setDate(publishOn, () => {
-          return getByLabelText(publishDate);
+        const activeOn = getByLabelText('Active On');
+        const activeOnDate = formatDate(LocalDate.now());
+        await setDate(activeOn, () => {
+          return getByLabelText(activeOnDate);
         });
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
@@ -529,10 +528,10 @@ describe('AddAnnouncementPage', () => {
       const displayLinkAs = getByLabelText('Display URL As');
       await fireEvent.update(title, 'Test Title');
       await fireEvent.update(description, 'Test Description');
-      const publishOn = getByLabelText('Active On');
-      const publishDate = formatDate(LocalDate.now());
-      await setDate(publishOn, () => {
-        return getByLabelText(publishDate);
+      const activeOn = getByLabelText('Active On');
+      const activeOnDate = formatDate(LocalDate.now());
+      await setDate(activeOn, () => {
+        return getByLabelText(activeOnDate);
       });
       const noExpiry = getByRole('checkbox', { name: 'No expiry' });
       await fireEvent.click(noExpiry);

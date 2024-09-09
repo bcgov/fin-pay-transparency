@@ -29,8 +29,8 @@ export const useAnnouncementSelectionStore = defineStore(
         announcement_id: data.announcement_id,
         title: data.title,
         description: data.description,
-        published_on: data.published_on
-          ? (new Date(data.published_on) as any)
+        active_on: data.active_on
+          ? (new Date(data.active_on) as any)
           : undefined,
         expires_on: data.expires_on
           ? (new Date(data.expires_on) as any)

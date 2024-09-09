@@ -273,7 +273,7 @@ export default {
         filter = [];
       }
       if (!sort) {
-        sort = [{ field: 'published_on', order: 'asc' }];
+        sort = [{ field: 'active_on', order: 'asc' }];
       }
       const params = {
         offset: offset,
@@ -499,8 +499,8 @@ const buildFormData = (data: AnnouncementFormValue) => {
   formData.append('title', data.title);
   formData.append('description', data.description);
   formData.append('status', data.status);
-  if (data.published_on) {
-    formData.append('published_on', data.published_on);
+  if (data.active_on) {
+    formData.append('active_on', data.active_on);
   }
   if (data.expires_on) {
     formData.append('expires_on', data.expires_on);

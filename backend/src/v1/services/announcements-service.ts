@@ -54,7 +54,7 @@ const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
     (query.filters as any[]).forEach((filter) => {
       const attrFilter = {};
       switch (filter.key) {
-        case 'published_on':
+        case 'active_on':
           if (filter.operation === 'between') {
             attrFilter[filter.key] = {
               gte: filter.value[0],
@@ -279,7 +279,7 @@ export const createAnnouncement = async (
     announcement_status: {
       connect: { code: input.status },
     },
-    published_on: !isEmpty(input.published_on) ? input.published_on : undefined,
+    active_on: !isEmpty(input.active_on) ? input.active_on : undefined,
     expires_on: !isEmpty(input.expires_on) ? input.expires_on : undefined,
     admin_user_announcement_created_byToadmin_user: {
       connect: { admin_user_id: currentUserId },
@@ -425,8 +425,8 @@ export const updateAnnouncement = async (
       announcement_status: {
         connect: { code: input.status },
       },
-      published_on: !isEmpty(input.published_on)
-        ? input.published_on
+      active_on: !isEmpty(input.active_on)
+        ? input.active_on
         : null,
       expires_on: !isEmpty(input.expires_on) ? input.expires_on : null,
       admin_user_announcement_updated_byToadmin_user: {
