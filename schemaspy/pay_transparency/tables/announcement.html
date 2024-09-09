@@ -266,7 +266,7 @@
                                     <td><p>The ID of the user who last updated the announcement</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="published_on">published_on</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="active_on">active_on</span></td>
                                     <td>timestamp</td>
                                     <td>29,6</td>
                                     <td title='nullable'>√</td>
@@ -361,7 +361,7 @@
                                     <td title='Indexed'>announcement_dates_idx</td>
                                     <td>Performance</td>
                                     <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-                                    <td>published_on + expires_on</td>
+                                    <td>active_on + expires_on</td>
                                 </tr>
                                 <tr>
                                     <td title='Indexed'>announcement_status_idx</td>
