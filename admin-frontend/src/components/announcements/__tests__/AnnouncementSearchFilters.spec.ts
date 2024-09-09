@@ -68,7 +68,7 @@ describe('AnnouncementSearchFilters', () => {
         wrapper.vm.publishDateRange = dateRange;
         const filters = wrapper.vm.getAnnouncementSearchFilters();
         const publishDateFilters = filters.filter(
-          (d) => d.key == 'published_on',
+          (d) => d.key == 'active_on',
         );
         expect(publishDateFilters.length).toBe(1);
         expect(publishDateFilters[0].operation).toBe('between');

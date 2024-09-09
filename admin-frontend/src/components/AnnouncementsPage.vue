@@ -67,11 +67,11 @@
           {{ item.title }}
         </v-btn>
       </template>
-      <template #item.published_on="{ item }">
-        <div v-if="item.published_on">
-          <div>{{ formatIsoDateTimeAsLocalDate(item.published_on) }}</div>
+      <template #item.active_on="{ item }">
+        <div v-if="item.active_on">
+          <div>{{ formatIsoDateTimeAsLocalDate(item.active_on) }}</div>
           <small class="text-grey">{{
-            formatIsoDateTimeAsLocalTime(item.published_on)
+            formatIsoDateTimeAsLocalTime(item.active_on)
           }}</small>
         </div>
         <div v-else>-</div>

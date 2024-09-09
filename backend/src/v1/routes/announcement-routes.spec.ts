@@ -213,7 +213,7 @@ describe('announcement-routes', () => {
             });
           });
 
-          describe('published_on', () => {
+          describe('active_on', () => {
             it('should return announcements', async () => {
               const response = await request(app)
                 .get('/')
@@ -221,7 +221,7 @@ describe('announcement-routes', () => {
                   qs.stringify({
                     filters: [
                       {
-                        key: 'published_on',
+                        key: 'active_on',
                         operation: 'between',
                         value: ['2022-01-01', '2022-12-31'],
                       },
@@ -232,7 +232,7 @@ describe('announcement-routes', () => {
                 expect.objectContaining({
                   filters: [
                     {
-                      key: 'published_on',
+                      key: 'active_on',
                       operation: 'between',
                       value: ['2022-01-01', '2022-12-31'],
                     },
@@ -368,7 +368,7 @@ describe('announcement-routes', () => {
           title: 'Test',
           description: 'Test',
           expires_on: faker.date.recent(),
-          published_on: faker.date.future(),
+          active_on: faker.date.future(),
           status: 'DRAFT',
         });
         expect(response.status).toBe(201);
@@ -384,7 +384,7 @@ describe('announcement-routes', () => {
             title: 'Test',
             description: 'Test',
             expires_on: faker.date.recent(),
-            published_on: faker.date.future(),
+            active_on: faker.date.future(),
             status: 'DRAFT',
           });
 
@@ -410,7 +410,7 @@ describe('announcement-routes', () => {
           title: 'Test',
           description: 'Test',
           expires_on: faker.date.recent(),
-          published_on: faker.date.future(),
+          active_on: faker.date.future(),
           status: 'DRAFT',
         });
         expect(response.status).toBe(200);
@@ -424,7 +424,7 @@ describe('announcement-routes', () => {
           title: 'Test',
           description: 'Test',
           expires_on: faker.date.recent(),
-          published_on: faker.date.future(),
+          active_on: faker.date.future(),
           status: 'DRAFT',
         });
 
