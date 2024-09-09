@@ -33,7 +33,6 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "memory-cache": "^0.2.0",
-    "moment": "^2.29.4",
     "morgan": "^1.10.0",
     "nconf": "^0.12.1",
     "nocache": "^4.0.0",
