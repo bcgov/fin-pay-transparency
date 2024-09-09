@@ -784,7 +784,7 @@ const handleSave = handleSubmit(async (values) => {
       );
       confirmationSettings = {
         title: 'Confirm Publish',
-        message: `This announcement will be published to the public site on ${activeDateString} at ${activeTimeString}. Do you want to continue?`,
+        message: `This announcement will be published to the public site on ${activeDateString} at ${activeTimeString} Do you want to continue?`,
       };
     } else {
       confirmationSettings = {
