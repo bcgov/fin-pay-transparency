@@ -174,7 +174,8 @@ describe('EditAnnouncementPage', () => {
             },
           ],
         } as any);
-        const { queryByRole, getByRole, getByLabelText } = await wrappedRender();
+        const { queryByRole, getByRole, getByLabelText } =
+          await wrappedRender();
         expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
@@ -188,7 +189,7 @@ describe('EditAnnouncementPage', () => {
           await fireEvent.click(confirmButton);
         });
         await waitFor(() => {
-          const confirmButton = queryByRole('button', { name: 'Confirm' }); 
+          const confirmButton = queryByRole('button', { name: 'Confirm' });
           expect(confirmButton).toBeNull();
         });
         await waitFor(() => {
@@ -215,8 +216,8 @@ describe('EditAnnouncementPage', () => {
             },
           ],
         } as any);
-        const { getByRole } = await wrappedRender();
-        expect(getByRole('button', { name: 'file name' })).toBeInTheDocument();
+        const { getByRole, getByText } = await wrappedRender();
+        expect(getByText('file name')).toBeInTheDocument();
         expect(getByRole('button', { name: 'Edit file' })).toBeInTheDocument();
         expect(
           getByRole('button', { name: 'Delete file' }),
@@ -302,8 +303,8 @@ describe('EditAnnouncementPage', () => {
               },
             ],
           } as any);
-          const { getByRole } = await wrappedRender();
-          const fileButton = getByRole('button', { name: 'file name' });
+          const { getByText } = await wrappedRender();
+          const fileButton = getByText('file name');
           await fireEvent.click(fileButton);
           await waitFor(() => {
             expect(mockDownloadFile).toHaveBeenCalled();

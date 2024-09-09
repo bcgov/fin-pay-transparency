@@ -1,13 +1,13 @@
 <template>
   <div class="primary-filters">
-    <v-row dense class="mt-0 w-100 mb-4">
-      <v-col sm="7" md="8" lg="6" xl="4" class="d-flex align-center">
+    <v-row class="mt-0 w-100 mb-3">
+      <v-col cols="12" md="8" lg="6" xl="4" class="d-flex align-center">
         <v-text-field
           v-model="searchText"
           prepend-inner-icon="mdi-magnify"
           density="compact"
           label="Search by title"
-          variant="solo"
+          variant="outlined"
           hide-details
           :single-line="true"
           @keyup.enter="searchAnnouncements()"
@@ -19,7 +19,7 @@
         </v-btn>
       </v-col>
       <v-col
-        sm="5"
+        cols="12"
         md="4"
         lg="6"
         xl="8"
@@ -48,7 +48,7 @@
 
   <div class="secondary-filters py-4" v-if="areSecondaryFiltersVisible">
     <v-row dense>
-      <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
+      <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>Active On date</h5>
         <VueDatePicker
           v-model="publishDateRange"
@@ -68,7 +68,7 @@
         </VueDatePicker>
       </v-col>
 
-      <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
+      <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>Expiry date</h5>
         <VueDatePicker
           v-model="expiryDateRange"
@@ -88,7 +88,7 @@
         </VueDatePicker>
       </v-col>
 
-      <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
+      <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>Status</h5>
         <v-select
           v-model="selectedStatuses"
@@ -96,7 +96,7 @@
           :persistent-placeholder="true"
           multiple
           placeholder="All"
-          variant="solo"
+          variant="outlined"
           density="compact"
         >
           <template v-slot:item="{ props, item }">
@@ -133,17 +133,7 @@
         </v-select>
       </v-col>
 
-      <v-col
-        sm="4"
-        md="1"
-        lg="2"
-        xl="2"
-        offset-sm="2"
-        offset-md="5"
-        offset-lg="10"
-        offset-xl="0"
-        class="align-stretch"
-      >
+      <v-col cols="12" sm="6" md="6" lg="12" xl="3" class="align-stretch">
         <h5>&nbsp;</h5>
         <div class="d-flex justify-end align-center filter-buttons">
           <v-btn class="btn-primary mr-0" @click="searchAnnouncements()">
