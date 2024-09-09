@@ -297,7 +297,7 @@ model announcement {
   updated_date                                   DateTime                @default(now()) @db.Timestamp(6)
   created_by                                     String?                 @db.Uuid
   updated_by                                     String?                 @db.Uuid
-  published_on                                   DateTime?               @db.Timestamp(6)
+  active_on                                      DateTime?               @db.Timestamp(6)
   expires_on                                     DateTime?               @db.Timestamp(6)
   status                                         String?                 @db.VarChar(100)
   admin_user_announcement_created_byToadmin_user admin_user?             @relation("announcement_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_created_by_fk")
@@ -305,7 +305,7 @@ model announcement {
   admin_user_announcement_updated_byToadmin_user admin_user?             @relation("announcement_updated_byToadmin_user", fields: [updated_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_updated_by_fk")
   announcement_resource                          announcement_resource[]
 
-  @@index([published_on, expires_on], map: "announcement_dates_idx")
+  @@index([active_on, expires_on], map: "announcement_dates_idx")
   @@index([status])
 }
 
@@ -318,7 +318,7 @@ model announcement_history {
   updated_date                                           DateTime                        @default(now()) @db.Timestamp(6)
   created_by                                             String?                         @db.Uuid
   updated_by                                             String?                         @db.Uuid
-  published_on                                           DateTime?                       @db.Timestamp(6)
+  active_on                                              DateTime?                       @db.Timestamp(6)
   expires_on                                             DateTime?                       @db.Timestamp(6)
   status                                                 String?                         @db.VarChar(100)
   admin_user_announcement_history_created_byToadmin_user admin_user?                     @relation("announcement_history_created_byToadmin_user", fields: [created_by], references: [admin_user_id], onDelete: NoAction, onUpdate: NoAction, map: "announcement_history_created_by_fk")
@@ -327,7 +327,7 @@ model announcement_history {
   announcement_resource_history                          announcement_resource_history[]
 
   @@index([status])
-  @@index([published_on, expires_on], map: "announcement_history_dates_idx")
+  @@index([active_on, expires_on], map: "announcement_history_dates_idx")
 }
 
 model announcement_resource {

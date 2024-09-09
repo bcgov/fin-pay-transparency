@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-type PublishedOnField = 'published_on';
+type PublishedOnField = 'active_on';
 type ExpiresOnField = 'expires_on';
 
 export type TitleFilter = {
@@ -42,11 +42,11 @@ export type AnnouncementFilterType = (
 )[];
 
 export type AnnouncementSortType = {
-  field: 'published_on' | 'expires_on' | 'title' | 'status' | 'updated_date';
+  field: 'active_on' | 'expires_on' | 'title' | 'status' | 'updated_date';
   order: 'asc' | 'desc';
 }[];
 
-export type FilterKeyType = 'title' | 'published_on' | 'expires_on' | 'status';
+export type FilterKeyType = 'title' | 'active_on' | 'expires_on' | 'status';
 
 // Filter schema
 const FILTER_OPERATION_SCHEMA: {
@@ -55,7 +55,7 @@ const FILTER_OPERATION_SCHEMA: {
   title: z.enum(['like'], {
     message: 'Only "like" operation is allowed',
   }),
-  published_on: z.enum(['between', 'lte', 'gt'], {
+  active_on: z.enum(['between', 'lte', 'gt'], {
     message: 'Only "between" operation is allowed',
   }),
   expires_on: z.enum(['between', 'lte', 'gt'], {
@@ -69,17 +69,17 @@ const FILTER_OPERATION_SCHEMA: {
 const STATUSES = ['PUBLISHED', 'DRAFT', 'EXPIRED', 'DELETED'] as const;
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   title: z.string().optional(),
-  published_on: z.string().or(z.array(z.string())).optional(),
+  active_on: z.string().or(z.array(z.string())).optional(),
   expires_on: z.string().or(z.array(z.string())).optional(),
   status: z.array(z.enum(STATUSES)).or(z.enum(STATUSES)).optional(),
 };
 
 const FilterItemSchema = z
   .object({
-    key: z.enum(['title', 'published_on', 'expires_on', 'status'], {
+    key: z.enum(['title', 'active_on', 'expires_on', 'status'], {
       required_error: 'Missing or invalid filter key',
       message:
-        'key must be one of the following values: expires_on, published_on, status',
+        'key must be one of the following values: expires_on, active_on, status',
     }),
     operation: z.string({
       required_error: 'Missing operation',
@@ -109,7 +109,7 @@ const FilterItemSchema = z
 
 const AnnouncementSortSchema = z.object({
   field: z.enum([
-    'published_on',
+    'active_on',
     'expires_on',
     'title',
     'status',
@@ -152,7 +152,7 @@ export const AnnouncementDataSchema = z
   .object({
     title: z.string().min(1).max(100),
     description: z.string().min(1).max(2000),
-    published_on: z.string().optional(),
+    active_on: z.string().optional(),
     expires_on: z.string().optional(),
     status: z.enum(['PUBLISHED', 'DRAFT']),
     linkUrl: z.string().url({ message: 'Not a valid URL' }).optional(),

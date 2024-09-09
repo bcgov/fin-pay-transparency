@@ -99,11 +99,11 @@ describe('EditAnnouncementPage', () => {
       });
 
       describe('when publishing announcement', () => {
-        it('should require publish date to be not in the past', async () => {
+        it('should require Active On date to be not in the past', async () => {
           store.setAnnouncement({
             title: 'title',
             description: 'description',
-            published_on: faker.date.past(),
+            active_on: faker.date.past(),
             status: 'DRAFT',
             announcement_resource: [],
           } as any);
@@ -117,7 +117,7 @@ describe('EditAnnouncementPage', () => {
           await waitFor(() => {
             expect(
               getByText(
-                'Publish On date cannot be in the past. Please select a new date.',
+                'Active On date cannot be in the past. Please select a new date.',
               ),
             ).toBeInTheDocument();
           });
@@ -131,7 +131,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           expires_on: convert(LocalDate.now().minusDays(1)).toDate(),
           status: 'PUBLISHED',
           announcement_resource: [
@@ -164,7 +164,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [
             {
@@ -204,7 +204,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [
             {
@@ -229,7 +229,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -256,7 +256,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -291,7 +291,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -318,7 +318,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [],
         } as any);
@@ -336,7 +336,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date().toDateString(),
+          active_on: new Date().toDateString(),
           status: 'PUBLISHED',
           announcement_resource: [
             {
@@ -371,7 +371,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -401,7 +401,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -431,7 +431,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [
             {

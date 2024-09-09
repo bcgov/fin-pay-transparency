@@ -457,7 +457,7 @@ describe('ApiService', () => {
           describe: 'test',
           status: 'PUBLISHED',
           expires_on: '2021-12-31',
-          published_on: '2021-12-31',
+          active_on: '2021-12-31',
           linkUrl: 'https://example.com',
           linkDisplayName: 'example',
           attachment: 'test',
