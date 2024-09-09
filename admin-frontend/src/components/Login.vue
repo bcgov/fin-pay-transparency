@@ -9,7 +9,7 @@
         @click="clearStorageAndRedirectToLogin"
         title="Login"
       >
-        Log in with IDIR
+        Log in with IDIR MFA
       </v-btn>
     </template>
   </AuthLayout>
