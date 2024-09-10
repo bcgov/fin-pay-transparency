@@ -12,7 +12,7 @@
           :single-line="true"
           @keyup.enter="searchAnnouncements()"
         >
-          <template v-slot:append> </template>
+          <template #append> </template>
         </v-text-field>
         <v-btn class="btn-primary" @click="searchAnnouncements()">
           Search
@@ -46,7 +46,7 @@
     </v-row>
   </div>
 
-  <div class="secondary-filters py-4" v-if="areSecondaryFiltersVisible">
+  <div v-if="areSecondaryFiltersVisible" class="secondary-filters py-4">
     <v-row dense>
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>Active On date</h5>
@@ -99,9 +99,9 @@
           variant="solo"
           density="compact"
         >
-          <template v-slot:item="{ props, item }">
+          <template #item="{ props, item }">
             <v-list-item v-bind="props" :title="item.raw">
-              <template v-slot:title="{ title }">
+              <template #title="{ title }">
                 <span v-if="item.raw">
                   <AnnouncementStatusChip
                     :status="title"
@@ -109,12 +109,12 @@
                 </span>
                 <span v-if="!item.raw">{{ title }}</span>
               </template>
-              <template v-slot:append="{ isActive }">
+              <template #append="{ isActive }">
                 <v-icon v-if="isActive" icon="mdi-check"></v-icon>
               </template>
             </v-list-item>
           </template>
-          <template v-slot:selection="{ item, index }">
+          <template #selection="{ item, index }">
             <span v-if="!item.raw">All</span>
             <span v-if="item.raw">
               <AnnouncementStatusChip
@@ -168,20 +168,14 @@ import {
   AnnouncementFilterType,
   AnnouncementStatus,
 } from '../../types/announcements';
-import {
-  ZonedDateTime,
-  nativeJs,
-  DateTimeFormatter,
-  ZoneId,
-  LocalDate,
-} from '@js-joda/core';
+import { nativeJs, DateTimeFormatter, ZoneId, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 
 const searchText = ref<string | undefined>(undefined);
-const publishDateRange = ref<any[] | undefined>(undefined);
-const expiryDateRange = ref<any[] | undefined>(undefined);
+const publishDateRange = ref<Date[] | undefined>(undefined);
+const expiryDateRange = ref<Date[] | undefined>(undefined);
 const selectedStatuses = ref([]);
 const areSecondaryFiltersVisible = ref<boolean>(false);
 const maxSelectedStatusesVisible = ref(3);
@@ -238,23 +232,27 @@ async function searchAnnouncements() {
   announcementSearchStore.searchAnnouncements(params);
 }
 
-function toApiDateTime(d, i) {
-  const jodaZonedDateTime = ZonedDateTime.from(nativeJs(d)).withZoneSameLocal(
-    ZoneId.of('UTC'),
-  );
-  const adjusted =
+/**
+ * An array.map() helper function to convert a pair of dates (start date, end date) in user local time to be ISO_DATE_TIME in UTC time.
+ * Also converts the start date to be the beginning of the day and the end date to be the end of the day.
+ * @example const ret = expiryDateRange.map(toApiDateTime)
+ */
+function toApiDateTime(d: Date, i: number): string {
+  const dateLocal = nativeJs(d);
+  const dateBeginOrEnd =
     i == 0
-      ? jodaZonedDateTime //start of day
+      ? dateLocal //first element of array is at the start of day
           .withHour(0)
           .withMinute(0)
           .withSecond(0)
           .withNano(0)
-      : jodaZonedDateTime //end of day
+      : dateLocal //second element of array is at the end of day
           .withHour(23)
           .withMinute(59)
           .withSecond(59)
           .withNano(999);
-  return DateTimeFormatter.ISO_DATE_TIME.format(adjusted);
+  const dateUtc = dateBeginOrEnd.withZoneSameInstant(ZoneId.of('UTC'));
+  return dateUtc.format(DateTimeFormatter.ISO_DATE_TIME);
 }
 
 function toggleSecondaryFiltersVisible() {

@@ -29,12 +29,8 @@ export const useAnnouncementSelectionStore = defineStore(
         announcement_id: data.announcement_id,
         title: data.title,
         description: data.description,
-        active_on: data.active_on
-          ? (new Date(data.active_on) as any)
-          : undefined,
-        expires_on: data.expires_on
-          ? (new Date(data.expires_on) as any)
-          : undefined,
+        active_on: data.active_on,
+        expires_on: data.expires_on,
         status: data.status,
         no_expiry: data.expires_on === null,
         linkUrl: link?.resource_url,
@@ -50,7 +46,7 @@ export const useAnnouncementSelectionStore = defineStore(
     };
 
     const saveChanges = async (data: AnnouncementFormValue) => {
-      if (announcement.value!?.announcement_id) {
+      if (announcement.value?.announcement_id) {
         await ApiService.updateAnnouncement(
           announcement.value.announcement_id,
           data,
