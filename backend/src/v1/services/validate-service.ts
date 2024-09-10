@@ -316,12 +316,7 @@ const validateService = {
       );
     }
 
-    if (errorMessages.length) {
-      const rowError = new RowError(recordNum, errorMessages);
-      return rowError;
-    }
-
-    return null;
+    return errorMessages.length ? new RowError(recordNum, errorMessages) : null;
   },
 
   /**
