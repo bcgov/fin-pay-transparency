@@ -82,8 +82,6 @@ export default {
 <style lang="scss">
 @import '@bcgov/bc-sans/css/BCSans.css';
 $inputHeight: 40px;
-$inputHeightLarge: 50px;
-
 $link-color: #255a90;
 
 .ptap-panel {
@@ -331,18 +329,11 @@ Transitions to be used with Vue's <Transition> component
   Vuetify control */
 input.dp__input {
   height: $inputHeight !important;
-  border: none !important;
   box-shadow:
     0px 3px 1px -2px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
     0px 2px 2px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
     0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
  
-}
-
-.large {
-  input.dp__input {
-    height: $inputHeightLarge !important;
-  }
 }
 
 input::-ms-input-placeholder {

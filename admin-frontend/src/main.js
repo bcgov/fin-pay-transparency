@@ -43,11 +43,6 @@ const vuetify = createVuetify({
   options: {
     customProperties: true,
   },
-  defaults: {
-    VTextField: {
-      variant: 'solo',
-    },
-  },
   icons: {
     defaultSet: 'mdi',
     aliases,

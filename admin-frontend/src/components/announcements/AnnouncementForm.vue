@@ -69,6 +69,7 @@
                 placeholder="Title"
                 counter
                 maxlength="100"
+                variant="outlined"
                 :error-messages="errors.title"
               ></v-text-field>
             </v-col>
@@ -89,7 +90,7 @@
                 label="Description"
                 placeholder="Description"
                 maxlength="2000"
-                variant="solo"
+                variant="outlined"
                 counter
                 rows="3"
                 :error-messages="errors.description"
@@ -114,7 +115,6 @@
                     :enable-time-picker="true"
                     arrow-navigation
                     auto-apply
-                    class="large"
                     :disabled="announcement?.status === 'PUBLISHED'"
                     :aria-labels="{ input: 'Active On' }"
                   >
@@ -148,7 +148,6 @@
                     format="yyyy-MM-dd hh:mm a"
                     :enable-time-picker="true"
                     arrow-navigation
-                    class="large"
                     auto-apply
                     prevent-min-max-navigation
                     :disabled="noExpiry"
@@ -178,7 +177,7 @@
             </v-col>
             <v-col cols="12">
               <h5 class="mb-2">Link</h5>
-              <v-row v-if="!linkDisplayOnly" dense class="ml-3 mt-2">
+              <v-row v-if="!linkDisplayOnly" dense class="mt-2">
                 <v-col cols="12">
                   <span
                     class="attachment-label"
@@ -197,6 +196,7 @@
                     aria-label="Link URL"
                     counter
                     :error-messages="errors.linkUrl"
+                    variant="outlined"
                   >
                     <template #counter="{ value }">
                       <span
@@ -221,7 +221,7 @@
                     ref="linkDisplayNameRef"
                     v-model="linkDisplayName"
                     single-line
-                    variant="solo-filled"
+                    variant="outlined"
                     placeholder="eg. Pay Transparency in B.C."
                     label="eg. Pay Transparency in B.C."
                     aria-label="Display URL As"
@@ -259,7 +259,7 @@
                   >Cancel edit file</v-btn
                 >
               </div>
-              <v-row v-if="!fileDisplayOnly" dense class="ml-3 mt-2">
+              <v-row v-if="!fileDisplayOnly" dense class="mt-2">
                 <v-col cols="12">
                   <span
                     class="attachment-label"
@@ -278,6 +278,7 @@
                     aria-label="Display File Link As"
                     counter
                     maxlength="100"
+                    variant="outlined"
                     :error-messages="errors.fileDisplayName"
                   ></v-text-field>
                 </v-col>
@@ -295,7 +296,7 @@
                     single-line
                     label="Attachment"
                     class="attachment"
-                    variant="solo"
+                    variant="outlined"
                     :error-messages="errors.attachment"
                   >
                     <template #prepend-inner>
