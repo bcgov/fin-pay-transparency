@@ -245,14 +245,6 @@ const validateService = {
       record,
       SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
     );
-    const overtimeHours = this.getObjectProperty(
-      record,
-      SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS,
-    );
-    const overtimePay = this.getObjectProperty(
-      record,
-      SUBMISSION_ROW_COLUMNS.OVERTIME_PAY,
-    );
 
     // Validation checks common to all columns with data in units of 'hours'
     errorMessages.push(
@@ -305,18 +297,9 @@ const validateService = {
         `${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} contains data.`,
       );
     }
-    if (this.isZeroSynonym(overtimePay) && !this.isZeroSynonym(overtimeHours)) {
-      errorMessages.push(
-        `${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} contains data.`,
-      );
-    } else if (
-      this.isZeroSynonym(overtimeHours) &&
-      !this.isZeroSynonym(overtimePay)
-    ) {
-      errorMessages.push(
-        `${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} contains data.`,
-      );
-    }
+    errorMessages.push(
+      ...validateServicePrivate.validateOvertimePayAndHours(record),
+    );
 
     return errorMessages.length ? new RowError(recordNum, errorMessages) : null;
   },
@@ -424,6 +407,42 @@ const validateService = {
     }
 
     return true;
+  },
+};
+
+export const validateServicePrivate = {
+  /* 
+  Performs partial validation of the given record.  
+  Only considers values of the Overtime Pay and Overtime Hours fields.
+  Returns an array of error messages if any validation errors are found.
+  Returns an empty array if no errors are found
+  */
+  validateOvertimePayAndHours(record: any) {
+    const errorMessages: string[] = [];
+    const overtimeHours = validateService.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS,
+    );
+    const overtimePay = validateService.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.OVERTIME_PAY,
+    );
+    if (
+      validateService.isZeroSynonym(overtimePay) &&
+      !validateService.isZeroSynonym(overtimeHours)
+    ) {
+      errorMessages.push(
+        `${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} contains data.`,
+      );
+    } else if (
+      validateService.isZeroSynonym(overtimeHours) &&
+      !validateService.isZeroSynonym(overtimePay)
+    ) {
+      errorMessages.push(
+        `${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} contains data.`,
+      );
+    }
+    return errorMessages;
   },
 };
 

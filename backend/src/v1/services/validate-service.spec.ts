@@ -9,6 +9,7 @@ import {
   SUBMISSION_ROW_COLUMNS,
   ValidationError,
   validateService,
+  validateServicePrivate,
 } from './validate-service';
 
 // ----------------------------------------------------------------------------
@@ -1056,6 +1057,75 @@ describe('validate-service', () => {
             ).toBeFalsy();
           });
         });
+      });
+    });
+  });
+});
+
+describe('validate-service-private', () => {
+  describe('validateOvertimePayAndHours', () => {
+    describe("if Overtime Pay is specified, but Overtime Hours isn't", () => {
+      it('returns an error', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 10;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 0;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeTruthy();
+      });
+    });
+    describe("if Overtime Hours is specified, but Overtime Pay isn't", () => {
+      it('returns an error', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 0;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 10;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeTruthy();
+      });
+    });
+    describe('if both Overtime Hours and Overtime Pay are non-zero', () => {
+      it('returns no errors', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 20;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 10;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeFalsy();
+      });
+    });
+    describe('if neither Overtime Hours nor Overtime Pay are specified', () => {
+      it('returns no errors', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 0;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 0;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeFalsy();
       });
     });
   });
