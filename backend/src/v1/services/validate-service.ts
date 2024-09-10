@@ -245,6 +245,14 @@ const validateService = {
       record,
       SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
     );
+    const overtimeHours = this.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS,
+    );
+    const overtimePay = this.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.OVERTIME_PAY,
+    );
 
     // Validation checks common to all columns with data in units of 'hours'
     errorMessages.push(
@@ -297,6 +305,16 @@ const validateService = {
         `${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} contains data.`,
       );
     }
+    if (this.isZeroSynonym(overtimePay) && !this.isZeroSynonym(overtimeHours)) {
+      errorMessages.push(
+        `${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} contains data.`,
+      );
+    }
+    if (this.isZeroSynonym(overtimeHours) && !this.isZeroSynonym(overtimePay)) {
+      errorMessages.push(
+        `${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} contains data.`,
+      );
+    }
 
     if (errorMessages.length) {
       const rowError = new RowError(recordNum, errorMessages);
@@ -337,7 +355,7 @@ const validateService = {
   */
   standardizeGenderCode(genderCode: string) {
     let standardizedGenderCode = null;
-    for (let key of Object.keys(GENDER_CODES)) {
+    for (const key of Object.keys(GENDER_CODES)) {
       const genderCodeSynonyms = GENDER_CODES[key];
       if (genderCodeSynonyms.indexOf(genderCode) >= 0) {
         //the standardized form is a list of all synonym codes separated by underscores.

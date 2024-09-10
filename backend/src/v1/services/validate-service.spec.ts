@@ -48,14 +48,14 @@ const doesAnyStringContainAll = (
     return false;
   }
   for (
-    var stringsToLookInIndex = 0;
+    let stringsToLookInIndex = 0;
     stringsToLookInIndex < stringsToLookIn.length;
     stringsToLookInIndex++
   ) {
     const stringToLookIn = stringsToLookIn[stringsToLookInIndex];
-    var containsAll = true;
+    let containsAll = true;
     for (
-      var stringsToLookForIndex = 0;
+      let stringsToLookForIndex = 0;
       stringsToLookForIndex < stringsToLookFor.length;
       stringsToLookForIndex++
     ) {
@@ -97,13 +97,13 @@ const doesAnyRowErrorContainAll = (
     return false;
   }
   for (
-    var lineIndex = 0;
+    let lineIndex = 0;
     lineIndex < rowError?.errorMsgs?.length;
     lineIndex++
   ) {
     const errorMsg: string = rowError.errorMsgs[lineIndex];
-    var lineContainsAll = true;
-    for (var valueIndex = 0; valueIndex < values.length; valueIndex++) {
+    let lineContainsAll = true;
+    for (let valueIndex = 0; valueIndex < values.length; valueIndex++) {
       const value = values[valueIndex];
       const lineContainsValue = errorMsg?.indexOf(value) >= 0;
       lineContainsAll = lineContainsAll && lineContainsValue;
@@ -913,7 +913,11 @@ describe('validate-service', () => {
           it('returns no errors for this column', () => {
             // Create a sample row and uses a specific Overtime Hours value
             const overrides = {};
+            const overtimePay = validateService.isZeroSynonym(overtimeHours)
+              ? 0
+              : 10;
             overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = overtimeHours;
+            overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = overtimePay;
             const record = createSampleRecord(overrides);
 
             const recordNum = 1;
@@ -973,7 +977,12 @@ describe('validate-service', () => {
           it('returns no errors for this column', () => {
             // Create a sample row and uses a specific Overtime Pay value
             const overrides = {};
+            const overtimeHours = validateService.isZeroSynonym(overtimePay)
+              ? 0
+              : 10;
             overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = overtimePay;
+            overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = overtimeHours;
+
             const record = createSampleRecord(overrides);
 
             const recordNum = 1;
