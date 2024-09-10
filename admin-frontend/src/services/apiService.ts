@@ -7,6 +7,7 @@ import {
   UserInvite,
 } from '../types';
 import {
+  Announcement,
   AnnouncementFilterType,
   AnnouncementFormValue,
   AnnouncementSortType,
@@ -272,7 +273,7 @@ export default {
         filter = [];
       }
       if (!sort) {
-        sort = [{ field: 'published_on', order: 'asc' }];
+        sort = [{ field: 'active_on', order: 'asc' }];
       }
       const params = {
         offset: offset,
@@ -333,6 +334,25 @@ export default {
       throw new Error('Unexpected response from API.');
     } catch (e) {
       console.log(`Failed to unpublish announcement: ${e}`);
+      throw e;
+    }
+  },
+
+  async getAnnouncement(id: string) {
+    try {
+      const { data } = await apiAxios.get<
+        Announcement & {
+          announcement_resource: {
+            resource_type: string;
+            display_name: string;
+            resource_url: string;
+            attachment_file_id: string;
+          }[];
+        }
+      >(`${ApiRoutes.ANNOUNCEMENTS}/${id}`);
+      return data;
+    } catch (e) {
+      console.log(`Failed to get announcement from API - ${e}`);
       throw e;
     }
   },
@@ -479,8 +499,8 @@ const buildFormData = (data: AnnouncementFormValue) => {
   formData.append('title', data.title);
   formData.append('description', data.description);
   formData.append('status', data.status);
-  if (data.published_on) {
-    formData.append('published_on', data.published_on);
+  if (data.active_on) {
+    formData.append('active_on', data.active_on);
   }
   if (data.expires_on) {
     formData.append('expires_on', data.expires_on);

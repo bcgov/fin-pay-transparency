@@ -7,13 +7,10 @@ import { SUBMISSION_ROW_COLUMNS } from './validate-service';
 import { createSampleRecord } from './validate-service.spec';
 const { mockRequest } = require('mock-req-res');
 
-const mockShouldPreventReportOverrides = jest.fn();
-
 jest.mock('./report-service', () => ({
   ...jest.requireActual('./report-service'),
   reportService: {
     ...jest.requireActual('./report-service').reportService,
-    shouldPreventReportOverrides: () => mockShouldPreventReportOverrides(),
   },
 }));
 
@@ -41,7 +38,7 @@ const mockValidSubmission = {
 
 jest.mock('./file-upload-service', () => {
   const actual = jest.requireActual('./file-upload-service');
-  const mocked = jest.genMockFromModule('./file-upload-service') as any;
+  const mocked = jest.createMockFromModule('./file-upload-service') as any;
 
   return {
     ...mocked,

@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import ApiService from '../../../services/apiService';
+import { NotificationService } from '../../../services/notificationService';
 import { Announcement } from '../../../types/announcements';
 import AnnouncementActions from '../AnnouncementActions.vue';
 
@@ -27,7 +28,7 @@ const mockDraftAnnouncement: Announcement = {
   updated_date: '2024-08-06T18:56:35.825Z',
   created_by: '7e53edd6-f50f-4002-be1a-06dc506c138a',
   updated_by: '7e53edd6-f50f-4002-be1a-06dc506c138a',
-  published_on: '2024-07-30T18:56:35.825Z',
+  active_on: '2024-07-30T18:56:35.825Z',
   expires_on: '2024-10-29T18:56:35.825Z',
   status: 'DRAFT',
   announcement_resource: [],
@@ -140,6 +141,38 @@ describe('AnnouncementActions', () => {
         await wrapper.vm.unpublishAnnouncement(announcementId);
 
         expect(apiSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+  });
+
+  describe('edit announcement', () => {
+    it('sets the announcement to edit mode', async () => {
+      const apiSpy = vi
+        .spyOn(ApiService, 'getAnnouncement')
+        .mockImplementation(() => {
+          return Promise.resolve(mockDraftAnnouncement as any);
+        });
+      await wrapper.vm.editAnnouncement();
+
+      expect(apiSpy).toHaveBeenCalledWith(
+        mockDraftAnnouncement.announcement_id,
+      );
+    });
+
+    describe('when the announcement is not successfully retrieved', () => {
+      it('shows an error message', async () => {
+        vi.spyOn(ApiService, 'getAnnouncement').mockImplementation(() => {
+          return Promise.reject();
+        });
+
+        const errorSnackbarSpy = vi.spyOn(
+          NotificationService,
+          'pushNotificationError',
+        );
+
+        await wrapper.vm.editAnnouncement();
+
+        expect(errorSnackbarSpy).toHaveBeenCalled();
       });
     });
   });

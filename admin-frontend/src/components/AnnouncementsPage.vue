@@ -6,27 +6,17 @@
   </v-row>
 
   <div class="search-results w-100">
-    <v-row class="mt-0 w-100" no-gutters>
-      <v-col sm="8" md="8" lg="6" xl="4" class="d-flex align-center">
-        <h4 v-if="searchResults?.length">
-          Displaying {{ searchResults.length }} announcement<span
-            v-if="searchResults.length != 1"
-            >s</span
-          >
-        </h4>
-      </v-col>
-      <v-col
-        sm="4"
-        md="4"
-        lg="6"
-        xl="8"
-        class="d-flex justify-end align-center"
-      >
-        <v-btn class="btn-primary" to="/add-announcement">
-          Add Announcement
-        </v-btn>
-      </v-col>
-    </v-row>
+    <div class="d-flex flex-wrap">
+      <h4 v-if="searchResults?.length" class="">
+        Displaying {{ searchResults.length }} announcement<span
+          v-if="searchResults.length != 1"
+          >s</span
+        >
+      </h4>
+      <v-btn class="btn-primary ml-auto" to="/add-announcement">
+        Add Announcement
+      </v-btn>
+    </div>
 
     <v-data-table-server
       v-model:items-per-page="pageSize"
@@ -67,11 +57,11 @@
           {{ item.title }}
         </v-btn>
       </template>
-      <template #item.published_on="{ item }">
-        <div v-if="item.published_on">
-          <div>{{ formatIsoDateTimeAsLocalDate(item.published_on) }}</div>
+      <template #item.active_on="{ item }">
+        <div v-if="item.active_on">
+          <div>{{ formatIsoDateTimeAsLocalDate(item.active_on) }}</div>
           <small class="text-grey">{{
-            formatIsoDateTimeAsLocalTime(item.published_on)
+            formatIsoDateTimeAsLocalTime(item.active_on)
           }}</small>
         </div>
         <div v-else>-</div>
@@ -202,7 +192,7 @@ const headers = ref<any>([
     key: AnnouncementKeys.TITLE,
   },
   {
-    title: 'Publish On',
+    title: 'Active On',
     align: 'start',
     sortable: true,
     key: AnnouncementKeys.PUBLISH_DATE,

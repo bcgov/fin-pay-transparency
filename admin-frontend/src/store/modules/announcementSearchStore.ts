@@ -16,7 +16,7 @@ export const DEFAULT_SEARCH_PARAMS: IAnnouncementSearchParams = {
   page: 1,
   itemsPerPage: DEFAULT_PAGE_SIZE,
   filter: undefined,
-  sort: [{ field: 'published_on', order: 'desc' }],
+  sort: [{ field: 'active_on', order: 'desc' }],
 };
 
 /*
@@ -155,7 +155,7 @@ export const useAnnouncementSearchStore = defineStore(
     /*
   Transform a 'sortBy' array in the format used by Vuetify's v-data-table
   into a 'sort' array in the format used by the backend's report search API.
-    e.g. [{key: 'published_on', order: 'desc'}] 
+    e.g. [{key: 'active_on', order: 'desc'}] 
         => [{field: 'company_name', order: 'desc'}]
   */
     const dataTableSortByToBackendSort = (

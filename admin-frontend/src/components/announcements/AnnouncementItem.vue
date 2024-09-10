@@ -8,18 +8,34 @@
         :key="i"
         class="px-0"
       >
-        <a
-          v-if="announcementResource.resource_type === 'LINK'"
-          :href="sanitizeUrl(announcementResource.resource_url)"
-          target="_blank"
-          rel="noopener"
-          >{{ announcementResource.display_name }}</a
-        >
-        <a
+        <p v-if="announcementResource.resource_type === 'LINK'" class="mb-2">
+          <a
+            :href="sanitizeUrl(announcementResource.resource_url)"
+            target="_blank"
+            rel="noopener"
+            >{{ announcementResource.display_name }}
+            <v-icon
+              icon="fa:fas fa-arrow-up-right-from-square"
+              size=".85em"
+              color="primary icon-align"
+              class="icon-align"
+            />
+          </a>
+        </p>
+        <p
           v-if="announcementResource.resource_type === 'ATTACHMENT'"
-          @click="downloadAnnouncementResource(announcementResource)"
-          >{{ announcementResource.display_name }}</a
+          class="mb-2"
         >
+          <v-icon
+            icon="fa:fas fa-paperclip"
+            size="x-small"
+            color="primary"
+            class="mr-1 icon-align"
+          />
+          <a @click="downloadAnnouncementResource(announcementResource)">{{
+            announcementResource.display_name
+          }}</a>
+        </p>
       </div>
     </div>
   </div>
@@ -59,3 +75,8 @@ async function downloadAnnouncementResource(
   }
 }
 </script>
+<style>
+.icon-align {
+  vertical-align: baseline;
+}
+</style>

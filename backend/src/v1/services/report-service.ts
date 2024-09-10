@@ -15,7 +15,6 @@ import {
 } from '../../constants';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
-import { REPORT_STATUS } from './file-upload-service';
 import { CALCULATION_CODES, CalculatedAmount } from './report-calc-service';
 import { utils } from './utils-service';
 
@@ -1492,40 +1491,6 @@ const reportService = {
     } else {
       throw new Error(`No such report with reportId=${reportId}`);
     }
-  },
-
-  async shouldPreventReportOverrides(
-    startDate: LocalDate,
-    endDate: LocalDate,
-    bceidBusinessGuid: string,
-  ) {
-    const company = await prisma.pay_transparency_company.findFirst({
-      where: {
-        bceid_business_guid: bceidBusinessGuid,
-      },
-    });
-
-    const report = await prisma.pay_transparency_report.findFirst({
-      where: {
-        company_id: company.company_id,
-        report_status: REPORT_STATUS.PUBLISHED,
-        report_start_date: convert(startDate).toDate(),
-        report_end_date: convert(endDate).toDate(),
-        create_date: {
-          lt: convert(
-            LocalDate.now().minusDays(
-              config.get('server:reportEditDurationInDays'),
-            ),
-          ).toDate(),
-        },
-      },
-    });
-
-    if (report) {
-      return true;
-    }
-
-    return false;
   },
 };
 

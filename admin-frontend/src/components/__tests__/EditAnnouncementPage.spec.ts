@@ -8,6 +8,7 @@ import * as directives from 'vuetify/directives';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
 import { AnnouncementResourceType } from '../../types/announcements';
+import { convert, LocalDate } from '@js-joda/core';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -98,11 +99,11 @@ describe('EditAnnouncementPage', () => {
       });
 
       describe('when publishing announcement', () => {
-        it('should require publish date to be not in the past', async () => {
+        it('should require Active On date to be not in the past', async () => {
           store.setAnnouncement({
             title: 'title',
             description: 'description',
-            published_on: faker.date.past(),
+            active_on: faker.date.past(),
             status: 'DRAFT',
             announcement_resource: [],
           } as any);
@@ -116,10 +117,43 @@ describe('EditAnnouncementPage', () => {
           await waitFor(() => {
             expect(
               getByText(
-                'Publish On date cannot be in the past. Please select a new date.',
+                'Active On date cannot be in the past. Please select a new date.',
               ),
             ).toBeInTheDocument();
           });
+        });
+      });
+    });
+
+    describe('when expires_on is in the past', () => {
+      it('should show error message', async () => {
+        store.setAnnouncement({
+          announcement_id: '1',
+          title: 'title',
+          description: 'description',
+          active_on: new Date(),
+          expires_on: convert(LocalDate.now().minusDays(1)).toDate(),
+          status: 'PUBLISHED',
+          announcement_resource: [
+            {
+              resource_type: 'LINK',
+              display_name: 'link',
+              resource_url: 'https://example.com',
+            },
+          ],
+        } as any);
+        const { getByText, getByLabelText, getByRole } = await wrappedRender();
+        expect(getByLabelText('Publish')).toBeChecked();
+        expect(getByLabelText('Title')).toHaveValue('title');
+        expect(getByLabelText('Description')).toHaveValue('description');
+        const saveButton = getByRole('button', { name: 'Save' });
+        await fireEvent.click(saveButton);
+        await waitFor(() => {
+          expect(
+            getByText(
+              'Expires On date cannot be in the past. Please choose another date.',
+            ),
+          ).toBeVisible();
         });
       });
     });
@@ -130,7 +164,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [
             {
@@ -140,15 +174,24 @@ describe('EditAnnouncementPage', () => {
             },
           ],
         } as any);
-        const { getByRole, getByLabelText } = await wrappedRender();
+        const { queryByRole, getByRole, getByLabelText } =
+          await wrappedRender();
         expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
-        
+
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
         const saveButton = getByRole('button', { name: 'Save' });
         await fireEvent.click(saveButton);
+        await waitFor(async () => {
+          const confirmButton = getByRole('button', { name: 'Confirm' });
+          await fireEvent.click(confirmButton);
+        });
+        await waitFor(() => {
+          const confirmButton = queryByRole('button', { name: 'Confirm' });
+          expect(confirmButton).toBeNull();
+        });
         await waitFor(() => {
           expect(mockUpdateAnnouncement).toHaveBeenCalled();
           expect(mockSuccess).toHaveBeenCalled();
@@ -162,7 +205,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [
             {
@@ -173,8 +216,8 @@ describe('EditAnnouncementPage', () => {
             },
           ],
         } as any);
-        const { getByRole } = await wrappedRender();
-        expect(getByRole('button', { name: 'file name' })).toBeInTheDocument();
+        const { getByRole, getByText } = await wrappedRender();
+        expect(getByText('file name')).toBeInTheDocument();
         expect(getByRole('button', { name: 'Edit file' })).toBeInTheDocument();
         expect(
           getByRole('button', { name: 'Delete file' }),
@@ -187,7 +230,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -214,7 +257,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -249,7 +292,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -260,8 +303,8 @@ describe('EditAnnouncementPage', () => {
               },
             ],
           } as any);
-          const { getByRole } = await wrappedRender();
-          const fileButton = getByRole('button', { name: 'file name' });
+          const { getByText } = await wrappedRender();
+          const fileButton = getByText('file name');
           await fireEvent.click(fileButton);
           await waitFor(() => {
             expect(mockDownloadFile).toHaveBeenCalled();
@@ -276,7 +319,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [],
         } as any);
@@ -294,7 +337,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date().toDateString(),
+          active_on: new Date().toDateString(),
           status: 'PUBLISHED',
           announcement_resource: [
             {
@@ -329,7 +372,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -359,7 +402,7 @@ describe('EditAnnouncementPage', () => {
             announcement_id: '1',
             title: 'title',
             description: 'description',
-            published_on: new Date(),
+            active_on: new Date(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -389,7 +432,7 @@ describe('EditAnnouncementPage', () => {
           announcement_id: '1',
           title: 'title',
           description: 'description',
-          published_on: new Date(),
+          active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [
             {
@@ -406,6 +449,10 @@ describe('EditAnnouncementPage', () => {
         const saveButton = getByRole('button', { name: 'Save' });
 
         await fireEvent.click(saveButton);
+        await waitFor(async () => {
+          const confirmButton = getByRole('button', { name: 'Confirm' });
+          await fireEvent.click(confirmButton);
+        });
         await waitFor(() => {
           expect(mockUpdateAnnouncement).toHaveBeenCalled();
           expect(mockError).toHaveBeenCalled();

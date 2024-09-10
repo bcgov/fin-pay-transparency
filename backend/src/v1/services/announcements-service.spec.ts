@@ -15,7 +15,7 @@ const mockFindMany = jest.fn().mockResolvedValue([
     id: 1,
     title: 'Announcement 1',
     description: 'Description 1',
-    published_on: new Date(),
+    active_on: new Date(),
     expires_on: new Date(),
     status: 'active',
   },
@@ -23,7 +23,7 @@ const mockFindMany = jest.fn().mockResolvedValue([
     id: 2,
     title: 'Announcement 2',
     description: 'Description 2',
-    published_on: new Date(),
+    active_on: new Date(),
     expires_on: new Date(),
     status: 'active',
   },
@@ -45,6 +45,7 @@ jest.mock('../prisma/prisma-client', () => ({
       count: jest.fn().mockResolvedValue(2),
       updateMany: (...args) => mockUpdateMany(...args),
       create: (...args) => mockCreateAnnouncement(...args),
+      findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
     },
     announcement_history: {
       create: (...args) => mockHistoryCreate(...args),
@@ -135,13 +136,13 @@ describe('AnnouncementsService', () => {
             );
           });
         });
-        describe('when published_on filter is provided', () => {
+        describe('when active_on filter is provided', () => {
           describe('when operation is "between"', () => {
             it('should return announcements', async () => {
               await AnnouncementService.getAnnouncements({
                 filters: [
                   {
-                    key: 'published_on',
+                    key: 'active_on',
                     operation: 'between',
                     value: ['2022-01-01', '2022-12-31'],
                   },
@@ -151,7 +152,7 @@ describe('AnnouncementsService', () => {
                 expect.objectContaining({
                   where: expect.objectContaining({
                     AND: [
-                      { published_on: { gte: '2022-01-01', lt: '2022-12-31' } },
+                      { active_on: { gte: '2022-01-01', lt: '2022-12-31' } },
                     ],
                   }),
                 }),
@@ -163,7 +164,7 @@ describe('AnnouncementsService', () => {
               await AnnouncementService.getAnnouncements({
                 filters: [
                   {
-                    key: 'published_on',
+                    key: 'active_on',
                     operation: 'lte',
                     value: ['2022-01-01'],
                   },
@@ -172,7 +173,7 @@ describe('AnnouncementsService', () => {
               expect(mockFindMany).toHaveBeenCalledWith(
                 expect.objectContaining({
                   where: expect.objectContaining({
-                    AND: [{ published_on: { lte: ['2022-01-01'] } }],
+                    AND: [{ active_on: { lte: ['2022-01-01'] } }],
                   }),
                 }),
               );
@@ -183,7 +184,7 @@ describe('AnnouncementsService', () => {
               await AnnouncementService.getAnnouncements({
                 filters: [
                   {
-                    key: 'published_on',
+                    key: 'active_on',
                     operation: 'gt',
                     value: ['2022-01-01'],
                   },
@@ -192,7 +193,7 @@ describe('AnnouncementsService', () => {
               expect(mockFindMany).toHaveBeenCalledWith(
                 expect.objectContaining({
                   where: expect.objectContaining({
-                    AND: [{ published_on: { gt: ['2022-01-01'] } }],
+                    AND: [{ active_on: { gt: ['2022-01-01'] } }],
                   }),
                 }),
               );
@@ -433,7 +434,7 @@ describe('AnnouncementsService', () => {
         title: faker.lorem.words(3),
         description: faker.lorem.words(10),
         expires_on: faker.date.recent().toISOString(),
-        published_on: faker.date.future().toISOString(),
+        active_on: faker.date.future().toISOString(),
         status: AnnouncementStatus.Published,
         linkDisplayName: faker.lorem.words(3),
         linkUrl: faker.internet.url(),
@@ -491,7 +492,7 @@ describe('AnnouncementsService', () => {
         title: faker.lorem.words(3),
         description: faker.lorem.words(10),
         expires_on: '',
-        published_on: '',
+        active_on: '',
         status: 'DRAFT',
         linkDisplayName: '',
         linkUrl: '',
@@ -504,7 +505,7 @@ describe('AnnouncementsService', () => {
         data: {
           ...omit(announcementInput, 'status', 'linkDisplayName', 'linkUrl'),
           expires_on: undefined,
-          published_on: undefined,
+          active_on: undefined,
           announcement_status: {
             connect: { code: 'DRAFT' },
           },
@@ -532,7 +533,7 @@ describe('AnnouncementsService', () => {
           title: faker.lorem.words(3),
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
-          published_on: faker.date.future().toISOString(),
+          active_on: faker.date.future().toISOString(),
           status: AnnouncementStatus.Published,
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
@@ -559,7 +560,7 @@ describe('AnnouncementsService', () => {
               title: announcementInput.title,
               description: announcementInput.description,
               expires_on: announcementInput.expires_on,
-              published_on: announcementInput.published_on,
+              active_on: announcementInput.active_on,
               updated_date: expect.any(Date),
               announcement_status: {
                 connect: { code: AnnouncementStatus.Published },
@@ -583,7 +584,7 @@ describe('AnnouncementsService', () => {
           title: faker.lorem.words(3),
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
-          published_on: faker.date.future().toISOString(),
+          active_on: faker.date.future().toISOString(),
           status: AnnouncementStatus.Published,
         };
         await AnnouncementService.updateAnnouncement(
@@ -602,7 +603,7 @@ describe('AnnouncementsService', () => {
               title: announcementInput.title,
               description: announcementInput.description,
               expires_on: announcementInput.expires_on,
-              published_on: announcementInput.published_on,
+              active_on: announcementInput.active_on,
               updated_date: expect.any(Date),
               announcement_status: {
                 connect: { code: AnnouncementStatus.Published },
@@ -626,7 +627,7 @@ describe('AnnouncementsService', () => {
           title: faker.lorem.words(3),
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
-          published_on: faker.date.future().toISOString(),
+          active_on: faker.date.future().toISOString(),
           status: AnnouncementStatus.Published,
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
@@ -664,7 +665,7 @@ describe('AnnouncementsService', () => {
               title: announcementInput.title,
               description: announcementInput.description,
               expires_on: announcementInput.expires_on,
-              published_on: announcementInput.published_on,
+              active_on: announcementInput.active_on,
               updated_date: expect.any(Date),
               announcement_status: {
                 connect: { code: AnnouncementStatus.Published },
@@ -693,7 +694,7 @@ describe('AnnouncementsService', () => {
           title: faker.lorem.words(3),
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
-          published_on: faker.date.future().toISOString(),
+          active_on: faker.date.future().toISOString(),
           status: AnnouncementStatus.Published,
           attachmentId: attachmentId,
           fileDisplayName: faker.lorem.words(3),
@@ -720,7 +721,7 @@ describe('AnnouncementsService', () => {
               title: announcementInput.title,
               description: announcementInput.description,
               expires_on: announcementInput.expires_on,
-              published_on: announcementInput.published_on,
+              active_on: announcementInput.active_on,
               updated_date: expect.any(Date),
               announcement_status: {
                 connect: { code: AnnouncementStatus.Published },
@@ -749,7 +750,7 @@ describe('AnnouncementsService', () => {
             title: faker.lorem.words(3),
             description: faker.lorem.words(10),
             expires_on: faker.date.recent().toISOString(),
-            published_on: faker.date.future().toISOString(),
+            active_on: faker.date.future().toISOString(),
             status: 'PUBLISHED',
           };
           await updateAnnouncement(
@@ -780,7 +781,7 @@ describe('AnnouncementsService', () => {
           title: faker.lorem.words(3),
           description: faker.lorem.words(10),
           expires_on: faker.date.recent().toISOString(),
-          published_on: faker.date.future().toISOString(),
+          active_on: faker.date.future().toISOString(),
           status: AnnouncementStatus.Published,
           attachmentId: faker.string.uuid(),
           fileDisplayName: faker.lorem.word(),
@@ -818,7 +819,7 @@ describe('AnnouncementsService', () => {
               title: announcementInput.title,
               description: announcementInput.description,
               expires_on: announcementInput.expires_on,
-              published_on: announcementInput.published_on,
+              active_on: announcementInput.active_on,
               updated_date: expect.any(Date),
               announcement_status: {
                 connect: { code: AnnouncementStatus.Published },
@@ -832,7 +833,7 @@ describe('AnnouncementsService', () => {
       });
     });
 
-    it('should default to undefined dates', async () => {
+    it('should default to null dates', async () => {
       mockFindUniqueOrThrow.mockResolvedValue({
         id: 'announcement-id',
         announcement_resource: [],
@@ -841,7 +842,7 @@ describe('AnnouncementsService', () => {
         title: faker.lorem.words(3),
         description: faker.lorem.words(10),
         expires_on: '',
-        published_on: '',
+        active_on: '',
         status: 'DRAFT',
         linkDisplayName: '',
         linkUrl: '',
@@ -855,8 +856,8 @@ describe('AnnouncementsService', () => {
         expect.objectContaining({
           where: { announcement_id: 'announcement-id' },
           data: expect.objectContaining({
-            expires_on: undefined,
-            published_on: undefined,
+            expires_on: null,
+            active_on: null,
           }),
         }),
       );
@@ -909,6 +910,16 @@ describe('AnnouncementsService', () => {
           },
           status: AnnouncementStatus.Published,
         },
+      });
+    });
+  });
+
+  describe('getAnnouncementById', () => {
+    it('should return announcement by id', async () => {
+      await AnnouncementService.getAnnouncementById('1');
+      expect(mockFindUniqueOrThrow).toHaveBeenCalledWith({
+        where: { announcement_id: '1' },
+        include: { announcement_resource: true },
       });
     });
   });

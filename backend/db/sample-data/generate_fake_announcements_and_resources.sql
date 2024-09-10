@@ -474,7 +474,7 @@ BEGIN
 			,description
 			,created_by
 			,updated_by
-			,published_on
+			,active_on
 			,expires_on
 			,status)
 		values(

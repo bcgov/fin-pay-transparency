@@ -457,7 +457,7 @@ describe('ApiService', () => {
           describe: 'test',
           status: 'PUBLISHED',
           expires_on: '2021-12-31',
-          published_on: '2021-12-31',
+          active_on: '2021-12-31',
           linkUrl: 'https://example.com',
           linkDisplayName: 'example',
           attachment: 'test',
@@ -523,6 +523,34 @@ describe('ApiService', () => {
         await expect(
           ApiService.updateAnnouncement('', payload),
         ).rejects.toThrow();
+      });
+    });
+  });
+
+  describe('getAnnouncement', () => {
+    it('returns an announcement', async () => {
+      const mockBackendResponse = { title: 'test' };
+      const mockAxiosResponse = {
+        data: mockBackendResponse,
+      };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+
+      const resp = await ApiService.getAnnouncement('1');
+      expect(resp).toEqual(mockBackendResponse);
+    });
+
+    describe('when the data are not successfully retrieved from the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        await expect(ApiService.getAnnouncement('1')).rejects.toEqual(
+          mockAxiosError,
+        );
       });
     });
   });

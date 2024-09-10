@@ -483,7 +483,7 @@ describe('ApiService', () => {
   });
 
   describe('getPublishedAnnouncements', () => {
-    it('request filters by status, published_on and expired_on', async () => {
+    it('request filters by status, active_on and expired_on', async () => {
       const mockTimeNow = '1234';
       const dateSpy = vi
         .spyOn(ApiServicePrivate, 'dateToApiDateTimeString')
@@ -495,8 +495,8 @@ describe('ApiService', () => {
 
       const filter = getAnnouncementsSpy.mock.calls[0][2];
       const statusFilter = filter?.filter((f) => f.key == 'status');
-      const publishedOnFilter: any = filter?.filter(
-        (f) => f.key == 'published_on',
+      const activeOnFilter: any = filter?.filter(
+        (f) => f.key == 'active_on',
       )[0];
       const expiresOnFilter: any = filter?.filter(
         (f) => f.key == 'expires_on',
@@ -509,8 +509,8 @@ describe('ApiService', () => {
           value: [AnnouncementStatus.Published],
         },
       ]);
-      expect(publishedOnFilter).toStrictEqual({
-        key: 'published_on',
+      expect(activeOnFilter).toStrictEqual({
+        key: 'active_on',
         operation: 'lte',
         value: mockTimeNow,
       });

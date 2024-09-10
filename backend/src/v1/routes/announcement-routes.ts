@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Request, Router } from 'express';
 import formData from 'express-form-data';
 import os from 'os';
 import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
@@ -9,6 +9,7 @@ import { useUpload } from '../middlewares/storage/upload';
 import { useValidate } from '../middlewares/validations';
 import {
   createAnnouncement,
+  getAnnouncementById,
   getAnnouncements,
   patchAnnouncements,
   updateAnnouncement,
@@ -136,5 +137,15 @@ router.put(
     }
   },
 );
+
+router.get('/:id', authenticateAdmin(), async (req: Request, res) => {
+  try {
+    const announcement = await getAnnouncementById(req.params.id);
+    return res.json(announcement);
+  } catch (error) {
+    logger.error(error);
+    res.status(400).json({ message: 'Invalid request', error });
+  }
+});
 
 export default router;

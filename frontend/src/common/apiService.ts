@@ -290,7 +290,7 @@ export default {
         value: ['PUBLISHED'],
       },
       {
-        key: 'published_on',
+        key: 'active_on',
         operation: 'lte',
         value: now,
       },
@@ -318,7 +318,7 @@ export default {
         filter = [];
       }
       if (!sort) {
-        sort = [{ field: 'published_on', order: 'asc' }];
+        sort = [{ field: 'active_on', order: 'asc' }];
       }
       const params = {
         offset: offset,

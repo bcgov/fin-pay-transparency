@@ -1,24 +1,20 @@
 <template>
   <div class="root">
-    <v-btn
-      variant="text"
-      color="primary"
-      append-icon="mdi-open-in-new"
-      @click="ApiService.downloadFile(id)"
-      >{{ name }}</v-btn
-    >
+    <a @click="ApiService.downloadFile(id)">
+      {{ name }}
+    </a>
     <v-btn
       density="compact"
       icon="mdi-pencil"
       class="mr-2"
-      @click="emits('onEdit')"
       aria-label="Edit file"
+      @click="emits('onEdit')"
     ></v-btn>
     <v-btn
       density="compact"
       icon="mdi-delete-outline"
-      @click="emits('onDelete')"
       aria-label="Delete file"
+      @click="emits('onDelete')"
     ></v-btn>
   </div>
 </template>
@@ -33,7 +29,6 @@ interface AttachmentResourceProps {
 const { id, name } = defineProps<AttachmentResourceProps>();
 
 const emits = defineEmits(['onEdit', 'onDelete']);
-
 </script>
 <style scoped lang="scss">
 .root {
