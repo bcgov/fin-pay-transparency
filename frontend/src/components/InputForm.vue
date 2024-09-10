@@ -1,6 +1,6 @@
 <template>
   <v-container class="d-flex justify-center h-100">
-    <v-form ref="inputForm" @submit.prevent="submit" class="w-100 h-100">
+    <v-form ref="inputForm" class="w-100 h-100" @submit.prevent="submit">
       <v-row no-gutters>
         <v-col>
           <v-alert
@@ -95,11 +95,11 @@
                   </label>
                   <span class="text-error font-weight-bold text-h6">*</span>
                   <v-tooltip
+                    id="naics-tooltip"
                     text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer is composed of multiple sectors, select the code that covers the majority of employees."
                     :width="
                       $vuetify.display.xs ? $vuetify.display.width : '50%'
                     "
-                    id="naics-tooltip"
                   >
                     <template #activator="{ props }">
                       <v-icon
@@ -145,11 +145,11 @@
                   </span>
                   <span class="text-error font-weight-bold text-h6">*</span>
                   <v-tooltip
+                    id="employee-count-tooltip"
                     text="Select the range closest to the number of employees employed as of January 1st of the year for which your report is being prepared."
                     :width="
                       $vuetify.display.xs ? $vuetify.display.width : '50%'
                     "
-                    id="employee-count-tooltip"
                   >
                     <template #activator="{ props }">
                       <v-icon
@@ -200,11 +200,11 @@
                       </label>
                       <span class="text-error font-weight-bold text-h6">*</span>
                       <v-tooltip
+                        id="reporting-year-tooltip"
                         text="Reporting employers are required to submit pay transparency reports by November 1st of each year. Select the year you are submitting a report for."
                         :width="
                           $vuetify.display.xs ? $vuetify.display.width : '50%'
                         "
-                        id="reporting-year-tooltip"
                       >
                         <template #activator="{ props }">
                           <v-icon
@@ -255,11 +255,11 @@
                       </span>
                       <span class="text-error font-weight-bold text-h6">*</span>
                       <v-tooltip
+                        id="time-period-tooltip"
                         text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
                         :width="
                           $vuetify.display.xs ? $vuetify.display.width : '50%'
                         "
-                        id="time-period-tooltip"
                       >
                         <template #activator="{ props }">
                           <v-icon
@@ -353,8 +353,8 @@
                 <div class="text-body-1 font-weight-bold">
                   <label for="comments"> Employer Statement </label>
                   <v-tooltip
-                    text="Please share any general information about your employer."
                     id="employer-statement-tooltip"
+                    text="Please share any general information about your employer."
                   >
                     <template #activator="{ props }">
                       <v-icon
@@ -396,11 +396,11 @@
                 <div class="text-body-1 font-weight-bold">
                   <label for="dataConstraints"> Data Constraints </label>
                   <v-tooltip
+                    id="data-constraints-tooltip"
                     text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
                     :width="
                       $vuetify.display.xs ? $vuetify.display.width : '50%'
                     "
-                    id="data-constraints-tooltip"
                   >
                     <template #activator="{ props }">
                       <v-icon
@@ -519,6 +519,7 @@
                       <tr
                         v-for="rowError in submissionErrors.rowErrors"
                         :key="rowError.rowNum"
+                        :data-testid="`error-on-line-${rowError.rowNum}`"
                       >
                         <td class="text-left">{{ rowError.rowNum }}</td>
                         <td class="text-left">
@@ -561,8 +562,8 @@
                     id="uploadFileButton"
                     class="btn-secondary"
                     type="button"
-                    @click="selectFile"
                     :loading="isSelectingFile"
+                    @click="selectFile"
                   >
                     Upload file
                   </v-btn>
@@ -1165,7 +1166,6 @@ export default {
 .back-button-banner {
   padding-left: 0;
 }
-
 
 textarea::placeholder {
   text-align: right;
