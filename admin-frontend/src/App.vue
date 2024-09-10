@@ -81,7 +81,7 @@ export default {
 
 <style lang="scss">
 @import '@bcgov/bc-sans/css/BCSans.css';
-
+$inputHeight: 40px;
 $link-color: #255a90;
 
 .ptap-panel {
@@ -288,11 +288,18 @@ button:disabled.v-btn {
   --dp-danger-color: rgb(var(--v-theme-error));
 }
 
-/* Override default styles of VueDatepicker component to better match the style of vuetify components */
+/* Override styles of the Vue3DatePicker so it looks similar to a
+  Vuetify control */
 input.dp__input {
+  height: $inputHeight !important;
+  box-shadow:
+    0px 3px 1px -2px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
+    0px 2px 2px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
+    0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
   padding-top: 7px !important;
   padding-bottom: 7px !important;
 }
+
 .dp__input_invalid {
   box-shadow: 0 0 0px var(--dp-danger-color) !important;
   border-color: var(--dp-danger-color) !important;
@@ -323,5 +330,9 @@ Transitions to be used with Vue's <Transition> component
 .slide-fade-leave-to {
   transform: translateX(20px);
   opacity: 0;
+}
+
+input::-ms-input-placeholder {
+  color: black !important;
 }
 </style>
