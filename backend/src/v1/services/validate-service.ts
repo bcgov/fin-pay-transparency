@@ -309,8 +309,10 @@ const validateService = {
       errorMessages.push(
         `${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} contains data.`,
       );
-    }
-    if (this.isZeroSynonym(overtimeHours) && !this.isZeroSynonym(overtimePay)) {
+    } else if (
+      this.isZeroSynonym(overtimeHours) &&
+      !this.isZeroSynonym(overtimePay)
+    ) {
       errorMessages.push(
         `${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} contains data.`,
       );
