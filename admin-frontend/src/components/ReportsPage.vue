@@ -49,8 +49,8 @@
       "
       @update:options="updateSearch"
     >
-      <template #item.update_date="{ item }">
-        {{ formatDate(item.update_date) }}
+      <template #item.create_date="{ item }">
+        {{ formatDate(item.create_date) }}
       </template>
       <template #item.actions="{ item }">
         <v-btn
@@ -118,7 +118,7 @@ const headers = ref<any>([
     title: 'Submission date',
     align: 'start',
     sortable: true,
-    key: ReportKeys.UPDATE_DATE,
+    key: ReportKeys.CREATE_DATE,
   },
   {
     title: 'Company name',

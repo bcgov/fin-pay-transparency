@@ -15,7 +15,7 @@
           {{ item.reporting_year }}
         </td>
         <td :data-testid="`report_published_date-${item.report_id}`">
-          {{ formatDateTime(item.update_date) }}
+          {{ formatDateTime(item.create_date) }}
         </td>
         <td class="actions">
           <v-btn
