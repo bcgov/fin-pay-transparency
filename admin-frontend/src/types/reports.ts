@@ -16,6 +16,7 @@ export interface IReportSearchParams {
 export type IReportSearchSort = any[] | undefined;
 
 export enum ReportKeys {
+  CREATE_DATE = 'create_date',
   UPDATE_DATE = 'update_date',
   COMPANY_NAME = 'pay_transparency_company.company_name',
   NAICS_CODE = 'naics_code',
