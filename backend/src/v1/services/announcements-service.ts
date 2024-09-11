@@ -484,6 +484,7 @@ export const getExpiringAnnouncements = async (): Promise<announcement[]> => {
     .withMinute(0)
     .withSecond(0)
     .withNano(0);
+
   const items = await prisma.announcement.findMany({
     where: {
       status: AnnouncementStatus.Published,
@@ -494,5 +495,8 @@ export const getExpiringAnnouncements = async (): Promise<announcement[]> => {
     },
   });
 
+  logger.info(
+    `Found ${items.length} expiring announcements between ${targetDate.toString()} and ${targetDate.plusDays(1).toString()}`,
+  );
   return items;
 };
