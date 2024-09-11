@@ -85,6 +85,19 @@ describe('EditAnnouncementPage', () => {
         expect(queryByLabelText('Draft')).toBeNull();
       });
     });
+    describe('when announcement was previously published and no expiry date', () => {
+      it('No expiry should be checked', async () => {
+        store.setAnnouncement({
+          title: 'title',
+          description: 'description',
+          status: 'PUBLISHED',
+          announcement_resource: [],
+        } as any);
+        const { getByRole } = await wrappedRender();
+        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
+        expect(noExpiry).toBeChecked();
+      });
+    });
     describe('when announcement is draft', () => {
       it('should display DRAFT and PUBLISH radio buttons', async () => {
         store.setAnnouncement({
