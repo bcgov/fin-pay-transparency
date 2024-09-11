@@ -49,15 +49,17 @@ const schedulerService = {
   async sendAnnouncementExpiringEmails() {
     if (!config.get('server:enableEmailExpiringAnnouncements')) return;
 
+    const expiring = await getExpiringAnnouncements();
+    if (!expiring.length) return;
+
     const sso = await SSO.init();
     const users = await sso.getUsers();
-    const emails = users.map((u) => u.email);
+    const emails = users.filter((u) => u.email).map((u) => u.email);
     const env = config.get('server:openshiftEnv');
     const envPrefix = env === 'PROD' ? '' : `[${env}] `; // If not prod, add environment as a prefix to the subject line
     const zone = ZoneId.of(config.get('server:schedulerTimeZone'));
 
     // Loop through expiring announcements and send emails
-    const expiring = await getExpiringAnnouncements();
     for (const ann of expiring) {
       const expiryStr = nativeJs(ann.expires_on, ZoneId.UTC)
         .withZoneSameInstant(zone)
@@ -66,6 +68,9 @@ const schedulerService = {
             Locale.CANADA,
           ),
         );
+      logger.info(
+        `Sending email to ${emails.length} addresses about announcement expiring on ${expiryStr}`,
+      );
       const email = emailService.generateHtmlEmail(
         `${envPrefix}Pay Transparency | Expiring Announcement`,
         emails,
