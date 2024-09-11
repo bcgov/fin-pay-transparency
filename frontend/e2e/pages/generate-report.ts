@@ -1,10 +1,9 @@
-import { Locator, Response, expect } from '@playwright/test';
-import { PTPage, User } from './page';
-import path from 'path';
-import flatten from 'lodash/flatten';
 import { LocalDate } from '@js-joda/core';
-import { validateSubmitErrors, waitForApiResponses } from '../utils/report';
+import { Locator, Response, expect } from '@playwright/test';
+import path from 'path';
 import { PagePaths } from '../utils';
+import { validateSubmitErrors, waitForApiResponses } from '../utils/report';
+import { PTPage, User } from './page';
 
 export interface IReportDetails {
   report_id: string;
@@ -81,7 +80,7 @@ export class GenerateReportPage extends PTPage {
   async setNaicsCode(label: string) {
     await this.naicsInput.click();
     await this.instance.waitForTimeout(1000);
-    const code = await this.instance.getByRole('option', {name: label});
+    const code = await this.instance.getByRole('option', { name: label });
     expect(code).toBeVisible();
     await code.click();
   }
@@ -124,12 +123,20 @@ export class GenerateReportPage extends PTPage {
         'The submission contains errors which must be corrected. Please review the following lines from the uploaded file:',
       ),
     ).toBeVisible();
-    const rowErrors: string[] = flatten(
-      errors.rowErrors.map((i) => i.errorMsgs),
-    );
-    for (const errorMsg of rowErrors) {
-      await expect(await this.instance.getByText(errorMsg)).toBeVisible();
+    for (const error of errors.rowErrors) {
+      const line = await this.instance.getByTestId(
+        `error-on-line-${error.rowNum}`,
+      );
+      for (const errorMsg of error.errorMsgs) {
+        await expect(await line.getByText(errorMsg)).toBeVisible();
+      }
     }
+    //const rowErrors: string[] = flatten(
+    //  errors.rowErrors.map((i) => i.errorMsgs),
+    //);
+    //for (const errorMsg of rowErrors) {
+    //  await expect(await this.instance.getByText(errorMsg)).toBeVisible();
+    //}
   }
 
   async fillOutForm(values: IFormValues) {
