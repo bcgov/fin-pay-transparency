@@ -297,13 +297,11 @@ const validateService = {
         `${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} contains data.`,
       );
     }
+    errorMessages.push(
+      ...validateServicePrivate.validateOvertimePayAndHours(record),
+    );
 
-    if (errorMessages.length) {
-      const rowError = new RowError(recordNum, errorMessages);
-      return rowError;
-    }
-
-    return null;
+    return errorMessages.length ? new RowError(recordNum, errorMessages) : null;
   },
 
   /**
@@ -337,7 +335,7 @@ const validateService = {
   */
   standardizeGenderCode(genderCode: string) {
     let standardizedGenderCode = null;
-    for (let key of Object.keys(GENDER_CODES)) {
+    for (const key of Object.keys(GENDER_CODES)) {
       const genderCodeSynonyms = GENDER_CODES[key];
       if (genderCodeSynonyms.indexOf(genderCode) >= 0) {
         //the standardized form is a list of all synonym codes separated by underscores.
@@ -409,6 +407,42 @@ const validateService = {
     }
 
     return true;
+  },
+};
+
+export const validateServicePrivate = {
+  /* 
+  Performs partial validation of the given record.  
+  Only considers values of the Overtime Pay and Overtime Hours fields.
+  Returns an array of error messages if any validation errors are found.
+  Returns an empty array if no errors are found
+  */
+  validateOvertimePayAndHours(record: any) {
+    const errorMessages: string[] = [];
+    const overtimeHours = validateService.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS,
+    );
+    const overtimePay = validateService.getObjectProperty(
+      record,
+      SUBMISSION_ROW_COLUMNS.OVERTIME_PAY,
+    );
+    if (
+      validateService.isZeroSynonym(overtimePay) &&
+      !validateService.isZeroSynonym(overtimeHours)
+    ) {
+      errorMessages.push(
+        `${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} contains data.`,
+      );
+    } else if (
+      validateService.isZeroSynonym(overtimeHours) &&
+      !validateService.isZeroSynonym(overtimePay)
+    ) {
+      errorMessages.push(
+        `${SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS} must not be blank or 0 when ${SUBMISSION_ROW_COLUMNS.OVERTIME_PAY} contains data.`,
+      );
+    }
+    return errorMessages;
   },
 };
 

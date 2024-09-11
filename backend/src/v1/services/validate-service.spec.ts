@@ -9,6 +9,7 @@ import {
   SUBMISSION_ROW_COLUMNS,
   ValidationError,
   validateService,
+  validateServicePrivate,
 } from './validate-service';
 
 // ----------------------------------------------------------------------------
@@ -48,14 +49,14 @@ const doesAnyStringContainAll = (
     return false;
   }
   for (
-    var stringsToLookInIndex = 0;
+    let stringsToLookInIndex = 0;
     stringsToLookInIndex < stringsToLookIn.length;
     stringsToLookInIndex++
   ) {
     const stringToLookIn = stringsToLookIn[stringsToLookInIndex];
-    var containsAll = true;
+    let containsAll = true;
     for (
-      var stringsToLookForIndex = 0;
+      let stringsToLookForIndex = 0;
       stringsToLookForIndex < stringsToLookFor.length;
       stringsToLookForIndex++
     ) {
@@ -97,13 +98,13 @@ const doesAnyRowErrorContainAll = (
     return false;
   }
   for (
-    var lineIndex = 0;
+    let lineIndex = 0;
     lineIndex < rowError?.errorMsgs?.length;
     lineIndex++
   ) {
     const errorMsg: string = rowError.errorMsgs[lineIndex];
-    var lineContainsAll = true;
-    for (var valueIndex = 0; valueIndex < values.length; valueIndex++) {
+    let lineContainsAll = true;
+    for (let valueIndex = 0; valueIndex < values.length; valueIndex++) {
       const value = values[valueIndex];
       const lineContainsValue = errorMsg?.indexOf(value) >= 0;
       lineContainsAll = lineContainsAll && lineContainsValue;
@@ -913,7 +914,11 @@ describe('validate-service', () => {
           it('returns no errors for this column', () => {
             // Create a sample row and uses a specific Overtime Hours value
             const overrides = {};
+            const overtimePay = validateService.isZeroSynonym(overtimeHours)
+              ? 0
+              : 10;
             overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = overtimeHours;
+            overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = overtimePay;
             const record = createSampleRecord(overrides);
 
             const recordNum = 1;
@@ -973,7 +978,12 @@ describe('validate-service', () => {
           it('returns no errors for this column', () => {
             // Create a sample row and uses a specific Overtime Pay value
             const overrides = {};
+            const overtimeHours = validateService.isZeroSynonym(overtimePay)
+              ? 0
+              : 10;
             overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = overtimePay;
+            overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = overtimeHours;
+
             const record = createSampleRecord(overrides);
 
             const recordNum = 1;
@@ -1047,6 +1057,75 @@ describe('validate-service', () => {
             ).toBeFalsy();
           });
         });
+      });
+    });
+  });
+});
+
+describe('validate-service-private', () => {
+  describe('validateOvertimePayAndHours', () => {
+    describe("if Overtime Pay is specified, but Overtime Hours isn't", () => {
+      it('returns an error', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 10;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 0;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeTruthy();
+      });
+    });
+    describe("if Overtime Hours is specified, but Overtime Pay isn't", () => {
+      it('returns an error', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 0;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 10;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeTruthy();
+      });
+    });
+    describe('if both Overtime Hours and Overtime Pay are non-zero', () => {
+      it('returns no errors', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 20;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 10;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeFalsy();
+      });
+    });
+    describe('if neither Overtime Hours nor Overtime Pay are specified', () => {
+      it('returns no errors', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = 0;
+        overrides[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = 0;
+        const record = createSampleRecord(overrides);
+
+        const rowError = new RowError(
+          1,
+          validateServicePrivate.validateOvertimePayAndHours(record),
+        );
+        expect(
+          doesAnyRowErrorContain(rowError, SUBMISSION_ROW_COLUMNS.OVERTIME_PAY),
+        ).toBeFalsy();
       });
     });
   });
