@@ -31,9 +31,9 @@
             class="text-red"
             variant="text"
             prepend-icon="mdi-archive"
-            @click="archiveAnnouncement(announcement.announcement_id)"
             :loading="isArchiving"
             :disabled="isArchiving"
+            @click="archiveAnnouncement(announcement.announcement_id)"
             >Archive</v-btn
           >
         </v-list-item>
@@ -45,7 +45,7 @@
   <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
 <script setup lang="ts">
-import { AnnouncementStatus } from '../../types/announcements';
+import { AnnouncementStatus, Announcement } from '../../types/announcements';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
@@ -53,7 +53,6 @@ import { useAnnouncementSelectionStore } from '../../store/modules/announcementS
 import { ref } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import { useRouter } from 'vue-router';
-import { Announcement } from '../../types/announcements';
 
 const router = useRouter();
 
