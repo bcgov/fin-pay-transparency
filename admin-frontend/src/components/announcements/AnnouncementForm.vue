@@ -170,7 +170,7 @@
                   <v-checkbox
                     v-model="noExpiry"
                     class="expiry-checkbox"
-                    label="No expiry"
+                    label="No expiry" 
                   ></v-checkbox>
                 </v-col>
               </v-row>
@@ -433,7 +433,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     expires_on: announcement?.expires_on
       ? new Date(announcement?.expires_on) //VueDatePicker is initialized with a Date()
       : undefined,
-    no_expiry: undefined,
+    no_expiry: !announcement?.expires_on && announcement?.status === 'PUBLISHED',
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
     fileDisplayName: announcement?.fileDisplayName || '',
