@@ -51,7 +51,7 @@ const buildAnnouncementWhereInput = (query: AnnouncementQueryType) => {
   const allFilters = [];
 
   if (query.filters) {
-    (query.filters as any[]).forEach((filter) => {
+    query.filters.forEach((filter) => {
       const attrFilter = {};
       switch (filter.key) {
         case 'active_on':
@@ -152,7 +152,9 @@ export const getAnnouncements = async (
  * @param id
  * @returns
  */
-export const getAnnouncementById = async (id: string): Promise<announcement> => {
+export const getAnnouncementById = async (
+  id: string,
+): Promise<announcement> => {
   return prisma.announcement.findUniqueOrThrow({
     where: {
       announcement_id: id,
@@ -161,7 +163,7 @@ export const getAnnouncementById = async (id: string): Promise<announcement> => 
       announcement_resource: true,
     },
   });
-}
+};
 
 /**
  * Patch announcements by ids.
@@ -425,9 +427,7 @@ export const updateAnnouncement = async (
       announcement_status: {
         connect: { code: input.status },
       },
-      active_on: !isEmpty(input.active_on)
-        ? input.active_on
-        : null,
+      active_on: !isEmpty(input.active_on) ? input.active_on : null,
       expires_on: !isEmpty(input.expires_on) ? input.expires_on : null,
       admin_user_announcement_updated_byToadmin_user: {
         connect: { admin_user_id: currentUserId },
@@ -479,7 +479,7 @@ export const expireAnnouncements = async () => {
 export const getExpiringAnnouncements = async (): Promise<announcement[]> => {
   const zone = ZoneId.of(config.get('server:schedulerTimeZone'));
   const targetDate = ZonedDateTime.now(zone)
-    .plusDays(10)
+    .plusDays(14)
     .withHour(0)
     .withMinute(0)
     .withSecond(0)

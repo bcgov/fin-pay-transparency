@@ -734,8 +734,8 @@ describe('AnnouncementsService', () => {
         );
       });
 
-      describe("and attachmentId is not provided in the input", () => {
-        it("should set attachment id to null", async () => {
+      describe('and attachmentId is not provided in the input', () => {
+        it('should set attachment id to null', async () => {
           const attachmentId = faker.string.uuid();
           mockFindUniqueOrThrow.mockResolvedValue({
             id: 'announcement-id',
@@ -894,10 +894,10 @@ describe('AnnouncementsService', () => {
     it('should return only announcements that will expire', async () => {
       jest
         .spyOn(ZonedDateTime, 'now')
-        .mockImplementationOnce((zone) =>
+        .mockImplementationOnce((zone: ZoneId) =>
           ZonedDateTime.of(
             LocalDateTime.parse('2024-08-26T11:38:23.561'),
-            zone as ZoneId,
+            zone,
           ),
         );
       await AnnouncementService.getExpiringAnnouncements();
@@ -905,8 +905,8 @@ describe('AnnouncementsService', () => {
       expect(mockFindMany).toHaveBeenCalledWith({
         where: {
           expires_on: {
-            gte: new Date('2024-09-05T07:00:00.000Z'),
-            lt: new Date('2024-09-06T07:00:00.000Z'),
+            gte: new Date('2024-09-09T07:00:00.000Z'),
+            lt: new Date('2024-09-10T07:00:00.000Z'),
           },
           status: AnnouncementStatus.Published,
         },
