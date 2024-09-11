@@ -44,11 +44,11 @@ export const useAnnouncementSearchStore = defineStore(
     //public actions
     //---------------------------------------------------------------------------
 
-    /* 
-  Launches a new announcement search against the API using the given parameters.
-  The parameters and results will be saved to this store.  
-  No meaningful return value.
-   */
+    /**
+     * Launches a new announcement search against the API using the given parameters.
+     * The parameters and results will be saved to this store.
+     * No meaningful return value.
+     */
     const searchAnnouncements = async (
       params: IAnnouncementSearchParams = {},
     ) => {
@@ -104,14 +104,14 @@ export const useAnnouncementSearchStore = defineStore(
       isSearching.value = false;
     };
 
-    /* 
-  Search again using the same filters as the previous search, but 
-  with updated values for 'page', 'itemsPerPage', and 'sortBy'.
-  This method is designed to work with the Vuetify's v-data-table-server,
-  which sends params in a specific format.
-  The parameters and results will be saved to this store. 
-  No meaningful return value.
-  */
+    /**
+     * Search again using the same filters as the previous search, but
+     * with updated values for 'page', 'itemsPerPage', and 'sortBy'.
+     * This method is designed to work with the Vuetify's v-data-table-server,
+     * which sends params in a specific format.
+     * The parameters and results will be saved to this store.
+     * No meaningful return value.
+     */
     const updateSearch = async (params: IAnnouncementSearchUpdateParams) => {
       const paramsAgumented: IAnnouncementSearchParams = {
         page: params.page,
@@ -122,25 +122,25 @@ export const useAnnouncementSearchStore = defineStore(
       return searchAnnouncements(paramsAgumented);
     };
 
-    /*
-  Repeats the most recent previous search with all the same params.  
-  This is similar to updateSearch(), except that function only reuses
-  filters from the previous search, not also paging parameters like
-  this function.
-  The parameters and results will be saved to this store. 
-  No meaningful return value.
-  */
+    /**
+     * Repeats the most recent previous search with all the same params.
+     * This is similar to updateSearch(), except that function only reuses
+     * filters from the previous search, not also paging parameters like
+     * this function.
+     * The parameters and results will be saved to this store.
+     * No meaningful return value.
+     */
     const repeatSearch = async () => {
       if (lastSubmittedSearchParams.value) {
         return searchAnnouncements(lastSubmittedSearchParams.value);
       }
     };
 
-    /*
-  resets back to the original state (i.e. clears any saved search results 
-  and information about the previous search, and performs a fresh 
-  search with no filters applied) 
-  */
+    /**
+     * resets back to the original state (i.e. clears any saved search results
+     * and information about the previous search, and performs a fresh
+     * search with no filters applied)
+     */
     const reset = async () => {
       searchResults.value = undefined;
       totalNum.value = 0;
@@ -152,12 +152,12 @@ export const useAnnouncementSearchStore = defineStore(
     // Private actions
     //---------------------------------------------------------------------------
 
-    /*
-  Transform a 'sortBy' array in the format used by Vuetify's v-data-table
-  into a 'sort' array in the format used by the backend's report search API.
-    e.g. [{key: 'active_on', order: 'desc'}] 
-        => [{field: 'company_name', order: 'desc'}]
-  */
+    /**
+     * Transform a 'sortBy' array in the format used by Vuetify's v-data-table
+     * into a 'sort' array in the format used by the backend's report search API.
+     *   e.g. [{key: 'active_on', order: 'desc'}]
+     *       => [{field: 'company_name', order: 'desc'}]
+     */
     const dataTableSortByToBackendSort = (
       sortBy: any[] | undefined,
     ): AnnouncementSortType | undefined => {

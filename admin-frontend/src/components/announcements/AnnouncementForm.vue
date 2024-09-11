@@ -381,12 +381,7 @@ import {
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import {
-  DateTimeFormatter,
-  LocalDate,
-  ZonedDateTime,
-  nativeJs,
-} from '@js-joda/core';
+import { DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
@@ -432,8 +427,12 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
     description: announcement?.description || '',
-    active_on: announcement?.active_on || undefined,
-    expires_on: announcement?.expires_on || undefined,
+    active_on: announcement?.active_on
+      ? new Date(announcement?.active_on) //VueDatePicker is initialized with a Date()
+      : undefined,
+    expires_on: announcement?.expires_on
+      ? new Date(announcement?.expires_on) //VueDatePicker is initialized with a Date()
+      : undefined,
     no_expiry: undefined,
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
@@ -811,16 +810,16 @@ const handleSave = handleSubmit(async (values) => {
     }
   }
 
-  await emits('save', {
+  emits('save', {
     ...values,
     active_on: values.active_on
-      ? DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-          ZonedDateTime.from(nativeJs(values.active_on)),
+      ? nativeJs(values.active_on).format(
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME,
         )
       : undefined,
     expires_on: values.expires_on
-      ? DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-          ZonedDateTime.from(nativeJs(values.expires_on)),
+      ? nativeJs(values.expires_on).format(
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME,
         )
       : undefined,
     linkDisplayName: isEmpty(values.linkDisplayName)
