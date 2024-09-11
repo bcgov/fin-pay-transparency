@@ -193,8 +193,6 @@ describe('EditAnnouncementPage', () => {
         expect(getByLabelText('Title')).toHaveValue('title');
         expect(getByLabelText('Description')).toHaveValue('description');
 
-        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
-        await fireEvent.click(noExpiry);
         const saveButton = getByRole('button', { name: 'Save' });
         await fireEvent.click(saveButton);
         await waitFor(async () => {
@@ -457,8 +455,7 @@ describe('EditAnnouncementPage', () => {
         } as any);
         mockUpdateAnnouncement.mockRejectedValueOnce(new Error('error'));
         const { getByRole } = await wrappedRender();
-        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
-        await fireEvent.click(noExpiry);
+        
         const saveButton = getByRole('button', { name: 'Save' });
 
         await fireEvent.click(saveButton);
