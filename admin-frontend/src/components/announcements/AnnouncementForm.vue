@@ -170,7 +170,7 @@
                   <v-checkbox
                     v-model="noExpiry"
                     class="expiry-checkbox"
-                    label="No expiry"
+                    label="No expiry" 
                   ></v-checkbox>
                 </v-col>
               </v-row>
@@ -381,7 +381,12 @@ import {
 import { useField, useForm } from 'vee-validate';
 import * as zod from 'zod';
 import { isEmpty } from 'lodash';
-import { DateTimeFormatter, LocalDate, nativeJs } from '@js-joda/core';
+import {
+  DateTimeFormatter,
+  LocalDate,
+  LocalDateTime,
+  nativeJs,
+} from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
@@ -392,7 +397,6 @@ import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import type { VTextField } from 'vuetify/components';
-import { LocalDateTime } from '@js-joda/core';
 
 // References to component's exported properties
 const announcementTitleRef = ref<VTextField | null>(null);
@@ -433,7 +437,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     expires_on: announcement?.expires_on
       ? new Date(announcement?.expires_on) //VueDatePicker is initialized with a Date()
       : undefined,
-    no_expiry: undefined,
+    no_expiry: !announcement?.expires_on && announcement?.status === 'PUBLISHED',
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
     fileDisplayName: announcement?.fileDisplayName || '',
@@ -768,29 +772,27 @@ const handleSave = handleSubmit(async (values) => {
       message:
         'Do you want to save the announcement as a draft? It will not be published to the public site. Do you want to continue?',
     };
+  } else if (
+    mode === AnnouncementFormMode.CREATE ||
+    announcement?.status !== 'PUBLISHED'
+  ) {
+    const activeDate = LocalDateTime.from(nativeJs(values.active_on));
+    const activeDateString = activeDate.format(
+      DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(Locale.CANADA),
+    );
+    const activeTimeString = activeDate.format(
+      DateTimeFormatter.ofPattern('hh:mm a').withLocale(Locale.CANADA),
+    );
+    confirmationSettings = {
+      title: 'Confirm Publish',
+      message: `This announcement will be published to the public site on ${activeDateString} at ${activeTimeString} Do you want to continue?`,
+    };
   } else {
-    if (
-      mode === AnnouncementFormMode.CREATE ||
-      announcement?.status !== 'PUBLISHED'
-    ) {
-      const activeDate = LocalDateTime.from(nativeJs(values.active_on));
-      const activeDateString = activeDate.format(
-        DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(Locale.CANADA),
-      );
-      const activeTimeString = activeDate.format(
-        DateTimeFormatter.ofPattern('hh:mm a').withLocale(Locale.CANADA),
-      );
-      confirmationSettings = {
-        title: 'Confirm Publish',
-        message: `This announcement will be published to the public site on ${activeDateString} at ${activeTimeString} Do you want to continue?`,
-      };
-    } else {
-      confirmationSettings = {
-        title: 'Confirm Update',
-        message:
-          'This published message will be updated on the public site with the changes you’ve made. Do you want to continue?',
-      };
-    }
+    confirmationSettings = {
+      title: 'Confirm Update',
+      message:
+        "This published message will be updated on the public site with the changes you've made. Do you want to continue?",
+    };
   }
 
   if (confirmationSettings) {
