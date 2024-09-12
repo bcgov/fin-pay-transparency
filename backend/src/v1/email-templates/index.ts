@@ -20,4 +20,15 @@ export const EMAIL_TEMPLATES = {
         access. You will then need to log in again.
         </p>`,
   },
+  ANNOUNCEMENT_ALERT: {
+    subject: (envPrefix: string) =>
+      `${envPrefix}Pay Transparency | Expiring Announcement`,
+    title: '',
+    body: (title: string, expiryStr: string) => `
+        <p>Please be advised that the announcement titled <b>${title}</b> will 
+        expire on <b>${expiryStr}</b> If you want to extend or change this 
+        announcement, please log into the Admin Portal to make the change. 
+        Otherwise, the announcement will be automatically removed from the 
+        Pay Transparency Reporting Tool site on the expiry date.</p>`,
+  },
 };
