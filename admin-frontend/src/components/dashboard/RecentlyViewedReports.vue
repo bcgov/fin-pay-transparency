@@ -68,7 +68,9 @@ const headers = [
  */
 async function updateSearch(): Promise<void> {
   isSearching.value = true;
-  const filter: ReportFilterType = [];
+  const filter: ReportFilterType = [
+    { key: 'admin_last_access_date', operation: 'not', value: null },
+  ];
   const sort: IReportSearchSort = [{ admin_last_access_date: 'desc' }];
   try {
     const searchResults: IReportSearchResult = await ApiService.getReports(

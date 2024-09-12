@@ -98,6 +98,12 @@ export type CompanyFilter = {
   value: string;
 };
 
+export type AdminLastAccessDateFilter = {
+  key: 'admin_last_access_date';
+  operation: 'not';
+  value: null;
+};
+
 export type ReportFilterType = (
   | SubmissonDateFilter
   | NaicsCodeFilter
@@ -105,4 +111,5 @@ export type ReportFilterType = (
   | IsUnlockedFilter
   | EmployeeCountRangeFilter
   | CompanyFilter
+  | AdminLastAccessDateFilter
 )[];

@@ -8,7 +8,8 @@ export type FilterKeyType =
   | 'reporting_year'
   | 'is_unlocked'
   | 'employee_count_range_id'
-  | 'company_name';
+  | 'company_name'
+  | 'admin_last_access_date';
 
 export type SubmissonDateFilter = {
   key: 'update_date';
@@ -48,6 +49,12 @@ export type CompanyFilter = {
   value: string;
 };
 
+export type AdminLastAccessDateFilter = {
+  key: 'admin_last_access_date';
+  operation: 'not';
+  value: null;
+};
+
 export type ReportFilterType = (
   | SubmissonDateFilter
   | NaicsCodeFilter
@@ -55,6 +62,7 @@ export type ReportFilterType = (
   | IsUnlockedFilter
   | EmployeeCountRangeFilter
   | CompanyFilter
+  | AdminLastAccessDateFilter
 )[];
 
 export type SortFieldType =
@@ -117,6 +125,9 @@ const FILTER_OPERATION_SCHEMA: {
   company_name: z.enum(['like'], {
     message: 'Only "like" operation is allowed',
   }),
+  admin_last_access_date: z.enum(['not'], {
+    message: 'Only "not" operation is allowed',
+  }),
 };
 
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
@@ -126,6 +137,7 @@ const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   reporting_year: z.number().optional(),
   is_unlocked: z.boolean().optional(),
   company_name: z.string().optional(),
+  admin_last_access_date: z.null(),
 };
 
 export const FilterValidationSchema = z.array(
@@ -139,6 +151,7 @@ export const FilterValidationSchema = z.array(
           'is_unlocked',
           'employee_count_range_id',
           'company_name',
+          'admin_last_access_date',
         ],
         {
           required_error: 'Missing or invalid filter key',
