@@ -45,6 +45,7 @@ const adminReportService = {
     await FilterValidationSchema.parseAsync(filterObj);
 
     const where = this.convertFiltersToPrismaFormat(filterObj);
+    console.log(where);
     const orderBy =
       adminReportServicePrivate.convertSortToPrismaFormat(sortObj);
 
@@ -201,6 +202,8 @@ const adminReportService = {
         filterValue = { gte: item.value[0], lt: item.value[1] };
       } else if (item.operation === 'like') {
         filterValue = { contains: item.value, mode: 'insensitive' };
+      } else if (item.operation === 'not') {
+        filterValue = { not: item.value };
       }
 
       if (relationKey) {
