@@ -278,7 +278,8 @@ class AdminAuth extends AuthBase {
           existing_admin_user.display_name != userDetails.displayName ||
           existing_admin_user.preferred_username !=
             userDetails.preferredUsername ||
-          !existing_admin_user.is_active)
+          !existing_admin_user.is_active ||
+          existing_admin_user.email != userDetails.email)
       ) {
         // The details of the user has changed, we need to store
         // the existing user in the history table.
@@ -317,6 +318,10 @@ class AdminAuth extends AuthBase {
         modified = true;
       } else if (!existing_admin_user) {
         // There is not an existing user, so make one.
+        // Note: If isLogin == false and it's creating a new user, that
+        //   means this user was added through keycloak and hasn't yet
+        //   logged in. Since last_login is required, it is set to Date(0),
+        //   which will show up as "1970-01-01 00:00:00" in the database.
         await tx.admin_user.create({
           data: {
             display_name: userDetails.displayName,
@@ -327,7 +332,7 @@ class AdminAuth extends AuthBase {
             is_active: true,
             preferred_username: userDetails.preferredUsername,
             email: userDetails.email,
-            last_login: isLogin ? undefined : new Date(0),
+            last_login: isLogin ? undefined : new Date(0), // 'undefined' in prisma create() will use the default for the column
           },
         });
         modified = true;
