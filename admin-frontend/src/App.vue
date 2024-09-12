@@ -11,8 +11,8 @@
         :class="{ 'ptap-panel': areHeaderAndSidebarVisible }"
       >
         <BreadcrumbTrail
-          class="pt-0 pb-0 mb-3"
           v-if="isBreadcrumbTrailVisible"
+          class="pt-0 pb-0 mb-3"
         ></BreadcrumbTrail>
 
         <router-view />
@@ -334,5 +334,10 @@ Transitions to be used with Vue's <Transition> component
 
 input::-ms-input-placeholder {
   color: black !important;
+}
+
+.ptap-widget {
+  height: 1px;
+  min-height: 300px;
 }
 </style>
