@@ -30,6 +30,7 @@ import codeRouter from './v1/routes/code-routes';
 import announcementsRoutes from './v1/routes/announcement-routes';
 import analyticRoutes from './v1/routes/analytic-routes';
 import resourcesRoutes from './v1/routes/resources-routes';
+import dashboardMetricsRoutes from './v1/routes/dashboard-metrics-routes';
 import { adminAuth } from './v1/services/admin-auth-service';
 import { utils } from './v1/services/utils-service';
 
@@ -270,6 +271,7 @@ apiRouter.use('/v1/user-invites', adminUserInvitesRoutes);
 apiRouter.use('/v1/announcements', announcementsRoutes);
 apiRouter.use('/v1/analytics', analyticRoutes);
 apiRouter.use('/v1/resources', resourcesRoutes);
+apiRouter.use('/v1/dashboards', dashboardMetricsRoutes);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });
