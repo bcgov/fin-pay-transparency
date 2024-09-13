@@ -56,12 +56,12 @@ describe('RecentlyViewedReports', () => {
     }
   });
 
-  describe('updateSearch', () => {
+  describe('getRecentlyViewedReports', () => {
     it('fetches reports from the backend', async () => {
       const getReportsSpy = vi
         .spyOn(ApiService, 'getReports')
         .mockResolvedValue({ reports: [], total: 0 });
-      wrapper.vm.updateSearch();
+      wrapper.vm.getRecentlyViewedReports();
       const searchParams = getReportsSpy.mock.calls[0][3];
       expect(searchParams).toStrictEqual([
         {

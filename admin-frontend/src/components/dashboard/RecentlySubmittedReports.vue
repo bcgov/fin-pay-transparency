@@ -1,26 +1,9 @@
 <template>
-  <v-card class="ptap-widget">
-    <v-card-text class="px-0 py-0">
-      <v-data-table-server
-        v-model:items-per-page="pageSize"
-        :headers="headers"
-        :items="reports"
-        :loading="isSearching"
-        :items-length="reports?.length ? reports.length : 0"
-        search=""
-        :no-data-text="hasSearched ? 'No reports to show' : ''"
-        :hide-default-footer="true"
-        @update:options="updateSearch"
-      >
-        <template #item.create_date="{ item }">
-          {{ formatIsoDateTimeAsLocalDate(item.create_date) }}
-        </template>
-        <template #item.actions="{ item }">
-          <ReportActions :report="item"></ReportActions>
-        </template>
-      </v-data-table-server>
-    </v-card-text>
-  </v-card>
+  <ReportsWidget
+    :page-size="pageSize"
+    :headers="headers"
+    :get-reports="getRecentlySubmittedReports"
+  />
 </template>
 
 <script setup lang="ts">
@@ -30,65 +13,41 @@ import {
   IReportSearchSort,
   Report,
 } from '../../types/reports';
-import { ref } from 'vue';
-import { formatIsoDateTimeAsLocalDate } from '../../utils/date';
-import ReportActions from '../reports/ReportActions.vue';
+import ReportsWidget from './ReportsWidget.vue';
 import ApiService from '../../services/apiService';
 
-const isSearching = ref<boolean>(false);
-const hasSearched = ref<boolean>(false);
-const reports = ref<Report[]>();
 const pageSize = 5;
-
-type AlignType = 'start' | 'center' | 'end';
 
 const headers = [
   {
     title: 'Submission Date',
-    align: 'start' as AlignType,
+    align: 'start',
     sortable: true,
     key: 'create_date',
   },
   {
     title: 'Company Name',
-    align: 'start' as AlignType,
+    align: 'start',
     sortable: true,
     key: 'pay_transparency_company.company_name',
   },
   {
     title: 'Actions',
-    align: 'start' as AlignType,
+    align: 'start',
     sortable: false,
     key: 'actions',
   },
 ];
 
-/**
- * Fetch the most recently updated reports
- */
-async function updateSearch(): Promise<void> {
-  isSearching.value = true;
+async function getRecentlySubmittedReports(): Promise<Report[]> {
   const filter: ReportFilterType = [];
   const sort: IReportSearchSort = [{ create_date: 'desc' }];
-  try {
-    const searchResults: IReportSearchResult = await ApiService.getReports(
-      0,
-      pageSize,
-      filter,
-      sort,
-    );
-    reports.value = searchResults.reports;
-  } catch {
-    //fail silently.
-  } finally {
-    isSearching.value = false;
-    hasSearched.value = true;
-  }
+  const searchResults: IReportSearchResult = await ApiService.getReports(
+    0,
+    pageSize,
+    filter,
+    sort,
+  );
+  return searchResults.reports;
 }
 </script>
-
-<style>
-thead {
-  background-color: #eeeeee;
-}
-</style>

@@ -166,13 +166,12 @@ export const FilterValidationSchema = z.array(
     })
     .refine(
       (data) => {
-        const schema = FILTER_OPERATION_SCHEMA[data.key];
-        const result = schema.safeParse(data.operation);
-        return result.success;
+        return FILTER_OPERATION_SCHEMA[data.key].safeParse(data.operation)
+          .success;
       },
       {
-        path: ['operation'],
         message: 'Missing or invalid operation',
+        path: ['operation'],
       },
     )
     .refine(
@@ -180,8 +179,8 @@ export const FilterValidationSchema = z.array(
         return FILTER_VALUE_SCHEMA[data.key].safeParse(data.value).success;
       },
       {
-        path: ['value'],
         message: 'Invalid or missing filter value',
+        path: ['value'],
       },
     ),
 );
