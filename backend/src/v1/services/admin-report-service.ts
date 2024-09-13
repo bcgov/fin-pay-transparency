@@ -182,6 +182,42 @@ const adminReportService = {
     for (const item of filterObj) {
       const relationKey = RELATION_MAPPER[item.key];
       let filterValue;
+      switch (item.operation) {
+        case 'eq':
+          filterValue = item.value;
+          break;
+        case 'neq':
+          filterValue = { not: { eq: item.value } };
+          break;
+        case 'gt':
+          filterValue = { gt: item.value };
+          break;
+        case 'gte':
+          filterValue = { gte: item.value };
+          break;
+        case 'lt':
+          filterValue = { lt: item.value };
+          break;
+        case 'lte':
+          filterValue = { lte: item.value };
+          break;
+        case 'in':
+          filterValue = { in: item.value };
+          break;
+        case 'notin':
+          filterValue = { not: { in: item.value } };
+          break;
+        case 'between':
+          filterValue = { gte: item.value[0], lt: item.value[1] };
+          break;
+        case 'like':
+          filterValue = { contains: item.value, mode: 'insensitive' };
+          break;
+        case 'not':
+          filterValue = { not: item.value };
+          break;
+      }
+      /*
       if (item.operation === 'eq') {
         filterValue = item.value;
       } else if (item.operation === 'neq') {
@@ -205,6 +241,7 @@ const adminReportService = {
       } else if (item.operation === 'not') {
         filterValue = { not: item.value };
       }
+      */
 
       if (relationKey) {
         prismaFilterObj[relationKey] = { [item.key]: filterValue };
