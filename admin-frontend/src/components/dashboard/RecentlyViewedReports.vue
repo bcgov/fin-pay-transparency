@@ -3,7 +3,11 @@
     :page-size="pageSize"
     :headers="headers"
     :get-reports="getRecentlyViewedReports"
-  />
+  >
+    <template #item.admin_last_access_date="{ item }">
+      {{ formatIsoDateTimeAsLocalDate(item.admin_last_access_date) }}
+    </template>
+  </ReportsWidget>
 </template>
 
 <script setup lang="ts">
@@ -15,6 +19,7 @@ import {
 } from '../../types/reports';
 import ReportsWidget from './ReportsWidget.vue';
 import ApiService from '../../services/apiService';
+import { formatIsoDateTimeAsLocalDate } from '../../utils/date';
 
 const pageSize = 5;
 

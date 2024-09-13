@@ -2,7 +2,7 @@
   <v-card class="ptap-widget">
     <v-card-text class="px-0 py-0">
       <v-data-table-server
-        :v-model:items-per-page="props.pageSize"
+        :v-model:items-per-page="pageSize"
         :headers="headers"
         :items="reports"
         :loading="isSearching"
@@ -12,9 +12,13 @@
         :hide-default-footer="true"
         @update:options="refresh"
       >
-        <template #item.admin_last_access_date="{ item }">
-          {{ formatIsoDateTimeAsLocalDate(item.admin_last_access_date) }}
+        <template
+          v-for="slotName in Object.keys($slots)"
+          #[slotName]="{ item }"
+        >
+          <slot :name="slotName" :item="item">{{ item[slotName] }} </slot>
         </template>
+
         <template #item.actions="{ item }">
           <ReportActions :report="item"></ReportActions>
         </template>
@@ -28,16 +32,28 @@
  * This is a general-purpose component which displays reports in a table.
  * It provides properties to customize where the reports are fetched from,
  * which columns to include, and how many reports to show.
+ * Supports slots with item.<header_key> to provide custom rendering for \
+ * certain columns.  Usage example:
+ * 
+ * <ReportsWidget
+    :page-size="pageSize"
+    :headers="headers"
+    :get-reports="myAsyncFunctionToFetchReports"
+  >
+    <template #item.admin_last_access_date="{ item }">
+      {{ formatDate(item.admin_last_access_date) }}
+    </template>
+  </ReportsWidget>
+ * 
  */
 
 import { Report } from '../../types/reports';
 import { ref } from 'vue';
-import { formatIsoDateTimeAsLocalDate } from '../../utils/date';
 import ReportActions from '../reports/ReportActions.vue';
 
 const props = defineProps<{
   pageSize: string | number | undefined;
-  headers: object[];
+  headers: any[];
   getReports: () => Promise<Report[]>;
 }>();
 
