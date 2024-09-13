@@ -1,3 +1,4 @@
+
 describe('dashboard-metrics-service', () => {
   describe('getDashboardMetrics', () => {
     it('should return the dashboard metrics', async () => {
@@ -8,7 +9,10 @@ describe('dashboard-metrics-service', () => {
       const reportsCount = 3;
       const prismaMock = {
         announcement: {
-          count: jest.fn().mockResolvedValueOnce(publishedAnnouncements).mockResolvedValueOnce(draftAnnouncements),
+          groupBy: jest.fn().mockResolvedValueOnce([
+            { status: 'PUBLISHED', _count: publishedAnnouncements },
+            { status: 'DRAFT', _count: draftAnnouncements },
+          ]),
         },
         pay_transparency_report: {
           count: jest.fn().mockResolvedValueOnce(reportsCount),

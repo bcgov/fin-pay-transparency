@@ -12,17 +12,16 @@ interface IGetDashboardMetricsInput {
 export const getDashboardMetrics = async ({
   reportingYear,
 }: IGetDashboardMetricsInput) => {
-  const publishedAnnouncements = await prisma.announcement.count({
-    where: {
-      status: 'PUBLISHED',
-    },
+  const announcementsData = await prisma.announcement.groupBy({
+    where: { status: { in: ['PUBLISHED', 'DRAFT'] } },
+    by: ['status'],
+    _count: true,
   });
-
-  const draftAnnouncements = await prisma.announcement.count({
-    where: {
-      status: 'DRAFT',
-    },
-  });
+  
+  const announcementsMetrics = announcementsData.reduce((acc, curr) => {
+    const key = curr.status.toLowerCase();
+    return { ...acc, [key]: curr._count };
+  }, {});
 
   const reportsCount = await prisma.pay_transparency_report.count({
     where: {
@@ -30,10 +29,7 @@ export const getDashboardMetrics = async ({
     },
   });
   return {
-    announcements: {
-      published: publishedAnnouncements,
-      draft: draftAnnouncements,
-    },
+    announcements: announcementsMetrics,
     reports: {
       count: reportsCount,
     },
