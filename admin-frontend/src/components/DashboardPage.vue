@@ -45,5 +45,3 @@ import NumSubmissionsThisYear from './dashboard/NumSubmissionsThisYear.vue';
 import NumEmployerLogins from './dashboard/NumEmployerLogins.vue';
 import PublicAnnouncements from './dashboard/PublicAnnouncements.vue';
 </script>
-
-<style></style>

@@ -24,6 +24,12 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * This is a general-purpose component which displays reports in a table.
+ * It provides properties to customize where the reports are fetched from,
+ * which columns to include, and how many reports to show.
+ */
+
 import { Report } from '../../types/reports';
 import { ref } from 'vue';
 import { formatIsoDateTimeAsLocalDate } from '../../utils/date';

@@ -217,31 +217,6 @@ const adminReportService = {
           filterValue = { not: item.value };
           break;
       }
-      /*
-      if (item.operation === 'eq') {
-        filterValue = item.value;
-      } else if (item.operation === 'neq') {
-        filterValue = { not: { eq: item.value } };
-      } else if (item.operation === 'gt') {
-        filterValue = { gt: item.value };
-      } else if (item.operation === 'gte') {
-        filterValue = { gte: item.value };
-      } else if (item.operation === 'lt') {
-        filterValue = { lt: item.value };
-      } else if (item.operation === 'lte') {
-        filterValue = { lte: item.value };
-      } else if (item.operation === 'in') {
-        filterValue = { in: item.value };
-      } else if (item.operation === 'notin') {
-        filterValue = { not: { in: item.value } };
-      } else if (item.operation === 'between') {
-        filterValue = { gte: item.value[0], lt: item.value[1] };
-      } else if (item.operation === 'like') {
-        filterValue = { contains: item.value, mode: 'insensitive' };
-      } else if (item.operation === 'not') {
-        filterValue = { not: item.value };
-      }
-      */
 
       if (relationKey) {
         prismaFilterObj[relationKey] = { [item.key]: filterValue };
