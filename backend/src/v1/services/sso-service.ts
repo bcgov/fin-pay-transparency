@@ -102,7 +102,7 @@ export class SSO {
     return ret;
   }
 
-  /**  Get all users from SSO while ensuring DB is up to date. (To ensure our history is accurate) */
+  /**  Get all active users from SSO while ensuring DB is up to date. (To ensure our history is accurate) */
   async getUsers(): Promise<admin_user[]> {
     // create dictionary of users from SSO
     const ssoUsers: Record<string, SsoUser> = {};

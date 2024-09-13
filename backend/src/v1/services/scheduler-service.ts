@@ -14,6 +14,7 @@ import emailService from '../../external/services/ches';
 import { config } from '../../config';
 import '@js-joda/timezone';
 import { Locale } from '@js-joda/locale_en';
+import { EMAIL_TEMPLATES } from '../email-templates';
 
 const schedulerService = {
   /*
@@ -72,10 +73,10 @@ const schedulerService = {
         `Sending email to ${emails.length} addresses about announcement expiring on ${expiryStr}`,
       );
       const email = emailService.generateHtmlEmail(
-        `${envPrefix}Pay Transparency | Expiring Announcement`,
+        EMAIL_TEMPLATES.ANNOUNCEMENT_ALERT.subject(envPrefix),
         emails,
-        null,
-        `Please be advised that the announcement titled <b>${ann.title}</b> will expire on <b>${expiryStr}</b>`,
+        EMAIL_TEMPLATES.ANNOUNCEMENT_ALERT.title,
+        EMAIL_TEMPLATES.ANNOUNCEMENT_ALERT.body(ann.title, expiryStr),
       );
       await emailService.sendEmailWithRetry(email);
     }
