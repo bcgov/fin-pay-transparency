@@ -108,22 +108,28 @@
                   >
                     Active On
                   </span>
-                  <VueDatePicker
-                    v-model="activeOn"
-                    :state="errors.active_on == null ? undefined : false"
-                    format="yyyy-MM-dd hh:mm a"
-                    :enable-time-picker="true"
-                    arrow-navigation
-                    auto-apply
-                    :disabled="announcement?.status === 'PUBLISHED'"
-                    :aria-labels="{ input: 'Active On' }"
+                  <v-input
+                    variant="outlined"
+                    label="Active On"
+                    placeholder="Active On"
                   >
-                    <template #day="{ day, date }">
-                      <span :aria-label="formatDate(date)">
-                        {{ day }}
-                      </span>
-                    </template>
-                  </VueDatePicker>
+                    <VueDatePicker
+                      v-model="activeOn"
+                      :state="errors.active_on == null ? undefined : false"
+                      format="yyyy-MM-dd hh:mm a"
+                      :enable-time-picker="true"
+                      arrow-navigation
+                      auto-apply
+                      :disabled="announcement?.status === 'PUBLISHED'"
+                      :aria-labels="{ input: 'Active On' }"
+                    >
+                      <template #day="{ day, date }">
+                        <span :aria-label="formatDate(date)">
+                          {{ day }}
+                        </span>
+                      </template>
+                    </VueDatePicker>
+                  </v-input>
                 </v-col>
               </v-row>
               <v-row dense class="mt-0">
@@ -170,7 +176,7 @@
                   <v-checkbox
                     v-model="noExpiry"
                     class="expiry-checkbox"
-                    label="No expiry" 
+                    label="No expiry"
                   ></v-checkbox>
                 </v-col>
               </v-row>
@@ -437,7 +443,8 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     expires_on: announcement?.expires_on
       ? new Date(announcement?.expires_on) //VueDatePicker is initialized with a Date()
       : undefined,
-    no_expiry: !announcement?.expires_on && announcement?.status === 'PUBLISHED',
+    no_expiry:
+      !announcement?.expires_on && announcement?.status === 'PUBLISHED',
     linkUrl: announcement?.linkUrl || '',
     linkDisplayName: announcement?.linkDisplayName || '',
     fileDisplayName: announcement?.fileDisplayName || '',
