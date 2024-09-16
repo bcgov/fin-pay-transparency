@@ -24,11 +24,44 @@ import {
   PatchAnnouncementsType,
 } from '../types/announcements';
 import { omit } from 'lodash';
+import { DateTimeFormatter, ZonedDateTime } from '@js-joda/core';
 
 const router = Router();
 
+type SsoRequest = ExtendedRequest & { query: AnnouncementQueryType };
+
 router.get(
   '',
+  authenticateAdmin(false),
+  async (req: SsoRequest, res, next) => {
+    if (!req?.user?.admin_user_id) {
+      // If this is not an admin user, then it is a public user and they are strictly limited to what they can do
+      req.query = {}; // remove all existing query params
+      req.params = {}; // remove all url params (shouldn't be any anyways)
+      const now = ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+      req.query.filters = [
+        {
+          key: 'status',
+          operation: 'in',
+          value: ['PUBLISHED'],
+        },
+        {
+          key: 'active_on',
+          operation: 'lte',
+          value: now,
+        },
+        {
+          key: 'expires_on',
+          operation: 'gt',
+          value: now,
+        },
+      ];
+      req.query.sort = [{ field: 'updated_date', order: 'desc' }];
+      req.query.offset = 0;
+      req.query.limit = 100;
+    }
+    next();
+  },
   useValidate({ mode: 'query', schema: AnnouncementQuerySchema }),
   async (req, res) => {
     try {

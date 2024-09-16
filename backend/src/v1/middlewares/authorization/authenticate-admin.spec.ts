@@ -18,7 +18,7 @@ describe('authenticateAdmin', () => {
   let next: any;
 
   beforeEach(() => {
-    jest.clearAllMocks
+    jest.clearAllMocks;
     jest.resetModules();
     req = {};
     res = {
@@ -30,7 +30,7 @@ describe('authenticateAdmin', () => {
 
   it('should return 401 if no session data', async () => {
     const middleware = await authenticateAdmin();
-    middleware(req, res, next);
+    await middleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
       message: 'No session data',
@@ -75,5 +75,32 @@ describe('authenticateAdmin', () => {
       },
     });
     expect(next).toHaveBeenCalled();
+  });
+
+  describe('strict is false', () => {
+    it('should not set req.user if no session data', async () => {
+      const middleware = await authenticateAdmin(false);
+      mockGetSessionUser.mockReturnValue({});
+      mockFindFirst.mockResolvedValue({
+        admin_user_id: 1,
+      });
+      await middleware(req, res, next);
+      expect(req.user).toBeFalsy();
+      expect(next).toHaveBeenCalled();
+    });
+
+    it('should not set req.user.admin_user_id if not in admin table', async () => {
+      const middleware = await authenticateAdmin(false);
+      mockGetSessionUser.mockReturnValue({
+        jwt: 'jwt',
+        _json: {
+          preferred_username: 'username',
+        },
+      });
+      mockFindFirst.mockResolvedValue(null);
+      await middleware(req, res, next);
+      expect(req.user?.admin_user_id).toBeFalsy();
+      expect(next).toHaveBeenCalled();
+    });
   });
 });
