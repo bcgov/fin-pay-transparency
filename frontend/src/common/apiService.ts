@@ -280,24 +280,14 @@ export default {
   },
 
   async getPublishedAnnouncements(): Promise<Announcement[]> {
-    const result = await this.getAnnouncements(0, 100);
+    const result = await this.getAnnouncements();
     return result?.items;
   },
 
-  async getAnnouncements(
-    offset: number = 0,
-    limit: number = 20,
-  ): Promise<IAnnouncementSearchResult> {
+  async getAnnouncements(): Promise<IAnnouncementSearchResult> {
     try {
-      const params = {
-        offset: offset,
-        limit: limit,
-      };
       const resp = await apiAxios.get<IAnnouncementSearchResult>(
         ApiRoutes.ANNOUNCEMENTS,
-        {
-          params: params,
-        },
       );
       if (resp?.data) {
         return resp.data;

@@ -36,6 +36,8 @@ export interface IAnnouncementSearchUpdateParams {
 export interface IAnnouncementSearchParams {
   page?: number;
   itemsPerPage?: number;
+  filter?: AnnouncementFilterType;
+  sort?: AnnouncementSortType;
 }
 
 export enum AnnouncementKeys {

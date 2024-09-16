@@ -6,7 +6,7 @@ import prisma from '../../prisma/prisma-client';
 
 /**
  * Middleware to authenticate admin users
- * @param strict If strict is false, the function continues the middleware chane.
+ * @param strict If strict is false, then it is okay to continue even if the user isn't an admin.
  * @returns
  */
 export const authenticateAdmin = (strict: boolean = true) => {

@@ -36,6 +36,8 @@ router.get(
   async (req: SsoRequest, res, next) => {
     if (!req?.user?.admin_user_id) {
       // If this is not an admin user, then it is a public user and they are strictly limited to what they can do
+      req.query = {}; // remove all existing query params
+      req.params = {}; // remove all url params (shouldn't be any anyways)
       const now = ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
       req.query.filters = [
         {
@@ -55,6 +57,8 @@ router.get(
         },
       ];
       req.query.sort = [{ field: 'updated_date', order: 'desc' }];
+      req.query.offset = 0;
+      req.query.limit = 100;
     }
     next();
   },

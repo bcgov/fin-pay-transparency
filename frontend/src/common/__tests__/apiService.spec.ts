@@ -448,15 +448,10 @@ describe('ApiService', () => {
         const mockAxiosResponse = {
           data: mockBackendResponse,
         };
-        const axiosGetSpy = vi
-          .spyOn(ApiService.apiAxios, 'get')
-          .mockResolvedValueOnce(mockAxiosResponse);
-        const offset = 1;
-        const limit = 2;
-        const resp = await ApiService.getAnnouncements(offset, limit);
-        const queryParamsToBackend: any = axiosGetSpy.mock.calls[0][1];
-        expect(queryParamsToBackend.params.offset).toBe(offset);
-        expect(queryParamsToBackend.params.limit).toBe(limit);
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+        const resp = await ApiService.getAnnouncements();
         expect(resp).toEqual(mockBackendResponse);
       });
     });
@@ -466,9 +461,7 @@ describe('ApiService', () => {
         vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
           mockAxiosError,
         );
-        expect(ApiService.getAnnouncements(1, 2)).rejects.toEqual(
-          mockAxiosError,
-        );
+        expect(ApiService.getAnnouncements()).rejects.toEqual(mockAxiosError);
       });
     });
   });
