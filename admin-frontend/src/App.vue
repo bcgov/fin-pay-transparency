@@ -203,9 +203,9 @@ button:disabled.v-btn {
 }
 
 .v-chip.success {
-  background-color: #d6e8da !important;
+  background-color: #f6fff8 !important;
   border-color: #d6e8da !important;
-  color: #207d33 !important;
+  color: #42814a !important;
 }
 
 .v-chip.info {

@@ -60,7 +60,7 @@
       <template #item.active_on="{ item }">
         <div v-if="item.active_on">
           <div>{{ formatIsoDateTimeAsLocalDate(item.active_on) }}</div>
-          <small class="text-grey">{{
+          <small class="text-grey-darken-3">{{
             formatIsoDateTimeAsLocalTime(item.active_on)
           }}</small>
         </div>
@@ -69,7 +69,7 @@
       <template #item.expires_on="{ item }">
         <div v-if="item.expires_on">
           <div>{{ formatIsoDateTimeAsLocalDate(item.expires_on) }}</div>
-          <small class="text-grey">{{
+          <small class="text-grey-darken-3">{{
             formatIsoDateTimeAsLocalTime(item.expires_on)
           }}</small>
         </div>
