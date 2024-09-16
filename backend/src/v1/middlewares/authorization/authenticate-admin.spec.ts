@@ -97,7 +97,7 @@ describe('authenticateAdmin', () => {
           preferred_username: 'username',
         },
       });
-      mockFindFirst.mockResolvedValue({});
+      mockFindFirst.mockResolvedValue(null);
       await middleware(req, res, next);
       expect(req.user?.admin_user_id).toBeFalsy();
       expect(next).toHaveBeenCalled();
