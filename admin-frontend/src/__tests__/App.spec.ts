@@ -18,6 +18,8 @@ const ResizeObserverMock = vi.fn(() => ({
   disconnect: vi.fn(),
 }));
 
+vi.mock('../services/apiService');
+
 // Stub the global ResizeObserver
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 const mockDoesUserHaveRole = vi.fn();

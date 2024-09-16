@@ -11,8 +11,8 @@
         :class="{ 'ptap-panel': areHeaderAndSidebarVisible }"
       >
         <BreadcrumbTrail
-          class="pt-0 pb-0 mb-3"
           v-if="isBreadcrumbTrailVisible"
+          class="pt-0 pb-0 mb-3"
         ></BreadcrumbTrail>
 
         <router-view />
@@ -203,9 +203,9 @@ button:disabled.v-btn {
 }
 
 .v-chip.success {
-  background-color: #d6e8da !important;
+  background-color: #f6fff8 !important;
   border-color: #d6e8da !important;
-  color: #207d33 !important;
+  color: #42814a !important;
 }
 
 .v-chip.info {
@@ -334,5 +334,10 @@ Transitions to be used with Vue's <Transition> component
 
 input::-ms-input-placeholder {
   color: black !important;
+}
+
+.ptap-widget {
+  height: 1px;
+  min-height: 300px;
 }
 </style>

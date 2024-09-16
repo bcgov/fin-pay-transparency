@@ -74,6 +74,7 @@ describe('admin-report-service', () => {
         is_unlocked: true,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
         company_id: company1.company_id,
+        admin_last_access_date: '2024-04-21T11:40:00.000',
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e2',
@@ -84,6 +85,7 @@ describe('admin-report-service', () => {
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e9',
         company_id: company2.company_id,
+        admin_last_access_date: null,
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
@@ -94,6 +96,7 @@ describe('admin-report-service', () => {
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,
+        admin_last_access_date: null,
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d499',
@@ -104,6 +107,7 @@ describe('admin-report-service', () => {
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,
+        admin_last_access_date: null,
       },
     ];
     companies = [company2, company1];
@@ -130,7 +134,7 @@ describe('admin-report-service', () => {
       try {
         await adminReportService.searchReport(0, 10, '', '');
       } catch (error) {
-        expect(error.message).toEqual('Invalid query parameters');
+        expect(error.message).toBe('Invalid query parameters');
       }
     });
 
@@ -251,7 +255,7 @@ describe('admin-report-service', () => {
                 '[]',
                 '[{"key": "naics_code", "operation": "in", "value": [] }]',
               );
-              expect(response.reports.length).toBe(0);
+              expect(response.reports).toHaveLength(0);
             });
           });
         });
@@ -283,7 +287,7 @@ describe('admin-report-service', () => {
                   '[]',
                   '[{"key": "employee_count_range_id", "operation": "in", "value": [] }]',
                 );
-                expect(response.reports.length).toBe(0);
+                expect(response.reports).toHaveLength(0);
               });
             });
           });
@@ -299,6 +303,22 @@ describe('admin-report-service', () => {
               const { where } = mockFindMany.mock.calls[0][0];
               expect(where.employee_count_range_id).toEqual({
                 not: { in: ['4492feff-99d7-4b2b-8896-12a59a75d4e1'] },
+              });
+            });
+          });
+        });
+
+        describe('admin_last_access_date', () => {
+          describe('not', () => {
+            describe('null', () => {
+              it('should returns only reports with a non-null admin_last_access_date', async () => {
+                const response = await adminReportService.searchReport(
+                  0,
+                  10,
+                  '[]',
+                  '[{"key": "admin_last_access_date", "operation": "not", "value": null }]',
+                );
+                expect(response.reports).toHaveLength(1);
               });
             });
           });
@@ -335,7 +355,7 @@ describe('admin-report-service', () => {
               '[]',
               '[{"key": "update_date", "operation": "between", "value": [] }]',
             );
-            expect(response.reports.length).toBe(3);
+            expect(response.reports).toHaveLength(3);
           });
         });
         describe('is_unlocked', () => {
@@ -647,7 +667,7 @@ describe('admin-report-service', () => {
       expect(updateSpy).toHaveBeenCalledTimes(1);
       const updateParam: any = updateSpy.mock.calls[0][0];
       expect(updateParam.where.report_id).toBe(reportId);
-      expect(Object.keys(updateParam.data).length).toBe(1);
+      expect(Object.keys(updateParam.data)).toHaveLength(1);
 
       //check that the date/time submitted to the database is approximately equal
       //to the current UTC date/time

@@ -8,7 +8,8 @@ export type FilterKeyType =
   | 'reporting_year'
   | 'is_unlocked'
   | 'employee_count_range_id'
-  | 'company_name';
+  | 'company_name'
+  | 'admin_last_access_date';
 
 export type SubmissonDateFilter = {
   key: 'update_date';
@@ -48,6 +49,12 @@ export type CompanyFilter = {
   value: string;
 };
 
+export type AdminLastAccessDateFilter = {
+  key: 'admin_last_access_date';
+  operation: 'not';
+  value: null;
+};
+
 export type ReportFilterType = (
   | SubmissonDateFilter
   | NaicsCodeFilter
@@ -55,13 +62,15 @@ export type ReportFilterType = (
   | IsUnlockedFilter
   | EmployeeCountRangeFilter
   | CompanyFilter
+  | AdminLastAccessDateFilter
 )[];
 
 export type SortFieldType =
   | 'update_date'
   | 'naics_code'
   | 'employee_count_range_id'
-  | 'company_name';
+  | 'company_name'
+  | 'admin_last_access_date';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -74,6 +83,9 @@ export type NaicsCodeSort = {
 export type EmployeeCountRangeSort = {
   employee_count_range_id: SortDirection;
 };
+export type AdminLastAccessDateSort = {
+  admin_last_access_date: SortDirection;
+};
 
 export type CompanySort = {
   company_name: SortDirection;
@@ -84,6 +96,7 @@ export type ReportSortType = (
   | NaicsCodeSort
   | EmployeeCountRangeSort
   | CompanySort
+  | AdminLastAccessDateSort
 )[];
 
 export const RELATION_MAPPER: {
@@ -112,6 +125,9 @@ const FILTER_OPERATION_SCHEMA: {
   company_name: z.enum(['like'], {
     message: 'Only "like" operation is allowed',
   }),
+  admin_last_access_date: z.enum(['not'], {
+    message: 'Only "not" operation is allowed',
+  }),
 };
 
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
@@ -121,6 +137,7 @@ const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   reporting_year: z.number().optional(),
   is_unlocked: z.boolean().optional(),
   company_name: z.string().optional(),
+  admin_last_access_date: z.null(),
 };
 
 export const FilterValidationSchema = z.array(
@@ -133,7 +150,8 @@ export const FilterValidationSchema = z.array(
           'reporting_year',
           'is_unlocked',
           'employee_count_range_id',
-          'company_name'
+          'company_name',
+          'admin_last_access_date',
         ],
         {
           required_error: 'Missing or invalid filter key',
@@ -146,21 +164,23 @@ export const FilterValidationSchema = z.array(
       }),
       value: z.any().optional(),
     })
-    .refine((data) => {
-      const schema = FILTER_OPERATION_SCHEMA[data.key];
-      const result = schema.safeParse(data.operation);
-      return result.success;
-    }, {
-      path: ['operation'],
-      message: 'Missing or invalid operation'
-    })
+    .refine(
+      (data) => {
+        return FILTER_OPERATION_SCHEMA[data.key].safeParse(data.operation)
+          .success;
+      },
+      {
+        message: 'Missing or invalid operation',
+        path: ['operation'],
+      },
+    )
     .refine(
       (data) => {
         return FILTER_VALUE_SCHEMA[data.key].safeParse(data.value).success;
       },
       {
-        path: ['value'],
         message: 'Invalid or missing filter value',
+        path: ['value'],
       },
     ),
 );
