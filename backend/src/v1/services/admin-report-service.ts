@@ -45,6 +45,7 @@ const adminReportService = {
     await FilterValidationSchema.parseAsync(filterObj);
 
     const where = this.convertFiltersToPrismaFormat(filterObj);
+    console.log(where);
     const orderBy =
       adminReportServicePrivate.convertSortToPrismaFormat(sortObj);
 
@@ -174,33 +175,47 @@ const adminReportService = {
    * @returns
    */
   convertFiltersToPrismaFormat(filterObj: ReportFilterType): any {
-    let prismaFilterObj: Prisma.pay_transparency_reportWhereInput = {
+    const prismaFilterObj: Prisma.pay_transparency_reportWhereInput = {
       report_status: 'Published',
     };
 
     for (const item of filterObj) {
       const relationKey = RELATION_MAPPER[item.key];
       let filterValue;
-      if (item.operation === 'eq') {
-        filterValue = item.value;
-      } else if (item.operation === 'neq') {
-        filterValue = { not: { eq: item.value } };
-      } else if (item.operation === 'gt') {
-        filterValue = { gt: item.value };
-      } else if (item.operation === 'gte') {
-        filterValue = { gte: item.value };
-      } else if (item.operation === 'lt') {
-        filterValue = { lt: item.value };
-      } else if (item.operation === 'lte') {
-        filterValue = { lte: item.value };
-      } else if (item.operation === 'in') {
-        filterValue = { in: item.value };
-      } else if (item.operation === 'notin') {
-        filterValue = { not: { in: item.value } };
-      } else if (item.operation === 'between') {
-        filterValue = { gte: item.value[0], lt: item.value[1] };
-      } else if (item.operation === 'like') {
-        filterValue = { contains: item.value, mode: 'insensitive' };
+      switch (item.operation) {
+        case 'eq':
+          filterValue = item.value;
+          break;
+        case 'neq':
+          filterValue = { not: { eq: item.value } };
+          break;
+        case 'gt':
+          filterValue = { gt: item.value };
+          break;
+        case 'gte':
+          filterValue = { gte: item.value };
+          break;
+        case 'lt':
+          filterValue = { lt: item.value };
+          break;
+        case 'lte':
+          filterValue = { lte: item.value };
+          break;
+        case 'in':
+          filterValue = { in: item.value };
+          break;
+        case 'notin':
+          filterValue = { not: { in: item.value } };
+          break;
+        case 'between':
+          filterValue = { gte: item.value[0], lt: item.value[1] };
+          break;
+        case 'like':
+          filterValue = { contains: item.value, mode: 'insensitive' };
+          break;
+        case 'not':
+          filterValue = { not: item.value };
+          break;
       }
 
       if (relationKey) {

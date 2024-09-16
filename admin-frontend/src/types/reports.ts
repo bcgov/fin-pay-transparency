@@ -1,5 +1,26 @@
+export type Report = {
+  report_id: string;
+  naics_code: string;
+  report_start_date: string;
+  report_end_date: string;
+  report_status: string;
+  create_date: string;
+  update_date: string;
+  reporting_year: string;
+  is_unlocked: boolean;
+  admin_last_access_date: string;
+  employee_count_range: {
+    employee_count_range_id: string;
+    employee_count_range: string;
+  };
+  pay_transparency_company: {
+    company_id: string;
+    company_name: string;
+  };
+};
+
 export interface IReportSearchResult {
-  reports: any[];
+  reports: Report[];
   total: number;
 }
 export interface IReportSearchUpdateParams {
@@ -77,6 +98,12 @@ export type CompanyFilter = {
   value: string;
 };
 
+export type AdminLastAccessDateFilter = {
+  key: 'admin_last_access_date';
+  operation: 'not';
+  value: null;
+};
+
 export type ReportFilterType = (
   | SubmissonDateFilter
   | NaicsCodeFilter
@@ -84,4 +111,5 @@ export type ReportFilterType = (
   | IsUnlockedFilter
   | EmployeeCountRangeFilter
   | CompanyFilter
+  | AdminLastAccessDateFilter
 )[];

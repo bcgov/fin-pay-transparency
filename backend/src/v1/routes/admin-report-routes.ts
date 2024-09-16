@@ -71,7 +71,6 @@ router.get(
       if (error instanceof PayTransparencyUserError) {
         return res.status(400).json(error);
       }
-      console.log('==================');
       logger.error(error);
       return res.status(500).json({ error: 'Something went wrong' });
     }
