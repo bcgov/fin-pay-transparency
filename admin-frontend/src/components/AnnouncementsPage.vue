@@ -35,6 +35,7 @@
         <v-checkbox
           v-model="isSelectedAnnouncementsHeaderChecked"
           class="checkbox-no-details"
+          aria-label="Toggle all announcements"
           @click="
             toggleSelectAllAnnouncements(!isSelectedAnnouncementsHeaderChecked)
           "
@@ -44,6 +45,7 @@
         <v-checkbox
           v-model="selectedAnnouncements[item.announcement_id]"
           class="checkbox-no-details"
+          :aria-label="`Select announcement ${item.title}`"
         >
         </v-checkbox>
       </template>

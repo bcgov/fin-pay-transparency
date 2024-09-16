@@ -10,6 +10,8 @@
           variant="solo"
           hide-details
           :single-line="true"
+          :aria-describedby="undefined"
+          aria-label="Search by title"
           @keyup.enter="searchAnnouncements()"
         >
           <template #append> </template>
@@ -344,5 +346,15 @@ button.dp__action_button.dp__action_select {
 }
 .dp__today {
   border: 1px solid #003366;
+}
+
+.search-title {
+  display: flex;
+  align-items: center;
+
+  .v-input__control {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+  }
 }
 </style>
