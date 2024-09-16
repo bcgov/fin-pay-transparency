@@ -448,24 +448,10 @@ describe('ApiService', () => {
         const mockAxiosResponse = {
           data: mockBackendResponse,
         };
-        const axiosGetSpy = vi
-          .spyOn(ApiService.apiAxios, 'get')
-          .mockResolvedValueOnce(mockAxiosResponse);
-        const offset = 1;
-        const limit = 2;
-        const filter = [];
-        const sort = [];
-        const resp = await ApiService.getAnnouncements(
-          offset,
-          limit,
-          filter,
-          sort,
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockAxiosResponse,
         );
-        const queryParamsToBackend: any = axiosGetSpy.mock.calls[0][1];
-        expect(queryParamsToBackend.params.sort).toBe(sort);
-        expect(queryParamsToBackend.params.filters).toBe(filter);
-        expect(queryParamsToBackend.params.offset).toBe(offset);
-        expect(queryParamsToBackend.params.limit).toBe(limit);
+        const resp = await ApiService.getAnnouncements();
         expect(resp).toEqual(mockBackendResponse);
       });
     });
@@ -475,49 +461,7 @@ describe('ApiService', () => {
         vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
           mockAxiosError,
         );
-        expect(ApiService.getAnnouncements(1, 2, [], [])).rejects.toEqual(
-          mockAxiosError,
-        );
-      });
-    });
-  });
-
-  describe('getPublishedAnnouncements', () => {
-    it('request filters by status, active_on and expired_on', async () => {
-      const mockTimeNow = '1234';
-      const dateSpy = vi
-        .spyOn(ApiServicePrivate, 'dateToApiDateTimeString')
-        .mockReturnValue(mockTimeNow);
-      const getAnnouncementsSpy = vi
-        .spyOn(ApiService, 'getAnnouncements')
-        .mockResolvedValue({ items: [], total: 0 });
-      await ApiService.getPublishedAnnouncements();
-
-      const filter = getAnnouncementsSpy.mock.calls[0][2];
-      const statusFilter = filter?.filter((f) => f.key == 'status');
-      const activeOnFilter: any = filter?.filter(
-        (f) => f.key == 'active_on',
-      )[0];
-      const expiresOnFilter: any = filter?.filter(
-        (f) => f.key == 'expires_on',
-      )[0];
-      expect(dateSpy).toHaveBeenCalled();
-      expect(statusFilter).toStrictEqual([
-        {
-          key: 'status',
-          operation: 'in',
-          value: [AnnouncementStatus.Published],
-        },
-      ]);
-      expect(activeOnFilter).toStrictEqual({
-        key: 'active_on',
-        operation: 'lte',
-        value: mockTimeNow,
-      });
-      expect(expiresOnFilter).toStrictEqual({
-        key: 'expires_on',
-        operation: 'gt',
-        value: mockTimeNow,
+        expect(ApiService.getAnnouncements()).rejects.toEqual(mockAxiosError);
       });
     });
   });
