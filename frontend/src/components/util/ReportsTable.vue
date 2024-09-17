@@ -54,7 +54,7 @@ import {
   useReportStepperStore,
 } from '../../store/modules/reportStepper';
 import { useConfigStore } from '../../store/modules/config';
-import { DateTimeFormatter, ZonedDateTime } from '@js-joda/core';
+import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { useRouter } from 'vue-router';
 
@@ -90,11 +90,13 @@ const getReports = async () => {
   isLoading.value = false;
 };
 
-const formatDateTime = (value, format = 'MMMM d, YYYY') => {
+const formatDateTime = (value: string, format = 'MMMM d, YYYY'): string => {
   const formatter = DateTimeFormatter.ofPattern(format).withLocale(
     Locale.ENGLISH,
   );
-  return ZonedDateTime.parse(value).format(formatter);
+  return ZonedDateTime.parse(value)
+    .withZoneSameInstant(ZoneId.SYSTEM)
+    .format(formatter);
 };
 
 const viewReport = async (report: IReport) => {
