@@ -51,7 +51,11 @@
   <div v-if="areSecondaryFiltersVisible" class="secondary-filters py-4">
     <v-row dense>
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Active On date</h5>
+        <h5>
+          Active On date range
+
+          <FilterDateRangeTooltip id="active-on-tooltip" />
+        </h5>
         <VueDatePicker
           v-model="publishDateRange"
           range
@@ -71,7 +75,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Expiry date</h5>
+        <h5>Expiry date range <FilterDateRangeTooltip id="expires-on-tooltip" /></h5>
         <VueDatePicker
           v-model="expiryDateRange"
           range
@@ -162,6 +166,7 @@ export default {
 
 <script setup lang="ts">
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
+import FilterDateRangeTooltip from './FilterDateRangeTooltip.vue';
 import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
