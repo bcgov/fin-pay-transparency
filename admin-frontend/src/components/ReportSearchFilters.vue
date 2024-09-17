@@ -12,7 +12,7 @@
           :single-line="true"
           @keyup.enter="searchReports()"
         >
-          <template v-slot:append> </template>
+          <template #append> </template>
         </v-text-field>
         <v-btn class="btn-primary" @click="searchReports()"> Search </v-btn>
       </v-col>
@@ -44,29 +44,17 @@
     </v-row>
   </div>
 
-  <div class="secondary-filters py-4" v-if="areSecondaryFiltersVisible">
+  <div v-if="areSecondaryFiltersVisible" class="secondary-filters py-4">
     <v-row dense>
       <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>
           Submission date range
-          <v-tooltip
+          <ToolTip
+            id="submission-date-range-tooltip"
             text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
             width="300px"
-            id="submission-date-range-tooltip"
-          >
-            <template #activator="{ props }">
-              <v-icon
-                v-bind="props"
-                icon="fa:fas fa-circle-info"
-                size="x-small"
-                color="primary"
-                class="ml-1"
-                tabindex="0"
-                role="tooltip"
-                aria-labeledby="submission-date-range-tooltip"
-              />
-            </template>
-          </v-tooltip>
+            aria-label="submission-date-range-tooltip"
+          ></ToolTip>
         </h5>
 
         <VueDatePicker
@@ -81,9 +69,9 @@
           prevent-min-max-navigation
         >
           <template #day="{ day, date }">
-              <span :aria-label="formatDate(date)">
-                {{ day }}
-              </span>
+            <span :aria-label="formatDate(date)">
+              {{ day }}
+            </span>
           </template>
         </VueDatePicker>
       </v-col>
@@ -100,19 +88,19 @@
           variant="solo"
           density="compact"
         >
-          <template v-slot:item="{ props, item }">
+          <template #item="{ props, item }">
             <v-list-item
               v-bind="props"
               :title="`${item.raw.naics_code} - ${item.raw.naics_label}`"
             >
-              <template v-slot:append="{ isActive }">
+              <template #append="{ isActive }">
                 <v-list-item-action start>
                   <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
                 </v-list-item-action>
               </template>
             </v-list-item>
           </template>
-          <template v-slot:selection="{ item, index }">
+          <template #selection="{ item, index }">
             <v-chip v-if="index < maxSelectedNaicsCodesShown">
               <span>{{ item.raw.naics_code }}</span>
             </v-chip>
@@ -135,14 +123,14 @@
           variant="solo"
           density="compact"
         >
-          <template v-slot:item="{ props, item }">
+          <template #item="{ props, item }">
             <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
-              <template v-slot:append="{ isActive }">
+              <template #append="{ isActive }">
                 <v-icon v-if="isActive" icon="mdi-check"></v-icon>
               </template>
             </v-list-item>
           </template>
-          <template v-slot:selection="{ item, index }">
+          <template #selection="{ item, index }">
             <span v-if="!item.raw">All</span>
             <span v-if="item.raw">{{ item.raw }}</span>
           </template>
@@ -157,14 +145,14 @@
           variant="solo"
           density="compact"
         >
-          <template v-slot:item="{ props, item }">
+          <template #item="{ props, item }">
             <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
-              <template v-slot:append="{ isActive }">
+              <template #append="{ isActive }">
                 <v-icon v-if="isActive" icon="mdi-check"></v-icon>
               </template>
             </v-list-item>
           </template>
-          <template v-slot:selection="{ item, index }">
+          <template #selection="{ item, index }">
             <span v-if="!item.raw">All</span>
             <span v-if="item.raw">{{ item.raw }}</span>
           </template>
@@ -183,16 +171,16 @@
           variant="solo"
           density="compact"
         >
-          <template v-slot:item="{ props, item }">
+          <template #item="{ props, item }">
             <v-list-item v-bind="props" :title="item.raw.employee_count_range">
-              <template v-slot:append="{ isActive }">
+              <template #append="{ isActive }">
                 <v-list-item-action start>
                   <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
                 </v-list-item-action>
               </template>
             </v-list-item>
           </template>
-          <template v-slot:selection="{ item, index }">
+          <template #selection="{ item, index }">
             <v-chip>
               <span>{{ item.raw.employee_count_range }}</span>
             </v-chip>
@@ -249,9 +237,10 @@ import {
   nativeJs,
   DateTimeFormatter,
   ZoneId,
-  LocalDate
+  LocalDate,
 } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
+import ToolTip from './ToolTip.vue';
 
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
