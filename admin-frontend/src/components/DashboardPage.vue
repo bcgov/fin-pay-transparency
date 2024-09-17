@@ -5,11 +5,20 @@
         <v-icon icon="mdi-clipboard-text-outline"></v-icon>
         Recently Submitted Reports
         <ToolTip
-          text="5 most recent submissions, refreshed each time dashboard loads."
-          aria-label="5 most recent submissions, refreshed each time dashboard loads."
+          :text="
+            'The 5 most recent submissions, refreshed every ' +
+            refreshIntervalMinutes +
+            ' minutes.'
+          "
+          :aria-label="
+            'The 5 most recent submissions, refreshed every ' +
+            refreshIntervalMinutes +
+            ' minutes.'
+          "
+          max-width="300px"
         ></ToolTip>
       </h4>
-      <RecentlySubmittedReports />
+      <RecentlySubmittedReports ref="recentlySubmittedReports" />
     </v-col>
     <v-col sm="12" md="12" lg="5" xl="4">
       <h4 class="mb-4">
@@ -30,7 +39,7 @@
         <v-icon icon="mdi-eye-outline"></v-icon>
         Recently Viewed Reports
       </h4>
-      <RecentlyViewedReports />
+      <RecentlyViewedReports ref="recentlyViewedReports" />
     </v-col>
     <v-col sm="12" md="12" lg="5" xl="4">
       <h4 class="mb-4">
@@ -49,4 +58,22 @@ import NumSubmissionsThisYear from './dashboard/NumSubmissionsThisYear.vue';
 import NumEmployerLogins from './dashboard/NumEmployerLogins.vue';
 import PublicAnnouncements from './dashboard/PublicAnnouncements.vue';
 import ToolTip from './ToolTip.vue';
+import { ref, onMounted } from 'vue';
+
+const refreshIntervalMinutes: number = 5;
+
+const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
+const recentlyViewedReports = ref<typeof RecentlyViewedReports>();
+
+onMounted(() => {
+  //Periodically refresh the widgets
+  setInterval(() => {
+    refresh();
+  }, refreshIntervalMinutes * 60000);
+});
+
+async function refresh() {
+  await recentlySubmittedReports.value?.refresh();
+  await recentlyViewedReports.value?.refresh();
+}
 </script>

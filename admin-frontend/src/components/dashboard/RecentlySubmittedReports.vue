@@ -1,5 +1,6 @@
 <template>
   <ReportsWidget
+    ref="reportsWidget"
     :page-size="pageSize"
     :headers="headers"
     :get-reports="getRecentlySubmittedReports"
@@ -10,6 +11,11 @@
   </ReportsWidget>
 </template>
 
+<script lang="ts">
+export default {
+  name: 'RecentlySubmittedReports',
+};
+</script>
 <script setup lang="ts">
 import {
   ReportFilterType,
@@ -20,8 +26,10 @@ import {
 import ReportsWidget from './ReportsWidget.vue';
 import ApiService from '../../services/apiService';
 import { formatIsoDateTimeAsLocalDate } from '../../utils/date';
+import { ref } from 'vue';
 
 const pageSize = 5;
+const reportsWidget = ref<typeof ReportsWidget>();
 
 const headers = [
   {
@@ -44,6 +52,11 @@ const headers = [
   },
 ];
 
+async function refresh() {
+  console.log('refresh recently submitted');
+  await reportsWidget.value?.refresh();
+}
+
 async function getRecentlySubmittedReports(): Promise<Report[]> {
   const filter: ReportFilterType = [];
   const sort: IReportSearchSort = [{ create_date: 'desc' }];
@@ -55,4 +68,8 @@ async function getRecentlySubmittedReports(): Promise<Report[]> {
   );
   return searchResults.reports;
 }
+
+defineExpose({
+  refresh,
+});
 </script>
