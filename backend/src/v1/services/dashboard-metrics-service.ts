@@ -1,35 +1,45 @@
 import prisma from '../prisma/prisma-client';
 
-interface IGetDashboardMetricsInput {
+interface IGetReportMetricsInput {
   reportingYear: number;
 }
+
+/**
+ * Get announcement metrics
+ * @param param0
+ * @returns
+ */
+export const getAnnouncementMetrics = async () => {
+  const announcementsData = await prisma.announcement.groupBy({
+    where: { status: { in: ['PUBLISHED', 'DRAFT'] } },
+    by: ['status'],
+    _count: true,
+  });
+
+  const announcementsMetrics = announcementsData.reduce((acc, curr) => {
+    const key = curr.status.toLowerCase();
+    return { ...acc, [key]: { count: curr._count } };
+  }, {});
+
+  return {
+    ...announcementsMetrics,
+  };
+};
 
 /**
  * Get dashboard metrics
  * @param param0
  * @returns
  */
-export const getDashboardMetrics = async ({
+export const getReportsMetrics = async ({
   reportingYear,
-}: IGetDashboardMetricsInput) => {
-  const announcementsData = await prisma.announcement.groupBy({
-    where: { status: { in: ['PUBLISHED', 'DRAFT'] } },
-    by: ['status'],
-    _count: true,
-  });
-  
-  const announcementsMetrics = announcementsData.reduce((acc, curr) => {
-    const key = curr.status.toLowerCase();
-    return { ...acc, [key]: curr._count };
-  }, {});
-
+}: IGetReportMetricsInput) => {
   const reportsCount = await prisma.pay_transparency_report.count({
     where: {
       reporting_year: reportingYear,
     },
   });
   return {
-    announcements: announcementsMetrics,
     reports: {
       count: reportsCount,
     },
