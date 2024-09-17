@@ -783,12 +783,17 @@ const handleSave = handleSubmit(async (values) => {
     mode === AnnouncementFormMode.CREATE ||
     announcement?.status !== 'PUBLISHED'
   ) {
-    const activeDate = LocalDateTime.from(nativeJs(values.active_on));
+    let activeDate = LocalDateTime.from(nativeJs(values.active_on));
+    // If the active_on date is in the past (earlier than the current time), the server will override it with the current time.
+    // Therefore, we need to show the user the time that the server would actually use, which is the current time in that case.
+    if (activeDate.isBefore(LocalDateTime.now()))
+      activeDate = LocalDateTime.now();
+
     const activeDateString = activeDate.format(
       DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(Locale.CANADA),
     );
     const activeTimeString = activeDate.format(
-      DateTimeFormatter.ofPattern('hh:mm a').withLocale(Locale.CANADA),
+      DateTimeFormatter.ofPattern('h:mm a').withLocale(Locale.CANADA),
     );
     confirmationSettings = {
       title: 'Confirm Publish',
