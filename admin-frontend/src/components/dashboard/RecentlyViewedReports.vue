@@ -53,7 +53,6 @@ const headers = [
 ];
 
 async function refresh() {
-  console.log('refresh recently viewed');
   await reportsWidget.value?.refresh();
 }
 
