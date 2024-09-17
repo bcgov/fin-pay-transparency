@@ -90,7 +90,7 @@ const getReports = async () => {
   isLoading.value = false;
 };
 
-const formatDateTime = (value: string, format = 'MMMM d, YYYY'): string => {
+const formatDateTime = (value: string, format = 'MMMM d, yyyy'): string => {
   const formatter = DateTimeFormatter.ofPattern(format).withLocale(
     Locale.ENGLISH,
   );

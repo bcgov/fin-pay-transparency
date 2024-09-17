@@ -15,13 +15,13 @@ export const OIDC_AZUREIDIR_CALLBACK_NAME = `callback_${KEYCLOAK_IDP_HINT_AZUREI
 export const OIDC_AZUREIDIR_SCOPE = KEYCLOAK_IDP_HINT_AZUREIDIR;
 
 export const JSON_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
-  'YYYY-MM-dd',
+  'yyyy-MM-dd',
 ).withLocale(Locale.ENGLISH);
 
 // Define how report dates should be formatted for different
 export const DISPLAY_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
-  'MMMM d, YYYY',
+  'MMMM d, yyyy',
 ).withLocale(Locale.ENGLISH);
 export const FILENAME_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
-  'YYYY-MM',
+  'yyyy-MM',
 ).withLocale(Locale.ENGLISH);
