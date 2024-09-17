@@ -16,12 +16,12 @@ export const OIDC_AZUREIDIR_SCOPE = KEYCLOAK_IDP_HINT_AZUREIDIR;
 
 export const JSON_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
   'yyyy-MM-dd',
-).withLocale(Locale.ENGLISH);
+).withLocale(Locale.CANADA);
 
 // Define how report dates should be formatted for different
 export const DISPLAY_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
   'MMMM d, yyyy',
-).withLocale(Locale.ENGLISH);
+).withLocale(Locale.CANADA);
 export const FILENAME_REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern(
   'yyyy-MM',
-).withLocale(Locale.ENGLISH);
+).withLocale(Locale.CANADA);

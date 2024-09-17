@@ -92,7 +92,7 @@ const getReports = async () => {
 
 const formatDateTime = (value: string, format = 'MMMM d, yyyy'): string => {
   const formatter = DateTimeFormatter.ofPattern(format).withLocale(
-    Locale.ENGLISH,
+    Locale.CANADA,
   );
   return ZonedDateTime.parse(value)
     .withZoneSameInstant(ZoneId.SYSTEM)
