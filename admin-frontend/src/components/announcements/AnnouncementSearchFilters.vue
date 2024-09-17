@@ -10,6 +10,8 @@
           variant="solo"
           hide-details
           :single-line="true"
+          :aria-describedby="undefined"
+          aria-label="Search by title"
           @keyup.enter="searchAnnouncements()"
         >
           <template #append> </template>

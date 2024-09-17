@@ -3,8 +3,6 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import {
   Announcement,
-  AnnouncementFilterType,
-  AnnouncementSortType,
   IAnnouncementSearchResult,
 } from '../types/announcements';
 import { ApiRoutes } from '../utils/constant';
@@ -282,55 +280,14 @@ export default {
   },
 
   async getPublishedAnnouncements(): Promise<Announcement[]> {
-    const now: string = ApiServicePrivate.dateToApiDateTimeString(new Date());
-    const filters: AnnouncementFilterType = [
-      {
-        key: 'status',
-        operation: 'in',
-        value: ['PUBLISHED'],
-      },
-      {
-        key: 'active_on',
-        operation: 'lte',
-        value: now,
-      },
-      {
-        key: 'expires_on',
-        operation: 'gt',
-        value: now,
-      },
-    ];
-    const sort: AnnouncementSortType = [
-      { field: 'updated_date', order: 'desc' },
-    ];
-    const result = await this.getAnnouncements(0, 100, filters, sort);
+    const result = await this.getAnnouncements();
     return result?.items;
   },
 
-  async getAnnouncements(
-    offset: number = 0,
-    limit: number = 20,
-    filter: AnnouncementFilterType | null = null,
-    sort: AnnouncementSortType | null = null,
-  ): Promise<IAnnouncementSearchResult> {
+  async getAnnouncements(): Promise<IAnnouncementSearchResult> {
     try {
-      if (!filter) {
-        filter = [];
-      }
-      if (!sort) {
-        sort = [{ field: 'active_on', order: 'asc' }];
-      }
-      const params = {
-        offset: offset,
-        limit: limit,
-        filters: filter,
-        sort: sort,
-      };
       const resp = await apiAxios.get<IAnnouncementSearchResult>(
         ApiRoutes.ANNOUNCEMENTS,
-        {
-          params: params,
-        },
       );
       if (resp?.data) {
         return resp.data;
@@ -341,6 +298,7 @@ export default {
       throw e;
     }
   },
+
   async downloadFile(fileId: string) {
     try {
       const { data, headers } = await apiAxios.get(
@@ -349,10 +307,10 @@ export default {
           responseType: 'blob',
         },
       );
-      let name = headers['content-disposition']
+      const name = headers['content-disposition']
         .split('filename="')[1]
         .split('.')[0];
-      let extension = headers['content-disposition']
+      const extension = headers['content-disposition']
         .split('.')[1]
         .split('"')[0];
 

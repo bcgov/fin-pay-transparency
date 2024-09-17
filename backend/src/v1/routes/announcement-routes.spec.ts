@@ -25,13 +25,9 @@ jest.mock('../services/announcements-service', () => ({
   getAnnouncementById: (...args) => mockGetAnnouncementById(...args),
 }));
 
+const mockAuthenticateAdmin = jest.fn();
 jest.mock('../middlewares/authorization/authenticate-admin', () => ({
-  authenticateAdmin:
-    (...args) =>
-    (req, res, next) => {
-      req.user = { admin_user_id: faker.string.uuid(), userInfo: {} };
-      next();
-    },
+  authenticateAdmin: () => mockAuthenticateAdmin,
 }));
 
 jest.mock('../middlewares/authorization/authorize', () => ({
@@ -46,6 +42,10 @@ describe('announcement-routes', () => {
   let app: Application;
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAuthenticateAdmin.mockImplementation((req, res, next) => {
+      req.user = { admin_user_id: faker.string.uuid(), userInfo: {} };
+      next();
+    });
     app = require('express')();
     app.use(bodyParser.json());
     app.use(require('./announcement-routes').default);
@@ -152,6 +152,32 @@ describe('announcement-routes', () => {
               );
             expect(response.status).toBe(400);
             expect(response.body).toEqual({ error: expect.any(String) });
+          });
+        });
+
+        describe('when sort is provided in public frontend', () => {
+          it('should be ignored and set to the default', async () => {
+            mockAuthenticateAdmin.mockImplementation((req, res, next) => {
+              next();
+            });
+            const response = await request(app)
+              .get('/')
+              .query(
+                qs.stringify({ sort: [{ field: 'status', order: 'asc' }] }),
+              );
+            expect(mockGetAnnouncements).toHaveBeenCalledWith(
+              expect.objectContaining({
+                sort: [{ field: 'updated_date', order: 'desc' }],
+              }),
+            );
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+              items: [],
+              total: 0,
+              offset: 0,
+              limit: 10,
+              totalPages: 0,
+            });
           });
         });
       });
@@ -303,6 +329,38 @@ describe('announcement-routes', () => {
             expect(response.body).toEqual({ error: expect.any(String) });
           });
         });
+
+        describe('when filters are provided in public frontend', () => {
+          it('should be ignored and set to the default', async () => {
+            mockAuthenticateAdmin.mockImplementation((req, res, next) => {
+              next();
+            });
+            const response = await request(app)
+              .get('/')
+              .query(
+                qs.stringify({
+                  filters: [
+                    { key: 'status', operation: 'in', value: ['DRAFT'] },
+                  ],
+                }),
+              );
+            expect(mockGetAnnouncements).toHaveBeenCalledWith(
+              expect.objectContaining({
+                filters: expect.arrayContaining([
+                  { key: 'status', operation: 'in', value: ['PUBLISHED'] },
+                ]),
+              }),
+            );
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+              items: [],
+              total: 0,
+              offset: 0,
+              limit: 10,
+              totalPages: 0,
+            });
+          });
+        });
       });
     });
 
@@ -438,7 +496,7 @@ describe('announcement-routes', () => {
     it('should return 200', async () => {
       const response = await request(app).get('/123');
       expect(response.status).toBe(200);
-      expect(mockGetAnnouncementById).toHaveBeenCalledWith("123");
+      expect(mockGetAnnouncementById).toHaveBeenCalledWith('123');
     });
 
     describe('when service throws error', () => {
@@ -450,5 +508,5 @@ describe('announcement-routes', () => {
         expect(response.body.error).toBeDefined();
       });
     });
-  })
+  });
 });
