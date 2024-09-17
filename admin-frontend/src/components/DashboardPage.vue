@@ -4,6 +4,10 @@
       <h4 class="mb-4">
         <v-icon icon="mdi-clipboard-text-outline"></v-icon>
         Recently Submitted Reports
+        <ToolTip
+          text="5 most recent submissions, refreshed each time dashboard loads."
+          aria-label="5 most recent submissions, refreshed each time dashboard loads."
+        ></ToolTip>
       </h4>
       <RecentlySubmittedReports />
     </v-col>
@@ -44,4 +48,5 @@ import RecentlyViewedReports from './dashboard/RecentlyViewedReports.vue';
 import NumSubmissionsThisYear from './dashboard/NumSubmissionsThisYear.vue';
 import NumEmployerLogins from './dashboard/NumEmployerLogins.vue';
 import PublicAnnouncements from './dashboard/PublicAnnouncements.vue';
+import ToolTip from './ToolTip.vue';
 </script>
