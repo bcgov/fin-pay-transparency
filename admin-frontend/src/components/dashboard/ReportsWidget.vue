@@ -78,7 +78,7 @@ async function refresh(): Promise<void> {
 </script>
 
 <style>
-thead {
+.ptap-widget thead {
   background-color: #eeeeee;
 }
 </style>
