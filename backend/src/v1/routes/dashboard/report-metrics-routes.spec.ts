@@ -4,8 +4,10 @@ import router from './report-metrics-routes';
 
 let app: Application;
 const getReportsMetricsMock = jest.fn();
-jest.mock('../../services/dashboard-metrics-service', () => ({
-  getReportsMetrics: (...args) => getReportsMetricsMock(...args),
+jest.mock('../../services/admin-report-service', () => ({
+  adminReportService: {
+    getReportsMetrics: (...args) => getReportsMetricsMock(...args),
+  },
 }));
 describe('reports-metrics-routes', () => {
   beforeEach(() => {

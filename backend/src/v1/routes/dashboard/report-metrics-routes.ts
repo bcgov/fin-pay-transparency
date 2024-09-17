@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getReportsMetrics } from '../../services/dashboard-metrics-service';
+import { adminReportService } from '../../services/admin-report-service';
 import { logger } from '../../../logger';
 
 const router = Router();
@@ -10,7 +10,7 @@ const router = Router();
 router.get('/reports-metrics', async (req, res) => {
   try {
     const reportingYear = new Date().getFullYear();
-    const metrics = await getReportsMetrics({ reportingYear });
+    const metrics = await adminReportService.getReportsMetrics({ reportingYear });
 
     res.json(metrics);
   } catch (error) {

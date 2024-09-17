@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAnnouncementMetrics } from '../../services/dashboard-metrics-service';
+import { getAnnouncementMetrics } from '../../services/announcements-service';
 import { logger } from '../../../logger';
 
 const router = Router();

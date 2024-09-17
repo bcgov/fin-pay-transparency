@@ -2,8 +2,14 @@ import express, { Application } from 'express';
 import request from 'supertest';
 import router from '.';
 
-jest.mock('../../services/dashboard-metrics-service');
-
+jest.mock('../../services/announcements-service', () => ({
+  getAnnouncementMetrics: jest.fn(),
+}));
+jest.mock('../../services/admin-report-service', () => ({
+  adminReportService: {
+    getReportsMetrics: jest.fn(),
+  },
+}));
 describe('Dashboard', () => {
   let app: Application;
   beforeEach(() => {

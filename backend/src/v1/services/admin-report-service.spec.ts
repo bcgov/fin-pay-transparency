@@ -654,6 +654,23 @@ describe('admin-report-service', () => {
     });
   });
 
+  describe('getReportMetrics', () => {
+    it('should return the reports metrics', async () => {
+      // Arrange
+      const reportingYear = 2021;
+      const result = await adminReportService.getReportsMetrics({
+        reportingYear,
+      });
+
+      // Assert
+      expect(result).toEqual({
+        reports: {
+          count: 2,
+        },
+      });
+    });
+  });
+
   describe('updateAdminLastAccessDate', () => {
     it('executes an update statement against the pay_transparency_report table', async () => {
       const reportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';

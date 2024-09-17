@@ -500,3 +500,25 @@ export const getExpiringAnnouncements = async (): Promise<announcement[]> => {
   );
   return items;
 };
+
+/**
+ * Get announcement metrics
+ * @param param0
+ * @returns
+ */
+export const getAnnouncementMetrics = async () => {
+  const announcementsData = await prisma.announcement.groupBy({
+    where: { status: { in: ['PUBLISHED', 'DRAFT'] } },
+    by: ['status'],
+    _count: true,
+  });
+
+  const announcementsMetrics = announcementsData.reduce((acc, curr) => {
+    const key = curr.status.toLowerCase();
+    return { ...acc, [key]: { count: curr._count } };
+  }, {});
+
+  return {
+    ...announcementsMetrics,
+  };
+};
