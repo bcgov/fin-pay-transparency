@@ -133,7 +133,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import AnnouncementSearchFilters from './announcements/AnnouncementSearchFilters.vue';
 import AnnouncementStatusChip from './announcements/AnnouncementStatusChip.vue';
 import AnnouncementActions from './announcements/AnnouncementActions.vue';
@@ -147,7 +147,6 @@ import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { NotificationService } from '../services/notificationService';
 import { useConfigStore } from '../store/modules/config';
-import { onMounted } from 'vue';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
