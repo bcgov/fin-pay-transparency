@@ -62,7 +62,7 @@ import { ref, onMounted } from 'vue';
 
 const refreshIntervalMinutes: number = 5;
 const isDashboardAvailable =
-  (window as any).config.IS_ADMIN_DASHBOARD_AVAILABLE?.toUpperCase() == 'TRUE';
+  (window as any).config?.IS_ADMIN_DASHBOARD_AVAILABLE?.toUpperCase() == 'TRUE';
 
 const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
 const recentlyViewedReports = ref<typeof RecentlyViewedReports>();

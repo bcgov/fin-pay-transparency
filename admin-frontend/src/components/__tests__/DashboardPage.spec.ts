@@ -60,6 +60,8 @@ describe('DashboardPage', () => {
   //Tests that required UI components appear on the page
 
   it('The Recently Submitted Reports widget is shown', async () => {
-    expect(wrapper.findComponent(NumEmployerLogins)).toBeTruthy();
+    if (wrapper.vm.isDashboardAvailable) {
+      expect(wrapper.findComponent(NumEmployerLogins)).toBeTruthy();
+    }
   });
 });

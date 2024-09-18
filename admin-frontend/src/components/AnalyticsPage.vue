@@ -33,7 +33,7 @@ type PowerBiDetails = {
 };
 
 const isAnalyticsAvailable =
-  (window as any).config.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';
+  (window as any).config?.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';
 
 const resourceDetails = createDefaultPowerBiDetailsMap([
   POWERBI_RESOURCE.SUBMISSIONANALYTICS,
