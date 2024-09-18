@@ -5,8 +5,8 @@
     :headers="headers"
     :get-reports="getRecentlySubmittedReports"
   >
-    <template #item.create_date="{ item }">
-      {{ formatIsoDateTimeAsLocalDate(item.create_date) }}
+    <template #item.update_date="{ item }">
+      {{ formatIsoDateTimeAsLocalDate(item.update_date) }}
     </template>
   </ReportsWidget>
 </template>
@@ -40,7 +40,7 @@ const headers = [
     title: 'Submission Date',
     align: 'start',
     sortable: true,
-    key: 'create_date',
+    key: 'update_date',
   },
   {
     title: 'Company Name',
@@ -58,7 +58,7 @@ const headers = [
 
 async function getRecentlySubmittedReports(): Promise<Report[]> {
   const filter: ReportFilterType = [];
-  const sort: IReportSearchSort = [{ create_date: 'desc' }];
+  const sort: IReportSearchSort = [{ update_date: 'desc' }];
   const searchResults: IReportSearchResult = await ApiService.getReports(
     0,
     pageSize,
