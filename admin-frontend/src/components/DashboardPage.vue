@@ -1,5 +1,4 @@
 <template>
-  <div v-if="!isDashboardAvailable">Coming soon</div>
   <v-row v-if="isDashboardAvailable" :dense="true" class="w-100">
     <v-col sm="12" md="12" lg="7" xl="6">
       <h4 class="mb-4">
