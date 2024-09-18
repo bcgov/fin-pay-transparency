@@ -198,8 +198,8 @@ admin-frontend:
       memory: 50Mi
   env:
     logLevel: info
-    isAdminDashboardAvailable: 'FALSE'
-    isAdminAnalyticsAvailable: 'FALSE'
+    isAdminDashboardAvailable: "false"
+    isAdminAnalyticsAvailable: "false"
   autoscaling:
     enabled: true
     minReplicas: 2
