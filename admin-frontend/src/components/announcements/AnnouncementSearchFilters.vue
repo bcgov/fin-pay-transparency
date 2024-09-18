@@ -64,7 +64,6 @@
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
-          prevent-min-max-navigation
         >
           <template #day="{ day, date }">
             <span :aria-label="formatDate(date)">
@@ -75,7 +74,9 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Expiry date range <FilterDateRangeTooltip id="expires-on-tooltip" /></h5>
+        <h5>
+          Expiry date range <FilterDateRangeTooltip id="expires-on-tooltip" />
+        </h5>
         <VueDatePicker
           v-model="expiryDateRange"
           range
@@ -83,7 +84,6 @@
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
-          prevent-min-max-navigation
           placeholder="Select date range"
         >
           <template #day="{ day, date }">
