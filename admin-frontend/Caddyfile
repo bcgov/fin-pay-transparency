@@ -18,7 +18,10 @@
     header {
       Content-Type text/javascript
     }
-    respond `window.config = {};`
+    respond `window.config = {
+      "IS_ADMIN_DASHBOARD_AVAILABLE":"{$IS_ADMIN_DASHBOARD_AVAILABLE}",
+      "IS_ADMIN_ANALYTICS_AVAILABLE":"{$IS_ADMIN_ANALYTICS_AVAILABLE}"
+    };`
   }
   root * /app/dist
   encode zstd gzip

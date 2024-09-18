@@ -1,16 +1,18 @@
 <template>
-  <div
-    v-for="[name, details] in resourceDetails"
-    :key="name"
-    class="powerbi-container"
-  >
-    <PowerBIReportEmbed
-      v-if="details.config.embedUrl"
-      :style="details.css"
-      :embed-config="details.config"
-      :event-handlers="details.eventHandlersMap"
-      @report-obj="(report) => (details.report = report)"
-    />
+  <div v-if="isAnalyticsAvailable">
+    <div
+      v-for="[name, details] in resourceDetails"
+      :key="name"
+      class="powerbi-container"
+    >
+      <PowerBIReportEmbed
+        v-if="details.config.embedUrl"
+        :style="details.css"
+        :embed-config="details.config"
+        :event-handlers="details.eventHandlersMap"
+        @report-obj="(report) => (details.report = report)"
+      />
+    </div>
   </div>
 </template>
 
@@ -30,12 +32,18 @@ type PowerBiDetails = {
   eventHandlersMap: Map<string, EventHandler>;
 };
 
+const isAnalyticsAvailable =
+  (window as any).config?.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';
+
 const resourceDetails = createDefaultPowerBiDetailsMap([
   POWERBI_RESOURCE.SUBMISSIONANALYTICS,
   POWERBI_RESOURCE.USERBEHAVIOUR,
   POWERBI_RESOURCE.DATAANALYTICS,
 ]);
-getPowerBiAccessToken(resourceDetails);
+
+if (isAnalyticsAvailable) {
+  getPowerBiAccessToken(resourceDetails);
+}
 
 /** Create a Map containing the details of the resources. */
 function createDefaultPowerBiDetailsMap(resourcesToLoad: POWERBI_RESOURCE[]) {

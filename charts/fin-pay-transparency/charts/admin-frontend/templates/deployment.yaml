@@ -45,6 +45,10 @@ spec:
               value: "http://{{ .Release.Name }}-backend:3004" #3004 is the port used for the backend's admin API
             - name: LOG_LEVEL
               value: {{ .Values.env.logLevel }}
+            - name: IS_ADMIN_DASHBOARD_AVAILABLE
+              value: "{{ .Values.env.isAdminDashboardAvailable }}"
+            - name: IS_ADMIN_ANALYTICS_AVAILABLE
+              value: "{{ .Values.env.isAdminAnalyticsAvailable }}"
             - name: CLAMAV_API_KEY
               valueFrom:
                 secretKeyRef:
