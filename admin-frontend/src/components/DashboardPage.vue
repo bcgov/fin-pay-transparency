@@ -1,5 +1,5 @@
 <template>
-  <v-row :dense="true" class="w-100">
+  <v-row v-if="isDashboardAvailable" :dense="true" class="w-100">
     <v-col sm="12" md="12" lg="7" xl="6">
       <h4 class="mb-4">
         <v-icon icon="mdi-clipboard-text-outline"></v-icon>
@@ -61,6 +61,8 @@ import ToolTip from './ToolTip.vue';
 import { ref, onMounted } from 'vue';
 
 const refreshIntervalMinutes: number = 5;
+const isDashboardAvailable =
+  (window as any).config?.IS_ADMIN_DASHBOARD_AVAILABLE?.toUpperCase() == 'TRUE';
 
 const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
 const recentlyViewedReports = ref<typeof RecentlyViewedReports>();
