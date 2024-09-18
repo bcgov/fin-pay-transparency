@@ -1,4 +1,6 @@
-export interface IConfigValue {}
+export interface IConfigValue {
+  deleteAnnouncementsDurationInDays: number;
+}
 
 export type User = {
   id: string;

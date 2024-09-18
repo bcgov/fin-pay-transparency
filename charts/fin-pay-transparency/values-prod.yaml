@@ -52,6 +52,7 @@ global:
     reports_scheduler_cron_timezone: "America/Vancouver"
     first_year_with_prev_reporting_year_option: "2025"
     admin_invitation_duration_in_hours: "72"
+    delete_announcements_duration_in_days: "90"
     db_connection_pool_size: "5"
     num_months_of_user_errors_to_keep: "6"
     is_user_error_logging_enabled: "true"

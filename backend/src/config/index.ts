@@ -46,6 +46,9 @@ config.defaults({
       process.env.EXPIRE_ANNOUNCEMENTS_CRON_CRONTIME,
     enableEmailExpiringAnnouncements:
       process.env.ENABLE_EMAIL_EXPIRING_ANNOUNCEMENTS?.toUpperCase() == 'TRUE',
+    deleteAnnouncementsDurationInDays: parseInt(
+      process.env.DELETE_ANNOUNCEMENTS_DURATION_IN_DAYS || '90',
+    ),
     databaseUrl: datasourceUrl,
     firstYearWithPrevReportingYearOption: parseInt(
       process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',
