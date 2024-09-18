@@ -53,6 +53,8 @@ import { useAnnouncementSelectionStore } from '../../store/modules/announcementS
 import { ref } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import { useRouter } from 'vue-router';
+import { useConfigStore } from '../../store/modules/config';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
 
@@ -60,7 +62,8 @@ const announcementSelectionStore = useAnnouncementSelectionStore();
 const props = defineProps<{
   announcement: Announcement;
 }>();
-
+const configStore = useConfigStore();
+const { config } = storeToRefs(configStore);
 const announcementSearchStore = useAnnouncementSearchStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();
 const isArchiving = ref<boolean>(false);
@@ -69,7 +72,7 @@ const isUnpublishing = ref<boolean>(false);
 async function archiveAnnouncement(announcementId: string) {
   const isConfirmed = await confirmDialog.value?.open(
     'Confirm Archive',
-    `Are you sure you want to archive the selected announcement?  This action cannot be undone.`,
+    `Are you sure you want to archive the selected announcement? This announcement will be permanently deleted from the database ${config.value?.deleteAnnouncementsDurationInDays} days after it has been archived.  This action cannot be undone.`,
     {
       titleBold: true,
       resolveText: `Confirm`,

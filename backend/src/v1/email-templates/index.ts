@@ -29,6 +29,6 @@ export const EMAIL_TEMPLATES = {
         expire on <b>${expiryStr}</b> If you want to extend or change this 
         announcement, please log into the Admin Portal to make the change. 
         Otherwise, the announcement will be automatically removed from the 
-        Pay Transparency Reporting Tool site on the expiry date.</p>`,
+        Pay Transparency Reporting Tool site on the expiry date. This announcement will be permanently deleted from the database ${config.get('server:deleteAnnouncementsDurationInDays')} days after it has expired.</p>`,
   },
 };
