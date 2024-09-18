@@ -8,7 +8,7 @@ import { UserInputError } from '../types/errors';
 import * as AnnouncementService from './announcements-service';
 import { utils } from './utils-service';
 import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
-import { updateAnnouncement } from './announcements-service';
+import { getAnnouncementMetrics, updateAnnouncement } from './announcements-service';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -46,6 +46,10 @@ jest.mock('../prisma/prisma-client', () => ({
       updateMany: (...args) => mockUpdateMany(...args),
       create: (...args) => mockCreateAnnouncement(...args),
       findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
+      groupBy: jest.fn().mockResolvedValueOnce([
+        { status: 'PUBLISHED', _count: 1 },
+        { status: 'DRAFT', _count: 2 },
+      ]),
     },
     announcement_history: {
       create: (...args) => mockHistoryCreate(...args),
@@ -433,8 +437,8 @@ describe('AnnouncementsService', () => {
       const announcementInput: AnnouncementDataType = {
         title: faker.lorem.words(3),
         description: faker.lorem.words(10),
-        expires_on: faker.date.recent().toISOString(),
-        active_on: faker.date.future().toISOString(),
+        expires_on: faker.date.future().toISOString(),
+        active_on: faker.date.recent().toISOString(),
         status: AnnouncementStatus.Published,
         linkDisplayName: faker.lorem.words(3),
         linkUrl: faker.internet.url(),
@@ -532,8 +536,8 @@ describe('AnnouncementsService', () => {
         const announcementInput: AnnouncementDataType = {
           title: faker.lorem.words(3),
           description: faker.lorem.words(10),
-          expires_on: faker.date.recent().toISOString(),
-          active_on: faker.date.future().toISOString(),
+          expires_on: faker.date.future().toISOString(),
+          active_on: faker.date.recent().toISOString(),
           status: AnnouncementStatus.Published,
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
@@ -920,6 +924,19 @@ describe('AnnouncementsService', () => {
       expect(mockFindUniqueOrThrow).toHaveBeenCalledWith({
         where: { announcement_id: '1' },
         include: { announcement_resource: true },
+      });
+    });
+  });
+
+  describe('getAnnouncementMetrics', () => {
+    it('should return the announcement metrics', async () => {
+      // Act
+      const result = await getAnnouncementMetrics();
+
+      // Assert
+      expect(result).toEqual({
+        published: { count: 1 },
+        draft: { count: 2 },
       });
     });
   });

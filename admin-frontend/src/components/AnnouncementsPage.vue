@@ -6,14 +6,14 @@
   </v-row>
 
   <div class="search-results w-100">
-    <div class="d-flex flex-wrap">
+    <div class="d-flex flex-wrap mb-4 align-center">
       <h4 v-if="searchResults?.length" class="">
         Displaying {{ searchResults.length }} announcement<span
           v-if="searchResults.length != 1"
           >s</span
         >
       </h4>
-      <v-btn class="btn-primary ml-auto" to="/add-announcement">
+      <v-btn class="btn-primary ml-auto add-button" to="/add-announcement">
         Add Announcement
       </v-btn>
     </div>
@@ -31,7 +31,7 @@
       "
       @update:options="updateSearch"
     >
-      <template #header.selection="{ column }">
+      <template #header.selection="">
         <v-checkbox
           v-model="isSelectedAnnouncementsHeaderChecked"
           class="checkbox-no-details"
@@ -133,7 +133,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import AnnouncementSearchFilters from './announcements/AnnouncementSearchFilters.vue';
 import AnnouncementStatusChip from './announcements/AnnouncementStatusChip.vue';
 import AnnouncementActions from './announcements/AnnouncementActions.vue';
@@ -146,10 +146,14 @@ import { AnnouncementKeys } from '../types/announcements';
 import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { NotificationService } from '../services/notificationService';
+import { useConfigStore } from '../store/modules/config';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
-  storeToRefs(announcementSearchStore);
+storeToRefs(announcementSearchStore);
+
+const configStore = useConfigStore();
+const { config } = storeToRefs(configStore);
 
 const announcementInDialog = ref<any>(undefined);
 const confirmDialog = ref<typeof ConfirmationDialog>();
@@ -261,14 +265,10 @@ async function updateSearch(options) {
   await announcementSearchStore.updateSearch(options);
 }
 
-async function repeatSearch() {
-  await announcementSearchStore.repeatSearch();
-}
-
 async function archiveAnnouncements(announcementIds: string[]) {
   const isConfirmed = await confirmDialog.value?.open(
     'Confirm Archive',
-    `Are you sure you want to archive the selected announcement${announcementIds.length != 1 ? 's' : ''}?  This action cannot be undone.`,
+    `Are you sure you want to archive the selected announcement${announcementIds.length != 1 ? 's' : ''}? These announcements will be permanently deleted from the database ${config.value?.deleteAnnouncementsDurationInDays} days after they have been archived.  This action cannot be undone.`,
     {
       titleBold: true,
       resolveText: `Confirm`,
@@ -289,6 +289,10 @@ async function archiveAnnouncements(announcementIds: string[]) {
     }
   }
 }
+
+onMounted(async () => {
+  await configStore.loadConfig();
+});
 </script>
 
 <style>
@@ -304,5 +308,9 @@ async function archiveAnnouncements(announcementIds: string[]) {
 }
 .no-min-width {
   min-width: 0px !important;
+}
+
+.add-button {
+  width: 220px;
 }
 </style>

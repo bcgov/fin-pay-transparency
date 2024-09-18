@@ -70,8 +70,6 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import { useCodeStore } from '../store/modules/codeStore';
 import { REPORT_STATUS } from '../utils/constant';
 import ApiService from '../common/apiService';
-import { DateTimeFormatter, LocalDate, ZonedDateTime } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
 import {
   useReportStepperStore,
   ReportMode,
@@ -112,18 +110,6 @@ export default {
     sanitizeUrl: sanitizeUrl,
     ...mapActions(useReportStepperStore, ['setReportInfo', 'reset', 'setMode']),
     ...mapActions(useConfigStore, ['loadConfig']),
-    formatDate(value, format = 'MMMM d, YYYY') {
-      const formatter = DateTimeFormatter.ofPattern(format).withLocale(
-        Locale.ENGLISH,
-      );
-      return LocalDate.parse(value).format(formatter);
-    },
-    formatDateTime(value, format = 'MMMM d, YYYY') {
-      const formatter = DateTimeFormatter.ofPattern(format).withLocale(
-        Locale.ENGLISH,
-      );
-      return ZonedDateTime.parse(value).format(formatter);
-    },
     async getReports() {
       this.reports = await ApiService.getReports({
         report_status: REPORT_STATUS.PUBLISHED,

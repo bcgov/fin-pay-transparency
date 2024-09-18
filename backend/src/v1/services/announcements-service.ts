@@ -1,4 +1,10 @@
-import { convert, LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
+import {
+  convert,
+  DateTimeFormatter,
+  LocalDateTime,
+  ZonedDateTime,
+  ZoneId,
+} from '@js-joda/core';
 import {
   announcement,
   announcement_resource,
@@ -275,6 +281,13 @@ export const createAnnouncement = async (
     });
   }
 
+  if (
+    !isEmpty(input.active_on) &&
+    ZonedDateTime.parse(input.active_on).isBefore(ZonedDateTime.now())
+  ) {
+    input.active_on = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
+  }
+
   const data: Prisma.announcementCreateInput = {
     title: input.title,
     description: input.description,
@@ -420,6 +433,16 @@ export const updateAnnouncement = async (
       });
     }
 
+    if (
+      input.status != AnnouncementStatus.Published && // If announcement is already published, don't change the active_on
+      !isEmpty(input.active_on) &&
+      ZonedDateTime.parse(input.active_on).isBefore(ZonedDateTime.now())
+    ) {
+      input.active_on = ZonedDateTime.now().format(
+        DateTimeFormatter.ISO_INSTANT,
+      );
+    }
+
     const data: Prisma.announcementUpdateInput = {
       title: input.title,
       description: input.description,
@@ -499,4 +522,26 @@ export const getExpiringAnnouncements = async (): Promise<announcement[]> => {
     `Found ${items.length} expiring announcements between ${targetDate.toString()} and ${targetDate.plusDays(1).toString()}`,
   );
   return items;
+};
+
+/**
+ * Get announcement metrics
+ * @param param0
+ * @returns
+ */
+export const getAnnouncementMetrics = async () => {
+  const announcementsData = await prisma.announcement.groupBy({
+    where: { status: { in: ['PUBLISHED', 'DRAFT'] } },
+    by: ['status'],
+    _count: true,
+  });
+
+  const announcementsMetrics = announcementsData.reduce((acc, curr) => {
+    const key = curr.status.toLowerCase();
+    return { ...acc, [key]: { count: curr._count } };
+  }, {});
+
+  return {
+    ...announcementsMetrics,
+  };
 };

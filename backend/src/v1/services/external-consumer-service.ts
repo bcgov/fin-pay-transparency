@@ -19,7 +19,7 @@ const withStartOfDay = (input: ZonedDateTime): ZonedDateTime => {
 const inputDateTimeFormat = 'yyyy-MM-dd HH:mm';
 export const inputDateTimeFormatter = DateTimeFormatter.ofPattern(
   inputDateTimeFormat,
-).withLocale(Locale.ENGLISH);
+).withLocale(Locale.CANADA);
 
 const externalConsumerService = {
   /**
