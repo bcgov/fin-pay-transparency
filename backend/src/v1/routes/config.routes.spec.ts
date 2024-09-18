@@ -27,6 +27,7 @@ describe('config-routes', () => {
     return request(app)
       .get('/config')
       .expect(({ body }) => {
+        expect(body.deleteAnnouncementsDurationInDays).not.toBeNull();
         expect(body.maxUploadFileSize).not.toBeNull();
         expect(body.reportEditDurationInDays).not.toBeNull();
         expect(body.reportingYearOptions.length).toBeGreaterThanOrEqual(1);
