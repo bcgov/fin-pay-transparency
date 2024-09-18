@@ -1,6 +1,6 @@
 <template>
   <div class="primary-filters">
-    <v-row class="mt-0 w-100 mb-3">
+    <v-row class="mt-0 w-100 mb-3 mr-1">
       <v-col cols="12" md="8" lg="6" xl="4" class="d-flex align-center">
         <v-text-field
           v-model="searchText"
@@ -25,7 +25,7 @@
         md="4"
         lg="6"
         xl="8"
-        class="d-flex justify-end align-center pe-3"
+        class="d-flex justify-end align-center pe-1"
       >
         <v-btn
           class="btn-secondary me-2"
@@ -64,7 +64,6 @@
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
-          prevent-min-max-navigation
         >
           <template #day="{ day, date }">
             <span :aria-label="formatDate(date)">
@@ -75,7 +74,9 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Expiry date range <FilterDateRangeTooltip id="expires-on-tooltip" /></h5>
+        <h5>
+          Expiry date range <FilterDateRangeTooltip id="expires-on-tooltip" />
+        </h5>
         <VueDatePicker
           v-model="expiryDateRange"
           range
@@ -83,7 +84,6 @@
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
-          prevent-min-max-navigation
           placeholder="Select date range"
         >
           <template #day="{ day, date }">
@@ -314,7 +314,7 @@ $inputHeight: 40px;
   margin-left: -24px !important;
   margin-right: -48px !important;
   padding-left: 24px !important;
-  padding-right: 24px !important;
+  padding-right: 40px !important;
   background-color: #eeeeee;
 }
 input::placeholder {
