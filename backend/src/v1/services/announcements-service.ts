@@ -1,4 +1,10 @@
-import { convert, LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
+import {
+  convert,
+  DateTimeFormatter,
+  LocalDateTime,
+  ZonedDateTime,
+  ZoneId,
+} from '@js-joda/core';
 import {
   announcement,
   announcement_resource,
@@ -275,6 +281,13 @@ export const createAnnouncement = async (
     });
   }
 
+  if (
+    !isEmpty(input.active_on) &&
+    ZonedDateTime.parse(input.active_on).isBefore(ZonedDateTime.now())
+  ) {
+    input.active_on = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
+  }
+
   const data: Prisma.announcementCreateInput = {
     title: input.title,
     description: input.description,
@@ -418,6 +431,15 @@ export const updateAnnouncement = async (
           update_date: updateDate,
         },
       });
+    }
+
+    if (
+      !isEmpty(input.active_on) &&
+      ZonedDateTime.parse(input.active_on).isBefore(ZonedDateTime.now())
+    ) {
+      input.active_on = ZonedDateTime.now().format(
+        DateTimeFormatter.ISO_INSTANT,
+      );
     }
 
     const data: Prisma.announcementUpdateInput = {

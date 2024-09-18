@@ -1,11 +1,11 @@
 'use strict';
 
-import {getDateFormatter} from './format';
-import {LocalDate} from '@js-joda/core';
-import {isPlainObject} from 'lodash';
+import { getDateFormatter } from './format';
+import { LocalDate } from '@js-joda/core';
+import { isPlainObject } from 'lodash';
 import rfdc from 'rfdc/default';
 
-export const getLocalDateFromString = (date, pattern = 'uuuu-MM-dd') => {
+export const getLocalDateFromString = (date, pattern = 'yyyy-MM-dd') => {
   const formatter = getDateFormatter(pattern);
   try {
     return LocalDate.parse(date, formatter);
@@ -20,7 +20,7 @@ export function deepCloneObject(objectToBeCloned) {
 }
 
 export function setEmptyInputParams(params, ...excludedParams) {
-  Object.keys(params).forEach(key => {
+  Object.keys(params).forEach((key) => {
     if (!excludedParams.includes(key)) {
       if (isPlainObject(params[key])) {
         setEmptyInputParams(params[key], ...excludedParams);
@@ -30,5 +30,3 @@ export function setEmptyInputParams(params, ...excludedParams) {
     }
   });
 }
-
-
