@@ -6,7 +6,7 @@
   </v-row>
 
   <div class="search-results w-100">
-    <div class="d-flex flex-wrap mb-4">
+    <div class="d-flex flex-wrap mb-4 align-center">
       <h4 v-if="searchResults?.length" class="">
         Displaying {{ searchResults.length }} announcement<span
           v-if="searchResults.length != 1"
