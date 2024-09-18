@@ -11,6 +11,10 @@ import {
 import { PayTransparencyUserError } from './file-upload-service';
 import { reportService } from './report-service';
 
+interface IGetReportMetricsInput {
+  reportingYear: number;
+}
+
 const adminReportService = {
   /**
    * Search reports, with pagination, sorting and filtering by connecting to read replica of crunchy.
@@ -166,6 +170,23 @@ const adminReportService = {
     const report = await reportService.getReportPdf(req, reportId);
     await adminReportServicePrivate.updateAdminLastAccessDate(reportId);
     return report;
+  },
+  /**
+   * Get dashboard metrics
+   * @param param0
+   * @returns
+   */
+  async getReportsMetrics({ reportingYear }: IGetReportMetricsInput) {
+    const reportsCount = await prismaReadOnlyReplica.pay_transparency_report.count({
+      where: {
+        reporting_year: reportingYear,
+      },
+    });
+    return {
+      reports: {
+        count: reportsCount,
+      },
+    };
   },
 
   /**
