@@ -154,8 +154,8 @@ frontend:
   pdb: true
 admin-frontend:
   env:
-    isAdminDashboardAvailable: true
-    isAdminAnalyticsAvailable: true 
+    isAdminDashboardAvailable: "true"
+    isAdminAnalyticsAvailable: "true"
 database:
   enabled: false
 crunchy:
