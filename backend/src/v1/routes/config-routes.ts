@@ -9,6 +9,9 @@ router.get('', (_, res) => {
     maxUploadFileSize: config.get('server:uploadFileMaxSizeBytes'),
     reportEditDurationInDays: config.get('server:reportEditDurationInDays'),
     reportingYearOptions: validateService.getValidReportingYears(),
+    deleteAnnouncementsDurationInDays: config.get(
+      'server:deleteAnnouncementsDurationInDays',
+    ),
   };
 
   return res.status(200).json(settings);
