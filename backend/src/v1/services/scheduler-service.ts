@@ -65,7 +65,7 @@ const schedulerService = {
       const expiryStr = nativeJs(ann.expires_on, ZoneId.UTC)
         .withZoneSameInstant(zone)
         .format(
-          DateTimeFormatter.ofPattern("uuuu-MM-dd 'at' h:mm a").withLocale(
+          DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' h:mm a").withLocale(
             Locale.CANADA,
           ),
         );

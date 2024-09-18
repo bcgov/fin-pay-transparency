@@ -27,6 +27,11 @@
   </v-card>
 </template>
 
+<script lang="ts">
+export default {
+  name: 'ReportsWidget',
+};
+</script>
 <script setup lang="ts">
 /**
  * This is a general-purpose component which displays reports in a table.
@@ -75,10 +80,14 @@ async function refresh(): Promise<void> {
     hasSearched.value = true;
   }
 }
+
+defineExpose({
+  refresh,
+});
 </script>
 
 <style>
-thead {
+.ptap-widget thead {
   background-color: #eeeeee;
 }
 </style>

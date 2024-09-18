@@ -437,8 +437,8 @@ describe('AnnouncementsService', () => {
       const announcementInput: AnnouncementDataType = {
         title: faker.lorem.words(3),
         description: faker.lorem.words(10),
-        expires_on: faker.date.recent().toISOString(),
-        active_on: faker.date.future().toISOString(),
+        expires_on: faker.date.future().toISOString(),
+        active_on: faker.date.recent().toISOString(),
         status: AnnouncementStatus.Published,
         linkDisplayName: faker.lorem.words(3),
         linkUrl: faker.internet.url(),
@@ -536,8 +536,8 @@ describe('AnnouncementsService', () => {
         const announcementInput: AnnouncementDataType = {
           title: faker.lorem.words(3),
           description: faker.lorem.words(10),
-          expires_on: faker.date.recent().toISOString(),
-          active_on: faker.date.future().toISOString(),
+          expires_on: faker.date.future().toISOString(),
+          active_on: faker.date.recent().toISOString(),
           status: AnnouncementStatus.Published,
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
