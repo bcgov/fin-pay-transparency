@@ -6,14 +6,14 @@
   </v-row>
 
   <div class="search-results w-100">
-    <div class="d-flex flex-wrap">
+    <div class="d-flex flex-wrap mb-4 align-center">
       <h4 v-if="searchResults?.length" class="">
         Displaying {{ searchResults.length }} announcement<span
           v-if="searchResults.length != 1"
           >s</span
         >
       </h4>
-      <v-btn class="btn-primary ml-auto" to="/add-announcement">
+      <v-btn class="btn-primary ml-auto add-button" to="/add-announcement">
         Add Announcement
       </v-btn>
     </div>
@@ -304,5 +304,9 @@ async function archiveAnnouncements(announcementIds: string[]) {
 }
 .no-min-width {
   min-width: 0px !important;
+}
+
+.add-button {
+  width: 220px;
 }
 </style>
