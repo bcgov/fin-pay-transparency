@@ -155,7 +155,6 @@
                     :enable-time-picker="true"
                     arrow-navigation
                     auto-apply
-                    prevent-min-max-navigation
                     :disabled="noExpiry"
                   >
                     <template #day="{ day, date }">
