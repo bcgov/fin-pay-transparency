@@ -86,7 +86,7 @@ router.patch(
   '',
   useValidate({ mode: 'body', schema: PatchAnnouncementsSchema }),
   authenticateAdmin(),
-  authorize(['PTRT-ADMIN']),
+  authorize(['PTRT-ADMIN', 'PTRT-USER']),
   async (req: ExtendedRequest, res) => {
     const supportedStatuses = [
       AnnouncementStatus.Deleted,
@@ -117,7 +117,7 @@ router.patch(
 router.post(
   '',
   authenticateAdmin(),
-  authorize(['PTRT-ADMIN']),
+  authorize(['PTRT-ADMIN', 'PTRT-USER']),
   formData.parse({
     uploadDir: os.tmpdir(),
     autoClean: true,
@@ -143,7 +143,7 @@ router.post(
 router.put(
   '/:id',
   authenticateAdmin(),
-  authorize(['PTRT-ADMIN']),
+  authorize(['PTRT-ADMIN', 'PTRT-USER']),
   formData.parse({
     uploadDir: os.tmpdir(),
     autoClean: true,
