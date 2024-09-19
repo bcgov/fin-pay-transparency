@@ -38,6 +38,19 @@
       <h4 class="mb-4">
         <v-icon icon="mdi-eye-outline"></v-icon>
         Recently Viewed Reports
+        <ToolTip
+          :text="
+            'The 5 most recently viewed reports (by a user of the Admin Portal), refreshed every ' +
+            refreshIntervalMinutes +
+            ' minutes.'
+          "
+          :aria-label="
+            'The 5 most recently viewed reports (by a user of the Admin Portal), refreshed every ' +
+            refreshIntervalMinutes +
+            ' minutes.'
+          "
+          max-width="300px"
+        ></ToolTip>
       </h4>
       <RecentlyViewedReports ref="recentlyViewedReports" />
     </v-col>

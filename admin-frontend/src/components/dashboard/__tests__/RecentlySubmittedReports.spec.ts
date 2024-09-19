@@ -65,7 +65,7 @@ describe('RecentlySubmittedReports', () => {
       const searchParams = getReportsSpy.mock.calls[0][3];
       expect(searchParams).toStrictEqual([
         {
-          create_date: 'desc',
+          update_date: 'desc',
         },
       ]);
     });
