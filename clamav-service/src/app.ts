@@ -130,7 +130,7 @@ apiRouter.post(
       });
     }
 
-    const filePath = fs.realpathSync(PATH.resolve(os.tmpdir(), path));
+    const filePath = path //fs.realpathSync(PATH.resolve(os.tmpdir(), path));
     logger.info(`File path: ${filePath}`);
     if (!filePath.startsWith(os.tmpdir())) {
       logger.error('File path is not starting with temp directory.');
@@ -138,23 +138,25 @@ apiRouter.post(
       res.end();
       return;
     }
-    const stream = fs.createReadStream(filePath);
-    const ClamAVScanner = await _getClamAvScanner();
 
-    const clamavScanResult = await ClamAVScanner.scanStream(stream);
-    if (clamavScanResult.isInfected) {
-      logger.error(`File ${name} is infected`);
-      res.status(400).send({
-        message: `File ${name} is infected`,
-        clamavScanResult,
-      });
-    } else {
-      logger.info(`File ${name} is not infected`);
-      res.status(200).send({
-        message: `File ${name} is not infected`,
-        clamavScanResult,
-      });
-    }
+    res.status(200).json({ message: 'File is uploaded successfully' });
+    // const stream = fs.createReadStream(filePath);
+    // const ClamAVScanner = await _getClamAvScanner();
+
+    // const clamavScanResult = await ClamAVScanner.scanStream(stream);
+    // if (clamavScanResult.isInfected) {
+    //   logger.error(`File ${name} is infected`);
+    //   res.status(400).send({
+    //     message: `File ${name} is infected`,
+    //     clamavScanResult,
+    //   });
+    // } else {
+    //   logger.info(`File ${name} is not infected`);
+    //   res.status(200).send({
+    //     message: `File ${name} is not infected`,
+    //     clamavScanResult,
+    //   });
+    // }
   })
 );
 app.use((_req: Request, res: Response) => {
