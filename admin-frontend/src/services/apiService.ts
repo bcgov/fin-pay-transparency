@@ -13,7 +13,7 @@ import {
   AnnouncementSortType,
   IAnnouncementSearchResult,
 } from '../types/announcements';
-import { IReportSearchResult } from '../types/reports';
+import { IReportSearchResult, ReportMetrics } from '../types/reports';
 import { ApiRoutes, POWERBI_RESOURCE } from '../utils/constant';
 import AuthService from './authService';
 
@@ -191,10 +191,10 @@ export default {
           responseType: 'blob',
         },
       );
-      let name = headers['content-disposition']
+      const name = headers['content-disposition']
         .split('filename="')[1]
         .split('.')[0];
-      let extension = headers['content-disposition']
+      const extension = headers['content-disposition']
         .split('.')[1]
         .split('"')[0];
 
@@ -262,6 +262,20 @@ export default {
       throw e;
     }
   },
+
+  async getReportMetrics(): Promise<ReportMetrics> {
+    try {
+      const resp = await apiAxios.get(ApiRoutes.REPORT_METRICS);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch report metrics');
+    } catch (e) {
+      console.log(`Failed to get report metrics from API - ${e}`);
+      throw e;
+    }
+  },
+
   async getAnnouncements(
     offset: number = 0,
     limit: number = 20,

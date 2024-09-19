@@ -171,21 +171,27 @@ const adminReportService = {
     await adminReportServicePrivate.updateAdminLastAccessDate(reportId);
     return report;
   },
+
   /**
    * Get dashboard metrics
    * @param param0
    * @returns
    */
   async getReportsMetrics({ reportingYear }: IGetReportMetricsInput) {
-    const reportsCount = await prismaReadOnlyReplica.pay_transparency_report.count({
-      where: {
-        reporting_year: reportingYear,
-      },
-    });
+    const reportsCount =
+      await prismaReadOnlyReplica.pay_transparency_report.count({
+        where: {
+          reporting_year: reportingYear,
+          report_status: 'Published',
+        },
+      });
     return {
-      reports: {
-        count: reportsCount,
-      },
+      num_submitted_reports: [
+        {
+          reporting_year: reportingYear,
+          count: reportsCount,
+        },
+      ],
     };
   },
 
