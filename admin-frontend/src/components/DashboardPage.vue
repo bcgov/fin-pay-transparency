@@ -61,7 +61,7 @@
         <v-icon icon="mdi-bullhorn"></v-icon>
         Public Announcements
       </h4>
-      <PublicAnnouncements></PublicAnnouncements>
+      <PublicAnnouncements ref="publicAnnouncements"></PublicAnnouncements>
     </v-col>
   </v-row>
 </template>
@@ -82,6 +82,7 @@ const isDashboardAvailable =
 const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
 const recentlyViewedReports = ref<typeof RecentlyViewedReports>();
 const numSubmissionsInYear = ref<typeof NumSubmissionsInYear>();
+const publicAnnouncements = ref<typeof PublicAnnouncements>();
 
 onMounted(() => {
   //Periodically refresh the widgets
@@ -94,5 +95,6 @@ async function refresh() {
   await recentlySubmittedReports.value?.refresh();
   await recentlyViewedReports.value?.refresh();
   await numSubmissionsInYear.value?.refresh();
+  await publicAnnouncements.value?.refresh();
 }
 </script>

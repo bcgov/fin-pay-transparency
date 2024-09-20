@@ -34,9 +34,17 @@ import AnnouncementStatusChip from '../announcements/AnnouncementStatusChip.vue'
 import { AnnouncementStatus } from '../../types/announcements';
 import useDashboardMetrics from '../../store/modules/dashboardMetricsStore';
 import { storeToRefs } from 'pinia';
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, defineExpose } from 'vue';
 const dashboardMetrics = useDashboardMetrics();
 const { announcementsMetrics } = storeToRefs(dashboardMetrics);
+
+const refresh = async () => {
+  await dashboardMetrics.getAnnouncementMetrics();
+};
+
+defineExpose({
+  refresh,
+});
 
 onBeforeMount(async () => {
   await dashboardMetrics.getAnnouncementMetrics();
