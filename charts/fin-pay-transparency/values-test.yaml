@@ -97,7 +97,7 @@ backend:
     targetCPUUtilizationPercentage: 60 # this percentage from request cpu
   storage:
     enabled: true
-    size: 50Mi
+    size: 100Mi
     accessMode: ReadWriteMany
   app:
     env:
@@ -182,7 +182,7 @@ crunchy:
         prometheus.io/port: "9187"
     replicas: 3
     dataVolumeClaimSpec:
-      storage: 600Mi
+      storage: 4000Mi
       storageClassName: netapp-block-standard
     requests:
       cpu: 50m
