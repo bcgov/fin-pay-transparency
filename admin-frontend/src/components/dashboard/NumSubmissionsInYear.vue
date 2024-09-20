@@ -53,9 +53,9 @@ async function refresh() {
   try {
     const reportMetrics: ReportMetrics = await ApiService.getReportMetrics();
     currentReportingYear.value =
-      reportMetrics?.num_submitted_reports[0].reporting_year;
+      reportMetrics?.report_metrics[0].reporting_year;
     numReportsInCurrentReportingYear.value =
-      reportMetrics?.num_submitted_reports[0].count;
+      reportMetrics?.report_metrics[0].num_published_reports;
   } catch (e) {
     hasError.value = true;
   } finally {

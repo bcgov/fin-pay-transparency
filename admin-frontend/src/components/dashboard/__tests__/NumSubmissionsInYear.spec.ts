@@ -12,7 +12,7 @@ const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
 const mockReportMetrics: ReportMetrics = {
-  num_submitted_reports: [{ reporting_year: 2024, count: 10 }],
+  report_metrics: [{ reporting_year: 2024, num_published_reports: 10 }],
 };
 const mockGetReportMetrics = vi.fn().mockResolvedValue(mockReportMetrics);
 
@@ -44,14 +44,16 @@ describe('NumSubmissionsInYear', () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          `${mockReportMetrics.num_submitted_reports[0].reporting_year}`,
+          `${mockReportMetrics.report_metrics[0].reporting_year}`,
           { exact: false /*  match substring */ },
         ),
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          `${mockReportMetrics.num_submitted_reports[0].count}`,
-          { exact: false /*  match substring */ },
+          `${mockReportMetrics.report_metrics[0].num_published_reports}`,
+          {
+            exact: false /*  match substring */,
+          },
         ),
       ).toBeInTheDocument();
     });

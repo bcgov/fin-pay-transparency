@@ -186,10 +186,10 @@ const adminReportService = {
         },
       });
     return {
-      num_submitted_reports: [
+      report_metrics: [
         {
           reporting_year: reportingYear,
-          count: reportsCount,
+          num_published_reports: reportsCount,
         },
       ],
     };

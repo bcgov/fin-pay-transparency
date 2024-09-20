@@ -115,10 +115,10 @@ export type ReportFilterType = (
 )[];
 
 export type ReportMetrics = {
-  num_submitted_reports: [
+  report_metrics: [
     {
       reporting_year: number;
-      count: number;
+      num_published_reports: number;
     },
   ];
 };
