@@ -649,4 +649,32 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('getAnnouncementsMetrics', () => {
+    it('returns an announcement metrics', async () => {
+      const mockBackendResponse = { draft: { count: 1 }, published: { count: 2 } };
+      const mockAxiosResponse = {
+        data: mockBackendResponse,
+      };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+
+      const resp = await ApiService.getAnnouncementsMetrics();
+      expect(resp).toEqual(mockBackendResponse);
+    });
+
+    describe('when the data are not successfully retrieved from the backend', () => {
+      it('returns a rejected promise', async () => {
+        const mockAxiosError = new AxiosError();
+        vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        await expect(ApiService.getAnnouncementsMetrics()).rejects.toEqual(
+          mockAxiosError,
+        );
+      });
+    });
+  });
 });

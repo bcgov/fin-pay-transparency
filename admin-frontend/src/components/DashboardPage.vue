@@ -57,11 +57,20 @@
       <RecentlyViewedReports ref="recentlyViewedReports" />
     </v-col>
     <v-col sm="12" md="12" lg="5" xl="4">
-      <h4 class="mb-4">
+      <h4 class="mb-4 d-flex align-center">
         <v-icon icon="mdi-bullhorn"></v-icon>
         Public Announcements
+        <span class="flex-fill"></span>
+        <v-btn
+          variant="plain"
+          to="/announcements"
+          class="btn-link d-flex align-center text-subtitle-1"
+          size="x-small"
+          append-icon="mdi-chevron-right"
+          >Go to edit
+        </v-btn>
       </h4>
-      <PublicAnnouncements></PublicAnnouncements>
+      <PublicAnnouncements ref="publicAnnouncements"></PublicAnnouncements>
     </v-col>
   </v-row>
 </template>
@@ -82,6 +91,7 @@ const isDashboardAvailable =
 const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
 const recentlyViewedReports = ref<typeof RecentlyViewedReports>();
 const numSubmissionsInYear = ref<typeof NumSubmissionsInYear>();
+const publicAnnouncements = ref<typeof PublicAnnouncements>();
 
 onMounted(() => {
   //Periodically refresh the widgets
@@ -94,5 +104,6 @@ async function refresh() {
   await recentlySubmittedReports.value?.refresh();
   await recentlyViewedReports.value?.refresh();
   await numSubmissionsInYear.value?.refresh();
+  await publicAnnouncements.value?.refresh();
 }
 </script>

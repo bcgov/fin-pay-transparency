@@ -28,6 +28,7 @@ export const ApiRoutes = Object.freeze({
   USERS: `${baseRoot}/v1/users`,
   USER_INVITES: `${baseRoot}/v1/user-invites`,
   ANNOUNCEMENTS: `${baseRoot}/v1/announcements`,
+  ANNOUNCEMENTS_METRICS: `${baseRoot}/v1/dashboard/announcement-metrics`,
   CLAMAV_SCAN: `${clamavBaseRoot}/`,
   RESOURCES: `${baseRoot}/v1/resources`,
   REPORT_METRICS: `${baseRoot}/v1/dashboard/reports-metrics`,
