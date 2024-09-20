@@ -506,6 +506,15 @@ export default {
       throw error;
     }
   },
+  async getAnnouncementsMetrics() {
+    try {
+      const { data } = await apiAxios.get(ApiRoutes.ANNOUNCEMENTS_METRICS);
+      return data;
+    } catch (e) {
+      console.log(`Failed to get announcements metrics from API - ${e}`);
+      throw e;
+    }
+  },
 };
 
 const buildFormData = (data: AnnouncementFormValue) => {

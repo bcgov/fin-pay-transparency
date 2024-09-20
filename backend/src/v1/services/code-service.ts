@@ -17,7 +17,6 @@ const codeService = {
   the full list of all values. */
   async getAllEmployeeCountRanges() {
     const now = LocalDateTime.now();
-
     if (
       employeeCountRangeCacheExpiryDate &&
       now.isAfter(employeeCountRangeCacheExpiryDate)

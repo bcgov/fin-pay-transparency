@@ -2,13 +2,15 @@
   <v-card class="ptap-widget">
     <v-card-text class="h-100 d-flex flex-column">
       <div class="widget-header flex-grow-0 flex-shrink-0">
-        There are 0 published announcements and 0 draft announcements
+        There are {{ announcementsMetrics?.published.count }} published
+        announcements and {{ announcementsMetrics?.draft.count }} draft
+        announcements
       </div>
       <div class="d-flex">
         <div
           class="d-flex flex-column justify-center align-center widget-value text-primary flex-grow-1 flex-shrink-0"
         >
-          0
+          {{ announcementsMetrics?.published.count }}
           <AnnouncementStatusChip
             :status="AnnouncementStatus.Published"
             class="ms-2"
@@ -17,7 +19,7 @@
         <div
           class="d-flex flex-column justify-center align-center widget-value text-primary flex-grow-1 flex-shrink-0"
         >
-          0
+          {{ announcementsMetrics?.draft.count }}
           <AnnouncementStatusChip
             :status="AnnouncementStatus.Draft"
             class="ms-2"
@@ -30,6 +32,15 @@
 <script setup lang="ts">
 import AnnouncementStatusChip from '../announcements/AnnouncementStatusChip.vue';
 import { AnnouncementStatus } from '../../types/announcements';
+import useDashboardMetrics from '../../store/modules/dashboardMetricsStore';
+import { storeToRefs } from 'pinia';
+import { onBeforeMount } from 'vue';
+const dashboardMetrics = useDashboardMetrics();
+const { announcementsMetrics } = storeToRefs(dashboardMetrics);
+
+onBeforeMount(async () => {
+  await dashboardMetrics.getAnnouncementMetrics();
+});
 </script>
 
 <style lang="scss">
