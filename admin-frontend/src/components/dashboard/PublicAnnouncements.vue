@@ -2,15 +2,15 @@
   <v-card class="ptap-widget">
     <v-card-text class="h-100 d-flex flex-column">
       <div class="widget-header flex-grow-0 flex-shrink-0">
-        There are {{ announcementsMetrics?.published.count }} published
-        announcements and {{ announcementsMetrics?.draft.count }} draft
+        There are {{ announcementsMetrics?.published?.count || 0 }} published
+        announcements and {{ announcementsMetrics?.draft?.count || 0 }} draft
         announcements
       </div>
       <div class="d-flex">
         <div
           class="d-flex flex-column justify-center align-center widget-value text-primary flex-grow-1 flex-shrink-0"
         >
-          {{ announcementsMetrics?.published.count }}
+          {{ announcementsMetrics?.published?.count || 0 }}
           <AnnouncementStatusChip
             :status="AnnouncementStatus.Published"
             class="ms-2"
@@ -19,7 +19,7 @@
         <div
           class="d-flex flex-column justify-center align-center widget-value text-primary flex-grow-1 flex-shrink-0"
         >
-          {{ announcementsMetrics?.draft.count }}
+          {{ announcementsMetrics?.draft?.count || 0 }}
           <AnnouncementStatusChip
             :status="AnnouncementStatus.Draft"
             class="ms-2"
