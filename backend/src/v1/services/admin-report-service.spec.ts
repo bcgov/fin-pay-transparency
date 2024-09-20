@@ -664,9 +664,12 @@ describe('admin-report-service', () => {
 
       // Assert
       expect(result).toEqual({
-        reports: {
-          count: 2,
-        },
+        report_metrics: [
+          {
+            reporting_year: reportingYear,
+            num_published_reports: 1,
+          },
+        ],
       });
     });
   });

@@ -27,7 +27,9 @@
       </h4>
       <v-row :dense="true">
         <v-col>
-          <NumSubmissionsThisYear></NumSubmissionsThisYear>
+          <NumSubmissionsInYear
+            ref="numSubmissionsInYear"
+          ></NumSubmissionsInYear>
         </v-col>
         <v-col>
           <NumEmployerLogins></NumEmployerLogins>
@@ -67,7 +69,7 @@
 <script lang="ts" setup>
 import RecentlySubmittedReports from './dashboard/RecentlySubmittedReports.vue';
 import RecentlyViewedReports from './dashboard/RecentlyViewedReports.vue';
-import NumSubmissionsThisYear from './dashboard/NumSubmissionsThisYear.vue';
+import NumSubmissionsInYear from './dashboard/NumSubmissionsInYear.vue';
 import NumEmployerLogins from './dashboard/NumEmployerLogins.vue';
 import PublicAnnouncements from './dashboard/PublicAnnouncements.vue';
 import ToolTip from './ToolTip.vue';
@@ -79,6 +81,7 @@ const isDashboardAvailable =
 
 const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
 const recentlyViewedReports = ref<typeof RecentlyViewedReports>();
+const numSubmissionsInYear = ref<typeof NumSubmissionsInYear>();
 
 onMounted(() => {
   //Periodically refresh the widgets
@@ -90,5 +93,6 @@ onMounted(() => {
 async function refresh() {
   await recentlySubmittedReports.value?.refresh();
   await recentlyViewedReports.value?.refresh();
+  await numSubmissionsInYear.value?.refresh();
 }
 </script>

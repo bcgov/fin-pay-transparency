@@ -113,3 +113,12 @@ export type ReportFilterType = (
   | CompanyFilter
   | AdminLastAccessDateFilter
 )[];
+
+export type ReportMetrics = {
+  report_metrics: [
+    {
+      reporting_year: number;
+      num_published_reports: number;
+    },
+  ];
+};

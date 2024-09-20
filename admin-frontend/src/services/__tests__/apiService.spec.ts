@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnnouncementStatus } from '../../types/announcements';
+import { ReportMetrics } from '../../types/reports';
 import ApiService from '../apiService';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
@@ -589,15 +590,15 @@ describe('ApiService', () => {
           data: new File([], 'test.pdf'),
           headers: {
             'content-disposition': 'attachment; filename="test.pdf"',
-          }
+          },
         };
-        global.URL.createObjectURL = vi.fn().mockReturnValueOnce("test.pdf");
+        global.URL.createObjectURL = vi.fn().mockReturnValueOnce('test.pdf');
         vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
           mockResponse,
         );
 
         const resp = await ApiService.downloadFile(mockFileId);
-        
+
         expect(resp.mode).toEqual('open');
       });
       it('download file', async () => {
@@ -606,15 +607,15 @@ describe('ApiService', () => {
           data: new File([], 'test.pdf'),
           headers: {
             'content-disposition': 'attachment; filename="test.jpg"',
-          }
+          },
         };
-        global.URL.createObjectURL = vi.fn().mockReturnValueOnce("test.jpg");
+        global.URL.createObjectURL = vi.fn().mockReturnValueOnce('test.jpg');
         vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
           mockResponse,
         );
 
         const resp = await ApiService.downloadFile(mockFileId);
-        
+
         expect(resp.mode).toEqual('download');
       });
     });
@@ -625,9 +626,26 @@ describe('ApiService', () => {
           new Error('Some backend error occurred'),
         );
 
-        await expect(
-          ApiService.downloadFile(mockFileId),
-        ).rejects.toThrow();
+        await expect(ApiService.downloadFile(mockFileId)).rejects.toThrow();
+      });
+    });
+  });
+
+  describe('getReportMetrics', () => {
+    describe('when the data are successfully retrieved from the backend', () => {
+      it('returns a list of metrics by reporting year', async () => {
+        const mockBackendResponse = {
+          report_metrics: [{ reporting_year: 2024, num_published_reports: 4 }],
+        };
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp: ReportMetrics = await ApiService.getReportMetrics();
+        expect(resp).toEqual(mockBackendResponse);
       });
     });
   });

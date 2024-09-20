@@ -30,6 +30,7 @@ export const ApiRoutes = Object.freeze({
   ANNOUNCEMENTS: `${baseRoot}/v1/announcements`,
   CLAMAV_SCAN: `${clamavBaseRoot}/`,
   RESOURCES: `${baseRoot}/v1/resources`,
+  REPORT_METRICS: `${baseRoot}/v1/dashboard/reports-metrics`,
 });
 
 export const PAGE_TITLES = Object.freeze({
