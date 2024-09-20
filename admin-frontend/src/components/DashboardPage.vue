@@ -27,7 +27,9 @@
       </h4>
       <v-row :dense="true">
         <v-col>
-          <NumSubmissionsInYear></NumSubmissionsInYear>
+          <NumSubmissionsInYear
+            ref="numSubmissionsInYear"
+          ></NumSubmissionsInYear>
         </v-col>
         <v-col>
           <NumEmployerLogins></NumEmployerLogins>
@@ -79,6 +81,7 @@ const isDashboardAvailable =
 
 const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
 const recentlyViewedReports = ref<typeof RecentlyViewedReports>();
+const numSubmissionsInYear = ref<typeof NumSubmissionsInYear>();
 
 onMounted(() => {
   //Periodically refresh the widgets
@@ -90,5 +93,6 @@ onMounted(() => {
 async function refresh() {
   await recentlySubmittedReports.value?.refresh();
   await recentlyViewedReports.value?.refresh();
+  await numSubmissionsInYear.value?.refresh();
 }
 </script>
