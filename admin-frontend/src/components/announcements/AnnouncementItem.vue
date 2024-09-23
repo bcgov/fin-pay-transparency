@@ -52,6 +52,7 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import ApiService from '../../services/apiService';
 import { saveAs } from 'file-saver';
 import { NotificationService } from '../../services/notificationService';
+import { FILE_DOWNLOAD_ERROR } from '../../constants';
 
 defineProps<{
   announcement: Announcement;
@@ -67,11 +68,7 @@ async function downloadAnnouncementResource(
       );
     } catch (error) {
       console.error(error);
-      NotificationService.pushNotificationError(
-        'There is a problem with this link/file, please try again later or contact the helpdesk.',
-        '',
-        30000,
-      );
+      NotificationService.pushNotificationError(FILE_DOWNLOAD_ERROR, '', 30000);
     }
   } else if (announcementResource.announcement_resource_file) {
     //When a resource with type ATTACHMENT hasn't yet been uploaded to the

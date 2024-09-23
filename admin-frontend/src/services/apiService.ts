@@ -534,9 +534,15 @@ const buildFormData = (data: AnnouncementFormValue) => {
   }
 
   if (data.attachment) {
-    formData.append('fileDisplayName', data.fileDisplayName!);
-    formData.append('attachmentId', data.attachmentId!);
     formData.append('file', data.attachment);
+  }
+
+  if (data.fileDisplayName) {
+    formData.append('fileDisplayName', data.fileDisplayName);
+  }
+
+  if (data.attachmentId) {
+    formData.append('attachmentId', data.attachmentId);
   }
   return formData;
 };

@@ -17,3 +17,6 @@ export const RoleOptions = [
   { label: RoleLabels['PTRT-ADMIN'], value: 'PTRT-ADMIN' },
   { label: RoleLabels['PTRT-USER'], value: 'PTRT-USER' },
 ];
+
+export const FILE_DOWNLOAD_ERROR =
+  'There is a problem with this link/file, please try again later or contact the helpdesk.';
