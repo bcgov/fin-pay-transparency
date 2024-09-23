@@ -36,6 +36,14 @@ vi.mock('../../../services/apiService', () => ({
     downloadFile: (...args) => mockDownloadFile(...args),
   },
 }));
+
+const pushNotificationErrorMock = vi.fn();
+vi.mock('../../../services/notificationService', () => ({
+  NotificationService: {
+    pushNotificationError: (...args) => pushNotificationErrorMock(...args),
+  },
+}));
+
 vi.mock('file-saver', () => ({
   saveAs: (...args) => mockSaveAs(...args),
 }));
@@ -100,6 +108,21 @@ describe('AnnouncementItem', () => {
         await wrapper.vm.downloadAnnouncementResource(mockAnnouncementResource);
         expect(mockDownloadFile).not.toHaveBeenCalled();
         expect(mockSaveAs).toHaveBeenCalled();
+      });
+    });
+
+    describe('when downloadFile fails', () => {
+      it('shows a snackbar error', async () => {
+        const mockAnnouncementResource = {
+          announcement_resource_id: '123',
+        };
+        mockDownloadFile.mockRejectedValueOnce(new Error('mock error'));
+        await wrapper.vm.downloadAnnouncementResource(mockAnnouncementResource);
+        expect(pushNotificationErrorMock).toHaveBeenCalledWith(
+          'There is a problem with this link/file, please try again later. If the problem persists please contact the Gender Equity Office; paytransparency@gov.bc.ca',
+          '',
+          30000,
+        );
       });
     });
   });
