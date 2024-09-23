@@ -68,7 +68,7 @@ async function downloadAnnouncementResource(
     } catch (error) {
       console.error(error);
       NotificationService.pushNotificationError(
-        'There is a problem with this link/file, please try again later. If the problem persists please contact the Gender Equity Office; paytransparency@gov.bc.ca',
+        'There is a problem with this link/file, please try again later or contact the helpdesk.',
         '',
         30000,
       );

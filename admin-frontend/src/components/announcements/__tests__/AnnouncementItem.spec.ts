@@ -80,6 +80,7 @@ describe('AnnouncementItem', () => {
 
   beforeEach(async () => {
     await initWrapper();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -119,7 +120,7 @@ describe('AnnouncementItem', () => {
         mockDownloadFile.mockRejectedValueOnce(new Error('mock error'));
         await wrapper.vm.downloadAnnouncementResource(mockAnnouncementResource);
         expect(pushNotificationErrorMock).toHaveBeenCalledWith(
-          'There is a problem with this link/file, please try again later. If the problem persists please contact the Gender Equity Office; paytransparency@gov.bc.ca',
+          'There is a problem with this link/file, please try again later or contact the helpdesk.',
           '',
           30000,
         );
