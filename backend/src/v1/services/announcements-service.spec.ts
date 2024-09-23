@@ -5,10 +5,9 @@ import {
   AnnouncementStatus,
 } from '../types/announcements';
 import { UserInputError } from '../types/errors';
-import * as AnnouncementService from './announcements-service';
+import { announcementService } from './announcements-service';
 import { utils } from './utils-service';
 import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
-import { getAnnouncementMetrics, updateAnnouncement } from './announcements-service';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -96,7 +95,7 @@ describe('AnnouncementsService', () => {
   describe('getAnnouncements', () => {
     describe('when no query is provided', () => {
       it('should return announcements', async () => {
-        const announcements = await AnnouncementService.getAnnouncements();
+        const announcements = await announcementService.getAnnouncements();
         expect(announcements.items).toHaveLength(2);
         expect(announcements.total).toBe(2);
         expect(announcements.offset).toBe(0);
@@ -119,7 +118,7 @@ describe('AnnouncementsService', () => {
       describe('when filters are provided', () => {
         describe('when title is provided', () => {
           it('should return announcements', async () => {
-            await AnnouncementService.getAnnouncements({
+            await announcementService.getAnnouncements({
               filters: [
                 { key: 'title', operation: 'like', value: 'Announcement 1' },
               ],
@@ -143,7 +142,7 @@ describe('AnnouncementsService', () => {
         describe('when active_on filter is provided', () => {
           describe('when operation is "between"', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'active_on',
@@ -165,7 +164,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "lte"', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'active_on',
@@ -185,7 +184,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "gt"', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'active_on',
@@ -207,7 +206,7 @@ describe('AnnouncementsService', () => {
         describe('when expires_on filter is provided', () => {
           describe('when operation is "between"', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'expires_on',
@@ -229,7 +228,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "lte"', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'expires_on',
@@ -249,7 +248,7 @@ describe('AnnouncementsService', () => {
           });
           describe('when operation is "gt"', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'expires_on',
@@ -279,7 +278,7 @@ describe('AnnouncementsService', () => {
         describe('when status filter is provided', () => {
           describe('in operation', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'status',
@@ -300,7 +299,7 @@ describe('AnnouncementsService', () => {
 
           describe('notin operation', () => {
             it('should return announcements', async () => {
-              await AnnouncementService.getAnnouncements({
+              await announcementService.getAnnouncements({
                 filters: [
                   {
                     key: 'status',
@@ -323,7 +322,7 @@ describe('AnnouncementsService', () => {
 
       describe('when sort is provided', () => {
         it('should return announcements', async () => {
-          await AnnouncementService.getAnnouncements({
+          await announcementService.getAnnouncements({
             sort: [{ field: 'title', order: 'asc' }],
           });
           expect(mockFindMany).toHaveBeenCalledWith(
@@ -336,7 +335,7 @@ describe('AnnouncementsService', () => {
 
       describe('when limit is provided', () => {
         it('should return announcements', async () => {
-          await AnnouncementService.getAnnouncements({ limit: 5 });
+          await announcementService.getAnnouncements({ limit: 5 });
           expect(mockFindMany).toHaveBeenCalledWith(
             expect.objectContaining({
               take: 5,
@@ -347,7 +346,7 @@ describe('AnnouncementsService', () => {
 
       describe('when offset is provided', () => {
         it('should return announcements', async () => {
-          await AnnouncementService.getAnnouncements({ offset: 5 });
+          await announcementService.getAnnouncements({ offset: 5 });
           expect(mockFindMany).toHaveBeenCalledWith(
             expect.objectContaining({
               skip: 5,
@@ -367,7 +366,7 @@ describe('AnnouncementsService', () => {
         ];
         const mockUserId = 'user-id';
         await expect(
-          AnnouncementService.patchAnnouncements(data, mockUserId),
+          announcementService.patchAnnouncements(data, mockUserId),
         ).rejects.toThrow(UserInputError);
       });
     });
@@ -389,7 +388,7 @@ describe('AnnouncementsService', () => {
             announcement_resource: [],
           },
         ]);
-        await AnnouncementService.patchAnnouncements(
+        await announcementService.patchAnnouncements(
           [
             { id: '1', status: AnnouncementStatus.Deleted },
             { id: '2', status: AnnouncementStatus.Draft },
@@ -445,7 +444,7 @@ describe('AnnouncementsService', () => {
         attachmentId: 'attachment-id',
         fileDisplayName: faker.lorem.words(3),
       };
-      await AnnouncementService.createAnnouncement(
+      await announcementService.createAnnouncement(
         announcementInput,
         'user-id',
       );
@@ -501,7 +500,7 @@ describe('AnnouncementsService', () => {
         linkDisplayName: '',
         linkUrl: '',
       };
-      await AnnouncementService.createAnnouncement(
+      await announcementService.createAnnouncement(
         announcementInput,
         'user-id',
       );
@@ -542,7 +541,7 @@ describe('AnnouncementsService', () => {
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
         };
-        await AnnouncementService.updateAnnouncement(
+        await announcementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -591,7 +590,7 @@ describe('AnnouncementsService', () => {
           active_on: faker.date.future().toISOString(),
           status: AnnouncementStatus.Published,
         };
-        await AnnouncementService.updateAnnouncement(
+        await announcementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -636,7 +635,7 @@ describe('AnnouncementsService', () => {
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
         };
-        await AnnouncementService.updateAnnouncement(
+        await announcementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -703,7 +702,7 @@ describe('AnnouncementsService', () => {
           attachmentId: attachmentId,
           fileDisplayName: faker.lorem.words(3),
         };
-        await AnnouncementService.updateAnnouncement(
+        await announcementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -757,7 +756,7 @@ describe('AnnouncementsService', () => {
             active_on: faker.date.future().toISOString(),
             status: 'PUBLISHED',
           };
-          await updateAnnouncement(
+          await announcementService.updateAnnouncement(
             'announcement-id',
             announcementInput,
             'user-id',
@@ -790,7 +789,7 @@ describe('AnnouncementsService', () => {
           attachmentId: faker.string.uuid(),
           fileDisplayName: faker.lorem.word(),
         };
-        await AnnouncementService.updateAnnouncement(
+        await announcementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
           'user-id',
@@ -851,7 +850,7 @@ describe('AnnouncementsService', () => {
         linkDisplayName: '',
         linkUrl: '',
       };
-      await AnnouncementService.updateAnnouncement(
+      await announcementService.updateAnnouncement(
         'announcement-id',
         announcementInput,
         'user-id',
@@ -873,9 +872,9 @@ describe('AnnouncementsService', () => {
       it('exits without updating any announcements', async () => {
         mockFindMany.mockResolvedValue([]);
         const patchAnnouncementsMock = jest
-          .spyOn(AnnouncementService, 'patchAnnouncements')
+          .spyOn(announcementService, 'patchAnnouncements')
           .mockImplementation();
-        await AnnouncementService.expireAnnouncements();
+        await announcementService.expireAnnouncements();
         expect(mockFindMany).toHaveBeenCalled();
         expect(patchAnnouncementsMock).not.toHaveBeenCalled();
       });
@@ -884,10 +883,10 @@ describe('AnnouncementsService', () => {
       it('updates the announcements', async () => {
         mockFindMany.mockResolvedValue([{ announcement_id: '123' }]);
         const patchAnnouncementsMock = jest.spyOn(
-          AnnouncementService,
+          announcementService,
           'patchAnnouncements',
         );
-        await AnnouncementService.expireAnnouncements();
+        await announcementService.expireAnnouncements();
         expect(mockFindMany).toHaveBeenCalled();
         expect(patchAnnouncementsMock).toHaveBeenCalled();
       });
@@ -904,7 +903,7 @@ describe('AnnouncementsService', () => {
             zone,
           ),
         );
-      await AnnouncementService.getExpiringAnnouncements();
+      await announcementService.getExpiringAnnouncements();
 
       expect(mockFindMany).toHaveBeenCalledWith({
         where: {
@@ -920,7 +919,7 @@ describe('AnnouncementsService', () => {
 
   describe('getAnnouncementById', () => {
     it('should return announcement by id', async () => {
-      await AnnouncementService.getAnnouncementById('1');
+      await announcementService.getAnnouncementById('1');
       expect(mockFindUniqueOrThrow).toHaveBeenCalledWith({
         where: { announcement_id: '1' },
         include: { announcement_resource: true },
@@ -931,7 +930,7 @@ describe('AnnouncementsService', () => {
   describe('getAnnouncementMetrics', () => {
     it('should return the announcement metrics', async () => {
       // Act
-      const result = await getAnnouncementMetrics();
+      const result = await announcementService.getAnnouncementMetrics();
 
       // Assert
       expect(result).toEqual({

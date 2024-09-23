@@ -1,7 +1,7 @@
 import advisoryLock from 'advisory-lock';
 import { config } from '../config';
 import { logger as log } from '../logger';
-import { expireAnnouncements } from '../v1/services/announcements-service';
+import { announcementService } from '../v1/services/announcements-service';
 import { createJob } from './create-job';
 
 const mutex = advisoryLock(config.get('server:databaseUrl'))(
@@ -14,7 +14,7 @@ export default createJob(
   crontime,
   async () => {
     log.info('Starting expireAnnounements scheduled job.');
-    await expireAnnouncements();
+    await announcementService.expireAnnouncements();
     log.info('Completed expireAnnounements scheduled job.');
   },
   mutex,

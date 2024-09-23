@@ -16,13 +16,15 @@ const mockCreateAnnouncement = jest.fn();
 const mockUpdateAnnouncement = jest.fn();
 const mockGetAnnouncementById = jest.fn();
 jest.mock('../services/announcements-service', () => ({
-  getAnnouncements: (...args) => {
-    return mockGetAnnouncements(...args);
+  announcementService: {
+    getAnnouncements: (...args) => {
+      return mockGetAnnouncements(...args);
+    },
+    patchAnnouncements: (...args) => mockPatchAnnouncements(...args),
+    createAnnouncement: (...args) => mockCreateAnnouncement(...args),
+    updateAnnouncement: (...args) => mockUpdateAnnouncement(...args),
+    getAnnouncementById: (...args) => mockGetAnnouncementById(...args),
   },
-  patchAnnouncements: (...args) => mockPatchAnnouncements(...args),
-  createAnnouncement: (...args) => mockCreateAnnouncement(...args),
-  updateAnnouncement: (...args) => mockUpdateAnnouncement(...args),
-  getAnnouncementById: (...args) => mockGetAnnouncementById(...args),
 }));
 
 const mockAuthenticateAdmin = jest.fn();
