@@ -50,14 +50,26 @@ export default {
 import { Announcement, AnnouncementResource } from '../../types/announcements';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import ApiService from '../../common/apiService';
+import { NotificationService } from '../../common/notificationService';
 
-const props = defineProps<{
+defineProps<{
   announcement: Announcement;
 }>();
 
 async function downloadAnnouncementResource(
   announcementResource: AnnouncementResource,
 ) {
-  await ApiService.downloadFile(announcementResource.announcement_resource_id);
+  try {
+    await ApiService.downloadFile(
+      announcementResource.announcement_resource_id,
+    );
+  } catch (error) {
+    console.error(error);
+    NotificationService.pushNotificationError(
+      'There is a problem with this link/file, please try again later. If the problem persists please contact the Gender Equity Office; paytransparency@gov.bc.ca',
+      '',
+      30000,
+    );
+  }
 }
 </script>

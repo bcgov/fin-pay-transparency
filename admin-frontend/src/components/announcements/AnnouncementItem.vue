@@ -51,8 +51,9 @@ import { Announcement, AnnouncementResource } from '../../types/announcements';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import ApiService from '../../services/apiService';
 import { saveAs } from 'file-saver';
+import { NotificationService } from '../../services/notificationService';
 
-const props = defineProps<{
+defineProps<{
   announcement: Announcement;
 }>();
 
@@ -60,9 +61,18 @@ async function downloadAnnouncementResource(
   announcementResource: AnnouncementResource,
 ) {
   if (announcementResource.announcement_resource_id) {
-    await ApiService.downloadFile(
-      announcementResource.announcement_resource_id,
-    );
+    try {
+      await ApiService.downloadFile(
+        announcementResource.announcement_resource_id,
+      );
+    } catch (error) {
+      console.error(error);
+      NotificationService.pushNotificationError(
+        'There is a problem with this link/file, please try again later or contact the helpdesk.',
+        '',
+        30000,
+      );
+    }
   } else if (announcementResource.announcement_resource_file) {
     //When a resource with type ATTACHMENT hasn't yet been uploaded to the
     //backend, it won't yet have an announcement_resource_id, so we
