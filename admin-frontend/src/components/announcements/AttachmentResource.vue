@@ -1,6 +1,6 @@
 <template>
   <div class="root">
-    <a @click="ApiService.downloadFile(id)">
+    <a :aria-label="name" @click="downloadFile(id)">
       {{ name }}
     </a>
     <v-btn
@@ -21,6 +21,8 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
 import ApiService from '../../services/apiService';
+import { NotificationService } from '../../services/notificationService';
+import { FILE_DOWNLOAD_ERROR } from '../../constants';
 
 interface AttachmentResourceProps {
   id: string;
@@ -29,6 +31,15 @@ interface AttachmentResourceProps {
 const { id, name } = defineProps<AttachmentResourceProps>();
 
 const emits = defineEmits(['onEdit', 'onDelete']);
+
+const downloadFile = async (id: string) => {
+  try {
+    await ApiService.downloadFile(id);
+  } catch (error) {
+    console.error(error);
+    NotificationService.pushNotificationError(FILE_DOWNLOAD_ERROR, '', 30000);
+  }
+};
 </script>
 <style scoped lang="scss">
 .root {

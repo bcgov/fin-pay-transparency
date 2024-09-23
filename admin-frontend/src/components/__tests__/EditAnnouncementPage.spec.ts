@@ -62,6 +62,7 @@ vi.mock('../../services/notificationService', () => ({
 let store: ReturnType<typeof useAnnouncementSelectionStore>;
 describe('EditAnnouncementPage', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     setActivePinia(pinia);
     store = useAnnouncementSelectionStore();
     store.reset();
@@ -112,6 +113,44 @@ describe('EditAnnouncementPage', () => {
       });
 
       describe('when publishing announcement', () => {
+        describe('when expires on is before active on', () => {
+          it('should show error message', async () => {
+            const publishDate = LocalDate.now().plusDays(4);
+            store.setAnnouncement({
+              title: 'title',
+              description: 'description',
+              active_on: convert(publishDate).toDate(),
+              expires_on: convert(publishDate.minusDays(1)).toDate(),
+              status: 'DRAFT',
+              announcement_resource: [],
+            } as any);
+            const { getByRole, getByText } = await wrappedRender();
+            const saveButton = getByRole('button', { name: 'Save' });
+            await fireEvent.click(saveButton);
+            // await fireEvent.click(publishButton);
+            await waitFor(() => {
+              expect(
+                getByText('Publish On date should be before expiry date.'),
+              ).toBeVisible();
+            });
+          });
+        });
+        describe('when active on date is not set', () => {
+          it('should show error message', async () => {
+            store.setAnnouncement({
+              title: 'title',
+              description: 'description',
+              status: 'PUBLISHED',
+              announcement_resource: [],
+            } as any);
+            const { getByRole, getByText } = await wrappedRender();
+            const saveButton = getByRole('button', { name: 'Save' });
+            await fireEvent.click(saveButton);
+            await waitFor(() => {
+              expect(getByText('Active On date is required.')).toBeVisible();
+            });
+          });
+        });
         it('should require Active On date to be not in the past', async () => {
           store.setAnnouncement({
             title: 'title',
@@ -242,6 +281,7 @@ describe('EditAnnouncementPage', () => {
             title: 'title',
             description: 'description',
             active_on: new Date(),
+            expires_on: convert(LocalDate.now().plusDays(1)).toDate(),
             status: 'PUBLISHED',
             announcement_resource: [
               {
@@ -258,6 +298,19 @@ describe('EditAnnouncementPage', () => {
           const fileNameInput = getByLabelText('Display File Link As');
           await waitFor(() => {
             expect(fileNameInput).toHaveValue('');
+          });
+          const saveButton = getByRole('button', { name: 'Save' });
+          await fireEvent.click(saveButton);
+          await waitFor(async () => {
+            const confirmButton = getByRole('button', { name: 'Confirm' });
+            await fireEvent.click(confirmButton);
+          });
+          await waitFor(() => {
+            const args = mockUpdateAnnouncement.mock.calls[0];
+            const data = args[1];
+            expect(data.fileDisplayName).toBeUndefined();
+            expect(data.attachment).toBeUndefined();
+            expect(data.attachmentId).toBeUndefined();
           });
         });
       });

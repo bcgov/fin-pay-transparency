@@ -23,7 +23,6 @@ import {
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
-import { omit } from 'lodash';
 import { DateTimeFormatter, ZonedDateTime } from '@js-joda/core';
 
 const router = Router();
@@ -159,8 +158,7 @@ router.put(
       // Create announcement
       const announcement = await updateAnnouncement(
         req.params.id,
-        /* istanbul ignore next */
-        file ? data : omit(data, 'attachmentId'),
+        data,
         user.admin_user_id,
       );
       return res.json(announcement);
