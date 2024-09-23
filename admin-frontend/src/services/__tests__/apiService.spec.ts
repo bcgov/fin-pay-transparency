@@ -462,6 +462,8 @@ describe('ApiService', () => {
           linkUrl: 'https://example.com',
           linkDisplayName: 'example',
           attachment: 'test',
+          fileDisplayName: 'test',
+          attachmentId: '1',
         };
         const mockResponse = {
           data: {},
