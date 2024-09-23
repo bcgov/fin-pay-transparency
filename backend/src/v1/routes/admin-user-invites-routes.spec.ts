@@ -1,17 +1,21 @@
 import { faker } from '@faker-js/faker';
-import { Application } from 'express';
+import express, { Application } from 'express';
+import bodyParser from 'body-parser';
 import request from 'supertest';
 import { UserInputError } from '../types/errors';
+import routes from '../routes/admin-user-invites-routes';
 
 const mockDeleteInvite = jest.fn();
 const mockGetPendingInvites = jest.fn();
 const mockCreateInvite = jest.fn();
 const mockResendInvite = jest.fn();
 jest.mock('../services/admin-user-invites-service', () => ({
-  deleteInvite: (...args) => mockDeleteInvite(...args),
-  getPendingInvites: (...args) => mockGetPendingInvites(...args),
-  createInvite: (...args) => mockCreateInvite(...args),
-  resendInvite: (...args) => mockResendInvite(...args),
+  adminUserInvitesService: {
+    deleteInvite: (...args) => mockDeleteInvite(...args),
+    getPendingInvites: (...args) => mockGetPendingInvites(...args),
+    createInvite: (...args) => mockCreateInvite(...args),
+    resendInvite: (...args) => mockResendInvite(...args),
+  },
 }));
 
 jest.mock('../middlewares/authorization/authorize', () => ({
@@ -38,10 +42,10 @@ describe('admin-user-invites-routes', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    app = require('express')();
-    app.use(require('body-parser').json());
-    app.use(require('../routes/admin-user-invites-routes').default);
-    app.use((err, req, res, next) => {
+    app = express();
+    app.use(bodyParser.json());
+    app.use(routes);
+    app.use((err, req, res, _) => {
       res.status(400).send({ error: err.message });
     });
   });
