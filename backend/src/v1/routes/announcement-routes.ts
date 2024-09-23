@@ -23,7 +23,6 @@ import {
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
 } from '../types/announcements';
-import { omit } from 'lodash';
 import { DateTimeFormatter, ZonedDateTime } from '@js-joda/core';
 
 const router = Router();

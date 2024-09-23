@@ -842,7 +842,10 @@ const handleSave = handleSubmit(async (values) => {
     linkUrl: isEmpty(values.linkUrl) ? undefined : values.linkUrl,
     status: status.value,
     attachment: attachment.value,
-    attachmentId: !values.attachment && !values.fileDisplayName ? undefined : values.attachmentId,
+    attachmentId:
+      !values.attachment && !values.fileDisplayName
+        ? undefined
+        : values.attachmentId,
   });
 });
 </script>
