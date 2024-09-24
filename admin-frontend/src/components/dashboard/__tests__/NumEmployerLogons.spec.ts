@@ -4,54 +4,49 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
-import { ReportMetrics } from '../../../types/reports';
+import { EmployerMetrics } from '../../../types/employers';
+import NumEmployerLogons from '../NumEmployerLogons.vue';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
-const mockReportMetrics: ReportMetrics = {
-  report_metrics: [{ reporting_year: 2024, num_published_reports: 10 }],
+const mockEmployerMetrics: EmployerMetrics = {
+  num_employers_logged_on_to_date: 6,
 };
-const mockGetReportMetrics = vi.fn().mockResolvedValue(mockReportMetrics);
+const mockGetEmployerMetrics = vi.fn().mockResolvedValue(mockEmployerMetrics);
 
 vi.mock('../../../services/apiService', () => ({
   default: {
-    getReportMetrics: (...args) => {
-      return mockGetReportMetrics(...args);
+    getEmployerMetrics: (...args) => {
+      return mockGetEmployerMetrics(...args);
     },
   },
 }));
 
 const wrappedRender = () => {
-  return render(NumSubmissionsInYear, {
+  return render(NumEmployerLogons, {
     global: {
       plugins: [pinia, vuetify],
     },
   });
 };
 
-describe('NumSubmissionsInYear', () => {
+describe('NumEmployerLogons', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('displays the number of reports submitted in the current reporting year', async () => {
+  it('displays the number of employers who have logged on to date', async () => {
     await wrappedRender();
-    expect(mockGetReportMetrics).toHaveBeenCalled();
+    expect(mockGetEmployerMetrics).toHaveBeenCalled();
 
     await waitFor(() => {
       expect(
         screen.getByText(
-          `${mockReportMetrics.report_metrics[0].reporting_year}`,
-          { exact: false /*  match substring */ },
-        ),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          `${mockReportMetrics.report_metrics[0].num_published_reports}`,
+          `${mockEmployerMetrics.num_employers_logged_on_to_date}`,
           {
-            exact: false /*  match substring */,
+            exact: true,
           },
         ),
       ).toBeInTheDocument();
