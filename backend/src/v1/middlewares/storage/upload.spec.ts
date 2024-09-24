@@ -10,11 +10,13 @@ jest.mock('@aws-sdk/client-s3', () => ({
   })),
 }));
 
+const realpathSyncMock = jest.fn();
 jest.mock('fs', () => ({
   __esModule: true,
   ...jest.requireActual('fs'),
   default: {
     createReadStream: jest.fn(),
+    realpathSync: (...args) => realpathSyncMock(...args),
   },
 }));
 
@@ -40,6 +42,8 @@ describe('upload', () => {
         },
       },
     };
+
+    realpathSyncMock.mockReturnValue(path.join(os.tmpdir(), 'test.jpg'));
 
     const res = {
       status: jest.fn().mockReturnThis(),
@@ -83,7 +87,6 @@ describe('upload', () => {
       };
       await useUpload({ folder: 'app' })(req, res, jest.fn());
       expect(res.status).toHaveBeenCalledWith(400);
-
     });
   });
 
@@ -100,6 +103,7 @@ describe('upload', () => {
       },
     };
 
+    realpathSyncMock.mockReturnValue(path.join(os.tmpdir(), 'test.jpg'));
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
