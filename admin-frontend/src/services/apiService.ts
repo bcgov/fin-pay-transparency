@@ -519,8 +519,8 @@ export default {
 
 const buildFormData = (data: AnnouncementFormValue) => {
   const formData = new FormData();
-  formData.append('title', data.title);
-  formData.append('description', data.description);
+  formData.append('title', data.title.trim());
+  formData.append('description', data.description.trim());
   formData.append('status', data.status);
   if (data.active_on) {
     formData.append('active_on', data.active_on);
@@ -529,7 +529,7 @@ const buildFormData = (data: AnnouncementFormValue) => {
     formData.append('expires_on', data.expires_on);
   }
   if (data.linkUrl && data.linkDisplayName) {
-    formData.append('linkUrl', data.linkUrl);
+    formData.append('linkUrl', data.linkUrl.trim());
     formData.append('linkDisplayName', data.linkDisplayName);
   }
 
@@ -538,7 +538,7 @@ const buildFormData = (data: AnnouncementFormValue) => {
   }
 
   if (data.fileDisplayName) {
-    formData.append('fileDisplayName', data.fileDisplayName);
+    formData.append('fileDisplayName', data.fileDisplayName.trim());
   }
 
   if (data.attachmentId) {
