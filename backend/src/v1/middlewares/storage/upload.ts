@@ -8,7 +8,7 @@ import {
 import os from 'os';
 import retry from 'async-retry';
 import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';
-
+import PATH from 'path';
 
 interface Options {
   folder: string;
@@ -31,6 +31,14 @@ export const useUpload = (options: Options) => {
 
     try {
       const s3 = new S3Client(S3_OPTIONS);
+      const filePath = fs.realpathSync(PATH.resolve(os.tmpdir(), path));
+      logger.info(`File path: ${filePath}`);
+      if (!filePath.startsWith(os.tmpdir())) {
+        logger.error('File path is not starting with temp directory.');
+        res.statusCode = 403;
+        res.end();
+        return;
+      }
       const stream = fs.createReadStream(path);
       const uploadParams: PutObjectCommandInput = {
         Bucket: S3_BUCKET,
