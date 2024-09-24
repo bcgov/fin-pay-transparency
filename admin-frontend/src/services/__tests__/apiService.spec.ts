@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnnouncementStatus } from '../../types/announcements';
+import { EmployerMetrics } from '../../types/employers';
 import { ReportMetrics } from '../../types/reports';
 import ApiService from '../apiService';
 
@@ -652,9 +653,31 @@ describe('ApiService', () => {
     });
   });
 
+  describe('getEmployerMetrics', () => {
+    describe('when the data are successfully retrieved from the backend', () => {
+      it('returns an object with the expected metrics', async () => {
+        const mockBackendResponse = {
+          num_employers_logged_on_to_date: 8,
+        };
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp: EmployerMetrics = await ApiService.getEmployerMetrics();
+        expect(resp).toEqual(mockBackendResponse);
+      });
+    });
+  });
+
   describe('getAnnouncementsMetrics', () => {
     it('returns an announcement metrics', async () => {
-      const mockBackendResponse = { draft: { count: 1 }, published: { count: 2 } };
+      const mockBackendResponse = {
+        draft: { count: 1 },
+        published: { count: 2 },
+      };
       const mockAxiosResponse = {
         data: mockBackendResponse,
       };
