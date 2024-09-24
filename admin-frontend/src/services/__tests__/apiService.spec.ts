@@ -455,7 +455,7 @@ describe('ApiService', () => {
       it('returns a promise that eventually resolves', async () => {
         const payload: any = {
           title: 'test',
-          describe: 'test',
+          description: 'test',
           status: 'PUBLISHED',
           expires_on: '2021-12-31',
           active_on: '2021-12-31',
@@ -498,7 +498,7 @@ describe('ApiService', () => {
   describe('updateAnnouncements', () => {
     describe('when the API request to the backend is successful', () => {
       it('returns a promise that eventually resolves', async () => {
-        const payload: any = { title: 'test' };
+        const payload: any = { title: 'test', description: 'test' };
         const mockResponse = {
           data: {},
           status: 201,
