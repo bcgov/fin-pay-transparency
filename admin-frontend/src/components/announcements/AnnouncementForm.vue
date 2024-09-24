@@ -91,7 +91,7 @@
                 placeholder="Description"
                 maxlength="2000"
                 variant="outlined"
-                counter
+                counter="26"
                 rows="3"
                 :error-messages="errors.description"
               ></v-textarea>

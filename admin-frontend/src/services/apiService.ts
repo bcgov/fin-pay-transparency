@@ -13,6 +13,7 @@ import {
   AnnouncementSortType,
   IAnnouncementSearchResult,
 } from '../types/announcements';
+import { EmployerMetrics } from '../types/employers';
 import { IReportSearchResult, ReportMetrics } from '../types/reports';
 import { ApiRoutes, POWERBI_RESOURCE } from '../utils/constant';
 import AuthService from './authService';
@@ -272,6 +273,19 @@ export default {
       throw new Error('Unable to fetch report metrics');
     } catch (e) {
       console.log(`Failed to get report metrics from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async getEmployerMetrics(): Promise<EmployerMetrics> {
+    try {
+      const resp = await apiAxios.get(ApiRoutes.EMPLOYER_METRICS);
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to fetch employer metrics');
+    } catch (e) {
+      console.log(`Failed to get employer metrics from API - ${e}`);
       throw e;
     }
   },
