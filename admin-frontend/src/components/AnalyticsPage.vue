@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isAnalyticsAvailable">
+  <div v-if="isAnalyticsAvailable" class="w-100 overflow-x-auto">
     <div
       v-for="[name, details] in resourceDetails"
       :key="name"
