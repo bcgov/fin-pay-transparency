@@ -32,7 +32,7 @@
           ></NumSubmissionsInYear>
         </v-col>
         <v-col>
-          <NumEmployerLogins></NumEmployerLogins>
+          <NumEmployerLogons ref="numEmployerLogons"></NumEmployerLogons>
         </v-col>
       </v-row>
     </v-col>
@@ -79,7 +79,7 @@
 import RecentlySubmittedReports from './dashboard/RecentlySubmittedReports.vue';
 import RecentlyViewedReports from './dashboard/RecentlyViewedReports.vue';
 import NumSubmissionsInYear from './dashboard/NumSubmissionsInYear.vue';
-import NumEmployerLogins from './dashboard/NumEmployerLogins.vue';
+import NumEmployerLogons from './dashboard/NumEmployerLogons.vue';
 import PublicAnnouncements from './dashboard/PublicAnnouncements.vue';
 import ToolTip from './ToolTip.vue';
 import { ref, onMounted } from 'vue';
@@ -92,6 +92,7 @@ const recentlySubmittedReports = ref<typeof RecentlySubmittedReports>();
 const recentlyViewedReports = ref<typeof RecentlyViewedReports>();
 const numSubmissionsInYear = ref<typeof NumSubmissionsInYear>();
 const publicAnnouncements = ref<typeof PublicAnnouncements>();
+const numEmployerLogons = ref<typeof NumEmployerLogons>();
 
 onMounted(() => {
   //Periodically refresh the widgets
@@ -105,5 +106,6 @@ async function refresh() {
   await recentlyViewedReports.value?.refresh();
   await numSubmissionsInYear.value?.refresh();
   await publicAnnouncements.value?.refresh();
+  await numEmployerLogons.value?.refresh();
 }
 </script>
