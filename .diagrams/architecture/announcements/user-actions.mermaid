@@ -1,0 +1,44 @@
+flowchart TD
+    start([Admin User])
+
+    %% Nodes - Actions
+    active[Publicly available]
+    email[Send email 14 days before expire_on date]
+    scheduleExpire[Automatically expire announcement after expire_on date]
+    scheduleDelete[Automatically delete announcement after 90 days]
+
+    %% Nodes - decisions
+    choice{Actions}
+    saveAny{Save As}
+    saveP{Save As}
+
+    %% Nodes - Data objects
+    draft>fa:fa-file Draft Announcement]
+    published>fa:fa-file Published Announcement]
+    expired>fa:fa-file Expired Announcement]
+    archive>fa:fa-file Archived Announcement]
+
+    %% New workflow
+    start-->choice
+    choice--New-->saveAny
+
+    %% Existing workflows
+    choice--Edit draft/expired-->saveAny
+    choice--Edit published-->saveP
+    choice--unpublish-->draft
+    published-.Scheduled task.->email
+
+    %% Saving workflow
+    saveAny-->|Draft|draft
+    saveAny-->|Publish|published
+    saveP-->|Publish|published
+    published-.->|After active_on date|active
+    
+    %% Expire workflows
+    published-.->|Scheduled task|scheduleExpire
+    scheduleExpire-->expired
+
+    %% Delete workflows
+    choice--Archive-->archive
+    expired-.->|Scheduled task|scheduleDelete
+    archive-.->|Scheduled task|scheduleDelete
