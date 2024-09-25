@@ -19,26 +19,24 @@ flowchart TD
     archive>fa:fa-file Archived Announcement]
 
     %% New workflow
-    start-->choice
-    choice--New-->saveAny
+    start --> choice
+    choice --New--> saveAny
 
     %% Existing workflows
-    choice--Edit draft/expired-->saveAny
-    choice--Edit published-->saveP
-    choice--unpublish-->draft
-    published-.Scheduled task.->email
+    choice --Edit draft/expired--> saveAny
+    choice --Edit published--> saveP
+    choice --Unpublish--> draft
+    published -.Scheduled task.-> email
 
     %% Saving workflow
-    saveAny-->|Draft|draft
-    saveAny-->|Publish|published
-    saveP-->|Publish|published
-    published-.->|After active_on date|active
+    saveAny --Draft--> draft
+    saveAny & saveP --Publish--> published
+    published -.After active_on date.-> active
     
     %% Expire workflows
-    published-.->|Scheduled task|scheduleExpire
-    scheduleExpire-->expired
+    published -.Scheduled task.-> scheduleExpire
+    scheduleExpire --> expired
 
     %% Delete workflows
-    choice--Archive-->archive
-    expired-.->|Scheduled task|scheduleDelete
-    archive-.->|Scheduled task|scheduleDelete
+    choice --Archive--> archive
+    expired & archive -.Scheduled task.-> scheduleDelete

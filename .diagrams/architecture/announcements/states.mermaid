@@ -4,16 +4,15 @@ config:
   elk:
     nodePlacementStrategy: NETWORK_SIMPLEX
 ---
-flowchart 
-	%%user--Edit-->draft & published & expired
-	%%user--Create-->draft & published
+flowchart TD
     draft>draft]
     published>published]
     expired>expired]
     archived>archived]
-    published--Save as-->published
-    expired & draft--Save as-->draft & published
-    published-.On<br>expires_on<br>date.->expired
-    draft & published & expired--Archive-->archived
-    archived & expired-.Scheduled<br>task.->delete[Delete after 90 days]
-    published--Unpublish-->draft
+
+    published --Save as--> published
+    expired & draft --Save as--> draft & published
+    published -.On<br>expires_on<br>date.-> expired
+    draft & published & expired --Archive--> archived
+    archived & expired -.Scheduled<br>task.-> delete[Delete after 90 days]
+    published --Unpublish--> draft
