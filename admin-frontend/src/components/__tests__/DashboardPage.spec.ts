@@ -5,7 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import DashboardPage from '../DashboardPage.vue';
-import NumEmployerLogins from '../dashboard/NumEmployerLogins.vue';
+import NumEmployerLogins from '../dashboard/NumEmployerLogons.vue';
 
 // Mock the ResizeObserver
 const ResizeObserverMock = vi.fn(() => ({
