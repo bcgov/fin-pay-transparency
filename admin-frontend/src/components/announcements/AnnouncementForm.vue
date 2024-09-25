@@ -94,7 +94,15 @@
                 counter
                 rows="3"
                 :error-messages="errors.description"
-              ></v-textarea>
+              >
+                <template #counter="{ max }">
+                  <span>
+                    {{ getDescriptionLength(announcementDescription) }}/{{
+                      max
+                    }}
+                  </span>
+                </template>
+              </v-textarea>
             </v-col>
             <v-col cols="12" md="12" sm="12">
               <h5 class="mb-2">Time settings</h5>
@@ -463,7 +471,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     description(value) {
       if (!value) return 'Description is required.';
 
-      if (value.length > 2000)
+      if (getDescriptionLength(value) > 2000)
         return 'Description should have a maximum of 2000 characters.';
 
       return true;
@@ -526,7 +534,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
 const { value: announcementTitle } = useField('title');
 const { value: status } = useField<string>('status');
-const { value: announcementDescription } = useField('description');
+const { value: announcementDescription } = useField<string>('description');
 const { value: activeOn } = useField('active_on') as any;
 const { value: expiresOn } = useField('expires_on') as any;
 const { value: noExpiry } = useField('no_expiry') as any;
@@ -534,6 +542,10 @@ const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
 const { value: fileDisplayName } = useField('fileDisplayName') as any;
 const { value: attachment } = useField('attachment') as any;
+
+const getDescriptionLength = (value: string) => {
+  return value.replace(/(\r\n|\n|\r)/g, '  ').length;
+};
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
