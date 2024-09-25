@@ -36,9 +36,7 @@ const isAnalyticsAvailable =
   (window as any).config?.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';
 
 const resourceDetails = createDefaultPowerBiDetailsMap([
-  POWERBI_RESOURCE.SUBMISSIONANALYTICS,
-  POWERBI_RESOURCE.USERBEHAVIOUR,
-  POWERBI_RESOURCE.DATAANALYTICS,
+  POWERBI_RESOURCE.ANALYTICS,
 ]);
 
 if (isAnalyticsAvailable) {
