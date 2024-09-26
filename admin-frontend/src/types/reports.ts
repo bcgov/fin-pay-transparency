@@ -122,3 +122,14 @@ export type ReportMetrics = {
     },
   ];
 };
+
+export type ReportAdminActionHistory = [
+  {
+    report_history_id: string;
+    is_unlocked: boolean;
+    admin_modified_date: string;
+    admin_user: {
+      display_name: string;
+    };
+  },
+];

@@ -264,6 +264,23 @@ export default {
     }
   },
 
+  async getReportAdminActionHistory(reportId: string): Promise<any> {
+    try {
+      const resp = await apiAxios.get(
+        `${ApiRoutes.REPORTS}/${reportId}/admin-action-history`,
+      );
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error(
+        `Unable to fetch admin action history for report ${reportId}`,
+      );
+    } catch (e) {
+      console.log(`Failed to get admin action history for report - ${e}`);
+      throw e;
+    }
+  },
+
   async getReportMetrics(): Promise<ReportMetrics> {
     try {
       const resp = await apiAxios.get(ApiRoutes.REPORT_METRICS);

@@ -6,6 +6,7 @@ import {
   ZoneOffset,
 } from '@js-joda/core';
 import createPrismaMock from 'prisma-mock';
+import prisma from '../prisma/prisma-client';
 import {
   adminReportService,
   adminReportServicePrivate,
@@ -26,6 +27,8 @@ let reports = [];
 let admins = [];
 let prismaClient: any;
 
+jest.mock('./report-service');
+
 const mockFindMany = jest.fn();
 
 jest.mock('../prisma/prisma-client-readonly-replica', () => ({
@@ -43,6 +46,7 @@ jest.mock('../prisma/prisma-client-readonly-replica', () => ({
         prismaClient.pay_transparency_report.findUnique(args),
       count: (args) => prismaClient.pay_transparency_report.count(args),
     },
+    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
   },
 }));
 jest.mock('../prisma/prisma-client', () => ({
@@ -58,6 +62,7 @@ jest.mock('../prisma/prisma-client', () => ({
       update: (args) => prismaClient.pay_transparency_report.update(args),
     },
     $extends: jest.fn(),
+    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
   },
 }));
 
@@ -600,6 +605,7 @@ describe('admin-report-service', () => {
       expect(report.is_unlocked).toBeTruthy();
       expect(report.admin_modified_date).toBe(report.report_unlock_date);
       expect(report.admin_user_id).toBe('1234');
+      expect(reportService.movePublishedReportToHistory).toHaveBeenCalled();
     });
     it('should change report is_unlocked to false', async () => {
       const report = await adminReportService.changeReportLockStatus(

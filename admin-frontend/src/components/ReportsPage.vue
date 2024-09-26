@@ -53,23 +53,7 @@
         {{ formatDate(item.create_date) }}
       </template>
       <template #item.actions="{ item }">
-        <v-btn
-          aria-label="Open Report"
-          density="compact"
-          variant="plain"
-          icon="mdi-file-pdf-box"
-          :loading="isDownloadingPdf(item.report_id)"
-          :disabled="isDownloadingPdf(item.report_id)"
-          @click="viewReportInNewTab(item.report_id)"
-        ></v-btn>
-        <v-btn
-          :aria-label="item.is_unlocked ? 'Lock report' : 'Unlock report'"
-          density="compact"
-          variant="plain"
-          :icon="item.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
-          :color="item.is_unlocked ? 'success' : 'error'"
-          @click="lockUnlockReport(item.report_id, !item?.is_unlocked)"
-        ></v-btn>
+        <ReportActions :report="item"></ReportActions>
       </template>
     </v-data-table-server>
   </div>
@@ -94,6 +78,7 @@ import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { formatDate } from '../utils/date';
 import { NotificationService } from '../services/notificationService';
+import ReportActions from './reports/ReportActions.vue';
 
 const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
