@@ -18,7 +18,7 @@ export const useValidate = ({ mode, schema, }: UseValidateOptions) => {
       const { path, method } = req;
       const errorMessage = `${method} - ${path} - Data validation failed`;
       logger.error(errorMessage, error);
-      return next({ errorMessage, error });
+      return next(error);
     }
   };
 };

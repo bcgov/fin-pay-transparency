@@ -54,4 +54,9 @@ describe('getEmbedInfo', () => {
     expect(mockGetEmbedParamsForReports).toHaveBeenCalledTimes(1);
     expect(json).toMatchObject(output);
   });
+
+  it('should throw error if invalid resource names', async () => {
+    await expect(analyticsService.getEmbedInfo([PowerBiResourceName.SubmissionAnalytics, 'invalid' as any])).rejects.toThrow('Invalid resource names');
+    expect(mockGetEmbedParamsForReports).not.toHaveBeenCalled();
+  });
 });

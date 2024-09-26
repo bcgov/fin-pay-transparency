@@ -40,6 +40,15 @@ export const analyticsService = {
   async getEmbedInfo(
     resourceNames: PowerBiResourceName[],
   ): Promise<PowerBiEmbedInfo> {
+    if (
+      !Array.isArray(resourceNames) ||
+      !resourceNames.every((name) =>
+        Object.values(PowerBiResourceName).includes(name),
+      )
+    ) {
+      throw new Error('Invalid resource names');
+    }
+
     const powerBi = new PowerBiService(
       config.get('powerbi:powerBiUrl'),
       config.get('entra:clientId'),
