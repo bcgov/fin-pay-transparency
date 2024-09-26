@@ -8,12 +8,7 @@ import {
   AddNewUserSchema,
   AddNewUserType,
 } from '../middlewares/validations/schemas';
-import {
-  createInvite,
-  deleteInvite,
-  getPendingInvites,
-  resendInvite,
-} from '../services/admin-user-invites-service';
+import { adminUserInvitesService } from '../services/admin-user-invites-service';
 import { utils } from '../services/utils-service';
 import { UserInputError } from '../types/errors';
 
@@ -22,7 +17,7 @@ router.use(authorize([PTRT_ADMIN_ROLE_NAME]));
 
 router.get('', async (req: Request, res: Response) => {
   try {
-    const invites = await getPendingInvites();
+    const invites = await adminUserInvitesService.getPendingInvites();
     return res.status(200).json(invites);
   } catch (error) {
     logger.error(error);
@@ -39,7 +34,7 @@ router.post(
       const userInfo = utils.getSessionUser(req);
       const jwtPayload = jsonwebtoken.decode(userInfo.jwt) as JwtPayload;
       const idirUserGuid = jwtPayload?.idir_user_guid;
-      await createInvite(
+      await adminUserInvitesService.createInvite(
         email.trim().toLowerCase(),
         role,
         firstName,
@@ -59,7 +54,7 @@ router.post(
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    await resendInvite(id);
+    await adminUserInvitesService.resendInvite(id);
     return res.status(200).json({ message: 'Invite resent' });
   } catch (error) {
     logger.error(error);
@@ -70,7 +65,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    await deleteInvite(id);
+    await adminUserInvitesService.deleteInvite(id);
     return res.status(200).json({ message: 'Invite deleted' });
   } catch (error) {
     logger.error(error);

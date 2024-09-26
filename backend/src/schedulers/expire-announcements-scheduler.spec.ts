@@ -9,7 +9,7 @@ jest.mock('../v1/services/utils-service', () => ({
 
 const mockExpireAnnouncements = jest.fn();
 jest.mock('../v1/services/announcements-service', () => ({
-  expireAnnouncements: () => mockExpireAnnouncements(),
+  announcementService: { expireAnnouncements: () => mockExpireAnnouncements() },
 }));
 
 jest.mock('cron', () => ({

@@ -5,7 +5,9 @@ import router from './announcement-metrics-routes';
 let app: Application;
 const getAnnouncementMetricsMock = jest.fn();
 jest.mock('../../services/announcements-service', () => ({
-  getAnnouncementMetrics: (...args) => getAnnouncementMetricsMock(...args),
+  announcementService: {
+    getAnnouncementMetrics: (...args) => getAnnouncementMetricsMock(...args),
+  },
 }));
 describe('announcement-metrics-routes', () => {
   beforeEach(() => {

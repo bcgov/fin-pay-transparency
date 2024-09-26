@@ -5,10 +5,7 @@ import {
 } from '../../constants/admin';
 import { UserInputError } from '../types/errors';
 import {
-  createInvite,
-  deleteInvite,
-  getPendingInvites,
-  resendInvite,
+  adminUserInvitesService,
 } from './admin-user-invites-service';
 
 const mockCreate = jest.fn();
@@ -52,7 +49,7 @@ describe('admin-user-invite-service', () => {
   describe('createInvite', () => {
     describe('when invitation does not exist', () => {
       it('should send a new invitation', async () => {
-        await createInvite(
+        await adminUserInvitesService.createInvite(
           faker.internet.email(),
           PTRT_USER_ROLE_NAME,
           faker.internet.userName(),
@@ -63,7 +60,7 @@ describe('admin-user-invite-service', () => {
       });
 
       it('should send a new invitation for admin', async () => {
-        await createInvite(
+        await adminUserInvitesService.createInvite(
           faker.internet.email(),
           PTRT_ADMIN_ROLE_NAME,
           faker.internet.userName(),
@@ -81,7 +78,7 @@ describe('admin-user-invite-service', () => {
     describe('when invitation exists', () => {
       it('should send a update invitation and send email', async () => {
         mockOnboardingFindFirst.mockResolvedValue({});
-        await createInvite(
+        await adminUserInvitesService.createInvite(
           faker.internet.email(),
           PTRT_ADMIN_ROLE_NAME,
           faker.internet.userName(),
@@ -95,7 +92,7 @@ describe('admin-user-invite-service', () => {
       it('should throw a UserInputError', async () => {
         mockAdminUserFindFirst.mockResolvedValue({});
         await expect(
-          createInvite(
+          adminUserInvitesService.createInvite(
             faker.internet.email(),
             PTRT_ADMIN_ROLE_NAME,
             faker.internet.userName(),
@@ -113,7 +110,7 @@ describe('admin-user-invite-service', () => {
       const userInvites = [{ id: '1' }, { id: '2' }];
       mockFindMany.mockResolvedValue(userInvites);
 
-      const result = await getPendingInvites();
+      const result = await adminUserInvitesService.getPendingInvites();
 
       expect(result).toEqual(userInvites);
       expect(mockFindMany).toHaveBeenCalledTimes(1);
@@ -132,7 +129,7 @@ describe('admin-user-invite-service', () => {
       const deletedInvite = { id };
       mockDelete.mockResolvedValue(deletedInvite);
 
-      const result = await deleteInvite(id);
+      const result = await adminUserInvitesService.deleteInvite(id);
 
       expect(result).toEqual(deletedInvite);
       expect(mockDelete).toHaveBeenCalledTimes(1);
@@ -147,7 +144,7 @@ describe('admin-user-invite-service', () => {
   describe('resendInvite', () => {
     it('should send a new invitation', async () => {
       mockFindUniqueOrThrow.mockResolvedValue({});
-      await resendInvite(faker.string.uuid());
+      await adminUserInvitesService.resendInvite(faker.string.uuid());
       expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
     });
   });

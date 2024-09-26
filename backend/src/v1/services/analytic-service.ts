@@ -32,36 +32,47 @@ const resourceIds: Record<PowerBiResourceName, ReportInWorkspace> = {
   },
 };
 
-/**
- * Generate embed token and embed urls for PowerBi resources
- * @return Details like Embed URL, Access token and Expiry
- */
-export async function getEmbedInfo(
-  resourceNames: PowerBiResourceName[],
-): Promise<PowerBiEmbedInfo> {
-  const powerBi = new PowerBiService(
-    config.get('powerbi:powerBiUrl'),
-    config.get('entra:clientId'),
-    config.get('entra:clientSecret'),
-    config.get('entra:tenantId'),
-  );
+export const analyticsService = {
+  /**
+   * Generate embed token and embed urls for PowerBi resources
+   * @return Details like Embed URL, Access token and Expiry
+   */
+  async getEmbedInfo(
+    resourceNames: PowerBiResourceName[],
+  ): Promise<PowerBiEmbedInfo> {
+    if (
+      !Array.isArray(resourceNames) ||
+      !resourceNames.every((name) =>
+        Object.values(PowerBiResourceName).includes(name),
+      )
+    ) {
+      throw new Error('Invalid resource names');
+    }
 
-  const embedParams = await powerBi.getEmbedParamsForReports(
-    resourceNames.map((name) => resourceIds[name]),
-  );
+    const powerBi = new PowerBiService(
+      config.get('powerbi:powerBiUrl'),
+      config.get('entra:clientId'),
+      config.get('entra:clientSecret'),
+      config.get('entra:tenantId'),
+    );
 
-  const resources = [];
-  for (let i = 0; i < resourceNames.length; ++i) {
-    resources.push({
-      name: resourceNames[i],
-      id: embedParams.resources[i].id,
-      embedUrl: embedParams.resources[i].embedUrl,
-    });
-  }
+    const embedParams = await powerBi.getEmbedParamsForReports(
+      resourceNames.map((name) => resourceIds[name]),
+    );
 
-  return {
-    resources: resources,
-    accessToken: embedParams.embedToken.token,
-    expiry: embedParams.embedToken.expiration,
-  };
-}
+    const resources = [];
+    for (let i = 0; i < resourceNames.length; ++i) {
+      resources.push({
+        name: resourceNames[i],
+        id: embedParams.resources[i].id,
+        embedUrl: embedParams.resources[i].embedUrl,
+      });
+    }
+
+    return {
+      resources: resources,
+      accessToken: embedParams.embedToken.token,
+      expiry: embedParams.embedToken.expiration,
+    };
+  },
+};

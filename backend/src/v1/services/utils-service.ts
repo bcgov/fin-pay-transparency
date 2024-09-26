@@ -5,7 +5,6 @@ import jsonwebtoken from 'jsonwebtoken';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
 
-const fs = require('fs');
 axios.interceptors.response.use((response) => {
   const headers = response.headers;
   if (headers && headers['x-correlation-id']) {

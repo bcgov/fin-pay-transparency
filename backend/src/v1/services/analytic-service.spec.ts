@@ -1,5 +1,5 @@
 import {
-  getEmbedInfo,
+  analyticsService,
   PowerBiEmbedInfo,
   PowerBiResourceName,
 } from './analytic-service';
@@ -47,11 +47,16 @@ describe('getEmbedInfo', () => {
       ],
       embedToken: { token: output.accessToken, expiration: output.expiry },
     });
-    const json = await getEmbedInfo([
+    const json = await analyticsService.getEmbedInfo([
       PowerBiResourceName.SubmissionAnalytics,
       PowerBiResourceName.DataAnalytics,
     ]);
     expect(mockGetEmbedParamsForReports).toHaveBeenCalledTimes(1);
     expect(json).toMatchObject(output);
+  });
+
+  it('should throw error if invalid resource names', async () => {
+    await expect(analyticsService.getEmbedInfo([PowerBiResourceName.SubmissionAnalytics, 'invalid' as any])).rejects.toThrow('Invalid resource names');
+    expect(mockGetEmbedParamsForReports).not.toHaveBeenCalled();
   });
 });
