@@ -26,20 +26,15 @@ describe('analytics', () => {
     mockGetEmbedInfo.mockReturnValue({});
 
     it('should return 200', async () => {
-      await request(app)
-        .get('/embed?resources[]=SubmissionAnalytics')
-        .expect(200);
-      expect(mockGetEmbedInfo).toHaveBeenCalledWith(['SubmissionAnalytics']);
+      await request(app).get('/embed?resources[]=Analytics').expect(200);
+      expect(mockGetEmbedInfo).toHaveBeenCalledWith(['Analytics']);
     });
 
     it('should allow multiple resource names', async () => {
       await request(app)
-        .get('/embed?resources[]=SubmissionAnalytics&resources[]=DataAnalytics')
+        .get('/embed?resources[]=Analytics&resources[]=Analytics')
         .expect(200);
-      expect(mockGetEmbedInfo).toHaveBeenCalledWith([
-        'SubmissionAnalytics',
-        'DataAnalytics',
-      ]);
+      expect(mockGetEmbedInfo).toHaveBeenCalledWith(['Analytics', 'Analytics']);
     });
 
     it('should return 500 if invalid resource name provided', async () => {

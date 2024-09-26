@@ -152,9 +152,7 @@ jobs:
           --set-string global.secrets.s3Endpoint="${{secrets.S3_ENDPOINT }}" \
           --set-string global.secrets.s3Bucket="${{secrets.S3_BUCKET }}" \
           --set-string global.secrets.powerBiAnalyticsWorkspaceId="${{secrets.POWERBI_ANALYTICS_WORKSPACE_ID }}" \
-          --set-string global.secrets.powerBiAnalyticsSubmissionAnalyticsId="${{secrets.POWERBI_ANALYTICS_SUBMISSIONANALYTICS_ID }}" \
-          --set-string global.secrets.powerBiAnalyticsUserBehaviourId="${{secrets.POWERBI_ANALYTICS_USERBEHAVIOUR_ID }}" \
-          --set-string global.secrets.powerBiAnalyticsDataAnalyticsId="${{secrets.POWERBI_ANALYTICS_DATAANALYTICS_ID }}" \
+          --set-string global.secrets.powerBiAnalyticsReportId="${{secrets.POWERBI_ANALYTICS_REPORT_ID }}" \
           --set-string global.serverAdminFrontend="${{ inputs.admin-frontend-url }}" \
           --set-string global.serverFrontend="${{ inputs.frontend-url }}" \
           --set-string crunchy.pgBackRest.s3.bucket="${{ secrets.S3_BUCKET }}"  \

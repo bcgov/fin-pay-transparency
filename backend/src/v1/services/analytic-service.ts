@@ -12,23 +12,13 @@ export type PowerBiEmbedInfo = {
 };
 
 export enum PowerBiResourceName {
-  SubmissionAnalytics = 'SubmissionAnalytics',
-  UserBehaviour = 'UserBehaviour',
-  DataAnalytics = 'DataAnalytics',
+  Analytics = 'Analytics',
 }
 
 const resourceIds: Record<PowerBiResourceName, ReportInWorkspace> = {
-  SubmissionAnalytics: {
+  Analytics: {
     workspaceId: config.get('powerbi:analytics:workspaceId'),
-    reportId: config.get('powerbi:analytics:submissionAnalyticsId'),
-  },
-  UserBehaviour: {
-    workspaceId: config.get('powerbi:analytics:workspaceId'),
-    reportId: config.get('powerbi:analytics:userBehaviourId'),
-  },
-  DataAnalytics: {
-    workspaceId: config.get('powerbi:analytics:workspaceId'),
-    reportId: config.get('powerbi:analytics:dataAnalyticsId'),
+    reportId: config.get('powerbi:analytics:analyticsId'),
   },
 };
 
