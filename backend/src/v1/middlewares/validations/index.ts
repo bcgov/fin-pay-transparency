@@ -7,7 +7,7 @@ export type UseValidateOptions = {
   schema: ZodSchema;
 };
 
-export const useValidate = ({ mode, schema }: UseValidateOptions) => {
+export const useValidate = ({ mode, schema, }: UseValidateOptions) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req[mode];
@@ -15,8 +15,10 @@ export const useValidate = ({ mode, schema }: UseValidateOptions) => {
       req[mode] = results;
       next();
     } catch (error) {
-      logger.error(error);
-      return next(error);
+      const { path, method } = req;
+      const errorMessage = `${method} - ${path} - Data validation failed`;
+      logger.error(errorMessage, error);
+      return next({ errorMessage, error });
     }
   };
 };

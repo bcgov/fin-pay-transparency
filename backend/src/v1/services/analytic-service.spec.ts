@@ -1,5 +1,5 @@
 import {
-  getEmbedInfo,
+  analyticsService,
   PowerBiEmbedInfo,
   PowerBiResourceName,
 } from './analytic-service';
@@ -47,7 +47,7 @@ describe('getEmbedInfo', () => {
       ],
       embedToken: { token: output.accessToken, expiration: output.expiry },
     });
-    const json = await getEmbedInfo([
+    const json = await analyticsService.getEmbedInfo([
       PowerBiResourceName.SubmissionAnalytics,
       PowerBiResourceName.DataAnalytics,
     ]);

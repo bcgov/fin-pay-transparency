@@ -32,36 +32,38 @@ const resourceIds: Record<PowerBiResourceName, ReportInWorkspace> = {
   },
 };
 
-/**
- * Generate embed token and embed urls for PowerBi resources
- * @return Details like Embed URL, Access token and Expiry
- */
-export async function getEmbedInfo(
-  resourceNames: PowerBiResourceName[],
-): Promise<PowerBiEmbedInfo> {
-  const powerBi = new PowerBiService(
-    config.get('powerbi:powerBiUrl'),
-    config.get('entra:clientId'),
-    config.get('entra:clientSecret'),
-    config.get('entra:tenantId'),
-  );
+export const analyticsService = {
+  /**
+   * Generate embed token and embed urls for PowerBi resources
+   * @return Details like Embed URL, Access token and Expiry
+   */
+  async getEmbedInfo(
+    resourceNames: PowerBiResourceName[],
+  ): Promise<PowerBiEmbedInfo> {
+    const powerBi = new PowerBiService(
+      config.get('powerbi:powerBiUrl'),
+      config.get('entra:clientId'),
+      config.get('entra:clientSecret'),
+      config.get('entra:tenantId'),
+    );
 
-  const embedParams = await powerBi.getEmbedParamsForReports(
-    resourceNames.map((name) => resourceIds[name]),
-  );
+    const embedParams = await powerBi.getEmbedParamsForReports(
+      resourceNames.map((name) => resourceIds[name]),
+    );
 
-  const resources = [];
-  for (let i = 0; i < resourceNames.length; ++i) {
-    resources.push({
-      name: resourceNames[i],
-      id: embedParams.resources[i].id,
-      embedUrl: embedParams.resources[i].embedUrl,
-    });
-  }
+    const resources = [];
+    for (let i = 0; i < resourceNames.length; ++i) {
+      resources.push({
+        name: resourceNames[i],
+        id: embedParams.resources[i].id,
+        embedUrl: embedParams.resources[i].embedUrl,
+      });
+    }
 
-  return {
-    resources: resources,
-    accessToken: embedParams.embedToken.token,
-    expiry: embedParams.embedToken.expiration,
-  };
-}
+    return {
+      resources: resources,
+      accessToken: embedParams.embedToken.token,
+      expiry: embedParams.embedToken.expiration,
+    };
+  },
+};

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import {
-  getEmbedInfo,
+  analyticsService,
   PowerBiResourceName,
 } from '../services/analytic-service';
 import { utils } from '../services/utils-service';
@@ -23,7 +23,7 @@ router.get(
       req: Request<undefined, undefined, undefined, EmbedQueryType>,
       res: Response,
     ) => {
-      const info = await getEmbedInfo(req.query.resources);
+      const info = await analyticsService.getEmbedInfo(req.query.resources);
 
       return res.status(200).json(info);
     },

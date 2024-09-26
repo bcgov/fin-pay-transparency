@@ -8,7 +8,10 @@ jest.mock('../services/analytic-service', () => {
   const actual = jest.requireActual('../services/analytic-service');
   return {
     ...actual,
-    getEmbedInfo: (...args) => mockGetEmbedInfo(...args),
+    analyticsService: {
+      ...actual.analyticsService,
+      getEmbedInfo: (...args) => mockGetEmbedInfo(...args),
+    },
   };
 });
 
