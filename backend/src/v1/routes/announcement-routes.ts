@@ -7,13 +7,7 @@ import { authenticateAdmin } from '../middlewares/authorization/authenticate-adm
 import { authorize } from '../middlewares/authorization/authorize';
 import { useUpload } from '../middlewares/storage/upload';
 import { useValidate } from '../middlewares/validations';
-import {
-  createAnnouncement,
-  getAnnouncementById,
-  getAnnouncements,
-  patchAnnouncements,
-  updateAnnouncement,
-} from '../services/announcements-service';
+import { announcementService } from '../services/announcements-service';
 import { ExtendedRequest } from '../types';
 import {
   AnnouncementDataSchema,
@@ -66,7 +60,7 @@ router.get(
     try {
       // Query parameters are validated
       const query: AnnouncementQueryType = req.query;
-      const announcements = await getAnnouncements(query);
+      const announcements = await announcementService.getAnnouncements(query);
       res.status(200).json(announcements);
     } catch (error) {
       logger.error(error);
@@ -102,7 +96,7 @@ router.patch(
           `Only the following statuses are supported: ${supportedStatuses}`,
         );
       }
-      await patchAnnouncements(data, user.admin_user_id);
+      await announcementService.patchAnnouncements(data, user.admin_user_id);
       res
         .status(201)
         .json({ message: `Updated the status of the announcement(s)` });
@@ -130,7 +124,7 @@ router.post(
       // Request body is validated
       const data = req.body;
       // Create announcement
-      const announcement = await createAnnouncement(data, user.admin_user_id);
+      const announcement = await announcementService.createAnnouncement(data, user.admin_user_id);
       res.status(201).json(announcement);
     } catch (error) {
       logger.error(error);
@@ -156,7 +150,7 @@ router.put(
       // Request body is validated
       const { file, ...data } = req.body;
       // Create announcement
-      const announcement = await updateAnnouncement(
+      const announcement = await announcementService.updateAnnouncement(
         req.params.id,
         data,
         user.admin_user_id,
@@ -171,7 +165,7 @@ router.put(
 
 router.get('/:id', authenticateAdmin(), async (req: Request, res) => {
   try {
-    const announcement = await getAnnouncementById(req.params.id);
+    const announcement = await announcementService.getAnnouncementById(req.params.id);
     return res.json(announcement);
   } catch (error) {
     logger.error(error);

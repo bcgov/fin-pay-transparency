@@ -3,7 +3,7 @@ import request from 'supertest';
 import router from '.';
 
 jest.mock('../../services/announcements-service', () => ({
-  getAnnouncementMetrics: jest.fn(),
+  announcementService: { getAnnouncementMetrics: jest.fn() },
 }));
 jest.mock('../../services/admin-report-service', () => ({
   adminReportService: {

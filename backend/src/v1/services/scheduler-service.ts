@@ -8,7 +8,7 @@ import prisma from '../prisma/prisma-client';
 import { enumReportStatus } from './report-service';
 import { logger } from '../../logger';
 import { Prisma } from '@prisma/client';
-import { getExpiringAnnouncements } from './announcements-service';
+import { announcementService } from './announcements-service';
 import { SSO } from './sso-service';
 import emailService from '../../external/services/ches';
 import { config } from '../../config';
@@ -50,7 +50,7 @@ const schedulerService = {
   async sendAnnouncementExpiringEmails() {
     if (!config.get('server:enableEmailExpiringAnnouncements')) return;
 
-    const expiring = await getExpiringAnnouncements();
+    const expiring = await announcementService.getExpiringAnnouncements();
     if (!expiring.length) return;
 
     const sso = await SSO.init();

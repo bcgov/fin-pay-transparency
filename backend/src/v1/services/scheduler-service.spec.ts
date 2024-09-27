@@ -74,7 +74,9 @@ jest.mock('../../external/services/ches', () => ({
 
 const mockGetExpiringAnnouncements = jest.fn();
 jest.mock('./announcements-service', () => ({
-  getExpiringAnnouncements: () => mockGetExpiringAnnouncements(),
+  announcementService: {
+    getExpiringAnnouncements: () => mockGetExpiringAnnouncements(),
+  },
 }));
 
 const mockGetUsers = jest.fn();

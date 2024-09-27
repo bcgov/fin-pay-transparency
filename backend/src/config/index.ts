@@ -137,10 +137,7 @@ config.defaults({
     powerBiUrl: process.env.BACKEND_POWERBI_URL,
     analytics: {
       workspaceId: process.env.POWERBI_ANALYTICS_WORKSPACE_ID,
-      submissionAnalyticsId:
-        process.env.POWERBI_ANALYTICS_SUBMISSIONANALYTICS_ID,
-      userBehaviourId: process.env.POWERBI_ANALYTICS_USERBEHAVIOUR_ID,
-      dataAnalyticsId: process.env.POWERBI_ANALYTICS_DATAANALYTICS_ID,
+      analyticsId: process.env.POWERBI_ANALYTICS_REPORT_ID,
     },
   },
   s3: {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAnnouncementMetrics } from '../../services/announcements-service';
+import { announcementService } from '../../services/announcements-service';
 import { logger } from '../../../logger';
 
 const router = Router();
@@ -9,7 +9,7 @@ const router = Router();
  */
 router.get('/announcement-metrics', async (req, res) => {
   try {
-    const metrics = await getAnnouncementMetrics();
+    const metrics = await announcementService.getAnnouncementMetrics();
 
     res.json(metrics);
   } catch (error) {

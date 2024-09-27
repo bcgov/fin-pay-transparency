@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isAnalyticsAvailable">
+  <div v-if="isAnalyticsAvailable" class="w-100 overflow-x-auto">
     <div
       v-for="[name, details] in resourceDetails"
       :key="name"
@@ -20,10 +20,11 @@
 import { PowerBIReportEmbed } from 'powerbi-client-vue-js';
 import { EventHandler } from 'powerbi-client-vue-js/dist/types/src/utils/utils';
 import { models, IReportEmbedConfiguration, Report } from 'powerbi-client';
-import { reactive, CSSProperties } from 'vue';
+import { reactive, CSSProperties, Reactive } from 'vue';
 import ApiService from '../services/apiService';
 import { ZonedDateTime, Duration } from '@js-joda/core';
 import { POWERBI_RESOURCE } from '../utils/constant';
+import { NotificationService } from '../services/notificationService';
 
 type PowerBiDetails = {
   config: IReportEmbedConfiguration;
@@ -36,9 +37,7 @@ const isAnalyticsAvailable =
   (window as any).config?.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';
 
 const resourceDetails = createDefaultPowerBiDetailsMap([
-  POWERBI_RESOURCE.SUBMISSIONANALYTICS,
-  POWERBI_RESOURCE.USERBEHAVIOUR,
-  POWERBI_RESOURCE.DATAANALYTICS,
+  POWERBI_RESOURCE.ANALYTICS,
 ]);
 
 if (isAnalyticsAvailable) {
@@ -46,7 +45,9 @@ if (isAnalyticsAvailable) {
 }
 
 /** Create a Map containing the details of the resources. */
-function createDefaultPowerBiDetailsMap(resourcesToLoad: POWERBI_RESOURCE[]) {
+function createDefaultPowerBiDetailsMap(
+  resourcesToLoad: POWERBI_RESOURCE[],
+): Reactive<Map<POWERBI_RESOURCE, PowerBiDetails>> {
   const resourceDetails = reactive(new Map<POWERBI_RESOURCE, PowerBiDetails>());
 
   for (const name of resourcesToLoad) {
@@ -97,10 +98,21 @@ function createDefaultPowerBiDetailsMap(resourcesToLoad: POWERBI_RESOURCE[]) {
  * Get the embed config from the service.
  * Auto refresh the token before it expires.
  */
-async function getPowerBiAccessToken(resourceDetails) {
-  const embedInfo = await ApiService.getPowerBiEmbedAnalytics(
-    Array.from(resourceDetails.keys()),
-  );
+async function getPowerBiAccessToken(
+  resourceDetails: Reactive<Map<POWERBI_RESOURCE, PowerBiDetails>>,
+) {
+  let embedInfo;
+  try {
+    embedInfo = await ApiService.getPowerBiEmbedAnalytics(
+      Array.from(resourceDetails.keys()),
+    );
+  } catch (err) {
+    NotificationService.pushNotificationError(
+      'Analytics failed to load. Please try again later or contact the helpdesk.',
+      undefined,
+      1000 * 60 * 3,
+    );
+  }
   for (let resource of embedInfo.resources) {
     const ref = resourceDetails.get(resource.name);
     if (!ref) continue;

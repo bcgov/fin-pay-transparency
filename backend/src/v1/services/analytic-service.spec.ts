@@ -1,5 +1,5 @@
 import {
-  getEmbedInfo,
+  analyticsService,
   PowerBiEmbedInfo,
   PowerBiResourceName,
 } from './analytic-service';
@@ -22,16 +22,16 @@ describe('getEmbedInfo', () => {
     jest.clearAllMocks();
   });
 
-  it('should return json', async () => {
+  it('should return json when given multiple resources to embed', async () => {
     const output: PowerBiEmbedInfo = {
       resources: [
         {
-          name: PowerBiResourceName.SubmissionAnalytics,
+          name: PowerBiResourceName.Analytics,
           id: '123',
           embedUrl: 'foo.bar.ca',
         },
         {
-          name: PowerBiResourceName.DataAnalytics,
+          name: PowerBiResourceName.Analytics,
           id: '123',
           embedUrl: 'foo.bar.ca',
         },
@@ -47,11 +47,21 @@ describe('getEmbedInfo', () => {
       ],
       embedToken: { token: output.accessToken, expiration: output.expiry },
     });
-    const json = await getEmbedInfo([
-      PowerBiResourceName.SubmissionAnalytics,
-      PowerBiResourceName.DataAnalytics,
+    const json = await analyticsService.getEmbedInfo([
+      PowerBiResourceName.Analytics,
+      PowerBiResourceName.Analytics,
     ]);
     expect(mockGetEmbedParamsForReports).toHaveBeenCalledTimes(1);
     expect(json).toMatchObject(output);
+  });
+
+  it('should throw error if invalid resource names', async () => {
+    await expect(
+      analyticsService.getEmbedInfo([
+        PowerBiResourceName.Analytics,
+        'invalid' as never,
+      ]),
+    ).rejects.toThrow('Invalid resource names');
+    expect(mockGetEmbedParamsForReports).not.toHaveBeenCalled();
   });
 });
