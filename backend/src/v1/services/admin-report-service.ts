@@ -185,8 +185,19 @@ const adminReportService = {
    * @returns
    */
   async getReportAdminActionHistory(reportId: string) {
+    const select = {
+      is_unlocked: true,
+      admin_modified_date: true,
+      admin_user: {
+        select: {
+          admin_user_id: true,
+          display_name: true,
+        },
+      },
+    };
     const existingReport = await prisma.pay_transparency_report.findUnique({
       where: { report_id: reportId },
+      select: select,
     });
     if (!existingReport) {
       throw new UserInputError('Not found');
@@ -203,19 +214,26 @@ const adminReportService = {
       },
       select: {
         report_history_id: true,
-        is_unlocked: true,
-        admin_modified_date: true,
-        admin_user: {
-          select: {
-            admin_user_id: true,
-            display_name: true,
-          },
-        },
+        ...select,
       },
       orderBy: {
         admin_modified_date: 'desc',
       },
     });
+
+    //the current state of the report is not in the history table (it's in the
+    //pay_transparency_report table).  if the current state was created as a
+    //result of an admin event, add the current state to the head of the
+    //adminActionHistory list.  the current state doesn't have a report_history_id
+    //column, so explicitly add it and set it to null.
+    if (existingReport.admin_modified_date) {
+      const currentState = {
+        report_history_id: null,
+        ...existingReport,
+      };
+      adminActionHistory.unshift(currentState);
+    }
+
     return adminActionHistory;
   },
 

@@ -1,5 +1,10 @@
 <template>
-  <div v-if="!reportAdminActionHistory?.length">No admin events to show</div>
+  <div
+    v-if="!reportAdminActionHistory?.length"
+    class="d-flex flex-column flex-grow-1 flex-shrink-0 justify-center align-center"
+  >
+    No admin events to show
+  </div>
   <div v-if="reportAdminActionHistory?.length" class="d-flex flex-column">
     <div
       v-for="item in reportAdminActionHistory"

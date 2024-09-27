@@ -29,7 +29,7 @@
     <v-menu activator="parent">
       <v-card class="">
         <v-card-text>
-          <div class="history-panel">
+          <div class="history-panel h-100">
             <ReportAdminActionHistoryView
               v-if="!isLoadingAdminActionHistory && reportAdminActionHistory"
               :report-admin-action-history="reportAdminActionHistory"
@@ -58,15 +58,18 @@ export default {
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
 import { Report } from '../../types/reports';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import ReportAdminActionHistoryView from './ReportAdminActionHistoryPanel.vue';
 import { ReportAdminActionHistory } from '../../types/reports';
+import {
+  ReportChangeService,
+  ReportChangedEventPayload,
+} from '../../services/reportChangeService';
 
 const props = defineProps<{
   report: Report;
 }>();
-const emits = defineEmits(['onLockStatusChanged']);
 
 const isLoadingPdf = ref<boolean>(false);
 const isLoadingAdminActionHistory = ref<boolean>(false);
@@ -77,8 +80,19 @@ const reportAdminActionHistory = ref<ReportAdminActionHistory | undefined>(
 const confirmDialog = ref<typeof ConfirmationDialog>();
 
 onMounted(() => {
-  reset();
+  ReportChangeService.listen(onAnyReportChanged);
 });
+
+onUnmounted(() => {
+  ReportChangeService.unlisten(onAnyReportChanged);
+});
+
+function onAnyReportChanged(payload: ReportChangedEventPayload) {
+  if (payload.reportId == props.report?.report_id) {
+    console.log(`reportActions (${payload.reportId}) - onAnyReportChanged`);
+    reset();
+  }
+}
 
 async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
   const lockText = makeUnlocked ? 'unlock' : 'lock';
@@ -92,7 +106,9 @@ async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
   );
   if (isConfirmed) {
     await ApiService.lockUnlockReport(reportId, makeUnlocked);
-    emits('onLockStatusChanged');
+
+    //report_unlock_date and admin_last_access_date will have changed
+    ReportChangeService.reportChanged(reportId);
   }
 }
 
@@ -104,6 +120,9 @@ async function viewReportInNewTab(reportId: string) {
   isLoadingPdf.value = true;
   try {
     const pdfAsBlob = await ApiService.getPdfReportAsBlob(reportId);
+
+    //admin_last_access_date will have changed
+    ReportChangeService.reportChanged(reportId);
     const objectUrl = URL.createObjectURL(pdfAsBlob);
     window.open(objectUrl);
   } catch (e) {
@@ -123,6 +142,7 @@ async function openAdminActionHistory(reportId: string) {
 }
 
 async function fetchAdminActionHistory(reportId: string) {
+  console.log('fetchingAdminActionHistory');
   isLoadingAdminActionHistory.value = true;
   hadErrorLoadingAdminActionHistory.value = false;
   try {
@@ -144,7 +164,6 @@ function reset() {
 <style>
 .history-panel {
   min-width: 280px;
-  min-height: 50px;
   max-height: 210px;
   overflow-y: auto;
 }
