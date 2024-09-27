@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import request from 'supertest';
 import { PayTransparencyUserError } from '../services/file-upload-service';
+import { UserInputError } from '../types/errors';
 import router from './admin-report-routes';
 
 jest.mock('../services/utils-service', () => ({
@@ -50,6 +51,7 @@ const mockReport = {
 
 const mockSearchReport = jest.fn().mockResolvedValue({ reports: [mockReport] });
 const mockChangeReportLockStatus = jest.fn();
+const mockGetReportAdminActionHistory = jest.fn();
 jest.mock('../services/admin-report-service', () => ({
   adminReportService: {
     ...jest.requireActual('../services/admin-report-service')
@@ -57,6 +59,8 @@ jest.mock('../services/admin-report-service', () => ({
     searchReport: (...args) => mockSearchReport(...args),
     changeReportLockStatus: (...args) => mockChangeReportLockStatus(...args),
     getReportPdf: (...args) => mockGetReportPdf(...args),
+    getReportAdminActionHistory: (...args) =>
+      mockGetReportAdminActionHistory(...args),
   },
 }));
 const mockGetReportPdf = jest
@@ -227,6 +231,31 @@ describe('admin-report-routes', () => {
             report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
           });
         });
+    });
+  });
+
+  describe('GET /:id/admin-action-history', () => {
+    describe('if reportId is invalid', () => {
+      it('should return 404', async () => {
+        const mockReportId = 'invalid';
+        mockGetReportAdminActionHistory.mockRejectedValue(new UserInputError());
+        await request(app)
+          .get(`/${mockReportId}/admin-action-history`)
+          .expect(404);
+      });
+    });
+    describe('if reportId is valid', () => {
+      it('should return 200', async () => {
+        const mockReportId = 'invalid';
+        const mockResults = [{}];
+        mockGetReportAdminActionHistory.mockResolvedValue(mockResults);
+        await request(app)
+          .get(`/${mockReportId}/admin-action-history`)
+          .expect(200)
+          .expect(({ body }) => {
+            expect(body).toEqual(mockResults);
+          });
+      });
     });
   });
 });
