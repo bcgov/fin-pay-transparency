@@ -26,11 +26,7 @@ import {
 import ReportsWidget from './ReportsWidget.vue';
 import ApiService from '../../services/apiService';
 import { formatIsoDateTimeAsLocalDate } from '../../utils/date';
-import { ref, onMounted, onUnmounted } from 'vue';
-import {
-  ReportChangeService,
-  ReportChangedEventPayload,
-} from '../../services/reportChangeService';
+import { ref } from 'vue';
 
 const pageSize = 5;
 const reportsWidget = ref<typeof ReportsWidget>();
@@ -55,19 +51,6 @@ const headers = [
     key: 'actions',
   },
 ];
-
-onMounted(() => {
-  ReportChangeService.listen(onAnyReportChanged);
-});
-
-onUnmounted(() => {
-  ReportChangeService.unlisten(onAnyReportChanged);
-});
-
-function onAnyReportChanged(payload: ReportChangedEventPayload) {
-  console.log(`recentlyViewedReports - onAnyReportChanged`);
-  refresh();
-}
 
 async function refresh() {
   await reportsWidget.value?.refresh();
