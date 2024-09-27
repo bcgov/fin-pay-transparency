@@ -57,11 +57,10 @@ export default {
 <script setup lang="ts">
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
-import { Report } from '../../types/reports';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import ReportAdminActionHistoryView from './ReportAdminActionHistoryPanel.vue';
-import { ReportAdminActionHistory } from '../../types/reports';
+import { Report, ReportAdminActionHistory } from '../../types/reports';
 import {
   ReportChangeService,
   ReportChangedEventPayload,
