@@ -8,7 +8,7 @@ flowchart LR
     AdminUser -->|Announcement| PT
     KeyCloak -->|OIDC discovery document|PT 
     BCeIDBusiness[BusinessBCeID] -->|Company information|PT     
-    PT --> |Email recipients,\ntitle, and body| EmailService[Common hosted\nemail service]        
+    PT --> |Email recipients,<br>title, and body| EmailService[Common hosted<br>email service]        
     PT -->|Pay transparency report| Org
     Org -->|Login credentials|BCeIDBusiness
     KeyCloak --> |Backend tokens|PT

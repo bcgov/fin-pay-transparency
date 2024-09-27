@@ -2,18 +2,18 @@
 title: Pay Transparency Reporting Tool - Logical Data Flow Diagram (L1)
 ---
 flowchart LR
-    Org["Organization\nUser"] -->|"Employee pay data"| SubmissionProcess(("Submit data"))
-    SubmissionProcess --> |"Employee pay data"| ValidateAndCalculateProcess(("Validate\nemployee pay data\n and calculate\nstatistics"))    
+    Org["Organization<br>User"] -->|"Employee pay data"| SubmissionProcess(("Submit data"))
+    SubmissionProcess --> |"Employee pay data"| ValidateAndCalculateProcess(("Validate<br>employee pay data<br>and calculate<br>statistics"))    
     ValidateAndCalculateProcess --> |Pay statistics| CalculatedData[/"Calculated data"/]
     ValidateAndCalculateProcess --> |Pay transparency report 'body'| Report[/"Pay transparency reports"/]    
     ValidateAndCalculateProcess --> |"Validation errors"| SubmissionProcess
     Org -->|"Report ID"| PublishProcess(("Publish report"))
     PublishProcess --> |Report status| Report
-    Org --> |Report ID| DocGenProcess(("Generate\ndocument"))
+    Org --> |Report ID| DocGenProcess(("Generate<br>document"))
     DocGenProcess --> |HTML or PDF report| Org                
-    Org --> |Credentials|AuthenticateProcess((Authenticate\nbusiness BCeID\nuser))
+    Org --> |Credentials|AuthenticateProcess((Authenticate<br>business BCeID<br>user))
     AuthenticateProcess --> |Access token|Org    
-    PublishProcess -->|Report ID| HistoryProcess((Save report\nchange history))
-    HistoryProcess --> |Pay statistics| CalculatedDataHistory[/"Calculated data\n history"/]
-    HistoryProcess --> |Pay transparency report 'body'| ReportHistory[/"Pay transparency\nreport history"/]    
-    Backup(("Backup\ndata")) -->|Pay transparency data| ObjectStore[Object store]    
+    PublishProcess -->|Report ID| HistoryProcess((Save report<br>change history))
+    HistoryProcess --> |Pay statistics| CalculatedDataHistory[/"Calculated data<br>history"/]
+    HistoryProcess --> |Pay transparency report 'body'| ReportHistory[/"Pay transparency<br>report history"/]    
+    Backup(("Backup<br>data")) -->|Pay transparency data| ObjectStore[Object store]    
