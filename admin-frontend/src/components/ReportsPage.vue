@@ -70,7 +70,7 @@ export default {
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import { ReportKeys } from '../types/reports';
@@ -79,6 +79,10 @@ import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { formatDate } from '../utils/date';
 import { NotificationService } from '../services/notificationService';
 import ReportActions from './reports/ReportActions.vue';
+import {
+  ReportChangeService,
+  ReportChangedEventPayload,
+} from '../services/reportChangeService';
 
 const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
@@ -97,6 +101,18 @@ const itemsPerPageOptions = ref([
   { value: 25, title: '25' },
   { value: 50, title: '50' },
 ]);
+
+onMounted(() => {
+  ReportChangeService.listen(onAnyReportChanged);
+});
+
+onUnmounted(() => {
+  ReportChangeService.unlisten(onAnyReportChanged);
+});
+
+function onAnyReportChanged(payload: ReportChangedEventPayload) {
+  repeatSearch();
+}
 
 const headers = ref<any>([
   {
