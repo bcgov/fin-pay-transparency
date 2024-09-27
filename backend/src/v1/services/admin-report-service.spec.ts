@@ -30,6 +30,12 @@ let prismaClient: any;
 jest.mock('./report-service');
 
 const mockFindMany = jest.fn();
+const mockFindUniqueReport = jest
+  .fn()
+  .mockImplementation((args) =>
+    prismaClient.pay_transparency_report.findUnique(args),
+  );
+const mockFindManyReportHistory = jest.fn();
 
 jest.mock('../prisma/prisma-client-readonly-replica', () => ({
   __esModule: true,
@@ -57,9 +63,14 @@ jest.mock('../prisma/prisma-client', () => ({
       findUniqueOrThrow: (args) => {
         return prismaClient.pay_transparency_report.findUniqueOrThrow(args);
       },
-      findUnique: (args) =>
-        prismaClient.pay_transparency_report.findUnique(args),
+      findUnique: (args) => mockFindUniqueReport(args),
       update: (args) => prismaClient.pay_transparency_report.update(args),
+    },
+    report_history: {
+      findMany: (args) => mockFindManyReportHistory(args),
+      fields: {
+        update_date: '',
+      },
     },
     $extends: jest.fn(),
     $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
@@ -105,6 +116,7 @@ describe('admin-report-service', () => {
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d499',
+        update_date: '2024-04-19T21:46:53.876',
         create_date: '2022-04-19T21:46:53.876',
         naics_code: '40',
         report_status: 'Draft',
@@ -703,6 +715,54 @@ describe('admin-report-service', () => {
         updateParam.data.admin_last_access_date.getTime();
       expect(dateDiffMs).toBeGreaterThanOrEqual(0);
       expect(dateDiffMs).toBeLessThan(10000); //10 seconds
+    });
+  });
+
+  describe('getReportAdminActionHistory', () => {
+    describe('when there are no history records for the given report', () => {
+      it('returns an empty list', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+        mockFindManyReportHistory.mockResolvedValue([]);
+        const reportAdminActionHistory =
+          await adminReportService.getReportAdminActionHistory(mockReportId);
+        expect(reportAdminActionHistory).toStrictEqual([]);
+      });
+    });
+    describe('when there are history records for the given report, and some of those records are from admin-related events', () => {
+      it('the admin-related events', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+        const mockAdminHistoryRecords = [
+          { report_history_id: '1', admin_modified_date: '12343' },
+          { report_history_id: '2', admin_modified_date: '15341' },
+        ];
+        const mockReport = {
+          report_id: mockReportId,
+          admin_modified_date: '12353',
+        };
+        mockFindUniqueReport.mockResolvedValueOnce(mockReport);
+        mockFindManyReportHistory.mockResolvedValueOnce(
+          mockAdminHistoryRecords,
+        );
+        const reportAdminActionHistory =
+          await adminReportService.getReportAdminActionHistory(mockReportId);
+
+        const expectedResult = [...mockAdminHistoryRecords];
+        const mockModifiedReport: any = {
+          ...mockReport,
+          report_history_id: null,
+        };
+        expectedResult.unshift(mockModifiedReport);
+
+        expect(reportAdminActionHistory).toStrictEqual(expectedResult);
+      });
+    });
+    describe("when the given reportId doesn't correspond to a report", () => {
+      it('throws an error', async () => {
+        const mockReportId = 'unknown-report-id';
+        await expect(
+          adminReportService.getReportAdminActionHistory(mockReportId),
+        ).rejects.toThrow();
+      });
     });
   });
 });

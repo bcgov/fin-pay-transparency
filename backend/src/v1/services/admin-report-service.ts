@@ -226,15 +226,16 @@ const adminReportService = {
     //result of an admin event, add the current state to the head of the
     //adminActionHistory list.  the current state doesn't have a report_history_id
     //column, so explicitly add it and set it to null.
+    const result = [...adminActionHistory];
     if (existingReport.admin_modified_date) {
       const currentState = {
         report_history_id: null,
         ...existingReport,
       };
-      adminActionHistory.unshift(currentState);
+      result.unshift(currentState);
     }
 
-    return adminActionHistory;
+    return result;
   },
 
   async getReportPdf(req, reportId: string): Promise<Buffer> {
