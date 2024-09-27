@@ -2,13 +2,13 @@
 title: Pay Transparency Admin Portal - Logical Data Flow Diagram (L1)
 ---
 flowchart LR
-    AdminMgr[Admin Manager] -->|User and roles| ChangePrivsProcess((Change user\nprivilege))
-    AdminMgr --> |Username and\nemail address| InviteProcess((Invite user))
+    AdminMgr[Admin Manager] -->|User and roles| ChangePrivsProcess((Change user<br>privilege))
+    AdminMgr --> |Username and<br>email address| InviteProcess((Invite user))
     InviteProcess --> |Invitation email| EmailService[Common hosted email service]
     EmailService -->|Invitation email| AdminUser
-    InviteProcess -->|Username and\email address| AdminUserOnboarding[/Admin user onboarding/]    
-    AdminUser --> |User info| AcceptInviteProcess((Accept\ninvitation))
-    AdminUser -->|isLocked|LockUnlockReportProcess((Lock or unlock\nreport))
+    InviteProcess -->|Username and<br>email address| AdminUserOnboarding[/Admin user onboarding/]    
+    AdminUser --> |User info| AcceptInviteProcess((Accept<br>invitation))
+    AdminUser -->|isLocked|LockUnlockReportProcess((Lock or unlock<br>report))
     LockUnlockReportProcess -->|isLocked| PayTransparencyReports[/Pay transparency reports/] 
     AcceptInviteProcess -->|Invitation status| AdminUserOnboarding
     AcceptInviteProcess -->|User info| AdminUserTable[/Admin users/]
@@ -16,10 +16,10 @@ flowchart LR
     QueryProcess((Query report)) -->|Published reports| AdminUser(Admin User)
     PayTransparencyReports -->|Pay transparency report 'body'| QueryProcess
     AdminUser -->|Credentials| AuthenticateProcess
-    AuthenticateProcess((Authenticate\nIDIR user)) --> |Access token|AdminUser
-    AdminUser[Admin User] -->|Report ID| DocGenProcess((Generate\ndocument)) 
+    AuthenticateProcess((Authenticate<br>IDIR user)) --> |Access token|AdminUser
+    AdminUser[Admin User] -->|Report ID| DocGenProcess((Generate<br>document)) 
     DocGenProcess -->|PDF report| AdminUser
-    Announcements[/Announcements/] <--> |Announcement|ManageAnnouncementsProcess((Manage\nannouncement))
+    Announcements[/Announcements/] <--> |Announcement|ManageAnnouncementsProcess((Manage<br>announcement))
     AnnouncementResources[/Announcement resources/] <--> |Link or attachment|ManageAnnouncementsProcess
     AdminUser -->|Announcement and resource| ManageAnnouncementsProcess
 
