@@ -2,9 +2,10 @@
   <v-card class="ptap-widget">
     <v-card-text class="h-100 d-flex flex-column">
       <div class="widget-header flex-grow-0 flex-shrink-0">
-        Number of reports submitted for the current reporting year ({{
-          currentReportingYear
-        }})
+        Number of reports submitted for the current reporting year
+        <span v-if="!isLoading && currentReportingYear"
+          >({{ currentReportingYear }})</span
+        >
       </div>
       <div
         class="d-flex flex-column justify-center align-center text-primary flex-grow-1 flex-shrink-0"
