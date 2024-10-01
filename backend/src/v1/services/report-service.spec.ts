@@ -28,7 +28,7 @@ import {
 import { utils } from './utils-service';
 
 const actualMovePublishedReportToHistory =
-  reportServicePrivate.movePublishedReportToHistory;
+  reportService.movePublishedReportToHistory;
 
 jest.mock('./utils-service');
 
@@ -810,16 +810,16 @@ describe('publishReport', () => {
     it('changes the status from Draft to Published', async () => {
       mockReportFindFirst.mockResolvedValue(null);
       jest
-        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .spyOn(reportService, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
 
       await reportService.publishReport(mockDraftReportInApi);
 
       // Expect no attempt to move a pre-existing published report to
       // history (because there is no pre-existing published report)
-      expect(
-        reportServicePrivate.movePublishedReportToHistory,
-      ).toHaveBeenCalledTimes(0);
+      expect(reportService.movePublishedReportToHistory).toHaveBeenCalledTimes(
+        0,
+      );
 
       // Expect one call to update a DB record in the pay_transparency_report
       // table
@@ -853,16 +853,16 @@ describe('publishReport', () => {
         pay_transparency_calculated_data: [],
       });
       jest
-        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .spyOn(reportService, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
 
       await reportService.publishReport(mockDraftReportInApi);
 
       // Expect an attempt to move the pre-existing published report to
       // history
-      expect(
-        reportServicePrivate.movePublishedReportToHistory,
-      ).toHaveBeenCalledTimes(1);
+      expect(reportService.movePublishedReportToHistory).toHaveBeenCalledTimes(
+        1,
+      );
 
       // Expect one call to update a DB record in the pay_transparency_report
       // table
@@ -902,7 +902,7 @@ describe('publishReport', () => {
       });
 
       jest
-        .spyOn(reportServicePrivate, 'movePublishedReportToHistory')
+        .spyOn(reportService, 'movePublishedReportToHistory')
         .mockReturnValueOnce(null);
 
       await expect(

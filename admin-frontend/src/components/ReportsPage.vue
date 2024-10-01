@@ -53,23 +53,7 @@
         {{ formatDate(item.create_date) }}
       </template>
       <template #item.actions="{ item }">
-        <v-btn
-          aria-label="Open Report"
-          density="compact"
-          variant="plain"
-          icon="mdi-file-pdf-box"
-          :loading="isDownloadingPdf(item.report_id)"
-          :disabled="isDownloadingPdf(item.report_id)"
-          @click="viewReportInNewTab(item.report_id)"
-        ></v-btn>
-        <v-btn
-          :aria-label="item.is_unlocked ? 'Lock report' : 'Unlock report'"
-          density="compact"
-          variant="plain"
-          :icon="item.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
-          :color="item.is_unlocked ? 'success' : 'error'"
-          @click="lockUnlockReport(item.report_id, !item?.is_unlocked)"
-        ></v-btn>
+        <ReportActions :report="item"></ReportActions>
       </template>
     </v-data-table-server>
   </div>
@@ -86,7 +70,7 @@ export default {
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import { ReportKeys } from '../types/reports';
@@ -94,6 +78,11 @@ import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { formatDate } from '../utils/date';
 import { NotificationService } from '../services/notificationService';
+import ReportActions from './reports/ReportActions.vue';
+import {
+  ReportChangeService,
+  ReportChangedEventPayload,
+} from '../services/reportChangeService';
 
 const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
@@ -112,6 +101,18 @@ const itemsPerPageOptions = ref([
   { value: 25, title: '25' },
   { value: 50, title: '50' },
 ]);
+
+onMounted(() => {
+  ReportChangeService.listen(onAnyReportChanged);
+});
+
+onUnmounted(() => {
+  ReportChangeService.unlisten(onAnyReportChanged);
+});
+
+function onAnyReportChanged(payload: ReportChangedEventPayload) {
+  repeatSearch();
+}
 
 const headers = ref<any>([
   {

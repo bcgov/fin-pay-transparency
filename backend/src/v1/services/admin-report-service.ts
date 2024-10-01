@@ -1,7 +1,9 @@
 import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
+import type { pay_transparency_report } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import prisma from '../prisma/prisma-client';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
+import { UserInputError } from '../types/errors';
 import {
   FilterValidationSchema,
   RELATION_MAPPER,
@@ -49,7 +51,7 @@ const adminReportService = {
     await FilterValidationSchema.parseAsync(filterObj);
 
     const where = this.convertFiltersToPrismaFormat(filterObj);
-    console.log(where);
+
     const orderBy =
       adminReportServicePrivate.convertSortToPrismaFormat(sortObj);
 
@@ -132,40 +134,110 @@ const adminReportService = {
    * @param isUnLocked true/false to update the is_unlocked column to
    * @returns
    */
-  changeReportLockStatus: async (
+  async changeReportLockStatus(
     reportId: string,
     idirGuid: string,
     isUnLocked: boolean,
-  ) => {
-    await prisma.pay_transparency_report.findUniqueOrThrow({
-      where: { report_id: reportId },
-    });
+  ): Promise<pay_transparency_report> {
+    let updatedReport = null;
+    await prisma.$transaction(async (tx) => {
+      const existingReport =
+        await prisma.pay_transparency_report.findUniqueOrThrow({
+          where: { report_id: reportId },
+        });
 
-    const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
+      const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
 
-    await prisma.pay_transparency_report.update({
-      where: { report_id: reportId },
-      data: {
-        is_unlocked: isUnLocked,
-        report_unlock_date: currentDateUtc,
-        admin_modified_date: currentDateUtc,
-        admin_user: { connect: { idir_user_guid: idirGuid } },
-      },
-    });
+      await reportService.movePublishedReportToHistory(tx, existingReport);
 
-    return prisma.pay_transparency_report.findUnique({
-      where: { report_id: reportId },
-      include: {
-        employee_count_range: true,
-        pay_transparency_company: {
-          select: {
-            company_id: true,
-            company_name: true,
+      await prisma.pay_transparency_report.update({
+        where: { report_id: reportId },
+        data: {
+          is_unlocked: isUnLocked,
+          report_unlock_date: currentDateUtc,
+          admin_modified_date: currentDateUtc,
+          admin_user: { connect: { idir_user_guid: idirGuid } },
+        },
+      });
+
+      updatedReport = await prisma.pay_transparency_report.findUnique({
+        where: { report_id: reportId },
+        include: {
+          employee_count_range: true,
+          pay_transparency_company: {
+            select: {
+              company_id: true,
+              company_name: true,
+            },
           },
         },
+      });
+    });
+    return updatedReport;
+  },
+
+  /**
+   * Gets a list of admin user actions that have updated a report with a given id.
+   * Currently, the only supported admin actions are locking and unlocking,
+   * so every item returned describes a lock or unlock event.
+   * @param req
+   * @param reportId
+   * @returns
+   */
+  async getReportAdminActionHistory(reportId: string) {
+    const select = {
+      is_unlocked: true,
+      admin_modified_date: true,
+      admin_user: {
+        select: {
+          admin_user_id: true,
+          display_name: true,
+        },
+      },
+    };
+    const existingReport = await prisma.pay_transparency_report.findUnique({
+      where: { report_id: reportId },
+      select: select,
+    });
+    if (!existingReport) {
+      throw new UserInputError('Not found');
+    }
+
+    const adminActionHistory = await prisma.report_history.findMany({
+      where: {
+        report_id: reportId,
+        //admin_modified_date > update_date means the record was last updated
+        //by an admin user (not the employer)
+        admin_modified_date: {
+          gt: prisma.report_history.fields.update_date,
+        },
+      },
+      select: {
+        report_history_id: true,
+        ...select,
+      },
+      orderBy: {
+        admin_modified_date: 'desc',
       },
     });
+
+    //the current state of the report is not in the history table (it's in the
+    //pay_transparency_report table).  if the current state was created as a
+    //result of an admin event, add the current state to the head of the
+    //adminActionHistory list.  the current state doesn't have a report_history_id
+    //column, so explicitly add it and set it to null.
+    const result = [...adminActionHistory];
+    if (existingReport.admin_modified_date) {
+      const currentState = {
+        report_history_id: null,
+        ...existingReport,
+      };
+      result.unshift(currentState);
+    }
+
+    return result;
   },
+
   async getReportPdf(req, reportId: string): Promise<Buffer> {
     const report = await reportService.getReportPdf(req, reportId);
     await adminReportServicePrivate.updateAdminLastAccessDate(reportId);

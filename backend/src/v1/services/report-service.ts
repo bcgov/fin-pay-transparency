@@ -380,54 +380,6 @@ const reportServicePrivate = {
   },
 
   /**
-   * Copies the report and calculated data to the history table.
-   * Copies the report to the report history with a report_history_id.
-   * Copies the calculated data to the history associated with a report_history_id.
-   * Removes the calculated data.
-   * @param tx
-   * @param report - The entire report which should be moved
-   */
-  async movePublishedReportToHistory(tx, report: pay_transparency_report) {
-    if (report.report_status != enumReportStatus.Published) {
-      throw new Error(
-        `Only a ${enumReportStatus.Published} report can be moved to history.`,
-      );
-    }
-
-    // Copy the report into report_history
-    const reportHistory = await tx.report_history.create({
-      data: { ...report },
-    });
-
-    // Get calculated data
-    const calculatedData = await tx.pay_transparency_calculated_data.findMany({
-      where: {
-        report_id: report.report_id,
-      },
-    });
-
-    //update calculated data with report_history_id
-    const updatedData = calculatedData.map((data) => {
-      return {
-        ...data,
-        report_history_id: reportHistory.report_history_id,
-      };
-    });
-
-    // Copy the calculated data into calculated_data_history
-    await tx.calculated_data_history.createMany({
-      data: updatedData,
-    });
-
-    // Delete the calculated data
-    await tx.pay_transparency_calculated_data.deleteMany({
-      where: {
-        report_id: report.report_id,
-      },
-    });
-  },
-
-  /**
    * Re-type the pay_transparency_object returned by Prisma into
    * a Report.  The only difference between these two types is
    * the Report uses YYYY-MM-DD strings for report_start_date and
@@ -1293,10 +1245,8 @@ const reportService = {
               },
             },
           });
-        await reportServicePrivate.movePublishedReportToHistory(
-          tx,
-          existing_published_report,
-        );
+
+        await this.movePublishedReportToHistory(tx, existing_published_report);
 
         // Update existing report
         await tx.pay_transparency_report.update({
@@ -1491,6 +1441,54 @@ const reportService = {
     } else {
       throw new Error(`No such report with reportId=${reportId}`);
     }
+  },
+
+  /**
+   * Copies the report and calculated data to the history table.
+   * Copies the report to the report history with a report_history_id.
+   * Copies the calculated data to the history associated with a report_history_id.
+   * Removes the calculated data.
+   * @param tx
+   * @param report - The entire report which should be moved
+   */
+  async movePublishedReportToHistory(tx, report: pay_transparency_report) {
+    if (report.report_status != enumReportStatus.Published) {
+      throw new Error(
+        `Only a ${enumReportStatus.Published} report can be moved to history.`,
+      );
+    }
+
+    // Copy the report into report_history
+    const reportHistory = await tx.report_history.create({
+      data: { ...report },
+    });
+
+    // Get calculated data
+    const calculatedData = await tx.pay_transparency_calculated_data.findMany({
+      where: {
+        report_id: report.report_id,
+      },
+    });
+
+    //update calculated data with report_history_id
+    const updatedData = calculatedData.map((data) => {
+      return {
+        ...data,
+        report_history_id: reportHistory.report_history_id,
+      };
+    });
+
+    // Copy the calculated data into calculated_data_history
+    await tx.calculated_data_history.createMany({
+      data: updatedData,
+    });
+
+    // Delete the calculated data
+    await tx.pay_transparency_calculated_data.deleteMany({
+      where: {
+        report_id: report.report_id,
+      },
+    });
   },
 };
 

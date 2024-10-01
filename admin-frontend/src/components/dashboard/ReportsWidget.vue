@@ -53,8 +53,12 @@ export default {
  */
 
 import { Report } from '../../types/reports';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import ReportActions from '../reports/ReportActions.vue';
+import {
+  ReportChangeService,
+  ReportChangedEventPayload,
+} from '../../services/reportChangeService';
 
 const props = defineProps<{
   pageSize: string | number | undefined;
@@ -65,6 +69,18 @@ const props = defineProps<{
 const isSearching = ref<boolean>(false);
 const hasSearched = ref<boolean>(false);
 const reports = ref<Report[]>();
+
+onMounted(() => {
+  ReportChangeService.listen(onAnyReportChanged);
+});
+
+onUnmounted(() => {
+  ReportChangeService.unlisten(onAnyReportChanged);
+});
+
+function onAnyReportChanged(payload: ReportChangedEventPayload) {
+  refresh();
+}
 
 /**
  * Refresh the reports

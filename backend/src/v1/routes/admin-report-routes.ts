@@ -7,6 +7,7 @@ import { adminReportService } from '../services/admin-report-service';
 import { PayTransparencyUserError } from '../services/file-upload-service';
 import { reportService } from '../services/report-service';
 import { utils } from '../services/utils-service';
+import { UserInputError } from '../types/errors';
 
 enum Format {
   CSV = 'text/csv',
@@ -155,6 +156,34 @@ router.get(
       return res
         .status(400)
         .json({ error: 'Unsupported format in accept header' });
+    },
+  ),
+);
+
+/**
+ * GET /:report_id/admin-action-history
+ * Gets a list of report snapshots which resulted from state changes
+ * caused by admin users.
+ */
+router.get(
+  '/:report_id/admin-action-history',
+  utils.asyncHandler(
+    async (
+      req: Request<{ report_id: string }, null, null, null>,
+      res: Response,
+    ) => {
+      // params
+      const reportId = req.params.report_id;
+      try {
+        const adminActionHistory =
+          await adminReportService.getReportAdminActionHistory(reportId);
+        return res.status(200).json(adminActionHistory);
+      } catch (err) {
+        if (err instanceof UserInputError) {
+          res.status(404).json({ error: 'Not found' });
+        }
+        res.status(500).json({ error: 'Something went wrong' });
+      }
     },
   ),
 );
