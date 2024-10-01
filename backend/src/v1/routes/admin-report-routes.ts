@@ -161,9 +161,9 @@ router.get(
 );
 
 /**
- * GET /admin-api/v1/reports/:report_id
- *    accepts 'pdf':
- *      Download pdf of the report for the users business
+ * GET /:report_id/admin-action-history
+ * Gets a list of report snapshots which resulted from state changes
+ * caused by admin users.
  */
 router.get(
   '/:report_id/admin-action-history',
