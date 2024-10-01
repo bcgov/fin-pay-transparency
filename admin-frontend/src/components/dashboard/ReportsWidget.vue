@@ -20,7 +20,9 @@
         </template>
 
         <template #item.actions="{ item }">
-          <ReportActions :report="item"></ReportActions>
+          <div class="actions-column">
+            <ReportActions :report="item"></ReportActions>
+          </div>
         </template>
       </v-data-table-server>
     </v-card-text>
@@ -105,5 +107,16 @@ defineExpose({
 <style>
 .ptap-widget thead {
   background-color: #eeeeee;
+}
+</style>
+
+<style>
+tr > td:has(> .date-column) {
+  width: 25%;
+  min-width: 180px;
+}
+tr > td:has(> .actions-column) {
+  width: 20%;
+  min-width: 140px;
 }
 </style>
