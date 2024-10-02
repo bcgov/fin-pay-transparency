@@ -13,7 +13,12 @@ import {
   AnnouncementSortType,
   IAnnouncementSearchResult,
 } from '../types/announcements';
-import { EmployerMetrics } from '../types/employers';
+import {
+  EmployerFilterType,
+  EmployerMetrics,
+  EmployerSortType,
+  IEmployerSearchResult,
+} from '../types/employers';
 import { IReportSearchResult, ReportMetrics } from '../types/reports';
 import { ApiRoutes, POWERBI_RESOURCE } from '../utils/constant';
 import AuthService from './authService';
@@ -543,6 +548,41 @@ export default {
       return data;
     } catch (e) {
       console.log(`Failed to get announcements metrics from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async getEmployers(
+    offset: number = 0,
+    limit: number = 1000,
+    filter: EmployerFilterType | null = null,
+    sort: EmployerSortType | null = null,
+  ): Promise<IEmployerSearchResult> {
+    try {
+      if (!filter) {
+        filter = [];
+      }
+      if (!sort) {
+        sort = [{ field: 'company_name', order: 'asc' }];
+      }
+      const params = {
+        offset: offset,
+        limit: limit,
+        filter: filter,
+        sort: sort,
+      };
+      const resp = await apiAxios.get<IEmployerSearchResult>(
+        ApiRoutes.EMPLOYER,
+        {
+          params: params,
+        },
+      );
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to get announcements from API');
+    } catch (e) {
+      console.log(`Failed to get announcements from API - ${e}`);
       throw e;
     }
   },
