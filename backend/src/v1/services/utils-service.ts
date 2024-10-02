@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
 import { config } from '../../config';
 import { logger as log, logger } from '../../logger';
+import { z } from 'zod';
 
 axios.interceptors.response.use((response) => {
   const headers = response.headers;
@@ -236,6 +237,20 @@ const utils = {
   },
   delay,
   parseJwt,
+
+  /**
+   * This is used in a zod schema to validate json. It converts the json into an object
+   * which can then be validated with another zode schema with the 'pipe' function.
+   * @example z.object({filter: utils.z_json.pipe(EmployerFilterSchema)})
+   */
+  z_json: z.string().transform((str, ctx) => {
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      ctx.addIssue({ code: 'custom', message: 'Invalid JSON' });
+      return z.NEVER;
+    }
+  }),
 };
 
 export { utils };
