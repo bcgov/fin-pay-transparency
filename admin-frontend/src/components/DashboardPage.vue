@@ -1,6 +1,6 @@
 <template>
   <v-row v-if="isDashboardAvailable" :dense="true" class="w-100">
-    <v-col sm="12" md="12" lg="7" xl="6">
+    <v-col sm="12" md="12" lg="7" xl="6" class="mb-4">
       <h4 class="mb-4">
         <v-icon icon="mdi-clipboard-text-outline"></v-icon>
         Recently Submitted Reports
@@ -20,7 +20,7 @@
       </h4>
       <RecentlySubmittedReports ref="recentlySubmittedReports" />
     </v-col>
-    <v-col sm="12" md="12" lg="5" xl="4">
+    <v-col sm="12" md="12" lg="5" xl="4" class="mb-4">
       <h4 class="mb-4">
         <v-icon icon="mdi-chart-box-outline"></v-icon>
         Analytics Overview
@@ -36,7 +36,7 @@
         </v-col>
       </v-row>
     </v-col>
-    <v-col sm="12" md="12" lg="7" xl="6">
+    <v-col sm="12" md="12" lg="7" xl="6" class="mb-4">
       <h4 class="mb-4">
         <v-icon icon="mdi-eye-outline"></v-icon>
         Recently Viewed Reports
@@ -56,7 +56,7 @@
       </h4>
       <RecentlyViewedReports ref="recentlyViewedReports" />
     </v-col>
-    <v-col sm="12" md="12" lg="5" xl="4">
+    <v-col sm="12" md="12" lg="5" xl="4" class="mb-4">
       <h4 class="mb-4 d-flex align-center">
         <v-icon icon="mdi-bullhorn"></v-icon>
         Public Announcements
