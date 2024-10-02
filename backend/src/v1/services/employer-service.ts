@@ -58,7 +58,11 @@ export const employerService = {
 
     const result =
       await prismaReadOnlyReplica.pay_transparency_company.findMany({
-        select: { company_name: true, create_date: true },
+        select: {
+          company_id: true,
+          company_name: true,
+          create_date: true,
+        },
         where: where,
         orderBy: orderBy,
         take: limit,
