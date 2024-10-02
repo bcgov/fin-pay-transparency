@@ -65,6 +65,16 @@ export const employerService = {
         skip: offset,
       });
 
-    return { employers: result, total: result.length };
+    const count = await prismaReadOnlyReplica.pay_transparency_company.count({
+      where,
+    });
+
+    return {
+      employers: result,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+      limit,
+      offset,
+    };
   },
 };

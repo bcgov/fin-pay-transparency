@@ -63,4 +63,7 @@ export type Employer = {
 export interface IEmployerSearchResult {
   employers: Employer[];
   total: number;
+  totalPages: number;
+  offset: number;
+  limit: number;
 }

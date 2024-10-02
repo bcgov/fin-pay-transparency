@@ -31,7 +31,7 @@ import { router as configRouter } from './v1/routes/config-routes';
 import announcementsRoutes from './v1/routes/announcement-routes';
 import analyticRoutes from './v1/routes/analytic-routes';
 import resourcesRoutes from './v1/routes/resources-routes';
-import employerRoutes from './v1/routes/employer-route';
+import employerRoutes from './v1/routes/employer-routes';
 import dashboardMetricsRouter from './v1/routes/dashboard';
 import { adminAuth } from './v1/services/admin-auth-service';
 import { utils } from './v1/services/utils-service';
