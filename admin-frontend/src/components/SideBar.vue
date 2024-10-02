@@ -22,63 +22,74 @@
         alt="B.C. Government Logo"
         class="mb-8"
       />
-      <div class="d-flex justify-center mb-8 title" v-if="isExpanded">
+      <div v-if="isExpanded" class="d-flex justify-center mb-8 text-h6">
         Pay Transparency Admin Portal
       </div>
     </div>
     <v-list-item
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
       link
       to="dashboard"
       title="Dashboard"
       :class="{ active: activeRoute == 'dashboard' }"
-      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <v-icon icon="mdi-home"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
       link
       to="reports"
       title="Search Reports"
       :class="{ active: activeRoute == 'reports' }"
-      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <v-icon icon="mdi-magnify"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
       link
       to="analytics"
       title="Analytics"
       :class="{ active: activeRoute == 'analytics' }"
-      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <v-icon icon="mdi-chart-bar"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      v-if="auth.doesUserHaveRole(ADMIN_ROLE_NAME)"
       link
       to="user-management"
       title="User Management"
       :class="{ active: activeRoute == 'user-management' }"
-      v-if="auth.doesUserHaveRole(ADMIN_ROLE_NAME)"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <v-icon icon="mdi-account-multiple"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
       link
       to="announcements"
       title="Announcements"
       :class="{ active: activeRoute == 'announcements' }"
-      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <v-icon icon="mdi-bullhorn"></v-icon>
+      </template>
+    </v-list-item>
+    <v-list-item
+      v-if="auth.doesUserHaveRole(USER_ROLE_NAME)"
+      link
+      to="employers"
+      title="Employer Search"
+      :class="{ active: activeRoute == 'employers' }"
+    >
+      <template #prepend>
+        <v-icon icon="mdi-office-building"></v-icon>
       </template>
     </v-list-item>
   </v-navigation-drawer>

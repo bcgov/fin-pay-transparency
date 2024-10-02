@@ -43,6 +43,7 @@ export const PAGE_TITLES = Object.freeze({
   EDIT_ANNOUNCEMENT: 'Edit Announcement',
   USER_MANAGEMENT: 'User Management',
   ANALYTICS: 'Analytics',
+  EMPLOYERS: 'Employer Search',
   LOGIN: 'Login',
   TOKEN_EXPIRED: 'Token Expired',
   INVITATION_EXPIRED: 'Invitation Expired',

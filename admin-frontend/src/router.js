@@ -8,6 +8,7 @@ import UserManagementPage from './components/UserManagementPage.vue';
 import InvitationExpired from './components/InvitationExpired.vue';
 import UnauthorizedError from './components/UnauthorizedError.vue';
 import AnalyticsPage from './components/AnalyticsPage.vue';
+import EmployersPage from './components/EmployersPage.vue';
 import ErrorPage from './components/ErrorPage.vue';
 import NotFoundPage from './components/NotFound.vue';
 import LoginError from './components/LoginError.vue';
@@ -115,6 +116,18 @@ const router = createRouter({
       component: AnalyticsPage,
       meta: {
         pageTitle: PAGE_TITLES.ANALYTICS,
+        requiresAuth: true,
+        requiresRole: USER_ROLE_NAME,
+        isTitleVisible: true,
+        breadcrumbs: [baseBreadcrumb],
+      },
+    },
+    {
+      path: '/employers',
+      name: 'employers',
+      component: EmployersPage,
+      meta: {
+        pageTitle: PAGE_TITLES.EMPLOYERS,
         requiresAuth: true,
         requiresRole: USER_ROLE_NAME,
         isTitleVisible: true,
