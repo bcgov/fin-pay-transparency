@@ -65,6 +65,7 @@ export class AnnouncementsPage extends AdminPortalPage {
   }
 
   async search(title: string) {
+    await this.page.waitForTimeout(3000);
     await this.searchInput.fill(title);
     const searchResponse = this.waitForSearch();
     await this.searchButton.click();
