@@ -722,5 +722,12 @@ describe('ApiService', () => {
       const resp: IEmployerSearchResult = await ApiService.getEmployers();
       expect(resp).toEqual(mockBackendResponse);
     });
+    it('throws error', async () => {
+      const mockAxiosResponse = {};
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+      expect(ApiService.getEmployers()).rejects.toThrow();
+    });
   });
 });

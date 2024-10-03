@@ -10,53 +10,26 @@ export enum EmployerKeyEnum {
   Name = 'company_name',
   Year = 'create_year',
 }
-const EmployerNameFilterSchema = z
-  .object({
-    key: z.literal(EmployerKeyEnum.Name),
-    operation: z.literal('like'),
-    value: z.string(),
-  })
-  .required();
 
-const EmployerYearFilterSchema = z
-  .object({
-    key: z.literal(EmployerKeyEnum.Year),
-    operation: z.literal('in'),
-    value: z.array(z.coerce.number()),
-  })
-  .required();
-
-const EmployerFilterSchema = z.array(
-  z.discriminatedUnion('key', [
-    EmployerNameFilterSchema,
-    EmployerYearFilterSchema,
-  ]),
-);
-
-export type EmployerFilterType = z.infer<typeof EmployerFilterSchema>;
+export type EmployerFilterType = (
+  | {
+      key: EmployerKeyEnum.Name;
+      value: string;
+      operation: 'like';
+    }
+  | {
+      key: EmployerKeyEnum.Year;
+      value: number[];
+      operation: 'in';
+    }
+)[];
 
 /* Get Employer - Sort */
 
-const EmployerSortSchema = z.array(
-  z.object({
-    field: z.enum(['create_date', 'company_name']),
-    order: z.enum(['asc', 'desc']),
-  }),
-);
-export type EmployerSortType = z.infer<typeof EmployerSortSchema>;
-
-/* Get Employer - Query */
-
-export const GetEmployerQuerySchema = z
-  .object({
-    filter: EmployerFilterSchema,
-    sort: EmployerSortSchema,
-    limit: z.coerce.number(),
-    offset: z.coerce.number(),
-  })
-  .optional();
-
-export type GetEmployerQueryType = z.infer<typeof GetEmployerQuerySchema>;
+export type EmployerSortType = {
+  field: 'create_date' | 'company_name';
+  order: 'asc' | 'desc';
+}[];
 
 /* Get Employer - Results*/
 
