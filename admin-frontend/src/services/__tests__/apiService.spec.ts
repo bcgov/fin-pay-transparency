@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnnouncementStatus } from '../../types/announcements';
-import { EmployerMetrics } from '../../types/employers';
+import { EmployerMetrics, IEmployerSearchResult } from '../../types/employers';
 import { ReportMetrics } from '../../types/reports';
 import ApiService from '../apiService';
 
@@ -700,6 +700,34 @@ describe('ApiService', () => {
           mockAxiosError,
         );
       });
+    });
+  });
+
+  describe('getEmployers', () => {
+    it('returns search results', async () => {
+      const mockBackendResponse: IEmployerSearchResult = {
+        limit: 100,
+        offset: 0,
+        total: 400,
+        totalPages: 4,
+        employers: [],
+      };
+      const mockAxiosResponse = {
+        data: mockBackendResponse,
+      };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+
+      const resp: IEmployerSearchResult = await ApiService.getEmployers();
+      expect(resp).toEqual(mockBackendResponse);
+    });
+    it('throws error', async () => {
+      const mockAxiosResponse = {};
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(
+        mockAxiosResponse,
+      );
+      expect(ApiService.getEmployers()).rejects.toThrow();
     });
   });
 });
