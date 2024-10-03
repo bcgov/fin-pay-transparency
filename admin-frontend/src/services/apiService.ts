@@ -555,16 +555,10 @@ export default {
   async getEmployers(
     offset: number = 0,
     limit: number = 1000,
-    filter: EmployerFilterType | null = null,
-    sort: EmployerSortType | null = null,
+    filter: EmployerFilterType = [],
+    sort: EmployerSortType = [{ field: 'company_name', order: 'asc' }],
   ): Promise<IEmployerSearchResult> {
     try {
-      if (!filter) {
-        filter = [];
-      }
-      if (!sort) {
-        sort = [{ field: 'company_name', order: 'asc' }];
-      }
       const params = {
         offset: offset,
         limit: limit,

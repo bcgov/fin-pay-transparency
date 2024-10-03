@@ -74,5 +74,16 @@ describe('employer-service', () => {
       });
       expect(mockCountPayTransparencyCompanies).toHaveBeenCalled();
     });
+    it('default to work', async () => {
+      await employerService.getEmployer();
+      expect(mockFindManyPayTransparencyCompanies).toHaveBeenCalledWith({
+        orderBy: [{ company_name: 'asc' }],
+        select: { company_id: true, company_name: true, create_date: true },
+        skip: 0,
+        take: 1000,
+        where: {},
+      });
+      expect(mockCountPayTransparencyCompanies).toHaveBeenCalled();
+    });
   });
 });
