@@ -8,7 +8,6 @@ import {
 } from '../types/employers';
 import { Prisma } from '@prisma/client';
 import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
-import prisma from '../prisma/prisma-client';
 
 export const employerService = {
   /**
