@@ -16,15 +16,23 @@
       </v-text-field>
     </v-col>
 
-    <v-col sm="9" md="4" lg="4" xl="2" class="d-flex flex-column justify-end">
-      <h5 class="mt-4">Calendar year(s)</h5>
+    <v-col sm="7" md="5" lg="3" xl="2" class="d-flex flex-column justify-end">
+      <h5 class="mt-4">
+        Calendar Year(s)
+        <ToolTip
+          :text="'Select a calendar year to view employers by the first date they logged in.'"
+          max-width="300px"
+        ></ToolTip>
+      </h5>
       <v-select
         v-model="selectedYears"
         :items="yearOptions"
         :persistent-placeholder="true"
         placeholder="All"
+        label="Calendar Year(s)"
+        :single-line="true"
         multiple
-        class="flex-shrink-1 flex-grow-0"
+        class="calendar-year flex-shrink-1 flex-grow-0"
         variant="solo"
         density="compact"
       >
@@ -51,24 +59,141 @@
         </template>
       </v-select>
     </v-col>
-    <v-col sm="3" md="1" lg="1" xl="1" class="d-flex flex-column justify-end">
-      <v-btn class="btn-primary" @click="search()"> Search </v-btn>
+    <v-col sm="4" md="12" lg="3" xl="2" class="d-flex flex-column justify-end">
+      <!-- on screen size 'md', right-align the buttons, otherwise left-align them -->
+      <div
+        class="d-flex"
+        :class="
+          displayBreakpoint.name.value.valueOf() == 'md'
+            ? 'justify-end'
+            : 'justify-start'
+        "
+      >
+        <v-btn
+          class="btn-primary me-2"
+          :loading="isSearching"
+          :disabled="isSearching"
+          @click="search()"
+        >
+          Search
+        </v-btn>
+        <v-btn class="btn-secondary" :disabled="!isDirty" @click="reset()">
+          Reset
+        </v-btn>
+      </div>
+    </v-col>
+  </v-row>
+
+  <v-row v-if="hasSearched" dense class="w-100">
+    <v-col>
+      <v-data-table-server
+        v-model:items-per-page="pageSize"
+        :headers="headers"
+        :items="searchResults"
+        :items-length="totalNum"
+        :loading="isSearching"
+        :items-per-page-options="pageSizeOptions"
+        search=""
+        :no-data-text="
+          hasSearched ? 'No reports matched the search criteria' : ''
+        "
+        @update:options="updateSearch()"
+      >
+        <template #item.create_date="{ item }">
+          {{ formatDate(item.create_date) }}
+        </template>
+      </v-data-table-server>
     </v-col>
   </v-row>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { formatDate } from '../utils/date';
+import { Employer } from '../types/employers';
+import { useDisplay } from 'vuetify';
+import { NotificationService } from '../services/notificationService';
+import ToolTip from './ToolTip.vue';
 
+const displayBreakpoint = useDisplay();
+const firstSearchableYear = 2024;
+const currentYear = new Date().getFullYear();
+//make a list of years from 'firstSearchableYear' to 'currentYear'
+const yearOptions = new Array(currentYear - firstSearchableYear + 1)
+  .fill(0)
+  .map((d, i) => i + firstSearchableYear);
 const searchText = ref<string | undefined>(undefined);
 const selectedYears = ref<number[]>([]);
-const yearOptions = [2024, 2023];
 const maxSelectedYearShown = 2;
 
-function search() {}
+const pageSizeOptions = [1, 3, 10, 25, 50];
+const pageSize = ref<number>(pageSizeOptions[1]);
+const searchResults = ref<Employer[] | undefined>(undefined);
+const totalNum = ref<number>(0);
+const isSearching = ref<boolean>(false);
+const hasSearched = ref<boolean>(false);
+
+const isDirty = computed(() => {
+  return hasSearched.value || searchText.value || selectedYears.value?.length;
+});
+
+const headers = ref<any>([
+  {
+    title: 'Company Name',
+    align: 'start',
+    sortable: true,
+    key: 'company_name',
+  },
+  {
+    title: 'Date of First Log On',
+    align: 'start',
+    sortable: true,
+    key: 'create_date',
+  },
+]);
+
+function reset() {
+  searchText.value = undefined;
+  selectedYears.value = [];
+  pageSize.value = pageSizeOptions[1];
+  searchResults.value = undefined;
+  totalNum.value = 0;
+  hasSearched.value = false;
+}
+
+function search() {
+  isSearching.value = true;
+  try {
+    const all = [
+      { company_name: 'bla', create_date: '2024-09-10T18:04:53.781Z' },
+      { company_name: 'asdf', create_date: '2024-09-10T18:04:53.781Z' },
+      { company_name: '24dsfg', create_date: '2024-09-10T18:04:53.781Z' },
+      { company_name: 'tyhdfsg', create_date: '2024-09-10T18:04:53.781Z' },
+      { company_name: '24jyu', create_date: '2024-09-10T18:04:53.781Z' },
+    ];
+    searchResults.value = all.slice(0, 3);
+    totalNum.value = all.length;
+    throw new Error('');
+  } catch (e) {
+    NotificationService.pushNotificationError('Unable to search employers');
+  } finally {
+    hasSearched.value = true;
+    isSearching.value = false;
+  }
+}
+
+function updateSearch() {
+  if (!hasSearched.value) {
+    return;
+  }
+  search();
+}
 </script>
 <style>
 .v-select > .v-input__details {
   display: none;
+}
+.v-input.calendar-year label {
+  background-color: red;
 }
 </style>
