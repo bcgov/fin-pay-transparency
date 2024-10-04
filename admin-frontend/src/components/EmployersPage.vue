@@ -97,7 +97,7 @@
         :no-data-text="
           hasSearched ? 'No reports matched the search criteria' : ''
         "
-        @update:options="updateSearch()"
+        @update:options="updateSearch"
       >
         <template #item.create_date="{ item }">
           {{ formatDate(item.create_date) }}
@@ -110,10 +110,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { formatDate } from '../utils/date';
-import { Employer } from '../types/employers';
+import {
+  Employer,
+  EmployerFilterType,
+  EmployerSortType,
+  EmployerKeyEnum,
+} from '../types/employers';
 import { useDisplay } from 'vuetify';
 import { NotificationService } from '../services/notificationService';
 import ToolTip from './ToolTip.vue';
+import ApiService from '../services/apiService';
 
 const displayBreakpoint = useDisplay();
 const firstSearchableYear = 2024;
@@ -161,19 +167,42 @@ function reset() {
   hasSearched.value = false;
 }
 
-function search() {
+function buildSearchFilters(): EmployerFilterType {
+  const filters: EmployerFilterType = [];
+  if (searchText.value) {
+    filters.push({
+      key: EmployerKeyEnum.Name,
+      value: searchText.value,
+      operation: 'like',
+    });
+  }
+  if (selectedYears.value?.length) {
+    filters.push({
+      key: EmployerKeyEnum.Year,
+      value: selectedYears.value,
+      operation: 'in',
+    });
+  }
+  return filters;
+}
+
+function buildSort(sortOptions): EmployerSortType {
+  const sort: EmployerSortType = sortOptions?.map((d) => {
+    return { field: d.key, order: d.order };
+  });
+  return sort;
+}
+
+async function search(options) {
   isSearching.value = true;
   try {
-    const all = [
-      { company_name: 'bla', create_date: '2024-09-10T18:04:53.781Z' },
-      { company_name: 'asdf', create_date: '2024-09-10T18:04:53.781Z' },
-      { company_name: '24dsfg', create_date: '2024-09-10T18:04:53.781Z' },
-      { company_name: 'tyhdfsg', create_date: '2024-09-10T18:04:53.781Z' },
-      { company_name: '24jyu', create_date: '2024-09-10T18:04:53.781Z' },
-    ];
-    searchResults.value = all.slice(0, 3);
-    totalNum.value = all.length;
-    throw new Error('');
+    const offset = 0;
+    const limit = pageSize.value;
+    const filter: EmployerFilterType = buildSearchFilters();
+    const sort: EmployerSortType = buildSort(options?.sortBy);
+    const resp = await ApiService.getEmployers(offset, limit, filter, sort);
+    searchResults.value = resp?.employers;
+    totalNum.value = resp?.employers.length;
   } catch (e) {
     NotificationService.pushNotificationError('Unable to search employers');
   } finally {
@@ -182,11 +211,11 @@ function search() {
   }
 }
 
-function updateSearch() {
+function updateSearch(options: any) {
   if (!hasSearched.value) {
     return;
   }
-  search();
+  search(options);
 }
 </script>
 <style>

@@ -574,9 +574,9 @@ export default {
       if (resp?.data) {
         return resp.data;
       }
-      throw new Error('Unable to get announcements from API');
+      throw new Error('Unable to get employers from API');
     } catch (e) {
-      console.log(`Failed to get announcements from API - ${e}`);
+      console.log(`Failed to get employers from API - ${e}`);
       throw e;
     }
   },
