@@ -132,7 +132,7 @@ const searchText = ref<string | undefined>(undefined);
 const selectedYears = ref<number[]>([]);
 const maxSelectedYearShown = 2;
 
-const pageSizeOptions = [1, 3, 10, 25, 50];
+const pageSizeOptions = [10, 25, 50];
 const pageSize = ref<number>(pageSizeOptions[1]);
 const searchResults = ref<Employer[] | undefined>(undefined);
 const totalNum = ref<number>(0);
@@ -193,17 +193,18 @@ function buildSort(sortOptions): EmployerSortType {
   return sort;
 }
 
-async function search(options) {
+async function search(options?) {
   isSearching.value = true;
   try {
-    const offset = 0;
+    const offset = options ? (options.page - 1) * options.itemsPerPage : 0;
     const limit = pageSize.value;
     const filter: EmployerFilterType = buildSearchFilters();
     const sort: EmployerSortType = buildSort(options?.sortBy);
     const resp = await ApiService.getEmployers(offset, limit, filter, sort);
     searchResults.value = resp?.employers;
-    totalNum.value = resp?.employers.length;
+    totalNum.value = resp?.total;
   } catch (e) {
+    console.log(e);
     NotificationService.pushNotificationError('Unable to search employers');
   } finally {
     hasSearched.value = true;
