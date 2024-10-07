@@ -44,7 +44,7 @@ export const employerService = {
         }
         where['OR'] = dates;
       } else if (q.key == EmployerKeyEnum.Name) {
-        where['company_name'] = { contains: q.value };
+        where['company_name'] = { contains: q.value, mode: 'insensitive' };
       }
     }
 

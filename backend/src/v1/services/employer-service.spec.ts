@@ -69,7 +69,7 @@ describe('employer-service', () => {
               },
             },
           ],
-          company_name: { contains: 'bc' },
+          company_name: { contains: 'bc', mode: 'insensitive' },
         },
       });
       expect(mockCountPayTransparencyCompanies).toHaveBeenCalled();
