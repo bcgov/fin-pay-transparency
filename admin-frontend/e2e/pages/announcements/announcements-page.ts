@@ -1,8 +1,6 @@
 import { expect, Locator, Page } from 'playwright/test';
 import { PagePaths } from '../../utils';
 import { AdminPortalPage } from '../admin-portal-page';
-import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
 import { AnnouncementStatus } from '../../types';
 
 export class AnnouncementsPage extends AdminPortalPage {
@@ -202,16 +200,5 @@ export class AnnouncementsPage extends AdminPortalPage {
     return getAnnouncementResponse;
   }
 
-  private formatDate(
-    inDateStr: string,
-    inFormatter = DateTimeFormatter.ISO_DATE_TIME,
-    outFormatter = DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(
-      Locale.CANADA,
-    ),
-  ) {
-    const date = ZonedDateTime.parse(inDateStr, inFormatter);
-    const localTz = ZoneId.systemDefault();
-    const dateInLocalTz = date.withZoneSameInstant(localTz);
-    return outFormatter.format(dateInLocalTz);
-  }
+  
 }
