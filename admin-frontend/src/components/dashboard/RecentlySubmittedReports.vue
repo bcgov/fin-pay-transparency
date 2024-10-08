@@ -51,7 +51,7 @@ const headers = [
     key: 'update_date',
   },
   {
-    title: 'Company Name',
+    title: 'Employer Name',
     align: 'start',
     sortable: true,
     key: 'pay_transparency_company.company_name',

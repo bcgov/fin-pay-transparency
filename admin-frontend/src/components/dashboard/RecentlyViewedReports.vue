@@ -49,7 +49,7 @@ const headers = [
     key: 'admin_last_access_date',
   },
   {
-    title: 'Company Name',
+    title: 'Employer Name',
     align: 'start',
     sortable: true,
     key: 'pay_transparency_company.company_name',

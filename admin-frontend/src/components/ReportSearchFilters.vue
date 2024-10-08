@@ -6,7 +6,7 @@
           v-model="searchText"
           prepend-inner-icon="mdi-magnify"
           density="compact"
-          label="Search by company name"
+          label="Search by employer name"
           variant="solo"
           hide-details
           :single-line="true"

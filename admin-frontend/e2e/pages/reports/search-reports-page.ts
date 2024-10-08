@@ -23,7 +23,7 @@ export class SearchReportsPage extends AdminPortalPage {
 
   async setup(): Promise<void> {
     super.setup();
-    this.searchInput = await this.page.getByLabel('Search by company name');
+    this.searchInput = await this.page.getByLabel('Search by employer name');
     this.searchButton = await this.page.getByRole('button', { name: 'Search' });
     this.filterButton = await this.page.getByRole('button', {
       name: 'Filter',

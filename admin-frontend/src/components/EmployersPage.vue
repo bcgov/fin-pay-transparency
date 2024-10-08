@@ -145,7 +145,7 @@ const isDirty = computed(() => {
 
 const headers = ref<any>([
   {
-    title: 'Company Name',
+    title: 'Employer Name',
     align: 'start',
     sortable: true,
     key: 'company_name',
