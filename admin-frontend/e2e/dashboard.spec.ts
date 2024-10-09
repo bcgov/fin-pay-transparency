@@ -11,4 +11,9 @@ test.describe.serial('dashboard', () => {
     await dashboard.verifySideBarLinks();
     await dashboard.verifySideBarExpandCollapse();
   });
+
+  test('Go to edit announcements', async ({ page }) => {
+    const dashboard = await DashboardPage.visit(page);
+    await dashboard.clickGotoAnnouncementsAndVerify();
+  });
 });
