@@ -1,7 +1,7 @@
 <template>
   <v-row dense class="mt-0 w-100 mb-4">
     <v-col sm="12" md="7" lg="6" xl="4" class="d-flex flex-column justify-end">
-      <h3 class="mb-2">Search employer</h3>
+      <h3 class="mb-2">Search Employer</h3>
       <v-text-field
         v-model="searchText"
         prepend-inner-icon="mdi-magnify"
@@ -151,7 +151,7 @@ const headers = ref<any>([
     key: 'company_name',
   },
   {
-    title: 'Date of First Log On',
+    title: 'Date of First Log In',
     align: 'start',
     sortable: true,
     key: 'create_date',
