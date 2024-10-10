@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
-import { UserManagementPage } from './pages/user-management/user-management-page';
 import { faker } from '@faker-js/faker';
 import { PagePaths } from './utils';
+import { UserManagementPage } from './pages/user-management/user-management-page';
 
 const user = {
   name: faker.person.fullName(),

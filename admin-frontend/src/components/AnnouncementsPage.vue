@@ -1,4 +1,6 @@
 <template>
+  <h4>Search Announcements</h4>
+
   <v-row dense class="mt-0 w-100 mb-4">
     <v-col class="py-0">
       <AnnouncementSearchFilters />
@@ -150,7 +152,7 @@ import { useConfigStore } from '../store/modules/config';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
-storeToRefs(announcementSearchStore);
+  storeToRefs(announcementSearchStore);
 
 const configStore = useConfigStore();
 const { config } = storeToRefs(configStore);

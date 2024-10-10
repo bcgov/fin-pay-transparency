@@ -4,7 +4,7 @@ import { AddAnnouncementPage } from './pages/announcements/add-announcement-page
 import { EditAnnouncementPage } from './pages/announcements/edit-announcement-page';
 import { AnnouncementStatus } from './types';
 
-test.describe.skip('Announcements', () => {
+test.describe('Announcements', () => {
   test.describe('add announcement', () => {
     test('save as draft', async ({ page }) => {
       const announcementsPage = await AnnouncementsPage.visit(page);

@@ -8,6 +8,7 @@ export const PagePaths = {
   ANNOUNCEMENTS: `${baseURL}/announcements`,
   ADD_ANNOUNCEMENTS: `${baseURL}/add-announcement`,
   EDIT_ANNOUNCEMENTS: `${baseURL}/edit-announcement`,
+  EMPLOYERS: `${baseURL}/employers`,
   USER_MANAGEMENT: `${baseURL}/user-management`,
   ANALYTICS: `${baseURL}/analytics`,
 };
