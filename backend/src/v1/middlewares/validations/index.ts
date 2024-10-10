@@ -7,7 +7,14 @@ export type UseValidateOptions = {
   schema: ZodSchema;
 };
 
-export const useValidate = ({ mode, schema, }: UseValidateOptions) => {
+/**
+ * This middleware (for expressJS router) will use zod to validate the user inputes.
+ * If there are any errors during validation, this function will return the error back to the requestor.
+ * useValidate will update the query/body property of the Request object with the validated object,
+ * which means that you don't have to parse strings into numbers as long as the zod object knows it's supposed
+ * to be a number, and there won't be any extra unknown properties.
+ */
+export const useValidate = ({ mode, schema }: UseValidateOptions) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req[mode];

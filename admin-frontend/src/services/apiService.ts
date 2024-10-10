@@ -13,7 +13,12 @@ import {
   AnnouncementSortType,
   IAnnouncementSearchResult,
 } from '../types/announcements';
-import { EmployerMetrics } from '../types/employers';
+import {
+  EmployerFilterType,
+  EmployerMetrics,
+  EmployerSortType,
+  IEmployerSearchResult,
+} from '../types/employers';
 import { IReportSearchResult, ReportMetrics } from '../types/reports';
 import { ApiRoutes, POWERBI_RESOURCE } from '../utils/constant';
 import AuthService from './authService';
@@ -260,6 +265,23 @@ export default {
       throw new Error('Unable to get reports from API');
     } catch (e) {
       console.log(`Failed to get reports from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async getReportAdminActionHistory(reportId: string): Promise<any> {
+    try {
+      const resp = await apiAxios.get(
+        `${ApiRoutes.REPORTS}/${reportId}/admin-action-history`,
+      );
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error(
+        `Unable to fetch admin action history for report ${reportId}`,
+      );
+    } catch (e) {
+      console.log(`Failed to get admin action history for report - ${e}`);
       throw e;
     }
   },
@@ -526,6 +548,35 @@ export default {
       return data;
     } catch (e) {
       console.log(`Failed to get announcements metrics from API - ${e}`);
+      throw e;
+    }
+  },
+
+  async getEmployers(
+    offset: number = 0,
+    limit: number = 1000,
+    filter: EmployerFilterType = [],
+    sort: EmployerSortType = [{ field: 'company_name', order: 'asc' }],
+  ): Promise<IEmployerSearchResult> {
+    try {
+      const params = {
+        offset: offset,
+        limit: limit,
+        filter: filter,
+        sort: sort,
+      };
+      const resp = await apiAxios.get<IEmployerSearchResult>(
+        ApiRoutes.EMPLOYER,
+        {
+          params: params,
+        },
+      );
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unable to get employers from API');
+    } catch (e) {
+      console.log(`Failed to get employers from API - ${e}`);
       throw e;
     }
   },

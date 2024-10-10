@@ -6,7 +6,7 @@
           v-model="searchText"
           prepend-inner-icon="mdi-magnify"
           density="compact"
-          label="Search by company name"
+          label="Search by employer name"
           variant="solo"
           hide-details
           :single-line="true"
@@ -118,13 +118,19 @@
       <v-col sm="4" md="2" lg="2" xl="1" class="d-flex flex-column">
         <h5>Year</h5>
         <v-select
+          id="report-year"
           v-model="selectedReportYear"
           :items="reportYearOptions"
           variant="solo"
           density="compact"
+          aria-label="Report Year"
         >
           <template #item="{ props, item }">
-            <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+            <v-list-item
+              :aria-label="'Year: ' + item.raw"
+              v-bind="props"
+              :title="item.raw ? item.raw : 'All'"
+            >
               <template #append="{ isActive }">
                 <v-icon v-if="isActive" icon="mdi-check"></v-icon>
               </template>
@@ -140,10 +146,12 @@
       <v-col sm="4" md="3" lg="2" xl="1" class="d-flex flex-column">
         <h5>Locked/Unlocked</h5>
         <v-select
+          id="unlocked-status"
           v-model="selectedLockedValues"
           :items="lockedOptions"
           variant="solo"
           density="compact"
+          aria-label="Locked/Unlocked"
         >
           <template #item="{ props, item }">
             <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">

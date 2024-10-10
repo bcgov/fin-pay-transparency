@@ -1,5 +1,5 @@
 <template>
-  <v-tooltip :id="id" :text="text ? text : ''" :max-width="maxWidth">
+  <v-tooltip v-if="text" :id="id" :text="text" :max-width="maxWidth">
     <template #activator="{ props }">
       <v-icon
         v-bind="props"
@@ -9,7 +9,7 @@
         class="ml-1"
         tabindex="0"
         role="tooltip"
-        :aria-labeledby="ariaLabel"
+        :aria-labeledby="ariaLabel ? ariaLabel : text"
       />
     </template>
   </v-tooltip>
@@ -24,6 +24,7 @@
  *         max-width="300px">
  * </ToolTip>
  */
+
 defineProps<{
   id?: string | undefined;
   text?: string | undefined;

@@ -20,7 +20,9 @@
         </template>
 
         <template #item.actions="{ item }">
-          <ReportActions :report="item"></ReportActions>
+          <div class="actions-column">
+            <ReportActions :report="item"></ReportActions>
+          </div>
         </template>
       </v-data-table-server>
     </v-card-text>
@@ -53,8 +55,12 @@ export default {
  */
 
 import { Report } from '../../types/reports';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import ReportActions from '../reports/ReportActions.vue';
+import {
+  ReportChangeService,
+  ReportChangedEventPayload,
+} from '../../services/reportChangeService';
 
 const props = defineProps<{
   pageSize: string | number | undefined;
@@ -65,6 +71,18 @@ const props = defineProps<{
 const isSearching = ref<boolean>(false);
 const hasSearched = ref<boolean>(false);
 const reports = ref<Report[]>();
+
+onMounted(() => {
+  ReportChangeService.listen(onAnyReportChanged);
+});
+
+onUnmounted(() => {
+  ReportChangeService.unlisten(onAnyReportChanged);
+});
+
+function onAnyReportChanged(payload: ReportChangedEventPayload) {
+  refresh();
+}
 
 /**
  * Refresh the reports
@@ -89,5 +107,16 @@ defineExpose({
 <style>
 .ptap-widget thead {
   background-color: #eeeeee;
+}
+</style>
+
+<style>
+tr > td:has(> .date-column) {
+  width: 25%;
+  min-width: 180px;
+}
+tr > td:has(> .actions-column) {
+  width: 20%;
+  min-width: 140px;
 }
 </style>

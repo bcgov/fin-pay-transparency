@@ -337,7 +337,6 @@ input::-ms-input-placeholder {
 }
 
 .ptap-widget {
-  height: 1px;
-  min-height: 300px;
+  min-height: 315px;
 }
 </style>

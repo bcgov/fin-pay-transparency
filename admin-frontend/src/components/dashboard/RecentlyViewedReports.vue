@@ -6,7 +6,14 @@
     :get-reports="getRecentlyViewedReports"
   >
     <template #item.admin_last_access_date="{ item }">
-      {{ formatIsoDateTimeAsLocalDate(item.admin_last_access_date) }}
+      <span class="date-column">
+        <div>
+          {{ formatIsoDateTimeAsLocalDate(item.admin_last_access_date) }}
+        </div>
+        <small class="text-grey-darken-3">{{
+          formatIsoDateTimeAsLocalTime(item.admin_last_access_date)
+        }}</small>
+      </span>
     </template>
   </ReportsWidget>
 </template>
@@ -25,7 +32,10 @@ import {
 } from '../../types/reports';
 import ReportsWidget from './ReportsWidget.vue';
 import ApiService from '../../services/apiService';
-import { formatIsoDateTimeAsLocalDate } from '../../utils/date';
+import {
+  formatIsoDateTimeAsLocalDate,
+  formatIsoDateTimeAsLocalTime,
+} from '../../utils/date';
 import { ref } from 'vue';
 
 const pageSize = 5;
@@ -39,14 +49,14 @@ const headers = [
     key: 'admin_last_access_date',
   },
   {
-    title: 'Company Name',
+    title: 'Employer Name',
     align: 'start',
     sortable: true,
     key: 'pay_transparency_company.company_name',
   },
   {
     title: 'Actions',
-    align: 'start',
+    align: 'center',
     sortable: false,
     key: 'actions',
   },

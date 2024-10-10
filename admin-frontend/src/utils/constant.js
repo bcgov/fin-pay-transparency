@@ -33,6 +33,7 @@ export const ApiRoutes = Object.freeze({
   RESOURCES: `${baseRoot}/v1/resources`,
   REPORT_METRICS: `${baseRoot}/v1/dashboard/reports-metrics`,
   EMPLOYER_METRICS: `${baseRoot}/v1/dashboard/employer-metrics`,
+  EMPLOYER: `${baseRoot}/v1/employers`,
 });
 
 export const PAGE_TITLES = Object.freeze({
@@ -43,6 +44,7 @@ export const PAGE_TITLES = Object.freeze({
   EDIT_ANNOUNCEMENT: 'Edit Announcement',
   USER_MANAGEMENT: 'User Management',
   ANALYTICS: 'Analytics',
+  EMPLOYERS: 'Employer Search',
   LOGIN: 'Login',
   TOKEN_EXPIRED: 'Token Expired',
   INVITATION_EXPIRED: 'Invitation Expired',
