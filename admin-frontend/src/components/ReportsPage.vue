@@ -122,7 +122,7 @@ const headers = ref<any>([
     key: ReportKeys.CREATE_DATE,
   },
   {
-    title: 'Company name',
+    title: 'Employer name',
     align: 'start',
     sortable: true,
     key: ReportKeys.COMPANY_NAME,
