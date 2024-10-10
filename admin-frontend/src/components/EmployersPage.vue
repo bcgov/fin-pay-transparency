@@ -30,6 +30,7 @@
         :persistent-placeholder="true"
         placeholder="All"
         label="Calendar Year(s)"
+        aria-label="Calendar Year(s)"
         :single-line="true"
         multiple
         class="calendar-year flex-shrink-1 flex-grow-0"
