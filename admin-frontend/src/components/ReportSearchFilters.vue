@@ -48,7 +48,7 @@
     <v-row dense>
       <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>
-          Submission date range
+          Submission Date Range
           <ToolTip
             id="submission-date-range-tooltip"
             text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
@@ -77,7 +77,7 @@
       </v-col>
 
       <v-col sm="6" md="6" lg="4" xl="2" class="d-flex flex-column">
-        <h5>NAICS code</h5>
+        <h5>NAICS Code</h5>
         <v-select
           v-model="selectedNaicsCodes"
           :items="naicsCodes"
@@ -168,7 +168,7 @@
       </v-col>
 
       <v-col sm="8" md="7" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Employee count</h5>
+        <h5>Employee Count</h5>
         <v-select
           v-model="selectedEmployeeCount"
           :items="employeeCountRanges"

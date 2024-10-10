@@ -105,7 +105,7 @@
               </v-textarea>
             </v-col>
             <v-col cols="12" md="12" sm="12">
-              <h5 class="mb-2">Time settings</h5>
+              <h5 class="mb-2">Time Settings</h5>
               <v-row dense>
                 <v-col cols="12">
                   <span

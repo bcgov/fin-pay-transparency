@@ -31,7 +31,7 @@
           :loading="isDownloadingCsv"
           @click="exportResults()"
         >
-          Export results (CSV)
+          Export Results (CSV)
         </v-btn>
       </v-col>
     </v-row>
@@ -116,13 +116,13 @@ function onAnyReportChanged(payload: ReportChangedEventPayload) {
 
 const headers = ref<any>([
   {
-    title: 'Submission date',
+    title: 'Submission Date',
     align: 'start',
     sortable: true,
     key: ReportKeys.CREATE_DATE,
   },
   {
-    title: 'Employer name',
+    title: 'Employer Name',
     align: 'start',
     sortable: true,
     key: ReportKeys.COMPANY_NAME,
@@ -134,7 +134,7 @@ const headers = ref<any>([
     key: ReportKeys.NAICS_CODE,
   },
   {
-    title: 'Employee count',
+    title: 'Employee Count',
     align: 'start',
     sortable: true,
     key: ReportKeys.EMPLOYEE_COUNT,

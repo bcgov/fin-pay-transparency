@@ -52,7 +52,7 @@
     <v-row dense>
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>
-          Active On date range
+          Active On Date Range
 
           <FilterDateRangeTooltip id="active-on-tooltip" />
         </h5>
@@ -75,7 +75,7 @@
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>
-          Expiry date range <FilterDateRangeTooltip id="expires-on-tooltip" />
+          Expiry Date Range <FilterDateRangeTooltip id="expires-on-tooltip" />
         </h5>
         <VueDatePicker
           v-model="expiryDateRange"
