@@ -24,7 +24,7 @@ export const useUpload = (options: Options) => {
     logger.log('info', 'Uploading file to S3');
 
     const { path, name, type, size } = file;
-    const lastDotIndex = name.lastIndexOf('.');
+    const lastDotIndex = name?.lastIndexOf('.') ?? -1;
     const ext = lastDotIndex !== -1 ? name.substring(lastDotIndex + 1) : '';
 
     if (!path.startsWith(os.tmpdir())) {
