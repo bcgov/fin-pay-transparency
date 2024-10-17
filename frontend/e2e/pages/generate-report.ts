@@ -55,7 +55,7 @@ export class GenerateReportPage extends PTPage {
   public endYearInput: Locator;
   public commentsInput: Locator;
   public dataConstraintsInput: Locator;
-  public submitButton: Locator;
+  public generateDraftButton: Locator;
 
   async setup() {
     await super.setup();
@@ -72,8 +72,8 @@ export class GenerateReportPage extends PTPage {
 
     this.commentsInput = await this.instance.locator('#comments');
     this.dataConstraintsInput = await this.instance.locator('#dataConstraints');
-    this.submitButton = await this.instance.getByRole('button', {
-      name: 'Submit',
+    this.generateDraftButton = await this.instance.getByRole('button', {
+      name: 'Generate Draft Report',
     });
   }
 
@@ -207,19 +207,19 @@ export class GenerateReportPage extends PTPage {
   }
 
   async submitForm(responseChecker?: (res: Response) => boolean) {
-    await this.submitButton.scrollIntoViewIfNeeded();
+    await this.generateDraftButton.scrollIntoViewIfNeeded();
     if (responseChecker) {
       const { report } = await waitForApiResponses(
         {
           report: this.instance.waitForResponse(responseChecker),
         },
         async () => {
-          await this.submitButton.click();
+          await this.generateDraftButton.click();
         },
       );
       return report;
     } else {
-      await this.submitButton.click();
+      await this.generateDraftButton.click();
     }
   }
 
