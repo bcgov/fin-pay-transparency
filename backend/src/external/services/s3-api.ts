@@ -1,7 +1,11 @@
 import {
   GetObjectCommand,
   ListObjectsCommand,
+  DeleteObjectsCommand,
   S3Client,
+  type ObjectIdentifier,
+  type _Object,
+  type _Error,
 } from '@aws-sdk/client-s3';
 import prisma from '../../v1/prisma/prisma-client';
 import os from 'os';
@@ -13,15 +17,22 @@ import {
   S3_OPTIONS,
 } from '../../constants/admin';
 
+/*  */
+
+const getFileList = async (s3Client: S3Client, key: string) => {
+  const response = await s3Client.send(
+    new ListObjectsCommand({
+      Bucket: S3_BUCKET,
+      Prefix: `${APP_ANNOUNCEMENTS_FOLDER}/${key}`,
+    }),
+  );
+  return response.Contents ?? [];
+};
+
 const getMostRecentFile = async (s3Client: S3Client, key: string) => {
   try {
-    const response = await s3Client.send(
-      new ListObjectsCommand({
-        Bucket: S3_BUCKET,
-        Prefix: `${APP_ANNOUNCEMENTS_FOLDER}/${key}`,
-      }),
-    );
-    const sortedData: any = response.Contents.sort((a: any, b: any) => {
+    const fileList = await getFileList(s3Client, key);
+    const sortedData = fileList.sort((a, b) => {
       const modifiedDateA: any = new Date(a.LastModified);
       const modifiedDateB: any = new Date(b.LastModified);
       return modifiedDateB - modifiedDateA;
@@ -102,3 +113,68 @@ export const downloadFile = async (res, fileId: string) => {
     res.status(400).json({ message: 'Invalid request', error });
   }
 };
+
+/**
+ * Delete multiple files from the object store that follow the 'keep-history-strategy'
+ * @param ids
+ * @returns A Set<string> of id's that are no longer in the object store
+ */
+export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
+  const s3Client = new S3Client(S3_OPTIONS);
+  try {
+    // Get all the files stored under each id
+    const filesPerId = await Promise.all(
+      ids.map((id) => getFileList(s3Client, id)), //TODO: try deleting the folders instead of each individual file. https://stackoverflow.com/a/73367823
+    );
+    const idsWithNoFiles = ids.filter(
+      (id, index) => filesPerId[index].length === 0,
+    );
+    const files = filesPerId.flat();
+
+    // Group into 1000 items because DeleteObjectsCommand can only do 1000 at a time
+    const groupedFiles: _Object[][] = [];
+    for (let i = 0; i < files.length; i += 1000)
+      groupedFiles.push(files.slice(i, i + 1000));
+
+    // delete all files in object store
+    const responsePerGroup = await Promise.all(
+      groupedFiles.map((group) =>
+        s3Client.send(
+          new DeleteObjectsCommand({
+            Bucket: S3_BUCKET,
+            Delete: { Objects: group as ObjectIdentifier[] },
+          }),
+        ),
+      ),
+    );
+
+    // report any errors
+    responsePerGroup.forEach((r) =>
+      r.Errors.forEach((e) => {
+        if (e.Code == 'NoSuchKey') idsWithNoFiles.push(getIdFromKey(e.Key));
+        logger.error(e.Message);
+      }),
+    );
+
+    // Return the id of all successful deleted
+    const successfulIds = responsePerGroup.flatMap((r) =>
+      r.Deleted.reduce((acc, e) => {
+        acc.push(getIdFromKey(e.Key));
+        return acc;
+      }, [] as string[]),
+    );
+
+    return new Set(idsWithNoFiles.concat(successfulIds)); //remove duplicates
+  } catch (error) {
+    logger.error(error);
+    return new Set();
+  }
+};
+
+/**
+ * Given a string in this format, return the 'id' portion of the string
+ * ${APP_ANNOUNCEMENTS_FOLDER}/${id}/${file}
+ */
+function getIdFromKey(key: string): string {
+  return key.replace(`${APP_ANNOUNCEMENTS_FOLDER}/`, '').split('/')[0];
+}

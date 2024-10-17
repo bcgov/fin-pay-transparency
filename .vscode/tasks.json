@@ -10,6 +10,13 @@
       "problemMatcher": []
     },
     {
+      // This creates a new temporary container in podman to run clamav.
+      "label": "Launch ClamAV",
+      "type": "shell",
+      "command": "podman run --rm -d -p 3310:3310 clamav/clamav",
+      "problemMatcher": []
+    },
+    {
       // After making changes to the database via Flyway, Run this task to
       // bring all those changes into Prisma to be available in the code.
       "label": "Prisma 'pull' schema from database",
@@ -18,7 +25,9 @@
       "options": {
         "cwd": "${workspaceFolder}/backend"
       },
-      "dependsOn": ["Launch and migrate database"],
+      "dependsOn": [
+        "Launch and migrate database"
+      ],
       "problemMatcher": []
     },
     {
