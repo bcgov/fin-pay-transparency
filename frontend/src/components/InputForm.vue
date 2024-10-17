@@ -596,17 +596,24 @@
             <v-row class="mt-6">
               <v-col class="d-flex justify-center">
                 <v-btn id="submitButton" class="btn-primary" type="submit">
-                  Submit
+                  Generate Draft Report
                 </v-btn>
               </v-col>
             </v-row>
-            <v-row v-if="isSubmit && !formReady" dense>
+            <v-row v-if="isSubmit && !formReady" dense class="mt-4">
               <v-col class="text-error d-flex justify-center">
                 Please check the form and correct all errors before submitting.
               </v-col>
             </v-row>
 
-            <v-row class="mt-3">
+            <v-row dense class="mt-4">
+              <v-col class="text-dark-gray d-flex justify-center">
+                Your CSV file and draft report will not be shared with the B.C.
+                Government.
+              </v-col>
+            </v-row>
+
+            <v-row class="mt-4">
               <v-col>
                 <v-alert v-if="alertMessage" :class="alertType" class="mb-3">
                   {{ alertMessage }}
