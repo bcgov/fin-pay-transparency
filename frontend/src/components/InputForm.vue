@@ -381,13 +381,14 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <v-textarea
+                <div id="employer-statement"></div>
+                <!--v-textarea
                   id="comments"
                   v-model="comments"
                   placeholder="Maximum 4,000 characters"
                   maxlength="4000"
                   counter
-                />
+                /-->
               </v-col>
             </v-row>
             <!-- Data Constraints -->
@@ -428,13 +429,14 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <v-textarea
+                <div id="data-constraints"></div>
+                <!--v-textarea
                   id="dataConstraints"
                   v-model="dataConstraints"
                   placeholder="Maximum 3,000 characters"
                   maxlength="3000"
                   counter
-                />
+                /-->
               </v-col>
             </v-row>
             <!-- File Upload -->
@@ -668,6 +670,7 @@ import { IConfigValue } from '../common/types';
 import axios from 'axios';
 import { VFileInput } from 'vuetify/components';
 import _ from 'lodash';
+import Quill from 'quill';
 
 interface RowError {
   rowNum: number;
@@ -918,6 +921,8 @@ export default {
     },
   },
   async mounted() {
+    const dataConstraintsEditor = new Quill('#data-constraints');
+    const userCommentsEditor = new Quill('#employer-statement');
     this.setStage('UPLOAD');
     this.loadConfig()?.catch(() => {
       NotificationService.pushNotificationError(
