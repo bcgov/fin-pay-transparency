@@ -2,8 +2,8 @@ SET search_path TO pay_transparency;
 
 -- temporarily drop this view because it's existance prevents 
 -- changing the data types of the two pay_transparency_report 
--- columns (this will will be recreated after the columns are 
--- altered)
+-- columns. This view will be recreated below (after the columns
+-- are altered)
 drop view reports_view;
 
 -- alter the data type of two columns (so we can accommodate larger strings
@@ -89,8 +89,8 @@ UNION
      LEFT JOIN pay_transparency.employee_count_range employee_count_range ON employee_count_range.employee_count_range_id = report.employee_count_range_id
   WHERE report.report_status::text = 'Published'::text;
 
-  -- re-add all comments on the view
-  comment on view reports_view is 'This view is a union of the `pay_transparency_report` table and `report_history` table. The columns `naics_code.naics_label` and `employee_count_range.employee_count_range`, as well as the full address and company name from `pay_transparency_company` have been included in this view.
+-- re-add all comments on the view and its columns
+comment on view reports_view is 'This view is a union of the `pay_transparency_report` table and `report_history` table. The columns `naics_code.naics_label` and `employee_count_range.employee_count_range`, as well as the full address and company name from `pay_transparency_company` have been included in this view.
 
 This view allows the webapp to fetch the most recent report as well as the historical versions of the report in one query.
 
