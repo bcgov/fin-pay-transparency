@@ -84,8 +84,6 @@ admin-frontend:
       memory: 50Mi
   env:
     logLevel: info
-    isAdminDashboardAvailable: true
-    isAdminAnalyticsAvailable: true
   pdb: false
 
 database:
