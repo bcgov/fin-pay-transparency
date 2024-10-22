@@ -156,6 +156,11 @@ frontend:
   nodeSelector: {}
   tolerations: []
   pdb: true
+
+admin-frontend:
+  env:
+    isAdminAnalyticsAvailable: false
+  
 database:
   enabled: false
 crunchy:
