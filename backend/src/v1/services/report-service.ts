@@ -1246,7 +1246,15 @@ const reportService = {
             },
           });
 
-        await this.movePublishedReportToHistory(tx, existing_published_report);
+        await this.copyPublishedReportToHistory(tx, existing_published_report);
+
+        // Delete the calculated data associated with the report (it's already been
+        // copied to history, and it will be rebuilt below)
+        await tx.pay_transparency_calculated_data.deleteMany({
+          where: {
+            report_id: existing_published_report.report_id,
+          },
+        });
 
         // Update existing report
         await tx.pay_transparency_report.update({
@@ -1447,11 +1455,10 @@ const reportService = {
    * Copies the report and calculated data to the history table.
    * Copies the report to the report history with a report_history_id.
    * Copies the calculated data to the history associated with a report_history_id.
-   * Removes the calculated data.
    * @param tx
-   * @param report - The entire report which should be moved
+   * @param report - The entire report which should be copied
    */
-  async movePublishedReportToHistory(tx, report: pay_transparency_report) {
+  async copyPublishedReportToHistory(tx, report: pay_transparency_report) {
     if (report.report_status != enumReportStatus.Published) {
       throw new Error(
         `Only a ${enumReportStatus.Published} report can be moved to history.`,
@@ -1481,13 +1488,6 @@ const reportService = {
     // Copy the calculated data into calculated_data_history
     await tx.calculated_data_history.createMany({
       data: updatedData,
-    });
-
-    // Delete the calculated data
-    await tx.pay_transparency_calculated_data.deleteMany({
-      where: {
-        report_id: report.report_id,
-      },
     });
   },
 };
