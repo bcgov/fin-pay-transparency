@@ -381,7 +381,12 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <div id="employer-statement"></div>
+                <RichTextArea
+                  id="employer-statement"
+                  placeholder="Maximum 4,000 characters"
+                  :initial-value="comments"
+                  :max-length="4000"
+                ></RichTextArea>
                 <!--v-textarea
                   id="comments"
                   v-model="comments"
@@ -429,7 +434,12 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <div id="data-constraints"></div>
+                <RichTextArea
+                  id="data-constraints"
+                  placeholder="Maximum 3,000 characters"
+                  :initial-value="dataConstraints"
+                  :max-length="3000"
+                ></RichTextArea>
                 <!--v-textarea
                   id="dataConstraints"
                   v-model="dataConstraints"
@@ -651,6 +661,7 @@
 <script lang="ts">
 import Spinner from './Spinner.vue';
 import ReportStepper from './util/ReportStepper/Stepper.vue';
+import RichTextArea from './RichTextArea.vue';
 import ApiService, { ISubmission } from '../common/apiService';
 import { useCodeStore } from '../store/modules/codeStore';
 import { authStore } from '../store/modules/auth';
@@ -670,7 +681,6 @@ import { IConfigValue } from '../common/types';
 import axios from 'axios';
 import { VFileInput } from 'vuetify/components';
 import _ from 'lodash';
-import Quill from 'quill';
 
 interface RowError {
   rowNum: number;
@@ -696,6 +706,7 @@ export default {
     Spinner,
     ReportStepper,
     ConfirmationDialog,
+    RichTextArea,
   },
   async beforeRouteLeave(to, from, next) {
     if (to.fullPath == this.approvedRoute || this.mode != ReportMode.Edit) {
@@ -921,8 +932,6 @@ export default {
     },
   },
   async mounted() {
-    const dataConstraintsEditor = new Quill('#data-constraints');
-    const userCommentsEditor = new Quill('#employer-statement');
     this.setStage('UPLOAD');
     this.loadConfig()?.catch(() => {
       NotificationService.pushNotificationError(
