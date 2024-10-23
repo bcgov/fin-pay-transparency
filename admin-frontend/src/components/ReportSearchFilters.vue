@@ -288,7 +288,7 @@ function getReportSearchFilters(): ReportFilterType {
   }
   if (submissionDateRange.value) {
     filters.push({
-      key: 'update_date',
+      key: 'create_date',
       operation: 'between',
       value: submissionDateRange.value.map((d, i) => {
         const jodaZonedDateTime = ZonedDateTime.from(
