@@ -550,7 +550,11 @@ are found, marks them as expired */
 
   /** Delete records, history, and object store. If any part of an item fails to delete, then the whole item's collection is not deleted. */
   async deleteAnnouncementsSchedule() {
-    const cutoffDate = convert(ZonedDateTime.now().minusDays(0)).toDate(); //TODO: make configurable
+    const cutoffDate = convert(
+      ZonedDateTime.now().minusDays(
+        config.get('server:deleteAnnouncementsDurationInDays'),
+      ),
+    ).toDate();
 
     // Get list of ids that are after the cutoffDate
     const announcementsToDelete = await prisma.announcement.findMany({
@@ -575,7 +579,7 @@ are found, marks them as expired */
     const announcementIds = announcementsToDelete.map((a) => a.announcement_id);
 
     if (announcementIds.length === 0) {
-      logger.info('No announcements to delete.'); //TODO: proper log (maybe just always log number of announcements? include titles of deleted announcements? errors?)
+      logger.info('No announcements to delete.');
       return;
     }
 
@@ -622,28 +626,28 @@ are found, marks them as expired */
     await Promise.all(
       safeToDelete.map(async (x) => {
         try {
-          await prisma.$transaction([
-            prisma.announcement_resource_history.deleteMany({
+          await prisma.$transaction(async (tx) => {
+            await tx.announcement_resource_history.deleteMany({
               where: {
                 announcement_id: x.announcement_id,
               },
-            }),
-            prisma.announcement_resource.deleteMany({
+            });
+            await tx.announcement_resource.deleteMany({
               where: {
                 announcement_id: x.announcement_id,
               },
-            }),
-            prisma.announcement_history.deleteMany({
+            });
+            await tx.announcement_history.deleteMany({
               where: {
                 announcement_id: x.announcement_id,
               },
-            }),
-            prisma.announcement.deleteMany({
+            });
+            await tx.announcement.deleteMany({
               where: {
                 announcement_id: x.announcement_id,
               },
-            }),
-          ]);
+            });
+          });
           logger.info(`Deleted announcement titled '${x.title}'`);
         } catch (err) {
           logger.error(

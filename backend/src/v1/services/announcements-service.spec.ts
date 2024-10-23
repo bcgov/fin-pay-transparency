@@ -28,23 +28,32 @@ const mockFindMany = jest.fn().mockResolvedValue([
   },
 ]);
 
-const mockFindUniqueOrThrow = jest.fn();
 const mockUpdateMany = jest.fn();
+const mockCreateAnnouncement = jest.fn();
+const mockFindUniqueOrThrow = jest.fn();
 const mockUpdate = jest.fn();
+const mockDeleteMany = jest.fn();
+
+const mockHistoryCreate = jest.fn();
+const mockFindManyResource = jest.fn();
+const mockDeleteManyHistory = jest.fn();
+
 const mockCreateResource = jest.fn();
 const mockDeleteResource = jest.fn();
 const mockUpdateResource = jest.fn();
-const mockHistoryCreate = jest.fn();
-const mockCreateAnnouncement = jest.fn();
+const mockDeleteManyResource = jest.fn();
+
+const mockDeleteManyResourceHistory = jest.fn();
+
 jest.mock('../prisma/prisma-client', () => ({
   __esModule: true,
   default: {
     announcement: {
       findMany: (...args) => mockFindMany(...args),
-      count: jest.fn().mockResolvedValue(2),
       updateMany: (...args) => mockUpdateMany(...args),
       create: (...args) => mockCreateAnnouncement(...args),
       findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
+      count: jest.fn().mockResolvedValue(2),
       groupBy: jest.fn().mockResolvedValueOnce([
         { status: 'PUBLISHED', _count: 1 },
         { status: 'DRAFT', _count: 2 },
@@ -53,6 +62,9 @@ jest.mock('../prisma/prisma-client', () => ({
     announcement_history: {
       create: (...args) => mockHistoryCreate(...args),
     },
+    announcement_resource: {
+      findMany: (...args) => mockFindManyResource(...args),
+    },
     $transaction: jest.fn().mockImplementation((cb) =>
       cb({
         announcement: {
@@ -60,15 +72,21 @@ jest.mock('../prisma/prisma-client', () => ({
           updateMany: (...args) => mockUpdateMany(...args),
           findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
           update: (...args) => mockUpdate(...args),
+          deleteMany: (...args) => mockDeleteMany(...args),
         },
         announcement_resource: {
           create: (...args) => mockCreateResource(...args),
           update: (...args) => mockUpdateResource(...args),
           delete: (...args) => mockDeleteResource(...args),
+          deleteMany: (...args) => mockDeleteManyResource(...args),
         },
         announcement_history: {
           create: (...args) => mockHistoryCreate(...args),
           update: (...args) => mockUpdateResource(...args),
+          deleteMany: (...args) => mockDeleteManyHistory(...args),
+        },
+        announcement_resource_history: {
+          deleteMany: (...args) => mockDeleteManyResourceHistory(...args),
         },
         $executeRawUnsafe: jest.fn(),
       }),
@@ -76,11 +94,17 @@ jest.mock('../prisma/prisma-client', () => ({
   },
 }));
 
+const mockS3ApiDeleteFiles = jest.fn();
+jest.mock('../../external/services/s3-api', () => ({
+  deleteFiles: (...args) => mockS3ApiDeleteFiles(...args),
+}));
+
 jest.mock('../../config', () => ({
   config: {
     get: (key: string) => {
       const settings = {
         'server:schedulerTimeZone': 'America/Vancouver',
+        'server:deleteAnnouncementsDurationInDays': '90',
       };
       return settings[key];
     },
@@ -936,6 +960,60 @@ describe('AnnouncementsService', () => {
       expect(result).toEqual({
         published: { count: 1 },
         draft: { count: 2 },
+      });
+    });
+  });
+
+  describe('deleteAnnouncementsSchedule', () => {
+    it('should delete announcements and associated resources successfully', async () => {
+      mockFindMany.mockResolvedValueOnce([
+        { announcement_id: 1, title: 'Announcement 1' },
+        { announcement_id: 2, title: 'Announcement 2' },
+      ]);
+      mockFindManyResource.mockResolvedValueOnce([
+        { announcement_id: 1, attachment_file_id: 'file1' },
+        { announcement_id: 2, attachment_file_id: 'file2' },
+      ]);
+
+      mockS3ApiDeleteFiles.mockResolvedValue(new Set(['file1', 'file2'])); // files deleted
+
+      mockDeleteManyHistory.mockResolvedValue({});
+      mockDeleteManyResource.mockResolvedValue({});
+      mockDeleteManyResourceHistory.mockResolvedValue({});
+      mockDeleteMany.mockResolvedValue({});
+
+      await announcementService.deleteAnnouncementsSchedule();
+
+      expect(mockS3ApiDeleteFiles).toHaveBeenCalledWith(['file1', 'file2']);
+
+      // Two files, so each of these are called twice
+      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(2);
+      expect(mockDeleteManyResource).toHaveBeenCalledTimes(2);
+      expect(mockDeleteManyResourceHistory).toHaveBeenCalledTimes(2);
+      expect(mockDeleteMany).toHaveBeenCalledTimes(2);
+    });
+
+    it('should log an error if announcement deletion fails', async () => {
+      mockFindMany.mockResolvedValueOnce([
+        { announcement_id: 1, title: 'Announcement 1' },
+        { announcement_id: 2, title: 'Announcement 2' },
+      ]);
+      mockFindManyResource.mockResolvedValueOnce([
+        { announcement_id: 1, attachment_file_id: 'file1' },
+        { announcement_id: 2, attachment_file_id: 'file2' },
+      ]);
+
+      mockS3ApiDeleteFiles.mockResolvedValue(new Set(['file2'])); // only deleted one file
+
+      await announcementService.deleteAnnouncementsSchedule();
+
+      // Even though there are two files, only one of them was deleted
+      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(1);
+      expect(mockDeleteManyResource).toHaveBeenCalledTimes(1);
+      expect(mockDeleteManyResourceHistory).toHaveBeenCalledTimes(1);
+      expect(mockDeleteMany).toHaveBeenCalledTimes(1);
+      expect(mockDeleteMany).toHaveBeenCalledWith({
+        where: { announcement_id: 2 },
       });
     });
   });

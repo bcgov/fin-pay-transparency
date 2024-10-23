@@ -158,8 +158,8 @@ export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
 
     // Return the id of all successful deleted
     const successfulIds = responsePerGroup.flatMap((r) =>
-      r.Deleted.reduce((acc, e) => {
-        acc.push(getIdFromKey(e.Key));
+      r.Deleted.reduce((acc, x) => {
+        acc.push(getIdFromKey(x.Key));
         return acc;
       }, [] as string[]),
     );
@@ -176,5 +176,5 @@ export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
  * ${APP_ANNOUNCEMENTS_FOLDER}/${id}/${file}
  */
 function getIdFromKey(key: string): string {
-  return key.replace(`${APP_ANNOUNCEMENTS_FOLDER}/`, '').split('/')[0];
+  return key.replace(`${APP_ANNOUNCEMENTS_FOLDER}/`, '').split('/', 1)[0];
 }

@@ -1,6 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { downloadFile } from './s3-api';
-import { GetObjectCommand, ListObjectsCommand } from '@aws-sdk/client-s3';
+import { downloadFile, deleteFiles } from './s3-api';
+import {
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  ListObjectsCommand,
+} from '@aws-sdk/client-s3';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
 
 const mockFindFirstOrThrow = jest.fn();
 jest.mock('../../v1/prisma/prisma-client', () => ({
@@ -141,6 +146,47 @@ describe('S3Api', () => {
       const fileId = 'fileId';
       await downloadFile(res, fileId);
       expect(res.status).toHaveBeenCalledWith(400);
+    });
+  });
+  describe('deleteFiles', () => {
+    it('should handle multiple ids, ids that dont exist, and ids that have already been deleted', async () => {
+      const ids = ['id1', 'id2', 'id3', 'id4'];
+      const fileId1a = { Key: `${APP_ANNOUNCEMENTS_FOLDER}/id1/file1a` };
+      const fileId1b = { Key: `${APP_ANNOUNCEMENTS_FOLDER}/id1/file1b` };
+      const fileId1c = { Key: `${APP_ANNOUNCEMENTS_FOLDER}/id1/file1c` };
+      const fileId2 = {
+        Key: `${APP_ANNOUNCEMENTS_FOLDER}/id2/file2`,
+        Code: 'NoSuchKey',
+      };
+      const fileId3 = {
+        Key: `${APP_ANNOUNCEMENTS_FOLDER}/id3/file3`,
+        Code: 'OtherError',
+      };
+
+      mockSend.mockImplementation((...args) => {
+        const [command] = args;
+        if (command instanceof ListObjectsCommand) {
+          // test: multiple files in id1. id4 doesn't exist
+          if (command.input.Prefix == `${APP_ANNOUNCEMENTS_FOLDER}/id1`)
+            return { Contents: [fileId1a, fileId1b, fileId1c] };
+          if (command.input.Prefix == `${APP_ANNOUNCEMENTS_FOLDER}/id2`)
+            return { Contents: [fileId2] };
+          if (command.input.Prefix == `${APP_ANNOUNCEMENTS_FOLDER}/id3`)
+            return { Contents: [fileId3] };
+          return {};
+        }
+        if (command instanceof DeleteObjectsCommand) {
+          return {
+            Deleted: [fileId1a, fileId1b, fileId1c],
+            Errors: [fileId2, fileId3],
+          };
+        }
+      });
+
+      const result = await deleteFiles(ids);
+
+      //id3 had a file that failed to delete, so it shouldn't say that id3 was deleted
+      expect(result).toEqual(new Set(['id1', 'id2', 'id4']));
     });
   });
 });
