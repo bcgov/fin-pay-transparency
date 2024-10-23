@@ -5,7 +5,7 @@ import App from './App.vue';
 import router from './router';
 import 'regenerator-runtime/runtime';
 import { createPinia } from 'pinia';
-import * as colors from 'vuetify/lib/util/colors';
+import * as colors from 'vuetify/util/colors';
 import 'vuetify/styles';
 import * as labs from 'vuetify/labs/components';
 import * as components from 'vuetify/components';
@@ -29,6 +29,7 @@ const myCustomLightTheme = {
     link: '#255A90',
     tab: '#1E5189',
     white: '#ffffff',
+    'dark-gray': '424242',
   },
   variables: {
     'border-opacity': 0.24, //default 0.12

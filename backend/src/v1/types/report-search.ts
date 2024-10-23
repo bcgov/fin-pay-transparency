@@ -3,6 +3,7 @@ import * as z from 'zod';
 export type FilterValueType = string[] | null | undefined | boolean;
 
 export type FilterKeyType =
+  | 'create_date'
   | 'update_date'
   | 'naics_code'
   | 'reporting_year'
@@ -12,6 +13,12 @@ export type FilterKeyType =
   | 'admin_last_access_date';
 
 export type SubmissonDateFilter = {
+  key: 'create_date';
+  operation: 'between';
+  value: string[];
+};
+
+export type UpdateDateFilter = {
   key: 'update_date';
   operation: 'between';
   value: string[];
@@ -57,6 +64,7 @@ export type AdminLastAccessDateFilter = {
 
 export type ReportFilterType = (
   | SubmissonDateFilter
+  | UpdateDateFilter
   | NaicsCodeFilter
   | ReportingYearFilter
   | IsUnlockedFilter
@@ -66,6 +74,7 @@ export type ReportFilterType = (
 )[];
 
 export type SortFieldType =
+  | 'create_date'
   | 'update_date'
   | 'naics_code'
   | 'employee_count_range_id'
@@ -75,6 +84,9 @@ export type SortFieldType =
 type SortDirection = 'asc' | 'desc';
 
 export type SubmissionDateSort = {
+  create_date: SortDirection;
+};
+export type UpdateDateSort = {
   update_date: SortDirection;
 };
 export type NaicsCodeSort = {
@@ -93,6 +105,7 @@ export type CompanySort = {
 
 export type ReportSortType = (
   | SubmissionDateSort
+  | UpdateDateSort
   | NaicsCodeSort
   | EmployeeCountRangeSort
   | CompanySort
@@ -108,6 +121,9 @@ export const RELATION_MAPPER: {
 const FILTER_OPERATION_SCHEMA: {
   [key in FilterKeyType]: z.ZodString | z.ZodEnum<any>;
 } = {
+  create_date: z.enum(['between'], {
+    message: 'Only "between" operation is allowed',
+  }),
   update_date: z.enum(['between'], {
     message: 'Only "between" operation is allowed',
   }),
@@ -131,6 +147,7 @@ const FILTER_OPERATION_SCHEMA: {
 };
 
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
+  create_date: z.array(z.string()).optional(),
   update_date: z.array(z.string()).optional(),
   naics_code: z.array(z.string()).optional(),
   employee_count_range_id: z.array(z.string()).optional(),
@@ -145,6 +162,7 @@ export const FilterValidationSchema = z.array(
     .object({
       key: z.enum(
         [
+          'create_date',
           'update_date',
           'naics_code',
           'reporting_year',
@@ -156,7 +174,7 @@ export const FilterValidationSchema = z.array(
         {
           required_error: 'Missing or invalid filter key',
           message:
-            'key must be one of the following values: update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
+            'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
         },
       ),
       operation: z.string({

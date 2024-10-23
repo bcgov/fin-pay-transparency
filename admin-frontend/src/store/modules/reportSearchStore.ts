@@ -14,11 +14,11 @@ export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
   page: 1,
   itemsPerPage: 20,
   filter: undefined,
-  sort: [{ update_date: 'desc' }],
+  sort: [{ create_date: 'desc' }],
 };
 export const DEFAULT_DOWNLOAD_CSV_PARAMS: IReportSearchParams = {
   filter: undefined,
-  sort: [{ update_date: 'desc' }],
+  sort: [{ create_date: 'desc' }],
 };
 
 /*
