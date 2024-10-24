@@ -180,6 +180,21 @@ describe('admin-report-service', () => {
     });
 
     describe('filtering', () => {
+      describe('when there are dates in the filter', () => {
+        it('dates in the filters are converted to UTC', async () => {
+          await adminReportService.searchReport(
+            0,
+            10,
+            '[]',
+            '[{"key": "create_date", "operation": "between", "value": ["2024-10-02T00:00:00-07:00", "2024-10-02T23:59:59-07:00"] }]',
+          );
+          const { where } = mockFindMany.mock.calls[0][0];
+          expect(where.create_date).toEqual({
+            gte: '2024-10-02T07:00:00Z',
+            lt: '2024-10-03T06:59:59Z',
+          });
+        });
+      });
       describe('when filter is valid', () => {
         describe('reporting year', () => {
           it('eq', async () => {

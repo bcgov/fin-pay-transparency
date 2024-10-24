@@ -1,4 +1,9 @@
-import { DateTimeFormatter, nativeJs } from '@js-joda/core';
+import {
+  DateTimeFormatter,
+  nativeJs,
+  ZonedDateTime,
+  ZoneId,
+} from '@js-joda/core';
 import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
@@ -222,8 +227,59 @@ async function updateManyUnsafe(
   await tx.$executeRawUnsafe(sql);
 }
 
+/*
+  Loops through all objects in the given array, and for any object with a
+  attribute of the given name whose value is an ISO date time string (with timezone), 
+  convert the value into a date time string in the UTC timezone.  Any object with 
+  such an atttribute whose value that is not an ISO date string will not be touched.
+  The function does not modify any items in the given array parameter.  It returns a
+  deep copy of the array, which may have some items which are modified copies of the
+  originals.
+  This function is designed to work with objects of type ReportFilterType and 
+  AnnouncementFilterType, but has been generalized so it can potentially be useful for 
+  other scenarios as well.
+  sample usage:
+    const items: ReportFilterType[] = [...]
+    const modifiedItems = convertIsoDateStringsToUtc(items, 'value');
+  */
+const convertIsoDateStringsToUtc = (items: any[], attrName: string): any[] => {
+  return items?.map((item: any) => {
+    if (!Object.hasOwn(item, attrName)) {
+      throw new Error(
+        `All objects in the given array are expected to have a property called '${attrName}'`,
+      );
+    }
+    let value = item[attrName];
+    try {
+      if (Array.isArray(value)) {
+        value = value.map((v) => {
+          return ZonedDateTime.parse(v, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            .withZoneSameInstant(ZoneId.of('UTC'))
+            .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        });
+      } else {
+        value = ZonedDateTime.parse(
+          value,
+          DateTimeFormatter.ISO_OFFSET_DATE_TIME,
+        )
+          .withZoneSameInstant(ZoneId.of('UTC'))
+          .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+      }
+      const modifiedItem = { ...item };
+      modifiedItem[attrName] = value;
+
+      return modifiedItem;
+    } catch (e) {
+      // The item's value isn't a date string (or an array of date strings), so
+      // return a copy of the original, unmodified item
+      return { ...item };
+    }
+  });
+};
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const utils = {
+  convertIsoDateStringsToUtc,
   getOidcDiscovery,
   prettyStringify: (obj, indent = 2) => JSON.stringify(obj, null, indent),
   getSessionUser,

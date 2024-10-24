@@ -291,9 +291,7 @@ function getReportSearchFilters(): ReportFilterType {
       key: 'create_date',
       operation: 'between',
       value: submissionDateRange.value.map((d, i) => {
-        const jodaZonedDateTime = ZonedDateTime.from(
-          nativeJs(d),
-        ).withZoneSameLocal(ZoneId.of('UTC'));
+        const jodaZonedDateTime = ZonedDateTime.from(nativeJs(d));
         const adjusted =
           i == 0
             ? jodaZonedDateTime //start of day
@@ -306,6 +304,7 @@ function getReportSearchFilters(): ReportFilterType {
                 .withMinute(59)
                 .withSecond(59)
                 .withNano(999);
+        console.log(`--> ${DateTimeFormatter.ISO_DATE_TIME.format(adjusted)}`);
         return DateTimeFormatter.ISO_DATE_TIME.format(adjusted);
       }),
     });

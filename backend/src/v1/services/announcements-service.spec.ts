@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
 import omit from 'lodash/omit';
 import {
   AnnouncementDataType,
@@ -7,7 +8,6 @@ import {
 import { UserInputError } from '../types/errors';
 import { announcementService } from './announcements-service';
 import { utils } from './utils-service';
-import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {
@@ -116,6 +116,36 @@ describe('AnnouncementsService', () => {
 
     describe('when query is provided', () => {
       describe('when filters are provided', () => {
+        describe('when there are dates in the filter', () => {
+          it('dates in the filters are converted to UTC', async () => {
+            await announcementService.getAnnouncements({
+              filters: [
+                {
+                  key: 'active_on',
+                  operation: 'between',
+                  value: [
+                    '2024-10-02T00:00:00-07:00', //time in Pacific daylight time (PDT)
+                    '2024-10-02T23:59:59-07:00',
+                  ],
+                },
+              ],
+            });
+            expect(mockFindMany).toHaveBeenCalledWith(
+              expect.objectContaining({
+                where: expect.objectContaining({
+                  AND: [
+                    {
+                      active_on: {
+                        gte: '2024-10-02T07:00:00Z', //time in UTC
+                        lt: '2024-10-03T06:59:59Z',
+                      },
+                    },
+                  ],
+                }),
+              }),
+            );
+          });
+        });
         describe('when title is provided', () => {
           it('should return announcements', async () => {
             await announcementService.getAnnouncements({
