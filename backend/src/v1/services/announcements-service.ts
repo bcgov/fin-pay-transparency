@@ -5,6 +5,7 @@ import {
   ZonedDateTime,
   ZoneId,
 } from '@js-joda/core';
+import '@js-joda/timezone';
 import {
   announcement,
   announcement_resource,
@@ -13,6 +14,7 @@ import {
 } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import isEmpty from 'lodash/isEmpty';
+import { config } from '../../config';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
@@ -24,8 +26,6 @@ import {
 } from '../types/announcements';
 import { UserInputError } from '../types/errors';
 import { utils } from './utils-service';
-import { config } from '../../config';
-import '@js-joda/timezone';
 import { deleteFiles } from '../../external/services/s3-api';
 
 const saveHistory = async (
@@ -133,6 +133,8 @@ export const announcementService = {
   async getAnnouncements(
     query: AnnouncementQueryType = {},
   ): Promise<PaginatedResult<announcement>> {
+    query.filters = utils.convertIsoDateStringsToUtc(query.filters, 'value');
+
     const where = buildAnnouncementWhereInput(query);
     const orderBy = buildAnnouncementSortInput(query);
     const items = await prisma.announcement.findMany({
