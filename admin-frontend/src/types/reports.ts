@@ -46,6 +46,7 @@ export enum ReportKeys {
 }
 export enum BackendReportSortKeys {
   COMPANY_NAME = 'company_name',
+  CREATE_DATE = 'create_date',
   UPDATE_DATE = 'update_date',
   NAICS_CODE = 'naics_code',
   EMPLOYEE_COUNT = 'employee_count_range_id',
@@ -55,13 +56,14 @@ export enum BackendReportSortKeys {
 //key expected by the backend when sorting
 export const SORT_KEY_MAPPING = {};
 SORT_KEY_MAPPING[ReportKeys.COMPANY_NAME] = BackendReportSortKeys.COMPANY_NAME;
+SORT_KEY_MAPPING[ReportKeys.CREATE_DATE] = BackendReportSortKeys.CREATE_DATE;
 SORT_KEY_MAPPING[ReportKeys.UPDATE_DATE] = BackendReportSortKeys.UPDATE_DATE;
 SORT_KEY_MAPPING[ReportKeys.NAICS_CODE] = BackendReportSortKeys.NAICS_CODE;
 SORT_KEY_MAPPING[ReportKeys.EMPLOYEE_COUNT] =
   BackendReportSortKeys.EMPLOYEE_COUNT;
 
 export type SubmissonDateFilter = {
-  key: 'update_date';
+  key: 'create_date';
   operation: 'between';
   value: string[];
 };

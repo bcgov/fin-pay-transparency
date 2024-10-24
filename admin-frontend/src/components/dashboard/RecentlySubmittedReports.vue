@@ -47,13 +47,13 @@ const headers = [
   {
     title: 'Submission Date',
     align: 'start',
-    sortable: true,
+    sortable: false,
     key: 'update_date',
   },
   {
     title: 'Employer Name',
     align: 'start',
-    sortable: true,
+    sortable: false,
     key: 'pay_transparency_company.company_name',
   },
   {

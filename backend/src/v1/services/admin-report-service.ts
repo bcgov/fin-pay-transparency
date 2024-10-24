@@ -148,7 +148,7 @@ const adminReportService = {
 
       const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
 
-      await reportService.movePublishedReportToHistory(tx, existingReport);
+      await reportService.copyPublishedReportToHistory(tx, existingReport);
 
       await prisma.pay_transparency_report.update({
         where: { report_id: reportId },
