@@ -45,13 +45,13 @@ const headers = [
   {
     title: 'Viewed On',
     align: 'start',
-    sortable: true,
+    sortable: false,
     key: 'admin_last_access_date',
   },
   {
     title: 'Employer Name',
     align: 'start',
-    sortable: true,
+    sortable: false,
     key: 'pay_transparency_company.company_name',
   },
   {

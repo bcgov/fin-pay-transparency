@@ -84,7 +84,7 @@ describe('ReportSearchFilters', () => {
         wrapper.vm.submissionDateRange = dateRange;
         const filters = wrapper.vm.getReportSearchFilters();
         const submissonDateFilters = filters.filter(
-          (d) => d.key == 'update_date',
+          (d) => d.key == 'create_date',
         );
         expect(submissonDateFilters.length).toBe(1);
         expect(submissonDateFilters[0].operation).toBe('between');

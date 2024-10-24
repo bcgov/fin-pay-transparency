@@ -83,6 +83,7 @@ describe('admin-report-service', () => {
     reports = [
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
+        create_date: '2024-04-19T21:46:53.876',
         update_date: '2024-04-19T21:46:53.876',
         naics_code: '30',
         report_status: 'Published',
@@ -94,6 +95,7 @@ describe('admin-report-service', () => {
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+        create_date: '2023-04-06T20:14:12.572',
         update_date: '2023-04-19T21:46:53.876',
         naics_code: '11',
         report_status: 'Published',
@@ -105,6 +107,7 @@ describe('admin-report-service', () => {
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+        create_date: '2023-04-05T19:22:54.743',
         update_date: '2022-04-19T21:46:53.876',
         naics_code: '40',
         report_status: 'Published',
@@ -116,8 +119,8 @@ describe('admin-report-service', () => {
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d499',
-        update_date: '2024-04-19T21:46:53.876',
         create_date: '2022-04-19T21:46:53.876',
+        update_date: '2024-04-19T21:46:53.876',
         naics_code: '40',
         report_status: 'Draft',
         reporting_year: 2021,
@@ -341,7 +344,41 @@ describe('admin-report-service', () => {
           });
         });
 
-        describe('update_date / submission date', () => {
+        describe("create_date (aka 'submission date')", () => {
+          it('should return reports with create_date between the specified dates', async () => {
+            const response = await adminReportService.searchReport(
+              0,
+              10,
+              '[]',
+              '[{"key": "create_date", "operation": "between", "value": ["2024-01-01T21:46:53.876", "2024-05-05T21:46:53.876"] }]',
+            );
+            expect(
+              response.reports.every((x) => {
+                const createDate = LocalDateTime.parse(
+                  x.create_date,
+                ).toEpochSecond(ZoneOffset.UTC);
+                const rangeStart = LocalDateTime.parse(
+                  '2024-01-01T21:46:53.876',
+                ).toEpochSecond(ZoneOffset.UTC);
+                const rangeEnd = LocalDateTime.parse(
+                  '2024-05-05T21:46:53.876',
+                ).toEpochSecond(ZoneOffset.UTC);
+                return createDate >= rangeStart && createDate < rangeEnd;
+              }),
+            ).toBeTruthy();
+          });
+
+          it('should all reports if values not provided to create_date', async () => {
+            const response = await adminReportService.searchReport(
+              0,
+              10,
+              '[]',
+              '[{"key": "create_date", "operation": "between", "value": [] }]',
+            );
+            expect(response.reports).toHaveLength(3);
+          });
+        });
+        describe('update_date', () => {
           it('should return reports with update_date between the specified dates', async () => {
             const response = await adminReportService.searchReport(
               0,
@@ -431,9 +468,19 @@ describe('admin-report-service', () => {
             ).toThrow();
           } catch (error) {
             expect(error.errors.map((error) => error.message)).toContain(
-              'key must be one of the following values: update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
+              'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
             );
           }
+        });
+        it('should fail if operation is invalid for the specified key', async () => {
+          await expect(
+            adminReportService.searchReport(
+              0,
+              101,
+              '[]',
+              '[{"key": "create_date", "operation": "eq", "value": ["2024-04-19 21:46:53.876", "2024-04-19 21:46:53.876"]}]',
+            ),
+          ).rejects.toThrow();
         });
         it('should fail if operation is invalid for the specified key', async () => {
           try {

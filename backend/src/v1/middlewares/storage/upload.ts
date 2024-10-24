@@ -9,6 +9,7 @@ import os from 'os';
 import retry from 'async-retry';
 import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';
 import PATH from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Options {
   folder: string;
@@ -23,6 +24,8 @@ export const useUpload = (options: Options) => {
     logger.log('info', 'Uploading file to S3');
 
     const { path, name, type, size } = file;
+    const lastDotIndex = name?.lastIndexOf('.') ?? -1;
+    const ext = lastDotIndex !== -1 ? name.substring(lastDotIndex + 1) : '';
 
     if (!path.startsWith(os.tmpdir())) {
       logger.error('File not uploaded to temp directory');
@@ -41,7 +44,7 @@ export const useUpload = (options: Options) => {
       const stream = fs.createReadStream(path);
       const uploadParams: PutObjectCommandInput = {
         Bucket: S3_BUCKET,
-        Key: `${options.folder}/${data.attachmentId}/${name}`,
+        Key: `${options.folder}/${data.attachmentId}/${uuidv4()}.${ext}`,
         Body: stream,
         ContentType: type,
         ContentLength: size,
