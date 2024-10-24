@@ -27,8 +27,8 @@ import {
 } from './report-service';
 import { utils } from './utils-service';
 
-const actualMovePublishedReportToHistory =
-  reportService.movePublishedReportToHistory;
+const actualCopyPublishedReportToHistory =
+  reportService.copyPublishedReportToHistory;
 
 jest.mock('./utils-service');
 
@@ -810,14 +810,14 @@ describe('publishReport', () => {
     it('changes the status from Draft to Published', async () => {
       mockReportFindFirst.mockResolvedValue(null);
       jest
-        .spyOn(reportService, 'movePublishedReportToHistory')
+        .spyOn(reportService, 'copyPublishedReportToHistory')
         .mockReturnValueOnce(null);
 
       await reportService.publishReport(mockDraftReportInApi);
 
       // Expect no attempt to move a pre-existing published report to
       // history (because there is no pre-existing published report)
-      expect(reportService.movePublishedReportToHistory).toHaveBeenCalledTimes(
+      expect(reportService.copyPublishedReportToHistory).toHaveBeenCalledTimes(
         0,
       );
 
@@ -853,15 +853,23 @@ describe('publishReport', () => {
         pay_transparency_calculated_data: [],
       });
       jest
-        .spyOn(reportService, 'movePublishedReportToHistory')
+        .spyOn(reportService, 'copyPublishedReportToHistory')
         .mockReturnValueOnce(null);
 
       await reportService.publishReport(mockDraftReportInApi);
 
       // Expect an attempt to move the pre-existing published report to
       // history
-      expect(reportService.movePublishedReportToHistory).toHaveBeenCalledTimes(
+      expect(reportService.copyPublishedReportToHistory).toHaveBeenCalledTimes(
         1,
+      );
+
+      // Expect the calculated data of the existing published report
+      // was deleted (after it was copied to history).
+      expect(mockCalculatedDataDeleteMany).toHaveBeenCalledTimes(1);
+      const deleteCalcData = mockCalculatedDataDeleteMany.mock.calls[0][0];
+      expect(deleteCalcData.where.report_id).toBe(
+        mockPublishedReportInDb.report_id,
       );
 
       // Expect one call to update a DB record in the pay_transparency_report
@@ -902,7 +910,7 @@ describe('publishReport', () => {
       });
 
       jest
-        .spyOn(reportService, 'movePublishedReportToHistory')
+        .spyOn(reportService, 'copyPublishedReportToHistory')
         .mockReturnValueOnce(null);
 
       await expect(
@@ -916,17 +924,17 @@ describe('publishReport', () => {
   });
 });
 
-describe('movePublishedReportToHistory', () => {
+describe('copyPublishedReportToHistory', () => {
   describe("if the given report isn't Published", () => {
     it('throws an error', async () => {
       const tx = jest.fn();
       await expect(
-        actualMovePublishedReportToHistory(tx, mockDraftReportInDb),
+        actualCopyPublishedReportToHistory(tx, mockDraftReportInDb),
       ).rejects.toThrow();
     });
   });
   describe('if the given report is Published', () => {
-    it("copy it to history, delete it's calculated data, and delete the original record from reports", async () => {
+    it('copies the report and its calculated data to history tables', async () => {
       (prisma.report_history.create as jest.Mock).mockResolvedValue(
         mockHistoryReport,
       );
@@ -934,7 +942,7 @@ describe('movePublishedReportToHistory', () => {
         prisma.pay_transparency_calculated_data.findMany as jest.Mock
       ).mockResolvedValue(mockCalculatedDatasInDB);
       await prisma.$transaction(async (tx) => {
-        await actualMovePublishedReportToHistory(tx, mockPublishedReportInDb);
+        await actualCopyPublishedReportToHistory(tx, mockPublishedReportInDb);
       });
 
       // Confirm that the report was copied to the history table
@@ -967,12 +975,10 @@ describe('movePublishedReportToHistory', () => {
         mockHistoryReport.report_history_id,
       );
 
-      // Confirm that the calculated datas were deleted
-      expect(mockCalculatedDataDeleteMany).toHaveBeenCalledTimes(1);
-      const deleteCalcData = mockCalculatedDataDeleteMany.mock.calls[0][0];
-      expect(deleteCalcData.where.report_id).toBe(
-        mockPublishedReportInDb.report_id,
-      );
+      // Confirm that the calculated data was *not* deleted
+      // (This check is done because a previous implementation of
+      // copyPublishedReportToHistory did delete the calculated data)
+      expect(mockCalculatedDataDeleteMany).toHaveBeenCalledTimes(0);
     });
   });
 });
