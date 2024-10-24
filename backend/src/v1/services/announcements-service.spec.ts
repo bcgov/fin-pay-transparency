@@ -977,9 +977,9 @@ describe('AnnouncementsService', () => {
 
       mockS3ApiDeleteFiles.mockResolvedValue(new Set(['file1', 'file2'])); // files deleted
 
-      mockDeleteManyHistory.mockResolvedValue({});
-      mockDeleteManyResource.mockResolvedValue({});
       mockDeleteManyResourceHistory.mockResolvedValue({});
+      mockDeleteManyResource.mockResolvedValue({});
+      mockDeleteManyHistory.mockResolvedValue({});
       mockDeleteMany.mockResolvedValue({});
 
       await announcementService.deleteAnnouncementsSchedule();
@@ -987,13 +987,13 @@ describe('AnnouncementsService', () => {
       expect(mockS3ApiDeleteFiles).toHaveBeenCalledWith(['file1', 'file2']);
 
       // Two files, so each of these are called twice
-      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(2);
-      expect(mockDeleteManyResource).toHaveBeenCalledTimes(2);
       expect(mockDeleteManyResourceHistory).toHaveBeenCalledTimes(2);
+      expect(mockDeleteManyResource).toHaveBeenCalledTimes(2);
+      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(2);
       expect(mockDeleteMany).toHaveBeenCalledTimes(2);
     });
 
-    it('should log an error if announcement deletion fails', async () => {
+    it("shouldn't delete from the database when s3 fails to delete files", async () => {
       mockFindMany.mockResolvedValueOnce([
         { announcement_id: 1, title: 'Announcement 1' },
         { announcement_id: 2, title: 'Announcement 2' },
@@ -1008,13 +1008,54 @@ describe('AnnouncementsService', () => {
       await announcementService.deleteAnnouncementsSchedule();
 
       // Even though there are two files, only one of them was deleted
-      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(1);
-      expect(mockDeleteManyResource).toHaveBeenCalledTimes(1);
       expect(mockDeleteManyResourceHistory).toHaveBeenCalledTimes(1);
+      expect(mockDeleteManyResource).toHaveBeenCalledTimes(1);
+      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(1);
       expect(mockDeleteMany).toHaveBeenCalledTimes(1);
       expect(mockDeleteMany).toHaveBeenCalledWith({
         where: { announcement_id: 2 },
       });
+    });
+
+    it("shouldn't do anything if there's nothing to delete", async () => {
+      //test that no announcements were found
+      mockFindMany.mockResolvedValueOnce([]);
+      await announcementService.deleteAnnouncementsSchedule();
+      expect(mockFindManyResource).toHaveBeenCalledTimes(0); //should return before this function is called
+    });
+
+    it("shouldn't do anything if nothing is safe to delete", async () => {
+      //test that if the resources that were found couldn't be deleted from s3, then nothing happens
+      mockFindMany.mockResolvedValueOnce([
+        { announcement_id: 1, title: 'Announcement 1' },
+        { announcement_id: 2, title: 'Announcement 2' },
+      ]);
+      mockFindManyResource.mockResolvedValueOnce([
+        { announcement_id: 1, attachment_file_id: 'file1' },
+        { announcement_id: 2, attachment_file_id: 'file2' },
+      ]);
+      mockS3ApiDeleteFiles.mockResolvedValue(new Set([])); // didn't delete anything
+
+      await announcementService.deleteAnnouncementsSchedule();
+      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(0); //should return before this function is called
+    });
+
+    it('should log if database failed to delete', async () => {
+      //test that if the resources that were found couldn't be deleted from s3, then nothing happens
+      mockFindMany.mockResolvedValueOnce([
+        { announcement_id: 1, title: 'Announcement 1' },
+        { announcement_id: 2, title: 'Announcement 2' },
+      ]);
+      mockFindManyResource.mockResolvedValueOnce([
+        { announcement_id: 1, attachment_file_id: 'file1' },
+        { announcement_id: 2, attachment_file_id: 'file2' },
+      ]);
+      mockS3ApiDeleteFiles.mockResolvedValue(new Set(['file1'])); // didn't delete anything
+      mockDeleteManyResourceHistory.mockRejectedValue(new Error('err'));
+
+      await announcementService.deleteAnnouncementsSchedule();
+      expect(mockDeleteManyResourceHistory).toHaveBeenCalledTimes(1);
+      expect(mockDeleteManyHistory).toHaveBeenCalledTimes(0); //should error before this function is called
     });
   });
 });

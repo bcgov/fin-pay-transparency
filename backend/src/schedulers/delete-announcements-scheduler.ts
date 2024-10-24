@@ -1,8 +1,8 @@
 import { config } from '../config';
-import { schedulerService } from '../v1/services/scheduler-service';
 import { logger as log } from '../logger';
 import advisoryLock from 'advisory-lock';
 import { createJob } from './create-job';
+import { announcementService } from '../v1/services/announcements-service';
 
 const SCHEDULER_NAME = 'DeleteAnnouncements';
 const mutex = advisoryLock(config.get('server:databaseUrl'))(
@@ -14,7 +14,7 @@ export default createJob(
   crontime,
   async () => {
     log.info(`Starting scheduled job '${SCHEDULER_NAME}'.`);
-    await schedulerService.deleteAnnouncementSchedule();
+    await announcementService.deleteAnnouncementsSchedule();
     log.info(`Completed scheduled job '${SCHEDULER_NAME}'.`);
   },
   mutex,
