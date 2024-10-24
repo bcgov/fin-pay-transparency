@@ -531,7 +531,6 @@ are found, marks them as expired */
    * @returns
    */
   async getAnnouncementMetrics() {
-    this.deleteAnnouncementsSchedule();
     const announcementsData = await prisma.announcement.groupBy({
       where: { status: { in: ['PUBLISHED', 'DRAFT'] } },
       by: ['status'],
