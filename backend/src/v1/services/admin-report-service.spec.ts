@@ -664,7 +664,7 @@ describe('admin-report-service', () => {
       expect(report.is_unlocked).toBeTruthy();
       expect(report.admin_modified_date).toBe(report.report_unlock_date);
       expect(report.admin_user_id).toBe('1234');
-      expect(reportService.movePublishedReportToHistory).toHaveBeenCalled();
+      expect(reportService.copyPublishedReportToHistory).toHaveBeenCalled();
     });
     it('should change report is_unlocked to false', async () => {
       const report = await adminReportService.changeReportLockStatus(
