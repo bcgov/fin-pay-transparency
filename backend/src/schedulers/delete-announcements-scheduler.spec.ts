@@ -14,7 +14,22 @@ jest.mock('../config', () => ({
   },
 }));
 
-jest.mock('./create-job');
+jest.mock('./create-job', () => ({
+  createJob: jest.fn((cronTime, callback, mutex, { title, message }) => {
+    return {
+      start: jest.fn(async () => {
+        console.log(`Mock run`);
+        try {
+          await callback(); // Simulate the callback execution
+        } catch (e) {
+          console.error(`Mock error`);
+        } finally {
+          console.log(`Mock end run`);
+        }
+      }),
+    };
+  }),
+}));
 jest.mock('../v1/services/announcements-service');
 
 describe('delete-announcements-scheduler', () => {
