@@ -23,7 +23,7 @@
       @click="redirectToLogout()"
       data-testid="logout-btn"
     >
-      Logouts
+      Logout
     </v-btn>
 
     <!-- Navbar content -->
