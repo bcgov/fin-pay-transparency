@@ -71,6 +71,14 @@ jobs:
       UI_PRIVATE_KEY: |
         ${{ secrets.UI_PRIVATE_KEY }}
     steps:
+      - name: Set Variables
+        id: vars
+        shell: bash
+        run: |
+          # remove the excess part from semver, for example: x.x.x_* -> x.x.x
+          semver=$(echo ${{ inputs.semver }} | cut -d'_' -f1)
+          echo "Semver: $semver"
+          echo "semver: $semver" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v4
         name: checkout
       - name: Login to OpenShift
@@ -95,10 +103,7 @@ jobs:
       - name: Package HELM Chart
         shell: bash
         run: |
-          # remove the excess part from semver, for example: x.x.x_* -> x.x.x
-          semver=$(echo ${{ inputs.semver }} | cut -d'_' -f1)
-          echo "Semver: $semver"
-          helm package -u --app-version="${{ inputs.tag }}" --version=${semver} ./${{ inputs.directory }}
+          helm package -u --app-version="${{ inputs.tag }}" --version=${{ steps.vars.outputs.semver }} ${{ inputs.directory }}
 
       - name: Deploy to OpenShift
         shell: bash
@@ -164,7 +169,7 @@ jobs:
           --set-string crunchy.pgBackRest.s3.secretKey="${{ secrets.S3_SECRET_ACCESS_KEY }}"  \
           --set-string global.secrets.clamavApiKey="${{ secrets.CLAMAV_API_KEY }}" \
           ${{ inputs.params }} \
-          --timeout "$DEPLOY_TIMEOUT"m  ./${{ github.event.repository.name }}-${{ inputs.semver }}.tgz
+          --timeout "$DEPLOY_TIMEOUT"m  ./${{ github.event.repository.name }}-${{ steps.vars.outputs.semver }}.tgz
 
       - name: Print HELM Chart History
         shell: bash
