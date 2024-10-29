@@ -98,7 +98,7 @@ jobs:
           # remove the excess part from semver, for example: x.x.x_* -> x.x.x
           semver=$(echo ${{ inputs.semver }} | cut -d'_' -f1)
           echo "Semver: $semver"
-          helm package -u --app-version="${{ inputs.tag }}" --version=${{ inputs.semver }} ./${{ inputs.directory }}
+          helm package -u --app-version="${{ inputs.tag }}" --version=${semver} ./${{ inputs.directory }}
 
       - name: Deploy to OpenShift
         shell: bash
