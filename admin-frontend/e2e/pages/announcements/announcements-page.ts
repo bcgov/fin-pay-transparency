@@ -20,7 +20,7 @@ export class AnnouncementsPage extends AdminPortalPage {
   async setup() {
     await super.setup();
     this.addAnnouncementButton = await this.page.getByRole('link', {
-      name: 'Add Announcement',
+      name: 'Add a Announcementsss',
     });
     this.searchInput = await this.page.getByLabel('Search by title');
     this.searchButton = await this.page.getByRole('button', { name: 'Search' });
