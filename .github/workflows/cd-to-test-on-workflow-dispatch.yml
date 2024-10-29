@@ -45,7 +45,6 @@ jobs:
           tags: test
   deploys:
     name: Deploys (test)
-    needs: [image-promotions-to-test]
     uses: ./.github/workflows/.deploy.yml
     secrets: inherit
     with:
