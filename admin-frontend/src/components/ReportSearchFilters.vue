@@ -244,7 +244,6 @@ import {
   ZonedDateTime,
   nativeJs,
   DateTimeFormatter,
-  ZoneId,
   LocalDate,
 } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
@@ -291,9 +290,7 @@ function getReportSearchFilters(): ReportFilterType {
       key: 'create_date',
       operation: 'between',
       value: submissionDateRange.value.map((d, i) => {
-        const jodaZonedDateTime = ZonedDateTime.from(
-          nativeJs(d),
-        ).withZoneSameLocal(ZoneId.of('UTC'));
+        const jodaZonedDateTime = ZonedDateTime.from(nativeJs(d));
         const adjusted =
           i == 0
             ? jodaZonedDateTime //start of day
@@ -306,6 +303,7 @@ function getReportSearchFilters(): ReportFilterType {
                 .withMinute(59)
                 .withSecond(59)
                 .withNano(999);
+
         return DateTimeFormatter.ISO_DATE_TIME.format(adjusted);
       }),
     });

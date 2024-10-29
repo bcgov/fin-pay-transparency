@@ -51,6 +51,23 @@
       }
     },
     {
+      // Start clamav server which depends on clamav also running in podman.
+      // clamav requires quite a bit of memory and therefore isn't included with the rest by detault.
+      "name": "ClamAV Server",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "dev"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "cwd": "${workspaceFolder}/clamav-service",
+      "preLaunchTask": "Launch ClamAV",
+      "outputCapture": "std",
+      "presentation": {
+        "group": "Individual Servers",
+        "order": 1
+      }
+    },
+    {
       "name": "Admin-Frontend Server",
       "request": "launch",
       "runtimeArgs": ["run-script", "serve"],

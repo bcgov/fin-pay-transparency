@@ -12,6 +12,7 @@ import {
 } from '../types/report-search';
 import { PayTransparencyUserError } from './file-upload-service';
 import { reportService } from './report-service';
+import { utils } from './utils-service';
 
 interface IGetReportMetricsInput {
   reportingYear: number;
@@ -34,7 +35,7 @@ const adminReportService = {
   ): Promise<any> {
     offset = offset || 0;
     let sortObj: ReportSortType = [];
-    let filterObj: ReportFilterType[] = [];
+    let filters: ReportFilterType[] = [];
     if (limit < 0) {
       throw new PayTransparencyUserError('Invalid limit');
     }
@@ -43,14 +44,16 @@ const adminReportService = {
     }
     try {
       sortObj = JSON.parse(sort);
-      filterObj = JSON.parse(filter);
+      filters = JSON.parse(filter);
     } catch (e) {
       throw new PayTransparencyUserError('Invalid query parameters');
     }
 
-    await FilterValidationSchema.parseAsync(filterObj);
+    await FilterValidationSchema.parseAsync(filters);
 
-    const where = this.convertFiltersToPrismaFormat(filterObj);
+    filters = utils.convertIsoDateStringsToUtc(filters, 'value');
+
+    const where = this.convertFiltersToPrismaFormat(filters);
 
     const orderBy =
       adminReportServicePrivate.convertSortToPrismaFormat(sortObj);

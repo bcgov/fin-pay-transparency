@@ -80,7 +80,7 @@ describe('utils-service', () => {
           throw new Error('test');
         });
 
-        expect(utils.parseJwt('test')).toBe(null);
+        expect(utils.parseJwt('test')).toBeNull();
       });
     });
 
@@ -158,7 +158,7 @@ describe('utils-service', () => {
       });
     });
     describe('when typeHints are provided', () => {
-      it('the executed SQL includes casts to te specified hints', () => {
+      it('the executed SQL includes casts to te specified hints', async () => {
         const mockTx = {
           $executeRawUnsafe: jest.fn(),
         };
@@ -169,7 +169,7 @@ describe('utils-service', () => {
         const mockTableName = 'mock_table';
         const primaryKeyCol = 'mock_table_id';
 
-        utils.updateManyUnsafe(
+        await utils.updateManyUnsafe(
           mockTx,
           updates,
           typeHints,
@@ -196,6 +196,33 @@ describe('utils-service', () => {
         expect(executedSql).toContain(
           `'${updates[0].third_col}'::${typeHints.third_col}`,
         );
+      });
+    });
+  });
+
+  describe('convertIsoDateStringsToUtc', () => {
+    describe('given an array of objects with the wrong form', () => {
+      it('throws an error', () => {
+        const items = [{}];
+        expect(() =>
+          utils.convertIsoDateStringsToUtc(items, 'some_attribute'),
+        ).toThrow(
+          "All objects in the given array are expected to have a property called 'some_attribute'",
+        );
+      });
+    });
+    describe('given an array of objects, some of which have dates, and some which do not', () => {
+      it('returns a copy of the array, with modified copies of those items that have dates, and unmodified copies of the other items', () => {
+        const items = [
+          { value: '2024-10-02T00:00:00-07:00' },
+          { value: 'not a date' },
+        ];
+        const modifiedCopies = utils.convertIsoDateStringsToUtc(items, 'value');
+        const expected = [
+          { value: '2024-10-02T07:00:00Z' }, //date string converted to UTC
+          { value: 'not a date' }, //not modified
+        ];
+        expect(modifiedCopies).toStrictEqual(expected);
       });
     });
   });

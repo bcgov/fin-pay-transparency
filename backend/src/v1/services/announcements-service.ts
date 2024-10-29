@@ -5,6 +5,7 @@ import {
   ZonedDateTime,
   ZoneId,
 } from '@js-joda/core';
+import '@js-joda/timezone';
 import {
   announcement,
   announcement_resource,
@@ -13,6 +14,7 @@ import {
 } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import isEmpty from 'lodash/isEmpty';
+import { config } from '../../config';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
@@ -24,8 +26,7 @@ import {
 } from '../types/announcements';
 import { UserInputError } from '../types/errors';
 import { utils } from './utils-service';
-import { config } from '../../config';
-import '@js-joda/timezone';
+import { deleteFiles } from '../../external/services/s3-api';
 
 const saveHistory = async (
   tx: Omit<
@@ -132,6 +133,8 @@ export const announcementService = {
   async getAnnouncements(
     query: AnnouncementQueryType = {},
   ): Promise<PaginatedResult<announcement>> {
+    query.filters = utils.convertIsoDateStringsToUtc(query.filters, 'value');
+
     const where = buildAnnouncementWhereInput(query);
     const orderBy = buildAnnouncementSortInput(query);
     const items = await prisma.announcement.findMany({
@@ -544,5 +547,115 @@ are found, marks them as expired */
     return {
       ...announcementsMetrics,
     };
+  },
+
+  /** Delete records, history, and object store. If any part of an item fails to delete, then the whole item's collection is not deleted. */
+  async deleteAnnouncementsSchedule() {
+    const cutoffDate = convert(
+      ZonedDateTime.now().minusDays(
+        config.get('server:deleteAnnouncementsDurationInDays'),
+      ),
+    ).toDate();
+
+    // Get list of ids that are after the cutoffDate
+    const announcementsToDelete = await prisma.announcement.findMany({
+      where: {
+        OR: [
+          {
+            status: AnnouncementStatus.Expired,
+            expires_on: { lt: cutoffDate },
+          },
+          {
+            status: AnnouncementStatus.Deleted,
+            updated_date: { lt: cutoffDate },
+          },
+        ],
+      },
+      select: {
+        announcement_id: true,
+        title: true,
+      },
+    });
+
+    const announcementIds = announcementsToDelete.map((a) => a.announcement_id);
+
+    if (announcementIds.length === 0) {
+      logger.info('No announcements to delete.');
+      return;
+    }
+
+    // Get list of object store ids associated with the announcement id's (history will always share )
+    const attachmentResources = await prisma.announcement_resource.findMany({
+      where: {
+        announcement_id: { in: announcementIds },
+        resource_type: 'ATTACHMENT',
+      },
+      select: {
+        announcement_id: true,
+        attachment_file_id: true,
+      },
+    });
+    const lookupFileIdFromId = attachmentResources.reduce(
+      (acc, { announcement_id, attachment_file_id }) => {
+        acc[announcement_id] = attachment_file_id;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+
+    // Delete files in announcements
+    const successfulDeletions = await deleteFiles(
+      Object.values(lookupFileIdFromId),
+    );
+
+    // Update list of announcements to delete, we don't want to delete any announcements that have a reference to a file that wasn't deleted
+    const announcementsWithResources = new Set(
+      attachmentResources.map((a) => a.announcement_id),
+    );
+    const safeToDelete = announcementsToDelete.filter(
+      (a) =>
+        !announcementsWithResources.has(a.announcement_id) || // Keep this record if it didn't have any files, or,
+        successfulDeletions.has(lookupFileIdFromId[a.announcement_id]), // Keep this record if it does have files and those files were successful removed
+    );
+
+    if (safeToDelete.length === 0) {
+      logger.info('No announcements could be deleted.');
+      return;
+    }
+
+    // Delete from database
+    await Promise.all(
+      safeToDelete.map(async (x) => {
+        try {
+          await prisma.$transaction(async (tx) => {
+            await tx.announcement_resource_history.deleteMany({
+              where: {
+                announcement_id: x.announcement_id,
+              },
+            });
+            await tx.announcement_resource.deleteMany({
+              where: {
+                announcement_id: x.announcement_id,
+              },
+            });
+            await tx.announcement_history.deleteMany({
+              where: {
+                announcement_id: x.announcement_id,
+              },
+            });
+            await tx.announcement.deleteMany({
+              where: {
+                announcement_id: x.announcement_id,
+              },
+            });
+          });
+          logger.info(`Deleted announcement titled '${x.title}'`);
+        } catch (err) {
+          logger.error(
+            `Failed to delete announcement '${x.title}' (ID: ${x.announcement_id}). Error: ${err.message}`,
+          );
+        }
+      }),
+    );
   },
 };
