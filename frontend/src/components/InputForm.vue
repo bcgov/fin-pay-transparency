@@ -382,9 +382,9 @@
             <v-row dense>
               <v-col>
                 <RichTextArea
-                  id="employer-statement"
+                  id="employerStatement"
+                  v-model="comments"
                   placeholder="Maximum 4,000 characters"
-                  :initial-value="comments"
                   :max-length="4000"
                 ></RichTextArea>
                 <!--v-textarea
@@ -435,18 +435,11 @@
             <v-row dense>
               <v-col>
                 <RichTextArea
-                  id="data-constraints"
-                  placeholder="Maximum 3,000 characters"
-                  :initial-value="dataConstraints"
-                  :max-length="3000"
-                ></RichTextArea>
-                <!--v-textarea
                   id="dataConstraints"
                   v-model="dataConstraints"
                   placeholder="Maximum 3,000 characters"
-                  maxlength="3000"
-                  counter
-                /-->
+                  :max-length="3000"
+                ></RichTextArea>
               </v-col>
             </v-row>
             <!-- File Upload -->

@@ -31,7 +31,7 @@ const mockEmployeeCountRanges = [
 
 const mockReport = {
   report_id: '456768',
-  user_comment: 'test abc',
+  user_comment: '<p>test abc</p>',
   employee_count_range_id: '1',
   naics_code: '913',
   report_start_date: LocalDate.now()
@@ -45,7 +45,7 @@ const mockReport = {
     .with(TemporalAdjusters.lastDayOfMonth())
     .format(dateFormatter),
   reporting_year: LocalDate.now().year(),
-  data_constraints: 'test 123',
+  data_constraints: '<p>test 123</p>',
   is_unlocked: true,
 };
 
@@ -160,7 +160,7 @@ describe('InputForm', () => {
     expect(wrapper.findAll('#endYear').length).toBe(1);
     expect(wrapper.findAll('#reportYear').length).toBe(1);
     expect(wrapper.findAll('#dataConstraints').length).toBe(1);
-    expect(wrapper.findAll('#comments').length).toBe(1);
+    expect(wrapper.findAll('#employerStatement').length).toBe(1);
     expect(wrapper.find('#csvFile').attributes('type')).toBe('file');
     expect(wrapper.find('#csvFile').attributes('accept')).toBe('.csv');
   });

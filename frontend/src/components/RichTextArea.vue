@@ -26,8 +26,10 @@
           :class="{
             'text-error': plainTextLength > maxLength,
           }"
-          >{{ plainTextLength
-          }}<span v-if="maxLength"> / {{ maxLength }}</span></small
+          ><span class="plaintext-length">{{ plainTextLength }}</span
+          ><span v-if="maxLength">
+            / <span class="max-length">{{ maxLength }}</span></span
+          ></small
         >
       </div>
     </div>
@@ -40,19 +42,30 @@ export default {
 </script>
 <script setup lang="ts">
 import Quill from 'quill';
-import { onMounted, ref } from 'vue';
+import 'quill-paste-smart';
+import { onMounted, ref, watch } from 'vue';
 
 const richTextToolbar = ref(null);
 const richTextEditor = ref(null);
 let quill: Quill | undefined = undefined;
 const plainTextLength = ref<number | undefined>(undefined);
 
+const emit = defineEmits(['update:modelValue']);
+
 const props = defineProps<{
   placeholder?: string | undefined;
   maxLength?: number | undefined;
-  initialValue?: string | undefined;
+  modelValue?: string | undefined | null;
   errorMessage?: string | undefined;
 }>();
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    setHtml(value);
+  },
+  //{ immediate: true },
+);
 
 onMounted(() => {
   if (richTextEditor.value) {
@@ -61,15 +74,38 @@ onMounted(() => {
       placeholder: props.placeholder,
       modules: {
         toolbar: richTextToolbar.value,
+        clipboard: {
+          //restrict the types of content that can be pasted into the editor.
+          allowed: {
+            tags: ['b', 'strong', 'u', 'em', 'i', 'p', 'br', 'ul', 'ol', 'li'],
+            attributes: ['data-list'],
+          },
+        },
       },
     });
     quill.on('text-change', onTextChanged);
+    if (props.modelValue) {
+      setHtml(props.modelValue);
+    }
   }
 });
 
-const onTextChanged = (delta, oldDelta, source) => {
-  if (quill) {
-    plainTextLength.value = getPlainTextLength();
+const onTextChanged = (delta, oldDelta?, source?) => {
+  console.log('text changed');
+  plainTextLength.value = getPlainTextLength();
+  emit('update:modelValue', getHtml());
+};
+
+const setHtml = (html: string | undefined | null) => {
+  if (html == getHtml()) {
+    // Ignore if the incoming html is the same as the existing html.
+    // This ensures we don't cause an infinite feedback loop of
+    // update:modelValue events.
+    return;
+  }
+  const delta = quill?.clipboard.convert({ html: html ? html : undefined });
+  if (delta) {
+    quill?.setContents(delta, 'user');
   }
 };
 

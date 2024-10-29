@@ -19,12 +19,6 @@ import Footer from './components/Footer.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
 import { NotificationService } from './common/notificationService';
-import Quill from 'quill';
-import Toolbar from 'quill/modules/toolbar';
-import Snow from 'quill/themes/snow';
-import Bold from 'quill/formats/bold';
-import Italic from 'quill/formats/italic';
-import QuillHeader from 'quill/formats/header';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
 
@@ -50,23 +44,8 @@ export default {
       }
     },
   },
-  async created() {},
-  async mounted() {
-    this.initializeQuill();
-  },
   methods: {
     appStore,
-    /* Quill is the rich-text-editor library that is used by the RichTextArea component.
-    It needs to be initialized once on application load. */
-    initializeQuill() {
-      Quill.register({
-        'modules/toolbar': Toolbar,
-        'themes/snow': Snow,
-        'formats/bold': Bold,
-        'formats/italic': Italic,
-        'formats/header': QuillHeader,
-      });
-    },
   },
 };
 </script>
