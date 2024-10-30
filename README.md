@@ -142,5 +142,6 @@ flowchart
     D -->|On Approval and Merge to releases/hotfix| E[Clean up PR environment and create the new Docker Tags and GitHub Tag]
     E -->|Promote to PROD, using the tag that was generated in previous step | F[Promote to Prod using branch releases/hotfix using existing github workflow, check the is hostfix deployment to true, cd-to-prod-on-workflow-dispatch.yml]
     F -->|Create a PR to main branch from releases/hotfix| G[Resolve Merge Conflicts here and promote through, DEV and TEST]
+    H--> |Close the releases/hotfix branch| 
 
 ```
