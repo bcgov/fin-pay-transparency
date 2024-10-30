@@ -7,12 +7,18 @@ on:
       tag:
         description: "The Docker Tag to deploy, it would be the latest tagged version that you want to deploy from TEST to PROD."
         required: true
+      is_hotfix:
+        description: "Is this a hotfix deployment?"
+        required: false
+        default: false
+        type: boolean
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
   image-promotions-to-prod: # This is just for adding another tag to the image to reflect which docker tag is deployed to PROD.
+    if: ${{ !github.event.inputs.is_hotfix }}
     name: Image Promotions to PROD
     runs-on: ubuntu-22.04
     permissions:
@@ -38,7 +44,6 @@ jobs:
           tags: prod
   deploys:
     name: Deploys (prod)
-    needs: [image-promotions-to-prod]
     uses: ./.github/workflows/.deploy.yml
     secrets: inherit
     with:

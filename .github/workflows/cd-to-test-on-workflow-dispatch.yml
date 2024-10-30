@@ -8,13 +8,18 @@ on:
       tag:
         description: "The Docker Tag to deploy, it would be the latest tagged version that you want to deploy from dev to TEST."
         required: true
-
+      is_hotfix:
+        description: "Is this a hotfix deployment?"
+        required: false
+        default: false
+        type: boolean
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
   image-promotions-to-test: # This is just for adding another tag to the image to reflect which docker tag is deployed to TEST.
+    if: ${{ !github.event.inputs.is_hotfix }}
     name: Image Promotions to TEST
     runs-on: ubuntu-22.04
     permissions:
@@ -40,7 +45,6 @@ jobs:
           tags: test
   deploys:
     name: Deploys (test)
-    needs: [image-promotions-to-test]
     uses: ./.github/workflows/.deploy.yml
     secrets: inherit
     with:
