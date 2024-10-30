@@ -7,6 +7,7 @@ yarn-debug.log*
 yarn-error.log*
 /tests/unit/coverage/
 /tests/e2e/reports/
+/e2e/assets/announcements/invalid.com
 selenium-debug.log
 junit.xml
 test-report.xml
