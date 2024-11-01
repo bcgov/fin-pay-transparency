@@ -64,7 +64,6 @@ watch(
   (value) => {
     setHtml(value);
   },
-  //{ immediate: true },
 );
 
 onMounted(() => {
@@ -91,7 +90,6 @@ onMounted(() => {
 });
 
 const onTextChanged = (delta, oldDelta?, source?) => {
-  console.log('text changed');
   plainTextLength.value = getPlainTextLength();
   emit('update:modelValue', getHtml());
 };

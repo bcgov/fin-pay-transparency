@@ -111,14 +111,21 @@ const docGenServicePrivate = {
     NO_PAGE: 'no-page',
     PAGE: 'page',
     PAGE_CONTENT: 'page-content',
+    RICH_TEXT: 'rich-text',
     BLOCK_GROUP: 'block-group',
     BLOCK: 'block',
+    BLOCK_TITLE: 'block-title',
+    BLOCK_BODY: 'block-body',
     BLOCK_EXPLANATORY_NOTES: 'block-explanatory-notes',
     EXPLANATORY_NOTES: 'explanatory-notes',
     NOTE: 'note',
     FOOTNOTE_GROUP: 'footnote-group',
     FOOTNOTES: 'footnotes',
     WATERMARK: 'watermark',
+  },
+  STYLE_IDS: {
+    BLOCK_USER_COMMENTS: 'block-user-comments',
+    BLOCK_DATA_CONSTRAINTS: 'block-data-constraints',
   },
 
   REPORT_TEMPLATE_HEADER: resolve(
@@ -279,6 +286,23 @@ const docGenServicePrivate = {
     );
   },
 
+  async addAfter(puppeteerPage: Page, elemToAdd, elemToAddAfter) {
+    if (!elemToAdd) {
+      throw new Error('elemToAdd must not be null');
+    }
+    if (!elemToAddAfter) {
+      throw new Error('elemToAddAfter must not be null');
+    }
+    /* istanbul ignore next */
+    await puppeteerPage.evaluate(
+      (a, r) => {
+        r.parentNode.insertBefore(a, r.nextSibling);
+      },
+      elemToAdd,
+      elemToAddAfter,
+    );
+  },
+
   /*
   Deletes the given element from the DOM
   */
@@ -297,6 +321,136 @@ const docGenServicePrivate = {
   async isElementEmpty(puppeteerPage, elem): Promise<boolean> {
     /* istanbul ignore next */
     return await puppeteerPage.evaluate((e) => !e?.childNodes?.length, elem);
+  },
+
+  /*
+  creates and returns a new element with class 'block'.  Includes two (optional) child 
+  elements: 
+  - one with class 'block-title' 
+  - one with class 'block-body'
+   */
+  async createBlock(
+    puppeteerPage: Page,
+    titleElem,
+    bodyElem,
+    blockClasses?: string[],
+    blockBodyClasses?: string[],
+  ) {
+    const blockElem = await puppeteerPage.evaluateHandle(() => {
+      return document.createElement('div');
+    });
+
+    await puppeteerPage.evaluate(
+      (blockElem, titleElem, bodyElem, blockClasses, blockBodyClasses) => {
+        blockElem.className = blockClasses?.length
+          ? blockClasses.join(' ')
+          : 'block';
+
+        if (titleElem) {
+          titleElem.className = 'block-title';
+          blockElem.appendChild(titleElem);
+        }
+        if (bodyElem) {
+          bodyElem.className = blockBodyClasses?.length
+            ? blockBodyClasses.join(' ')
+            : '';
+          blockElem.appendChild(bodyElem);
+        }
+      },
+      blockElem,
+      titleElem,
+      bodyElem,
+      blockClasses,
+      blockBodyClasses,
+    );
+
+    return blockElem;
+  },
+
+  /*
+  Splits the given 'block' element into multiple block elements.
+  Expects the given element to have a DOM of this format
+    <div class="block">
+      <h4 class=”block-title">
+        Optional block title
+      </h4>
+      <div class="block-body">
+        <p>Block content part 1</p>
+        <p>Block content part 2</p>
+        <p>Block content part 3</p>
+      </div>
+    </div>
+
+  This function doesn't return anything, but it does modify the DOM
+  of the puppeteer page: the given 'block' is replaced by one or more
+  smaller blocks.
+  */
+  async splitBlock(puppeteerPage: Page, blockToSplit, classesToAdd?: string[]) {
+    if (!blockToSplit) {
+      console.log('empty block. nothing to do');
+      return;
+    }
+
+    //from the given block, get the 'block-title' and the 'block-body' element
+    const blockTitle = await blockToSplit.$(
+      `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_TITLE}`,
+    );
+
+    const blockBody = await blockToSplit.$(
+      `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}`,
+    );
+
+    const blockBodyChildren = await blockBody.$$(
+      `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY} > *`,
+    );
+
+    const blockBodyClasses = await blockBody.evaluate((el) => [
+      ...el.classList,
+    ]);
+
+    //get the child nodes of 'block-body'
+    //const blockBodyChildren = await puppeteerPage.evaluate(
+    //  (e) => e?.childNodes,
+    //  blockBody,
+    //);
+    //convert each child of the original 'block-body' into its own block
+    const smallBlocks = [];
+    for (let i = 0; i < blockBodyChildren.length; i++) {
+      const child = blockBodyChildren[i];
+      const isLastChild = i == blockBodyChildren.length - 1;
+
+      const blockClasses = ['block'];
+      if (classesToAdd?.length) {
+        blockClasses.push(...classesToAdd);
+      }
+      //normally there is a bottom margin on each block.  when we split a large block into
+      //several smaller blocks we don't want each smaller block to have the bottom margin.
+      //only the last of the smaller blocks should have a bottom margin.  omit it otherwise.
+      if (!isLastChild) {
+        blockClasses.push('mb-0');
+      }
+
+      const smallBlock = await docGenServicePrivate.createBlock(
+        puppeteerPage,
+        null,
+        child,
+        blockClasses,
+        blockBodyClasses,
+      );
+      smallBlocks.push(smallBlock);
+    }
+
+    //Add the new small blocks to the DOM immediately after the original given block
+    for (const smallBlock of smallBlocks.reverse()) {
+      await docGenServicePrivate.addAfter(
+        puppeteerPage,
+        smallBlock,
+        blockToSplit,
+      );
+    }
+    //remove the original given block from the DOM (now that it's been replaced
+    //by the smaller blocks.)
+    await docGenServicePrivate.removeFromDom(puppeteerPage, blockToSplit);
   },
 
   /*
@@ -887,6 +1041,28 @@ async function generateReport(
       },
       reportData,
     );
+
+    //Split potentially large 'blocks' into smaller 'blocks'.  This is necessary because
+    // We don't allow blocks to be split at page boundaries.  Therefore, if a block has
+    //too much content (i.e. requires too much vertical space) it's best to split it into
+    //multiple smaller blocks.  Most of the blocks on the page have a predictable size, but
+    //two have the potential to be large: the 'data constraints' text and the
+    //'user comments' text.
+    const userCommentsBlock = await puppeteerPage.$(
+      `#${docGenServicePrivate.STYLE_IDS.BLOCK_USER_COMMENTS}`,
+    );
+    const dataConstraintsBlock = await puppeteerPage.$(
+      `#${docGenServicePrivate.STYLE_IDS.BLOCK_DATA_CONSTRAINTS}`,
+    );
+    for (const blockToSplit of [userCommentsBlock, dataConstraintsBlock]) {
+      if (!blockToSplit) {
+        continue;
+      }
+      console.log(blockToSplit);
+      await docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit, [
+        docGenServicePrivate.STYLE_CLASSES.RICH_TEXT,
+      ]);
+    }
 
     //Reorganize the content in the DOM so it is grouped into <div>
     //elements with the .page class.
