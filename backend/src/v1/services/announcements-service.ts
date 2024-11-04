@@ -435,7 +435,7 @@ export const announcementService = {
       }
 
       if (
-        input.status != AnnouncementStatus.Published && // If announcement is already published, don't change the active_on
+        announcementData.status != AnnouncementStatus.Published && // If announcement is already published, don't change the active_on
         !isEmpty(input.active_on) &&
         ZonedDateTime.parse(input.active_on).isBefore(ZonedDateTime.now())
       ) {
