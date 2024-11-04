@@ -1,5 +1,10 @@
 import { faker } from '@faker-js/faker';
-import { LocalDateTime, ZonedDateTime, ZoneId } from '@js-joda/core';
+import {
+  DateTimeFormatter,
+  LocalDateTime,
+  ZonedDateTime,
+  ZoneId,
+} from '@js-joda/core';
 import omit from 'lodash/omit';
 import {
   AnnouncementDataType,
@@ -915,6 +920,108 @@ describe('AnnouncementsService', () => {
           data: expect.objectContaining({
             expires_on: null,
             active_on: null,
+          }),
+        }),
+      );
+    });
+    it('should change the active_on date if the announcement becomes published', async () => {
+      // If a draft announcement was created an hour ago with the current time as the active_on time, then when
+      // saving as published with the time an hour ago, the active_on time should be changed to now().
+      const draftActiveDate = ZonedDateTime.now()
+        .minusHours(1)
+        .format(DateTimeFormatter.ISO_DATE_TIME);
+      mockFindUniqueOrThrow.mockResolvedValue({
+        id: 'announcement-id',
+        active_on: draftActiveDate,
+        status: 'DRAFT',
+        announcement_resource: [],
+      });
+      const announcementInput: AnnouncementDataType = {
+        title: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        expires_on: '',
+        active_on: draftActiveDate,
+        status: 'PUBLISHED',
+        linkDisplayName: '',
+        linkUrl: '',
+      };
+      await announcementService.updateAnnouncement(
+        'announcement-id',
+        announcementInput,
+        'user-id',
+      );
+      expect(mockUpdate).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            active_on: draftActiveDate,
+          }),
+        }),
+      );
+    });
+    it("shouldn't change the active_on date if the announcement is already published", async () => {
+      // If a published announcement was created an hour ago with the current time as the
+      // active_on time, then don't change the active_on time. It needs to remain as it was.
+      const draftActiveDate = ZonedDateTime.now()
+        .minusHours(1)
+        .format(DateTimeFormatter.ISO_DATE_TIME);
+      mockFindUniqueOrThrow.mockResolvedValue({
+        id: 'announcement-id',
+        active_on: draftActiveDate,
+        status: 'PUBLISHED',
+        announcement_resource: [],
+      });
+      const announcementInput: AnnouncementDataType = {
+        title: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        expires_on: '',
+        active_on: draftActiveDate,
+        status: 'PUBLISHED',
+        linkDisplayName: '',
+        linkUrl: '',
+      };
+      await announcementService.updateAnnouncement(
+        'announcement-id',
+        announcementInput,
+        'user-id',
+      );
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            active_on: draftActiveDate,
+          }),
+        }),
+      );
+    });
+    it("shouldn't change the active_on date if the date is in the future", async () => {
+      // If an announcement was created to have an active_on time in the future, then
+      // don't change the active_on time. It needs to remain as it is.
+      const draftActiveDate = ZonedDateTime.now()
+        .plusHours(1)
+        .format(DateTimeFormatter.ISO_DATE_TIME);
+      mockFindUniqueOrThrow.mockResolvedValue({
+        id: 'announcement-id',
+        active_on: draftActiveDate,
+        status: 'DRAFT',
+        announcement_resource: [],
+      });
+      const announcementInput: AnnouncementDataType = {
+        title: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        expires_on: '',
+        active_on: draftActiveDate,
+        status: 'PUBLISHED',
+        linkDisplayName: '',
+        linkUrl: '',
+      };
+      await announcementService.updateAnnouncement(
+        'announcement-id',
+        announcementInput,
+        'user-id',
+      );
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            active_on: draftActiveDate,
           }),
         }),
       );
