@@ -42,7 +42,6 @@ export default {
 </script>
 <script setup lang="ts">
 import Quill from 'quill';
-import 'quill-paste-smart';
 import { onMounted, ref, watch } from 'vue';
 
 const richTextToolbar = ref(null);
@@ -70,16 +69,17 @@ onMounted(() => {
   if (richTextEditor.value) {
     quill = new Quill(richTextEditor.value, {
       theme: 'snow',
+      formats: ['italic', 'bold', 'underline', 'list'],
       placeholder: props.placeholder,
       modules: {
         toolbar: richTextToolbar.value,
-        clipboard: {
-          //restrict the types of content that can be pasted into the editor.
-          allowed: {
-            tags: ['b', 'strong', 'u', 'em', 'i', 'p', 'br', 'ul', 'ol', 'li'],
-            attributes: ['data-list'],
-          },
-        },
+        //clipboard: {
+        //restrict the types of content that can be pasted into the editor.
+        //allowed: {
+        //  tags: ['b', 'strong', 'u', 'em', 'i', 'p', 'br', 'ul', 'ol', 'li'],
+        //  attributes: ['data-list'],
+        //},
+        //},
       },
     });
     quill.on('text-change', onTextChanged);

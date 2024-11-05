@@ -91,11 +91,8 @@ type SupplementaryReportData = {
     margin: {
       top: number;
       bottom: number;
-      left: number;
-      right: number;
     };
     height: number;
-    width: number;
   };
   footnoteSymbols: {
     genderCategorySuppressed: string;
@@ -848,11 +845,8 @@ const docGenServicePrivate = {
         margin: {
           top: PDF_PAGE_SIZE_PIXELS.marginY,
           bottom: PDF_PAGE_SIZE_PIXELS.marginY,
-          left: PDF_PAGE_SIZE_PIXELS.marginX,
-          right: PDF_PAGE_SIZE_PIXELS.marginX,
         },
         height: PDF_PAGE_SIZE_PIXELS.height,
-        width: PDF_PAGE_SIZE_PIXELS.width,
       },
       footnoteSymbols: DEFAULT_FOOTNOTE_SYMBOLS,
       isGeneralSuppressedDataFootnoteVisible:

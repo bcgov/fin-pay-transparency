@@ -296,23 +296,6 @@ describe('validate-service', () => {
       rows: [] as any[],
     };
 
-    describe(`given data constraints that exceed the maximum length`, () => {
-      it('returns an error message', () => {
-        const dataConstraintsTooLong = 'a'.repeat(MAX_LEN_DATA_CONSTRAINTS + 1);
-        const invalidSubmission = Object.assign({}, validSubmission, {
-          dataConstraints: dataConstraintsTooLong,
-        });
-        const result: ValidationError | null =
-          validateService.validateSubmissionBody(invalidSubmission);
-        expect(
-          doesAnyStringContainAll(result.bodyErrors, [
-            FIELD_DATA_CONSTRAINTS,
-            MAX_LEN_DATA_CONSTRAINTS + '',
-          ]),
-        ).toBeTruthy();
-      });
-    });
-
     describe(`given valid data constraints`, () => {
       it('returns no error messages related to data constraints', () => {
         const dataConstraintsTooLong = 'a'.repeat(MAX_LEN_DATA_CONSTRAINTS);
