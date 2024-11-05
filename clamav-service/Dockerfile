@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim AS build
+FROM node:22-bullseye-slim AS build
 
 # Install packages, build and keep only prod packages
 WORKDIR /app
@@ -8,7 +8,7 @@ RUN npm ci --ignore-scripts && \
     npm run build
 
 
-FROM node:20-bullseye-slim AS dependencies
+FROM node:22-bullseye-slim AS dependencies
 
 # Install packages, build and keep only prod packages
 WORKDIR /app
@@ -17,7 +17,7 @@ RUN npm ci --omit=dev --ignore-scripts
 
 
 # Deployment container
-FROM gcr.io/distroless/nodejs20-debian11:nonroot
+FROM gcr.io/distroless/nodejs22-debian12:nonroot
 ENV NODE_ENV=production
 # Copy over app.ts
 WORKDIR /app
