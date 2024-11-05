@@ -4,14 +4,14 @@ import {
   PowerBiResourceName,
 } from './analytic-service';
 
-const mockGetEmbedParamsForReports = jest.fn();
+const mockgetEmbedParamsForReportsByName = jest.fn();
 jest.mock('../../external/services/powerbi-service', () => {
   const actual = jest.requireActual('../../external/services/powerbi-service');
   return {
     ...actual,
     PowerBiService: jest.fn().mockImplementation(() => {
       return {
-        getEmbedParamsForReports: mockGetEmbedParamsForReports,
+        getEmbedParamsForReportsByName: mockgetEmbedParamsForReportsByName,
       };
     }),
   };
@@ -40,7 +40,7 @@ describe('getEmbedInfo', () => {
       expiry: '2024',
     };
 
-    mockGetEmbedParamsForReports.mockResolvedValue({
+    mockgetEmbedParamsForReportsByName.mockResolvedValue({
       resources: [
         { id: output.resources[0].id, embedUrl: output.resources[0].embedUrl },
         { id: output.resources[1].id, embedUrl: output.resources[1].embedUrl },
@@ -51,7 +51,7 @@ describe('getEmbedInfo', () => {
       PowerBiResourceName.Analytics,
       PowerBiResourceName.Analytics,
     ]);
-    expect(mockGetEmbedParamsForReports).toHaveBeenCalledTimes(1);
+    expect(mockgetEmbedParamsForReportsByName).toHaveBeenCalledTimes(1);
     expect(json).toMatchObject(output);
   });
 
@@ -62,6 +62,6 @@ describe('getEmbedInfo', () => {
         'invalid' as never,
       ]),
     ).rejects.toThrow('Invalid resource names');
-    expect(mockGetEmbedParamsForReports).not.toHaveBeenCalled();
+    expect(mockgetEmbedParamsForReportsByName).not.toHaveBeenCalled();
   });
 });
