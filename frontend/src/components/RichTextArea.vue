@@ -50,7 +50,7 @@ const richTextEditor = ref(null);
 let quill: Quill | undefined = undefined;
 const plainTextLength = ref<number | undefined>(undefined);
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'plainTextLengthChanged']);
 
 const props = defineProps<{
   placeholder?: string | undefined;
@@ -92,6 +92,7 @@ onMounted(() => {
 const onTextChanged = (delta, oldDelta?, source?) => {
   plainTextLength.value = getPlainTextLength();
   emit('update:modelValue', getHtml());
+  emit('plainTextLengthChanged', plainTextLength.value);
 };
 
 const setHtml = (html: string | undefined | null) => {

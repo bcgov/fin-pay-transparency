@@ -351,7 +351,14 @@
             <v-row>
               <v-col>
                 <div class="text-body-1 font-weight-bold">
-                  <label for="comments"> Employer Statement </label>
+                  <label
+                    for="comments"
+                    :class="{
+                      'text-error': isSubmit && !isEmployerStatementValid,
+                    }"
+                  >
+                    Employer Statement
+                  </label>
                   <v-tooltip
                     id="employer-statement-tooltip"
                     text="Please share any general information about your employer."
@@ -384,8 +391,16 @@
                 <RichTextArea
                   id="employerStatement"
                   v-model="comments"
-                  placeholder="Maximum 4,000 characters"
-                  :max-length="4000"
+                  :placeholder="`Maximum ${employerStatementMaxLength} characters`"
+                  :max-length="employerStatementMaxLength"
+                  :error-message="
+                    isSubmit && !isEmployerStatementValid
+                      ? `Maximum ${employerStatementMaxLength} characters`
+                      : undefined
+                  "
+                  @plain-text-length-changed="
+                    (v) => (employerStatementLength = v)
+                  "
                 ></RichTextArea>
               </v-col>
             </v-row>
@@ -393,7 +408,14 @@
             <v-row>
               <v-col>
                 <div class="text-body-1 font-weight-bold">
-                  <label for="dataConstraints"> Data Constraints </label>
+                  <label
+                    for="dataConstraints"
+                    :class="{
+                      'text-error': isSubmit && !isDataConstraintsValid,
+                    }"
+                  >
+                    Data Constraints
+                  </label>
                   <v-tooltip
                     id="data-constraints-tooltip"
                     text="Please share any relevant information, such as limitations, constraints, or dependencies, that may help explain your payroll data. For example, 'Bonus pay is not offered by [employer name]'."
@@ -430,8 +452,16 @@
                 <RichTextArea
                   id="dataConstraints"
                   v-model="dataConstraints"
-                  placeholder="Maximum 3,000 characters"
-                  :max-length="3000"
+                  :placeholder="`Maximum ${dataConstraintsMaxLength} characters`"
+                  :max-length="dataConstraintsMaxLength"
+                  :error-message="
+                    isSubmit && !isDataConstraintsValid
+                      ? `Maximum ${dataConstraintsMaxLength} characters`
+                      : undefined
+                  "
+                  @plain-text-length-changed="
+                    (v) => (dataConstraintsLength = v)
+                  "
                 ></RichTextArea>
               </v-col>
             </v-row>
@@ -764,6 +794,10 @@ export default {
     approvedRoute: null as string | null,
     reportStatus: null,
     reportingYearOptions: [] as number[],
+    employerStatementLength: undefined,
+    dataConstraintsLength: undefined,
+    employerStatementMaxLength: 4000,
+    dataConstraintsMaxLength: 3000,
   }),
   computed: {
     ...mapState(useConfigStore, ['config']),
@@ -786,7 +820,9 @@ export default {
         !!this.endMonth &&
         !!this.endYear &&
         !!this.reportYear &&
-        !!this.uploadFileValue
+        !!this.uploadFileValue &&
+        this.isEmployerStatementValid &&
+        this.isDataConstraintsValid
       );
     },
     uploadFileSize() {
@@ -829,6 +865,18 @@ export default {
     },
     isEditMode() {
       return this.reportId != null;
+    },
+    isEmployerStatementValid() {
+      return (
+        !this.employerStatementLength ||
+        this.employerStatementLength <= this.employerStatementMaxLength
+      );
+    },
+    isDataConstraintsValid() {
+      return (
+        !this.dataConstraintsLength ||
+        this.dataConstraintsLength <= this.dataConstraintsMaxLength
+      );
     },
   },
   watch: {
