@@ -23,6 +23,7 @@ type EmbedConfig = {
 };
 
 export type ReportInWorkspace = { workspaceId: string; reportId: string };
+export type ReportNameInWorkspace = { workspaceId: string; reportName: string };
 
 /**
  * Class to authenticate and make use of the PowerBi REST API.
@@ -37,6 +38,63 @@ export class PowerBiService {
     private tenantId: string,
   ) {
     this.powerBiApi = new PowerBi.Api(powerBiUrl);
+  }
+
+  /**
+   * Get embed params for multiple report in multiple workspace. Search reports by name
+   * https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-report-in-group
+   * @return EmbedConfig object
+   */
+  public async getEmbedParamsForReportsByName(
+    reportNameInWorkspace: ReportNameInWorkspace[],
+  ): Promise<EmbedConfig> {
+    try {
+      const header = await this.getEntraAuthorizationHeader();
+
+      const workspaces = uniq(reportNameInWorkspace.map((x) => x.workspaceId));
+
+      const reportsPerWorkspace: Record<string, PowerBi.Report[]> = {};
+
+      // Get all the reports in each workspace by calling the PowerBI REST API
+      await Promise.all(
+        workspaces.map(async (id) => {
+          const reports = await this.powerBiApi.getReports(
+            { workspaceId: id },
+            {
+              headers: header,
+            },
+          );
+          reportsPerWorkspace[id] = reports.data.value;
+        }),
+      );
+
+      // Limit the found reports to only the ones requested
+      const reports = reportNameInWorkspace.map((res) =>
+        reportsPerWorkspace[res.workspaceId].find(
+          (x) => x.name == res.reportName,
+        ),
+      );
+
+      // Get Embed token multiple resources
+      const embedToken = await this.getEmbedTokenForV2Workspace(
+        uniq(reports.map((report) => report.id)),
+        uniq(reports.map((report) => report.datasetId)),
+        uniq(reportNameInWorkspace.map((res) => res.workspaceId)),
+      );
+
+      // Add report data for embedding
+      const reportDetails: PowerBiResource[] = reports.map((report) => ({
+        id: report.id,
+        name: report.name,
+        embedUrl: report.embedUrl,
+      }));
+
+      return { embedToken: embedToken, resources: reportDetails };
+    } catch (err) {
+      if (err instanceof AxiosError && err?.response?.data)
+        err.message = JSON.stringify(err.response.data);
+      throw err;
+    }
   }
 
   /**
@@ -77,7 +135,7 @@ export class PowerBiService {
   }
 
   /**
-   * Get embed params for a single report for a single workspace
+   * Get embed params for multiple reports in multiple workspace
    * https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-report-in-group
    * @return EmbedConfig object
    */

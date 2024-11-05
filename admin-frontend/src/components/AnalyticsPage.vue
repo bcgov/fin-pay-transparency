@@ -12,7 +12,7 @@
 
   <div v-if="isAnalyticsAvailable" class="w-100 overflow-x-auto">
     <div
-      v-for="[name, details] in resourceDetails"
+      v-for="[name, details] in powerBiDetailsPerResource"
       :key="name"
       class="powerbi-container"
     >
@@ -50,12 +50,12 @@ const snowplowUrl = (window as any).config?.SNOWPLOW_URL;
 const isAnalyticsAvailable =
   (window as any).config?.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';
 
-const resourceDetails = createDefaultPowerBiDetailsMap([
+const powerBiDetailsPerResource = createDefaultPowerBiDetailsMap([
   POWERBI_RESOURCE.ANALYTICS,
 ]);
 
 if (isAnalyticsAvailable) {
-  getPowerBiAccessToken(resourceDetails);
+  getPowerBiAccessToken(powerBiDetailsPerResource);
 }
 
 /** Create a Map containing the details of the resources. */
@@ -74,31 +74,13 @@ function createDefaultPowerBiDetailsMap(
         accessToken: undefined,
         tokenType: models.TokenType.Embed,
       },
-      css: { width: '200px', height: '400px' },
+      css: { width: '1280px', height: '720px' },
       // eventHandlersMap - https://learn.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events#report-events
       eventHandlersMap: new Map([
         [
           'loaded', // The loaded event is raised when the report initializes.
           () => {
-            /** Set the css size of the report to be the size of the maximum page of all pages. */
-            const setCssSize = async () => {
-              const pages = await resourceDetails.get(name)!.report?.getPages();
-              if (pages) {
-                const sizes = pages.reduce(
-                  (prev, current) => ({
-                    width: Math.max(prev.width, current.defaultSize.width ?? 0),
-                    height: Math.max(
-                      prev.height,
-                      current.defaultSize.height ?? 0,
-                    ),
-                  }),
-                  { width: 0, height: 0 },
-                );
-                resourceDetails.get(name)!.css.width = sizes.width + 'px';
-                resourceDetails.get(name)!.css.height = sizes.height + 'px';
-              }
-            };
-            setCssSize();
+            setCssSize(name);
           },
         ],
       ]),
@@ -139,6 +121,38 @@ async function getPowerBiAccessToken(
   const now = ZonedDateTime.now();
   const msToExpiry = Duration.between(now, expiry).minusMinutes(1).toMillis();
   setTimeout(getPowerBiAccessToken, msToExpiry);
+}
+
+/**
+ * Set the css size of the report to be the size of the maximum page of all pages.
+ * Warning: The navigation pane is not redrawn when increasing the display size which
+ * leaves a gray area where there should be the navigation pane. You can manually refresh
+ * the iframe by right clicking on the gray area and selecting 'refresh frame'.
+ * @param name
+ * @param refresh Reloads the iframe. Loading takes longer, but the navigation pane will be drawn correctly
+ */
+async function setCssSize(name: POWERBI_RESOURCE, refresh: boolean = false) {
+  const details = powerBiDetailsPerResource.get(name)!;
+  if (!details.report) return;
+  const pages = await details.report.getPages();
+  if (pages) {
+    const sizes = pages.reduce(
+      (prev, current) => ({
+        width: Math.max(prev.width, current.defaultSize.width ?? 0),
+        height: Math.max(prev.height, current.defaultSize.height ?? 0),
+      }),
+      { width: 0, height: 0 },
+    );
+
+    if (
+      details.css.width != sizes.width + 'px' ||
+      details.css.height != sizes.height + 'px'
+    ) {
+      details.css.width = sizes.width + 'px';
+      details.css.height = sizes.height + 'px';
+      if (refresh) details.report.iframe.src += ''; // Allegedly, this is how to refresh an iframe
+    }
+  }
 }
 </script>
 

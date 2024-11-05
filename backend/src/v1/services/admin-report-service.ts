@@ -109,12 +109,12 @@ const adminReportService = {
     flattened['is_unlocked'] = flattened['is_unlocked'] ? 'Yes' : 'No';
 
     const attrsToRename = {
-      update_date: 'Submission date',
-      company_name: 'Company name',
-      naics_code: 'NAICS code',
-      employee_count_range: 'Employee count',
-      reporting_year: 'Reporting year',
-      is_unlocked: 'Is unlocked?',
+      update_date: 'Submission Date',
+      company_name: 'Employer Name',
+      naics_code: 'NAICS Code',
+      employee_count_range: 'Employee Count',
+      reporting_year: 'Reporting Year',
+      is_unlocked: 'Is Unlocked',
     };
     const simplified = {};
 

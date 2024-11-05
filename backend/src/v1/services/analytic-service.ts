@@ -1,7 +1,7 @@
 import { config } from '../../config';
 import {
   PowerBiService,
-  ReportInWorkspace,
+  ReportNameInWorkspace,
 } from '../../external/services/powerbi-service';
 
 // Embed info for Reports, Dashboards, and other resources
@@ -15,10 +15,10 @@ export enum PowerBiResourceName {
   Analytics = 'Analytics',
 }
 
-const resourceIds: Record<PowerBiResourceName, ReportInWorkspace> = {
+const resourceIds: Record<PowerBiResourceName, ReportNameInWorkspace> = {
   Analytics: {
     workspaceId: config.get('powerbi:analytics:workspaceId'),
-    reportId: config.get('powerbi:analytics:analyticsId'),
+    reportName: config.get('powerbi:analytics:analyticsId'),
   },
 };
 
@@ -46,7 +46,7 @@ export const analyticsService = {
       config.get('entra:tenantId'),
     );
 
-    const embedParams = await powerBi.getEmbedParamsForReports(
+    const embedParams = await powerBi.getEmbedParamsForReportsByName(
       resourceNames.map((name) => resourceIds[name]),
     );
 
