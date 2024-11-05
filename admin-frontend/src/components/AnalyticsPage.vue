@@ -1,27 +1,14 @@
 <template>
   <v-btn
-    v-tooltip:bottom-end="'Only authorized users can access Snowplow.'"
+    v-tooltip:bottom-end="'Only authorized users can access this data'"
     append-icon="mdi-open-in-new"
-    class="ml-auto btn-secondary"
+    class="ml-auto btn-primary"
     style="margin-top: -40px"
-    :href="sanitizeUrl(snowplowUrl)"
-    >Snowplow Analytics</v-btn
-  >
-  <!-- <v-card
-    class="mb-5"
-    append-icon="mdi-open-in-new"
     rel="noopener"
     target="_blank"
-    title="Snowplow Analytics"
-    subtitle="Track and analyze user behavior."
+    :href="sanitizeUrl(snowplowUrl)"
+    >Web Traffic Analytics</v-btn
   >
-    <v-card-text>
-      <span class="text-info">
-        <v-icon icon="mdi-information" />
-        Only authorized users can access Snowplow.
-      </span>
-    </v-card-text>
-  </v-card> -->
 
   <div v-if="isAnalyticsAvailable" class="w-100 overflow-x-auto">
     <div
