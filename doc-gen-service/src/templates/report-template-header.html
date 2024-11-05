@@ -86,6 +86,14 @@
     position: relative;
   }
 
+  .pay-transparency-report .page .block-group .block.block-split:last-child {
+    margin-bottom: 20px !important;
+  }
+
+  .pay-transparency-report .page .block-group .block.block-split:not(:last-child) {
+    margin-bottom: 0px !important;
+  }
+
   .pay-transparency-report .page {
     break-inside: avoid;
     page-break-after: always;
@@ -114,6 +122,10 @@
     margin-bottom: 20px;
   }
 
+  .pay-transparency-report .block .block-title {
+    margin: 0px;
+  }
+
   .pay-transparency-report h1 {
     font-size: 36px;
     font-weight: bold;
@@ -138,6 +150,7 @@
     font-weight: bold;
     color: #313131;
     margin: 0px;
+    line-height: 1.1;
   }
 
   .pay-transparency-report h5 {
@@ -154,8 +167,21 @@
     margin: 0px;
   }
 
-  .pay-transparency-report .rich-text p:empty {
+  .pay-transparency-report .block-title {
+    margin: 0px !important;
+    padding: 0px !important;
+  }
+
+  .pay-transparency-report .rich-text>p:empty,
+  .pay-transparency-report p.rich-text:empty {
     height: 10px;
+  }
+
+  .pay-transparency-report .rich-text p,
+  .pay-transparency-report p.rich-text {
+    margin-top: 0px;
+    margin-bottom: 0px;
+
   }
 
   .pay-transparency-report .rich-text>* {
@@ -361,7 +387,7 @@
         </div>
         <%_ if (comments) { _%>
           <div id="block-user-comments" class="block">
-            <div class="block-body user-comments text-normal">
+            <div class="block-body user-comments text-normal rich-text">
               <%- comments %>
             </div>
           </div>

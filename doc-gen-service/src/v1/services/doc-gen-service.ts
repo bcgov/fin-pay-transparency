@@ -6,7 +6,7 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
-const CONTENT_HEIGHT_UNCERTAINTY_PX = 4;
+const CONTENT_HEIGHT_UNCERTAINTY_PX = 5;
 
 export const REPORT_FORMAT = {
   HTML: 'html' as string,
@@ -91,8 +91,11 @@ type SupplementaryReportData = {
     margin: {
       top: number;
       bottom: number;
+      left: number;
+      right: number;
     };
     height: number;
+    width: number;
   };
   footnoteSymbols: {
     genderCategorySuppressed: string;
@@ -111,7 +114,6 @@ const docGenServicePrivate = {
     NO_PAGE: 'no-page',
     PAGE: 'page',
     PAGE_CONTENT: 'page-content',
-    RICH_TEXT: 'rich-text',
     BLOCK_GROUP: 'block-group',
     BLOCK: 'block',
     BLOCK_TITLE: 'block-title',
@@ -347,7 +349,6 @@ const docGenServicePrivate = {
           : 'block';
 
         if (titleElem) {
-          titleElem.className = 'block-title';
           blockElem.appendChild(titleElem);
         }
         if (bodyElem) {
@@ -382,12 +383,12 @@ const docGenServicePrivate = {
     </div>
 
   This function doesn't return anything, but it does modify the DOM
-  of the puppeteer page: the given 'block' is replaced by one or more
-  smaller blocks.
+  of the puppeteer page.  Each child of the 'block-body' is converted 
+  into its own block.  The 'block-title' (if present) is inserted
+  only into the first new small block.
   */
-  async splitBlock(puppeteerPage: Page, blockToSplit, classesToAdd?: string[]) {
+  async splitBlock(puppeteerPage: Page, blockToSplit) {
     if (!blockToSplit) {
-      console.log('empty block. nothing to do');
       return;
     }
 
@@ -408,39 +409,39 @@ const docGenServicePrivate = {
       ...el.classList,
     ]);
 
-    //get the child nodes of 'block-body'
-    //const blockBodyChildren = await puppeteerPage.evaluate(
-    //  (e) => e?.childNodes,
-    //  blockBody,
-    //);
-    //convert each child of the original 'block-body' into its own block
-    const smallBlocks = [];
-    for (let i = 0; i < blockBodyChildren.length; i++) {
-      const child = blockBodyChildren[i];
-      const isLastChild = i == blockBodyChildren.length - 1;
+    // Determine the number of new small blocks to create.  If there
+    // is at least one 'block-body' child node, the number of new small
+    // blocks to create will be equal to the number of 'block-body' children.
+    // Otherwise the number of small blocks will be 1 (if the original
+    // block has a 'tlock-title') or 0 (if it doesn't)
+    const numSmallBlocksToAdd = blockBodyChildren.length
+      ? blockBodyChildren.length
+      : blockTitle
+        ? 1
+        : 0;
 
-      const blockClasses = ['block'];
-      if (classesToAdd?.length) {
-        blockClasses.push(...classesToAdd);
+    const smallBlocks = [];
+    for (let i = 0; i < numSmallBlocksToAdd; i++) {
+      let blockBodyChild = undefined;
+      if (i < blockBodyChildren.length) {
+        blockBodyChild = blockBodyChildren[i];
       }
-      //normally there is a bottom margin on each block.  when we split a large block into
-      //several smaller blocks we don't want each smaller block to have the bottom margin.
-      //only the last of the smaller blocks should have a bottom margin.  omit it otherwise.
-      if (!isLastChild) {
-        blockClasses.push('mb-0');
-      }
+      const isFirst = i == 0;
+
+      const blockClasses = ['block', 'block-split'];
+      const smallBlockTitle = isFirst && blockTitle ? blockTitle : undefined;
 
       const smallBlock = await docGenServicePrivate.createBlock(
         puppeteerPage,
-        null,
-        child,
+        smallBlockTitle,
+        blockBodyChild,
         blockClasses,
         blockBodyClasses,
       );
       smallBlocks.push(smallBlock);
     }
 
-    //Add the new small blocks to the DOM immediately after the original given block
+    // Add the new small blocks to the DOM immediately after the original given block
     for (const smallBlock of smallBlocks.reverse()) {
       await docGenServicePrivate.addAfter(
         puppeteerPage,
@@ -448,8 +449,8 @@ const docGenServicePrivate = {
         blockToSplit,
       );
     }
-    //remove the original given block from the DOM (now that it's been replaced
-    //by the smaller blocks.)
+    // Remove the original given block from the DOM (now that it's been replaced
+    // by the smaller blocks.)
     await docGenServicePrivate.removeFromDom(puppeteerPage, blockToSplit);
   },
 
@@ -847,8 +848,11 @@ const docGenServicePrivate = {
         margin: {
           top: PDF_PAGE_SIZE_PIXELS.marginY,
           bottom: PDF_PAGE_SIZE_PIXELS.marginY,
+          left: PDF_PAGE_SIZE_PIXELS.marginX,
+          right: PDF_PAGE_SIZE_PIXELS.marginX,
         },
         height: PDF_PAGE_SIZE_PIXELS.height,
+        width: PDF_PAGE_SIZE_PIXELS.width,
       },
       footnoteSymbols: DEFAULT_FOOTNOTE_SYMBOLS,
       isGeneralSuppressedDataFootnoteVisible:
@@ -953,7 +957,6 @@ async function generateReport(
     reportFormat,
     submittedReportData,
   );
-
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
 
@@ -1042,26 +1045,49 @@ async function generateReport(
       reportData,
     );
 
-    //Split potentially large 'blocks' into smaller 'blocks'.  This is necessary because
-    // We don't allow blocks to be split at page boundaries.  Therefore, if a block has
-    //too much content (i.e. requires too much vertical space) it's best to split it into
+    const totalPageHeightPx =
+      reportData.pageSize.height -
+      reportData.pageSize.margin.top -
+      reportData.pageSize.margin.bottom;
+
+    //If any blocks are too large to fully fit on a single empty page then split these
+    //blocks into smaller 'blocks'. (A block is defined as a piece of content that will
+    //never be split across page boundaries, so it create an unreconcilable problem if
+    //we have a block that is too large for a single page.)  To avoid this, if a block has
+    //too much content (i.e. requires too much vertical space) it is split it into
     //multiple smaller blocks.  Most of the blocks on the page have a predictable size, but
     //two have the potential to be large: the 'data constraints' text and the
-    //'user comments' text.
+    //'user comments' text.  These have the potential to be large because users are
+    //permitted to enter free-form text in a rich-text editor, and they are permitted add
+    //an arbitrary number of line breaks.
     const userCommentsBlock = await puppeteerPage.$(
       `#${docGenServicePrivate.STYLE_IDS.BLOCK_USER_COMMENTS}`,
     );
     const dataConstraintsBlock = await puppeteerPage.$(
       `#${docGenServicePrivate.STYLE_IDS.BLOCK_DATA_CONSTRAINTS}`,
     );
-    for (const blockToSplit of [userCommentsBlock, dataConstraintsBlock]) {
-      if (!blockToSplit) {
+    for (const blockToConsiderSplitting of [
+      userCommentsBlock,
+      dataConstraintsBlock,
+    ]) {
+      if (!blockToConsiderSplitting) {
         continue;
       }
-      console.log(blockToSplit);
-      await docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit, [
-        docGenServicePrivate.STYLE_CLASSES.RICH_TEXT,
-      ]);
+
+      const blockHeightPx = await docGenServicePrivate.getContentHeight(
+        puppeteerPage,
+        blockToConsiderSplitting,
+      );
+
+      const isTooLargeForSinglePage =
+        blockHeightPx + CONTENT_HEIGHT_UNCERTAINTY_PX > totalPageHeightPx;
+
+      if (isTooLargeForSinglePage) {
+        await docGenServicePrivate.splitBlock(
+          puppeteerPage,
+          blockToConsiderSplitting,
+        );
+      }
     }
 
     //Reorganize the content in the DOM so it is grouped into <div>

@@ -443,7 +443,7 @@
     </div>
   </div>
 
-  <table role="presentation" class="mb-2">
+  <table role="presentation" class="mb-0">
     <tr>
       <td class="pe-2" style="width: 500px">
         <div id=" hourly-pay-quartiles">
@@ -499,7 +499,7 @@
     </tr>
     <tr>
       <td colspan="2">
-        <div class="text-normal mt-2 mb-2">
+        <div class="text-normal mt-2">
           <p>
             <%= chartSummaryText.hourlyPayQuartiles %>
           </p>
@@ -535,10 +535,10 @@
 
 <% if (dataConstraints) { %>
   <div id="block-data-constraints" class="block">
-    <h4 class="block-title mb-0">
+    <h4 class="block-title mb-2">
       Data constraints
     </h4>
-    <div class="block-body data-constraints text-normal">
+    <div class="block-body data-constraints text-normal rich-text">
       <%- dataConstraints %>
     </div>
   </div>

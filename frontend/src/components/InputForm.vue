@@ -387,13 +387,6 @@
                   placeholder="Maximum 4,000 characters"
                   :max-length="4000"
                 ></RichTextArea>
-                <!--v-textarea
-                  id="comments"
-                  v-model="comments"
-                  placeholder="Maximum 4,000 characters"
-                  maxlength="4000"
-                  counter
-                /-->
               </v-col>
             </v-row>
             <!-- Data Constraints -->
