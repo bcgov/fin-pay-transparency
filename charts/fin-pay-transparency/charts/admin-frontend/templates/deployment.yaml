@@ -49,6 +49,8 @@ spec:
               value: "{{ .Values.env.isAdminDashboardAvailable }}"
             - name: IS_ADMIN_ANALYTICS_AVAILABLE
               value: "{{ .Values.env.isAdminAnalyticsAvailable }}"
+            - name: SNOWPLOW_URL
+              value: "{{ .Values.global.secrets.snowplowUrl }}"
             - name: CLAMAV_API_KEY
               valueFrom:
                 secretKeyRef:

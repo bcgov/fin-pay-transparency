@@ -1,4 +1,15 @@
 <template>
+  <v-btn
+    v-tooltip:bottom-end="'Only authorized users can access this data'"
+    append-icon="mdi-open-in-new"
+    class="ml-auto btn-primary"
+    style="margin-top: -40px"
+    rel="noopener"
+    target="_blank"
+    :href="sanitizeUrl(snowplowUrl)"
+    >Web Traffic Analytics</v-btn
+  >
+
   <div v-if="isAnalyticsAvailable" class="w-100 overflow-x-auto">
     <div
       v-for="[name, details] in powerBiDetailsPerResource"
@@ -25,6 +36,7 @@ import ApiService from '../services/apiService';
 import { ZonedDateTime, Duration } from '@js-joda/core';
 import { POWERBI_RESOURCE } from '../utils/constant';
 import { NotificationService } from '../services/notificationService';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 type PowerBiDetails = {
   config: IReportEmbedConfiguration;
@@ -32,6 +44,8 @@ type PowerBiDetails = {
   css: CSSProperties;
   eventHandlersMap: Map<string, EventHandler>;
 };
+
+const snowplowUrl = (window as any).config?.SNOWPLOW_URL;
 
 const isAnalyticsAvailable =
   (window as any).config?.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';

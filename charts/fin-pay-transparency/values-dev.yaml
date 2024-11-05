@@ -158,6 +158,7 @@ admin-frontend:
   env:
     isAdminDashboardAvailable: true
     isAdminAnalyticsAvailable: true
+    isAdminAnalyticsAvailable: true
 database:
   enabled: false
 crunchy:
