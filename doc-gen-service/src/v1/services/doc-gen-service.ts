@@ -410,7 +410,7 @@ const docGenServicePrivate = {
     );
 
     const blockBodyClasses = await puppeteerPage?.evaluate(
-      (el) => [...el.classList],
+      (el) => (el ? [...el.classList] : []),
       blockBody,
     );
 
