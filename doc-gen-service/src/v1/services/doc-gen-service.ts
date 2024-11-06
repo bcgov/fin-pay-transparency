@@ -399,6 +399,12 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}`,
     );
 
+    if (!blockBody) {
+      throw new Error(
+        "The given 'block' element must have a 'block-body' child.",
+      );
+    }
+
     const blockBodyChildren = await blockBody?.$$(
       `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY} > *`,
     );
