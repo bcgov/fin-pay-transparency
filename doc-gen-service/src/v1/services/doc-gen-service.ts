@@ -399,11 +399,11 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}`,
     );
 
-    const blockBodyChildren = await blockBody.$$(
+    const blockBodyChildren = await blockBody?.$$(
       `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY} > *`,
     );
 
-    const blockBodyClasses = await blockBody.evaluate((el) => [
+    const blockBodyClasses = await blockBody?.evaluate((el) => [
       ...el.classList,
     ]);
 
