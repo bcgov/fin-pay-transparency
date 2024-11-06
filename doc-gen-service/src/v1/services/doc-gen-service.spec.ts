@@ -251,6 +251,9 @@ describe('splitBlock', () => {
       const puppeteerPage = await browser.newPage();
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
       const blockToSplit = await puppeteerPage.$(`#block-to-split`);
+      console.log('-------');
+      console.log(puppeteerPage);
+      console.log(blockToSplit);
       await docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit);
 
       const smallBlocks = await puppeteerPage.$$(
