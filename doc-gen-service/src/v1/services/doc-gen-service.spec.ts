@@ -265,19 +265,18 @@ describe('splitBlock', () => {
       const expected = ['Paragraph 1', 'Paragraph 2'];
       for (let i = 0; i < smallBlocks.length; i++) {
         const smallBlock = smallBlocks[i];
+
         const blockBody = await smallBlock.$(
           `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}`,
         );
-        expect(blockBody).toBeDefined();
-        const html = await puppeteerPage.evaluate(
-          async (e) => e.textContent,
-          blockBody,
-        );
+        expect(blockBody).toBeTruthy();
+        const html = await puppeteerPage.evaluate(async (e) => {
+          return e.textContent;
+        }, blockBody);
         expect(html).toBe(expected[i]);
-        const elemType = await puppeteerPage.evaluate(
-          async (e) => e.nodeName,
-          blockBody,
-        );
+        const elemType = await puppeteerPage.evaluate(async (e) => {
+          return e.nodeName;
+        }, blockBody);
         expect(elemType.toLowerCase()).toBe('p');
       }
       if (puppeteerPage) {

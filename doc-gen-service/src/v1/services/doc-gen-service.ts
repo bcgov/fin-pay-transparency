@@ -277,7 +277,7 @@ const docGenServicePrivate = {
     }
     /* istanbul ignore next */
     await puppeteerPage.evaluate(
-      (e, p) => {
+      async (e, p) => {
         p.appendChild(e);
         return e;
       },
@@ -295,7 +295,7 @@ const docGenServicePrivate = {
     }
     /* istanbul ignore next */
     await puppeteerPage.evaluate(
-      (a, r) => {
+      async (a, r) => {
         r.parentNode.insertBefore(a, r.nextSibling);
       },
       elemToAdd,
@@ -308,7 +308,7 @@ const docGenServicePrivate = {
   */
   async removeFromDom(puppeteerPage, elemToDelete) {
     /* istanbul ignore next */
-    await puppeteerPage.evaluate((e) => {
+    await puppeteerPage.evaluate(async (e) => {
       if (e?.parentNode) {
         e.parentNode.removeChild(e);
       }
@@ -320,7 +320,10 @@ const docGenServicePrivate = {
   */
   async isElementEmpty(puppeteerPage, elem): Promise<boolean> {
     /* istanbul ignore next */
-    return await puppeteerPage.evaluate((e) => !e?.childNodes?.length, elem);
+    return await puppeteerPage.evaluate(
+      async (e) => !e?.childNodes?.length,
+      elem,
+    );
   },
 
   /*
@@ -336,12 +339,18 @@ const docGenServicePrivate = {
     blockClasses?: string[],
     blockBodyClasses?: string[],
   ) {
-    const blockElem = await puppeteerPage.evaluateHandle(() => {
+    const blockElem = await puppeteerPage.evaluateHandle(async () => {
       return document.createElement('div');
     });
 
     await puppeteerPage.evaluate(
-      (blockElem, titleElem, bodyElem, blockClasses, blockBodyClasses) => {
+      async (
+        blockElem,
+        titleElem,
+        bodyElem,
+        blockClasses,
+        blockBodyClasses,
+      ) => {
         blockElem.className = blockClasses?.length
           ? blockClasses.join(' ')
           : 'block';
@@ -385,7 +394,7 @@ const docGenServicePrivate = {
   into its own block.  The 'block-title' (if present) is inserted
   only into the first new small block.
   */
-  async splitBlock(puppeteerPage: Page, blockToSplit) {
+  async splitBlock(puppeteerPage: Page, blockToSplit): Promise<void> {
     if (!blockToSplit) {
       return;
     }
@@ -409,9 +418,12 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY} > *`,
     );
 
-    const blockBodyClasses = await puppeteerPage.evaluate(async (el) => {
-      return el ? [...el.classList] : [];
-    }, blockBody);
+    const blockBodyClasses: string[] = await puppeteerPage.evaluate(
+      async (el) => {
+        return Object.values(el.classList) as string[];
+      },
+      blockBody,
+    );
 
     // Determine the number of new small blocks to create.  If there
     // is at least one 'block-body' child node, the number of new small
@@ -981,7 +993,7 @@ async function generateReport(
     // current puppeteerPage
     await puppeteerPage.evaluate(
       /* istanbul ignore next */
-      (reportData) => {
+      async (reportData) => {
         const chartData = reportData.chartData;
         document.getElementById('mean-hourly-pay-gap-chart')?.appendChild(
           // @ts-ignore
