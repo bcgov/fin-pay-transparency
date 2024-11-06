@@ -124,7 +124,7 @@ export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
   try {
     // Get all the files stored under each id
     const filesPerId = await Promise.all(
-      ids.map((id) => getFileList(s3Client, id)), //TODO: try deleting the folders instead of each individual file. https://stackoverflow.com/a/73367823
+      ids.map((id) => getFileList(s3Client, id)),
     );
     const idsWithNoFiles = ids.filter(
       (id, index) => filesPerId[index].length === 0,
@@ -150,7 +150,7 @@ export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
 
     // report any errors
     responsePerGroup.forEach((r) =>
-      r.Errors.forEach((e) => {
+      r.Errors?.forEach((e) => {
         if (e.Code == 'NoSuchKey') idsWithNoFiles.push(getIdFromKey(e.Key));
         logger.error(e.Message);
       }),
@@ -158,7 +158,7 @@ export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
 
     // Return the id of all successful deleted
     const successfulIds = responsePerGroup.flatMap((r) =>
-      r.Deleted.reduce((acc, x) => {
+      r.Deleted?.reduce((acc, x) => {
         acc.push(getIdFromKey(x.Key));
         return acc;
       }, [] as string[]),
