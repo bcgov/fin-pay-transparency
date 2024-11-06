@@ -234,26 +234,24 @@ describe('splitBlock', () => {
   describe('when the input block is valid', () => {
     it("converts each 'block-body' child into its own block", async () => {
       const mockHtml = `<html><body>
-      <div class='${docGenServicePrivate.STYLE_CLASSES.REPORT}'>
-        <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
-          <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'>
-            <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK}' id='block-to-split'>
-              <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}'>
-                <p>Paragraph 1</p>
-                <p>Paragraph 2</p>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.REPORT}'>
+            <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+              <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'>
+                <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK}' id='block-to-split'>
+                  <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}'>
+                    <p>Paragraph 1</p>
+                    <p>Paragraph 2</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>     
-      </div> 
-    </body></html>`;
+            </div>     
+          </div> 
+        </body></html>`;
       const browser: Browser = await getBrowser();
       const puppeteerPage = await browser.newPage();
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
       const blockToSplit = await puppeteerPage.$(`#block-to-split`);
-      console.log('-------');
-      console.log(puppeteerPage);
-      console.log(blockToSplit);
+
       await docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit);
 
       const smallBlocks = await puppeteerPage.$$(
@@ -265,10 +263,12 @@ describe('splitBlock', () => {
 
       //expect each small block to contain one of the children from the origin block-body
       const expected = ['Paragraph 1', 'Paragraph 2'];
-      smallBlocks.forEach(async (smallBlock, i) => {
+      for (let i = 0; i < smallBlocks.length; i++) {
+        const smallBlock = smallBlocks[i];
         const blockBody = await smallBlock.$(
           `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}`,
         );
+        expect(blockBody).toBeDefined();
         const html = await puppeteerPage.evaluate(
           (e) => e.textContent,
           blockBody,
@@ -279,7 +279,10 @@ describe('splitBlock', () => {
           blockBody,
         );
         expect(elemType.toLowerCase()).toBe('p');
-      });
+      }
+      if (puppeteerPage) {
+        await puppeteerPage.close();
+      }
     });
   });
 });
