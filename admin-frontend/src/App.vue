@@ -118,6 +118,10 @@ a:hover {
   background-color: transparent !important;
 }
 
+.v-card-title {
+  font-size: 1.35rem !important; //default is 1.25, but BCSans font looks wonky at that size.
+}
+
 .theme--light.application {
   background: #f1f1f1;
 }

@@ -53,10 +53,21 @@ export class Api {
       body,
       config,
     );
+
+  /** https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-reports */
+  public getReports = (
+    url: Group_Url,
+    config: AxiosRequestConfig,
+  ): Promise<AxiosResponse<Reports>> =>
+    this.api.get<Reports>(
+      `/v1.0/myorg/groups/${url.workspaceId}/reports`,
+      config,
+    );
 }
 
 type DashboardInGroup_Url = { workspaceId: string; dashboardId: string };
 type ReportInGroup_Url = { workspaceId: string; reportId: string };
+type Group_Url = { workspaceId: string };
 
 /** https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/dashboards-generate-token-in-group#request-body */
 export type GenerateTokenForDashboardInGroup_Body = {
@@ -82,7 +93,6 @@ export type GenerateToken_Body = {
 
 /** https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token#embedtoken */
 export type EmbedToken = {
-  '@odata.context': string;
   token: string;
   tokenId: string;
   expiration: string;
@@ -90,7 +100,6 @@ export type EmbedToken = {
 
 /** https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-report-in-group#report */
 export type Report = {
-  '@odata.context': string;
   id: string;
   reportType: string;
   name: string;
@@ -104,9 +113,13 @@ export type Report = {
   subscriptions: [];
 };
 
+/** https://learn.microsoft.com/en-us/rest/api/power-bi/reports/get-reports#reports */
+export type Reports = {
+  value: Report[];
+};
+
 /** https://learn.microsoft.com/en-us/rest/api/power-bi/dashboards/get-dashboard-in-group#dashboard */
 export type Dashboard = {
-  '@odata.context': string;
   id: string;
   displayName: string;
   isReadOnly: boolean;

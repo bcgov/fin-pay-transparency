@@ -168,6 +168,7 @@ jobs:
           --set-string crunchy.pgBackRest.s3.accessKey="${{ secrets.S3_ACCESS_KEY }}"  \
           --set-string crunchy.pgBackRest.s3.secretKey="${{ secrets.S3_SECRET_ACCESS_KEY }}"  \
           --set-string global.secrets.clamavApiKey="${{ secrets.CLAMAV_API_KEY }}" \
+          --set-string global.secrets.snowplowUrl="${{ secrets.SNOWPLOW_URL }}" \
           ${{ inputs.params }} \
           --timeout "$DEPLOY_TIMEOUT"m  ./${{ github.event.repository.name }}-${{ steps.vars.outputs.semver }}.tgz
 
