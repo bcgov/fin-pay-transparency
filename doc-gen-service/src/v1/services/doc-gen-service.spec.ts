@@ -209,6 +209,78 @@ describe('isGeneralSuppressedDataFootnoteVisible', () => {
   });
 });
 
+describe('addAfter', () => {
+  describe("when 'elemToAdd' is null", () => {
+    it('throws an error', async () => {
+      const elemToAdd = null;
+      const elemToAddAfter = {};
+      await expect(
+        docGenServicePrivate.addAfter({} as any, elemToAdd, elemToAddAfter),
+      ).rejects.toThrow();
+    });
+  });
+  describe("when 'elemToAddAfter' is null", () => {
+    it('throws an error', async () => {
+      const elemToAdd = {};
+      const elemToAddAfter = null;
+      await expect(
+        docGenServicePrivate.addAfter({} as any, elemToAdd, elemToAddAfter),
+      ).rejects.toThrow();
+    });
+  });
+});
+
+describe('splitBlock', () => {
+  describe('when the input block is valid', () => {
+    it("converts each 'block-body' child into its own block", async () => {
+      const mockHtml = `<html><body>
+      <div class='${docGenServicePrivate.STYLE_CLASSES.REPORT}'>
+        <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'>
+            <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK}' id='block-to-split'>
+              <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}'>
+                <p>Paragraph 1</p>
+                <p>Paragraph 2</p>
+              </div>
+            </div>
+          </div>
+        </div>     
+      </div> 
+    </body></html>`;
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      const blockToSplit = await puppeteerPage.$(`#block-to-split`);
+      await docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit);
+
+      const smallBlocks = await puppeteerPage.$$(
+        `.${docGenServicePrivate.STYLE_CLASSES.BLOCK}.${docGenServicePrivate.STYLE_CLASSES.BLOCK_SPLIT}`,
+      );
+
+      //expect the one large block to be split into two small blocks
+      expect(smallBlocks).toHaveLength(2);
+
+      //expect each small block to contain one of the children from the origin block-body
+      const expected = ['Paragraph 1', 'Paragraph 2'];
+      smallBlocks.forEach(async (smallBlock, i) => {
+        const blockBody = await smallBlock.$(
+          `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}`,
+        );
+        const html = await puppeteerPage.evaluate(
+          (e) => e.textContent,
+          blockBody,
+        );
+        expect(html).toBe(expected[i]);
+        const elemType = await puppeteerPage.evaluate(
+          (e) => e.nodeName,
+          blockBody,
+        );
+        expect(elemType.toLowerCase()).toBe('p');
+      });
+    });
+  });
+});
+
 describe('moveElementInto', () => {
   describe("when 'elemToMove' is null", () => {
     it('throws an error', async () => {

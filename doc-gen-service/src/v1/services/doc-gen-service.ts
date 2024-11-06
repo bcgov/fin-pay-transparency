@@ -113,6 +113,7 @@ const docGenServicePrivate = {
     PAGE_CONTENT: 'page-content',
     BLOCK_GROUP: 'block-group',
     BLOCK: 'block',
+    BLOCK_SPLIT: 'block-split',
     BLOCK_TITLE: 'block-title',
     BLOCK_BODY: 'block-body',
     BLOCK_EXPLANATORY_NOTES: 'block-explanatory-notes',
@@ -425,7 +426,10 @@ const docGenServicePrivate = {
       }
       const isFirst = i == 0;
 
-      const blockClasses = ['block', 'block-split'];
+      const blockClasses = [
+        docGenServicePrivate.STYLE_CLASSES.BLOCK,
+        docGenServicePrivate.STYLE_CLASSES.BLOCK_SPLIT,
+      ];
       const smallBlockTitle = isFirst && blockTitle ? blockTitle : undefined;
 
       const smallBlock = await docGenServicePrivate.createBlock(
