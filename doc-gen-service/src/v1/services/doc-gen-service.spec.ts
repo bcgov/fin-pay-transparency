@@ -270,12 +270,12 @@ describe('splitBlock', () => {
         );
         expect(blockBody).toBeDefined();
         const html = await puppeteerPage.evaluate(
-          (e) => e.textContent,
+          async (e) => e.textContent,
           blockBody,
         );
         expect(html).toBe(expected[i]);
         const elemType = await puppeteerPage.evaluate(
-          (e) => e.nodeName,
+          async (e) => e.nodeName,
           blockBody,
         );
         expect(elemType.toLowerCase()).toBe('p');
