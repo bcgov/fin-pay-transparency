@@ -73,13 +73,6 @@ onMounted(() => {
       placeholder: props.placeholder,
       modules: {
         toolbar: richTextToolbar.value,
-        //clipboard: {
-        //restrict the types of content that can be pasted into the editor.
-        //allowed: {
-        //  tags: ['b', 'strong', 'u', 'em', 'i', 'p', 'br', 'ul', 'ol', 'li'],
-        //  attributes: ['data-list'],
-        //},
-        //},
       },
     });
     quill.on('text-change', onTextChanged);
@@ -102,7 +95,9 @@ const setHtml = (html: string | undefined | null) => {
     // update:modelValue events.
     return;
   }
-  const delta = quill?.clipboard.convert({ html: html ? html : undefined });
+  const delta = quill?.clipboard.convert({
+    html: html !== null ? html : undefined,
+  });
   if (delta) {
     quill?.setContents(delta, 'user');
   }
