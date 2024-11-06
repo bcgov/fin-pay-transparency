@@ -403,9 +403,10 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY} > *`,
     );
 
-    const blockBodyClasses = await blockBody?.evaluate((el) => [
-      ...el.classList,
-    ]);
+    const blockBodyClasses = await puppeteerPage?.evaluate(
+      (el) => [...el.classList],
+      blockBody,
+    );
 
     // Determine the number of new small blocks to create.  If there
     // is at least one 'block-body' child node, the number of new small
