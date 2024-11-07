@@ -421,23 +421,19 @@ const docGenServicePrivate = {
     );
 
     /* istanbul ignore next */
-    const blockBodyClasses: string[] = await puppeteerPage.evaluate(
-      async (el) => {
-        return Object.values(el.classList) as string[];
-      },
-      blockBody,
-    );
+    const blockBodyClasses = await puppeteerPage.evaluate(async (el) => {
+      return Object.values(el.classList);
+    }, blockBody);
 
     // Determine the number of new small blocks to create.  If there
     // is at least one 'block-body' child node, the number of new small
     // blocks to create will be equal to the number of 'block-body' children.
     // Otherwise the number of small blocks will be 1 (if the original
     // block has a 'tlock-title') or 0 (if it doesn't)
+    const numTitleBlocks = blockTitle ? 1 : 0;
     const numSmallBlocksToAdd = blockBodyChildren.length
       ? blockBodyChildren.length
-      : blockTitle
-        ? 1
-        : 0;
+      : numTitleBlocks;
 
     const smallBlocks = [];
     for (let i = 0; i < numSmallBlocksToAdd; i++) {
@@ -458,13 +454,15 @@ const docGenServicePrivate = {
         smallBlockTitle,
         blockBodyChild,
         blockClasses,
-        blockBodyClasses,
+        blockBodyClasses as string[],
       );
       smallBlocks.push(smallBlock);
     }
 
+    smallBlocks.reverse();
+
     // Add the new small blocks to the DOM immediately after the original given block
-    for (const smallBlock of smallBlocks.reverse()) {
+    for (const smallBlock of smallBlocks) {
       await docGenServicePrivate.addAfter(
         puppeteerPage,
         smallBlock,
