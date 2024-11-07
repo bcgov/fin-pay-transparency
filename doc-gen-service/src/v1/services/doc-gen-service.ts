@@ -398,7 +398,7 @@ const docGenServicePrivate = {
   */
   async splitBlock(puppeteerPage: Page, blockToSplit): Promise<void> {
     if (!blockToSplit) {
-      return;
+      throw new Error("Expected a valid 'block'");
     }
 
     //from the given block, get the 'block-title' and the 'block-body' element
