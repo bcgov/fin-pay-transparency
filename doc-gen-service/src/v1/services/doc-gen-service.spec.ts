@@ -569,6 +569,36 @@ describe('attemptToPlaceElementOnPage', () => {
 });
 
 describe('splitBlock', () => {
+  describe("when the given 'block' to split is undefined", () => {
+    it('throws an error', async () => {
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+      await expect(
+        docGenServicePrivate.splitBlock(puppeteerPage, undefined),
+      ).rejects.toThrow();
+    });
+  });
+  describe("when the given 'block' to split doesn't have a 'block-body'", () => {
+    it('throws an error', async () => {
+      const mockHtml = `<html><body>
+          <div class='${docGenServicePrivate.STYLE_CLASSES.REPORT}'>
+            <div class='${docGenServicePrivate.STYLE_CLASSES.PAGE_CONTENT}'>
+              <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK_GROUP}'>
+                <div class='${docGenServicePrivate.STYLE_CLASSES.BLOCK}' id='block-to-split'>                  
+                </div>
+              </div>
+            </div>     
+          </div> 
+        </body></html>`;
+      const browser: Browser = await getBrowser();
+      const puppeteerPage = await browser.newPage();
+      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      const blockToSplit = await puppeteerPage.$(`#block-to-split`);
+      await expect(
+        docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit),
+      ).rejects.toThrow();
+    });
+  });
   describe('when the input block is valid', () => {
     it("converts each 'block-body' child into its own block", async () => {
       const mockHtml = `<html><body>
