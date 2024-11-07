@@ -11,6 +11,10 @@ drop view reports_view;
 alter table pay_transparency_report alter column user_comment TYPE text;
 alter table pay_transparency_report alter column data_constraints TYPE text;
 
+--also alter the corresponding colunms in the history table
+alter table report_history alter column user_comment TYPE text;
+alter table report_history alter column data_constraints TYPE text;
+
 -- update the comments on the altered columns to note that HTML content is
 -- expected
 comment on column pay_transparency_report.user_comment is 'User optionally fills this text area on the form, called ''Employer statement'', which is shown at the top of the report. This is for additional information about the employer.  Value should be HTML.';
