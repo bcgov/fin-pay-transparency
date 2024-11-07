@@ -339,10 +339,12 @@ const docGenServicePrivate = {
     blockClasses?: string[],
     blockBodyClasses?: string[],
   ) {
+    /* istanbul ignore next */
     const blockElem = await puppeteerPage.evaluateHandle(async () => {
       return document.createElement('div');
     });
 
+    /* istanbul ignore next */
     await puppeteerPage.evaluate(
       async (
         blockElem,
