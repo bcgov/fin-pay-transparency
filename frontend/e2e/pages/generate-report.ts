@@ -70,8 +70,13 @@ export class GenerateReportPage extends PTPage {
     this.endMonthInput = await this.instance.locator('#endMonth');
     this.endYearInput = await this.instance.locator('#endYear');
 
-    this.commentsInput = await this.instance.locator('#comments');
-    this.dataConstraintsInput = await this.instance.locator('#dataConstraints');
+    this.commentsInput = await this.instance.locator(
+      '#employerStatement .ql-editor',
+    );
+    this.dataConstraintsInput = await this.instance.locator(
+      '#dataConstraints .ql-editor',
+    );
+
     this.generateDraftButton = await this.instance.getByRole('button', {
       name: 'Generate Draft Report',
     });
@@ -144,8 +149,16 @@ export class GenerateReportPage extends PTPage {
     await this.setNaicsCode(values.naicsCode);
     await this.setEmployeeCount(values.employeeCountRange);
 
-    await this.commentsInput.fill(values.comments);
-    await this.dataConstraintsInput.fill(values.dataConstraints);
+    // set values for the two rich text fields.  these are not standard html text area
+    // inputs, and need a special technique to set the value.
+    await this.commentsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      values.comments,
+    );
+    await this.dataConstraintsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      values.dataConstraints,
+    );
 
     await this.selectFile(values.fileName);
     await this.instance.waitForSelector('i.fa-xmark');
@@ -184,17 +197,17 @@ export class GenerateReportPage extends PTPage {
       this.endYearInput,
     );
     if (report.user_comment) {
-      await expect(this.commentsInput).toHaveValue(report.user_comment);
-    } else {
-      await expect(this.commentsInput).toBeEmpty();
+      const userCommentValue = await this.commentsInput.evaluate(
+        (node: HTMLElement) => node.innerHTML,
+      );
+      await expect(userCommentValue).toBe(report.user_comment);
     }
 
     if (report.data_constraints) {
-      await expect(this.dataConstraintsInput).toHaveValue(
-        report.data_constraints,
+      const dataConstraintsValue = await this.dataConstraintsInput.evaluate(
+        (node: HTMLElement) => node.innerHTML,
       );
-    } else {
-      await expect(this.dataConstraintsInput).toBeEmpty();
+      await expect(dataConstraintsValue).toBe(report.data_constraints);
     }
   }
 
