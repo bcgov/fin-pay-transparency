@@ -418,6 +418,7 @@ const docGenServicePrivate = {
       `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY} > *`,
     );
 
+    /* istanbul ignore next */
     const blockBodyClasses: string[] = await puppeteerPage.evaluate(
       async (el) => {
         return Object.values(el.classList) as string[];
