@@ -233,8 +233,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="user_comment">user_comment</span></td>
-                                    <td>varchar</td>
-                                    <td>4000</td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -391,8 +391,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="data_constraints">data_constraints</span></td>
-                                    <td>varchar</td>
-                                    <td>3000</td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -596,7 +596,7 @@
                                 <tbody>
                                 <tr>
                                     <td>report_status_check</td>
-                                    <td>(((report_status)::text &#61; ANY ((ARRAY[&#39;Draft&#39;::character varying, &#39;Published&#39;::character varying])::text[])))</td>
+                                    <td>((report_status)::text &#61; ANY ((ARRAY[&#39;Draft&#39;::character varying, &#39;Published&#39;::character varying])::text[]))</td>
                                 </tr>
                                 </tbody>
                             </table>
