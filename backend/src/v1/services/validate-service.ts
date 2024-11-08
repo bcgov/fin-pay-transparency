@@ -117,11 +117,6 @@ const validateService = {
       bodyErrors.push(`Reporting year must be ${text}.`);
     }
 
-    if (submission?.dataConstraints?.length > MAX_LEN_DATA_CONSTRAINTS) {
-      bodyErrors.push(
-        `Text in ${FIELD_DATA_CONSTRAINTS} must not exceed ${MAX_LEN_DATA_CONSTRAINTS} characters.`,
-      );
-    }
     if (bodyErrors?.length) {
       return new ValidationError(bodyErrors, null, null);
     }

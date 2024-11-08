@@ -19,6 +19,8 @@ import Footer from './components/Footer.vue';
 import MsieBanner from './components/MsieBanner.vue';
 import SnackBar from './components/util/SnackBar.vue';
 import { NotificationService } from './common/notificationService';
+import 'quill/dist/quill.core.css';
+import 'quill/dist/quill.snow.css';
 
 export default {
   name: 'App',
@@ -42,7 +44,6 @@ export default {
       }
     },
   },
-  async created() {},
   methods: {
     appStore,
   },

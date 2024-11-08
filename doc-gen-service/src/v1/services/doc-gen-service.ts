@@ -6,7 +6,7 @@ import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
 
-const CONTENT_HEIGHT_UNCERTAINTY_PX = 4;
+const CONTENT_HEIGHT_UNCERTAINTY_PX = 5;
 
 export const REPORT_FORMAT = {
   HTML: 'html' as string,
@@ -113,12 +113,19 @@ const docGenServicePrivate = {
     PAGE_CONTENT: 'page-content',
     BLOCK_GROUP: 'block-group',
     BLOCK: 'block',
+    BLOCK_SPLIT: 'block-split',
+    BLOCK_TITLE: 'block-title',
+    BLOCK_BODY: 'block-body',
     BLOCK_EXPLANATORY_NOTES: 'block-explanatory-notes',
     EXPLANATORY_NOTES: 'explanatory-notes',
     NOTE: 'note',
     FOOTNOTE_GROUP: 'footnote-group',
     FOOTNOTES: 'footnotes',
     WATERMARK: 'watermark',
+  },
+  STYLE_IDS: {
+    BLOCK_USER_COMMENTS: 'block-user-comments',
+    BLOCK_DATA_CONSTRAINTS: 'block-data-constraints',
   },
 
   REPORT_TEMPLATE_HEADER: resolve(
@@ -270,7 +277,7 @@ const docGenServicePrivate = {
     }
     /* istanbul ignore next */
     await puppeteerPage.evaluate(
-      (e, p) => {
+      async (e, p) => {
         p.appendChild(e);
         return e;
       },
@@ -279,12 +286,29 @@ const docGenServicePrivate = {
     );
   },
 
+  async addAfter(puppeteerPage: Page, elemToAdd, elemToAddAfter) {
+    if (!elemToAdd) {
+      throw new Error('elemToAdd must not be null');
+    }
+    if (!elemToAddAfter) {
+      throw new Error('elemToAddAfter must not be null');
+    }
+    /* istanbul ignore next */
+    await puppeteerPage.evaluate(
+      async (a, r) => {
+        r.parentNode.insertBefore(a, r.nextSibling);
+      },
+      elemToAdd,
+      elemToAddAfter,
+    );
+  },
+
   /*
   Deletes the given element from the DOM
   */
   async removeFromDom(puppeteerPage, elemToDelete) {
     /* istanbul ignore next */
-    await puppeteerPage.evaluate((e) => {
+    await puppeteerPage.evaluate(async (e) => {
       if (e?.parentNode) {
         e.parentNode.removeChild(e);
       }
@@ -296,7 +320,158 @@ const docGenServicePrivate = {
   */
   async isElementEmpty(puppeteerPage, elem): Promise<boolean> {
     /* istanbul ignore next */
-    return await puppeteerPage.evaluate((e) => !e?.childNodes?.length, elem);
+    return await puppeteerPage.evaluate(
+      async (e) => !e?.childNodes?.length,
+      elem,
+    );
+  },
+
+  /*
+  creates and returns a new element with class 'block'.  Includes two (optional) child 
+  elements: 
+  - one with class 'block-title' 
+  - one with class 'block-body'
+   */
+  async createBlock(
+    puppeteerPage: Page,
+    titleElem,
+    bodyElem,
+    blockClasses?: string[],
+    blockBodyClasses?: string[],
+  ) {
+    /* istanbul ignore next */
+    const blockElem = await puppeteerPage.evaluateHandle(async () => {
+      return document.createElement('div');
+    });
+
+    /* istanbul ignore next */
+    await puppeteerPage.evaluate(
+      async (
+        blockElem,
+        titleElem,
+        bodyElem,
+        blockClasses,
+        blockBodyClasses,
+      ) => {
+        blockElem.className = blockClasses?.length
+          ? blockClasses.join(' ')
+          : 'block';
+
+        if (titleElem) {
+          blockElem.appendChild(titleElem);
+        }
+        if (bodyElem) {
+          bodyElem.className = blockBodyClasses?.length
+            ? blockBodyClasses.join(' ')
+            : '';
+          blockElem.appendChild(bodyElem);
+        }
+      },
+      blockElem,
+      titleElem,
+      bodyElem,
+      blockClasses,
+      blockBodyClasses,
+    );
+
+    return blockElem;
+  },
+
+  /*
+  Splits the given 'block' element into multiple block elements.
+  Expects the given element to have a DOM of this format
+    <div class="block">
+      <h4 class=”block-title">
+        Optional block title
+      </h4>
+      <div class="block-body">
+        <p>Block content part 1</p>
+        <p>Block content part 2</p>
+        <p>Block content part 3</p>
+      </div>
+    </div>
+
+  This function doesn't return anything, but it does modify the DOM
+  of the puppeteer page.  Each child of the 'block-body' is converted 
+  into its own block.  The 'block-title' (if present) is inserted
+  only into the first new small block.
+  */
+  async splitBlock(puppeteerPage: Page, blockToSplit): Promise<void> {
+    if (!blockToSplit) {
+      throw new Error("Expected a valid 'block'");
+    }
+
+    //from the given block, get the 'block-title' and the 'block-body' element
+    const blockTitle = await blockToSplit.$(
+      `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_TITLE}`,
+    );
+
+    const blockBody = await blockToSplit.$(
+      `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY}`,
+    );
+
+    if (!blockBody) {
+      throw new Error(
+        "The given 'block' element must have a 'block-body' child.",
+      );
+    }
+
+    const blockBodyChildren = await blockBody?.$$(
+      `.${docGenServicePrivate.STYLE_CLASSES.BLOCK_BODY} > *`,
+    );
+
+    /* istanbul ignore next */
+    const blockBodyClasses = await puppeteerPage.evaluate(async (el) => {
+      return Object.values(el.classList);
+    }, blockBody);
+
+    // Determine the number of new small blocks to create.  If there
+    // is at least one 'block-body' child node, the number of new small
+    // blocks to create will be equal to the number of 'block-body' children.
+    // Otherwise the number of small blocks will be 1 (if the original
+    // block has a 'tlock-title') or 0 (if it doesn't)
+    const numTitleBlocks = blockTitle ? 1 : 0;
+    const numSmallBlocksToAdd = blockBodyChildren.length
+      ? blockBodyChildren.length
+      : numTitleBlocks;
+
+    const smallBlocks = [];
+    for (let i = 0; i < numSmallBlocksToAdd; i++) {
+      let blockBodyChild = undefined;
+      if (i < blockBodyChildren.length) {
+        blockBodyChild = blockBodyChildren[i];
+      }
+      const isFirst = i == 0;
+
+      const blockClasses = [
+        docGenServicePrivate.STYLE_CLASSES.BLOCK,
+        docGenServicePrivate.STYLE_CLASSES.BLOCK_SPLIT,
+      ];
+      const smallBlockTitle = isFirst && blockTitle ? blockTitle : undefined;
+
+      const smallBlock = await docGenServicePrivate.createBlock(
+        puppeteerPage,
+        smallBlockTitle,
+        blockBodyChild,
+        blockClasses,
+        blockBodyClasses as string[],
+      );
+      smallBlocks.push(smallBlock);
+    }
+
+    smallBlocks.reverse();
+
+    // Add the new small blocks to the DOM immediately after the original given block
+    for (const smallBlock of smallBlocks) {
+      await docGenServicePrivate.addAfter(
+        puppeteerPage,
+        smallBlock,
+        blockToSplit,
+      );
+    }
+    // Remove the original given block from the DOM (now that it's been replaced
+    // by the smaller blocks.)
+    await docGenServicePrivate.removeFromDom(puppeteerPage, blockToSplit);
   },
 
   /*
@@ -799,7 +974,6 @@ async function generateReport(
     reportFormat,
     submittedReportData,
   );
-
   try {
     const ejsTemplate = await docGenServicePrivate.buildEjsTemplate(reportData);
 
@@ -820,7 +994,7 @@ async function generateReport(
     // current puppeteerPage
     await puppeteerPage.evaluate(
       /* istanbul ignore next */
-      (reportData) => {
+      async (reportData) => {
         const chartData = reportData.chartData;
         document.getElementById('mean-hourly-pay-gap-chart')?.appendChild(
           // @ts-ignore
@@ -887,6 +1061,51 @@ async function generateReport(
       },
       reportData,
     );
+
+    const totalPageHeightPx =
+      reportData.pageSize.height -
+      reportData.pageSize.margin.top -
+      reportData.pageSize.margin.bottom;
+
+    //If any blocks are too large to fully fit on a single empty page then split these
+    //blocks into smaller 'blocks'. (A block is defined as a piece of content that will
+    //never be split across page boundaries, so it create an unreconcilable problem if
+    //we have a block that is too large for a single page.)  To avoid this, if a block has
+    //too much content (i.e. requires too much vertical space) it is split it into
+    //multiple smaller blocks.  Most of the blocks on the page have a predictable size, but
+    //two have the potential to be large: the 'data constraints' text and the
+    //'user comments' text.  These have the potential to be large because users are
+    //permitted to enter free-form text in a rich-text editor, and they are permitted add
+    //an arbitrary number of line breaks.
+    const userCommentsBlock = await puppeteerPage.$(
+      `#${docGenServicePrivate.STYLE_IDS.BLOCK_USER_COMMENTS}`,
+    );
+    const dataConstraintsBlock = await puppeteerPage.$(
+      `#${docGenServicePrivate.STYLE_IDS.BLOCK_DATA_CONSTRAINTS}`,
+    );
+    for (const blockToConsiderSplitting of [
+      userCommentsBlock,
+      dataConstraintsBlock,
+    ]) {
+      if (!blockToConsiderSplitting) {
+        continue;
+      }
+
+      const blockHeightPx = await docGenServicePrivate.getContentHeight(
+        puppeteerPage,
+        blockToConsiderSplitting,
+      );
+
+      const isTooLargeForSinglePage =
+        blockHeightPx + CONTENT_HEIGHT_UNCERTAINTY_PX > totalPageHeightPx;
+
+      if (isTooLargeForSinglePage) {
+        await docGenServicePrivate.splitBlock(
+          puppeteerPage,
+          blockToConsiderSplitting,
+        );
+      }
+    }
 
     //Reorganize the content in the DOM so it is grouped into <div>
     //elements with the .page class.

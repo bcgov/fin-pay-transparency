@@ -70,8 +70,13 @@ export class GenerateReportPage extends PTPage {
     this.endMonthInput = await this.instance.locator('#endMonth');
     this.endYearInput = await this.instance.locator('#endYear');
 
-    this.commentsInput = await this.instance.locator('#comments');
-    this.dataConstraintsInput = await this.instance.locator('#dataConstraints');
+    this.commentsInput = await this.instance.locator(
+      '#employerStatement .ql-editor',
+    );
+    this.dataConstraintsInput = await this.instance.locator(
+      '#dataConstraints .ql-editor',
+    );
+
     this.generateDraftButton = await this.instance.getByRole('button', {
       name: 'Generate Draft Report',
     });
@@ -144,8 +149,16 @@ export class GenerateReportPage extends PTPage {
     await this.setNaicsCode(values.naicsCode);
     await this.setEmployeeCount(values.employeeCountRange);
 
-    await this.commentsInput.fill(values.comments);
-    await this.dataConstraintsInput.fill(values.dataConstraints);
+    // set values for the two rich text fields.  these are not standard html text area
+    // inputs, and need a special technique to set the value.
+    await this.commentsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      values.comments,
+    );
+    await this.dataConstraintsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      values.dataConstraints,
+    );
 
     await this.selectFile(values.fileName);
     await this.instance.waitForSelector('i.fa-xmark');
@@ -184,17 +197,23 @@ export class GenerateReportPage extends PTPage {
       this.endYearInput,
     );
     if (report.user_comment) {
-      await expect(this.commentsInput).toHaveValue(report.user_comment);
-    } else {
-      await expect(this.commentsInput).toBeEmpty();
+      const userCommentValue = await this.commentsInput.evaluate(
+        (node: HTMLElement) => node.innerHTML,
+      );
+      await expect([
+        report.user_comment,
+        `<p>${report.user_comment}</p>`,
+      ]).toContain(userCommentValue);
     }
 
     if (report.data_constraints) {
-      await expect(this.dataConstraintsInput).toHaveValue(
-        report.data_constraints,
+      const dataConstraintsValue = await this.dataConstraintsInput.evaluate(
+        (node: HTMLElement) => node.innerHTML,
       );
-    } else {
-      await expect(this.dataConstraintsInput).toBeEmpty();
+      await expect([
+        report.data_constraints,
+        `<p>${report.data_constraints}</p>`,
+      ]).toContain(dataConstraintsValue);
     }
   }
 
@@ -236,8 +255,8 @@ export class GenerateReportPage extends PTPage {
     await this.fillOutForm({
       naicsCode: '11 - Agriculture, forestry, fishing and hunting',
       employeeCountRange: '50-299',
-      comments: 'Example test comment',
-      dataConstraints: 'Example data constraint text',
+      comments: '<p>Example test comment</p>',
+      dataConstraints: '<p>Example data constraint text</p>',
       fileName: 'CsvGood.csv',
     });
 
@@ -266,10 +285,17 @@ export class GenerateReportPage extends PTPage {
     );
 
     await this.setEmployeeCount(employeeCountRange!.employee_count_range);
-    const comment = 'new comment edit';
-    await this.commentsInput.fill(comment);
-    const dataConstraint = 'new data constraint edit';
-    await this.dataConstraintsInput.fill(dataConstraint);
+    const comment = '<p>new comment edit</p>';
+    await this.commentsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      comment,
+    );
+
+    const dataConstraint = '<p>new data constraint edit</p>';
+    await this.dataConstraintsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      dataConstraint,
+    );
 
     await this.selectFile('CsvGood.csv');
     return this.submitForm(

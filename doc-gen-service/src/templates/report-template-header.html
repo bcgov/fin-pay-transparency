@@ -86,6 +86,14 @@
     position: relative;
   }
 
+  .pay-transparency-report .page .block-group .block.block-split:last-child {
+    margin-bottom: 20px !important;
+  }
+
+  .pay-transparency-report .page .block-group .block.block-split:not(:last-child) {
+    margin-bottom: 0px !important;
+  }
+
   .pay-transparency-report .page {
     break-inside: avoid;
     page-break-after: always;
@@ -114,6 +122,10 @@
     margin-bottom: 20px;
   }
 
+  .pay-transparency-report .block .block-title {
+    margin: 0px;
+  }
+
   .pay-transparency-report h1 {
     font-size: 36px;
     font-weight: bold;
@@ -138,6 +150,7 @@
     font-weight: bold;
     color: #313131;
     margin: 0px;
+    line-height: 1.1;
   }
 
   .pay-transparency-report h5 {
@@ -151,6 +164,28 @@
     font-size: 11px !important;
     font-weight: bold !important;
     color: #313131;
+    margin: 0px;
+  }
+
+  .pay-transparency-report .block-title {
+    margin: 0px !important;
+    padding: 0px !important;
+  }
+
+  .pay-transparency-report .rich-text>p:empty,
+  .pay-transparency-report p.rich-text:empty {
+    height: 10px;
+  }
+
+  .pay-transparency-report .rich-text p,
+  .pay-transparency-report p.rich-text {
+    margin-top: 0px;
+    margin-bottom: 0px;
+
+  }
+
+  .pay-transparency-report .rich-text>* {
+    white-space: pre-wrap;
     margin: 0px;
   }
 
@@ -208,6 +243,16 @@
 
   .pay-transparency-report .pe-4 {
     padding-right: 16px !important;
+  }
+
+  .pay-transparency-report ol {
+    padding-left: 32px;
+    list-style-type: decimal;
+  }
+
+  .pay-transparency-report ul {
+    padding-left: 32px;
+    list-style-type: disc;
   }
 
   .pay-transparency-report .text-primary {
@@ -290,6 +335,10 @@
     width: 100%;
   }
 
+  .pay-transparency-report strong {
+    font-weight: bold;
+  }
+
   .pay-transparency-report .text-normal {
     font-size: 13px;
     line-height: 1.3;
@@ -330,7 +379,7 @@
   <div class="pay-transparency-report">
     <div class="no-page">
       <div class='block-group'>
-        <div id="block-title" class="block">
+        <div id="block-report-title" class="block">
           <h1 class="text-primary mb-0">
             <%= companyName %>
           </h1>
@@ -338,8 +387,8 @@
         </div>
         <%_ if (comments) { _%>
           <div id="block-user-comments" class="block">
-            <div class="user-comments text-normal">
-              <%= comments %>
+            <div class="block-body user-comments text-normal rich-text">
+              <%- comments %>
             </div>
           </div>
           <%_ } _%>
