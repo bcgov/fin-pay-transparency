@@ -200,14 +200,20 @@ export class GenerateReportPage extends PTPage {
       const userCommentValue = await this.commentsInput.evaluate(
         (node: HTMLElement) => node.innerHTML,
       );
-      await expect(userCommentValue).toBe(report.user_comment);
+      await expect([
+        report.user_comment,
+        `<p>${report.user_comment}</p>`,
+      ]).toContain(userCommentValue);
     }
 
     if (report.data_constraints) {
       const dataConstraintsValue = await this.dataConstraintsInput.evaluate(
         (node: HTMLElement) => node.innerHTML,
       );
-      await expect(dataConstraintsValue).toBe(report.data_constraints);
+      await expect([
+        report.data_constraints,
+        `<p>${report.data_constraints}</p>`,
+      ]).toContain(dataConstraintsValue);
     }
   }
 
@@ -249,8 +255,8 @@ export class GenerateReportPage extends PTPage {
     await this.fillOutForm({
       naicsCode: '11 - Agriculture, forestry, fishing and hunting',
       employeeCountRange: '50-299',
-      comments: 'Example test comment',
-      dataConstraints: 'Example data constraint text',
+      comments: '<p>Example test comment</p>',
+      dataConstraints: '<p>Example data constraint text</p>',
       fileName: 'CsvGood.csv',
     });
 
@@ -279,10 +285,17 @@ export class GenerateReportPage extends PTPage {
     );
 
     await this.setEmployeeCount(employeeCountRange!.employee_count_range);
-    const comment = 'new comment edit';
-    await this.commentsInput.fill(comment);
-    const dataConstraint = 'new data constraint edit';
-    await this.dataConstraintsInput.fill(dataConstraint);
+    const comment = '<p>new comment edit</p>';
+    await this.commentsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      comment,
+    );
+
+    const dataConstraint = '<p>new data constraint edit</p>';
+    await this.dataConstraintsInput.evaluate(
+      (node: HTMLElement, html: string) => (node.innerHTML = html),
+      dataConstraint,
+    );
 
     await this.selectFile('CsvGood.csv');
     return this.submitForm(
