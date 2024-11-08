@@ -11,6 +11,7 @@ import {
   AnnouncementFilterType,
   AnnouncementFormValue,
   AnnouncementSortType,
+  AnnouncementStatus,
   IAnnouncementSearchResult,
 } from '../types/announcements';
 import {
@@ -352,7 +353,7 @@ export default {
       const body = announcementIds?.map((id) => {
         return {
           id: id,
-          status: 'DELETED',
+          status: AnnouncementStatus.Archived,
         };
       });
       const resp = await apiAxios.patch(`${ApiRoutes.ANNOUNCEMENTS}`, body);
@@ -374,7 +375,7 @@ export default {
       const body = [
         {
           id: announcementId,
-          status: 'DRAFT',
+          status: AnnouncementStatus.Draft,
         },
       ];
       const resp = await apiAxios.patch(`${ApiRoutes.ANNOUNCEMENTS}`, body);

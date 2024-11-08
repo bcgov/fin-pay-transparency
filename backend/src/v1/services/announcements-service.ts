@@ -178,7 +178,7 @@ export const announcementService = {
    * @param data - array of objects with format:
    * { id: announcement_id, status: status}
    * Currently the 'status' attribute is the only attribute that supports patching,
-   * and the only status values that are supported are ['DELETED', 'DRAFT', 'EXPIRED']
+   * and the only status values that are supported are ['ARCHIVED', 'DRAFT', 'EXPIRED']
    * @param userId - user id who is patching the announcements, or undefined
    * if no 'updated_by' user should be recorded
    * @param tx - an optional Prisma transaction.  if specified, performs the work within
@@ -191,7 +191,7 @@ export const announcementService = {
     tx?: any,
   ) {
     const supportedStatuses = [
-      AnnouncementStatus.Deleted,
+      AnnouncementStatus.Archived,
       AnnouncementStatus.Draft,
       AnnouncementStatus.Expired,
     ];
@@ -566,7 +566,7 @@ are found, marks them as expired */
             expires_on: { lt: cutoffDate },
           },
           {
-            status: AnnouncementStatus.Deleted,
+            status: AnnouncementStatus.Archived,
             updated_date: { lt: cutoffDate },
           },
         ],

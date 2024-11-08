@@ -7,7 +7,7 @@
         AnnouncementStatus.Published,
         AnnouncementStatus.Expired,
       ].includes(status),
-      error: status == AnnouncementStatus.Deleted,
+      error: status == AnnouncementStatus.Archived,
     }"
     size="small"
   >

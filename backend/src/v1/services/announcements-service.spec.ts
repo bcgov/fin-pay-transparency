@@ -420,7 +420,7 @@ describe('AnnouncementsService', () => {
     describe('when provided a list of objects and at least one requests an invalid status change', () => {
       it('throws a UserInputError', async () => {
         const data: any = [
-          { id: '1', status: AnnouncementStatus.Deleted }, //is supported
+          { id: '1', status: AnnouncementStatus.Archived }, //is supported
           { id: '2', status: AnnouncementStatus.Published }, //isn't supported
         ];
         const mockUserId = 'user-id';
@@ -449,7 +449,7 @@ describe('AnnouncementsService', () => {
         ]);
         await announcementService.patchAnnouncements(
           [
-            { id: '1', status: AnnouncementStatus.Deleted },
+            { id: '1', status: AnnouncementStatus.Archived },
             { id: '2', status: AnnouncementStatus.Draft },
             { id: '3', status: AnnouncementStatus.Expired },
           ],
@@ -469,7 +469,7 @@ describe('AnnouncementsService', () => {
         expect(updates).toStrictEqual([
           {
             announcement_id: '1',
-            status: AnnouncementStatus.Deleted,
+            status: AnnouncementStatus.Archived,
             updated_by: mockUserId,
             updated_date: expect.any(Date),
           },

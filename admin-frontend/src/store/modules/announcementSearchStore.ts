@@ -73,11 +73,11 @@ export const useAnnouncementSearchStore = defineStore(
         sort = DEFAULT_SEARCH_PARAMS.sort;
       }
 
-      //Because the frontend should never see DELETED announcements,
+      //Because the frontend should never see ARCHIVED announcements,
       //when no status filter is provided as a param to this function,
-      //create a default status filter which includes all status except DELETED.
+      //create a default status filter which includes all status except ARCHIVED.
       if (!filters?.filter((f) => f.key == 'status').length) {
-        const allStatusesExceptDeleted = [
+        const allStatusesExceptArchived = [
           AnnouncementStatus.Published,
           AnnouncementStatus.Draft,
           AnnouncementStatus.Expired,
@@ -85,7 +85,7 @@ export const useAnnouncementSearchStore = defineStore(
         const defaultStatusFilter: StatusFilter = {
           key: 'status',
           operation: 'in',
-          value: allStatusesExceptDeleted,
+          value: allStatusesExceptArchived,
         };
         filters = [...filters, defaultStatusFilter];
       }

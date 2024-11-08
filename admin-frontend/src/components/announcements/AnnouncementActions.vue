@@ -26,7 +26,7 @@
             >Unpublish</v-btn
           >
         </v-list-item>
-        <v-list-item v-if="announcement.status != AnnouncementStatus.Deleted">
+        <v-list-item v-if="announcement.status != AnnouncementStatus.Archived">
           <v-btn
             class="text-red"
             variant="text"

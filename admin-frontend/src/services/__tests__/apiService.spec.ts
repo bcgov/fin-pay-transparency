@@ -382,7 +382,7 @@ describe('ApiService', () => {
         const expectedPatchBody = announcementIdsToDelete?.map((id) => {
           return {
             id: id,
-            status: 'DELETED',
+            status: 'ARCHIVED',
           };
         });
         expect(patchSpy).toHaveBeenCalledOnce();

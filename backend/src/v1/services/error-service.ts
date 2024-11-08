@@ -171,7 +171,7 @@ const errorService = {
   Deletes errors that were logged before a given date
   @param thresholdDate: an ISO 8601 datetime string identifying the date in 
   which errors older than this should be deleted. (default: 6 months ago)
-  Example usage:  
+  @example  
     const sixMonthsAgo = LocalDate.now(ZoneId.UTC)
       .atStartOfDay(ZoneId.UTC)
       .minusMonths(6)

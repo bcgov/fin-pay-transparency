@@ -15,23 +15,17 @@ export type DateFilter<T> = {
   value: string | string[];
 };
 
-export type AnnouncementStatusType =
-  | 'PUBLISHED'
-  | 'DRAFT'
-  | 'EXPIRED'
-  | 'DELETED';
-
 export enum AnnouncementStatus {
   Published = 'PUBLISHED',
   Draft = 'DRAFT',
   Expired = 'EXPIRED',
-  Deleted = 'DELETED',
+  Archived = 'ARCHIVED',
 }
 
 export type StatusFilter = {
   key: 'status';
   operation: 'in' | 'notin';
-  value: AnnouncementStatusType[];
+  value: AnnouncementStatus[];
 };
 
 export type AnnouncementFilterType = (
@@ -66,12 +60,14 @@ const FILTER_OPERATION_SCHEMA: {
   }),
 };
 
-const STATUSES = ['PUBLISHED', 'DRAFT', 'EXPIRED', 'DELETED'] as const;
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   title: z.string().optional(),
   active_on: z.string().or(z.array(z.string())).optional(),
   expires_on: z.string().or(z.array(z.string())).optional(),
-  status: z.array(z.enum(STATUSES)).or(z.enum(STATUSES)).optional(),
+  status: z
+    .array(z.nativeEnum(AnnouncementStatus))
+    .or(z.nativeEnum(AnnouncementStatus))
+    .optional(),
 };
 
 const FilterItemSchema = z
@@ -108,13 +104,7 @@ const FilterItemSchema = z
   );
 
 const AnnouncementSortSchema = z.object({
-  field: z.enum([
-    'active_on',
-    'expires_on',
-    'title',
-    'status',
-    'updated_date',
-  ]),
+  field: z.enum(['active_on', 'expires_on', 'title', 'status', 'updated_date']),
   order: z.enum(['asc', 'desc']),
 });
 
@@ -142,7 +132,11 @@ export type AnnouncementQueryType = z.infer<typeof AnnouncementQuerySchema>;
 export const PatchAnnouncementsSchema = z.array(
   z.object({
     id: z.string().uuid(),
-    status: z.enum(['DELETED', 'DRAFT', 'EXPIRED']),
+    status: z.enum([
+      AnnouncementStatus.Archived,
+      AnnouncementStatus.Draft,
+      AnnouncementStatus.Expired,
+    ]),
   }),
 );
 
