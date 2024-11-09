@@ -46,12 +46,12 @@ const ResizeObserverMock = vi.fn(() => ({
 }));
 
 const mockGetAnnouncements = vi.fn();
-const mockDeleteAnnouncements = vi.fn();
+const mockArchiveAnnouncements = vi.fn();
 
 vi.mock('../../services/apiService', () => ({
   default: {
     getAnnouncements: (...args) => mockGetAnnouncements(...args),
-    deleteAnnouncements: (...args) => mockDeleteAnnouncements(...args),
+    archiveAnnouncements: (...args) => mockArchiveAnnouncements(...args),
   },
 }));
 
@@ -229,7 +229,7 @@ describe('AnnouncementsPage', () => {
         vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(true);
 
         const resp = await wrapper.vm.archiveAnnouncements(announcementIds);
-        expect(mockDeleteAnnouncements).toHaveBeenCalledWith(announcementIds);
+        expect(mockArchiveAnnouncements).toHaveBeenCalledWith(announcementIds);
         expect(repeatSearchSpy).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.isArchiving).toBeFalsy();
       });
@@ -247,7 +247,7 @@ describe('AnnouncementsPage', () => {
         vi.spyOn(wrapper.vm.confirmDialog, 'open').mockResolvedValue(false);
 
         const resp = await wrapper.vm.archiveAnnouncements(announcementIds);
-        expect(mockDeleteAnnouncements).toHaveBeenCalledTimes(0);
+        expect(mockArchiveAnnouncements).toHaveBeenCalledTimes(0);
         expect(repeatSearchSpy).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.isArchiving).toBeFalsy();
       });

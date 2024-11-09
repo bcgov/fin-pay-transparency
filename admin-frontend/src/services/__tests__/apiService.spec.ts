@@ -364,7 +364,7 @@ describe('ApiService', () => {
     });
   });
 
-  describe('deleteAnnouncements', () => {
+  describe('archiveAnnouncements', () => {
     describe('when the API request to the backend is successful', () => {
       it('returns a promise that eventually resolves', async () => {
         const announcementIdsToDelete = ['1', '2'];
@@ -376,7 +376,7 @@ describe('ApiService', () => {
           .spyOn(ApiService.apiAxios, 'patch')
           .mockResolvedValueOnce(mockResponse);
 
-        await expect(ApiService.deleteAnnouncements(announcementIdsToDelete))
+        await expect(ApiService.archiveAnnouncements(announcementIdsToDelete))
           .resolves;
 
         const expectedPatchBody = announcementIdsToDelete?.map((id) => {
@@ -401,7 +401,7 @@ describe('ApiService', () => {
         );
 
         await expect(
-          ApiService.deleteAnnouncements(announcementIdsToDelete),
+          ApiService.archiveAnnouncements(announcementIdsToDelete),
         ).rejects.toThrow();
       });
     });

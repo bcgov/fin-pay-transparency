@@ -78,7 +78,7 @@ describe('AnnouncementActions', () => {
       it('delegates to the ApiService', async () => {
         const announcementId = '1';
         const apiSpy = vi
-          .spyOn(ApiService, 'deleteAnnouncements')
+          .spyOn(ApiService, 'archiveAnnouncements')
           .mockResolvedValue();
 
         //mock the confirm dialog.
@@ -95,7 +95,7 @@ describe('AnnouncementActions', () => {
       it('does nothing', async () => {
         const announcementId = '1';
         const apiSpy = vi
-          .spyOn(ApiService, 'deleteAnnouncements')
+          .spyOn(ApiService, 'archiveAnnouncements')
           .mockResolvedValue();
 
         //mock the confirm dialog.

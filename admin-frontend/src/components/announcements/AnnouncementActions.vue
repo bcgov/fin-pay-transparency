@@ -81,7 +81,7 @@ async function archiveAnnouncement(announcementId: string) {
   if (isConfirmed) {
     isArchiving.value = true;
     try {
-      await ApiService.deleteAnnouncements([announcementId]);
+      await ApiService.archiveAnnouncements([announcementId]);
       announcementSearchStore.repeatSearch();
       NotificationService.pushNotificationSuccess(
         `Announcement archived successfully.`,

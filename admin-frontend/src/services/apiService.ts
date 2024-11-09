@@ -348,7 +348,7 @@ export default {
     }
   },
 
-  async deleteAnnouncements(announcementIds: string[]): Promise<void> {
+  async archiveAnnouncements(announcementIds: string[]): Promise<void> {
     try {
       const body = announcementIds?.map((id) => {
         return {
