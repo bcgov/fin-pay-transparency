@@ -194,7 +194,7 @@ class GroupedColumnStats {
     const genderCategories = Object.values(
       GroupedColumnStats.REF_CATEGORY_PREFERENCE,
     );
-    for (let genderCodeSynonyms of genderCategories) {
+    for (const genderCodeSynonyms of genderCategories) {
       // Arbitrarily pick any one value from the list
       // of synonyms for this gender category
       const genderCode = genderCodeSynonyms[0];
@@ -259,7 +259,7 @@ class GroupedColumnStats {
     // a given genderCode being sorted.  Sort now to be sure.
     this.sortEachGenderCategory();
 
-    let values = this.getNonZeroValues(genderCode);
+    const values = this.getNonZeroValues(genderCode);
     if (!values?.length) {
       return 0;
     }
@@ -286,7 +286,7 @@ where key value pairs look like this:
   <data value, gender code>
 */
 class TaggedColumnStats {
-  private data: ValueGenderCodePair[];
+  private readonly data: ValueGenderCodePair[];
   private isSorted: boolean;
 
   constructor() {
