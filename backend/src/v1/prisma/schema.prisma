@@ -114,7 +114,7 @@ model pay_transparency_report {
   report_id                                                 String                             @id(map: "report_id_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   company_id                                                String                             @db.Uuid
   user_id                                                   String                             @db.Uuid
-  user_comment                                              String?                            @db.VarChar(4000)
+  user_comment                                              String?
   employee_count_range_id                                   String                             @db.Uuid
   naics_code                                                String                             @db.VarChar(5)
   report_start_date                                         DateTime                           @default(now()) @db.Date
@@ -125,7 +125,7 @@ model pay_transparency_report {
   update_user                                               String                             @default(dbgenerated("CURRENT_USER")) @db.VarChar(255)
   report_status                                             String?                            @default("Draft") @db.VarChar(255)
   revision                                                  Decimal                            @db.Decimal
-  data_constraints                                          String?                            @db.VarChar(3000)
+  data_constraints                                          String?
   is_unlocked                                               Boolean                            @default(true)
   reporting_year                                            Decimal                            @db.Decimal
   report_unlock_date                                        DateTime?                          @db.Timestamp(6)
@@ -168,7 +168,7 @@ model report_history {
   company_id                                       String                    @db.Uuid
   user_id                                          String                    @db.Uuid
   employee_count_range_id                          String                    @db.Uuid
-  user_comment                                     String?                   @db.VarChar(4000)
+  user_comment                                     String?
   report_start_date                                DateTime                  @default(now()) @db.Date
   report_end_date                                  DateTime                  @default(now()) @db.Date
   create_date                                      DateTime                  @default(now()) @db.Timestamp(6)
@@ -177,7 +177,7 @@ model report_history {
   update_user                                      String                    @db.VarChar(255)
   report_status                                    String?                   @default("Draft") @db.VarChar(255)
   naics_code                                       String                    @db.VarChar(5)
-  data_constraints                                 String?                   @db.VarChar(3000)
+  data_constraints                                 String?
   revision                                         Decimal                   @db.Decimal
   is_unlocked                                      Boolean                   @default(true)
   reporting_year                                   Decimal                   @db.Decimal
@@ -394,7 +394,7 @@ view reports_view {
   report_change_id            String                 @id @db.Uuid
   company_id                  String?                @db.Uuid
   user_id                     String?                @db.Uuid
-  user_comment                String?                @db.VarChar(4000)
+  user_comment                String?
   employee_count_range_id     String?                @db.Uuid
   naics_code                  String?                @db.VarChar(5)
   report_start_date           DateTime?              @db.Date
@@ -405,7 +405,7 @@ view reports_view {
   update_user                 String?                @db.VarChar(255)
   report_status               String?                @db.VarChar(255)
   revision                    Decimal?               @db.Decimal
-  data_constraints            String?                @db.VarChar(3000)
+  data_constraints            String?
   reporting_year              Decimal?               @db.Decimal
   report_unlock_date          DateTime?              @db.Timestamp(6)
   naics_code_label            String?                @db.VarChar(255)
