@@ -600,7 +600,7 @@ describe('admin-report-service', () => {
       });
     });
   });
-  /*
+
   describe('toHumanFriendlyReport', () => {
     describe('given a report of the form returned by searchReport', () => {
       it('returns a flattened and simplified report', () => {
@@ -640,24 +640,24 @@ describe('admin-report-service', () => {
             company_name: 'BC Crown Corp',
           },
         };
+
         const result = adminReportService.toHumanFriendlyReport(mockReport);
-        expect(result['Submission date']).toBe(mockReport.update_date);
-        expect(result['Company name']).toBe(
+        expect(result['Submission Date']).toBe(mockReport.create_date);
+        expect(result['Employer Name']).toBe(
           mockReport.pay_transparency_company.company_name,
         );
-        expect(result['Reporting year']).toBe(mockReport.reporting_year);
-        expect(result['NAICS code']).toBe(mockReport.naics_code);
-        expect(result['Employee count']).toBe(
+        expect(result['Reporting Year']).toBe(mockReport.reporting_year);
+        expect(result['NAICS Code']).toBe(mockReport.naics_code);
+        expect(result['Employee Count']).toBe(
           mockReport.employee_count_range.employee_count_range,
         );
-        expect(result['Is unlocked?']).toBe(
+        expect(result['Is Unlocked']).toBe(
           mockReport.is_unlocked ? 'Yes' : 'No',
         );
-        expect(Object.keys(result).length).toBe(6);
+        expect(Object.keys(result)).toHaveLength(6);
       });
     });
   });
-  */
 
   describe('changeReportLockStatus', () => {
     it('should throw error if report does not exist', async () => {

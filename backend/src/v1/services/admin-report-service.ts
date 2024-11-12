@@ -107,9 +107,8 @@ const adminReportService = {
 
     // Convert the boolean "true" and "false" values into "Yes" and "No"
     flattened['is_unlocked'] = flattened['is_unlocked'] ? 'Yes' : 'No';
-
     const attrsToRename = {
-      update_date: 'Submission Date',
+      create_date: 'Submission Date',
       company_name: 'Employer Name',
       naics_code: 'NAICS Code',
       employee_count_range: 'Employee Count',
