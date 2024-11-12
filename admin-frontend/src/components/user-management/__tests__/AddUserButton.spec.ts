@@ -1,10 +1,10 @@
 import { createTestingPinia } from '@pinia/testing';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createVuetify } from 'vuetify';
-import AddUserButton from '../AddUserButton.vue';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import AddUserButton from '../AddUserButton.vue';
 
 import {
   ADMIN_ROLE_NAME,
@@ -39,7 +39,7 @@ vi.mock('../../../services/notificationService', () => ({
   NotificationService: {
     pushNotificationSuccess: () => mockSuccess(),
     pushNotificationError: () => mockError(),
-  }
+  },
 }));
 
 describe('AddUserButton', () => {
@@ -107,13 +107,13 @@ describe('AddUserButton', () => {
     const wrapper = await wrappedRender();
     const button = wrapper.getByRole('button', { name: 'Add New User' });
     await fireEvent.click(button);
-    expect(
-      screen.getByRole('presentation', { name: 'Add New User' }),
-    ).toBeInTheDocument();
+    // Use the presence of the 'Add' button as evidence that the whole
+    // 'Add New User' dialog is visible.
+    expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await fireEvent.click(cancelButton);
     expect(
-      screen.queryByRole('presentation', { name: 'Add New User' }),
+      screen.queryByRole('button', { name: 'Add' }),
     ).not.toBeInTheDocument();
   });
 
@@ -199,9 +199,7 @@ describe('AddUserButton', () => {
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await fireEvent.click(cancelButton);
     await waitFor(() => {
-      expect(
-        screen.getByRole('presentation', { name: 'Add New User' }),
-      ).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Add' })).toBeVisible();
     });
     expect(mockAddInvite).not.toHaveBeenCalled();
   });

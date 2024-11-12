@@ -783,57 +783,62 @@ const handleSave = handleSubmit(async (values) => {
     return true;
   }
 
-  let confirmationSettings;
+  async function confirmSave(values): Promise<boolean> {
+    let doSave = false;
+    let confirmationSettings;
 
-  if (values.status === 'DRAFT') {
-    confirmationSettings = {
-      title: 'Confirm Draft',
-      message:
-        'Do you want to save the announcement as a draft? It will not be published to the public site. Do you want to continue?',
-    };
-  } else if (
-    mode === AnnouncementFormMode.CREATE ||
-    announcement?.status !== 'PUBLISHED'
-  ) {
-    let activeDate = LocalDateTime.from(nativeJs(values.active_on));
-    // If the active_on date is in the past (earlier than the current time), the server will override it with the current time.
-    // Therefore, we need to show the user the time that the server would actually use, which is the current time in that case.
-    if (activeDate.isBefore(LocalDateTime.now()))
-      activeDate = LocalDateTime.now();
+    if (values.status === 'DRAFT') {
+      confirmationSettings = {
+        title: 'Confirm Draft',
+        message:
+          'Do you want to save the announcement as a draft? It will not be published to the public site. Do you want to continue?',
+      };
+    } else if (
+      mode === AnnouncementFormMode.CREATE ||
+      announcement?.status !== 'PUBLISHED'
+    ) {
+      let activeDate = LocalDateTime.from(nativeJs(values.active_on));
+      // If the active_on date is in the past (earlier than the current time), the server will override it with the current time.
+      // Therefore, we need to show the user the time that the server would actually use, which is the current time in that case.
+      if (activeDate.isBefore(LocalDateTime.now()))
+        activeDate = LocalDateTime.now();
 
-    const activeDateString = activeDate.format(
-      DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(Locale.CANADA),
-    );
-    const activeTimeString = activeDate.format(
-      DateTimeFormatter.ofPattern('h:mm a').withLocale(Locale.CANADA),
-    );
-    confirmationSettings = {
-      title: 'Confirm Publish',
-      message: `This announcement will be published to the public site on ${activeDateString} at ${activeTimeString} Do you want to continue?`,
-    };
-  } else {
-    confirmationSettings = {
-      title: 'Confirm Update',
-      message:
-        "This published message will be updated on the public site with the changes you've made. Do you want to continue?",
-    };
+      const activeDateString = activeDate.format(
+        DateTimeFormatter.ofPattern('MMM d, yyyy').withLocale(Locale.CANADA),
+      );
+      const activeTimeString = activeDate.format(
+        DateTimeFormatter.ofPattern('h:mm a').withLocale(Locale.CANADA),
+      );
+      confirmationSettings = {
+        title: 'Confirm Publish',
+        message: `This announcement will be published to the public site on ${activeDateString} at ${activeTimeString} Do you want to continue?`,
+      };
+    } else {
+      confirmationSettings = {
+        title: 'Confirm Update',
+        message:
+          "This published message will be updated on the public site with the changes you've made. Do you want to continue?",
+      };
+    }
+
+    if (confirmationSettings) {
+      isConfirmDialogVisible.value = true;
+      doSave = await publishConfirmationDialog.value?.open(
+        confirmationSettings.title,
+        confirmationSettings.message,
+        {
+          titleBold: true,
+          resolveText: 'Confirm',
+        },
+      );
+      isConfirmDialogVisible.value = false;
+    }
+    return doSave;
   }
 
-  if (confirmationSettings) {
-    isConfirmDialogVisible.value = true;
-    const confirmation = await publishConfirmationDialog.value?.open(
-      confirmationSettings.title,
-      confirmationSettings.message,
-      {
-        titleBold: true,
-        resolveText: 'Confirm',
-      },
-    );
-    isConfirmDialogVisible.value = false;
-
-    if (!confirmation) {
-      return;
-    }
+  const isSaveConfirmed = await confirmSave(values);
+  if (!isSaveConfirmed) {
+    return;
   }
 
   emits('save', {

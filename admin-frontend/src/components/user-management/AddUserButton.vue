@@ -1,18 +1,18 @@
 <template>
   <v-form>
     <v-dialog v-model="open" max-width="600">
-      <template v-slot:activator="{ props: activatorProps }">
+      <template #activator="{ props: activatorProps }">
         <v-btn
           prepend-icon="mdi-account-plus"
-          text="Add New User"
           variant="elevated"
           color="primary"
           v-bind="activatorProps"
-        ></v-btn>
+          >Add New User</v-btn
+        >
       </template>
 
-      <v-card v-if="open" role="presentation" aria-label="Add New User">
-        <template v-slot:title>
+      <v-card v-if="open" aria-label="Add New User">
+        <template #title>
           <span class="card-title">Add New User</span>
         </template>
         <v-divider></v-divider>
@@ -23,10 +23,10 @@
               <h5>Name *</h5>
 
               <v-text-field
+                v-model="name"
                 single-line
                 label="Name"
                 placeholder="Name"
-                v-model="name"
                 v-bind="nameProps"
                 :error-messages="errors.name"
               ></v-text-field>
@@ -36,20 +36,20 @@
               <h5>Email *</h5>
 
               <v-text-field
+                v-model="email"
                 single-line
                 label="Email"
                 placeholder="Email"
                 required
                 :suffix="emailSuffix"
-                v-model="email"
                 v-bind="emailProps"
                 :error-messages="errors.email"
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="12" sm="12">
               <v-radio-group
-                label="Select the user role *"
                 v-model="role"
+                label="Select the user role *"
                 :error-messages="errors.role"
                 v-bind="roleProps"
                 inline
@@ -70,19 +70,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn text="Cancel" variant="outlined" @click="onClose()"></v-btn>
+          <v-btn variant="outlined" @click="onClose()">Cancel</v-btn>
 
-          <v-btn
-            color="primary"
-            text="Add"
-            variant="elevated"
-            @click="submit"
-          ></v-btn>
+          <v-btn color="primary" variant="elevated" @click="submit">Add</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <ConfirmDialog ref="confirmDialog">
-      <template v-slot:message>
+      <template #message>
         <p>Name: {{ name }}</p>
         <p>Role: {{ RoleLabels[role] }}</p>
         <p class="mt-2">
