@@ -268,7 +268,7 @@ export default {
    */
   async publishReport(reportId: string): Promise<any> {
     try {
-      const resp = await apiAxios.put(`${ApiRoutes.REPORT}/${reportId}`);
+      const resp = await apiAxios.put(ApiRoutes.REPORT + reportId);
       if (resp?.data) {
         return resp.data;
       }
