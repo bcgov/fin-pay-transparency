@@ -1,5 +1,5 @@
 # Build static files
-FROM node:lts-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY . .
 RUN npm ci --ignore-scripts && \
