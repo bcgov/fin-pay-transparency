@@ -76,14 +76,12 @@
             <v-col cols="12" md="12" sm="12">
               <h5
                 :class="{
-                  'text-error':
-                    announcementTitleRef &&
-                    !announcementDescriptionRef?.isValid,
+                  'text-error': announcementDescriptionError,
                 }"
               >
                 Description *
               </h5>
-              <v-textarea
+              <!--v-textarea
                 ref="announcementDescriptionRef"
                 v-model="announcementDescription"
                 single-line
@@ -102,7 +100,15 @@
                     }}
                   </span>
                 </template>
-              </v-textarea>
+              </v-textarea-->
+              <RichTextArea
+                id="announcementDescription"
+                v-model="announcementDescription"
+                placeholder="Description"
+                :max-length="announcementDescriptionMaxLength"
+                :error-message="announcementDescriptionError"
+                @plain-text-length-changed="onDescriptionPlaintextLengthChanged"
+              ></RichTextArea>
             </v-col>
             <v-col cols="12" md="12" sm="12">
               <h5 class="mb-2">Time Settings</h5>
@@ -410,10 +416,10 @@ import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import type { VTextField } from 'vuetify/components';
+import RichTextArea from '../RichTextArea.vue';
 
 // References to component's exported properties
 const announcementTitleRef = ref<VTextField | null>(null);
-const announcementDescriptionRef = ref<VTextField | null>(null);
 const linkUrlRef = ref<VTextField | null>(null);
 const linkDisplayNameRef = ref<VTextField | null>(null);
 const fileDisplayNameRef = ref<VTextField | null>(null);
@@ -440,6 +446,28 @@ const linkDisplayOnly = ref(
 );
 const isConfirmDialogVisible = ref(false);
 
+const announcementDescription = ref<string | undefined>(undefined);
+const announcementDescriptionMaxLength: number = 2000;
+const announcementDescriptionLength = ref<number | undefined>(undefined);
+const announcementDescriptionError = ref<string | undefined>(undefined);
+
+const onDescriptionPlaintextLengthChanged = (numChars) => {
+  announcementDescriptionLength.value = numChars;
+  announcementDescriptionError.value = validateDescription();
+};
+
+const validateDescription = () => {
+  if (!announcementDescriptionLength.value) return 'Description is required.';
+
+  if (
+    announcementDescriptionLength?.value &&
+    announcementDescriptionLength.value > 2000
+  )
+    return 'Description should have a maximum of 2000 characters.';
+
+  return undefined;
+};
+
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
@@ -465,14 +493,6 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
       if (value.length > 100)
         return 'Title should have a maximum of 100 characters.';
-
-      return true;
-    },
-    description(value) {
-      if (!value) return 'Description is required.';
-
-      if (getDescriptionLength(value) > 2000)
-        return 'Description should have a maximum of 2000 characters.';
 
       return true;
     },
@@ -534,7 +554,6 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
 const { value: announcementTitle } = useField('title');
 const { value: status } = useField<string>('status');
-const { value: announcementDescription } = useField<string>('description');
 const { value: activeOn } = useField('active_on') as any;
 const { value: expiresOn } = useField('expires_on') as any;
 const { value: noExpiry } = useField('no_expiry') as any;
@@ -542,10 +561,6 @@ const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
 const { value: fileDisplayName } = useField('fileDisplayName') as any;
 const { value: attachment } = useField('attachment') as any;
-
-const getDescriptionLength = (value: string) => {
-  return value.replace(/(\r\n|\n|\r)/g, '  ').length;
-};
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
