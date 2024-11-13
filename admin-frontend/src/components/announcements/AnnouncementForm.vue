@@ -81,26 +81,6 @@
               >
                 Description *
               </h5>
-              <!--v-textarea
-                ref="announcementDescriptionRef"
-                v-model="announcementDescription"
-                single-line
-                label="Description"
-                placeholder="Description"
-                maxlength="2000"
-                variant="outlined"
-                counter
-                rows="3"
-                :error-messages="errors.description"
-              >
-                <template #counter="{ max }">
-                  <span>
-                    {{ getDescriptionLength(announcementDescription) }}/{{
-                      max
-                    }}
-                  </span>
-                </template>
-              </v-textarea-->
               <RichTextArea
                 id="announcementDescription"
                 v-model="announcementDescription"
@@ -446,7 +426,9 @@ const linkDisplayOnly = ref(
 );
 const isConfirmDialogVisible = ref(false);
 
-const announcementDescription = ref<string | undefined>(undefined);
+const announcementDescription = ref<string | undefined>(
+  announcement?.description,
+);
 const announcementDescriptionMaxLength: number = 2000;
 const announcementDescriptionLength = ref<number | undefined>(undefined);
 const announcementDescriptionError = ref<string | undefined>(undefined);
@@ -471,7 +453,6 @@ const validateDescription = () => {
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
-    description: announcement?.description || '',
     active_on: announcement?.active_on
       ? new Date(announcement?.active_on) //VueDatePicker is initialized with a Date()
       : undefined,
@@ -571,13 +552,8 @@ watch(noExpiry, () => {
 //Watch for changes to any form field.
 //If the 'preview' mode is active when the form changes
 //then refresh the preview
-watch(
-  values,
-  () => {
-    refreshPreview();
-  },
-  { immediate: true },
-);
+watch(values, refreshPreview, { immediate: true });
+watch(announcementDescription, refreshPreview, { immediate: true });
 
 const formatDate = (date: Date) => {
   return LocalDate.from(nativeJs(date)).format(
@@ -858,6 +834,7 @@ const handleSave = handleSubmit(async (values) => {
 
   emits('save', {
     ...values,
+    description: announcementDescription.value,
     active_on: values.active_on
       ? nativeJs(values.active_on).format(
           DateTimeFormatter.ISO_OFFSET_DATE_TIME,

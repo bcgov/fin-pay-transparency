@@ -120,7 +120,11 @@
       </v-card-title>
 
       <v-card-text>
-        {{ announcementInDialog?.description }}
+        <div
+          v-if="announcementInDialog?.description"
+          v-dompurify-html="announcementInDialog?.description"
+          class="rich-text"
+        ></div>
       </v-card-text>
 
       <v-card-actions>
