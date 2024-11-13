@@ -73,7 +73,7 @@ router.get(
  * Patch announcements, only PTRT-ADMIN can patch announcements
  * @route PATCH /announcements
  * @summary Currently the only announcement attribute that can be changed
- * by this endoint is the status.  It can be set to either DELETED or DRAFT.
+ * by this endoint is the status.  It can be set to either ARCHIVED or DRAFT.
  */
 router.patch(
   '',
@@ -82,7 +82,7 @@ router.patch(
   authorize(['PTRT-ADMIN', 'PTRT-USER']),
   async (req: ExtendedRequest, res) => {
     const supportedStatuses = [
-      AnnouncementStatus.Deleted,
+      AnnouncementStatus.Archived,
       AnnouncementStatus.Draft,
     ];
     try {
@@ -124,7 +124,10 @@ router.post(
       // Request body is validated
       const data = req.body;
       // Create announcement
-      const announcement = await announcementService.createAnnouncement(data, user.admin_user_id);
+      const announcement = await announcementService.createAnnouncement(
+        data,
+        user.admin_user_id,
+      );
       res.status(201).json(announcement);
     } catch (error) {
       logger.error(error);
@@ -165,7 +168,9 @@ router.put(
 
 router.get('/:id', authenticateAdmin(), async (req: Request, res) => {
   try {
-    const announcement = await announcementService.getAnnouncementById(req.params.id);
+    const announcement = await announcementService.getAnnouncementById(
+      req.params.id,
+    );
     return res.json(announcement);
   } catch (error) {
     logger.error(error);

@@ -26,7 +26,7 @@
             >Unpublish</v-btn
           >
         </v-list-item>
-        <v-list-item v-if="announcement.status != AnnouncementStatus.Deleted">
+        <v-list-item v-if="announcement.status != AnnouncementStatus.Archived">
           <v-btn
             class="text-red"
             variant="text"
@@ -81,7 +81,7 @@ async function archiveAnnouncement(announcementId: string) {
   if (isConfirmed) {
     isArchiving.value = true;
     try {
-      await ApiService.deleteAnnouncements([announcementId]);
+      await ApiService.archiveAnnouncements([announcementId]);
       announcementSearchStore.repeatSearch();
       NotificationService.pushNotificationSuccess(
         `Announcement archived successfully.`,
