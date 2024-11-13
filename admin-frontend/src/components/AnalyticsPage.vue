@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { PowerBIReportEmbed } from 'powerbi-client-vue-js';
-import { EventHandler } from 'powerbi-client-vue-js/dist/types/src/utils/utils';
+import type { EventHandler } from 'powerbi-client-vue-js/dist/types/src/utils/utils';
 import { models, IReportEmbedConfiguration, Report } from 'powerbi-client';
 import { reactive, CSSProperties, Reactive } from 'vue';
 import ApiService from '../services/apiService';
