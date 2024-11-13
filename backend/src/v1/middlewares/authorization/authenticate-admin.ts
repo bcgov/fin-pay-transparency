@@ -14,10 +14,11 @@ export const authenticateAdmin = (strict: boolean = true) => {
     const userInfo = utils.getSessionUser(req);
     if (!userInfo?.jwt || !userInfo?._json) {
       if (strict)
-        return res.status(HttpStatus.UNAUTHORIZED).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           message: 'No session data',
         });
-      return next();
+      else next();
+      return;
     }
 
     const preferred_username = userInfo._json.preferred_username;
@@ -29,10 +30,11 @@ export const authenticateAdmin = (strict: boolean = true) => {
 
     if (!localUser) {
       if (strict)
-        return res.status(HttpStatus.UNAUTHORIZED).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           message: 'User not authorized',
         });
-      return next();
+      else next();
+      return;
     }
 
     req.user = {

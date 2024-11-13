@@ -68,6 +68,7 @@ const metricsMiddleware = promBundle({
 });
 const app = express();
 app.set('trust proxy', 1);
+app.set('query parser', 'extended');
 const apiRouter = express.Router();
 
 const JWTStrategy = passportJWT.Strategy;
@@ -174,7 +175,7 @@ function addLoginPassportUse(
 }
 
 //initialize our authentication strategy
-utils.getOidcDiscovery().then((discovery) => {
+void utils.getOidcDiscovery().then((discovery) => {
   //OIDC Strategy is used for authorization
   addLoginPassportUse(
     discovery,
@@ -286,15 +287,16 @@ apiRouter.use('/v1/announcements', announcementRouter);
 apiRouter.use('/v1/resources', resourcesRoutes);
 
 app.use(function (req: Request, res: Response, _next: NextFunction) {
-  return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
+  res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });
 
 // 500 - Any server error
 app.use(function (err: Error, req: Request, res: Response, next: NextFunction) {
   logger.error(err);
   if (res.headersSent) {
-    return next(err);
+    next(err);
+    return;
   }
-  return res.status(500).send({ error: err });
+  res.status(500).send({ error: err });
 });
 export { app };

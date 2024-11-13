@@ -19,6 +19,7 @@ describe('analytics', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     app = express();
+    app.set('query parser', 'extended');
     app.use(router);
   });
 

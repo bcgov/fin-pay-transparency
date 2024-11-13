@@ -77,7 +77,7 @@ externalConsumerApiRouter.use('/v1/reports', externalConsumerRouter);
 externalConsumerApp.use(
   /* istanbul ignore next  */
   function (req: Request, res: Response, _next: NextFunction) {
-    return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
+    res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
   },
 );
 
@@ -85,7 +85,7 @@ externalConsumerApp.use(
 externalConsumerApp.use(
   /* istanbul ignore next  */
   function (err: Error, req: Request, res: Response, _next: NextFunction) {
-    return res.status(500).send({ error: err });
+    res.status(500).send({ error: err });
   },
 );
 export { externalConsumerApp };

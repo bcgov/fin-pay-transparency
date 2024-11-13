@@ -9,9 +9,8 @@ export const authorize = (checkRoles: RoleType[]) => {
     const user = utils.getSessionUser(req);
     const roles = user._json.client_roles as string[];
     if (!intersection(roles, checkRoles).length) {
-      return res
-        .status(HttpStatusCode.Unauthorized)
-        .json({ error: 'Not authorized' });
+      res.status(HttpStatusCode.Unauthorized).json({ error: 'Not authorized' });
+      return;
     }
 
     next();

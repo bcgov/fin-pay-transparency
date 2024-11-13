@@ -25,6 +25,7 @@ let app: Application;
 describe('employer-routes', () => {
   beforeEach(() => {
     app = express();
+    app.set('query parser', 'extended');
     app.use(bodyParser.json());
     app.use(router);
   });

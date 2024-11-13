@@ -49,6 +49,7 @@ describe('announcement-routes', () => {
       next();
     });
     app = require('express')();
+    app.set('query parser', 'extended');
     app.use(bodyParser.json());
     app.use(require('./announcement-routes').default);
     app.use((error, req, res, next) => {

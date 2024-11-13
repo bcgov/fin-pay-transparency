@@ -18,10 +18,10 @@ router.use(authorize([PTRT_ADMIN_ROLE_NAME]));
 router.get('', async (req: Request, res: Response) => {
   try {
     const invites = await adminUserInvitesService.getPendingInvites();
-    return res.status(200).json(invites);
+    res.status(200).json(invites);
   } catch (error) {
     logger.error(error);
-    return res.status(400).json({ error: 'Failed to get invites' });
+    res.status(400).json({ error: 'Failed to get invites' });
   }
 });
 
@@ -40,13 +40,12 @@ router.post(
         firstName,
         idirUserGuid,
       );
-      return res.status(200).json({ message: 'User invite created' });
+      res.status(200).json({ message: 'User invite created' });
     } catch (error) {
       logger.error(error);
-      if (error instanceof UserInputError) {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ error: 'Failed to create user' });
+      if (error instanceof UserInputError)
+        res.status(400).json({ message: error.message });
+      else res.status(500).json({ error: 'Failed to create user' });
     }
   },
 );
@@ -55,10 +54,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await adminUserInvitesService.resendInvite(id);
-    return res.status(200).json({ message: 'Invite resent' });
+    res.status(200).json({ message: 'Invite resent' });
   } catch (error) {
     logger.error(error);
-    return res.status(400).json({ error: 'Failed to resend invite' });
+    res.status(400).json({ error: 'Failed to resend invite' });
   }
 });
 
@@ -66,10 +65,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await adminUserInvitesService.deleteInvite(id);
-    return res.status(200).json({ message: 'Invite deleted' });
+    res.status(200).json({ message: 'Invite deleted' });
   } catch (error) {
     logger.error(error);
-    return res.status(400).json({ error: 'Failed to delete invite' });
+    res.status(400).json({ error: 'Failed to delete invite' });
   }
 });
 

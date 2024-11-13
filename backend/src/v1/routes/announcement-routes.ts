@@ -29,8 +29,26 @@ router.get(
   async (req: SsoRequest, res, next) => {
     if (!req?.user?.admin_user_id) {
       // If this is not an admin user, then it is a public user and they are strictly limited to what they can do
-      req.query = {}; // remove all existing query params
-      req.params = {}; // remove all url params (shouldn't be any anyways)
+
+      // Express v5 doesn't allow you to change these properties, however, this app was originally made
+      // using v4. To support v5 without a lot of rewrite, defineProperty() is used to forcibly
+      // change this property. Because this was originally a v4 project, this should work fine since
+      // this project is expecting a mutable property, but is not recommended for new v5 projects.
+
+      // remove all existing query params
+      Object.defineProperty(req, 'query', {
+        value: {},
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
+      // remove all url params (shouldn't be any anyways)
+      Object.defineProperty(req, 'params', {
+        value: {},
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
       const now = ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
       req.query.filters = [
         {
@@ -158,7 +176,7 @@ router.put(
         data,
         user.admin_user_id,
       );
-      return res.json(announcement);
+      res.json(announcement);
     } catch (error) {
       logger.error(error);
       res.status(400).json({ message: 'Invalid request', error });
@@ -171,7 +189,7 @@ router.get('/:id', authenticateAdmin(), async (req: Request, res) => {
     const announcement = await announcementService.getAnnouncementById(
       req.params.id,
     );
-    return res.json(announcement);
+    res.json(announcement);
   } catch (error) {
     logger.error(error);
     res.status(400).json({ message: 'Invalid request', error });
