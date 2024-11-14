@@ -24,9 +24,8 @@ export class EditAnnouncementPage extends FormPage {
 
   async verifyLoadedData() {
     await expect(this.titleInput).toHaveValue(this.initialData.title);
-    await expect(this.descriptionInput.innerHTML()).toBe(
-      this.initialData.description,
-    );
+    const description = await this.descriptionInput.innerHTML();
+    expect(description).toBe(this.initialData.description);
     await expect(this.activeOnInput).toHaveValue(
       this.initialData.active_on
         ? this.formatInputDate(this.initialData.active_on)

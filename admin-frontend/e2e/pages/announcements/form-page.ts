@@ -75,8 +75,6 @@ export class FormPage extends AdminPortalPage {
   }
 
   async fillDescription(description: string) {
-    console.log('fillDescription');
-    await this.descriptionInput.innerHTML();
     await this.descriptionInput.evaluate(
       (node, desc) => (node.innerHTML = desc),
       description,
