@@ -371,12 +371,12 @@ describe('announcement-routes', () => {
         mockGetAnnouncements.mockRejectedValue(new Error('Invalid request'));
         const response = await request(app).get('/');
         expect(response.status).toBe(400);
-        expect(response.body.message).toEqual('Invalid request');
+        expect(response.body.message).toBe('Invalid request');
       });
     });
   });
 
-  describe('PATCH / - delete announcements', () => {
+  describe('PATCH / - archive announcements', () => {
     describe('when body is invalid', () => {
       it('should return 400', async () => {
         const response = await request(app).patch('/');
@@ -387,7 +387,7 @@ describe('announcement-routes', () => {
 
     describe('when body is valid', () => {
       it('should return 201', async () => {
-        const data = [{ id: faker.string.uuid(), status: 'DELETED' }];
+        const data = [{ id: faker.string.uuid(), status: 'ARCHIVED' }];
         const response = await request(app).patch('/').send(data);
         expect(mockPatchAnnouncements).toHaveBeenCalled();
         expect(response.status).toBe(201);

@@ -69,23 +69,17 @@ export type DateFilter<T> = {
   value: string[];
 };
 
-export type AnnouncementStatusType =
-  | 'PUBLISHED'
-  | 'DRAFT'
-  | 'EXPIRED'
-  | 'DELETED';
-
 export enum AnnouncementStatus {
   Published = 'PUBLISHED',
   Draft = 'DRAFT',
   Expired = 'EXPIRED',
-  Deleted = 'DELETED',
+  Archived = 'ARCHIVED',
 }
 
 export type StatusFilter = {
   key: string;
   operation: 'in' | 'notin';
-  value: AnnouncementStatusType[];
+  value: AnnouncementStatus[];
 };
 
 export type AnnouncementFilterType = (
