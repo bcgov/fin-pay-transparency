@@ -14,13 +14,22 @@ const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
 /**
+ * Gets the dom element within the rich text editor which contains the
+ * rich text as its inner html
+ */
+const getRichTextElement = (container, id) => {
+  const elem = container.querySelector(`#${id} .ql-editor`);
+  return elem;
+};
+
+/**
  * A helper function to set the value of a RichTextArea component.
  * id is the value of the rich text area's "id" attribute in the DOM.
  */
 const setRichTextValue = (container, id, value = '') => {
-  const description = container.querySelector(`#${id} .ql-editor`);
-  if (description) {
-    description.innerHTML = value;
+  const elem = getRichTextElement(container, id);
+  if (elem) {
+    elem.innerHTML = value;
   }
 };
 
@@ -92,12 +101,14 @@ describe('AddAnnouncementPage', () => {
     vi.clearAllMocks();
   });
   it('should render the form', async () => {
-    const { getByRole, getByLabelText } = await wrappedRender();
+    const { getByRole, getByLabelText, container } = await wrappedRender();
     expect(getByRole('radio', { name: 'Draft' })).toBeInTheDocument();
     expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
     expect(getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(getByLabelText('Title')).toBeInTheDocument();
-    expect(getByLabelText('Description')).toBeInTheDocument();
+    expect(
+      getRichTextElement(container, 'announcementDescription'),
+    ).toBeInTheDocument();
     expect(getByLabelText('Active On')).toBeInTheDocument();
     expect(getByLabelText('Expires On')).toBeInTheDocument();
     expect(getByRole('checkbox', { name: 'No expiry' })).toBeInTheDocument();
@@ -131,7 +142,7 @@ describe('AddAnnouncementPage', () => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Test Title',
-          description: '<p>Test Description</p>',
+          description: '<p>Test description</p>',
           active_on: expect.any(String),
           expires_on: undefined,
           linkUrl: 'https://example.com',
@@ -149,11 +160,7 @@ describe('AddAnnouncementPage', () => {
     const linkUrl = getByLabelText('Link URL');
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
-    setRichTextValue(
-      container,
-      'announcementDescription',
-      '<p>Test description<p>',
-    );
+    setRichTextValue(container, 'announcementDescription', 'Test description');
     await fireEvent.update(linkUrl, 'https://example.com');
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await fireEvent.click(saveButton);
@@ -166,7 +173,7 @@ describe('AddAnnouncementPage', () => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Test Title',
-          description: '<p>Test description<p>',
+          description: '<p>Test description</p>',
           linkUrl: 'https://example.com',
           linkDisplayName: 'Example.pdf',
         }),

@@ -433,7 +433,6 @@ const announcementDescriptionMaxLength: number = 2000;
 const announcementDescriptionLength = ref<number | undefined>(undefined);
 
 const onDescriptionPlaintextLengthChanged = (numChars) => {
-  console.log('onDescriptionPlaintextLengthChanged');
   announcementDescriptionLength.value = numChars;
   validateDescription();
 };
@@ -729,7 +728,6 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 }
 
 const handleSave = handleSubmit(async (values) => {
-  console.log('handleSubmit');
   const hasActiveOnError = !validateActiveOnDate(values);
   const hasLinkError = !validateLink(values);
   const hasExpiryError = !validateExpiry();
