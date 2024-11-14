@@ -34,7 +34,6 @@ const announcementSearch = useAnnouncementSearchStore();
 const isProcessing = ref<boolean>(false);
 
 const submit = async (data: AnnouncementFormValue) => {
-  console.log(data);
   try {
     isProcessing.value = true;
     await ApiService.addAnnouncement(data);
