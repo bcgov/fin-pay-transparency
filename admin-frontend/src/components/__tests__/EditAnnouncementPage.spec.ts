@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { convert, LocalDate } from '@js-joda/core';
 import { fireEvent, render, waitFor } from '@testing-library/vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -6,9 +7,8 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
-import EditAnnouncementPage from '../EditAnnouncementPage.vue';
 import { AnnouncementResourceType } from '../../types/announcements';
-import { convert, LocalDate } from '@js-joda/core';
+import EditAnnouncementPage from '../EditAnnouncementPage.vue';
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -179,10 +179,10 @@ describe('EditAnnouncementPage', () => {
 
     describe('when expires_on is in the past', () => {
       it('should show error message', async () => {
-        store.setAnnouncement({
+        const mockAnnouncement = {
           announcement_id: '1',
           title: 'title',
-          description: 'description',
+          description: '<p>description</p>',
           active_on: new Date(),
           expires_on: convert(LocalDate.now().minusDays(1)).toDate(),
           status: 'PUBLISHED',
@@ -193,11 +193,16 @@ describe('EditAnnouncementPage', () => {
               resource_url: 'https://example.com',
             },
           ],
-        } as any);
-        const { getByText, getByLabelText, getByRole } = await wrappedRender();
+        } as any;
+        store.setAnnouncement(mockAnnouncement);
+        const { getByText, getByLabelText, getByRole, container } =
+          await wrappedRender();
         expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
-        expect(getByLabelText('Description')).toHaveValue('description');
+        const anouncementDescription = container.querySelector(
+          '#announcementDescription .ql-editor',
+        )?.innerHTML;
+        expect(anouncementDescription).toBe(mockAnnouncement.description);
         const saveButton = getByRole('button', { name: 'Save' });
         await fireEvent.click(saveButton);
         await waitFor(() => {
@@ -212,10 +217,10 @@ describe('EditAnnouncementPage', () => {
 
     describe('when announcement is updated', () => {
       it('should show success notification', async () => {
-        store.setAnnouncement({
+        const mockAnnouncement = {
           announcement_id: '1',
           title: 'title',
-          description: 'description',
+          description: '<p>description</p>',
           active_on: new Date(),
           status: 'PUBLISHED',
           announcement_resource: [
@@ -225,12 +230,16 @@ describe('EditAnnouncementPage', () => {
               resource_url: 'https://example.com',
             },
           ],
-        } as any);
-        const { queryByRole, getByRole, getByLabelText } =
+        } as any;
+        store.setAnnouncement(mockAnnouncement);
+        const { queryByRole, getByRole, getByLabelText, container } =
           await wrappedRender();
         expect(getByLabelText('Publish')).toBeChecked();
         expect(getByLabelText('Title')).toHaveValue('title');
-        expect(getByLabelText('Description')).toHaveValue('description');
+        const anouncementDescription = container.querySelector(
+          '#announcementDescription .ql-editor',
+        )?.innerHTML;
+        expect(anouncementDescription).toBe(mockAnnouncement.description);
 
         const saveButton = getByRole('button', { name: 'Save' });
         await fireEvent.click(saveButton);
@@ -508,7 +517,7 @@ describe('EditAnnouncementPage', () => {
         } as any);
         mockUpdateAnnouncement.mockRejectedValueOnce(new Error('error'));
         const { getByRole } = await wrappedRender();
-        
+
         const saveButton = getByRole('button', { name: 'Save' });
 
         await fireEvent.click(saveButton);

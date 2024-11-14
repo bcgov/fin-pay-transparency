@@ -76,7 +76,7 @@
             <v-col cols="12" md="12" sm="12">
               <h5
                 :class="{
-                  'text-error': announcementDescriptionError,
+                  'text-error': errors.description,
                 }"
               >
                 Description *
@@ -86,7 +86,7 @@
                 v-model="announcementDescription"
                 placeholder="Description"
                 :max-length="announcementDescriptionMaxLength"
-                :error-message="announcementDescriptionError"
+                :error-message="errors.description"
                 @plain-text-length-changed="onDescriptionPlaintextLengthChanged"
               ></RichTextArea>
             </v-col>
@@ -431,28 +431,44 @@ const announcementDescription = ref<string | undefined>(
 );
 const announcementDescriptionMaxLength: number = 2000;
 const announcementDescriptionLength = ref<number | undefined>(undefined);
-const announcementDescriptionError = ref<string | undefined>(undefined);
 
 const onDescriptionPlaintextLengthChanged = (numChars) => {
+  console.log('onDescriptionPlaintextLengthChanged');
   announcementDescriptionLength.value = numChars;
-  announcementDescriptionError.value = validateDescription();
+  validateDescription();
 };
 
+/* returns true if valid, false otherwise.  side effect: if false, also sets
+the error message in announcementDescriptionError*/
 const validateDescription = () => {
-  if (!announcementDescriptionLength.value) return 'Description is required.';
+  let err: string | undefined = undefined;
+  if (
+    announcementDescriptionLength.value === 0 ||
+    (meta.value.touched && announcementDescriptionLength.value === undefined)
+  ) {
+    err = 'Description is required.';
+  }
 
   if (
     announcementDescriptionLength?.value &&
     announcementDescriptionLength.value > 2000
-  )
-    return 'Description should have a maximum of 2000 characters.';
+  ) {
+    err = 'Description should have a maximum of 2000 characters.';
+  }
 
-  return undefined;
+  // The 'description' field isn't technically a form field, so it
+  // isn't managed by vee-validate in the same was as the other fields.
+  // Explicitly set vee-validate's error attribute for 'description'
+  // to ensure the same behaviour as the other fields.
+  setErrors({ description: err });
+
+  return err ? err : true;
 };
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
+    description: announcement?.description || '',
     active_on: announcement?.active_on
       ? new Date(announcement?.active_on) //VueDatePicker is initialized with a Date()
       : undefined,
@@ -470,12 +486,17 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
   },
   validationSchema: {
     title(value) {
-      if (!value) return 'Title is required.';
+      if (!value) {
+        return 'Title is required.';
+      }
 
       if (value.length > 100)
         return 'Title should have a maximum of 100 characters.';
 
       return true;
+    },
+    description() {
+      return validateDescription();
     },
     linkUrl(value) {
       if (value && !zod.string().url().safeParse(value).success) {
@@ -708,11 +729,15 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 }
 
 const handleSave = handleSubmit(async (values) => {
-  if (
-    !validateActiveOnDate(values) ||
-    !validateLink(values) ||
-    !validateExpiry()
-  ) {
+  console.log('handleSubmit');
+  const hasActiveOnError = !validateActiveOnDate(values);
+  const hasLinkError = !validateLink(values);
+  const hasExpiryError = !validateExpiry();
+  const hasDescriptionError = !validateDescription();
+  const hasAnyError =
+    hasActiveOnError || hasLinkError || hasExpiryError || hasDescriptionError;
+
+  if (hasAnyError) {
     return;
   }
 
