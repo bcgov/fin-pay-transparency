@@ -58,20 +58,6 @@ export class FormPage extends AdminPortalPage {
     return await this.page.locator(`#${id} .ql-editor`);
   }
 
-  /*
-  async setRichTextValue(id, value: string = '') {
-    const elem = await this.getRichTextElement(id);
-    this.page.evaluate(
-      ([elem, val]) => {
-        if (elem && elem instanceof HTMLElement) {
-          elem.innerHTML = val as string;
-        }
-      },
-      [elem, value],
-    );
-  }
-  */
-
   async selectDraftOption() {
     await expect(this.draftOption).toBeVisible();
 
@@ -89,7 +75,11 @@ export class FormPage extends AdminPortalPage {
   }
 
   async fillDescription(description: string) {
-    await this.descriptionInput.fill(description);
+    await this.descriptionInput.innerHTML();
+    await this.descriptionInput.evaluate(
+      (node) => (node.innerHTML = description),
+      { description },
+    );
   }
 
   async fillLinkUrl(url: string) {

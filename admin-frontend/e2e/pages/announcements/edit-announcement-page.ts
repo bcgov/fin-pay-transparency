@@ -1,10 +1,10 @@
-import { expect } from 'playwright/test';
-import { PagePaths } from '../../utils';
-import { FormPage } from './form-page';
+import { faker } from '@faker-js/faker';
 import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
-import { faker } from '@faker-js/faker';
+import { expect } from 'playwright/test';
 import { AnnouncementStatus } from '../../types';
+import { PagePaths } from '../../utils';
+import { FormPage } from './form-page';
 
 export class EditAnnouncementPage extends FormPage {
   initialData: any;
@@ -24,7 +24,7 @@ export class EditAnnouncementPage extends FormPage {
 
   async verifyLoadedData() {
     await expect(this.titleInput).toHaveValue(this.initialData.title);
-    await expect(this.descriptionInput).toHaveValue(
+    await expect(this.descriptionInput.innerHTML()).toBe(
       this.initialData.description,
     );
     await expect(this.activeOnInput).toHaveValue(
