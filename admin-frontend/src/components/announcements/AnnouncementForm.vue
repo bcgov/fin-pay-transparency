@@ -437,8 +437,8 @@ const onDescriptionPlaintextLengthChanged = (numChars) => {
   validateDescription();
 };
 
-/* returns true if valid, false otherwise.  side effect: if false, also sets
-the error message in announcementDescriptionError*/
+/* returns true if valid, or an error message (string) if invalid.  
+side effect: also sets the error message in announcementDescriptionError*/
 const validateDescription = () => {
   let err: string | undefined = undefined;
   if (
@@ -461,7 +461,7 @@ const validateDescription = () => {
   // to ensure the same behaviour as the other fields.
   setErrors({ description: err });
 
-  return err ? err : true;
+  return err === undefined ? true : err;
 };
 
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
