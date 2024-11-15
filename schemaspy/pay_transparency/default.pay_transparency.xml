@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><database name="default" schema="pay_transparency" type="PostgreSQL - 17.0 (Debian 17.0-1.pgdg120+1)">
+<?xml version="1.0" encoding="UTF-8"?><database name="default" schema="pay_transparency" type="PostgreSQL - 17.1 (Debian 17.1-1.pgdg120+1)">
    <tables>
       <table name="admin_user" remarks="To track the associated roles and status active/inactive of admin users of the application" schema="pay_transparency" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="admin_user_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
@@ -75,7 +75,7 @@
             <child column="announcement_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement_resource_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="title" nullable="false" remarks="Title of the announcement" size="100" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="false" remarks="Description of the announcement" size="2000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="false" remarks="Description of the announcement.  Value should be HTML" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="created_date" nullable="false" remarks="Date when the announcement was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="updated_date" nullable="false" remarks="Date when the announcement was last updated" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
@@ -109,7 +109,7 @@
             <parent column="announcement_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="pay_transparency" table="announcement"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="title" nullable="false" remarks="Title of the announcement" size="100" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="description" nullable="false" remarks="Description of the announcement" size="2000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="description" nullable="false" remarks="Description of the announcement.  Value should be HTML" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="created_date" nullable="false" remarks="Date when the announcement was created" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="updated_date" nullable="false" remarks="Date when the announcement was last updated" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="The ID of the user who created the announcement" size="2147483647" type="uuid" typeCode="1111">
