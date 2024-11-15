@@ -230,6 +230,22 @@ button:disabled.v-btn {
   color: #ce3e39 !important;
 }
 
+/* rich-text */
+
+.rich-text ol,
+.rich-text ul {
+  /* indent lists */
+  padding-left: 32px;
+}
+
+.rich-text > p:empty,
+p.rich-text:empty {
+  /* empty <p> elements are shown as blank lines taking a small vertical space */
+  height: 10px;
+}
+
+/* responsive styles */
+
 @media screen and (max-width: 370px) {
   .v-toolbar__title {
     font-size: 0.9rem;

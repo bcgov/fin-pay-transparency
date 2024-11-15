@@ -13,6 +13,26 @@ global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
+/**
+ * Gets the dom element within the rich text editor which contains the
+ * rich text as its inner html
+ */
+const getRichTextElement = (container, id) => {
+  const elem = container.querySelector(`#${id} .ql-editor`);
+  return elem;
+};
+
+/**
+ * A helper function to set the value of a RichTextArea component.
+ * id is the value of the rich text area's "id" attribute in the DOM.
+ */
+const setRichTextValue = (container, id, value = '') => {
+  const elem = getRichTextElement(container, id);
+  if (elem) {
+    elem.innerHTML = value;
+  }
+};
+
 const wrappedRender = async () => {
   return render(AddAnnouncementPage, {
     global: {
@@ -81,12 +101,14 @@ describe('AddAnnouncementPage', () => {
     vi.clearAllMocks();
   });
   it('should render the form', async () => {
-    const { getByRole, getByLabelText } = await wrappedRender();
+    const { getByRole, getByLabelText, container } = await wrappedRender();
     expect(getByRole('radio', { name: 'Draft' })).toBeInTheDocument();
     expect(getByRole('radio', { name: 'Publish' })).toBeInTheDocument();
     expect(getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(getByLabelText('Title')).toBeInTheDocument();
-    expect(getByLabelText('Description')).toBeInTheDocument();
+    expect(
+      getRichTextElement(container, 'announcementDescription'),
+    ).toBeInTheDocument();
     expect(getByLabelText('Active On')).toBeInTheDocument();
     expect(getByLabelText('Expires On')).toBeInTheDocument();
     expect(getByRole('checkbox', { name: 'No expiry' })).toBeInTheDocument();
@@ -94,14 +116,13 @@ describe('AddAnnouncementPage', () => {
     expect(getByLabelText('Display URL As')).toBeInTheDocument();
   });
   it('should submit the form', async () => {
-    const { getByRole, getByLabelText } = await wrappedRender();
+    const { getByRole, getByLabelText, container } = await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
-    const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
-    await fireEvent.update(description, 'Test Description');
+    setRichTextValue(container, 'announcementDescription', 'Test description');
     const activeOn = getByLabelText('Active On');
     const activeOnDate = formatDate(LocalDate.now());
     await setDate(activeOn, () => {
@@ -121,7 +142,7 @@ describe('AddAnnouncementPage', () => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Test Title',
-          description: 'Test Description',
+          description: '<p>Test description</p>',
           active_on: expect.any(String),
           expires_on: undefined,
           linkUrl: 'https://example.com',
@@ -133,14 +154,13 @@ describe('AddAnnouncementPage', () => {
     });
   });
   it('should submit the form as draft', async () => {
-    const { getByRole, getByLabelText, getByText } = await wrappedRender();
+    const { getByRole, getByLabelText, container } = await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
-    const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
-    await fireEvent.update(description, 'Test Description');
+    setRichTextValue(container, 'announcementDescription', 'Test description');
     await fireEvent.update(linkUrl, 'https://example.com');
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await fireEvent.click(saveButton);
@@ -153,7 +173,7 @@ describe('AddAnnouncementPage', () => {
       expect(mockAddAnnouncement).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Test Title',
-          description: 'Test Description',
+          description: '<p>Test description</p>',
           linkUrl: 'https://example.com',
           linkDisplayName: 'Example.pdf',
         }),
@@ -165,14 +185,18 @@ describe('AddAnnouncementPage', () => {
 
   describe('when no expiry is not checked', () => {
     it('should display expiry date is required error message', async () => {
-      const { getByRole, getByLabelText, getByText } = await wrappedRender();
+      const { getByRole, getByLabelText, getByText, container } =
+        await wrappedRender();
       const saveButton = getByRole('button', { name: 'Save' });
       const title = getByLabelText('Title');
-      const description = getByLabelText('Description');
       const linkUrl = getByLabelText('Link URL');
       const displayLinkAs = getByLabelText('Display URL As');
       await fireEvent.update(title, 'Test Title');
-      await fireEvent.update(description, 'Test Description');
+      setRichTextValue(
+        container,
+        'announcementDescription',
+        'Test description',
+      );
       await fireEvent.update(linkUrl, 'https://example.com');
       await fireEvent.update(displayLinkAs, 'Example.pdf');
       const activeOn = getByLabelText('Active On');
@@ -190,14 +214,13 @@ describe('AddAnnouncementPage', () => {
     });
   });
   it('should not publish when confirmation cancel is clicked', async () => {
-    const { getByRole, getByLabelText } = await wrappedRender();
+    const { getByRole, getByLabelText, container } = await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
-    const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
-    await fireEvent.update(description, 'Test Description');
+    setRichTextValue(container, 'announcementDescription', 'Test description');
     const activeOn = getByLabelText('Active On');
     const activeOnDate = formatDate(LocalDate.now());
     await setDate(activeOn, () => {
@@ -246,10 +269,9 @@ describe('AddAnnouncementPage', () => {
     });
   });
   it('should show error message when description is more than 2000 characters', async () => {
-    const { getByRole, getByText } = await wrappedRender();
+    const { getByRole, getByText, container } = await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
-    const description = screen.getByLabelText('Description');
-    await fireEvent.update(description, 'a'.repeat(3000));
+    setRichTextValue(container, 'announcementDescription', 'a'.repeat(3000));
     await fireEvent.click(saveButton);
     await waitFor(() => {
       expect(
@@ -258,14 +280,14 @@ describe('AddAnnouncementPage', () => {
     });
   });
   it('should show error message when Active On date is empty and attempting to publish', async () => {
-    const { getByRole, getByLabelText, getByText } = await wrappedRender();
+    const { getByRole, getByLabelText, getByText, container } =
+      await wrappedRender();
     const saveButton = getByRole('button', { name: 'Save' });
     const title = getByLabelText('Title');
-    const description = getByLabelText('Description');
     const linkUrl = getByLabelText('Link URL');
     const displayLinkAs = getByLabelText('Display URL As');
     await fireEvent.update(title, 'Test Title');
-    await fireEvent.update(description, 'Test Description');
+    setRichTextValue(container, 'announcementDescription', 'Test description');
     await fireEvent.update(linkUrl, 'https://example.com');
     await fireEvent.update(displayLinkAs, 'Example.pdf');
     await markAsPublish();
@@ -289,13 +311,17 @@ describe('AddAnnouncementPage', () => {
   describe('when link url is not empty', () => {
     describe('when Display URL As is empty', () => {
       it('should show error message', async () => {
-        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const { getByRole, getByLabelText, getByText, container } =
+          await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const description = getByLabelText('Description');
         const linkUrl = getByLabelText('Link URL');
         await fireEvent.update(title, 'Test Title');
-        await fireEvent.update(description, 'Test Description');
+        setRichTextValue(
+          container,
+          'announcementDescription',
+          'Test description',
+        );
         const activeOn = getByLabelText('Active On');
         const activeOnDate = formatDate(LocalDate.now());
         await setDate(activeOn, () => {
@@ -315,14 +341,18 @@ describe('AddAnnouncementPage', () => {
     });
     describe('link link url is more than 255 characters', () => {
       it('should show error message', async () => {
-        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const { getByRole, getByLabelText, getByText, container } =
+          await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const description = getByLabelText('Description');
         const linkUrl = getByLabelText('Link URL');
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
-        await fireEvent.update(description, 'Test Description');
+        setRichTextValue(
+          container,
+          'announcementDescription',
+          'Test description',
+        );
         const activeOn = getByLabelText('Active On');
         const activeOnDate = formatDate(LocalDate.now());
         await setDate(activeOn, () => {
@@ -346,14 +376,18 @@ describe('AddAnnouncementPage', () => {
   describe('when link display name is not empty', () => {
     describe('link display name is more than 100 characters', () => {
       it('should show error message', async () => {
-        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const { getByRole, getByLabelText, getByText, container } =
+          await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const description = getByLabelText('Description');
         const linkUrl = getByLabelText('Link URL');
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
-        await fireEvent.update(description, 'Test Description');
+        setRichTextValue(
+          container,
+          'announcementDescription',
+          'Test description',
+        );
         const activeOn = getByLabelText('Active On');
         const activeOnDate = formatDate(LocalDate.now());
         await setDate(activeOn, () => {
@@ -374,13 +408,17 @@ describe('AddAnnouncementPage', () => {
     });
     describe('when link url is empty', () => {
       it('should show error message', async () => {
-        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const { getByRole, getByLabelText, getByText, container } =
+          await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const description = getByLabelText('Description');
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
-        await fireEvent.update(description, 'Test Description');
+        setRichTextValue(
+          container,
+          'announcementDescription',
+          'Test description',
+        );
         const activeOn = getByLabelText('Active On');
         const activeOnDate = formatDate(LocalDate.now());
         await setDate(activeOn, () => {
@@ -400,15 +438,19 @@ describe('AddAnnouncementPage', () => {
   describe('when file name is not empty', () => {
     describe('file name is more than 100 characters', () => {
       it('should show error message', async () => {
-        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const { getByRole, getByLabelText, getByText, container } =
+          await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const description = getByLabelText('Description');
         const linkUrl = getByLabelText('Link URL');
         const displayLinkAs = getByLabelText('Display URL As');
         const fileName = getByLabelText('Display File Link As');
         await fireEvent.update(title, 'Test Title');
-        await fireEvent.update(description, 'Test Description');
+        setRichTextValue(
+          container,
+          'announcementDescription',
+          'Test description',
+        );
         const activeOn = getByLabelText('Active On');
         const activeOnDate = formatDate(LocalDate.now());
         await setDate(activeOn, () => {
@@ -430,13 +472,17 @@ describe('AddAnnouncementPage', () => {
     });
     describe('when link url is empty', () => {
       it('should show error message', async () => {
-        const { getByRole, getByLabelText, getByText } = await wrappedRender();
+        const { getByRole, getByLabelText, getByText, container } =
+          await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const description = getByLabelText('Description');
         const displayLinkAs = getByLabelText('Display URL As');
         await fireEvent.update(title, 'Test Title');
-        await fireEvent.update(description, 'Test Description');
+        setRichTextValue(
+          container,
+          'announcementDescription',
+          'Test description',
+        );
         const activeOn = getByLabelText('Active On');
         const activeOnDate = formatDate(LocalDate.now());
         await setDate(activeOn, () => {
@@ -520,14 +566,22 @@ describe('AddAnnouncementPage', () => {
       mockAddAnnouncement.mockImplementation(() => {
         throw new Error('Failed to add announcement');
       });
-      const { getByRole, getByLabelText } = await wrappedRender();
+      const { getByRole, getByLabelText, container } = await wrappedRender();
       const saveButton = getByRole('button', { name: 'Save' });
       const title = getByLabelText('Title');
-      const description = getByLabelText('Description');
+
       const linkUrl = getByLabelText('Link URL');
       const displayLinkAs = getByLabelText('Display URL As');
       await fireEvent.update(title, 'Test Title');
-      await fireEvent.update(description, 'Test Description');
+
+      const description = container.querySelector(
+        '#announcementDescription .ql-editor',
+      );
+      expect(description).toBeInTheDocument();
+      if (description) {
+        description.innerHTML = '<p>description</p>';
+      }
+
       const activeOn = getByLabelText('Active On');
       const activeOnDate = formatDate(LocalDate.now());
       await setDate(activeOn, () => {
