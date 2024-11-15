@@ -1,10 +1,10 @@
-import { expect, Locator } from 'playwright/test';
-import { AdminPortalPage } from '../admin-portal-page';
+import { faker } from '@faker-js/faker';
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import path from 'path';
-import { faker } from '@faker-js/faker';
+import { expect, Locator } from 'playwright/test';
 import { AnnouncementStatus } from '../../types';
+import { AdminPortalPage } from '../admin-portal-page';
 
 export enum FormMode {
   ADD,
@@ -13,7 +13,7 @@ export enum FormMode {
 
 export class FormPage extends AdminPortalPage {
   titleInput: Locator;
-  descriptionInput: Locator;
+  descriptionInput: Locator; //ElementHandle<HTMLElement | SVGElement | null> | null;
   draftOption: Locator;
   publishedOption: Locator;
   cancelButton: Locator;
@@ -28,7 +28,9 @@ export class FormPage extends AdminPortalPage {
   async setup() {
     await super.setup();
     this.titleInput = await this.page.getByLabel('Title');
-    this.descriptionInput = await this.page.getByLabel('Description');
+    this.descriptionInput = await this.getRichTextElement(
+      'announcementDescription',
+    );
     this.cancelButton = await this.page.getByRole('button', { name: 'Cancel' });
     this.draftOption = await this.page.getByLabel('Draft');
     this.publishedOption = await this.page.getByLabel('Publish');
@@ -52,6 +54,10 @@ export class FormPage extends AdminPortalPage {
     await expect(this.expiresOnInput).toBeVisible();
   }
 
+  async getRichTextElement(id): Promise<Locator> {
+    return await this.page.locator(`#${id} .ql-editor`);
+  }
+
   async selectDraftOption() {
     await expect(this.draftOption).toBeVisible();
 
@@ -69,7 +75,10 @@ export class FormPage extends AdminPortalPage {
   }
 
   async fillDescription(description: string) {
-    await this.descriptionInput.fill(description);
+    await this.descriptionInput.evaluate(
+      (node, desc) => (node.innerHTML = desc),
+      description,
+    );
   }
 
   async fillLinkUrl(url: string) {
@@ -171,15 +180,21 @@ export class FormPage extends AdminPortalPage {
       name: await this.titleInput.inputValue(),
     });
     await expect(title).toBeVisible();
-    const description = await this.page.getByText(await this.descriptionInput.inputValue());
-    await expect(description).toBeVisible();
+    const descriptionValueInEditor = await this.descriptionInput.innerHTML();
+    const descriptionInPreview = await this.page
+      .locator('.announcements .rich-text')
+      .first()
+      .innerHTML();
+    await expect(descriptionInPreview).toBe(descriptionValueInEditor);
 
     const link = await this.page.getByRole('link', {
       name: await this.linkTextInput.inputValue(),
     });
     await expect(link).toBeVisible();
 
-    const fileLink = await this.page.getByText(await this.fileDisplayNameInput.inputValue());
+    const fileLink = await this.page.getByText(
+      await this.fileDisplayNameInput.inputValue(),
+    );
     await expect(fileLink).toBeVisible();
   }
 

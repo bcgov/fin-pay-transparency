@@ -1,7 +1,11 @@
 <template>
   <div>
     <h3 class="mb-1">{{ announcement.title }}</h3>
-    <p>{{ announcement.description }}</p>
+    <div
+      v-if="announcement?.description"
+      v-dompurify-html="announcement?.description"
+      class="rich-text"
+    ></div>
     <div class="mt-2">
       <div
         v-for="(announcementResource, i) in announcement.announcement_resource"

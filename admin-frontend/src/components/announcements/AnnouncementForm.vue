@@ -76,33 +76,19 @@
             <v-col cols="12" md="12" sm="12">
               <h5
                 :class="{
-                  'text-error':
-                    announcementTitleRef &&
-                    !announcementDescriptionRef?.isValid,
+                  'text-error': errors.description,
                 }"
               >
                 Description *
               </h5>
-              <v-textarea
-                ref="announcementDescriptionRef"
+              <RichTextArea
+                id="announcementDescription"
                 v-model="announcementDescription"
-                single-line
-                label="Description"
                 placeholder="Description"
-                maxlength="2000"
-                variant="outlined"
-                counter
-                rows="3"
-                :error-messages="errors.description"
-              >
-                <template #counter="{ max }">
-                  <span>
-                    {{ getDescriptionLength(announcementDescription) }}/{{
-                      max
-                    }}
-                  </span>
-                </template>
-              </v-textarea>
+                :max-length="announcementDescriptionMaxLength"
+                :error-message="errors.description"
+                @plain-text-length-changed="onDescriptionPlaintextLengthChanged"
+              ></RichTextArea>
             </v-col>
             <v-col cols="12" md="12" sm="12">
               <h5 class="mb-2">Time Settings</h5>
@@ -410,10 +396,10 @@ import ApiService from '../../services/apiService';
 import { v4 } from 'uuid';
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import type { VTextField } from 'vuetify/components';
+import RichTextArea from '../RichTextArea.vue';
 
 // References to component's exported properties
 const announcementTitleRef = ref<VTextField | null>(null);
-const announcementDescriptionRef = ref<VTextField | null>(null);
 const linkUrlRef = ref<VTextField | null>(null);
 const linkDisplayNameRef = ref<VTextField | null>(null);
 const fileDisplayNameRef = ref<VTextField | null>(null);
@@ -440,6 +426,44 @@ const linkDisplayOnly = ref(
 );
 const isConfirmDialogVisible = ref(false);
 
+const announcementDescription = ref<string | undefined>(
+  announcement?.description,
+);
+const announcementDescriptionMaxLength: number = 2000;
+const announcementDescriptionLength = ref<number | undefined>(undefined);
+
+const onDescriptionPlaintextLengthChanged = (numChars) => {
+  announcementDescriptionLength.value = numChars;
+  validateDescription();
+};
+
+/* returns true if valid, or an error message (string) if invalid.  
+side effect: also sets the error message in announcementDescriptionError*/
+const validateDescription = () => {
+  let err: string | undefined = undefined;
+  if (
+    announcementDescriptionLength.value === 0 ||
+    (meta.value.touched && announcementDescriptionLength.value === undefined)
+  ) {
+    err = 'Description is required.';
+  }
+
+  if (
+    announcementDescriptionLength?.value &&
+    announcementDescriptionLength.value > 2000
+  ) {
+    err = 'Description should have a maximum of 2000 characters.';
+  }
+
+  // The 'description' field isn't technically a form field, so it
+  // isn't managed by vee-validate in the same was as the other fields.
+  // Explicitly set vee-validate's error attribute for 'description'
+  // to ensure the same behaviour as the other fields.
+  setErrors({ description: err });
+
+  return err === undefined ? true : err;
+};
+
 const { handleSubmit, setErrors, errors, meta, values } = useForm({
   initialValues: {
     title: announcement?.title || '',
@@ -461,20 +485,17 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
   },
   validationSchema: {
     title(value) {
-      if (!value) return 'Title is required.';
+      if (!value) {
+        return 'Title is required.';
+      }
 
       if (value.length > 100)
         return 'Title should have a maximum of 100 characters.';
 
       return true;
     },
-    description(value) {
-      if (!value) return 'Description is required.';
-
-      if (getDescriptionLength(value) > 2000)
-        return 'Description should have a maximum of 2000 characters.';
-
-      return true;
+    description() {
+      return validateDescription();
     },
     linkUrl(value) {
       if (value && !zod.string().url().safeParse(value).success) {
@@ -534,7 +555,6 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
 
 const { value: announcementTitle } = useField('title');
 const { value: status } = useField<string>('status');
-const { value: announcementDescription } = useField<string>('description');
 const { value: activeOn } = useField('active_on') as any;
 const { value: expiresOn } = useField('expires_on') as any;
 const { value: noExpiry } = useField('no_expiry') as any;
@@ -542,10 +562,6 @@ const { value: linkUrl } = useField('linkUrl') as any;
 const { value: linkDisplayName } = useField('linkDisplayName') as any;
 const { value: fileDisplayName } = useField('fileDisplayName') as any;
 const { value: attachment } = useField('attachment') as any;
-
-const getDescriptionLength = (value: string) => {
-  return value.replace(/(\r\n|\n|\r)/g, '  ').length;
-};
 
 watch(noExpiry, () => {
   if (noExpiry.value) {
@@ -556,13 +572,8 @@ watch(noExpiry, () => {
 //Watch for changes to any form field.
 //If the 'preview' mode is active when the form changes
 //then refresh the preview
-watch(
-  values,
-  () => {
-    refreshPreview();
-  },
-  { immediate: true },
-);
+watch(values, refreshPreview, { immediate: true });
+watch(announcementDescription, refreshPreview, { immediate: true });
 
 const formatDate = (date: Date) => {
   return LocalDate.from(nativeJs(date)).format(
@@ -717,11 +728,14 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 }
 
 const handleSave = handleSubmit(async (values) => {
-  if (
-    !validateActiveOnDate(values) ||
-    !validateLink(values) ||
-    !validateExpiry()
-  ) {
+  const hasActiveOnError = !validateActiveOnDate(values);
+  const hasLinkError = !validateLink(values);
+  const hasExpiryError = !validateExpiry();
+  const hasDescriptionError = !validateDescription();
+  const hasAnyError =
+    hasActiveOnError || hasLinkError || hasExpiryError || hasDescriptionError;
+
+  if (hasAnyError) {
     return;
   }
 
@@ -843,6 +857,7 @@ const handleSave = handleSubmit(async (values) => {
 
   emits('save', {
     ...values,
+    description: announcementDescription.value,
     active_on: values.active_on
       ? nativeJs(values.active_on).format(
           DateTimeFormatter.ISO_OFFSET_DATE_TIME,
