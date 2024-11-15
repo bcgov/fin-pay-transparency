@@ -52,6 +52,7 @@ const metricsMiddleware = promBundle({
 });
 const adminApp = express();
 adminApp.set('trust proxy', 1);
+adminApp.set('query parser', 'extended');
 const apiRouter = express.Router();
 
 const JWTStrategy = passportJWT.Strategy;
@@ -277,7 +278,7 @@ apiRouter.use('/v1/resources', resourcesRoutes);
 apiRouter.use('/v1/employers', employerRoutes);
 apiRouter.use('/v1/dashboard', dashboardMetricsRouter);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
-  return res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
+  res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });
 
 // 500 - Any server error
@@ -289,8 +290,9 @@ adminApp.use(function (
 ) {
   logger.error(err);
   if (res.headersSent) {
-    return next(err);
+    next(err);
+    return;
   }
-  return res.status(500).send({ error: err });
+  res.status(500).send({ error: err });
 });
 export { adminApp };

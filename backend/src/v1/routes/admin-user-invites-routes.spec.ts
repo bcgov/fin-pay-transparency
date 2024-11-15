@@ -43,6 +43,7 @@ describe('admin-user-invites-routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     app = express();
+    app.set('query parser', 'extended');
     app.use(bodyParser.json());
     app.use(routes);
     app.use((err, req, res, _) => {

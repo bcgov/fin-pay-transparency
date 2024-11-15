@@ -15,6 +15,7 @@ jest.mock('../../config', () => ({
 describe('config-routes', () => {
   beforeEach(() => {
     app = express();
+    app.set('query parser', 'extended');
     app.use('/config', router);
   });
 

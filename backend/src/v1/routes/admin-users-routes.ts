@@ -36,10 +36,10 @@ router.use(async (req: SsoRequest, _, next) => {
 router.get('', async (req: SsoRequest, res: Response) => {
   try {
     const users = await req.sso.getUsersForDisplay();
-    return res.status(200).json(users);
+    res.status(200).json(users);
   } catch (error) {
     logger.error(error);
-    return res.status(400).json({ error: 'Failed to get users' });
+    res.status(400).json({ error: 'Failed to get users' });
   }
 });
 
@@ -56,12 +56,10 @@ router.patch(
     try {
       await req.sso.assignRoleToUser(userId, data.role);
 
-      return res
-        .status(204)
-        .json({ message: 'Successfully assigned user role' });
+      res.status(204).json({ message: 'Successfully assigned user role' });
     } catch (error) {
       logger.error(error);
-      return res.status(400).json({ error: 'Failed to assign user role' });
+      res.status(400).json({ error: 'Failed to assign user role' });
     }
   },
 );
@@ -78,10 +76,10 @@ router.delete(
 
     try {
       await req.sso.deleteUser(userId, req.user.admin_user_id);
-      return res.json();
+      res.json();
     } catch (error) {
       logger.error(error);
-      return res.status(400).json({ error: 'Failed to delete user' });
+      res.status(400).json({ error: 'Failed to delete user' });
     }
   },
 );

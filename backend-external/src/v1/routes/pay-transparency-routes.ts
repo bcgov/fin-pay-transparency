@@ -299,19 +299,21 @@ router.delete(
   async (req, res) => {
     try {
       if (!req.query.companyName) {
-        return res
+        res
           .status(404)
           .json({ message: 'companyName query parameter is missing.' });
+        return;
       }
 
       const { data } = await payTransparencyService.deleteReports(req);
       if (data.error) {
-        return res.status(400).json({ message: data.message });
+        res.status(400).json({ message: data.message });
+        return;
       }
 
-      return res.status(200).json({ message: data.message });
+      res.status(200).json({ message: data.message });
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   },
 );

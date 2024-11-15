@@ -38,6 +38,7 @@ describe('admin-users-router', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     app = express();
+    app.set('query parser', 'extended');
     app.use(bodyParser.json());
     app.use(router);
     app.use((err, req, res, next) => {
