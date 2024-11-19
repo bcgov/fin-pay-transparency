@@ -1,4 +1,4 @@
-FROM caddy:2.8-alpine
+FROM caddy:2.9-alpine
 
 WORKDIR /app
 
