@@ -80,7 +80,7 @@ config.defaults({
       maxParagraphs:
         parseInt(process.env.REPORT_RICH_TEXT_MAX_PARAGRAPHS) || 100,
       maxItemsPerList:
-        parseInt(process.env.REPORT_RICH_TEXT_MAX_ITEMS_PER_LIST) || 50,
+        parseInt(process.env.REPORT_RICH_TEXT_MAX_ITEMS_PER_LIST) || 30,
     },
   },
   oidc: {
