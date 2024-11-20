@@ -1,4 +1,5 @@
 import { LocalDate, TemporalAdjusters } from '@js-joda/core';
+import { parse as htmlParse } from 'node-html-parser';
 import { config } from '../../config';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import { ISubmission } from './file-upload-service';
@@ -109,6 +110,20 @@ const validateService = {
       bodyErrors.push(
         `Start date and end date must always be 12 months apart.`,
       );
+    }
+    const employerStatementErrors = validateServicePrivate.validateRichText(
+      submission.comments,
+      'Employer Statement',
+    );
+    if (employerStatementErrors?.length) {
+      bodyErrors.push(...employerStatementErrors);
+    }
+    const dataConstraintsErrors = validateServicePrivate.validateRichText(
+      submission.dataConstraints,
+      'Data Constraints',
+    );
+    if (dataConstraintsErrors?.length) {
+      bodyErrors.push(...dataConstraintsErrors);
     }
 
     const validReportingYears = this.getValidReportingYears();
@@ -406,6 +421,56 @@ const validateService = {
 };
 
 export const validateServicePrivate = {
+  /**
+   * Validates that the given rich text meets meets the following requirements:
+   *  - The content is not subdivided into more than the allowable number of paragraphs
+   *  - If any lists exist, they shouldn't have more bullet points than the allowable amount.
+   * Returns a list of strings containing any validation error messages.  If no validation
+   * errors were found, returns an empty list.
+   */
+  validateRichText(richText: string, fieldName: string): string[] {
+    const errorMsgs = [];
+
+    const listTypes = ['ol', 'ul'];
+
+    if (richText) {
+      try {
+        const result = htmlParse(richText);
+        const numParagraphs = result.childNodes.length;
+
+        // Check that there are not too many paragraph breaks
+        // (because it is too resource-intensive for the doc-gen-service to split
+        // such content into multiple pages)
+        if (numParagraphs > config.get('server:reportRichText:maxParagraphs')) {
+          errorMsgs.push(
+            `'${fieldName}' contains ${numParagraphs} paragraph breaks which exceeds the limit of ${config.get('server:reportRichText:maxParagraphs')}.`,
+          );
+        }
+
+        // Check that lists don't have to many bullet points.
+        // (because the it would add complexity to the doc-gen-service to split long
+        // lists at page boundaries.)
+        result.childNodes.forEach((node) => {
+          if (listTypes.indexOf(node.rawTagName.toLowerCase()) >= 0) {
+            if (
+              node.childNodes.length >
+              config.get('server:reportRichText:maxItemsPerList')
+            ) {
+              errorMsgs.push(
+                `'${fieldName}' contains a list with more than the allowable number of items (${config.get('server:reportRichText:maxItemsPerList')}).`,
+              );
+            }
+          }
+        });
+      } catch (e) {
+        //if parsing the HTML failed, return a not-very-specific error message
+        errorMsgs.push(`'${fieldName}' is not valid`);
+      }
+    }
+
+    return errorMsgs;
+  },
+
   /* 
   Performs partial validation of the given record.  
   Only considers values of the Overtime Pay and Overtime Hours fields.

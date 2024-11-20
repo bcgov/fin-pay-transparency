@@ -1046,6 +1046,63 @@ describe('validate-service', () => {
 });
 
 describe('validate-service-private', () => {
+  describe('validateRichText', () => {
+    describe('if rich text is valid', () => {
+      it('returns an empty list', () => {
+        const richText = `
+        <p>Some text</p>:
+        <ol>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        </ol>
+        <p>More <strong>text</strong></p>.
+        `;
+        const fieldName = 'Employer Statement';
+        const errors = validateServicePrivate.validateRichText(
+          richText,
+          fieldName,
+        );
+        expect(errors).toStrictEqual([]);
+      });
+    });
+    describe('if rich text has too many paragraphs', () => {
+      it('returns an error', () => {
+        const maxParagraphs = config.get('server:reportRichText:maxParagraphs');
+        const richText = '<p></p>'.repeat(maxParagraphs + 1);
+        const fieldName = 'Employer Statement';
+        const errors = validateServicePrivate.validateRichText(
+          richText,
+          fieldName,
+        );
+        expect(errors.length).toBeGreaterThan(0);
+        const hasParagraphBreakError = doesAnyStringContainAll(errors, [
+          fieldName,
+          'paragraph breaks',
+        ]);
+        expect(hasParagraphBreakError).toBeTruthy();
+      });
+    });
+    describe('if rich text has a list with too many bullet points', () => {
+      it('returns an error', () => {
+        const maxItemsPerList = config.get(
+          'server:reportRichText:maxItemsPerList',
+        );
+        const tooManyListItems = '<li></li>'.repeat(maxItemsPerList + 1);
+        const richText = `<ol>${tooManyListItems}</ol>`;
+        const fieldName = 'Employer Statement';
+        const errors = validateServicePrivate.validateRichText(
+          richText,
+          fieldName,
+        );
+        expect(errors.length).toBeGreaterThan(0);
+        const hasParagraphBreakError = doesAnyStringContainAll(errors, [
+          fieldName,
+          'list with more than the allowable number of items',
+        ]);
+        expect(hasParagraphBreakError).toBeTruthy();
+      });
+    });
+  });
   describe('validateOvertimePayAndHours', () => {
     describe("if Overtime Pay is specified, but Overtime Hours isn't", () => {
       it('returns an error', () => {
