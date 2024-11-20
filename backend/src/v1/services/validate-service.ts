@@ -4,12 +4,6 @@ import { config } from '../../config';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import { ISubmission } from './file-upload-service';
 
-type ValidateRichTextOptions = {
-  maxParagraphs?: number;
-  maxItemsPerList?: number;
-  fieldName?: string;
-};
-
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const SUBMISSION_ROW_COLUMNS = {
   GENDER_CODE: 'Gender Code',
@@ -117,19 +111,16 @@ const validateService = {
         `Start date and end date must always be 12 months apart.`,
       );
     }
-    console.log('validating rich text');
     const employerStatementErrors = validateServicePrivate.validateRichText(
       submission.comments,
-      {
-        fieldName: 'Employer Statement',
-      },
+      'Employer Statement',
     );
     if (employerStatementErrors?.length) {
       bodyErrors.push(...employerStatementErrors);
     }
     const dataConstraintsErrors = validateServicePrivate.validateRichText(
       submission.dataConstraints,
-      { fieldName: 'Data Constraints' },
+      'Data Constraints',
     );
     if (dataConstraintsErrors?.length) {
       bodyErrors.push(...dataConstraintsErrors);
@@ -432,22 +423,14 @@ const validateService = {
 export const validateServicePrivate = {
   /**
    * Validates that the given rich text meets meets the following requirements:
-   *  - The content is not subdivided into more than the specified number of paragraphs
+   *  - The content is not subdivided into more than the allowable number of paragraphs
    *  - If any lists exist, they shouldn't have more bullet points than the allowable amount.
    * Returns a list of strings containing any validation error messages.  If no validation
    * errors were found, returns an empty list.
    */
-  validateRichText(
-    richText: string,
-    options: ValidateRichTextOptions,
-  ): string[] {
+  validateRichText(richText: string, fieldName: string): string[] {
     const errorMsgs = [];
-    const validateRichTextDefaultOptions: ValidateRichTextOptions = {
-      maxParagraphs: 2,
-      maxItemsPerList: 5,
-      fieldName: null,
-    };
-    options = { ...validateRichTextDefaultOptions, ...options };
+
     const listTypes = ['ol', 'ul'];
 
     if (richText) {
@@ -458,9 +441,9 @@ export const validateServicePrivate = {
         // Check that there are not too many paragraph breaks
         // (because it is too resource-intensive for the doc-gen-service to split
         // such content into multiple pages)
-        if (numParagraphs > options.maxParagraphs) {
+        if (numParagraphs > config.get('server:reportRichText:maxParagraphs')) {
           errorMsgs.push(
-            `'${options.fieldName}' contains ${numParagraphs} paragraph breaks which exceeds the limit of ${options.maxParagraphs}.`,
+            `'${fieldName}' contains ${numParagraphs} paragraph breaks which exceeds the limit of ${config.get('server:reportRichText:maxParagraphs')}.`,
           );
         }
 
@@ -469,16 +452,19 @@ export const validateServicePrivate = {
         // lists at page boundaries.)
         result.childNodes.forEach((node) => {
           if (listTypes.indexOf(node.rawTagName.toLowerCase()) >= 0) {
-            if (node.childNodes.length > options.maxItemsPerList) {
+            if (
+              node.childNodes.length >
+              config.get('server:reportRichText:maxItemsPerList')
+            ) {
               errorMsgs.push(
-                `'${options.fieldName}' contains a list with more than the allowable number of items (${options.maxItemsPerList}).`,
+                `'${fieldName}' contains a list with more than the allowable number of items (${config.get('server:reportRichText:maxItemsPerList')}).`,
               );
             }
           }
         });
       } catch (e) {
         //if parsing the HTML failed, return a not-very-specific error message
-        errorMsgs.push(`'${options.fieldName}' is not valid`);
+        errorMsgs.push(`'${fieldName}' is not valid`);
       }
     }
 
