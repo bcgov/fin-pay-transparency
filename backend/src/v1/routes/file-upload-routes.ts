@@ -1,16 +1,29 @@
 import express, { Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
 import { logger as log } from '../../logger';
+import { errorService } from '../services/error-service';
 import {
   ISubmission,
   SubmissionError,
   fileUploadService,
 } from '../services/file-upload-service';
 import { utils } from '../services/utils-service';
-import { errorService } from '../services/error-service';
 
 const fileUploadRouter = express.Router();
 fileUploadRouter.post(
   '/',
+  [
+    body('companyName').exists().isString(),
+    body('companyAddress').exists().isString(),
+    body('naicsCode').exists().isString(),
+    body('employeeCountRangeId').exists().isString(),
+    body('startDate').exists().isString(),
+    body('endDate').exists().isString(),
+    body('reportingYear').exists().isNumeric(),
+    body('dataConstraints').optional({ nullable: true }).isString(),
+    body('comments').optional({ nullable: true }).isString(),
+    body('rows').exists().isArray(),
+  ],
   utils.asyncHandler(
     async (req: Request<null, null, null, ISubmission>, res: Response) => {
       const session: any = req?.session;
@@ -22,6 +35,11 @@ fileUploadRouter.post(
       const data: ISubmission = req.body;
       let error = null;
       try {
+        const preliminaryValidationErrors = validationResult(req);
+        if (!preliminaryValidationErrors.isEmpty()) {
+          error = new SubmissionError(preliminaryValidationErrors.array());
+          return res.status(400).json(error);
+        }
         const result: any = await fileUploadService.handleSubmission(
           userInfo,
           data,
