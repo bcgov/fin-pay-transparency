@@ -109,7 +109,7 @@ router.get(
 router.post(
   '/refresh',
   [
-    body('refreshToken').exists(),
+    body('refreshToken').exists().isString(),
     body('refreshToken').custom(async (refreshToken, { req }) => {
       //the value of the 'refreshToken' attribute in the body must equal
       //the value of the user's frontend token
