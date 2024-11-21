@@ -305,6 +305,25 @@ describe('public-auth-routes', () => {
 
       return request(app).post('/auth/refresh').expect(401);
     });
+    it('should return 401 when the refreshToken body param contains a non-string', async () => {
+      const mockCorrelationId = 12;
+      mockIsTokenExpired.mockReturnValue(true);
+      mockIsRenewable.mockReturnValue(true);
+
+      app.use((req: any, res, next) => {
+        req.session = {
+          ...mockRequest.session,
+          companyDetails: { id: 1 },
+          correlationID: mockCorrelationId,
+        };
+        req.user = { ...mockRequest.user, jwt: 'jwt', refreshToken: 'jwt' };
+        req.logout = mockRequest.logout;
+        req.body = { refreshToken: { $ne: '1' } };
+        next();
+      });
+      app.use('/auth', router);
+      await request(app).post('/auth/refresh').expect(401);
+    });
     it('should renew the token if renewable', async () => {
       const mockCorrelationId = 12;
       const mockFrontendToken = 'jwt_value';
