@@ -108,7 +108,16 @@ router.get(
 //refreshes jwt on refresh if refreshToken is valid
 router.post(
   '/refresh',
-  [body('refreshToken').exists()],
+  [
+    body('refreshToken').exists(),
+    body('refreshToken').custom(async (refreshToken, { req }) => {
+      //the value of the 'refreshToken' attribute in the body must equal
+      //the value of the user's frontend token
+      if (!req?.user?.jwtFrontend || req?.user?.jwtFrontend != refreshToken) {
+        throw new Error('Invalid refresh token');
+      }
+    }),
+  ],
   utils.asyncHandler(async (req: Request, res: Response) => {
     const user: any = req.user;
     const session: any = req.session;
@@ -129,9 +138,7 @@ router.post(
 
     if (!errors.isEmpty()) {
       log.error(JSON.stringify(errors));
-      return res.status(400).json({
-        errors: errors.array(),
-      });
+      return res.status(401).json(UnauthorizedRsp);
     }
     if (!user?.refreshToken || !user?.jwt) {
       log.error(MISSING_TOKENS_ERROR);

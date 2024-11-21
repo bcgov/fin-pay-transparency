@@ -18,7 +18,7 @@ jest.mock('../services/public-auth-service', () => {
   const actualPublicAuth = jest.requireActual(
     '../services/public-auth-service',
   );
-  const mockedPublicAuth = jest.genMockFromModule(
+  const mockedPublicAuth = jest.createMockFromModule(
     '../services/public-auth-service',
   ) as any;
 
@@ -61,16 +61,6 @@ jest.mock('passport', () => ({
     jest.fn((req, res, next) => mockAuthenticate(req, res, next)),
 }));
 
-const mockExists = jest.fn();
-const mockValidationResult = jest.fn();
-jest.mock('express-validator', () => ({
-  ...jest.requireActual('express-validator'),
-  body: (...args) => ({
-    exists: () => jest.fn((req, res, next) => mockExists(req, res, next)),
-  }),
-  validationResult: jest.fn(() => mockValidationResult()),
-}));
-
 const mockLogout = jest.fn();
 const mockRequest = {
   logout: jest.fn(mockLogout),
@@ -79,6 +69,7 @@ const mockRequest = {
   },
   user: {
     idToken: 'ey....',
+    jwtFrontend: '567ghi',
   },
 };
 
@@ -264,7 +255,6 @@ describe('public-auth-routes', () => {
 
   describe('/refresh', () => {
     it('return 401 if token company details are missing', () => {
-      mockExists.mockImplementation((req, res, next) => next());
       app.use((req: any, res, next) => {
         req.session = mockRequest.session;
         req.user = mockRequest.user;
@@ -280,40 +270,14 @@ describe('public-auth-routes', () => {
           expect(res.body.error).toBe(MISSING_COMPANY_DETAILS_ERROR);
         });
     });
-    it('should handle validation errors', () => {
-      mockExists.mockImplementation((req, res, next) => next());
-      mockValidationResult.mockImplementation(() => {
-        return {
-          isEmpty: () => false,
-          array: () => [1, 2],
-        };
-      });
+    it("if user isn't initialized, fail with 401", () => {
+      mockIsTokenExpired.mockReturnValue(false);
+      mockIsRenewable.mockReturnValue(true);
       app.use((req: any, res, next) => {
         req.session = { ...mockRequest.session, companyDetails: { id: 1 } };
         req.user = mockRequest.user;
         req.logout = mockRequest.logout;
-        next();
-      });
-      app.use('/auth', router);
-
-      return request(app)
-        .post('/auth/refresh')
-        .expect(400)
-        .expect((res) => {
-          expect(res.body.errors).toEqual([1, 2]);
-        });
-    });
-    it('should return unauthorized when jwt or refresh token is not found', () => {
-      mockExists.mockImplementation((req, res, next) => next());
-      mockValidationResult.mockImplementation(() => {
-        return {
-          isEmpty: () => true,
-        };
-      });
-      app.use((req: any, res, next) => {
-        req.session = { ...mockRequest.session, companyDetails: { id: 1 } };
-        req.user = mockRequest.user;
-        req.logout = mockRequest.logout;
+        req.body = { refreshToken: mockRequest.user.jwtFrontend };
         next();
       });
       app.use('/auth', router);
@@ -328,19 +292,25 @@ describe('public-auth-routes', () => {
           });
         });
     });
+    it('should return unauthorized when jwt or refresh token is not found', () => {
+      mockIsTokenExpired.mockReturnValue(false);
+      mockIsRenewable.mockReturnValue(false);
+      app.use((req: any, res, next) => {
+        req.session = { ...mockRequest.session, companyDetails: { id: 1 } };
+        req.user = mockRequest.user;
+        req.logout = mockRequest.logout;
+        next();
+      });
+      app.use('/auth', router);
+
+      return request(app).post('/auth/refresh').expect(401);
+    });
     it('should renew the token if renewable', async () => {
       const mockCorrelationId = 12;
       const mockFrontendToken = 'jwt_value';
-      mockExists.mockImplementation((req, res, next) => next());
-      mockValidationResult.mockImplementation(() => {
-        return {
-          isEmpty: () => true,
-        };
-      });
       mockIsTokenExpired.mockReturnValue(true);
       mockGenerateFrontendToken.mockReturnValue(mockFrontendToken);
       mockIsRenewable.mockReturnValue(true);
-      mockRenew.mockResolvedValue({ jwt: 1, refreshToken: 1 });
       mockRenewBackendAndFrontendTokens.mockImplementation((req, res) =>
         res.status(200).json({
           jwtFrontend: mockFrontendToken,
@@ -356,6 +326,7 @@ describe('public-auth-routes', () => {
         };
         req.user = { ...mockRequest.user, jwt: 'jwt', refreshToken: 'jwt' };
         req.logout = mockRequest.logout;
+        req.body = { refreshToken: mockRequest.user.jwtFrontend };
         next();
       });
       app.use('/auth', router);
@@ -371,12 +342,6 @@ describe('public-auth-routes', () => {
     });
     it('should return unauthorized when it fails to renew tokens', () => {
       const mockCorrelationId = 12;
-      mockExists.mockImplementation((req, res, next) => next());
-      mockValidationResult.mockImplementation(() => {
-        return {
-          isEmpty: () => true,
-        };
-      });
       mockIsTokenExpired.mockReturnValue(true);
       mockGenerateFrontendToken.mockReturnValue('jwt_value');
       mockIsRenewable.mockReturnValue(true);
@@ -399,13 +364,7 @@ describe('public-auth-routes', () => {
 
       return request(app).post('/auth/refresh').expect(401);
     });
-    it('should return unauthorized if token is not expired', () => {
-      mockExists.mockImplementation((req, res, next) => next());
-      mockValidationResult.mockImplementation(() => {
-        return {
-          isEmpty: () => true,
-        };
-      });
+    it('should return unauthorized if token is not renewable', () => {
       mockIsTokenExpired.mockReturnValue(true);
       mockIsRenewable.mockReturnValue(false);
 
@@ -417,21 +376,17 @@ describe('public-auth-routes', () => {
         };
         req.user = { ...mockRequest.user, jwt: 'jwt', refreshToken: 'jwt' };
         req.logout = mockRequest.logout;
+        req.body = { refreshToken: mockRequest.user.jwtFrontend };
         next();
       });
       app.use('/auth', router);
 
       return request(app).post('/auth/refresh').expect(401);
     });
-    it('should return with current user tokens', () => {
-      mockExists.mockImplementation((req, res, next) => next());
-      mockValidationResult.mockImplementation(() => {
-        return {
-          isEmpty: () => true,
-        };
-      });
-      mockIsTokenExpired.mockReturnValue(false);
 
+    it('should return 200 with current user token', () => {
+      mockIsTokenExpired.mockReturnValue(false);
+      mockIsRenewable.mockReturnValue(false);
       app.use((req: any, res, next) => {
         req.session = {
           ...mockRequest.session,
@@ -440,21 +395,21 @@ describe('public-auth-routes', () => {
         };
         req.user = {
           ...mockRequest.user,
-          jwtFrontend: 'jwt',
           jwt: 'jwt',
           refreshToken: 'jwt',
         };
         req.logout = mockRequest.logout;
+        req.body = { refreshToken: mockRequest.user.jwtFrontend };
         next();
       });
       app.use('/auth', router);
-
       return request(app)
         .post('/auth/refresh')
+        .set('Accept', 'application/json')
         .expect(200)
         .expect((res) => {
           expect(res.body).toEqual({
-            jwtFrontend: 'jwt',
+            jwtFrontend: mockRequest.user.jwtFrontend,
             correlationID: 12,
           });
         });
@@ -463,7 +418,6 @@ describe('public-auth-routes', () => {
   describe('/token', () => {
     it('return 401 if token company details are missing', () => {
       mockRefreshJWT.mockImplementation((req, res, next) => next());
-      mockExists.mockImplementation((req, res, next) => next());
       app.use((req: any, res, next) => {
         req.session = mockRequest.session;
         req.user = mockRequest.user;
@@ -481,7 +435,6 @@ describe('public-auth-routes', () => {
     });
     it('return 200 if jwtFrontend and refreshToken are available', () => {
       mockRefreshJWT.mockImplementation((req, res, next) => next());
-      mockExists.mockImplementation((req, res, next) => next());
       app.use((req: any, res, next) => {
         req.session = {
           ...mockRequest.session,
@@ -513,7 +466,6 @@ describe('public-auth-routes', () => {
     });
     it('return 401 unauthorized', () => {
       mockRefreshJWT.mockImplementation((req, res, next) => next());
-      mockExists.mockImplementation((req, res, next) => next());
       app.use((req: any, res, next) => {
         req.session = {
           ...mockRequest.session,
