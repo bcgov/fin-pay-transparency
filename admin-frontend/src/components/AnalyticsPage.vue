@@ -10,7 +10,7 @@
     >Web Traffic Analytics</v-btn
   >
 
-  <div v-if="isAnalyticsAvailable" class="w-100 overflow-x-auto">
+  <div class="w-100 overflow-x-auto">
     <div
       v-for="[name, details] in powerBiDetailsPerResource"
       :key="name"
@@ -47,16 +47,11 @@ type PowerBiDetails = {
 
 const snowplowUrl = (window as any).config?.SNOWPLOW_URL;
 
-const isAnalyticsAvailable =
-  (window as any).config?.IS_ADMIN_ANALYTICS_AVAILABLE?.toUpperCase() == 'TRUE';
-
 const powerBiDetailsPerResource = createDefaultPowerBiDetailsMap([
   POWERBI_RESOURCE.ANALYTICS,
 ]);
 
-if (isAnalyticsAvailable) {
-  getPowerBiAccessToken(powerBiDetailsPerResource);
-}
+getPowerBiAccessToken(powerBiDetailsPerResource);
 
 /** Create a Map containing the details of the resources. */
 function createDefaultPowerBiDetailsMap(
