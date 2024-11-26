@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import promBundle from 'express-prom-bundle';
 import { rateLimit } from 'express-rate-limit';
-import session from 'express-session';
+import session, { CookieOptions } from 'express-session';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import noCache from 'nocache';
@@ -16,14 +16,14 @@ import fileSessionStore from 'session-file-store';
 import { config } from './config';
 import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
+import announcementRouter from './v1/routes/announcement-routes';
 import codeRouter from './v1/routes/code-routes';
 import { router as configRouter } from './v1/routes/config-routes';
 import { fileUploadRouter } from './v1/routes/file-upload-routes';
 import authRouter from './v1/routes/public-auth-routes';
 import { reportRouter } from './v1/routes/report-routes';
-import userRouter from './v1/routes/user-info-routes';
-import announcementRouter from './v1/routes/announcement-routes';
 import resourcesRoutes from './v1/routes/resources-routes';
+import userRouter from './v1/routes/user-info-routes';
 
 import { publicAuth } from './v1/services/public-auth-service';
 import { utils } from './v1/services/utils-service';
@@ -94,10 +94,18 @@ app.use(
   }),
 );
 let proxy = true;
-const cookie = {
+const cookie: CookieOptions = {
   secure: true,
   httpOnly: true,
-  maxAge: 1800000, //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
+  //maxAge: 30 minutes in ms. this is same as session time.
+  //DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
+  maxAge: 1800000,
+  //sameSite: 'strict' would be preferable, but it complicates the
+  //authentication code flow of the login process (because the callback
+  //url is issued by the identify provider, which is a third party so the
+  //browser doesn't pass the cookie to the callback endpoint).
+  //'lax' is a middle ground that will
+  sameSite: 'lax',
 };
 if ('local' === config.get('environment')) {
   cookie.secure = false;

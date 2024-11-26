@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import promBundle from 'express-prom-bundle';
 import { rateLimit } from 'express-rate-limit';
-import session from 'express-session';
+import session, { CookieOptions } from 'express-session';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import noCache from 'nocache';
@@ -24,15 +24,15 @@ import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
 import adminAuthRouter from './v1/routes/admin-auth-routes';
 import adminReportRoutes from './v1/routes/admin-report-routes';
-import adminUsersRoutes from './v1/routes/admin-users-routes';
 import adminUserRouter from './v1/routes/admin-user-info-routes';
+import adminUsersRoutes from './v1/routes/admin-users-routes';
+import analyticRoutes from './v1/routes/analytic-routes';
+import announcementsRoutes from './v1/routes/announcement-routes';
 import codeRouter from './v1/routes/code-routes';
 import { router as configRouter } from './v1/routes/config-routes';
-import announcementsRoutes from './v1/routes/announcement-routes';
-import analyticRoutes from './v1/routes/analytic-routes';
-import resourcesRoutes from './v1/routes/resources-routes';
-import employerRoutes from './v1/routes/employer-routes';
 import dashboardMetricsRouter from './v1/routes/dashboard';
+import employerRoutes from './v1/routes/employer-routes';
+import resourcesRoutes from './v1/routes/resources-routes';
 import { adminAuth } from './v1/services/admin-auth-service';
 import { utils } from './v1/services/utils-service';
 
@@ -77,10 +77,19 @@ adminApp.use(
   }),
 );
 let proxy = true;
-const cookie = {
+const cookie: CookieOptions = {
   secure: true,
   httpOnly: true,
-  maxAge: 1800000, //30 minutes in ms. this is same as session time. DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
+  //30 minutes in ms. this is same as session time.
+  //DO NOT MODIFY, IF MODIFIED, MAKE SURE SAME AS SESSION TIME OUT VALUE.
+  maxAge: 1800000,
+  //sameSite: 'strict' would be preferable, but it complicates the
+  //authentication code flow of the login process.  The callback
+  //url is accessed by the identify provider, which is a third party.
+  //With a strict policy the the browser won't pass the cookie to the
+  //callback endpoint. 'lax' is a middle ground that will provide
+  //some protection against CSRF attacks.
+  sameSite: 'lax',
 };
 if ('local' === config.get('environment')) {
   cookie.secure = false;
