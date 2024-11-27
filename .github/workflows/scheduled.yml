@@ -9,7 +9,6 @@ jobs:
 
   zap:
     name: ZAP Scan
-    needs: [deploys]
     runs-on: ubuntu-22.04
     steps:
       - name: Penetration Test
