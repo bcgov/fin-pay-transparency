@@ -398,6 +398,11 @@ import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import type { VTextField } from 'vuetify/components';
 import RichTextArea from '../RichTextArea.vue';
 
+const announcementStatusOptions = [
+  AnnouncementStatus.Draft,
+  AnnouncementStatus.Published,
+];
+
 // References to component's exported properties
 const announcementTitleRef = ref<VTextField | null>(null);
 const linkUrlRef = ref<VTextField | null>(null);
@@ -480,7 +485,11 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     linkDisplayName: announcement?.linkDisplayName || '',
     fileDisplayName: announcement?.fileDisplayName || '',
     attachmentId: announcement?.attachmentId || v4(),
-    status: announcement?.status || 'DRAFT',
+    status:
+      announcement?.status &&
+      announcementStatusOptions.indexOf(announcement.status as any) >= 0
+        ? announcement.status
+        : AnnouncementStatus.Draft,
     attachment: undefined,
   },
   validationSchema: {
