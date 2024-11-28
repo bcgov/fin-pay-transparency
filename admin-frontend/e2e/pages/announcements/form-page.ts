@@ -5,6 +5,7 @@ import path from 'path';
 import { expect, Locator } from 'playwright/test';
 import { AnnouncementStatus } from '../../types';
 import { AdminPortalPage } from '../admin-portal-page';
+declare const Buffer;
 
 export enum FormMode {
   ADD,
@@ -24,6 +25,7 @@ export class FormPage extends AdminPortalPage {
   linkTextInput: Locator;
   chooseFileButton: Locator;
   fileDisplayNameInput: Locator;
+  fileInput: Locator;
 
   async setup() {
     await super.setup();
@@ -45,6 +47,7 @@ export class FormPage extends AdminPortalPage {
     this.fileDisplayNameInput = await this.page.getByLabel(
       'Display File Link As',
     );
+    this.fileInput = await this.page.getByLabel('Attachment', { exact: true });
 
     await expect(this.titleInput).toBeVisible();
     await expect(this.descriptionInput).toBeVisible();
@@ -153,16 +156,26 @@ export class FormPage extends AdminPortalPage {
   async chooseFile(valid: boolean = true) {
     await this.fillFileDisplayName(faker.lorem.words(1));
     await expect(this.chooseFileButton).toBeVisible();
-
-    const fileChooserPromise = this.page.waitForEvent('filechooser');
-
     const scanResponse = this.waitForClamavScan();
-    await this.chooseFileButton.click();
-    const fileChooser = await fileChooserPromise;
-    const fileName = valid ? 'valid.pdf' : 'invalid.com';
-    await fileChooser.setFiles(
-      path.resolve('e2e', 'assets', 'announcements', fileName),
-    );
+
+    if (valid) {
+      const fileChooserPromise = this.page.waitForEvent('filechooser');
+
+      await this.chooseFileButton.click();
+      const fileChooser = await fileChooserPromise;
+      await fileChooser.setFiles(
+        path.resolve('e2e', 'assets', 'announcements', 'valid.pdf'),
+      );
+    } else {
+      await this.fileInput.setInputFiles({
+        name: 'invalid.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.from(
+          String.raw`X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*`,
+        ),
+      });
+    }
+
     const response = await scanResponse;
     await response.json();
   }
