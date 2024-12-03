@@ -23,7 +23,7 @@
     "@js-joda/locale_en": "^4.8.11",
     "@mdi/font": "^7.1.96",
     "@types/papaparse": "^5.3.14",
-    "@vue/tsconfig": "^0.6.0",
+    "@vue/tsconfig": "^0.7.0",
     "axios": "^1.6.7",
     "dotenv": "^16.4.5",
     "file-saver": "^2.0.5",
@@ -115,7 +115,7 @@
   },
   "overrides": {
     "cldr-data-downloader@1.0.0-1": {
-      "axios": "1.7.7"
+      "axios": "1.7.8"
     }
   }
 }
