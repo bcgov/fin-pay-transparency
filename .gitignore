@@ -144,3 +144,5 @@ backend/session-path
 
 .scannerwork
 sonar-project.properties
+.pub
+.idea
