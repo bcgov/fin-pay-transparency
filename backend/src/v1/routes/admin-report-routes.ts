@@ -5,7 +5,6 @@ import { BAD_REQUEST } from '../../constants';
 import { logger } from '../../logger';
 import { adminReportService } from '../services/admin-report-service';
 import { PayTransparencyUserError } from '../services/file-upload-service';
-import { reportService } from '../services/report-service';
 import { utils } from '../services/utils-service';
 import { UserInputError } from '../types/errors';
 
@@ -138,7 +137,7 @@ router.get(
           return res.status(404).json({ error: 'Report not found' });
         }
         const filename: string =
-          await reportService.getReportFileName(reportId);
+          await adminReportService.getReportFileName(reportId);
         if (!filename) {
           logger.error(
             `Unable to determine PDF filename for reportId=${reportId}`,
