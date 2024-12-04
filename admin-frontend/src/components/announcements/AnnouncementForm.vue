@@ -739,10 +739,15 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
 const handleSave = handleSubmit(async (values) => {
   const hasActiveOnError = !validateActiveOnDate(values);
   const hasLinkError = !validateLink(values);
+  const hasFileError = !validateFile(values);
   const hasExpiryError = !validateExpiry();
   const hasDescriptionError = !validateDescription();
   const hasAnyError =
-    hasActiveOnError || hasLinkError || hasExpiryError || hasDescriptionError;
+    hasActiveOnError ||
+    hasLinkError ||
+    hasFileError ||
+    hasExpiryError ||
+    hasDescriptionError;
 
   if (hasAnyError) {
     return;
@@ -800,6 +805,20 @@ const handleSave = handleSubmit(async (values) => {
 
     if (!values.linkUrl && values.linkDisplayName) {
       setErrors({ linkUrl: 'Link URL is required.' });
+      return false;
+    }
+
+    return true;
+  }
+
+  function validateFile(values) {
+    if (!values.fileDisplayName && values.attachment) {
+      setErrors({ fileDisplayName: 'File display text is required.' });
+      return false;
+    }
+
+    if (!values.attachment && values.fileDisplayName) {
+      setErrors({ attachment: 'File attachment is required.' });
       return false;
     }
 
