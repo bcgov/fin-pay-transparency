@@ -442,8 +442,6 @@ describe('AddAnnouncementPage', () => {
           await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const linkUrl = getByLabelText('Link URL');
-        const displayLinkAs = getByLabelText('Display URL As');
         const fileName = getByLabelText('Display File Link As');
         await fireEvent.update(title, 'Test Title');
         setRichTextValue(
@@ -458,8 +456,6 @@ describe('AddAnnouncementPage', () => {
         });
         const noExpiry = getByRole('checkbox', { name: 'No expiry' });
         await fireEvent.click(noExpiry);
-        await fireEvent.update(linkUrl, 'https://example.com');
-        await fireEvent.update(displayLinkAs, 'a'.repeat(50));
         await fireEvent.update(fileName, 'a'.repeat(101));
         await markAsPublish();
         await fireEvent.click(saveButton);
@@ -470,13 +466,13 @@ describe('AddAnnouncementPage', () => {
         });
       });
     });
-    describe('when link url is empty', () => {
+    describe('when file is empty', () => {
       it('should show error message', async () => {
         const { getByRole, getByLabelText, getByText, container } =
           await wrappedRender();
         const saveButton = getByRole('button', { name: 'Save' });
         const title = getByLabelText('Title');
-        const displayLinkAs = getByLabelText('Display URL As');
+        const displayLinkAs = getByLabelText('Display File Link As');
         await fireEvent.update(title, 'Test Title');
         setRichTextValue(
           container,
@@ -494,7 +490,45 @@ describe('AddAnnouncementPage', () => {
         await markAsPublish();
         await fireEvent.click(saveButton);
         await waitFor(() => {
-          expect(getByText('Link URL is required.')).toBeInTheDocument();
+          expect(getByText('File attachment is required.')).toBeInTheDocument();
+        });
+      });
+    });
+  });
+  describe('when file is not empty', () => {
+    describe('when file name is empty', () => {
+      it('should show error message', async () => {
+        const { getByRole, getByLabelText, getByText, container } =
+          await wrappedRender();
+        const saveButton = getByRole('button', { name: 'Save' });
+        const title = getByLabelText('Title');
+        const attachment = getByLabelText('Attachment');
+        const file = new File(['hello'], 'chucknorris.png', {
+          type: 'image/png',
+        });
+        await waitFor(() => userEvent.upload(attachment, file));
+        await waitFor(() => {
+          expect(mockClamavScanFile).toHaveBeenCalled();
+        });
+        await fireEvent.update(title, 'Test Title');
+        setRichTextValue(
+          container,
+          'announcementDescription',
+          'Test description',
+        );
+        const activeOn = getByLabelText('Active On');
+        const activeOnDate = formatDate(LocalDate.now());
+        await setDate(activeOn, () => {
+          return getByLabelText(activeOnDate);
+        });
+        const noExpiry = getByRole('checkbox', { name: 'No expiry' });
+        await fireEvent.click(noExpiry);
+        await markAsPublish();
+        await fireEvent.click(saveButton);
+        await waitFor(() => {
+          expect(
+            getByText('File display text is required.'),
+          ).toBeInTheDocument();
         });
       });
     });
