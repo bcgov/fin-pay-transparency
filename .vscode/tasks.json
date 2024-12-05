@@ -13,7 +13,7 @@
       // This creates a new temporary container in podman to run clamav.
       "label": "Launch ClamAV",
       "type": "shell",
-      "command": "podman run --rm -d -p 3310:3310 clamav/clamav",
+      "command": "podman run --rm -d -p 3310:3310 --name 'clamav' clamav/clamav",
       "problemMatcher": []
     },
     {
