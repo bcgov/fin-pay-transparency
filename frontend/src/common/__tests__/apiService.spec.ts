@@ -1,10 +1,10 @@
 import { DateTimeFormatter, ZonedDateTime, nativeJs } from '@js-joda/core';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AnnouncementStatus } from '../../types/announcements';
 import { REPORT_STATUS } from '../../utils/constant';
 import ApiService, { ApiServicePrivate } from '../apiService';
+import authService from '../authService.js';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -520,6 +520,59 @@ describe('ApiServicePrivate', () => {
       );
 
       expect(result).toBe(expected);
+    });
+  });
+
+  describe('responseErrorInterceptor', () => {
+    describe('when response status is 401', () => {
+      it('it tries to refresh the token, and then retries the original request (with the new token)', async () => {
+        const originalRequest = {
+          headers: {
+            Authorization: '',
+          },
+        };
+        const mockUnauthorizedError = {
+          config: originalRequest,
+          response: {
+            status: 401,
+          },
+        };
+        const mockRefreshTokenResponse = {
+          jwtFrontend: 'mock-refreshed-token',
+          correlationID: '12345634569',
+        };
+
+        //mock the request to the backend to refresh the token.
+        const refreshTokenRequestSpy = vi
+          .spyOn(authService, 'refreshAuthToken')
+          .mockResolvedValue(mockRefreshTokenResponse);
+
+        //mock the resubmission of the original request (which occurs after
+        //receiving the new token)
+        const axiosRequestSpy = vi
+          .spyOn(axios, 'request')
+          .mockResolvedValue({});
+
+        await expect(
+          ApiServicePrivate.responseErrorInterceptor(mockUnauthorizedError),
+        ).resolves;
+
+        //expect a request to refresh the token
+        expect(refreshTokenRequestSpy).toHaveBeenCalledOnce();
+
+        //after token refresh, the original request is resubmitted (but with
+        //a new token in the authorization header)
+        expect(axiosRequestSpy).toHaveBeenCalledOnce();
+        const resubmittedRequest: any = axiosRequestSpy.mock.calls[0][0];
+        const expectedResubmittedRequest = {
+          ...originalRequest,
+        };
+        expectedResubmittedRequest.headers['Authorization'] =
+          `Bearer ${mockRefreshTokenResponse.jwtFrontend}`;
+        expectedResubmittedRequest.headers['x-correlation-id'] =
+          mockRefreshTokenResponse.correlationID;
+        expect(resubmittedRequest).toStrictEqual(expectedResubmittedRequest);
+      });
     });
   });
 });
