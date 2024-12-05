@@ -11,7 +11,7 @@ import {
   ReportSortType,
 } from '../types/report-search';
 import { PayTransparencyUserError } from './file-upload-service';
-import { Report, reportService } from './report-service';
+import { reportService } from './report-service';
 import { utils } from './utils-service';
 
 interface IGetReportMetricsInput {
@@ -246,6 +246,7 @@ const adminReportService = {
     return report;
   },
 
+<<<<<<< Updated upstream
   async getReportFileName(reportId: string): Promise<string> {
     const report: Report = await reportService.getReportById(reportId);
     if (report) {
@@ -256,6 +257,8 @@ const adminReportService = {
     }
   },
 
+=======
+>>>>>>> Stashed changes
   /**
    * Get dashboard metrics
    * @param param0

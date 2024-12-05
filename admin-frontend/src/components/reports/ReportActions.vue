@@ -119,34 +119,11 @@ async function viewReportInNewTab(reportId: string) {
   isLoadingPdf.value = true;
   try {
     const pdfAsBlob = await ApiService.getPdfReportAsBlob(reportId);
-    console.log(pdfAsBlob);
 
     //admin_last_access_date will have changed
     ReportChangeService.reportChanged(reportId);
-    //const file = new File([pdfAsBlob], 'filename.pdf', {
-    //  type: 'application/pdf',
-    //});
-    //console.log(file);
-    //const objectUrl = URL.createObjectURL(file);
-
     const objectUrl = URL.createObjectURL(pdfAsBlob);
-
-    let fileLink = document.createElement('a');
-    fileLink.href = objectUrl;
-    fileLink.target = '_blank';
-    fileLink.id = 'bla.pdf';
-    fileLink.title = 'bla.pdf';
-    fileLink.name = 'bla.pdf';
-
-    //fileLink.download = 'pdf_name';
-    //fileLink.setAttribute('download', 'custom_name.pdf');
-
-    fileLink.click();
-
-    fileLink.remove();
-    URL.revokeObjectURL(objectUrl);
-
-    //window.open(objectUrl);
+    window.open(objectUrl);
   } catch (e) {
     NotificationService.pushNotificationError(
       'Something went wrong.  Unable to download report.',
