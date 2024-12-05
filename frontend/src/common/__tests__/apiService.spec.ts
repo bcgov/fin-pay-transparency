@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { DateTimeFormatter, ZonedDateTime, nativeJs } from '@js-joda/core';
 import axios, { AxiosError } from 'axios';
 import { saveAs } from 'file-saver';
@@ -538,8 +539,8 @@ describe('ApiServicePrivate', () => {
           },
         };
         const mockRefreshTokenResponse = {
-          jwtFrontend: 'mock-refreshed-token',
-          correlationID: '12345634569',
+          jwtFrontend: faker.string.alpha(50),
+          correlationID: faker.string.alpha(50),
         };
 
         //mock the request to the backend to refresh the token.
