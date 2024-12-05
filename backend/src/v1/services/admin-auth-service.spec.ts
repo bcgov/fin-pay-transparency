@@ -1,28 +1,50 @@
 import { faker } from '@faker-js/faker';
 import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
+import axios from 'axios';
 import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants';
 import prisma from '../prisma/prisma-client';
 import { adminAuth, IUserDetails } from './admin-auth-service';
 import { ROLE_ADMIN_USER } from './sso-service';
+import { utils } from './utils-service';
+
+//Mock the entire axios module so we never inadvertently make real
+//HTTP calls to remote services
+jest.mock('axios');
 
 const mockGetSessionUser = jest.fn();
-jest.mock('./utils-service', () => ({
-  utils: {
-    getSessionUser: () => mockGetSessionUser(),
-  },
-}));
-
-jest.mock('../../config', () => ({
-  config: {
-    get: (key) => {
-      const settings = {
-        'oidc:adminClientId': '1234',
-      };
-
-      return settings[key];
+jest.mock('./utils-service', () => {
+  const actualUtils = jest.requireActual('./utils-service').utils;
+  return {
+    utils: {
+      ...actualUtils,
+      getSessionUser: () => mockGetSessionUser(),
+      getOidcDiscovery: jest.fn(),
+      getKeycloakPublicKey: jest.fn(),
     },
-  },
-}));
+  };
+});
+
+jest.mock('../../config', () => {
+  const actualConfig = jest.requireActual('../../config').config;
+  return {
+    config: {
+      get: (key) => {
+        const settings = {
+          'oidc:adminClientId': '1234',
+          'tokenGenerate:issuer': 'issuer',
+          'server:adminFrontend': 'server-admin-frontend',
+          'tokenGenerate:audience': 'audience',
+          'tokenGenerate:privateKey': actualConfig.get(
+            'tokenGenerate:privateKey',
+          ),
+        };
+        return settings[key];
+      },
+    },
+  };
+});
+
+const actualJsonWebToken = jest.requireActual('jsonwebtoken');
 
 const mockJWTDecode = jest.fn();
 jest.mock('jsonwebtoken', () => ({
@@ -74,6 +96,75 @@ describe('admin-auth-service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  describe('generateFrontendToken', () => {
+    it('generates a new JWT token that expires in 30 minute (1800 seconds)', async () => {
+      const token = adminAuth.generateFrontendToken();
+      const payload: any = actualJsonWebToken.decode(token);
+
+      const nowSeconds = Date.now().valueOf() / 1000;
+      const ttlSeconds = payload.exp - nowSeconds;
+
+      const expectedTtlSeconds = 1800; //30 minutes
+      const ttlToleranceSeconds = 5;
+
+      //Because a small (but non-zero) amount of time elapsed between when
+      //the token was generated and when its expiration date was checked, we
+      //must expect the time-to-live (TTL) to be slightly less than 30 minutes.
+      //Check that the TTL is within a small tolerance of the expected TTL.
+      expect(ttlSeconds).toBeLessThanOrEqual(expectedTtlSeconds);
+      expect(ttlSeconds).toBeGreaterThanOrEqual(
+        expectedTtlSeconds - ttlToleranceSeconds,
+      );
+    });
+  });
+
+  describe('renew', () => {
+    describe('when the identity provider successfully refreshes the tokens', () => {
+      it('responds with an object containing three new tokens (access, id and refresh)', async () => {
+        //Mock the call made by auth.renew(...) to utils.getOidcDiscovery(...) so it doesn't
+        //depend on a remote service.  The mocked return value must include a "token_endpoint"
+        //property, but the value of that property isn't important because
+        //we're also mocking the HTTP request (see below) that uses the return value
+        const mockGetOidcDiscoveryResponse = { token_endpoint: null };
+        (utils.getOidcDiscovery as jest.Mock).mockResolvedValueOnce(
+          mockGetOidcDiscoveryResponse,
+        );
+
+        //Mock the HTTP post request made by auth.renew(...) to the identity provider to
+        //refresh the token.
+        const mockSuccessfulRefreshTokenResponse = {
+          data: {
+            access_token: 'new_access_token',
+            refresh_token: 'new_refresh_token',
+            id_token: 'new_id_token',
+          },
+        };
+        (axios.post as jest.Mock).mockResolvedValueOnce(
+          mockSuccessfulRefreshTokenResponse,
+        );
+
+        //We don't need a real refresh token because we're mocking the call to the
+        //identity provider
+        const dummyRefreshToken = 'old_refresh_token';
+
+        const result = await adminAuth.renew(dummyRefreshToken);
+
+        //Confirm that the auth.renew(...) function returns a response object
+        //with the expected properties
+        expect(result.jwt).toBe(
+          mockSuccessfulRefreshTokenResponse.data.access_token,
+        );
+        expect(result.refreshToken).toBe(
+          mockSuccessfulRefreshTokenResponse.data.refresh_token,
+        );
+        expect(result.idToken).toBe(
+          mockSuccessfulRefreshTokenResponse.data.id_token,
+        );
+      });
+    });
+  });
+
   describe('handleCallBackAzureIdir', () => {
     it('should return login error when jwt decode fails', async () => {
       mockGetSessionUser.mockReturnValue({});
