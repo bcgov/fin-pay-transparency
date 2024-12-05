@@ -6,7 +6,10 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
-import type { pay_transparency_report } from '@prisma/client';
+import type {
+  pay_transparency_company,
+  pay_transparency_report,
+} from '@prisma/client';
 import { config } from '../../config';
 import {
   DISPLAY_REPORT_DATE_FORMAT,
@@ -59,6 +62,7 @@ type Report = Omit<
 > & {
   report_start_date: string;
   report_end_date: string;
+  pay_transparency_company: pay_transparency_company;
 };
 
 const GENDERS = {
@@ -1386,6 +1390,7 @@ const reportService = {
         is_unlocked: true,
         create_date: true,
         company_id: true,
+        pay_transparency_company: true,
       },
       where: {
         report_id: reportId,

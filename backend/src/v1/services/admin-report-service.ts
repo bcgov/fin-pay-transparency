@@ -11,7 +11,7 @@ import {
   ReportSortType,
 } from '../types/report-search';
 import { PayTransparencyUserError } from './file-upload-service';
-import { reportService } from './report-service';
+import { Report, reportService } from './report-service';
 import { utils } from './utils-service';
 
 interface IGetReportMetricsInput {
@@ -244,6 +244,17 @@ const adminReportService = {
     const report = await reportService.getReportPdf(req, reportId);
     await adminReportServicePrivate.updateAdminLastAccessDate(reportId);
     return report;
+  },
+
+  async getReportFileName(reportId: string): Promise<string> {
+    const report: Report = await reportService.getReportById(reportId);
+    console.log(report);
+    if (report) {
+      const filename = `pay-transparency-report-${report.reporting_year}-${report.pay_transparency_company.company_name}.pdf`;
+      return filename;
+    } else {
+      throw new Error(`No such report with reportId=${reportId}`);
+    }
   },
 
   /**
