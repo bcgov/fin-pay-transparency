@@ -135,7 +135,7 @@ router.post(
       res.status(401).json(UnauthorizedRsp);
     } else if (adminAuth.isTokenExpired(user.jwt)) {
       if (user?.refreshToken && adminAuth.isRenewable(user.refreshToken)) {
-        return adminAuth.renewBackendAndFrontendTokens(req, res);
+        return await adminAuth.renewBackendAndFrontendTokens(req, res);
       } else {
         res.status(401).json(UnauthorizedRsp);
       }

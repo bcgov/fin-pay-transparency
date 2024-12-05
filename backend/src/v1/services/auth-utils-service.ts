@@ -204,7 +204,7 @@ abstract class AuthBase {
     return result;
   }
 
-  protected generateFrontendTokenImpl(audience: string) {
+  protected generateFrontendTokenImpl(audience: string): string {
     const i = config.get('tokenGenerate:issuer');
     const s = 'user@finpaytransparency.ca';
     const signOptions: SignOptions = {

@@ -10,7 +10,9 @@ const mockRenewSuccessResult = {
 
 class MockAuthSubclass extends AuthBase {
   public override async renew(refreshToken: string): Promise<any> {}
-  public override generateFrontendToken() {}
+  public override generateFrontendToken(): string {
+    return '';
+  }
   public override getUserDescription(session: any): string {
     return 'Mock user';
   }
@@ -75,18 +77,24 @@ describe('isRenewable', () => {
 describe('renewBackendAndFrontendTokens', () => {
   describe('when the refresh token is successfully exchanged for new backend tokens', () => {
     it('sets a success code in the response', async () => {
+      const mockFrontendToken = 'sdf345dsf';
       jest.spyOn(mockAuth, 'renew').mockResolvedValue(mockRenewSuccessResult);
+      const generateFrontendTokenSpy = jest
+        .spyOn(mockAuth, 'generateFrontendToken')
+        .mockReturnValue(mockFrontendToken);
       const req = {
         user: { refreshToken: 'mock refresh token' } as unknown,
         session: {},
       } as Request;
-      const res = {
-        status: jest.fn().mockReturnValue({
-          json: jest.fn(),
-        }) as unknown,
-      } as Response;
+      const res: any = new Object();
+      res.status = jest.fn().mockReturnValue(res) as unknown;
+      res.json = jest.fn() as unknown;
+
       await mockAuth.renewBackendAndFrontendTokens(req, res);
       expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json.mock.calls[0][0].jwtFrontend).toBe(
+        generateFrontendTokenSpy.mock.results[0].value,
+      );
     });
   });
   describe('when the refresh token is not successfully exchanged for new backend tokens', () => {

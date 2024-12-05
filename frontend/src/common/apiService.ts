@@ -46,43 +46,43 @@ function processQueue(error, token = null) {
 
 // Create new non-global axios instance and intercept strategy
 const apiAxios = axios.create();
+const responseErrorInterceptor = (error) => {
+  const originalRequest = error.config;
+  if (error.response.status !== 401) {
+    return Promise.reject(new Error('AxiosError', { cause: error }));
+  }
+  axios.interceptors.response.eject(intercept);
+  return new Promise((resolve, reject) => {
+    AuthService.refreshAuthToken(
+      localStorage.getItem('jwtToken'),
+      localStorage.getItem('correlationID'),
+    )
+      .then((response) => {
+        if (response.jwtFrontend) {
+          localStorage.setItem('jwtToken', response.jwtFrontend);
+          localStorage.setItem('correlationID', response.correlationID);
+          apiAxios.defaults.headers.common['Authorization'] =
+            `Bearer ${response.jwtFrontend}`;
+          originalRequest.headers['Authorization'] =
+            `Bearer ${response.jwtFrontend}`;
+          apiAxios.defaults.headers.common['x-correlation-id'] =
+            response.correlationID;
+          originalRequest.headers['x-correlation-id'] = response.correlationID;
+        }
+        processQueue(null, response.jwtFrontend);
+        resolve(axios.request(originalRequest));
+      })
+      .catch((e) => {
+        processQueue(e, null);
+        localStorage.removeItem('jwtToken');
+        window.location.href = '/token-expired';
+        reject(new Error('token expired', { cause: e }));
+      });
+  });
+};
 const intercept = apiAxios.interceptors.response.use(
   (config) => config,
-  (error) => {
-    const originalRequest = error.config;
-    if (error.response.status !== 401) {
-      return Promise.reject(new Error('AxiosError', { cause: error }));
-    }
-    axios.interceptors.response.eject(intercept);
-    return new Promise((resolve, reject) => {
-      AuthService.refreshAuthToken(
-        localStorage.getItem('jwtToken'),
-        localStorage.getItem('correlationID'),
-      )
-        .then((response) => {
-          if (response.jwtFrontend) {
-            localStorage.setItem('jwtToken', response.jwtFrontend);
-            localStorage.setItem('correlationID', response.correlationID);
-            apiAxios.defaults.headers.common['Authorization'] =
-              `Bearer ${response.jwtFrontend}`;
-            originalRequest.headers['Authorization'] =
-              `Bearer ${response.jwtFrontend}`;
-            apiAxios.defaults.headers.common['x-correlation-id'] =
-              response.correlationID;
-            originalRequest.headers['x-correlation-id'] =
-              response.correlationID;
-          }
-          processQueue(null, response.jwtFrontend);
-          resolve(axios(originalRequest));
-        })
-        .catch((e) => {
-          processQueue(e, null);
-          localStorage.removeItem('jwtToken');
-          window.location.href = '/token-expired';
-          reject(new Error('token expired', { cause: e }));
-        });
-    });
-  },
+  responseErrorInterceptor,
 );
 
 export default {
@@ -338,4 +338,6 @@ export const ApiServicePrivate = {
     const jodaZonedDateTime = ZonedDateTime.from(nativeJs(date));
     return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(jodaZonedDateTime);
   },
+
+  responseErrorInterceptor: responseErrorInterceptor,
 };
