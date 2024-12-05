@@ -812,6 +812,8 @@ const handleSave = handleSubmit(async (values) => {
   }
 
   function validateFile(values) {
+    if (fileDisplayOnly.value) return true; //existing files are okay
+
     if (!values.fileDisplayName && values.attachment) {
       setErrors({ fileDisplayName: 'File display text is required.' });
       return false;
