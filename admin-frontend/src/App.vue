@@ -318,6 +318,7 @@ input.dp__input {
     0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
   padding-top: 7px !important;
   padding-bottom: 7px !important;
+  border: none;
 }
 
 .dp__input_invalid {

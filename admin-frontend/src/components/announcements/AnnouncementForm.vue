@@ -963,4 +963,11 @@ const handleSave = handleSubmit(async (values) => {
   align-items: center;
   justify-content: space-between;
 }
+
+/* Override styles of the Vue3DatePicker so it looks similar other inputs 
+in this component */
+:deep(.dp__input) {
+  box-shadow: none !important;
+  border: 1px solid #aaaaaa;
+}
 </style>
