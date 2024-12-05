@@ -52,6 +52,7 @@ const mockReport = {
 const mockSearchReport = jest.fn().mockResolvedValue({ reports: [mockReport] });
 const mockChangeReportLockStatus = jest.fn();
 const mockGetReportAdminActionHistory = jest.fn();
+const mockGetAdminReportFileName = jest.fn().mockResolvedValue('report.pdf');
 jest.mock('../services/admin-report-service', () => ({
   adminReportService: {
     ...jest.requireActual('../services/admin-report-service')
@@ -61,6 +62,7 @@ jest.mock('../services/admin-report-service', () => ({
     getReportPdf: (...args) => mockGetReportPdf(...args),
     getReportAdminActionHistory: (...args) =>
       mockGetReportAdminActionHistory(...args),
+    getReportFileName: (...args) => mockGetAdminReportFileName(...args),
   },
 }));
 const mockGetReportPdf = jest
@@ -154,6 +156,7 @@ describe('admin-report-routes', () => {
     describe('if reportId is valid', () => {
       it('should fetch a pdf report', async () => {
         const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e3';
+        mockGetReportPdf.mockResolvedValueOnce({});
         await request(app)
           .get(`/${mockReportId}`)
           .set('Accept', 'application/pdf')
