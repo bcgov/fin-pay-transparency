@@ -246,19 +246,6 @@ const adminReportService = {
     return report;
   },
 
-<<<<<<< Updated upstream
-  async getReportFileName(reportId: string): Promise<string> {
-    const report: Report = await reportService.getReportById(reportId);
-    if (report) {
-      const filename = `pay-transparency-report-${report.reporting_year}-${report.pay_transparency_company.company_name}.pdf`;
-      return filename;
-    } else {
-      throw new Error(`No such report with reportId=${reportId}`);
-    }
-  },
-
-=======
->>>>>>> Stashed changes
   /**
    * Get dashboard metrics
    * @param param0
