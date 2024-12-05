@@ -248,7 +248,6 @@ const adminReportService = {
 
   async getReportFileName(reportId: string): Promise<string> {
     const report: Report = await reportService.getReportById(reportId);
-    console.log(report);
     if (report) {
       const filename = `pay-transparency-report-${report.reporting_year}-${report.pay_transparency_company.company_name}.pdf`;
       return filename;
