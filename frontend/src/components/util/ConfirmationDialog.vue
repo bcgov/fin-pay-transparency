@@ -55,10 +55,9 @@
 </template>
 
 <script>
-import PrimaryButton from './PrimaryButton.vue';
 export default {
   name: 'ConfirmationDialog',
-  components: { PrimaryButton },
+  components: {},
   props: {
     contentClass: {
       type: String,
