@@ -26,15 +26,9 @@ jobs:
     if: (!github.event.pull_request.head.repo.fork)
     uses: ./.github/workflows/.build.yml
 
-  check-quota:
-    name: Check Quota
-    needs: [builds]
-    uses: ./.github/workflows/.quota-check.yml
-    secrets: inherit
-
   deploys:
     name: Deploys
-    needs: [builds, check-quota]
+    needs: [builds]
     uses: ./.github/workflows/.deploy.yml
     secrets: inherit
     with:
@@ -46,14 +40,14 @@ jobs:
       admin-frontend-url: https://pay-transparency-pr-${{ github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca
   test-integration:
     name: Integration
-    needs: [builds, check-quota, deploys]
+    needs: [builds, deploys]
     uses: ./.github/workflows/.integration.yml
     secrets: inherit
     with:
       backend-external-url: https://pay-transparency-pr-${{ github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca/api
   test-e2e:
     name: E2E
-    needs: [builds, check-quota, deploys]
+    needs: [builds, deploys]
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
     with:
@@ -61,7 +55,7 @@ jobs:
       external-api-base-url: https://pay-transparency-pr-${{ github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca
   test-e2e-admin:
     name: E2E-Admin
-    needs: [builds, check-quota, deploys]
+    needs: [builds, deploys]
     uses: ./.github/workflows/.e2e-admin.yml
     secrets: inherit
     with:
