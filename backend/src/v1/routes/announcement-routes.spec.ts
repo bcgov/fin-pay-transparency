@@ -425,13 +425,16 @@ describe('announcement-routes', () => {
         mockCreateAnnouncement.mockResolvedValue({
           message: 'Announcement created',
         });
-        const response = await request(app).post('/').send({
-          title: 'Test',
-          description: 'Test',
-          expires_on: faker.date.recent(),
-          active_on: faker.date.future(),
-          status: 'DRAFT',
-        });
+        const response = await request(app)
+          .post('/')
+          .send({
+            title: 'Test',
+            //long description.  this would be rejected by the frontend, but should be allowed by the backend
+            description: '0'.repeat(2001),
+            expires_on: faker.date.recent(),
+            active_on: faker.date.future(),
+            status: 'DRAFT',
+          });
         expect(response.status).toBe(201);
         expect(response.body).toEqual({ message: 'Announcement created' });
       });
