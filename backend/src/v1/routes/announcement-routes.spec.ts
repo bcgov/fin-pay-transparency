@@ -429,7 +429,10 @@ describe('announcement-routes', () => {
           .post('/')
           .send({
             title: 'Test',
-            //long description.  this would be rejected by the frontend, but should be allowed by the backend
+            //long description.  this would be rejected by the frontend,
+            //but should be allowed by the backend (because the backend expects
+            //some of the characters may be rich text markup, which the system doesn't
+            //put a limit on
             description: '0'.repeat(2001),
             expires_on: faker.date.recent(),
             active_on: faker.date.future(),
