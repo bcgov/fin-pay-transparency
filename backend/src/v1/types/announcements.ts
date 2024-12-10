@@ -145,7 +145,7 @@ export type PatchAnnouncementsType = z.infer<typeof PatchAnnouncementsSchema>;
 export const AnnouncementDataSchema = z
   .object({
     title: z.string().min(1).max(100),
-    description: z.string().min(1).max(2000),
+    description: z.string().min(1),
     active_on: z.string().optional(),
     expires_on: z.string().optional(),
     status: z.enum(['PUBLISHED', 'DRAFT']),
