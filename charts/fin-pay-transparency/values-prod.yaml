@@ -78,11 +78,11 @@ backend:
     targetPort: 3000
   resources:
     requests:
-      cpu: 200m
+      cpu: 150m
       memory: 600Mi
   initResources:
     requests:
-      cpu: 200m
+      cpu: 150m
       memory: 250Mi
 
   autoscaling:
@@ -185,7 +185,7 @@ crunchy:
       storage: 600Mi
       storageClassName: netapp-block-standard
     requests:
-      cpu: 200m
+      cpu: 150m
       memory: 256Mi
     replicaCertCopy:
       requests:
@@ -232,7 +232,7 @@ crunchy:
         memory: 64Mi
     jobs:
       requests:
-        cpu: 200m
+        cpu: 100m
         memory: 256Mi
   patroni:
     postgresql:
@@ -280,7 +280,7 @@ doc-gen-service:
     targetPort: 3000
   resources:
     requests:
-      cpu: 650m
+      cpu: 500m
       memory: 350Mi
 
   podSecurityContext: {}
