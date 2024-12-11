@@ -145,9 +145,6 @@ spec:
           requests:
             cpu: {{ .Values.pgBackRest.repoHost.requests.cpu }}
             memory: {{ .Values.pgBackRest.repoHost.requests.memory }}
-          limits:
-            cpu: {{ .Values.pgBackRest.repoHost.limits.cpu }}
-            memory: {{ .Values.pgBackRest.repoHost.limits.memory }}
       sidecars:
         # this stuff is for the "pgbackrest" container in the "postgres-crunchy-ha" set of pods
         pgbackrest:
@@ -165,9 +162,6 @@ spec:
           requests:
             cpu: {{ .Values.pgBackRest.jobs.requests.cpu }}
             memory: {{ .Values.pgBackRest.jobs.requests.memory }}
-          limits:
-            cpu: {{ .Values.pgBackRest.jobs.limits.cpu }}
-            memory: {{ .Values.pgBackRest.jobs.limits.memory }}
   {{- end }}
   patroni:
     dynamicConfiguration:
