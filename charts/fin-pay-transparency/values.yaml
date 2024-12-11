@@ -192,12 +192,9 @@ admin-frontend:
     port: 80
     targetPort: 3000
   resources:
-    limits:
-      cpu: 50m
-      memory: 150Mi
     requests:
-      cpu: 15m
-      memory: 50Mi
+      cpu: 30m
+      memory: 100Mi
   env:
     logLevel: info
     isAdminDashboardAvailable: true

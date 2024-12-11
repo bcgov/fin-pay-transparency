@@ -77,19 +77,13 @@ backend:
     port: 80
     targetPort: 3000
   resources:
-    limits:
-      cpu: 200m
+    requests:
+      cpu: 150m
       memory: 600Mi
-    requests:
-      cpu: 30m
-      memory: 500Mi
   initResources:
-    limits:
-      cpu: 200m
-      memory: 250Mi
     requests:
-      cpu: 30m
-      memory: 100Mi
+      cpu: 150m
+      memory: 200Mi
 
   autoscaling:
     enabled: true
@@ -134,12 +128,9 @@ frontend:
     port: 80
     targetPort: 3000
   resources:
-    limits:
-      cpu: 50m
-      memory: 150Mi
     requests:
-      cpu: 15m
-      memory: 50Mi
+      cpu: 50m
+      memory: 120Mi
   env:
     logLevel: info
     snowplowUrl: spt.apps.gov.bc.ca
@@ -194,17 +185,11 @@ crunchy:
       storage: 600Mi
       storageClassName: netapp-block-standard
     requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 100m
+      memory: 300Mi
     replicaCertCopy:
       requests:
         cpu: 5m
-        memory: 16Mi
-      limits:
-        cpu: 20m
         memory: 32Mi
 
   pgBackRest:
@@ -237,29 +222,17 @@ crunchy:
       requests:
         cpu: 5m
         memory: 32Mi
-      limits:
-        cpu: 20m
-        memory: 64Mi
     repoHost:
       requests:
         cpu: 50m
-        memory: 128Mi
-      limits:
-        cpu: 200m
         memory: 256Mi
     sidecars:
       requests:
-        cpu: 5m
-        memory: 16Mi
-      limits:
-        cpu: 20m
-        memory: 64Mi
+        cpu: 10m
+        memory: 32Mi
     jobs:
       requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
-        cpu: 200m
+        cpu: 100m
         memory: 256Mi
   patroni:
     postgresql:
@@ -278,9 +251,6 @@ crunchy:
       replicas: 1
       requests:
         cpu: 5m
-        memory: 16Mi
-      limits:
-        cpu: 20m
         memory: 32Mi
 
   # Postgres Cluster resource values:
@@ -289,10 +259,7 @@ crunchy:
     exporter:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       requests:
-        cpu: 5m
-        memory: 16Mi
-      limits:
-        cpu: 35m
+        cpu: 25m
         memory: 32Mi
 doc-gen-service:
   enabled: true
@@ -312,12 +279,9 @@ doc-gen-service:
     port: 80
     targetPort: 3000
   resources:
-    limits:
-      cpu: 650m
-      memory: 350Mi
     requests:
-      cpu: 100m
-      memory: 50Mi
+      cpu: 500m
+      memory: 400Mi
 
   podSecurityContext: {}
   securityContext: {}
@@ -343,12 +307,9 @@ backend-external:
     port: 80
     targetPort: 3000
   resources:
-    limits:
+    requests:
       cpu: 20m
       memory: 150Mi
-    requests:
-      cpu: 10m
-      memory: 50Mi
   app:
     env:
       logLevel: info

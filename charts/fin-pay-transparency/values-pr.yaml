@@ -41,16 +41,10 @@ global:
 backend:
   deploymentStrategy: Recreate
   initResources:
-    limits:
-      cpu: 350m
-      memory: 500Mi
     requests:
       cpu: 150m
       memory: 250Mi
   resources:
-    limits:
-      cpu: 100m
-      memory: 500Mi
     requests:
       cpu: 50m
       memory: 250Mi
@@ -63,9 +57,6 @@ backend:
 frontend:
   deploymentStrategy: Recreate
   resources:
-    limits:
-      cpu: 30m
-      memory: 150Mi
     requests:
       cpu: 15m
       memory: 50Mi
@@ -76,12 +67,9 @@ frontend:
 admin-frontend:
   deploymentStrategy: Recreate
   resources:
-    limits:
-      cpu: 30m
-      memory: 150Mi
     requests:
       cpu: 15m
-      memory: 50Mi
+      memory: 100Mi
   env:
     logLevel: info
   pdb: false
@@ -106,11 +94,8 @@ database:
   tolerations: []
   affinity: {}
   resources:
-    limits:
-      cpu: 150m
-      memory: 250Mi
     requests:
-      cpu: 30m
+      cpu: 50m
       memory: 100Mi
   persistence:
     enabled: true
@@ -139,12 +124,9 @@ doc-gen-service:
     port: 80
     targetPort: 3000
   resources:
-    limits:
-      cpu: 300m
-      memory: 350Mi
     requests:
-      cpu: 30m
-      memory: 50Mi
+      cpu: 50m
+      memory: 250Mi
 
   podSecurityContext: {}
   securityContext: {}
