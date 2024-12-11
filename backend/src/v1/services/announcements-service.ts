@@ -1,7 +1,6 @@
 import {
   convert,
   DateTimeFormatter,
-  LocalDateTime,
   ZonedDateTime,
   ZoneId,
 } from '@js-joda/core';
@@ -15,6 +14,7 @@ import {
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import isEmpty from 'lodash/isEmpty';
 import { config } from '../../config';
+import { deleteFiles } from '../../external/services/s3-api';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
 import { PaginatedResult } from '../types';
@@ -26,7 +26,6 @@ import {
 } from '../types/announcements';
 import { UserInputError } from '../types/errors';
 import { utils } from './utils-service';
-import { deleteFiles } from '../../external/services/s3-api';
 
 const saveHistory = async (
   tx: Omit<
@@ -321,7 +320,7 @@ export const announcementService = {
     input: AnnouncementDataType,
     currentUserId: string,
   ) {
-    const updateDate = convert(LocalDateTime.now(ZoneId.UTC)).toDate();
+    const updateDate = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
     await prisma.$transaction(async (tx) => {
       const announcementData = await tx.announcement.findUniqueOrThrow({
         where: {
