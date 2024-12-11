@@ -128,7 +128,7 @@ frontend:
     targetPort: 3000
   resources:
     requests:
-      cpu: 50m
+      cpu: 30m
       memory: 150Mi
   env:
     logLevel: info
@@ -272,7 +272,7 @@ doc-gen-service:
     targetPort: 3000
   resources:
     requests:
-      cpu: 600m
+      cpu: 450m
       memory: 350Mi
 
   podSecurityContext: {}
