@@ -78,12 +78,12 @@ backend:
     targetPort: 3000
   resources:
     requests:
-      cpu: 150m
+      cpu: 200m
       memory: 600Mi
   initResources:
     requests:
-      cpu: 150m
-      memory: 200Mi
+      cpu: 200m
+      memory: 250Mi
 
   autoscaling:
     enabled: true
@@ -130,7 +130,7 @@ frontend:
   resources:
     requests:
       cpu: 50m
-      memory: 120Mi
+      memory: 150Mi
   env:
     logLevel: info
     snowplowUrl: spt.apps.gov.bc.ca
@@ -185,11 +185,11 @@ crunchy:
       storage: 600Mi
       storageClassName: netapp-block-standard
     requests:
-      cpu: 100m
-      memory: 300Mi
+      cpu: 200m
+      memory: 256Mi
     replicaCertCopy:
       requests:
-        cpu: 5m
+        cpu: 20m
         memory: 32Mi
 
   pgBackRest:
@@ -220,19 +220,19 @@ crunchy:
 
     config:
       requests:
-        cpu: 5m
-        memory: 32Mi
+        cpu: 20m
+        memory: 64Mi
     repoHost:
       requests:
-        cpu: 50m
+        cpu: 200m
         memory: 256Mi
     sidecars:
       requests:
-        cpu: 10m
-        memory: 32Mi
+        cpu: 20m
+        memory: 64Mi
     jobs:
       requests:
-        cpu: 100m
+        cpu: 200m
         memory: 256Mi
   patroni:
     postgresql:
@@ -250,7 +250,7 @@ crunchy:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       replicas: 1
       requests:
-        cpu: 5m
+        cpu: 20m
         memory: 32Mi
 
   # Postgres Cluster resource values:
@@ -259,7 +259,7 @@ crunchy:
     exporter:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       requests:
-        cpu: 25m
+        cpu: 35m
         memory: 32Mi
 doc-gen-service:
   enabled: true
@@ -280,8 +280,8 @@ doc-gen-service:
     targetPort: 3000
   resources:
     requests:
-      cpu: 500m
-      memory: 400Mi
+      cpu: 650m
+      memory: 350Mi
 
   podSecurityContext: {}
   securityContext: {}

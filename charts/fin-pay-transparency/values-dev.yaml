@@ -82,8 +82,8 @@ backend:
       memory: 500Mi
   initResources:
     requests:
-      cpu: 150m
-      memory: 200Mi
+      cpu: 350m
+      memory: 250Mi
 
   autoscaling:
     enabled: true
@@ -129,7 +129,7 @@ frontend:
   resources:
     requests:
       cpu: 50m
-      memory: 120Mi
+      memory: 150Mi
   env:
     logLevel: info
   autoscaling:
@@ -181,7 +181,7 @@ crunchy:
       storage: 500Mi
       storageClassName: netapp-block-standard
     requests:
-      cpu: 100m
+      cpu: 200m
       memory: 256Mi
     replicaCertCopy:
       requests:
@@ -216,19 +216,19 @@ crunchy:
         storageClassName: netapp-file-backup
     config:
       requests:
-        cpu: 10m
-        memory: 32Mi
+        cpu: 20m
+        memory: 64Mi
     repoHost:
       requests:
-        cpu: 10m
+        cpu: 20m
         memory: 64Mi
     sidecars:
       requests:
-        cpu: 10m
-        memory: 32Mi
+        cpu: 20m
+        memory: 64Mi
     jobs:
       requests:
-        cpu: 50m
+        cpu: 20m
         memory: 64Mi
 
   patroni:
@@ -247,8 +247,8 @@ crunchy:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       replicas: 1
       requests:
-        cpu: 5m
-        memory: 16Mi
+        cpu: 20m
+        memory: 32Mi
 
   # Postgres Cluster resource values:
   pgmonitor:
@@ -256,8 +256,8 @@ crunchy:
     exporter:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       requests:
-        cpu: 25m
-        memory: 50Mi
+        cpu: 35m
+        memory: 32Mi
 doc-gen-service:
   enabled: true
   deploymentStrategy: Recreate
@@ -277,8 +277,8 @@ doc-gen-service:
     targetPort: 3000
   resources:
     requests:
-      cpu: 300m
-      memory: 500Mi
+      cpu: 600m
+      memory: 350Mi
 
   podSecurityContext: {}
   securityContext: {}

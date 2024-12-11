@@ -79,11 +79,11 @@ backend:
   resources:
     requests:
       cpu: 150m
-      memory: 500Mi
+      memory: 300Mi
   initResources:
     requests:
       cpu: 150m
-      memory: 300Mi
+      memory: 250Mi
 
   autoscaling:
     enabled: true
@@ -128,8 +128,8 @@ frontend:
     targetPort: 3000
   resources:
     requests:
-      cpu: 30m
-      memory: 120Mi
+      cpu: 50m
+      memory: 150Mi
   env:
     logLevel: info
   autoscaling:
@@ -177,11 +177,11 @@ crunchy:
       storage: 4000Mi
       storageClassName: netapp-block-standard
     requests:
-      cpu: 100m
+      cpu: 200m
       memory: 256Mi
     replicaCertCopy:
       requests:
-        cpu: 15m
+        cpu: 20m
         memory: 32Mi
 
   pgBackRest:
@@ -212,19 +212,19 @@ crunchy:
 
     config:
       requests:
-        cpu: 5m
-        memory: 32Mi
+        cpu: 20m
+        memory: 64Mi
     repoHost:
       requests:
-        cpu: 15m
+        cpu: 20m
         memory: 64Mi
     sidecars:
       requests:
-        cpu: 5m
-        memory: 32Mi
+        cpu: 20m
+        memory: 64Mi
     jobs:
       requests:
-        cpu: 50m
+        cpu: 20m
         memory: 64Mi
   patroni:
     postgresql:
@@ -242,8 +242,8 @@ crunchy:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       replicas: 1
       requests:
-        cpu: 5m
-        memory: 16Mi
+        cpu: 20m
+        memory: 32Mi
 
   # Postgres Cluster resource values:
   pgmonitor:
@@ -251,8 +251,8 @@ crunchy:
     exporter:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       requests:
-        cpu: 25m
-        memory: 50Mi
+        cpu: 35m
+        memory: 32Mi
 doc-gen-service:
   enabled: true
   deploymentStrategy: Recreate
@@ -272,8 +272,8 @@ doc-gen-service:
     targetPort: 3000
   resources:
     requests:
-      cpu: 300m
-      memory: 500Mi
+      cpu: 600m
+      memory: 350Mi
 
   podSecurityContext: {}
   securityContext: {}

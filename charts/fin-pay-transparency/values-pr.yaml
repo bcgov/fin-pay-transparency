@@ -69,7 +69,7 @@ admin-frontend:
   resources:
     requests:
       cpu: 15m
-      memory: 100Mi
+      memory: 50Mi
   env:
     logLevel: info
   pdb: false
@@ -95,7 +95,7 @@ database:
   affinity: {}
   resources:
     requests:
-      cpu: 50m
+      cpu: 30m
       memory: 100Mi
   persistence:
     enabled: true
@@ -126,7 +126,7 @@ doc-gen-service:
   resources:
     requests:
       cpu: 50m
-      memory: 250Mi
+      memory: 150Mi
 
   podSecurityContext: {}
   securityContext: {}
