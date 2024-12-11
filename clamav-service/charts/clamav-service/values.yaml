@@ -86,14 +86,11 @@ node:
       type: ClusterIP
       port: 80
       targetPort: 3000
-  deploymentStrategy: RollingUpdate
+  deploymentStrategy: Recreate
   resources:
-    limits:
-      cpu: 50m
-      memory: 250Mi
     requests:
-      cpu: 10m
-      memory: 50Mi
+      cpu: 40m
+      memory: 250Mi
   app:
     env:
       logLevel: "info"

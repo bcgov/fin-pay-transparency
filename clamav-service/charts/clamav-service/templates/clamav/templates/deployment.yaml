@@ -7,6 +7,9 @@ metadata:
     {{- include "clamav.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.clamav.replicaCount }}
+  strategy:
+    type: Recreate
+
   selector:
     matchLabels:
       {{- include "clamav.selectorLabels" . | nindent 6 }}
@@ -43,11 +46,8 @@ spec:
             timeoutSeconds: 3
           resources:
             requests:
-              cpu: 100m
-              memory: 512Mi
-            limits:
-              cpu: 500m
-              memory: 1500Mi
+              cpu: 150m
+              memory: 600Mi
           volumeMounts:
             - mountPath: /opt/app-root/src
               name: signatures
