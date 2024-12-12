@@ -1,15 +1,15 @@
-import fs from 'fs';
-import { logger } from '../../../logger';
 import {
   PutObjectCommand,
   PutObjectCommandInput,
   S3Client,
 } from '@aws-sdk/client-s3';
-import os from 'os';
 import retry from 'async-retry';
-import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';
+import fs from 'fs';
+import os from 'os';
 import PATH from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';
+import { logger } from '../../../logger';
 
 interface Options {
   folder: string;
@@ -41,7 +41,7 @@ export const useUpload = (options: Options) => {
         res.end();
         return;
       }
-      const stream = fs.createReadStream(path);
+      const stream = fs.createReadStream(filePath);
       const uploadParams: PutObjectCommandInput = {
         Bucket: S3_BUCKET,
         Key: `${options.folder}/${data.attachmentId}/${uuidv4()}.${ext}`,
