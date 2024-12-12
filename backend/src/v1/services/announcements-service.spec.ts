@@ -694,6 +694,7 @@ describe('AnnouncementsService', () => {
           linkDisplayName: faker.lorem.words(3),
           linkUrl: faker.internet.url(),
         };
+        const now = new Date();
         await announcementService.updateAnnouncement(
           'announcement-id',
           announcementInput,
@@ -738,6 +739,16 @@ describe('AnnouncementsService', () => {
             }),
           }),
         );
+
+        //Ensure the update date saved to the database is approximately now
+        //(within 5 seconds of now)
+        const updateObj = mockUpdate.mock.calls[0][0];
+        const updatedDate = updateObj.data.updated_date;
+        const expectedUpdateDate = now;
+        const updateDateDiffMs =
+          updatedDate.getTime() - expectedUpdateDate.getTime();
+        expect(updateDateDiffMs).toBeGreaterThanOrEqual(0);
+        expect(updateDateDiffMs).toBeLessThan(5000);
       });
     });
     describe('with existing attachment resource', () => {
