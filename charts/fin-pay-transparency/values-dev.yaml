@@ -77,23 +77,17 @@ backend:
     port: 80
     targetPort: 3000
   resources:
-    limits:
+    requests:
       cpu: 150m
       memory: 500Mi
-    requests:
-      cpu: 50m
-      memory: 250Mi
   initResources:
-    limits:
+    requests:
       cpu: 350m
       memory: 250Mi
-    requests:
-      cpu: 150m
-      memory: 100Mi
 
   autoscaling:
     enabled: true
-    minReplicas: 3
+    minReplicas: 2
     maxReplicas: 5
     targetCPUUtilizationPercentage: 60 # this percentage from request cpu
   storage:
@@ -133,17 +127,14 @@ frontend:
     port: 80
     targetPort: 3000
   resources:
-    limits:
+    requests:
       cpu: 50m
       memory: 150Mi
-    requests:
-      cpu: 15m
-      memory: 50Mi
   env:
     logLevel: info
   autoscaling:
     enabled: true
-    minReplicas: 3
+    minReplicas: 2
     maxReplicas: 5
     targetCPUUtilizationPercentage: 80 # this percentage from request cpu
   podSecurityContext: {}
@@ -157,7 +148,6 @@ frontend:
 admin-frontend:
   env:
     isAdminDashboardAvailable: true
-    isAdminAnalyticsAvailable: true
     isAdminAnalyticsAvailable: true
 database:
   enabled: false
@@ -186,21 +176,15 @@ crunchy:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9187"
-    replicas: 3
+    replicas: 2
     dataVolumeClaimSpec:
       storage: 500Mi
       storageClassName: netapp-block-standard
     requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
       cpu: 200m
       memory: 256Mi
     replicaCertCopy:
       requests:
-        cpu: 5m
-        memory: 16Mi
-      limits:
         cpu: 20m
         memory: 32Mi
 
@@ -232,30 +216,18 @@ crunchy:
         storageClassName: netapp-file-backup
     config:
       requests:
-        cpu: 5m
-        memory: 32Mi
-      limits:
         cpu: 20m
         memory: 64Mi
     repoHost:
       requests:
-        cpu: 5m
-        memory: 32Mi
-      limits:
         cpu: 20m
         memory: 64Mi
     sidecars:
       requests:
-        cpu: 5m
-        memory: 16Mi
-      limits:
         cpu: 20m
         memory: 64Mi
     jobs:
       requests:
-        cpu: 5m
-        memory: 16Mi
-      limits:
         cpu: 20m
         memory: 64Mi
 
@@ -275,9 +247,6 @@ crunchy:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       replicas: 1
       requests:
-        cpu: 5m
-        memory: 16Mi
-      limits:
         cpu: 20m
         memory: 32Mi
 
@@ -287,9 +256,6 @@ crunchy:
     exporter:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       requests:
-        cpu: 5m
-        memory: 16Mi
-      limits:
         cpu: 35m
         memory: 32Mi
 doc-gen-service:
@@ -310,12 +276,9 @@ doc-gen-service:
     port: 80
     targetPort: 3000
   resources:
-    limits:
+    requests:
       cpu: 600m
       memory: 350Mi
-    requests:
-      cpu: 100m
-      memory: 50Mi
 
   podSecurityContext: {}
   securityContext: {}
@@ -341,12 +304,9 @@ backend-external:
     port: 80
     targetPort: 3000
   resources:
-    limits:
+    requests:
       cpu: 20m
       memory: 150Mi
-    requests:
-      cpu: 10m
-      memory: 50Mi
   app:
     env:
       logLevel: info
