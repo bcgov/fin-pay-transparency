@@ -78,11 +78,11 @@ backend:
     targetPort: 3000
   resources:
     requests:
-      cpu: 150m
+      cpu: 120m
       memory: 300Mi
   initResources:
     requests:
-      cpu: 150m
+      cpu: 120m
       memory: 250Mi
 
   autoscaling:
@@ -272,7 +272,7 @@ doc-gen-service:
     targetPort: 3000
   resources:
     requests:
-      cpu: 450m
+      cpu: 400m
       memory: 350Mi
 
   podSecurityContext: {}
