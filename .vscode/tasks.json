@@ -6,7 +6,7 @@
       // migration to get the database uptodate with the latest changes.
       "label": "Launch and migrate database",
       "type": "shell",
-      "command": "podman-compose up -d database-migrations",
+      "command": "podman compose up -d database-migrations",
       "problemMatcher": []
     },
     {
@@ -39,7 +39,20 @@
       "args": [
         "-NoProfile",
         "-Command",
-        "$jobs = @(); Get-ChildItem -Directory | ForEach-Object { $dir = $_.FullName; $packageJsonPath = Join-Path -Path $dir -ChildPath \"package.json\"; if (Test-Path $packageJsonPath) { $jobs += Start-Job -ScriptBlock { param ($dir); Write-Host -ForegroundColor Yellow \"Running 'npm install' in $dir\"; Push-Location $dir; npm install; Pop-Location; } -ArgumentList $dir }}; $jobs | ForEach-Object { $job = $_; $job | Wait-Job; $job | Receive-Job; $job | Remove-Job; }; Write-Host -ForegroundColor Green \"All npm install jobs have completed.\""
+        "$jobs = @();",
+        "Get-ChildItem -Directory | ForEach-Object {",
+            "$dir = $_.FullName;",
+            "$packageJsonPath = Join-Path -Path $dir -ChildPath \"package.json\";",
+            "if (Test-Path $packageJsonPath) {",
+                "$jobs += Start-Job -ScriptBlock {",
+                    "param ($dir);",
+                    "Write-Host -ForegroundColor Yellow \"Running 'npm install' in $dir\";",
+                    "Push-Location $dir;",
+                    "npm install;",
+                    "Pop-Location; }",
+                "-ArgumentList $dir }};",
+        "$jobs | ForEach-Object { $job = $_; $job | Wait-Job; $job | Receive-Job; $job | Remove-Job; };",
+        "Write-Host -ForegroundColor Green \"All npm install jobs have completed.\""
       ],
       "problemMatcher": []
     }
