@@ -17,16 +17,20 @@
     "winston": "^3.14.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/clamscan": "^2.0.8",
     "@types/express": "^5.0.0",
     "@types/express-form-data": "^2.0.5",
     "@types/morgan": "^1.9.9",
     "@types/nconf": "^0.10.7",
     "@types/node": "^22.0.0",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
     "nodemon": "^3.0.2",
     "ts-loader": "^9.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "5.7.2"
+    "typescript": "5.7.2",
+    "typescript-eslint": "^8.18.2"
   },
   "scripts": {
     "build": "tsc",
@@ -90,50 +94,6 @@
     ],
     "testResultsProcessor": "jest-sonar-reporter"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "es2022": true,
-      "jest": true,
-      "node": true
-    },
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "prettier"
-    ],
-    "overrides": [
-      {
-        "files": [
-          "*.spec.ts"
-        ],
-        "plugins": [
-          "jest"
-        ],
-        "extends": [
-          "plugin:jest/recommended",
-          "plugin:jest/style"
-        ]
-      }
-    ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "ecmaVersion": 2022,
-      "sourceType": "module"
-    },
-    "rules": {
-      "jest/expect-expect": [
-        "error",
-        {
-          "assertFunctionNames": [
-            "expect",
-            "request.**.expect"
-          ]
-        }
-      ]
-    }
-  },
-  "eslintIgnore": [],
   "prettier": {
     "singleQuote": true
   }
