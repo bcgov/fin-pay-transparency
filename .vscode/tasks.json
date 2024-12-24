@@ -4,16 +4,23 @@
     {
       // This starts the database container and performs the Flyway
       // migration to get the database uptodate with the latest changes.
-      "label": "Launch and migrate database",
+      "label": "Launch and migrate database in container",
       "type": "shell",
       "command": "podman compose up -d database-migrations",
       "problemMatcher": []
     },
     {
-      // This creates a new temporary container in podman to run clamav.
-      "label": "Launch ClamAV",
+      // This starts a container in podman to run clamav.
+      "label": "Launch ClamAV in container",
       "type": "shell",
-      "command": "podman run --rm -d -p 3310:3310 --name 'clamav' clamav/clamav",
+      "command": "podman start fin-pay-transparency-clamav 2>$null; if ($LASTEXITCODE -ne 0) { podman run -d -p 3310:3310 --name 'fin-pay-transparency-clamav' clamav/clamav }",
+      "problemMatcher": []
+    },
+    {
+      // Stop clamav (becuase it's a memory hog)
+      "label": "Stop ClamAV container",
+      "type": "shell",
+      "command": "podman stop fin-pay-transparency-clamav",
       "problemMatcher": []
     },
     {
