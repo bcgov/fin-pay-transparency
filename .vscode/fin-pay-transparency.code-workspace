@@ -1,18 +1,16 @@
 {
   "folders": [
     {
+      "name": "infrastructure",
       "path": ".."
     },
     {
-      "name": "admin-frontend",
       "path": "../admin-frontend"
     },
     {
-      "name": "frontend",
       "path": "../frontend"
     },
     {
-      "name": "backend",
       "path": "../backend"
     },
     {
@@ -20,6 +18,9 @@
     },
     {
       "path": "../backend-external"
+    },
+    {
+      "path": "../clamav-service"
     }
   ],
   "settings": {
@@ -37,7 +38,7 @@
       "admin-frontend": true,
       "doc-gen-service": true,
       "backend-external": true,
-      "coverage": true
+      "clamav-service": true,
     }
   }
 }
