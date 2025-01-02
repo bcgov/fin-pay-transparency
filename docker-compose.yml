@@ -1,6 +1,3 @@
----
-version: "3.9"
-
 services:
   database:
     image: postgres:15
@@ -15,9 +12,7 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
-    user: postgres
-    volumes:
-      - "./data:/var/lib/postgresql"
+    user: postgres        
     networks:
       - default
   database-migrations:
@@ -40,6 +35,14 @@ services:
         condition: service_healthy
     networks:
       - default
+  clamav:
+    image: clamav/clamav
+    container_name: clamav
+    restart: unless-stopped
+    ports:
+      - "3310:3310"
+    networks:
+      - default
   backend:
     image: backend:latest
     build:
@@ -58,7 +61,6 @@ services:
     ports:
       - "3000:3000"
     user: root
-
     depends_on:
       database:
         condition: service_healthy

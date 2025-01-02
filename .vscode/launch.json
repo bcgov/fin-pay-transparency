@@ -12,7 +12,7 @@
       "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/backend",
-      "preLaunchTask": "Launch and migrate database",
+      "preLaunchTask": "Launch and migrate database in container",
       "outputCapture": "std",
       "presentation": {
         "hidden": true,
@@ -51,8 +51,6 @@
       }
     },
     {
-      // Start clamav server which depends on clamav also running in podman.
-      // clamav requires quite a bit of memory and therefore isn't included with the rest by detault.
       "name": "ClamAV Server",
       "request": "launch",
       "runtimeArgs": ["run-script", "dev"],
@@ -60,9 +58,11 @@
       "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/clamav-service",
-      "preLaunchTask": "Launch ClamAV",
+      "preLaunchTask": "Launch ClamAV in container",
+      "postDebugTask": "Stop ClamAV container",
       "outputCapture": "std",
       "presentation": {
+        "hidden": true,
         "group": "Individual Servers",
         "order": 1
       }
@@ -118,8 +118,7 @@
         "group": "Browser",
         "order": 1
       },
-      // This is a hack to get rid of some warnings
-      "resolveSourceMapLocations": [
+      "resolveSourceMapLocations": [ // This is a hack to get rid of some warnings
         "${workspaceFolder}/**",
         "!**/node_modules/**"
       ]
@@ -151,8 +150,7 @@
         "group": "Browser",
         "order": 1
       },
-      // This is a hack to get rid of some warnings
-      "resolveSourceMapLocations": [
+      "resolveSourceMapLocations": [ // This is a hack to get rid of some warnings
         "${workspaceFolder}/**",
         "!**/node_modules/**"
       ]
@@ -176,6 +174,7 @@
         "Frontend Server",
         "Admin-Frontend Server",
         "DocGenService Server",
+        "ClamAV Server",
         "Open All URLs (No Debugging)"
       ],
       "stopAll": true,
@@ -196,7 +195,8 @@
         "Backend-External Server",
         "Frontend Server",
         "Admin-Frontend Server",
-        "DocGenService Server"
+        "DocGenService Server",
+        "ClamAV Server"
       ],
       "stopAll": true,
       "presentation": {

@@ -4,16 +4,23 @@
     {
       // This starts the database container and performs the Flyway
       // migration to get the database uptodate with the latest changes.
-      "label": "Launch and migrate database",
+      "label": "Launch and migrate database in container",
       "type": "shell",
-      "command": "podman-compose up -d database-migrations",
+      "command": "podman compose up -d database-migrations",
       "problemMatcher": []
     },
     {
-      // This creates a new temporary container in podman to run clamav.
-      "label": "Launch ClamAV",
+      // This starts a container in podman to run clamav.
+      "label": "Launch ClamAV in container",
       "type": "shell",
-      "command": "podman run --rm -d -p 3310:3310 --name 'clamav' clamav/clamav",
+      "command": "podman compose up -d clamav",
+      "problemMatcher": []
+    },
+    {
+      // Stop clamav (becuase it's a memory hog)
+      "label": "Stop ClamAV container",
+      "type": "shell",
+      "command": "podman compose stop clamav",
       "problemMatcher": []
     },
     {
@@ -39,7 +46,20 @@
       "args": [
         "-NoProfile",
         "-Command",
-        "$jobs = @(); Get-ChildItem -Directory | ForEach-Object { $dir = $_.FullName; $packageJsonPath = Join-Path -Path $dir -ChildPath \"package.json\"; if (Test-Path $packageJsonPath) { $jobs += Start-Job -ScriptBlock { param ($dir); Write-Host -ForegroundColor Yellow \"Running 'npm install' in $dir\"; Push-Location $dir; npm install; Pop-Location; } -ArgumentList $dir }}; $jobs | ForEach-Object { $job = $_; $job | Wait-Job; $job | Receive-Job; $job | Remove-Job; }; Write-Host -ForegroundColor Green \"All npm install jobs have completed.\""
+        "$jobs = @();",
+        "Get-ChildItem -Directory | ForEach-Object {",
+            "$dir = $_.FullName;",
+            "$packageJsonPath = Join-Path -Path $dir -ChildPath \"package.json\";",
+            "if (Test-Path $packageJsonPath) {",
+                "$jobs += Start-Job -ScriptBlock {",
+                    "param ($dir);",
+                    "Write-Host -ForegroundColor Yellow \"Running 'npm install' in $dir\";",
+                    "Push-Location $dir;",
+                    "npm install;",
+                    "Pop-Location; }",
+                "-ArgumentList $dir }};",
+        "$jobs | ForEach-Object { $job = $_; $job | Wait-Job; $job | Receive-Job; $job | Remove-Job; };",
+        "Write-Host -ForegroundColor Green \"All npm install jobs have completed.\""
       ],
       "problemMatcher": []
     }
