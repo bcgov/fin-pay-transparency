@@ -52,7 +52,7 @@ const mockReport = {
 const mockConfig = {
   maxUploadFileSize: 8388608, //bytes
   reportEditDurationInDays: 30,
-  reportingYearOptions: [2023, 2024],
+  reportingYearOptions: [LocalDate.now().year() - 1, LocalDate.now().year()],
 };
 
 describe('InputForm', () => {
