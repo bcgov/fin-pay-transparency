@@ -25,20 +25,25 @@
   ],
   "settings": {
     "jest.disabledWorkspaceFolders": [
-      "fin-pay-transparency",
+      // jest doesn't know which multi-root projects contain jest tests or not,
+      // so we have to specify which ones don't.
+      "infrastructure",
       "frontend",
-      "admin-frontend"
+      "admin-frontend",
+      "clamav-service"
     ],
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "files.exclude": {
+      // exclude these files from the main workspace,
+      // otherwise they will show up twice, which is confusing.
       "backend": true,
       "frontend": true,
       "admin-frontend": true,
       "doc-gen-service": true,
       "backend-external": true,
-      "clamav-service": true,
+      "clamav-service": true
     }
   }
 }
