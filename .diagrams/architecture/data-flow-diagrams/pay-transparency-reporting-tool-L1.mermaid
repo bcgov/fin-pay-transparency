@@ -2,18 +2,27 @@
 title: Pay Transparency Reporting Tool - Logical Data Flow Diagram (L1)
 ---
 flowchart LR
-    Org["Organization<br>User"] -->|"Employee pay data"| SubmissionProcess(("Submit data"))
-    SubmissionProcess --> |"Employee pay data"| ValidateAndCalculateProcess(("Validate<br>employee pay data<br>and calculate<br>statistics"))    
-    ValidateAndCalculateProcess --> |Pay statistics| CalculatedData[/"Calculated data"/]
-    ValidateAndCalculateProcess --> |Pay transparency report 'body'| Report[/"Pay transparency reports"/]    
+    Org["Organization<br>User"] ---> |Credentials|AuthenticateProcess((Authenticate<br>business BCeID<br>user))
+    AuthenticateProcess --> |"Session<br>token"| Org
+    Org  -.- |"Employee pay data"| AuthenticateProcess    
+    AuthenticateProcess -->|"User information"| UserInfo[/"Pay transparency<br>user"/]
+    UserInfo -->|"User Information"|Backup
+    AuthenticateProcess -->|"Company information"| CompanyInfo[/"Pay transparency<br>company"/]
+    CompanyInfo -->|"Company Information"|Backup
+    AuthenticateProcess -->|"Employee pay data"| SubmissionProcess(("Submit data"))
+    SubmissionProcess --> |"Employee pay data"| ValidateAndCalculateProcess(("Validate data<br>and calculate<br>statistics"))    
     ValidateAndCalculateProcess --> |"Validation errors"| SubmissionProcess
-    Org -->|"Report ID"| PublishProcess(("Publish report"))
+    ValidateAndCalculateProcess --> |"Pay statistics"| CalculatedData[/"Calculated data"/]
+    CalculatedData -->|"Calculated data"|Backup
+    ValidateAndCalculateProcess ----> |"Pay transparency report 'body'"| Report[/"Pay transparency reports"/]
+    Report -->|"Pay transparency<br>report data"|Backup   
+        ValidateAndCalculateProcess -->|"Report ID"| PublishProcess(("Publish report"))
     PublishProcess --> |Report status| Report
-    Org --> |Report ID| DocGenProcess(("Generate<br>document"))
-    DocGenProcess --> |HTML or PDF report| Org                
-    Org --> |Credentials|AuthenticateProcess((Authenticate<br>business BCeID<br>user))
-    AuthenticateProcess --> |Access token|Org    
     PublishProcess -->|Report ID| HistoryProcess((Save report<br>change history))
+    PublishProcess --> |Report ID| DocGenProcess(("Generate<br>document"))
+    DocGenProcess --> |HTML or PDF report| Org
     HistoryProcess --> |Pay statistics| CalculatedDataHistory[/"Calculated data<br>history"/]
-    HistoryProcess --> |Pay transparency report 'body'| ReportHistory[/"Pay transparency<br>report history"/]    
-    Backup(("Backup<br>data")) -->|Pay transparency data| ObjectStore[Object store]    
+    CalculatedDataHistory -->|"Calculated data<br>history"|Backup
+    HistoryProcess --> |"Pay transparency report 'body'"| ReportHistory[/"Pay transparency<br>report history"/]
+    ReportHistory -->|"Pay transparency<br>report history"|Backup  
+    Backup(("Backup<br>data")) -->|Database backup| ObjectStore[OCIO object store] 
