@@ -56,6 +56,10 @@ export default defineConfig({
       },
       dependencies: ['setup'],
       teardown: 'teardown',
+      launchOptions: {
+        ignoreDefaultArgs: ['--headless'],
+        args: ['--headless=new']
+      },
     },
     {
       name: 'Google Chrome',
@@ -67,6 +71,10 @@ export default defineConfig({
       },
       dependencies: ['setup'],
       teardown: 'teardown',
+      launchOptions: {
+        ignoreDefaultArgs: ['--headless'],
+        args: ['--headless=new']
+      },
     },
 
     {
