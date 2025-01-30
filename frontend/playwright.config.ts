@@ -35,6 +35,11 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    headless: true,
+    launchOptions:{
+      ignoreDefaultArgs: ['--headless=old'],
+      args: ['--headless=new'],
+    },    
   },
 
   /* Configure projects for major browsers */
@@ -56,11 +61,7 @@ export default defineConfig({
         storageState: 'user.json',
       },
       dependencies: ['setup'],
-      teardown: 'teardown',
-      launchOptions: {
-        ignoreDefaultArgs: ['--headless'],
-        args: ['--headless=new']
-      },
+      teardown: 'teardown',      
     },
 
     {
