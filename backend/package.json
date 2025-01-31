@@ -36,7 +36,7 @@
     "morgan": "^1.10.0",
     "nconf": "^0.12.1",
     "nocache": "^4.0.0",
-    "node-html-parser": "^6.1.13",
+    "node-html-parser": "^7.0.0",
     "papaparse": "^5.4.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
