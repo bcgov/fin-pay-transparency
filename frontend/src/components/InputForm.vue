@@ -188,6 +188,7 @@
             </v-row>
 
             <v-row>
+              <!-- Reporting Year -->
               <v-col cols="12" sm="4" md="3">
                 <v-row>
                   <v-col>
@@ -237,6 +238,7 @@
                 </v-row>
               </v-col>
               <v-col cols="12" md="9">
+                <!-- Time Period -->
                 <v-row>
                   <v-col class="pb-0">
                     <div class="text-body-1 font-weight-bold">
@@ -993,16 +995,16 @@ export default {
           ? this.reportData.reporting_year
           : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
       this.reportingYearOptions = [this.reportYear];
-      this.startMonth = LocalDate.parse(
-        this.reportData.report_start_date,
-      ).monthValue();
       this.startYear = LocalDate.parse(
         this.reportData.report_start_date,
       ).year();
+      this.startMonth = LocalDate.parse(
+        this.reportData.report_start_date,
+      ).monthValue();
+      this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
       this.endMonth = LocalDate.parse(
         this.reportData.report_end_date,
       ).monthValue();
-      this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
     },
