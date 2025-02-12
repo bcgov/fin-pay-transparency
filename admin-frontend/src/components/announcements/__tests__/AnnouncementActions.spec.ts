@@ -69,6 +69,7 @@ describe('AnnouncementActions', () => {
 
   afterEach(() => {
     if (wrapper) {
+      vi.clearAllMocks();
       wrapper.unmount();
     }
   });
