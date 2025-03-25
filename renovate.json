@@ -28,11 +28,15 @@
   "packageRules": [
     {
       "description": "One week stability period for npm packages",
-      "matchDatasources": ["npm"],
+      "matchDatasources": [
+        "npm"
+      ],
       "minimumReleaseAge": "5 days"
     },
     {
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "github actions all dependencies",
       "groupSlug": "github actions all",
       "minimumReleaseAge": "3 days"
@@ -40,28 +44,40 @@
     {
       "description": "JS - group vite",
       "groupName": "vite",
-      "matchPackagePatterns": ["^vite$", "^@vitejs\\/"],
-      "minimumReleaseAge": "3 days"
+      "minimumReleaseAge": "3 days",
+      "matchPackageNames": [
+        "/^vite$/",
+        "/^@vitejs\\//"
+      ]
     },
     {
       "description": "JS - group linters",
       "groupName": "linters",
-      "matchPackagePatterns": ["eslint", "^@prettier\\/", "^prettier-plugin-"]
+      "matchPackageNames": [
+        "/eslint/",
+        "/^@prettier\\//",
+        "/^prettier-plugin-/"
+      ]
     },
     {
       "description": "JS - puppeteer",
       "groupName": "puppeteer",
-      "matchPackagePatterns": ["puppeteer"]
+      "matchPackageNames": [
+        "/puppeteer/"
+      ]
     },
     {
       "description": "JS - group microsoft",
       "groupName": "microsoft",
-      "matchPackagePatterns": ["msal-node"]
+      "matchPackageNames": [
+        "/msal-node/"
+      ]
     }
   ],
-  "lockFileMaintenance": { "enabled": true },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "autodiscover": true,
   "autodiscoverFilter": "bcgov/fin-pay-transparency",
   "rebaseWhen": "behind-base-branch"
-
 }
