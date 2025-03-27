@@ -30,7 +30,7 @@ function getDomainWinstonLoggerFormat(
           obj,
         )}${stackTrace}`;
       }
-      const splatArgs = info[Symbol.for('splat')] || [];
+      const splatArgs = (info[Symbol.for('splat')] || []) as string[];
       const rest = splatArgs.join(' ');
       /* istanbul ignore if */
       if (typeof info.message === 'object') {
