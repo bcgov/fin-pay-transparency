@@ -29,7 +29,7 @@ function getDomainWinstonLoggerFormat(
         const obj = omit(info, ['level', 'timestamp', Symbol.for('level')]);
         return `${info.timestamp} - ${info.level}: ${obj}${stackTrace}`;
       }
-      const splatArgs = info[Symbol.for('splat')] || [];
+      const splatArgs = (info[Symbol.for('splat')] || []) as string[];
       const rest = splatArgs.join(' ');
       /* istanbul ignore next  */
       if (typeof info.message === 'object') {
