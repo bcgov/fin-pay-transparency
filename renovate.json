@@ -28,15 +28,11 @@
   "packageRules": [
     {
       "description": "One week stability period for npm packages",
-      "matchDatasources": [
-        "npm"
-      ],
+      "matchDatasources": ["npm"],
       "minimumReleaseAge": "5 days"
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
+      "matchManagers": ["github-actions"],
       "groupName": "github actions all dependencies",
       "groupSlug": "github actions all",
       "minimumReleaseAge": "3 days"
@@ -45,33 +41,22 @@
       "description": "JS - group vite",
       "groupName": "vite",
       "minimumReleaseAge": "3 days",
-      "matchPackageNames": [
-        "/^vite$/",
-        "/^@vitejs\\//"
-      ]
+      "matchPackageNames": ["/^vite$/", "/^@vitejs\\//"]
     },
     {
       "description": "JS - group linters",
       "groupName": "linters",
-      "matchPackageNames": [
-        "/eslint/",
-        "/^@prettier\\//",
-        "/^prettier-plugin-/"
-      ]
+      "matchPackageNames": ["/eslint/", "/^@prettier\\//", "/^prettier-plugin-/"]
     },
     {
       "description": "JS - puppeteer",
       "groupName": "puppeteer",
-      "matchPackageNames": [
-        "/puppeteer/"
-      ]
+      "matchPackageNames": ["/puppeteer/"]
     },
     {
       "description": "JS - group microsoft",
       "groupName": "microsoft",
-      "matchPackageNames": [
-        "/msal-node/"
-      ]
+      "matchPackageNames": ["msal-node"]
     }
   ],
   "lockFileMaintenance": {
