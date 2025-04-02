@@ -17,7 +17,7 @@
     "axios-oauth-client": "^2.0.4",
     "axios-token-interceptor": "^0.2.0",
     "body-parser": "^1.20.2",
-    "cron": "^3.1.6",
+    "cron": "^4.0.0",
     "csv-parse": "^5.5.3",
     "dotenv": "^16.3.1",
     "easy-soap-request": "^5.5.0",
