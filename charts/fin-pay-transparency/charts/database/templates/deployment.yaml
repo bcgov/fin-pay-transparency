@@ -37,7 +37,7 @@ spec:
         - name: {{ include "database.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-containers/postgres:15.6"
+          image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-containers/postgres:15.10"
           imagePullPolicy: Always
           ports:
             - name: http
