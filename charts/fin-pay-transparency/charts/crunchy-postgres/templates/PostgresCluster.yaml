@@ -35,6 +35,8 @@ spec:
   {{- end}}
   {{ if .Values.pgmonitor.enabled }}
 
+  # Added to ensure OpenShift security context compatibility
+  openshift: true
   monitoring:
     pgmonitor:
       # this stuff is for the "exporter" container in the "postgres-cluster-ha" set of pods
