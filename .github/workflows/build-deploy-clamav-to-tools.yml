@@ -5,7 +5,7 @@ on:
 jobs:
   builds:
     name: Builds
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
     strategy:
@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: bcgov-nr/action-builder-ghcr@v2.3.0
+      - uses: bcgov-nr/action-builder-ghcr@v4.0.0
         with:
           package: ${{ matrix.package }}
           tag: latest
@@ -34,7 +34,7 @@ jobs:
           triggers: ${{ matrix.triggers }}
   deploy:
     name: Deploy
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: builds
     environment: tools
     timeout-minutes: 10
