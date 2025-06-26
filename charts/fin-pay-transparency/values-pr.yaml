@@ -190,46 +190,6 @@ crunchy:
 
   pgBackRest:
     enabled: false
-    backupPath: /backups/cluster/version
-    clusterCounter: 1 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
-    image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
-    retention: "2" # Ideally a larger number such as 30 backups/days
-    # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
-    # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
-    retentionFullType: count
-    s3:
-      retention: "7"
-      bucket: ~
-      endpoint: ~
-      accessKey: ~
-      secretKey: ~
-      fullBackupSchedule: 0 9 * * *
-      incrementalBackupSchedule: "0 0,4,8,12,16 * * *" # every 4 hours, but 9 is not put intentionally to avoid conflict with full backup
-    pvc:
-      retention: "1"
-      retentionFullType: count
-      fullBackupSchedule: 0 8 * * *
-      incrementalBackupSchedule: 0 0,4,12,16,20 * * *
-      volume:
-        accessModes: "ReadWriteOnce"
-        storage: 256Mi
-        storageClassName: netapp-file-backup
-    config:
-      requests:
-        cpu: 20m
-        memory: 64Mi
-    repoHost:
-      requests:
-        cpu: 20m
-        memory: 64Mi
-    sidecars:
-      requests:
-        cpu: 20m
-        memory: 64Mi
-    jobs:
-      requests:
-        cpu: 20m
-        memory: 64Mi
 
   patroni:
     postgresql:
