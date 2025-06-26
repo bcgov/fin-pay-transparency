@@ -119,7 +119,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
-                  key: host
+                  key: pgbouncer-host
             - name: READ_ONLY_REPLICA_HOST
               value: {{ $crunchyReadOnlyReplicaHost }}
             - name: POSTGRESQL_USER
