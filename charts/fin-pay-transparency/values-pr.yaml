@@ -1,12 +1,13 @@
-# PR specific values for fin-pay-transparency.
-# Only override specific values for pr pipeline.
+# Default values for fin-pay-transparency.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
 global:
   secrets:
+    databasePassword: ~
     databaseName: ~
     databaseUser: ~
-    databasePassword: ~
     adminKeycloakUrl: ~
     adminKeycloakClientId: ~
     adminKeycloakClientSecret: ~
@@ -31,50 +32,123 @@ global:
     chesClientSecret: ~
     chesAPIURL: ~
     chesEmailRecipients: ~
+    annotation:
+      helm.sh/policy: "keep"
   domain: "apps.silver.devops.gov.bc.ca" # it is required, apps.silver.devops.gov.bc.ca for silver cluster
+  serverFrontend: ~
   autoscaling:
-    enabled: false
+    enabled: true
   config:
-    is_user_error_logging_enabled: "true"
+    upload_file_max_size: "8388608"
+    report_edit_duration_in_days: "30"
+    report_unlock_duration_in_days: "2"
+    template_path: "./dist/templates"
+    delete_draft_report_cron_crontime: "0 0 * * *" # 12:00 AM PST/PDT
+    delete_user_errors_cron_crontime: "30 0 1 */6 *" #At 12:30 AM on the 1st day of every 6th month
+    lock_report_cron_crontime: "15 0 * * *" # 12:15 AM PST/PDT
+    expire_announcements_cron_crontime: "0 6,18 * * *" # 6am & 6pm daily
+    delete_announcements_cron_crontime: "0 0 1 * *" # 1st day of every month
+    email_expiring_announcements_cron_crontime: "0 7 * * *" # 7:00 AM PST/PDT
+    enable_email_expiring_announcements: "false"
+    reports_scheduler_cron_timezone: "America/Vancouver"
+    first_year_with_prev_reporting_year_option: "2025"
+    admin_invitation_duration_in_hours: "72"
+    delete_announcements_duration_in_days: "90"
     db_connection_pool_size: "5"
+    num_months_of_user_errors_to_keep: "6"
+    is_user_error_logging_enabled: "true"
   crunchyEnabled: true
-  seedData: true
 backend:
-  deploymentStrategy: Recreate
-  initResources:
+  enabled: true
+  deploymentStrategy: RollingUpdate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/backend
+    repositoryInit: ghcr.io/bcgov/fin-pay-transparency/database-migrations
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
     requests:
       cpu: 150m
+      memory: 500Mi
+  initResources:
+    requests:
+      cpu: 350m
       memory: 250Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 60 # this percentage from request cpu
+  storage:
+    enabled: true
+    size: 120Mi
+    accessMode: ReadWriteMany
+  app:
+    env:
+      siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
+      logLevel: info
+      openshiftEnv: DEV
+  podSecurityContext: {}
+  securityContext: {}
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  pdb: true
+frontend:
+  enabled: true
+  deploymentStrategy: RollingUpdate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/frontend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  route:
+    enabled: true
+    host: ""
+    verificationPath: ""
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
   resources:
     requests:
       cpu: 50m
-      memory: 250Mi
-  storage:
+      memory: 150Mi
+  env:
+    logLevel: info
+  autoscaling:
     enabled: true
-    size: 50Mi
-    accessMode: ReadWriteMany
-  pdb: false
-
-frontend:
-  deploymentStrategy: Recreate
-  resources:
-    requests:
-      cpu: 15m
-      memory: 50Mi
-  env:
-    logLevel: info
-  pdb: false
-
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80 # this percentage from request cpu
+  podSecurityContext: {}
+  securityContext:
+    capabilities:
+      add: ["NET_BIND_SERVICE"]
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  pdb: true
 admin-frontend:
-  deploymentStrategy: Recreate
-  resources:
-    requests:
-      cpu: 15m
-      memory: 50Mi
   env:
-    logLevel: info
-  pdb: false
-
+    isAdminDashboardAvailable: true
+    isAdminAnalyticsAvailable: true
 database:
   enabled: false
 crunchy:
@@ -116,6 +190,46 @@ crunchy:
 
   pgBackRest:
     enabled: false
+    backupPath: /backups/cluster/version
+    clusterCounter: 1 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
+    image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+    retention: "2" # Ideally a larger number such as 30 backups/days
+    # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
+    # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
+    retentionFullType: count
+    s3:
+      retention: "7"
+      bucket: ~
+      endpoint: ~
+      accessKey: ~
+      secretKey: ~
+      fullBackupSchedule: 0 9 * * *
+      incrementalBackupSchedule: "0 0,4,8,12,16 * * *" # every 4 hours, but 9 is not put intentionally to avoid conflict with full backup
+    pvc:
+      retention: "1"
+      retentionFullType: count
+      fullBackupSchedule: 0 8 * * *
+      incrementalBackupSchedule: 0 0,4,12,16,20 * * *
+      volume:
+        accessModes: "ReadWriteOnce"
+        storage: 256Mi
+        storageClassName: netapp-file-backup
+    config:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+    repoHost:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+    sidecars:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+    jobs:
+      requests:
+        cpu: 20m
+        memory: 64Mi
 
   patroni:
     postgresql:
@@ -144,7 +258,6 @@ crunchy:
       requests:
         cpu: 35m
         memory: 32Mi
-
 doc-gen-service:
   enabled: true
   deploymentStrategy: Recreate
@@ -164,8 +277,8 @@ doc-gen-service:
     targetPort: 3000
   resources:
     requests:
-      cpu: 50m
-      memory: 150Mi
+      cpu: 600m
+      memory: 350Mi
 
   podSecurityContext: {}
   securityContext: {}
@@ -173,3 +286,33 @@ doc-gen-service:
   nodeSelector: {}
   tolerations: []
   pdb: false
+backend-external:
+  enabled: true
+  deploymentStrategy: Recreate
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    repository: ghcr.io/bcgov/fin-pay-transparency/backend-external
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ~
+  containerPort: 3000
+  environment: production
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    requests:
+      cpu: 20m
+      memory: 150Mi
+  app:
+    env:
+      logLevel: info
+
+  podSecurityContext: {}
+  securityContext: {}
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
