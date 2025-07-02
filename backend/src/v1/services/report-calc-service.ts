@@ -1603,7 +1603,6 @@ const reportCalcServicePrivate = {
         });
       });
     });
-    console.log(calculatedAmounts);
     return calculatedAmounts;
   },
 
