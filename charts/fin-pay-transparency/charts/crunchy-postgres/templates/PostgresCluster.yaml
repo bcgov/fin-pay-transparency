@@ -183,7 +183,7 @@ spec:
       config:
         global:
           client_tls_sslmode: disable
-          pool_mode: session
+          pool_mode: transaction
       {{ if .Values.proxy.pgBouncer.image }}
       image: {{ .Values.proxy.pgBouncer.image }}
       {{ end }}

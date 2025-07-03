@@ -75,36 +75,10 @@ admin-frontend:
   pdb: false
 
 database:
-  enabled: true
-  deploymentStrategy: Recreate
-  replicaCount: 1
-  nameOverride: ""
-  fullnameOverride: ""
-  podAnnotations: {}
-  podSecurityContext: {}
-  securityContext: {}
-  imagePullSecrets: []
-  autoscaling:
-    enabled: false
-  service:
-    type: ClusterIP
-    port: 5432
-    targetPort: 5432
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  resources:
-    requests:
-      cpu: 30m
-      memory: 100Mi
-  persistence:
-    enabled: true
-    size: 80Mi
-    accessMode: ReadWriteOnce
-    storageClass: netapp-block-standard
+  enabled: false
 
 crunchy:
-  enabled: false
+  enabled: true
 
 doc-gen-service:
   enabled: true
