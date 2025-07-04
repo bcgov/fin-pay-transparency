@@ -97,7 +97,7 @@ backend:
   app:
     env:
       siteminderLogoutEndpoint: https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=
-      logLevel: info
+      logLevel: silly
       openshiftEnv: DEV
   podSecurityContext: {}
   securityContext: {}
