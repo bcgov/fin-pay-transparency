@@ -312,6 +312,13 @@ crunchy:
       requests:
         cpu: 35m
         memory: 32Mi
+  databaseInitSQL:
+    name: crunchy-bootstrap-sql
+    key: bootstrap.sql
+    sql: |
+      \c fin-pay-transparency;
+      create schema if not exists pay_transparency;
+      ALTER DATABASE fin-pay-transparency SET search_path TO pay_transparency;
 doc-gen-service:
   enabled: true
   deploymentStrategy: Recreate

@@ -37,7 +37,11 @@ spec:
 
   # Added to ensure openshift security context compatibility
   openshift: true
-
+  {{- if .Values.databaseInitSQL }}
+  databaseInitSQL:
+    name: {{ required "A ConfigMap name is required for running bootstrap SQL." .Values.databaseInitSQL.name | quote }}
+    key: {{ required "A key in a ConfigMap containing any bootstrap SQL is required." .Values.databaseInitSQL.key | quote }}
+  {{- end }}
   monitoring:
     pgmonitor:
       # this stuff is for the "exporter" container in the "postgres-cluster-ha" set of pods
