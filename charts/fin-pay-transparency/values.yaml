@@ -319,6 +319,7 @@ crunchy:
       \c fin-pay-transparency;
       ALTER DATABASE fin-pay-transparency OWNER TO fin-pay-transparency;
       create schema if not exists pay_transparency;
+      ALTER SCHEMA pay_transparency OWNER TO fin-pay-transparency;
       ALTER DATABASE fin-pay-transparency SET search_path TO pay_transparency;
 doc-gen-service:
   enabled: true
