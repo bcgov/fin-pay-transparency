@@ -319,31 +319,16 @@ crunchy:
       BEGIN;
       \c fin-pay-transparency;
       ALTER DATABASE fin-pay-transparency OWNER TO "fin-pay-transparency";
-      
-      -- Ensure schema exists and set ownership
       CREATE SCHEMA IF NOT EXISTS pay_transparency;
       ALTER SCHEMA pay_transparency OWNER TO "fin-pay-transparency";
-      
-      -- Grant schema usage and create permissions
       GRANT USAGE ON SCHEMA pay_transparency TO "fin-pay-transparency";
       GRANT CREATE ON SCHEMA pay_transparency TO "fin-pay-transparency";
-      
-      -- Grant permissions on all existing objects in the schema
       GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA pay_transparency TO "fin-pay-transparency";
       GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA pay_transparency TO "fin-pay-transparency";
       GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA pay_transparency TO "fin-pay-transparency";
-      
-      -- Set default privileges for future objects
-      ALTER DEFAULT PRIVILEGES IN SCHEMA pay_transparency 
-      GRANT ALL ON TABLES TO "fin-pay-transparency";
-      
-      ALTER DEFAULT PRIVILEGES IN SCHEMA pay_transparency 
-      GRANT ALL ON SEQUENCES TO "fin-pay-transparency";
-      
-      ALTER DEFAULT PRIVILEGES IN SCHEMA pay_transparency 
-      GRANT ALL ON FUNCTIONS TO "fin-pay-transparency";
-      
-      -- Set search path for the database
+      ALTER DEFAULT PRIVILEGES IN SCHEMA pay_transparency GRANT ALL ON TABLES TO "fin-pay-transparency";
+      ALTER DEFAULT PRIVILEGES IN SCHEMA pay_transparency GRANT ALL ON SEQUENCES TO "fin-pay-transparency";
+      ALTER DEFAULT PRIVILEGES IN SCHEMA pay_transparency GRANT ALL ON FUNCTIONS TO "fin-pay-transparency";
       ALTER DATABASE "fin-pay-transparency" SET search_path TO pay_transparency;
       COMMIT;
 doc-gen-service:
