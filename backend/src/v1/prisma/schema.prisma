@@ -7,7 +7,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schema   = "pay_transparency"
+
 }
 
 model company_history {
