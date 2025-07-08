@@ -15,7 +15,7 @@ const DB_SCHEMA = process.env.DB_SCHEMA || 'pay_transparency';
 const DB_CONNECTION_POOL_SIZE = process.env.DB_CONNECTION_POOL_SIZE || 5;
 
 const datasourceUrl = process.env.DATABASE_URL
-  ? `${process.env.DATABASE_URL}`
+  ? `${process.env.DATABASE_URL}?schema=${DB_SCHEMA}&pgbouncer=true`
   : `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
 
 logger.silly(`Connecting to ${datasourceUrl}`);

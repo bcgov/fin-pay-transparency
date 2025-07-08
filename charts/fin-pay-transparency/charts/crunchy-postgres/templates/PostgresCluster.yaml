@@ -188,6 +188,10 @@ spec:
         global:
           client_tls_sslmode: disable
           pool_mode: transaction
+          default_pool_size: 50
+          min_pool_size: 10
+          server_lifetime: 600 # 10 minutes
+          server_idle_timeout: 60 # 1 minute
       {{ if .Values.proxy.pgBouncer.image }}
       image: {{ .Values.proxy.pgBouncer.image }}
       {{ end }}
