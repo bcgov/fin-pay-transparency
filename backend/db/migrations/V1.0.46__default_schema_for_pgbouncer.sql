@@ -1,1 +1,1 @@
-ALTER USER "fin-pay-transparency" SET SCHEMA TO 'pay_transparency';
+ALTER DATABASE "fin-pay-transparency" SET search_path TO 'pay_transparency';
