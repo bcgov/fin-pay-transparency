@@ -170,7 +170,7 @@ jobs:
           --set-string global.secrets.clamavApiKey="${{ secrets.CLAMAV_API_KEY }}" \
           --set-string global.secrets.snowplowUrl="${{ secrets.SNOWPLOW_URL }}" \
           ${{ inputs.params }} \
-          --timeout "$DEPLOY_TIMEOUT"m  ./${{ github.event.repository.name }}-${{ steps.vars.outputs.semver }}.tgz
+          --timeout "$DEPLOY_TIMEOUT"m ./${{ github.event.repository.name }}-${{ steps.vars.outputs.semver }}.tgz
 
       - name: Print HELM Chart History
         shell: bash
