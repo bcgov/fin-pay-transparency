@@ -18,6 +18,16 @@
   ></v-btn>
 
   <v-btn
+    v-if="canWithdrawReport"
+    aria-label="Withdraw report"
+    density="compact"
+    variant="plain"
+    icon="mdi-delete"
+    color="error"
+    @click="withdrawReport(props.report.report_id)"
+  ></v-btn>
+
+  <v-btn
     aria-label="Admin action history"
     density="compact"
     variant="plain"
@@ -57,7 +67,7 @@ export default {
 <script setup lang="ts">
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import ReportAdminActionHistoryView from './ReportAdminActionHistoryPanel.vue';
 import { Report, ReportAdminActionHistory } from '../../types/reports';
@@ -65,6 +75,7 @@ import {
   ReportChangeService,
   ReportChangedEventPayload,
 } from '../../services/reportChangeService';
+import { authStore } from '../../store/modules/auth';
 
 const props = defineProps<{
   report: Report;
@@ -77,6 +88,15 @@ const reportAdminActionHistory = ref<ReportAdminActionHistory | undefined>(
   undefined,
 );
 const confirmDialog = ref<typeof ConfirmationDialog>();
+
+const auth = authStore();
+
+const canWithdrawReport = computed(() => {
+  return (
+    props.report?.report_status === 'Published' &&
+    auth.doesUserHaveRole('PTRT-ADMIN')
+  );
+});
 
 onMounted(() => {
   ReportChangeService.listen(onAnyReportChanged);
@@ -157,6 +177,36 @@ async function fetchAdminActionHistory(reportId: string) {
 function reset() {
   reportAdminActionHistory.value = undefined;
   hadErrorLoadingAdminActionHistory.value = false;
+}
+
+async function withdrawReport(reportId: string) {
+  const isConfirmed = await confirmDialog.value?.open(
+    'Withdraw report',
+    'Are you sure you want to withdraw this report? This action is permanent and cannot be undone. The report will no longer be visible to employers or in admin dashboards.',
+    {
+      titleBold: true,
+      resolveText: 'Yes, withdraw',
+      rejectText: 'Cancel',
+    },
+  );
+
+  if (isConfirmed) {
+    try {
+      await ApiService.withdrawReport(reportId);
+
+      NotificationService.pushNotificationSuccess(
+        'Report has been withdrawn successfully.',
+      );
+
+      // Notify that the report has changed
+      ReportChangeService.reportChanged(reportId);
+    } catch (error) {
+      console.error('Error withdrawing report:', error);
+      NotificationService.pushNotificationError(
+        'Failed to withdraw report. Please try again.',
+      );
+    }
+  }
 }
 </script>
 

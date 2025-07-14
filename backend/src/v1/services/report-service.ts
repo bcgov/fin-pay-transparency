@@ -24,6 +24,7 @@ const GENERIC_CHART_SUPPRESSED_MSG =
 enum enumReportStatus {
   Draft = 'Draft',
   Published = 'Published',
+  Withdrawn = 'Withdrawn',
 }
 
 interface ReportAndCalculations {
@@ -1215,11 +1216,19 @@ const reportService = {
           where: {
             company_id: report_to_publish.company_id,
             reporting_year: report_to_publish.reporting_year,
-            report_status: enumReportStatus.Published,
+            report_status: {
+              in: [enumReportStatus.Published, enumReportStatus.Withdrawn],
+            },
           },
         });
 
-      if (existing_published_report && !existing_published_report.is_unlocked) {
+      // Only block publishing if the existing report is Published and locked
+      if (
+        existing_published_report &&
+        existing_published_report.report_status ===
+          enumReportStatus.Published &&
+        !existing_published_report.is_unlocked
+      ) {
         throw new Error(
           'A report for this time period already exists and cannot be updated.',
         );
@@ -1271,6 +1280,7 @@ const reportService = {
                   full_report_to_publish.employee_count_range_id,
               },
             },
+            report_status: enumReportStatus.Published,
             report_start_date: full_report_to_publish.report_start_date,
             report_end_date: full_report_to_publish.report_end_date,
             user_comment: full_report_to_publish.user_comment,
@@ -1459,7 +1469,7 @@ const reportService = {
    * @param report - The entire report which should be copied
    */
   async copyPublishedReportToHistory(tx, report: pay_transparency_report) {
-    if (report.report_status != enumReportStatus.Published) {
+    if (report.report_status == enumReportStatus.Draft) {
       throw new Error(
         `Only a ${enumReportStatus.Published} report can be moved to history.`,
       );
