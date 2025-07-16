@@ -4,7 +4,7 @@ import { docGenServicePrivate } from '../v1/services/doc-gen-service';
 let browser = null;
 beforeAll(async () => {
   browser = await puppeteer.launch({
-    args: ['--enable-logging', '--v=1', '--allow-file-access-from-files'],
+    args: ['--enable-logging', '--v=1', '--allow-file-access-from-files', '--no-sandbox', '--disable-setuid-sandbox'],
     headless: 'new',
     dumpio: true,
   });
