@@ -22,7 +22,7 @@
     "dotenv": "^17.2.0",
     "easy-soap-request": "^5.5.0",
     "express": "^5.0.0",
-    "express-form-data": "^2.0.23",
+    "express-form-data": "^3.0.0",
     "express-prom-bundle": "^8.0.0",
     "express-rate-limit": "^7.1.5",
     "express-session": "^1.17.3",
