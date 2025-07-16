@@ -356,10 +356,6 @@ const adminReportService = {
         },
       );
 
-      if (!existingReport) {
-        throw new UserInputError(`Report with ID ${reportId} not found`);
-      }
-
       if (existingReport.report_status !== enumReportStatus.Published) {
         throw new UserInputError('Only published reports can be withdrawn');
       }
