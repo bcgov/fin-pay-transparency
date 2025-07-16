@@ -115,11 +115,11 @@ spec:
           env:
             {{- if .Values.global.crunchyEnabled }}
             #-- "crunchy" as a name is always added to the paths for secrets and pods , because the alias used in chart.yaml is crunchy, refer line #40 in Chart.yaml
-            - name: POSTGRESQL_HOST
+            - name: DATABASE_URL 
               valueFrom:
                 secretKeyRef:
                   name: {{.Release.Name}}-crunchy-pguser-{{ .Values.global.secrets.databaseName }}
-                  key: host
+                  key: pgbouncer-uri
             - name: READ_ONLY_REPLICA_HOST
               value: {{ $crunchyReadOnlyReplicaHost }}
             - name: POSTGRESQL_USER

@@ -158,7 +158,7 @@ database:
   enabled: false
 crunchy:
   enabled: true
-  postgresVersion: 15
+  postgresVersion: 17
   imagePullPolicy: IfNotPresent
   # enable below to start a new crunchy cluster after disaster from a backed-up location, crunchy will choose the best place to recover from.
   # follow https://access.crunchydata.com/documentation/postgres-operator/5.2.0/tutorial/disaster-recovery/
@@ -249,7 +249,7 @@ crunchy:
     enabled: true
     pgBouncer:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
-      replicas: 1
+      replicas: 2
       requests:
         cpu: 20m
         memory: 32Mi
