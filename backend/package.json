@@ -42,7 +42,7 @@
     "passport-jwt": "^4.0.1",
     "passport-openidconnect-keycloak-idp": "^0.1.6",
     "pg": "^8.11.3",
-    "prisma-mock": "^0.10.0",
+    "prisma-mock": "^0.11.0",
     "prom-client": "^15.1.0",
     "reflect-metadata": "^0.2.1",
     "session-file-store": "^1.5.0",
