@@ -922,6 +922,52 @@ describe('publishReport', () => {
       );
     });
   });
+  describe('If existing report is Withdrawn', () => {
+    it('should publish normally', async () => {
+      mockReportFindFirst.mockResolvedValue({
+        ...mockPublishedReportInDb,
+        report_status: enumReportStatus.Withdrawn,
+        is_unlocked: true,
+      });
+      mockReportFindUnique.mockReturnValue({
+        ...mockDraftReportInDb,
+        is_unlocked: false,
+        pay_transparency_calculated_data: [],
+      });
+
+      jest
+        .spyOn(reportService, 'copyPublishedReportToHistory')
+        .mockReturnValueOnce(null);
+
+      await reportService.publishReport(mockDraftReportInApi);
+
+      // Expect the report to be updated to Published
+      expect(prisma.pay_transparency_report.update).toHaveBeenCalledTimes(1);
+      // Should not throw error for locked withdrawn
+    });
+
+    it('should publish normally even if the withdrawn report is locked', async () => {
+      mockReportFindFirst.mockResolvedValue({
+        ...mockPublishedReportInDb,
+        report_status: enumReportStatus.Withdrawn,
+        is_unlocked: false, // locked withdrawn
+      });
+      mockReportFindUnique.mockReturnValue({
+        ...mockDraftReportInDb,
+        is_unlocked: false,
+        pay_transparency_calculated_data: [],
+      });
+
+      jest
+        .spyOn(reportService, 'copyPublishedReportToHistory')
+        .mockReturnValueOnce(null);
+
+      await expect(
+        reportService.publishReport(mockDraftReportInApi),
+      ).resolves.not.toThrow();
+      expect(prisma.pay_transparency_report.update).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 describe('copyPublishedReportToHistory', () => {

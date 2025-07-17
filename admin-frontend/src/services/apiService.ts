@@ -512,6 +512,22 @@ export default {
     }
   },
 
+  async withdrawReport(reportId: string): Promise<any> {
+    try {
+      // PATCH endpoint expects { withdrawn: true } as per backend route
+      const resp = await apiAxios.patch(`${ApiRoutes.REPORTS}/${reportId}`, {
+        is_withdrawn: true,
+      });
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error('Unexpected response from API.');
+    } catch (e) {
+      console.log(`Failed to withdraw report: ${e}`);
+      throw e;
+    }
+  },
+
   async getPowerBiEmbedAnalytics(resources: POWERBI_RESOURCE[]) {
     type PowerBiEmbedInfo = {
       resources: { name: string; id: string; embedUrl: string }[];

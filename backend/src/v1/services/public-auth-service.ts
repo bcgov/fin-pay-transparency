@@ -200,15 +200,18 @@ class PublicAuth extends AuthBase {
       throw new Error('No session data');
     }
     try {
-      await prisma.$transaction(async (tx) => {
-        const companyRecord: pay_transparency_company =
-          this.companyDetailsToRecord(
-            companyDetails,
-            userInfo._json.bceid_business_guid,
-          );
-        await this.createOrUpdatePayTransparencyCompany(companyRecord, tx);
-        await this.createOrUpdatePayTransparencyUser(userInfo, tx);
-      });
+      await prisma.$transaction(
+        async (tx) => {
+          const companyRecord: pay_transparency_company =
+            this.companyDetailsToRecord(
+              companyDetails,
+              userInfo._json.bceid_business_guid,
+            );
+          await this.createOrUpdatePayTransparencyCompany(companyRecord, tx);
+          await this.createOrUpdatePayTransparencyUser(userInfo, tx);
+        },
+        { maxWait: 5000 },
+      );
     } catch (e) {
       log.error(e);
       throw new Error('Error while storing user info');

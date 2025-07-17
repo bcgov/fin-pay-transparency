@@ -12,6 +12,7 @@ import {
   adminReportServicePrivate,
 } from './admin-report-service';
 import { reportService } from './report-service';
+import { UserInputError } from '../types/errors';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -66,6 +67,9 @@ jest.mock('../prisma/prisma-client', () => ({
       findUnique: (args) => mockFindUniqueReport(args),
       update: (args) => prismaClient.pay_transparency_report.update(args),
     },
+    admin_user: {
+      findFirst: (args) => prismaClient.admin_user.findFirst(args),
+    },
     report_history: {
       findMany: (args) => mockFindManyReportHistory(args),
       fields: {
@@ -73,7 +77,9 @@ jest.mock('../prisma/prisma-client', () => ({
       },
     },
     $extends: jest.fn(),
-    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
+    $transaction: jest
+      .fn()
+      .mockImplementation((callback) => callback(prismaClient)),
   },
 }));
 
@@ -824,6 +830,169 @@ describe('admin-report-service', () => {
         await expect(
           adminReportService.getReportAdminActionHistory(mockReportId),
         ).rejects.toThrow();
+      });
+    });
+  });
+
+  describe('withdrawReport', () => {
+    describe('when withdrawing a published report', () => {
+      it('should successfully withdraw the report and create history', async () => {
+        const reportId = 'test-report-id';
+        const idirGuid = 'test-idir-guid';
+        const adminUserId = 'test-admin-id';
+
+        const mockAdminUser = {
+          admin_user_id: adminUserId,
+          idir_user_guid: idirGuid,
+          display_name: 'Test Admin',
+        };
+
+        const mockPublishedReport = {
+          report_id: reportId,
+          report_status: 'Published',
+          pay_transparency_calculated_data: [],
+        };
+
+        const mockWithdrawnReport = {
+          report_id: reportId,
+          report_status: 'Withdrawn',
+          admin_user_id: adminUserId,
+          admin_modified_date: new Date(),
+        };
+
+        // Mock the admin user lookup using prismaClient
+        jest
+          .spyOn(prismaClient.admin_user, 'findFirst')
+          .mockResolvedValue(mockAdminUser);
+
+        // Mock the report service
+        jest
+          .spyOn(reportService, 'copyPublishedReportToHistory')
+          .mockResolvedValue();
+
+        // Mock the transaction to use prismaClient with overridden methods
+        const transactionSpy = jest
+          .spyOn(prisma, '$transaction')
+          .mockImplementation(async (callback) => {
+            const mockTx = {
+              ...prismaClient,
+              pay_transparency_report: {
+                ...prismaClient.pay_transparency_report,
+                findUniqueOrThrow: jest
+                  .fn()
+                  .mockResolvedValue(mockPublishedReport),
+                update: jest.fn().mockResolvedValue(mockWithdrawnReport),
+              },
+            };
+            return await callback(mockTx);
+          });
+
+        const result = await adminReportService.withdrawReport(
+          reportId,
+          idirGuid,
+        );
+
+        expect(prismaClient.admin_user.findFirst).toHaveBeenCalledWith({
+          where: { idir_user_guid: idirGuid },
+        });
+        expect(reportService.copyPublishedReportToHistory).toHaveBeenCalled();
+        expect(transactionSpy).toHaveBeenCalled();
+        expect(result).toEqual(mockWithdrawnReport);
+      });
+    });
+
+    describe('when trying to withdraw with invalid admin user', () => {
+      it('should throw UserInputError', async () => {
+        const reportId = 'test-report-id';
+        const idirGuid = 'invalid-idir-guid';
+
+        jest
+          .spyOn(prismaClient.admin_user, 'findFirst')
+          .mockResolvedValue(null);
+
+        await expect(
+          adminReportService.withdrawReport(reportId, idirGuid),
+        ).rejects.toThrow(UserInputError);
+      });
+    });
+
+    describe('when trying to withdraw a non-existent report', () => {
+      it('should throw an error', async () => {
+        const reportId = 'non-existent-id';
+        const idirGuid = 'test-idir-guid';
+        const adminUserId = 'test-admin-id';
+
+        const mockAdminUser = {
+          admin_user_id: adminUserId,
+          idir_user_guid: idirGuid,
+          display_name: 'Test Admin',
+        };
+
+        jest
+          .spyOn(prismaClient.admin_user, 'findFirst')
+          .mockResolvedValue(mockAdminUser);
+
+        jest
+          .spyOn(prisma, '$transaction')
+          .mockImplementation(async (callback) => {
+            const mockTx = {
+              ...prismaClient,
+              pay_transparency_report: {
+                ...prismaClient.pay_transparency_report,
+                findUniqueOrThrow: jest
+                  .fn()
+                  .mockRejectedValue(
+                    new Error(`Report with ID ${reportId} not found`),
+                  ),
+              },
+            };
+            return await callback(mockTx);
+          });
+
+        await expect(
+          adminReportService.withdrawReport(reportId, idirGuid),
+        ).rejects.toThrow(`Report with ID ${reportId} not found`);
+      });
+    });
+
+    describe('when trying to withdraw a draft report', () => {
+      it('should throw an error', async () => {
+        const reportId = 'draft-report-id';
+        const idirGuid = 'test-idir-guid';
+        const adminUserId = 'test-admin-id';
+
+        const mockAdminUser = {
+          admin_user_id: adminUserId,
+          idir_user_guid: idirGuid,
+          display_name: 'Test Admin',
+        };
+
+        const mockDraftReport = {
+          report_id: reportId,
+          report_status: 'Draft',
+          pay_transparency_calculated_data: [],
+        };
+
+        jest
+          .spyOn(prismaClient.admin_user, 'findFirst')
+          .mockResolvedValue(mockAdminUser);
+
+        jest
+          .spyOn(prisma, '$transaction')
+          .mockImplementation(async (callback) => {
+            const mockTx = {
+              ...prismaClient,
+              pay_transparency_report: {
+                ...prismaClient.pay_transparency_report,
+                findUniqueOrThrow: jest.fn().mockResolvedValue(mockDraftReport),
+              },
+            };
+            return await callback(mockTx);
+          });
+
+        await expect(
+          adminReportService.withdrawReport(reportId, idirGuid),
+        ).rejects.toThrow('Only published reports can be withdrawn');
       });
     });
   });

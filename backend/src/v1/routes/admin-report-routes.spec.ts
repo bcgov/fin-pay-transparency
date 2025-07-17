@@ -8,7 +8,13 @@ import router from './admin-report-routes';
 jest.mock('../services/utils-service', () => ({
   utils: {
     ...jest.requireActual('../services/utils-service').utils,
-    getSessionUser: () => ({ idir_username: 'SOME_USR' }),
+    getSessionUser: () => ({
+      idir_username: 'SOME_USR',
+      _json: {
+        idir_user_guid: 'test-guid-123',
+        client_roles: ['PTRT-ADMIN'], // Add the required role for authorization
+      },
+    }),
   },
 }));
 
@@ -51,6 +57,7 @@ const mockReport = {
 
 const mockSearchReport = jest.fn().mockResolvedValue({ reports: [mockReport] });
 const mockChangeReportLockStatus = jest.fn();
+const mockWithdrawReport = jest.fn();
 const mockGetReportAdminActionHistory = jest.fn();
 jest.mock('../services/admin-report-service', () => ({
   adminReportService: {
@@ -58,6 +65,7 @@ jest.mock('../services/admin-report-service', () => ({
       .adminReportService,
     searchReport: (...args) => mockSearchReport(...args),
     changeReportLockStatus: (...args) => mockChangeReportLockStatus(...args),
+    withdrawReport: (...args) => mockWithdrawReport(...args),
     getReportPdf: (...args) => mockGetReportPdf(...args),
     getReportAdminActionHistory: (...args) =>
       mockGetReportAdminActionHistory(...args),
@@ -185,52 +193,162 @@ describe('admin-report-routes', () => {
   });
 
   describe('PATCH /:id', () => {
-    describe('400', () => {
-      it('invalid body', () => {
+    describe('400 - Bad Request', () => {
+      it('should return 400 when no valid properties are provided', () => {
         return request(app)
           .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
           .send({ invalid: false })
           .expect(400)
           .expect(({ body }) => {
-            expect(body.error).toBe('Missing field "is_unlocked" in the data');
+            expect(body.error).toBe(
+              'At least one of "is_unlocked" or "is_withdrawn" must be provided',
+            );
           });
       });
-      it('fail to change report lock status', () => {
+
+      it('should return 400 when is_withdrawn is false', () => {
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_withdrawn: false })
+          .expect(400)
+          .expect(({ body }) => {
+            expect(body.error).toBe(
+              'Invalid request. Use is_withdrawn: true to withdraw a report, or is_unlocked: true/false to change lock status.',
+            );
+          });
+      });
+
+      it('should return 400 when withdraw report fails with UserInputError', () => {
+        mockWithdrawReport.mockRejectedValue(
+          new UserInputError('Admin user not found'),
+        );
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_withdrawn: true })
+          .expect(400)
+          .expect(({ body }) => {
+            expect(body.error).toBe('Admin user not found');
+          });
+      });
+
+      it('should return 400 when withdraw report fails with specific error message', () => {
+        mockWithdrawReport.mockRejectedValue(
+          new Error('Only published reports can be withdrawn'),
+        );
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_withdrawn: true })
+          .expect(500)
+          .expect(({ body }) => {
+            expect(body.error).toBe('Something went wrong');
+          });
+      });
+
+      it('should return 400 when change lock status fails', () => {
         mockChangeReportLockStatus.mockRejectedValue({
           error: 'Error happened',
         });
         return request(app)
           .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
           .send({ is_unlocked: false })
-          .expect(400)
+          .expect(500)
           .expect(({ body }) => {
-            expect(body.error).toBe('Error happened');
+            expect(body.error).toBe('Something went wrong');
           });
       });
     });
-    it('404 - report is not found', () => {
-      mockChangeReportLockStatus.mockRejectedValue({ code: 'P2025' });
-      return request(app)
-        .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
-        .send({ is_unlocked: false })
-        .expect(404)
-        .expect(({ body }) => {
-          expect(body.error).toBe('Report not found');
-        });
-    });
-    it('200 - report lock status changed', () => {
-      mockChangeReportLockStatus.mockResolvedValue({
-        report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
-      });
-      return request(app)
-        .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
-        .send({ is_unlocked: false })
-        .expect(200)
-        .expect(({ body }) => {
-          expect(body).toEqual({
-            report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+
+    describe('404 - Not Found', () => {
+      it('should return 404 when report is not found (withdrawal)', () => {
+        mockWithdrawReport.mockRejectedValue({ code: 'P2025' });
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_withdrawn: true })
+          .expect(404)
+          .expect(({ body }) => {
+            expect(body.error).toBe('Report not found');
           });
+      });
+
+      it('should return 404 when report is not found (lock status)', () => {
+        mockChangeReportLockStatus.mockRejectedValue({ code: 'P2025' });
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_unlocked: false })
+          .expect(404)
+          .expect(({ body }) => {
+            expect(body.error).toBe('Report not found');
+          });
+      });
+    });
+
+    describe('200 - Success', () => {
+      it('should successfully withdraw a report', () => {
+        const withdrawnReport = {
+          ...mockReport,
+          report_status: 'Withdrawn',
+          admin_modified_date: new Date().toISOString(),
+        };
+        mockWithdrawReport.mockResolvedValue(withdrawnReport);
+
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_withdrawn: true })
+          .expect(200)
+          .expect(({ body }) => {
+            expect(body.report_status).toBe('Withdrawn');
+            expect(mockWithdrawReport).toHaveBeenCalledWith(
+              '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+              'test-guid-123',
+            );
+          });
+      });
+
+      it('should successfully change report lock status to unlocked', () => {
+        mockChangeReportLockStatus.mockResolvedValue({
+          report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+          is_unlocked: true,
         });
+
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_unlocked: true })
+          .expect(200)
+          .expect(({ body }) => {
+            expect(body).toEqual({
+              report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+              is_unlocked: true,
+            });
+            expect(mockChangeReportLockStatus).toHaveBeenCalledWith(
+              '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+              'test-guid-123',
+              true,
+            );
+          });
+      });
+
+      it('should successfully change report lock status to locked', () => {
+        mockChangeReportLockStatus.mockResolvedValue({
+          report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+          is_unlocked: false,
+        });
+
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_unlocked: false })
+          .expect(200)
+          .expect(({ body }) => {
+            expect(body).toEqual({
+              report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+              is_unlocked: false,
+            });
+            expect(mockChangeReportLockStatus).toHaveBeenCalledWith(
+              '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+              'test-guid-123',
+              false,
+            );
+          });
+      });
     });
   });
 
