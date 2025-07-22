@@ -33,6 +33,11 @@ jobs:
       release: pay-transparency-pr-${{ github.event.number }}
     runs-on: ubuntu-24.04
     steps:
+      - name: Install OpenShift CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
+          tar -xzf oc.tar.gz
+          sudo mv oc /usr/local/bin/
       - name: Remove OpenShift artifacts
         run: |
           oc login --token=${{ secrets.OC_TOKEN }} --server=${{ vars.OC_SERVER }}

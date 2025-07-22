@@ -41,6 +41,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         name: checkout
+      - name: Install OpenShift CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
+          tar -xzf oc.tar.gz
+          sudo mv oc /usr/local/bin/
       - name: Login to OpenShift
         shell: bash
         run: |
