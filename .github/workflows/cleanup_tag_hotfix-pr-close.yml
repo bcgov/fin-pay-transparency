@@ -33,16 +33,17 @@ jobs:
       release: pay-transparency-pr-${{ github.event.number }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Install OpenShift CLI
-        run: |
-          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
-          tar -xzf oc.tar.gz
-          sudo mv oc /usr/local/bin/
+      - uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd # v1.2.3
+        name: Login to OpenShift
+        with:
+          oc_namespace: ${{ vars.OC_NAMESPACE }}
+          oc_server: ${{ vars.OC_SERVER }}
+          oc_token: ${{ secrets.OC_TOKEN }} 
+          # (NOTE: project command is a safeguard)
+          commands: | 
+             oc project ${{ vars.OC_NAMESPACE }}
       - name: Remove OpenShift artifacts
         run: |
-          oc login --token=${{ secrets.OC_TOKEN }} --server=${{ vars.OC_SERVER }}
-          oc project ${{ vars.OC_NAMESPACE }}
-
           helm status ${{ env.release }} && helm uninstall --no-hooks ${{ env.release }} || \
             echo "Not found: ${{ env.release }}"
 

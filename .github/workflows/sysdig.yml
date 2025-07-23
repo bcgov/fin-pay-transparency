@@ -12,14 +12,12 @@ jobs:
       environment: tools
       steps:
       - uses: actions/checkout@v4
-      - name: Install OpenShift CLI
-        run: |
-          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
-          tar -xzf oc.tar.gz
-          sudo mv oc /usr/local/bin/
-      - name: Add Sysdig Team
-        run: |
-          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
-          oc project db4642-tools # Safeguard!
-          oc apply -f ./sysdig/sysdig.yml
-        
+      - uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd # v1.2.3
+        name: Login to OpenShift
+        with:
+          oc_namespace: db4642-tools
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }} 
+          commands: | 
+            oc project db4642-tools # Safeguard!
+            oc apply -f ./sysdig/sysdig.yml
