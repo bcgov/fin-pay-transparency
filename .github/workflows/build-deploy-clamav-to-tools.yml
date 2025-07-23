@@ -41,15 +41,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         name: checkout
-      - name: Login to OpenShift
-        shell: bash
-        run: |
-          # Allow pipefail, since we could be catching oc create errors
-          set +o pipefail
-          
-          # Login to OpenShift (NOTE: project command is a safeguard)
-          oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
-          oc project ${{ vars.oc_namespace }}
+      - uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd # v1.2.3
+        name: Login to OpenShift
+        with:
+          oc_namespace: ${{ vars.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }} 
+          # (NOTE: project command is a safeguard)
+          commands: | 
+             oc project ${{ vars.oc_namespace }}
       - name: Package ClamAV Helm Chart
         shell: bash
         run: |

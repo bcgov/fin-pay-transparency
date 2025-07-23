@@ -27,16 +27,16 @@ jobs:
       runs-on: ubuntu-24.04
       environment: ${{ github.event.inputs.environment }}
       if: ${{ github.event.inputs.action == 'true' }}
-      steps:
-        - name: Login to OpenShift
-          shell: bash
-          run: |
-            # Allow pipefail, since we could be catching oc create errors
-            set +o pipefail
-
-            # Login to OpenShift (NOTE: project command is a safeguard)
-            oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
-            oc project ${{ vars.oc_namespace }}
+      steps:        
+        - uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd # v1.2.3
+          name: Login to OpenShift
+          with:
+            oc_namespace: ${{ vars.oc_namespace }}
+            oc_server: ${{ vars.oc_server }}
+            oc_token: ${{ secrets.oc_token }} 
+            # (NOTE: project command is a safeguard)
+            commands: | 
+              oc project ${{ vars.oc_namespace }}
         - name: Scale Maintenance Deployment from 0 to 2
           shell: bash
           run: |
@@ -54,24 +54,23 @@ jobs:
         environment: ${{ github.event.inputs.environment }}
         if: ${{ github.event.inputs.action == 'false' }}
         steps:
-            - name: Login to OpenShift
-              shell: bash
-              run: |
-                  # Allow pipefail, since we could be catching oc create errors
-                  set +o pipefail
-      
-                  # Login to OpenShift (NOTE: project command is a safeguard)
-                  oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
-                  oc project ${{ vars.oc_namespace }}
-            
-            - name: Scale Maintenance Deployment from 2 to 0
-              shell: bash
-              run: |
-                  oc patch deployment pay-transparency-${{ inputs.environment }}-maintenance --subresource=scale --type=merge -p {\"spec\":{\"replicas\":0}}
-                  oc rollout status deployment/pay-transparency-${{ inputs.environment }}-maintenance -w
-            
-            - name: Route Internet Traffic to Frontend Page
-              shell: bash
-              run: |
-                  oc patch route pay-transparency-${{ inputs.environment }}-frontend -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-frontend\"}}}
-                  oc patch route pay-transparency-app-route -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-frontend\"}}}
+          - uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd # v1.2.3
+            name: Login to OpenShift
+            with:
+              oc_namespace: ${{ vars.oc_namespace }}
+              oc_server: ${{ vars.oc_server }}
+              oc_token: ${{ secrets.oc_token }} 
+              # (NOTE: project command is a safeguard)
+              commands: | 
+                oc project ${{ vars.oc_namespace }}
+          - name: Scale Maintenance Deployment from 2 to 0
+            shell: bash
+            run: |
+                oc patch deployment pay-transparency-${{ inputs.environment }}-maintenance --subresource=scale --type=merge -p {\"spec\":{\"replicas\":0}}
+                oc rollout status deployment/pay-transparency-${{ inputs.environment }}-maintenance -w
+          
+          - name: Route Internet Traffic to Frontend Page
+            shell: bash
+            run: |
+                oc patch route pay-transparency-${{ inputs.environment }}-frontend -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-frontend\"}}}
+                oc patch route pay-transparency-app-route -p {\"spec\":{\"to\":{\"name\":\"pay-transparency-${{ inputs.environment }}-frontend\"}}}
