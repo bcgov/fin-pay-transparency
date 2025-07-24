@@ -497,16 +497,16 @@ export default {
     reportId: string,
     makeUnlocked: boolean,
   ): Promise<boolean> {
-    const un = makeUnlocked ? 'un' : '';
     try {
       const resp = await apiAxios.patch(`${ApiRoutes.REPORTS}/${reportId}`, {
         is_unlocked: makeUnlocked,
       });
       if (resp?.data) {
-        return resp.data.is_unlocked == makeUnlocked;
+        return resp.data.is_unlocked;
       }
       throw new Error('Unexpected response from API.');
     } catch (e) {
+      const un = makeUnlocked ? 'un' : '';
       console.log(`Failed to ${un}lock report: ${e}`);
       throw e;
     }
