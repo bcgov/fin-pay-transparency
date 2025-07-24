@@ -3,142 +3,299 @@ import { AdminPortalPage } from '../admin-portal-page';
 import { PagePaths } from '../../utils';
 import { groupBy } from 'lodash';
 
+// Define types for the page object
+type Report = {
+  report_id: string;
+  naics_code: string;
+  report_start_date: string;
+  report_end_date: string;
+  report_status: string;
+  create_date: string;
+  update_date: string;
+  reporting_year: string;
+  is_unlocked: boolean;
+  admin_last_access_date: string;
+  employee_count_range: {
+    employee_count_range_id: string;
+    employee_count_range: string;
+  };
+  pay_transparency_company: {
+    company_id: string;
+    company_name: string;
+  };
+};
+
+type DisplayedReportRow = {
+  submissionDate: string;
+  employerName: string;
+  naics: string;
+  employeeCount: string;
+  year: string;
+  isLocked: boolean; // true if "unlock report" button is present, false if "lock report" button is present
+};
+
 export class SearchReportsPage extends AdminPortalPage {
   static PATH = PagePaths.REPORTS;
   searchInput: Locator;
   searchButton: Locator;
+  resetButton: Locator;
   filterButton: Locator;
+  reportYearFilterInput: Locator;
+  lockFilterInput: Locator;
+  applyFilterButton: Locator;
+  openReportButton: Locator;
+  lockReportButton: Locator;
+  withdrawReportButton: Locator;
+  reportHistoryButton: Locator;
+  noReportsLocator: Locator;
 
-  static async visit(
-    page: Page,
-  ): Promise<{ searchReportsPage: SearchReportsPage; reports: any[] }> {
-    const searchResponse = SearchReportsPage.waitForSearchResults(page);
+  static async visit(page: Page): Promise<SearchReportsPage> {
     await page.goto(SearchReportsPage.PATH);
     const searchReportsPage = new SearchReportsPage(page);
     await searchReportsPage.setup();
-    const response = await searchResponse;
-    const { reports } = await response.json();
-    return { searchReportsPage, reports };
+    return searchReportsPage;
   }
 
   async setup(): Promise<void> {
     super.setup();
     this.searchInput = await this.page.getByLabel('Search by employer name');
     this.searchButton = await this.page.getByRole('button', { name: 'Search' });
-    this.filterButton = await this.page.getByRole('button', {
-      name: 'Filter',
+    this.resetButton = await this.page.getByRole('button', { name: 'Reset' });
+    this.filterButton = await this.page.getByRole('button', { name: 'Filter' });
+    this.reportYearFilterInput = await this.page.getByLabel('Report Year');
+    this.lockFilterInput = await this.page.getByLabel('Locked/Unlocked');
+    this.applyFilterButton = await this.page.getByRole('button', {
+      name: 'Apply',
     });
-    await this.expectElementToBeVisible(this.searchInput);
-    await this.expectElementToBeVisible(this.searchButton);
-    await this.expectElementToBeVisible(this.filterButton);
+    this.openReportButton = await this.page.getByRole('button', {
+      name: 'Open report',
+    });
+    this.lockReportButton = await this.page.getByRole('button', {
+      name: 'Lock report',
+    });
+    this.withdrawReportButton = await this.page.getByRole('button', {
+      name: 'Withdraw report',
+    });
+    this.reportHistoryButton = await this.page.getByRole('button', {
+      name: 'Admin action history',
+    });
+    this.noReportsLocator = await this.page.getByText(
+      'No reports matched the search criteria',
+    );
+
+    await expect(this.searchInput).toBeVisible();
+    await expect(this.searchButton).toBeVisible();
+    await expect(this.filterButton).toBeVisible();
   }
+
+  async getDisplayedReports(): Promise<DisplayedReportRow[]> {
+    // If the 'No reports matched the search criteria' message is visible, return an empty array
+    if (await this.noReportsLocator.isVisible()) {
+      return [];
+    }
+
+    // Wait for the table to be visible
+    const table = await this.page.locator('table').first();
+    await expect(table).toBeVisible();
+
+    // Get all table rows (excluding header)
+    const rows = await table.locator('tbody tr').all();
+
+    const reports: DisplayedReportRow[] = [];
+
+    for (const row of rows) {
+      const cells = await row.locator('td').all();
+
+      if (cells.length >= 5) {
+        // Extract data from the first 5 columns: Submission Date, Employer Name, NAICS, Employee Count, Year
+        const submissionDate = await cells[0].textContent();
+        const employerName = await cells[1].textContent();
+        const naics = await cells[2].textContent();
+        const employeeCount = await cells[3].textContent();
+        const year = await cells[4].textContent();
+
+        // Determine lock status by checking which button is present in the row
+        const unlockButton = row.getByRole('button', { name: 'Unlock report' });
+        const isLocked = await unlockButton.isVisible();
+
+        // Create a report row object from the displayed data
+        const reportRow: DisplayedReportRow = {
+          submissionDate: submissionDate?.trim() || '',
+          employerName: employerName?.trim() || '',
+          naics: naics?.trim() || '',
+          employeeCount: employeeCount?.trim() || '',
+          year: year?.trim() || '',
+          isLocked: isLocked,
+        };
+
+        reports.push(reportRow);
+      }
+    }
+
+    return reports;
+  }
+
+  // === PAGE MODIFICATION FUNCTIONS ===
 
   async searchReports(companyName: string) {
     await this.searchInput.fill(companyName);
-    return this.clickSearchButton();
+    await this.clickSearchButton();
   }
 
-  async filterReports(is_unlocked: boolean) {
-    await this.filterButton.click();
-    const reportYearInput = await this.page.getByLabel('Report Year');
-    const statusButton = await this.page.getByLabel('Locked/Unlocked');
-
-    await expect(reportYearInput).toBeVisible();
-    await expect(statusButton).toBeVisible();
-
-    await reportYearInput.click({ force: true, button: 'right' });
-    const currentYear = new Date().getFullYear();
-    await this.page.waitForTimeout(2000);
-    const option = await this.page.getByLabel(`Year: ${currentYear}`);
-    await option.click();
-    const lockStatus = is_unlocked ? 'Unlocked' : 'Locked';
-    await this.page.waitForTimeout(2000);
-    await statusButton.click({ force: true, button: 'right' });
-    const lockOption = await this.page.getByText(lockStatus, { exact: true });
-    await lockOption.click();
-
-    const filterResponse = SearchReportsPage.waitForSearchResults(this.page);
-    const applyButton = await this.page.getByRole('button', { name: 'Apply' });
-    await applyButton.click();
-    const response = await filterResponse;
-    const { reports } = await response.json();
-
-    return reports;
+  async reset() {
+    // Only click the Reset button if it is enabled
+    if (await this.resetButton.isEnabled()) {
+      await this.resetButton.click();
+    }
   }
 
   async clickSearchButton() {
     const searchResponse = SearchReportsPage.waitForSearchResults(this.page);
     await this.searchButton.click();
-    const response = await searchResponse;
-    const { reports } = await response.json();
-    return reports;
+    await searchResponse; // Wait for the search to complete
   }
 
-  async searchAndVerifyReports(companyName: string, validatedLength = true) {
-    const reports = await this.searchReports(companyName);
-    if (!validatedLength) {
-      expect(reports.length).toBeGreaterThan(0);
+  async toggleFilterDisplay() {
+    await this.filterButton.click();
+  }
+
+  /**
+   *
+   * @param year The year to filter by, or null/undefined for "any"
+   */
+  async setFilterYear(year?: number | null) {
+    await this.reportYearFilterInput.click({ force: true, button: 'right' });
+    await this.page.waitForTimeout(2000);
+
+    if (year === null || year === undefined) {
+      // Select first option which is "any"
+      const anyOption = await this.page.getByLabel('Year: Any').first();
+      await anyOption.click();
     } else {
-      expect(reports.length).toBe(1);
+      const option = await this.page.getByLabel(`Year: ${year}`);
+      await option.click();
     }
-    const report = reports[0];
-    const { company_name } = report.pay_transparency_company;
-    await this.expectElementToBeVisible(
-      await this.page.getByText(company_name).first(),
-    );
-    await this.expectElementToBeVisible(
-      await this.page.getByText(this.formatDate(report.create_date)).first(),
-    );
-    await this.expectElementToBeVisible(
-      await this.page.getByText(report.naics_code).first(),
-    );
-    const employeeCount = report.employee_count_range.employee_count_range;
-    await this.expectElementToBeVisible(
-      await this.page.getByText(employeeCount).first(),
-    );
-    await this.expectElementToBeVisible(
-      await this.page.getByText(report.reporting_year, { exact: true }).first(),
-    );
-
-    await this.expectElementToBeVisible(await this.getOpenReportButton());
-    await this.expectElementToBeVisible(await this.getLockReportButton());
-    await this.expectElementToBeVisible(await this.getReportHistoryButton());
-
-    return report;
   }
 
-  async toggleReportLockAndverify(report) {
-    const lockButton = await this.getLockReportButton();
-    const lockResponse = this.waitForReportLock(report.report_id);
-    await lockButton.click();
+  /**
+   *
+   * @param findLocked The status to filter by, or null/undefined for "any"
+   */
+  async setFilterLocked(findLocked?: boolean | null) {
+    await this.page.waitForTimeout(2000);
+    await this.lockFilterInput.click({ force: true, button: 'right' });
+
+    if (findLocked == null) {
+      // Select first option which is "any"
+      const anyOption = await this.page
+        .getByText('Any', { exact: true })
+        .first();
+      await anyOption.click();
+    } else {
+      const lockStatus = findLocked ? 'Locked' : 'Unlocked';
+      const lockOption = await this.page.getByText(lockStatus, { exact: true });
+      await lockOption.click();
+    }
+  }
+
+  async applyFilter() {
+    const filterResponse = SearchReportsPage.waitForSearchResults(this.page);
+    await this.applyFilterButton.click();
+    await filterResponse;
+  }
+
+  async toggleReportLock(rowNumber: number) {
+    // Find the specific row by row number (0-based index)
+    const table = await this.page.locator('table').first();
+    const targetRow = table.locator('tbody tr').nth(rowNumber);
+
+    // Check if the report is currently locked by looking for the unlock button
+    const unlockButton = targetRow.getByRole('button', {
+      name: 'Unlock report',
+    });
+    const isLocked = await unlockButton.isVisible();
+
+    if (isLocked) {
+      // Report is locked, click "Unlock report" button
+      await unlockButton.click();
+      const confirmButton = await this.page.getByRole('button', {
+        name: 'Yes, unlock',
+      });
+      await confirmButton.click();
+    } else {
+      // Report is unlocked, click "Lock report" button
+      await targetRow.getByRole('button', { name: 'Lock report' }).click();
+      const confirmButton = await this.page.getByRole('button', {
+        name: 'Yes, lock',
+      });
+      await confirmButton.click();
+    }
+
+    // Wait for the operation to complete by waiting for API response
+    await SearchReportsPage.waitForActionResult(this.page);
+  }
+
+  async withdrawReport(rowNumber: number) {
+    // Find the specific row by row number (0-based index)
+    const table = await this.page.locator('table').first();
+    const targetRow = table.locator('tbody tr').nth(rowNumber);
+
+    await targetRow.getByRole('button', { name: 'Withdraw report' }).click();
     const confirmButton = await this.page.getByRole('button', {
-      name: report.is_unlocked ? 'Yes, lock' : 'Yes, unlock',
+      name: 'Yes, withdraw',
     });
     await confirmButton.click();
-    const response = await lockResponse;
-    const patchedReport = await response.json();
-    expect(patchedReport.is_unlocked).toBe(!report.is_unlocked);
+
+    // Wait for the operation to complete
+    await SearchReportsPage.waitForActionResult(this.page);
   }
 
-  private async getOpenReportButton() {
-    const button = await this.page.getByRole('button', { name: 'Open report' });
-    await this.expectElementToBeVisible(button.first());
-    return button.first();
+  // === PAGE VERIFICATION FUNCTIONS ===
+
+  async verifyReportButtons() {
+    await expect(this.openReportButton.first()).toBeVisible();
+    await expect(this.lockReportButton.first()).toBeVisible();
+    await expect(this.withdrawReportButton.first()).toBeVisible();
+    await expect(this.reportHistoryButton.first()).toBeVisible();
   }
 
-  private async getLockReportButton() {
-    const button = await this.page.getByRole('button', { name: 'Lock report' });
-    await this.expectElementToBeVisible(button.first());
-    return button.first();
+  async verifyFilterDisplayed() {
+    await expect(this.reportYearFilterInput).toBeVisible();
+    await expect(this.lockFilterInput).toBeVisible();
+    await expect(this.applyFilterButton).toBeVisible();
   }
 
-  private async getReportHistoryButton() {
-    const button = await this.page.getByRole('button', {
-      name: 'Admin action history',
-    });
-    await this.expectElementToBeVisible(button.first());
-    return button.first();
+  async verifyFilterHidden() {
+    await expect(this.reportYearFilterInput).not.toBeVisible();
+    await expect(this.lockFilterInput).not.toBeVisible();
+    await expect(this.applyFilterButton).not.toBeVisible();
   }
+
+  async verifyAllReportsHaveSameEmployer(
+    reports: DisplayedReportRow[],
+    expectedEmployerName: string,
+  ) {
+    expect(reports.length).toBeGreaterThan(0);
+    for (const report of reports) {
+      expect(report.employerName).toBe(expectedEmployerName);
+    }
+  }
+
+  async verifyDisplayedReportsLockStatus(isLocked: boolean) {
+    const actualReports = await this.getDisplayedReports();
+    expect(actualReports.length).toBeGreaterThan(0);
+    for (const report of actualReports) {
+      expect(report.isLocked).toBe(isLocked);
+    }
+  }
+
+  async verifySearchResultsMatch(expectedReports: DisplayedReportRow[]) {
+    // Get the actual displayed reports from the page
+    const actualReports = await this.getDisplayedReports();
+    await expect(actualReports).toMatchObject(expectedReports);
+  }
+
+  // === UTILITY FUNCTIONS ===
 
   static waitForSearchResults(page) {
     return page.waitForResponse((res) => {
@@ -148,44 +305,13 @@ export class SearchReportsPage extends AdminPortalPage {
     });
   }
 
-  private waitForReportLock(reportId) {
-    console.log(`/admin-api/v1/reports/${reportId}`);
-    return this.page.waitForResponse((res) => {
+  static waitForActionResult(page) {
+    return page.waitForResponse((res) => {
       return (
-        res.url().includes(`/admin-api/v1/reports/${reportId}`) &&
+        res.url().includes('/admin-api/v1/reports') &&
         res.status() === 200 &&
         res.request().method() === 'PATCH'
       );
     });
-  }
-
-  private waitForHistory(reportId) {
-    return this.page.waitForResponse((res) => {
-      return (
-        res
-          .url()
-          .includes(`/admin-api/v1/reports/${reportId}/admin-action-history`) &&
-        res.status() === 200
-      );
-    });
-  }
-
-  private async expectElementToBeVisible(element: Locator) {
-    await expect(element).toBeVisible();
-  }
-
-  static getCompanyNameWithOneReport(reports, isUnlocked = true) {
-    const groups = groupBy(reports, 'pay_transparency_company.company_name');
-    console.log(
-      Object.keys(groups).find(
-        (key) =>
-          groups[key].length === 1 && groups[key][0].is_unlocked === isUnlocked,
-      ),
-    );
-    const companyName = Object.keys(groups).find(
-      (key) =>
-        groups[key].length === 1 && groups[key][0].is_unlocked === isUnlocked,
-    );
-    return companyName;
   }
 }
