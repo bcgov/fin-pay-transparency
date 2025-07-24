@@ -280,6 +280,24 @@ describe('ApiService', () => {
       );
     });
   });
+
+  describe('withdrawReport', () => {
+    it('returns response data when successful', async () => {
+      const mockResp = { data: { is_withdrawn: true } };
+      vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.withdrawReport('1');
+      expect(resp).toEqual({ is_withdrawn: true });
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'patch').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.withdrawReport('1')).rejects.toEqual(
+        mockAxiosError,
+      );
+    });
+  });
+
   describe('inviteUser', () => {
     describe('when the data are successfully saved in the backend', () => {
       it('200 - success', async () => {
