@@ -2,7 +2,9 @@ import express, { Request, Response } from 'express';
 import has from 'lodash/has';
 import Papa from 'papaparse';
 import { BAD_REQUEST } from '../../constants';
+import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
 import { logger } from '../../logger';
+import { authorize } from '../middlewares/authorization/authorize';
 import { adminReportService } from '../services/admin-report-service';
 import { PayTransparencyUserError } from '../services/file-upload-service';
 import { reportService } from '../services/report-service';
@@ -80,36 +82,67 @@ router.get(
 
 /**
  * PATCH - /admin-api/v1/reports/:id
- * Update report is_unlocked status
- * Example:  body {is_unlocked: true/false}
+ * Update report properties (is_unlocked and/or is_withdrawn)
+ * Example:  body {is_unlocked: true/false, is_withdrawn: true}
  */
 router.patch(
   '/:id',
+  authorize([PTRT_ADMIN_ROLE_NAME]),
   utils.asyncHandler(async (req, res: Response) => {
-    logger.info('Update report is_unlocked status called');
+    logger.info('Update report properties called');
     logger.silly(req.body);
     try {
       const { body, params } = req;
       const user = utils.getSessionUser(req);
-      if (!has(body, 'is_unlocked')) {
-        return res
-          .status(400)
-          .json({ error: 'Missing field "is_unlocked" in the data' });
+
+      // Check if at least one valid property is provided
+      if (!has(body, 'is_unlocked') && !has(body, 'is_withdrawn')) {
+        return res.status(400).json({
+          error:
+            'At least one of "is_unlocked" or "is_withdrawn" must be provided',
+        });
       }
 
-      const report = await adminReportService.changeReportLockStatus(
-        params?.id,
-        user?._json?.idir_user_guid,
-        body.is_unlocked,
-      );
+      const idirGuid = user?._json?.idir_user_guid;
+      if (!idirGuid) {
+        return res.status(404).json({
+          error: 'User IDIR GUID not found in session',
+        });
+      }
 
-      return res.status(200).json(report);
+      // Handle withdrawal if is_withdrawn is provided
+      if (has(body, 'is_withdrawn') && body.is_withdrawn === true) {
+        const withdrawnReport = await adminReportService.withdrawReport(
+          params?.id,
+          idirGuid,
+        );
+        return res.status(200).json(withdrawnReport);
+      }
+
+      // Handle lock status change if is_unlocked is provided and no withdrawal
+      if (has(body, 'is_unlocked')) {
+        const report = await adminReportService.changeReportLockStatus(
+          params?.id,
+          idirGuid,
+          body.is_unlocked,
+        );
+        return res.status(200).json(report);
+      }
+
+      // If is_withdrawn is false or not a boolean, just treat as invalid
+      return res.status(400).json({
+        error:
+          'Invalid request. Use is_withdrawn: true to withdraw a report, or is_unlocked: true/false to change lock status.',
+      });
     } catch (error) {
       logger.error(error);
       if (error.code === 'P2025') {
         return res.status(404).json({ error: 'Report not found' });
       }
-      res.status(400).json(error);
+      if (error instanceof UserInputError) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Something went wrong' });
     }
   }),
 );
