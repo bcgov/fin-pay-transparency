@@ -729,12 +729,12 @@
                                     <tr>
                                         <td><a href='tables/pay_transparency_report.html'>pay_transparency_report</a></td>
                                         <td>report_status_check</td>
-                                        <td>((report_status)::text &#61; ANY ((ARRAY[&#39;Draft&#39;::character varying, &#39;Published&#39;::character varying])::text[]))</td>
+                                        <td>((report_status)::text &#61; ANY ((ARRAY[&#39;Draft&#39;::character varying, &#39;Published&#39;::character varying, &#39;Withdrawn&#39;::character varying])::text[]))</td>
                                     </tr>
                                     <tr>
                                         <td><a href='tables/report_history.html'>report_history</a></td>
                                         <td>report_status_check</td>
-                                        <td>((report_status)::text &#61; ANY ((ARRAY[&#39;Draft&#39;::character varying, &#39;Published&#39;::character varying])::text[]))</td>
+                                        <td>((report_status)::text &#61; ANY ((ARRAY[&#39;Draft&#39;::character varying, &#39;Published&#39;::character varying, &#39;Withdrawn&#39;::character varying])::text[]))</td>
                                     </tr>
                                 </tbody>
                             </table>

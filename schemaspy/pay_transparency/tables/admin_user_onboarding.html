@@ -84,7 +84,7 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>To track pending admin users of the application that are waiting to be onboarded.</p>
+                            <p>This table keeps track of potential admin users awaiting onboarding, including their email, assigned roles, and whether they have completed the onboarding process. Potential admin users are invited by an admin user with the admin role. The user details are given by an admin user, not by any sort of database of users. An email is sent to the person who then has 3 days to accept the invite by logging in. Upon logging in, the <code>email</code> is used to lookup the new user in SSO Keycloak, and <code>assigned_roles</code> are sent to set permissions. The user must re-log in order to get the new permissions from SSO Keycloak and for <code>admin_user</code> table to be updated.</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -136,7 +136,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Primary unique ID for each onboarding record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="email">email</span></td>
@@ -153,7 +153,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Email address for the admin user being onboarded, used for communication and identification. Provided by the admin user who created this request.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="first_name">first_name</span></td>
@@ -170,7 +170,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>First name of the admin user for identification purposes during onboarding. Provided by the admin user who created this request.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="assigned_roles">assigned_roles</span></td>
@@ -187,7 +187,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Roles assigned to the user.Comma separated list of roles that can be assigned to the user</p></td>
+                                    <td><p>Roles to be assigned upon onboarding completion, stored as a comma-separated list. Provided by the admin user who created this request.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_date">create_date</span></td>
@@ -204,7 +204,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Timestamp indicating when the onboarding record was created.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="created_by">created_by</span></td>
@@ -221,7 +221,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Admin user ID of the admin responsible for initiating the onboarding process.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="is_onboarded">is_onboarded</span></td>
@@ -238,7 +238,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Flag to indicate if the user has been onboarded or not</p></td>
+                                    <td><p>Boolean flag indicating whether the admin user has completed onboarding and gained access to the application.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="expiry_date">expiry_date</span></td>
@@ -255,7 +255,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Expiry date of the onboarding record, after which it may no longer be valid.</p></td>
                                 </tr>
                                 </tbody>
                             </table>

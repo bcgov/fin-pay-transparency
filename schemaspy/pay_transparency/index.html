@@ -78,7 +78,7 @@
                         <div class="col-md-12">
                             <div class="callout callout-info">
                                 <h4>SchemaSpy Analysis of default.pay_transparency</h4>
-                                <p>Generated on Fri Nov 15 18:23 GMT 2024</p>
+                                <p>Generated on Fri Jul 25 21:21 GMT 2025</p>
                             </div>
                         </div>
                     </div>
@@ -168,7 +168,7 @@
                             <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
                         </div><!-- /.box-header -->
                         <div class="box-body">
-                            <p>Database Type: PostgreSQL - 17.1 (Debian 17.1-1.pgdg120+1)</p>
+                            <p>Database Type: PostgreSQL - 17.5 (Debian 17.5-1.pgdg120+1)</p>
                         </div><!-- /.box-body -->
                     </div>
                     <div class="box box-primary">
@@ -177,10 +177,13 @@
                             <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
                         </div><!-- /.box-header -->
                         <div class="box-body">
-                            <p> <p>This database schema holds the statistics and reports, including history, for companies that have leveraged BC&rsquo;s pay transparency reporting tool.</p>
-<p>The user inputted information from the form in the webapp is saved in the tables <code>pay_transparency_calculated_data</code> (which stores all the statistics for the report) and <code>pay_transparency_report</code> (which stores the remaining selectable information for the report). When a user updates a published report, the existing version is moved to the tables <code>calculated_data_history</code> and <code>report_history</code>.</p>
-<p>Users log in with a BCeID account, which must be associated with a BCeID Business account, and the required details are stored in the tables <code>pay_transparency_user</code> and <code>pay_transparency_company</code> respectively. Company name and address is included in the report. If the company details, such as address, changes, then the old details are stored in the table <code>company_history</code> so that old reports can be shown with the details of the company at that time.</p>
-<p>Two lookup tables, <code>employee_count_range</code> and <code>naics_code</code>, hold the selectable options on the form which also appears on the report. Another lookup table, <code>calculation_code</code>, identifies all the statistics used on a report.</p> </p>
+                            <p> <p>This database schema holds the statistics and reports, including history, for companies that have leveraged BC&rsquo;s Pay Transparency Reporting Tool (PTRT). It also manages information leveraged in the Admin Portal, such as the administrative users in the <code>admin_users</code> table and announcements in the <code>announcements</code> table. The user inputted information from the form in the webapp is saved in the tables <code>pay_transparency_calculated_data</code> (which stores all the statistics for the report) and <code>pay_transparency_report</code> (which stores the remaining selectable information for the report). When a user updates a published report, the existing version is moved to the tables <code>calculated_data_history</code> and <code>report_history</code>.</p>
+<p>Users log in with a BCeID account, which must be associated with a BCeID Business account, and the required details are stored in the tables <code>pay_transparency_user</code> and <code>pay_transparency_company</code> respectively. Company name and address is included in the report. If the company details, such as address, changes, then the old details are stored in the <code>company_history</code> table so that old reports can be shown with the details of the company at that time.</p>
+<p>Two lookup tables, <code>employee_count_range</code> and <code>naics_code</code>, hold the selectable options on the form which also appears on the report. Another lookup table, <code>calculation_code</code>, identifies all the statistics used on a report.</p>
+<p>BC Gov employees who administrate the PTRT through the Admin Portal site are stored in the <code>admin_users</code> table. The Admin users with the &lsquo;admin&rsquo; role can add or remove other admin users. All admin users can use the rest of the Admin Portal site. Keycloak is the source-of-truth for access permissions, this database stores a copy of the information to track admin user usage across the site and is automatically updated whenever a discrepancy between Keycloak and these records are found.</p>
+<p>Admin users can create announcements which will be displayed to logged in users. Announcements are stored in the <code>announcements</code> table and can have resources stored in the <code>announcement_resources</code> table. The <code>announcement_resource_type</code> lookup table defines what kind of resources there are. Any modification to an announcement or it&rsquo;s resources are stored in the tables <code>announcement_history</code> and <code>announcement_resource_history</code>.</p>
+<p>The <code>announcement_status</code> table keeps track of which announcements are shown to the user. Announcements can be given a time range when they are shown to the user and are automatically expired after that time frame. A scheduled task will delete any announcement that expired or was archived over 90 days ago.</p>
+<p>Errors specifically from users uploading files is stored in the <code>user_error</code> table.</p> </p>
                         </div><!-- /.box-body -->
                     </div>
                     <div class="box box-primary">
@@ -215,8 +218,7 @@
                                         <td class="detail" align="right">11</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>These are the details provided by a BCeID Business account for a logged in user. The name and address will be included on a report.</p>
-<p>If a user logs in without a BCeID Business account, or if the BCeID Business account is missing information, the login will not proceed and the record will not be created.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>These are the details provided by a BCeID Business account for a logged in user. The name and address will be included on a report. If a user logs in without a BCeID Business account, or if the BCeID Business account is missing information, the login will not proceed and the record will not be created.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/user_error.html">user_error</a></td>
@@ -225,7 +227,7 @@
                                         <td class="detail" align="right">5</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>When the application servers are configured to enable logging, errors related to file processing will be captured in this table. This logging is currently enabled. The purpose is to find out if there are common errors the users are encountering. Every 6 months a scheduled task will remove from the database any record older than 6 months.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/pay_transparency_calculated_data.html">pay_transparency_calculated_data</a></td>
@@ -234,8 +236,7 @@
                                         <td class="detail" align="right">9</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>This table holds the statistics for a company&rsquo;s pay transparency report that shows any pay disparity between genders. Every report has 57 records (ie. statistics) in this table, collectively known as &lsquo;calculated data&rsquo;. The records in this table are statistics calculated from the file submitted by users and are used in the report. Records are identified and described by a <code>calculation_code_id</code> from the <code>calculation_code</code> table. If insufficient data prevents a statistic from being calculated, a record is still created with a null value and <code>is_suppressed</code> set as true.</p>
-<p>Calculated data linked to draft reports that are older than 48 hours are deleted automatically on a schedule.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table holds the statistics for a company&rsquo;s pay transparency report that shows any pay disparity between genders. Every report has 57 records (ie. statistics) in this table, collectively known as &lsquo;calculated data&rsquo;. The records in this table are statistics calculated from the file submitted by users and are used in the report. Records are identified and described by a <code>calculation_code_id</code> from the <code>calculation_code</code> table. If insufficient data prevents a statistic from being calculated, a record is still created with a null <code>value</code> and <code>is_suppressed</code> set as true. Calculated data linked to draft reports that are older than 48 hours are deleted automatically on a schedule.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/employee_count_range.html">employee_count_range</a></td>
@@ -244,7 +245,7 @@
                                         <td class="detail" align="right">8</td>
                                         <td class="detail" align="right">3</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>This is a lookup table that stores the employee count ranges, for example &lsquo;50-100&rsquo;. The user selects from a list on the form how many employees their employer has which is recorded in the <code>pay_transparency_report</code> table.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This is a lookup table that stores the employee count ranges, for example &ldquo;50-100&rdquo;. The user selects from a list on the form how many employees their employer has which is recorded in the <code>pay_transparency_report</code> table.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/admin_user.html">admin_user</a></td>
@@ -253,7 +254,7 @@
                                         <td class="detail" align="right">12</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>To track the associated roles and status active/inactive of admin users of the application</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table stores information about current administrative users of the application, including their roles, status, and relevant user metadata. Administrators are managed through the Single Sign On (SSO) Keycloak service, which is the source-of-truth for authentication, however a record of their information is stored here to easily log activities performed by the admin user. Upon login, if there is ever a difference between SSO Keycloak and this table, this table will be updated with the information from SSO Keycloak. If it is the first time login in after accepting the onboarding email, a new record will be created with information from SSO Keycloak, or an existing record will be updated by setting <code>is_active</code> to true.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/flyway_schema_history.html">flyway_schema_history</a></td>
@@ -271,7 +272,7 @@
                                         <td class="detail" align="right">8</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>To track pending admin users of the application that are waiting to be onboarded.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table keeps track of potential admin users awaiting onboarding, including their email, assigned roles, and whether they have completed the onboarding process. Potential admin users are invited by an admin user with the admin role. The user details are given by an admin user, not by any sort of database of users. An email is sent to the person who then has 3 days to accept the invite by logging in. Upon logging in, the <code>email</code> is used to lookup the new user in SSO Keycloak, and <code>assigned_roles</code> are sent to set permissions. The user must re-log in order to get the new permissions from SSO Keycloak and for <code>admin_user</code> table to be updated.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/pay_transparency_report.html">pay_transparency_report</a></td>
@@ -280,10 +281,10 @@
                                         <td class="detail" align="right">21</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>This table stores the latest versions of draft and published reports. Each report is submitted by a BCeID user, identified by <code>user_id</code>, and is associated with an employer with a BCeID Business account, identified by <code>company_id</code>.</p>
-<p>Reports are created after the user submits the form in the webapp. Initially <code>report_status</code> will be &lsquo;draft&rsquo;, but the user can choose to publish the report which changes it&rsquo;s <code>report_status</code> to &lsquo;published&rsquo;. The form allows the user to select <code>employee_count_range_id</code>, <code>naics_code</code>, <code>reporting_year</code>, <code>report_start_date</code>, <code>report_end_date</code>, <code>user_comment</code>, and <code>data_constraints</code>.</p>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table stores the latest versions of draft and published reports. Each report is submitted by a BCeID user, identified by <code>user_id</code>, and is associated with an employer with a BCeID Business account, identified by <code>company_id</code>. Reports are created after the user submits the form in the webapp. Initially <code>report_status</code> will be &lsquo;draft&rsquo;, but the user can choose to publish the report which changes it&rsquo;s <code>report_status</code> to &lsquo;published&rsquo;. The form allows the user to select <code>employee_count_range_id</code>, <code>naics_code</code>, <code>reporting_year</code>, <code>report_start_date</code>, <code>report_end_date</code>, <code>user_comment</code>, and <code>data_constraints</code>.</p>
 <p>Each employer will have one published report per <code>reporting_year</code>. When a draft report is published, the existing published report (if there is one) will be copied into the <code>report_history</code> table. Once a report is published, the <code>report_id</code> will stay the same even if it is updated. <code>revision</code> keeps track of the number of times a report has been updated after being published.</p>
-<p>Reports that have a <code>create_date</code> older than 30 days are locked on a schedule run daily. Reports with is_unlocked set to false, cannot be modified by the user. An admin can set <code>is_unlocked</code> to true, which will allow the user to publish a new report for the same <code>reporting_year</code>. After 3 days, it will automatically be locked again.</p>
+<p>Reports that have a <code>create_date</code> older than 30 days are locked on a schedule run daily. Reports with <code>is_unlocked</code> set to false, cannot be modified by the user. An admin can set <code>is_unlocked</code> to true, which will allow the user to publish a new report for the same <code>reporting_year</code>. After 3 days, it will automatically be locked again. Changes in <code>is_unlocked</code> is also stored in <code>report_history</code> table which is used to show admin users how frequently a report has been unlocked.</p>
+<p>Reports can also be withdrawn by an admin user, which changes the <code>report_status</code> to &lsquo;Withdrawn&rsquo;. Withdrawn reports are not visible to the user or admin-users. The <code>admin_user_id</code> and <code>admin_modified_date</code> columns are used to track which admin user withdrew the report and when it was done.</p>
 <p>Draft reports that are older than 48 hours are deleted automatically on a schedule.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
@@ -293,7 +294,7 @@
                                         <td class="detail" align="right">22</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>This table stores the report information of old published reports that have been replaced with a new version. Old draft reports are not stored. When a published report is updated, the report&rsquo;s information is copied from <code>pay_transparency_report</code> table to the <code>report_history</code> table. The purpose and meaning of the report information is described in the description of the <code>pay_transparency_report</code> table. Previous reports are not modified and are used as an internal archival record, and are not accessible to the end user.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table stores the report information of old published reports that have been replaced with a new version. Old draft reports are not stored. When a published report is updated, the report&rsquo;s information is copied from <code>pay_transparency_report</code> table to the <code>report_history</code> table. The purpose and meaning of the report information is described in the description of the <code>pay_transparency_report</code> table. Previous reports are not modified and are used as an internal archival record, and are not accessible to the end user. Admin users use this table to see a history of when reports were locked or unlocked.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/announcement_resource.html">announcement_resource</a></td>
@@ -302,7 +303,7 @@
                                         <td class="detail" align="right">10</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>To track resources(links or attachments) associated with an announcement</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table lists the resources associated with an announcement. A resource is either a link to a file, or a link to a URL. While the design supports any number of resources existing for each announcement, the webapp limits the user to one of each type, file or link.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/announcement.html">announcement</a></td>
@@ -311,7 +312,8 @@
                                         <td class="detail" align="right">10</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>To track announcements created from the application</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table stores information about announcements created within the application, including details such as title, description, and status, as well as timestamps for tracking creation, publication, and expiration. Announcements are created by admin users. Announcements are only shown to public users who are logged in. Announcements can be saved with the <code>status</code> of &lsquo;published&rsquo; or &lsquo;draft&rsquo;. Draft is to allow the admin user to save their work and come back to edit it later. Published will make the announcement visible to the public users if the current date is between <code>active_on</code> and <code>expires_on</code>.</p>
+<p><code>Status</code> is automatically set to &lsquo;expired&rsquo; if it is published and the <code>expired_on</code> date has passed. Status is changed to &lsquo;archived&rsquo; when the admin user archives an announcement. A monthly scheduled task will remove from the database any announcement who&rsquo;s <code>updated_date</code> is over 90 days old and has the <code>status</code> &lsquo;expired&rsquo; or &lsquo;archived&rsquo;.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/announcement_resource_type.html">announcement_resource_type</a></td>
@@ -320,7 +322,7 @@
                                         <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>To track the type of resource (Link, Attachment) associated with an announcement</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>A lookup table for the types of resources that an announcement can have. Currently two types: Link and Attachment. A human-readable description is provided for each code.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/company_history.html">company_history</a></td>
@@ -338,7 +340,7 @@
                                         <td class="detail" align="right">13</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>History is updated when there is change in roles or status of the admin user.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table stores the old version of admin users who&rsquo;s roles, active, or other metadata has changed. This table retains a log of modifications to support auditing and historical tracking of admin users. This table is not updated when last_login is updated.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/naics_code.html">naics_code</a></td>
@@ -347,8 +349,7 @@
                                         <td class="detail" align="right">9</td>
                                         <td class="detail" align="right">20</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>This is a lookup table that stores only the 1st level (of 5 levels) codes of the current North American Industry Classification System (NAICS) data. The user is required to select a NAICS code for each report.</p>
-<p><a href="https://www23.statcan.gc.ca/imdb/pUtil.pl?Function=getNote&amp;Id=1369825&amp;NT=45">North American Industry Classification System (NAICS) Canada 2022 Version 1.0</a></p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This is a lookup table that stores only the 1st level (of 5 levels) codes of the current North American Industry Classification System (NAICS) data. The user is required to select a NAICS code for each report. <a href="https://www23.statcan.gc.ca/imdb/pUtil.pl?Function=getNote&amp;Id=1369825&amp;NT=45">North American Industry Classification System (NAICS) Canada 2022 Version 1.0</a></p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/pay_transparency_user.html">pay_transparency_user</a></td>
@@ -366,7 +367,7 @@
                                         <td class="detail" align="right">11</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>Announcement history is updated whenever there is change in any record of an announcement.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This table stores old versions of announcements when changes were made. The announcement history is used as an internal historical record, and is not accessible to admin users.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/announcement_resource_history.html">announcement_resource_history</a></td>
@@ -402,7 +403,7 @@
                                         <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>To track the status of an announcement (Draft, Published, Expired, Deleted)</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>A lookup table for the status of an announcement. Currently, there are four statuses: Draft, Published, Expired, and Archived. A human-readable description is provided for each code.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/reports_view.html">reports_view</a></td>

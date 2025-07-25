@@ -49,7 +49,7 @@
                 <section class="content-header">
                     <div class="callout callout-info">
                         <h4>SchemaSpy Analysis of default</h4>
-                        <p>Generated on Fri Nov 15 18:23 GMT 2024</p>
+                        <p>Generated on Fri Jul 25 21:21 GMT 2025</p>
                     </div>
                 </section>
                 <!-- Main content -->
@@ -60,7 +60,7 @@
                             <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
                         </div><!-- /.box-header -->
                         <div class="box-body">
-                            <p>Database Type: PostgreSQL - 17.1 (Debian 17.1-1.pgdg120+1)</p>
+                            <p>Database Type: PostgreSQL - 17.5 (Debian 17.5-1.pgdg120+1)</p>
                         </div><!-- /.box-body -->
                     </div>
                     <div class="box box-primary">
@@ -85,10 +85,13 @@
                                 <tbody>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="pay_transparency/index.html">pay_transparency</a></td>
-                                        <td class="comment detail" style="display: table-cell;"><p>This database schema holds the statistics and reports, including history, for companies that have leveraged BC&rsquo;s pay transparency reporting tool.</p>
-<p>The user inputted information from the form in the webapp is saved in the tables <code>pay_transparency_calculated_data</code> (which stores all the statistics for the report) and <code>pay_transparency_report</code> (which stores the remaining selectable information for the report). When a user updates a published report, the existing version is moved to the tables <code>calculated_data_history</code> and <code>report_history</code>.</p>
-<p>Users log in with a BCeID account, which must be associated with a BCeID Business account, and the required details are stored in the tables <code>pay_transparency_user</code> and <code>pay_transparency_company</code> respectively. Company name and address is included in the report. If the company details, such as address, changes, then the old details are stored in the table <code>company_history</code> so that old reports can be shown with the details of the company at that time.</p>
-<p>Two lookup tables, <code>employee_count_range</code> and <code>naics_code</code>, hold the selectable options on the form which also appears on the report. Another lookup table, <code>calculation_code</code>, identifies all the statistics used on a report.</p></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>This database schema holds the statistics and reports, including history, for companies that have leveraged BC&rsquo;s Pay Transparency Reporting Tool (PTRT). It also manages information leveraged in the Admin Portal, such as the administrative users in the <code>admin_users</code> table and announcements in the <code>announcements</code> table. The user inputted information from the form in the webapp is saved in the tables <code>pay_transparency_calculated_data</code> (which stores all the statistics for the report) and <code>pay_transparency_report</code> (which stores the remaining selectable information for the report). When a user updates a published report, the existing version is moved to the tables <code>calculated_data_history</code> and <code>report_history</code>.</p>
+<p>Users log in with a BCeID account, which must be associated with a BCeID Business account, and the required details are stored in the tables <code>pay_transparency_user</code> and <code>pay_transparency_company</code> respectively. Company name and address is included in the report. If the company details, such as address, changes, then the old details are stored in the <code>company_history</code> table so that old reports can be shown with the details of the company at that time.</p>
+<p>Two lookup tables, <code>employee_count_range</code> and <code>naics_code</code>, hold the selectable options on the form which also appears on the report. Another lookup table, <code>calculation_code</code>, identifies all the statistics used on a report.</p>
+<p>BC Gov employees who administrate the PTRT through the Admin Portal site are stored in the <code>admin_users</code> table. The Admin users with the &lsquo;admin&rsquo; role can add or remove other admin users. All admin users can use the rest of the Admin Portal site. Keycloak is the source-of-truth for access permissions, this database stores a copy of the information to track admin user usage across the site and is automatically updated whenever a discrepancy between Keycloak and these records are found.</p>
+<p>Admin users can create announcements which will be displayed to logged in users. Announcements are stored in the <code>announcements</code> table and can have resources stored in the <code>announcement_resources</code> table. The <code>announcement_resource_type</code> lookup table defines what kind of resources there are. Any modification to an announcement or it&rsquo;s resources are stored in the tables <code>announcement_history</code> and <code>announcement_resource_history</code>.</p>
+<p>The <code>announcement_status</code> table keeps track of which announcements are shown to the user. Announcements can be given a time range when they are shown to the user and are automatically expired after that time frame. A scheduled task will delete any announcement that expired or was archived over 90 days ago.</p>
+<p>Errors specifically from users uploading files is stored in the <code>user_error</code> table.</p></td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -84,8 +84,7 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>This table holds the statistics for a company&rsquo;s pay transparency report that shows any pay disparity between genders. Every report has 57 records (ie. statistics) in this table, collectively known as &lsquo;calculated data&rsquo;. The records in this table are statistics calculated from the file submitted by users and are used in the report. Records are identified and described by a <code>calculation_code_id</code> from the <code>calculation_code</code> table. If insufficient data prevents a statistic from being calculated, a record is still created with a null value and <code>is_suppressed</code> set as true.</p>
-<p>Calculated data linked to draft reports that are older than 48 hours are deleted automatically on a schedule.</p>
+                            <p>This table holds the statistics for a company&rsquo;s pay transparency report that shows any pay disparity between genders. Every report has 57 records (ie. statistics) in this table, collectively known as &lsquo;calculated data&rsquo;. The records in this table are statistics calculated from the file submitted by users and are used in the report. Records are identified and described by a <code>calculation_code_id</code> from the <code>calculation_code</code> table. If insufficient data prevents a statistic from being calculated, a record is still created with a null <code>value</code> and <code>is_suppressed</code> set as true. Calculated data linked to draft reports that are older than 48 hours are deleted automatically on a schedule.</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -208,7 +207,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>The statistic that indicates any disparity in gender pay, which will be shown as a graph in the resulting report. If there is insufficient information to calculate the statistic, value will be null.</p></td>
+                                    <td><p>The statistic that indicates any disparity in gender pay, which will be shown as a graph in the resulting report. If there is insufficient information to calculate the statistic, <code>value</code> will be null.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="is_suppressed">is_suppressed</span></td>

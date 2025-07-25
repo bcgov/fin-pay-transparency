@@ -84,7 +84,8 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>To track announcements created from the application</p>
+                            <p>This table stores information about announcements created within the application, including details such as title, description, and status, as well as timestamps for tracking creation, publication, and expiration. Announcements are created by admin users. Announcements are only shown to public users who are logged in. Announcements can be saved with the <code>status</code> of &lsquo;published&rsquo; or &lsquo;draft&rsquo;. Draft is to allow the admin user to save their work and come back to edit it later. Published will make the announcement visible to the public users if the current date is between <code>active_on</code> and <code>expires_on</code>.</p>
+<p><code>Status</code> is automatically set to &lsquo;expired&rsquo; if it is published and the <code>expired_on</code> date has passed. Status is changed to &lsquo;archived&rsquo; when the admin user archives an announcement. A monthly scheduled task will remove from the database any announcement who&rsquo;s <code>updated_date</code> is over 90 days old and has the <code>status</code> &lsquo;expired&rsquo; or &lsquo;archived&rsquo;.</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -151,7 +152,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Unique identifier/Primary key for an announcement</p></td>
+                                    <td><p>Primary Unique identifier for an announcement.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="title">title</span></td>
@@ -168,7 +169,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Title of the announcement</p></td>
+                                    <td><p>Title of the announcement displayed to the user.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="description">description</span></td>
@@ -185,7 +186,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Description of the announcement.  Value should be HTML</p></td>
+                                    <td><p>Body of the announcement displayed to the user.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="created_date">created_date</span></td>
@@ -202,7 +203,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Date when the announcement was created</p></td>
+                                    <td><p>Date when the announcement was created.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="updated_date">updated_date</span></td>
@@ -219,7 +220,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Date when the announcement was last updated</p></td>
+                                    <td><p>Date when the announcement was last updated.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="created_by">created_by</span></td>
@@ -241,7 +242,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td><p>The ID of the user who created the announcement</p></td>
+                                    <td><p>The admin user ID who created the announcement.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="updated_by">updated_by</span></td>
@@ -263,7 +264,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td><p>The ID of the user who last updated the announcement</p></td>
+                                    <td><p>The admin user ID who last updated the announcement.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="active_on">active_on</span></td>
@@ -280,7 +281,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Date when the announcement was published</p></td>
+                                    <td><p>Date when the announcement becomes visible to the public user, but only if the status is published.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="expires_on">expires_on</span></td>
@@ -297,7 +298,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Date when the announcement expires (optional)</p></td>
+                                    <td><p>Date when the announcement is hidden from the public user. This can be null if an announcement doesn&rsquo;t expire.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="status">status</span></td>
@@ -319,7 +320,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td><p>Status of the announcement (Draft, Published, Expired, Deleted)</p></td>
+                                    <td><p>Status of the announcement, defined by the <code>announcement_status</code> table. Currently the options are Draft, Published, Expired, or Archived.</p></td>
                                 </tr>
                                 </tbody>
                             </table>

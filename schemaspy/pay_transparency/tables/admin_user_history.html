@@ -84,7 +84,7 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>History is updated when there is change in roles or status of the admin user.</p>
+                            <p>This table stores the old version of admin users who&rsquo;s roles, active, or other metadata has changed. This table retains a log of modifications to support auditing and historical tracking of admin users. This table is not updated when last_login is updated.</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -136,7 +136,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Primary unique ID for each record in the history table.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="admin_user_id">admin_user_id</span></td>
@@ -158,7 +158,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Foreign key reference to the <code>admin_user</code> table, linking history to the main user record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="idir_user_guid">idir_user_guid</span></td>
@@ -175,7 +175,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Unique identifier for the admin user provided by SSO Keycloak for logging purposes.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="display_name">display_name</span></td>
@@ -192,7 +192,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The full name of the admin user to be displayed within the application provided by SSO Keycloak.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_date">create_date</span></td>
@@ -209,7 +209,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Timestamp indicating when the admin user record was created.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="create_user">create_user</span></td>
@@ -226,7 +226,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Admin user ID who invited this user. Or this is set to &ldquo;keycloak&rdquo; if this user was discovered on the SSO Keycloak service and wasn&rsquo;t invited through the app.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_date">update_date</span></td>
@@ -243,7 +243,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Timestamp of the most recent update to the admin user record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="update_user">update_user</span></td>
@@ -260,7 +260,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Admin user ID who last modified the record. Or this is set to &ldquo;keycloak&rdquo; if this updated occurred due to changes discovered on the SSO Keycloak service.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="is_active">is_active</span></td>
@@ -277,7 +277,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Boolean flag indicating if the admin user is currently active in the system. Admin users with the admin role can remove users using the webapp. This removes them from SSO Keycloak, and sets <code>is_active</code> to false. Users must go through the onboarding process before they can become active again.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="assigned_roles">assigned_roles</span></td>
@@ -294,7 +294,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comma-separated list of roles assigned to the admin user, determining permissions within the application. Currently there are two roles, &lsquo;user&rsquo; and &lsquo;admin&rsquo;. &lsquo;admin&rsquo; is for managing the users, and &lsquo;user&rsquo; is for managing the other features available in the administrative section of the application. An admin user will have either the &lsquo;user&rsquo; role or both &lsquo;user&rsquo; and &lsquo;admin&rsquo; role.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="preferred_username">preferred_username</span></td>
@@ -311,7 +311,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>This field stores the <code>idir_user_guid</code> in a consistent string format provided by SSO Keycloak, ensuring reliability for user lookups. While <code>idir_user_guid</code> values are case-insensitive and may contain optional dashes (<code>-</code>), making direct comparisons challenging, the <code>preferred_username</code> field formats the GUID as a standardized string. This consistency simplifies lookups and comparisons within the application.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="last_login">last_login</span></td>
@@ -328,7 +328,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Timestamp of the user&rsquo;s last login. Updating this field does not result in creating a history record.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="email">email</span></td>
@@ -345,7 +345,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>email address of the admin user</p></td>
+                                    <td><p>Email address of the admin user for notifications. For example, all admin users receive an email warning when an announcement is scheduled to expire soon.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
