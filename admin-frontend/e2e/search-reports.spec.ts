@@ -55,6 +55,13 @@ test.describe.serial('Reports', () => {
     // Verify the search results match our expected modified object
     displayedReports[0].isLocked = !displayedReports[0].isLocked;
     await reportsPage.verifySearchResultsMatch(displayedReports);
+
+    // Unlock that report using row number
+    await reportsPage.toggleReportLock(0);
+
+    // Verify the search results match our expected modified object
+    displayedReports[0].isLocked = !displayedReports[0].isLocked;
+    await reportsPage.verifySearchResultsMatch(displayedReports);
   });
 
   test('should filter and display only unlocked reports', async ({ page }) => {
@@ -77,7 +84,7 @@ test.describe.serial('Reports', () => {
     // Get displayed reports and verify they are all unlocked
     await reportsPage.verifyDisplayedReportsLockStatus(false);
   });
-  /*
+
   test('should withdraw a report and reduce the report count', async ({
     page,
   }) => {
@@ -94,5 +101,5 @@ test.describe.serial('Reports', () => {
     const reportsAfterWithdraw = await reportsPage.getDisplayedReports();
     const finalCount = reportsAfterWithdraw.length;
     expect(finalCount).toBe(initialCount - 1);
-  });*/
+  });
 });

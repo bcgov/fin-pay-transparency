@@ -48,6 +48,9 @@ export class SearchReportsPage extends AdminPortalPage {
   withdrawReportButton: Locator;
   reportHistoryButton: Locator;
   noReportsLocator: Locator;
+  confirmDialogButton: Locator;
+  tableRows: Locator;
+  loadingRow: Locator;
 
   static async visit(page: Page): Promise<SearchReportsPage> {
     await page.goto(SearchReportsPage.PATH);
@@ -83,6 +86,17 @@ export class SearchReportsPage extends AdminPortalPage {
       'No reports matched the search criteria',
     );
 
+    this.confirmDialogButton = await this.page.getByRole('button', {
+      name: 'Yes',
+    });
+
+    // Locator for all table rows (excluding header)
+    const table = await this.page.locator('table').first();
+    this.tableRows = table.locator('tbody tr');
+
+    // Locator for the loading row
+    this.loadingRow = this.page.getByText('Loading items...');
+
     await expect(this.searchInput).toBeVisible();
     await expect(this.searchButton).toBeVisible();
     await expect(this.filterButton).toBeVisible();
@@ -94,12 +108,11 @@ export class SearchReportsPage extends AdminPortalPage {
       return [];
     }
 
-    // Wait for the table to be visible
-    const table = await this.page.locator('table').first();
-    await expect(table).toBeVisible();
+    // Wait for the table to finish loading: wait for 'Loading items...' row to disappear
+    await this.loadingRow.waitFor({ state: 'detached' });
 
     // Get all table rows (excluding header)
-    const rows = await table.locator('tbody tr').all();
+    const rows = await this.tableRows.all();
 
     const reports: DisplayedReportRow[] = [];
 
@@ -182,8 +195,8 @@ export class SearchReportsPage extends AdminPortalPage {
    * @param findLocked The status to filter by, or null/undefined for "any"
    */
   async setFilterLocked(findLocked?: boolean | null) {
-    await this.page.waitForTimeout(2000);
     await this.lockFilterInput.click({ force: true, button: 'right' });
+    await this.page.waitForTimeout(2000);
 
     if (findLocked == null) {
       // Select first option which is "any"
@@ -206,48 +219,30 @@ export class SearchReportsPage extends AdminPortalPage {
 
   async toggleReportLock(rowNumber: number) {
     // Find the specific row by row number (0-based index)
-    const table = await this.page.locator('table').first();
-    const targetRow = table.locator('tbody tr').nth(rowNumber);
+    const targetRow = this.tableRows.nth(rowNumber);
 
-    // Check if the report is currently locked by looking for the unlock button
-    const unlockButton = targetRow.getByRole('button', {
+    // Get the toggle button for locking/unlocking the report
+    let toggleButton = targetRow.getByRole('button', {
       name: 'Unlock report',
     });
-    const isLocked = await unlockButton.isVisible();
-
-    if (isLocked) {
-      // Report is locked, click "Unlock report" button
-      await unlockButton.click();
-      const confirmButton = await this.page.getByRole('button', {
-        name: 'Yes, unlock',
+    if (!(await toggleButton.isVisible())) {
+      toggleButton = targetRow.getByRole('button', {
+        name: 'Lock report',
       });
-      await confirmButton.click();
-    } else {
-      // Report is unlocked, click "Lock report" button
-      await targetRow.getByRole('button', { name: 'Lock report' }).click();
-      const confirmButton = await this.page.getByRole('button', {
-        name: 'Yes, lock',
-      });
-      await confirmButton.click();
     }
+    await toggleButton.click();
 
-    // Wait for the operation to complete by waiting for API response
-    await SearchReportsPage.waitForActionResult(this.page);
+    const response = SearchReportsPage.waitForActionResult(this.page);
+    await this.confirmDialogButton.click();
+    await response;
   }
 
   async withdrawReport(rowNumber: number) {
-    // Find the specific row by row number (0-based index)
-    const table = await this.page.locator('table').first();
-    const targetRow = table.locator('tbody tr').nth(rowNumber);
-
+    const targetRow = this.tableRows.nth(rowNumber);
     await targetRow.getByRole('button', { name: 'Withdraw report' }).click();
-    const confirmButton = await this.page.getByRole('button', {
-      name: 'Yes, withdraw',
-    });
-    await confirmButton.click();
-
-    // Wait for the operation to complete
-    await SearchReportsPage.waitForActionResult(this.page);
+    const response = SearchReportsPage.waitForActionResult(this.page);
+    await this.confirmDialogButton.click();
+    await response;
   }
 
   // === PAGE VERIFICATION FUNCTIONS ===
