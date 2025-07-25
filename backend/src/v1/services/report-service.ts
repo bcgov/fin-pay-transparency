@@ -1471,7 +1471,7 @@ const reportService = {
   async copyPublishedReportToHistory(tx, report: pay_transparency_report) {
     if (report.report_status == enumReportStatus.Draft) {
       throw new Error(
-        `Only a ${enumReportStatus.Published} report can be moved to history.`,
+        `Only a ${enumReportStatus.Published} or ${enumReportStatus.Withdrawn} report can be moved to history.`,
       );
     }
 

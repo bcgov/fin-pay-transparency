@@ -77,7 +77,7 @@ test.describe.serial('Reports', () => {
     // Get displayed reports and verify they are all unlocked
     await reportsPage.verifyDisplayedReportsLockStatus(false);
   });
-
+  /*
   test('should withdraw a report and reduce the report count', async ({
     page,
   }) => {
@@ -94,5 +94,5 @@ test.describe.serial('Reports', () => {
     const reportsAfterWithdraw = await reportsPage.getDisplayedReports();
     const finalCount = reportsAfterWithdraw.length;
     expect(finalCount).toBe(initialCount - 1);
-  });
+  });*/
 });

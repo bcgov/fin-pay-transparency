@@ -514,7 +514,7 @@ export default {
 
   async withdrawReport(reportId: string): Promise<any> {
     try {
-      // PATCH endpoint expects { withdrawn: true } as per backend route
+      // PATCH endpoint expects { is_withdrawn: true } as per backend route
       const resp = await apiAxios.patch(`${ApiRoutes.REPORTS}/${reportId}`, {
         is_withdrawn: true,
       });

@@ -83,7 +83,7 @@ router.get(
 /**
  * PATCH - /admin-api/v1/reports/:id
  * Update report properties (is_unlocked and/or is_withdrawn)
- * Example:  body {is_unlocked: true/false, is_withdrawn: true/false}
+ * Example:  body {is_unlocked: true/false, is_withdrawn: true}
  */
 router.patch(
   '/:id',
