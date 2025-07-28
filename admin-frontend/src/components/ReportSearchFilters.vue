@@ -1,251 +1,242 @@
 <template>
-  <div class="primary-filters">
-    <v-row dense class="mt-0 w-100 mb-4">
-      <v-col sm="9" md="8" lg="6" xl="4" class="d-flex align-center">
-        <v-text-field
-          v-model="searchText"
-          prepend-inner-icon="mdi-magnify"
-          density="compact"
-          label="Search by employer name"
-          variant="solo"
-          hide-details
-          :single-line="true"
-          @keyup.enter="searchReports()"
-        >
-          <template #append> </template>
-        </v-text-field>
-        <v-btn class="btn-primary" @click="searchReports()"> Search </v-btn>
-      </v-col>
-      <v-col
-        sm="3"
-        md="4"
-        lg="6"
-        xl="8"
-        class="d-flex justify-end align-center"
+  <div class="primary-filters d-flex flex-wrap mb-2">
+    <div
+      class="d-flex flex-grow-1 my-2 mr-4 ml-0"
+      style="width: 400px; max-width: 650px"
+    >
+      <v-text-field
+        v-model="searchText"
+        prepend-inner-icon="mdi-magnify"
+        density="compact"
+        label="Search by employer name"
+        variant="solo"
+        hide-details
+        :single-line="true"
+        @keyup.enter="searchReports()"
       >
-        <v-btn
-          class="btn-secondary me-2"
-          :disabled="!isDirty()"
-          @click="reset()"
-        >
-          Reset
-        </v-btn>
-        <v-btn
-          class="btn-secondary"
-          prepend-icon="mdi-filter"
-          :append-icon="
-            areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
-          "
-          @click="toggleSecondaryFiltersVisible()"
-        >
-          Filter
-        </v-btn>
-      </v-col>
-    </v-row>
+        <template #append> </template>
+      </v-text-field>
+      <v-btn class="btn-primary" @click="searchReports()"> Search </v-btn>
+    </div>
+
+    <div class="d-flex ml-auto my-2 mr-2 mr-4">
+      <v-btn class="btn-secondary me-2" :disabled="!isDirty()" @click="reset()">
+        Reset
+      </v-btn>
+      <v-btn
+        class="btn-secondary"
+        prepend-icon="mdi-filter"
+        :append-icon="
+          areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
+        "
+        @click="toggleSecondaryFiltersVisible()"
+      >
+        Filter
+      </v-btn>
+    </div>
   </div>
 
-  <div v-if="areSecondaryFiltersVisible" class="secondary-filters py-4">
-    <v-row dense>
-      <v-col sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>
-          Submission Date Range
-          <ToolTip
-            id="submission-date-range-tooltip"
-            text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
-            width="300px"
-            aria-label="submission-date-range-tooltip"
-          ></ToolTip>
-        </h5>
+  <div
+    v-if="areSecondaryFiltersVisible"
+    class="secondary-filters py-2 d-flex flex-wrap"
+  >
+    <div class="d-flex flex-column flex-grow-1 ma-2 ml-0">
+      <h5>
+        Submission Date Range
+        <ToolTip
+          id="submission-date-range-tooltip"
+          text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
+          width="300px"
+          aria-label="submission-date-range-tooltip"
+        ></ToolTip>
+      </h5>
 
-        <VueDatePicker
-          v-model="submissionDateRange"
-          range
-          placeholder="Select date range"
-          format="yyyy-MM-dd"
-          :max-date="new Date()"
-          :enable-time-picker="false"
-          arrow-navigation
-          auto-apply
-          prevent-min-max-navigation
-        >
-          <template #day="{ day, date }">
-            <span :aria-label="formatDate(date)">
-              {{ day }}
-            </span>
-          </template>
-        </VueDatePicker>
-      </v-col>
-
-      <v-col sm="6" md="6" lg="4" xl="2" class="d-flex flex-column">
-        <h5>NAICS Code</h5>
-        <v-select
-          v-model="selectedNaicsCodes"
-          :items="naicsCodes"
-          :persistent-placeholder="true"
-          placeholder="All"
-          multiple
-          class="w-100"
-          variant="solo"
-          density="compact"
-        >
-          <template #item="{ props, item }">
-            <v-list-item
-              v-bind="props"
-              :title="`${item.raw.naics_code} - ${item.raw.naics_label}`"
-            >
-              <template #append="{ isActive }">
-                <v-list-item-action start>
-                  <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
-                </v-list-item-action>
-              </template>
-            </v-list-item>
-          </template>
-          <template #selection="{ item, index }">
-            <v-chip v-if="index < maxSelectedNaicsCodesShown">
-              <span>{{ item.raw.naics_code }}</span>
-            </v-chip>
-            <span
-              v-if="index === maxSelectedNaicsCodesShown"
-              class="text-grey text-caption align-self-center"
-            >
-              (+{{ selectedNaicsCodes.length - maxSelectedNaicsCodesShown }}
-              more)
-            </span>
-          </template>
-        </v-select>
-      </v-col>
-
-      <v-col sm="4" md="2" lg="2" xl="1" class="d-flex flex-column">
-        <h5>Year</h5>
-        <v-select
-          id="report-year"
-          v-model="selectedReportYear"
-          :items="reportYearOptions"
-          variant="solo"
-          density="compact"
-          aria-label="Report Year"
-        >
-          <template #item="{ props, item }">
-            <v-list-item
-              :aria-label="'Year: ' + item.raw"
-              v-bind="props"
-              :title="item.raw ? item.raw : 'All'"
-            >
-              <template #append="{ isActive }">
-                <v-icon v-if="isActive" icon="mdi-check"></v-icon>
-              </template>
-            </v-list-item>
-          </template>
-          <template #selection="{ item, index }">
-            <span v-if="!item.raw">All</span>
-            <span v-if="item.raw">{{ item.raw }}</span>
-          </template>
-        </v-select>
-      </v-col>
-
-      <v-col sm="4" md="3" lg="2" xl="1" class="d-flex flex-column">
-        <h5>Locked/Unlocked</h5>
-        <v-select
-          id="unlocked-status"
-          v-model="selectedLockedValues"
-          :items="lockedOptions"
-          variant="solo"
-          density="compact"
-          aria-label="Locked/Unlocked"
-        >
-          <template #item="{ props, item }">
-            <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
-              <template #append="{ isActive }">
-                <v-icon v-if="isActive" icon="mdi-check"></v-icon>
-              </template>
-            </v-list-item>
-          </template>
-          <template #selection="{ item, index }">
-            <span v-if="!item.raw">All</span>
-            <span v-if="item.raw">{{ item.raw }}</span>
-          </template>
-        </v-select>
-      </v-col>
-
-      <v-col sm="8" md="7" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Employee Count</h5>
-        <v-select
-          v-model="selectedEmployeeCount"
-          :items="employeeCountRanges"
-          :persistent-placeholder="true"
-          placeholder="All"
-          multiple
-          class="w-100"
-          variant="solo"
-          density="compact"
-        >
-          <template #item="{ props, item }">
-            <v-list-item v-bind="props" :title="item.raw.employee_count_range">
-              <template #append="{ isActive }">
-                <v-list-item-action start>
-                  <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
-                </v-list-item-action>
-              </template>
-            </v-list-item>
-          </template>
-          <template #selection="{ item, index }">
-            <v-chip>
-              <span>{{ item.raw.employee_count_range }}</span>
-            </v-chip>
-          </template>
-        </v-select>
-      </v-col>
-
-      <v-col sm="4" md="3" lg="2" xl="1" class="d-flex flex-column">
-        <h5>Status</h5>
-        <v-select
-          id="status-filter"
-          v-model="selectedStatusValues"
-          :items="statusOptions"
-          variant="solo"
-          density="compact"
-          aria-label="Status"
-        >
-          <template #item="{ props, item }">
-            <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
-              <template #append="{ isActive }">
-                <v-icon v-if="isActive" icon="mdi-check"></v-icon>
-              </template>
-            </v-list-item>
-          </template>
-          <template #selection="{ item }">
-            <span v-if="!item.raw">All</span>
-            <span v-if="item.raw">{{ item.raw }}</span>
-          </template>
-        </v-select>
-      </v-col>
-
-      <v-col
-        sm="4"
-        md="1"
-        lg="2"
-        xl="2"
-        offset-sm="0"
-        offset-md="11"
-        offset-lg="6"
-        offset-xl="0"
-        class="align-stretch"
+      <VueDatePicker
+        v-model="submissionDateRange"
+        range
+        placeholder="Select date range"
+        format="yyyy-MM-dd"
+        :max-date="new Date()"
+        :enable-time-picker="false"
+        arrow-navigation
+        auto-apply
+        prevent-min-max-navigation
       >
-        <h5>&nbsp;</h5>
-        <div class="d-flex justify-end align-center filter-buttons">
-          <v-btn class="btn-primary mr-0" @click="searchReports()">
-            Apply
-          </v-btn>
-          <v-btn
-            class="btn-link ms-2"
-            :disabled="!areSecondaryFiltersDirty()"
-            @click="clear()"
+        <template #day="{ day, date }">
+          <span :aria-label="formatDate(date)">
+            {{ day }}
+          </span>
+        </template>
+      </VueDatePicker>
+    </div>
+
+    <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 307px">
+      <h5>NAICS Code</h5>
+      <v-select
+        v-model="selectedNaicsCodes"
+        :items="naicsCodes"
+        :persistent-placeholder="true"
+        placeholder="All"
+        multiple
+        class="w-100"
+        variant="solo"
+        density="compact"
+      >
+        <template #item="{ props, item }">
+          <v-list-item
+            v-bind="props"
+            :title="`${item.raw.naics_code} - ${item.raw.naics_label}`"
           >
-            Clear
-          </v-btn>
-        </div>
-      </v-col>
-    </v-row>
+            <template #append="{ isActive }">
+              <v-list-item-action start>
+                <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
+              </v-list-item-action>
+            </template>
+          </v-list-item>
+        </template>
+        <template #selection="{ item, index }">
+          <v-chip v-if="index < maxSelectedNaicsCodesShown">
+            <span>{{ item.raw.naics_code }}</span>
+          </v-chip>
+          <span
+            v-if="index === maxSelectedNaicsCodesShown"
+            class="text-grey text-caption align-self-center"
+          >
+            (+{{ selectedNaicsCodes.length - maxSelectedNaicsCodesShown }}
+            more)
+          </span>
+        </template>
+      </v-select>
+    </div>
+
+    <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 102px">
+      <h5>Year</h5>
+      <v-select
+        id="report-year"
+        v-model="selectedReportYear"
+        :items="reportYearOptions"
+        variant="solo"
+        density="compact"
+        aria-label="Report Year"
+      >
+        <template #item="{ props, item }">
+          <v-list-item
+            :aria-label="'Year: ' + item.raw"
+            v-bind="props"
+            :title="item.raw ? item.raw : 'All'"
+          >
+            <template #append="{ isActive }">
+              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+            </template>
+          </v-list-item>
+        </template>
+        <template #selection="{ item, index }">
+          <span v-if="!item.raw">All</span>
+          <span v-if="item.raw">{{ item.raw }}</span>
+        </template>
+      </v-select>
+    </div>
+
+    <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 136px">
+      <h5>Locked/Unlocked</h5>
+      <v-select
+        id="unlocked-status"
+        v-model="selectedLockedValues"
+        :items="lockedOptions"
+        variant="solo"
+        density="compact"
+        aria-label="Locked/Unlocked"
+      >
+        <template #item="{ props, item }">
+          <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+            <template #append="{ isActive }">
+              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+            </template>
+          </v-list-item>
+        </template>
+        <template #selection="{ item, index }">
+          <span v-if="!item.raw">All</span>
+          <span v-if="item.raw">{{ item.raw }}</span>
+        </template>
+      </v-select>
+    </div>
+
+    <div
+      class="d-flex flex-column flex-grow-1 ma-2 ml-0"
+      style="width: 320px; max-width: 400px"
+    >
+      <h5>Employee Count</h5>
+      <v-select
+        v-model="selectedEmployeeCount"
+        :items="employeeCountRanges"
+        :persistent-placeholder="true"
+        placeholder="All"
+        multiple
+        class="w-100"
+        variant="solo"
+        density="compact"
+      >
+        <template #item="{ props, item }">
+          <v-list-item v-bind="props" :title="item.raw.employee_count_range">
+            <template #append="{ isActive }">
+              <v-list-item-action start>
+                <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
+              </v-list-item-action>
+            </template>
+          </v-list-item>
+        </template>
+        <template #selection="{ item, index }">
+          <v-chip>
+            <span>{{ item.raw.employee_count_range }}</span>
+          </v-chip>
+        </template>
+      </v-select>
+    </div>
+
+    <div
+      class="d-flex flex-column flex-grow-1 me-auto ma-2 ml-0"
+      style="width: 148px; max-width: 300px"
+    >
+      <h5>Status</h5>
+      <v-select
+        id="status-filter"
+        v-model="selectedStatusValues"
+        :items="statusOptions"
+        variant="solo"
+        density="compact"
+        aria-label="Status"
+      >
+        <template #item="{ props, item }">
+          <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+            <template #append="{ isActive }">
+              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+            </template>
+          </v-list-item>
+        </template>
+        <template #selection="{ item }">
+          <span v-if="!item.raw">All</span>
+          <span v-if="item.raw">{{ item.raw }}</span>
+        </template>
+      </v-select>
+    </div>
+
+    <div class="d-flex flex-column ma-2 mr-0">
+      <h5>&nbsp;</h5>
+    </div>
+
+    <div class="d-flex flex-column ml-auto ma-2 mr-0">
+      <h5>&nbsp;</h5>
+      <div class="d-flex justify-end align-center filter-buttons">
+        <v-btn class="btn-primary mr-0" @click="searchReports()"> Apply </v-btn>
+        <v-btn
+          class="btn-link ms-2"
+          :disabled="!areSecondaryFiltersDirty()"
+          @click="clear()"
+        >
+          Clear
+        </v-btn>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -466,7 +457,7 @@ input::-ms-input-placeholder {
 
 button.dp__action_button {
   padding: 16px 16px 16px 16px !important;
-  min-width: 64px;
+  width: 64px;
   font-weight: 500;
   font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
   font-size: 14px;
