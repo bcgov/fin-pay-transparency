@@ -45,7 +45,7 @@ config.defaults({
     emailExpiringAnnouncementsCronTime:
       process.env.EMAIL_EXPIRING_ANNOUNCEMENTS_CRON_CRONTIME,
     schedulerTimeZone: process.env.REPORTS_SCHEDULER_CRON_TIMEZONE,
-    schedulerExpireAnnountmentsCronTime:
+    schedulerExpireAnnouncementsCronTime:
       process.env.EXPIRE_ANNOUNCEMENTS_CRON_CRONTIME,
     deleteAnnouncementsCronTime: process.env.DELETE_ANNOUNCEMENTS_CRON_CRONTIME,
     enableEmailExpiringAnnouncements:
