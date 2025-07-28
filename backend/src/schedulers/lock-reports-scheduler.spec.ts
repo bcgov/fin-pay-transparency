@@ -109,6 +109,7 @@ jest.mock('../config', () => ({
   config: {
     get: (key: string) => {
       const settings = {
+        'server:schedulerLockReportCronTime': '121212121',
         'server:reportEditDurationInDays': 30,
         'server:reportUnlockDurationInDays': 2,
         'ches:enabled': true,

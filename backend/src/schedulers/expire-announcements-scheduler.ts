@@ -8,18 +8,18 @@ const mutex = advisoryLock(config.get('server:databaseUrl'))(
   'expire_announcements',
 );
 
-const crontime = config.get('server:schedulerExpireAnnountmentsCronTime');
+const crontime = config.get('server:schedulerExpireAnnouncementsCronTime');
 
 export default createJob(
   crontime,
   async () => {
-    log.info('Starting expireAnnounements scheduled job.');
+    log.info('Starting expireAnnouncements scheduled job.');
     await announcementService.expireAnnouncements();
-    log.info('Completed expireAnnounements scheduled job.');
+    log.info('Completed expireAnnouncements scheduled job.');
   },
   mutex,
   {
-    title: 'Error in expireAnnounements',
-    message: 'Error running scheduled job for expireAnnounements',
+    title: 'Error in expireAnnouncements',
+    message: 'Error running scheduled job for expireAnnouncements',
   },
 );

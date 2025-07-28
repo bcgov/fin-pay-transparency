@@ -43,9 +43,9 @@ global:
     report_edit_duration_in_days: "30"
     report_unlock_duration_in_days: "2"
     template_path: "./dist/templates"
-    # disable any crontime by setting it to "0 0 31 2 *" (feb 31)
+    # disable any crontime by setting it to ""
     delete_draft_report_cron_crontime: "0 0 * * *" # 12:00 AM PST/PDT
-    delete_user_errors_cron_crontime: "0 0 31 2 *" #(disabled) At 12:30 AM on the 1st day of every 6th month
+    delete_user_errors_cron_crontime: "" #(disabled) At 12:30 AM on the 1st day of every 6th month
     lock_report_cron_crontime: "15 0 * * *" # 12:15 AM PST/PDT
     expire_announcements_cron_crontime: "0 6,18 * * *" # 6am & 6pm daily
     delete_announcements_cron_crontime: "0 0 1 * *" # 1st day of every month

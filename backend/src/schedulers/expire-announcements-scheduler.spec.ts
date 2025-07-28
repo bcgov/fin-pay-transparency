@@ -24,6 +24,18 @@ jest.mock('cron', () => ({
   },
 }));
 
+jest.mock('../config', () => ({
+  config: {
+    get: (key: string) => {
+      const settings = {
+        'server:schedulerExpireAnnouncementsCronTime': '121212121',
+      };
+
+      return settings[key];
+    },
+  },
+}));
+
 const mockTryLock = jest.fn();
 const mockUnlock = jest.fn();
 jest.mock('advisory-lock', () => ({
