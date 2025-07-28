@@ -94,6 +94,12 @@ export type IsUnlockedFilter = {
   value: boolean;
 };
 
+export type StatusFilter = {
+  key: 'report_status';
+  operation: 'eq';
+  value: string;
+};
+
 export type CompanyFilter = {
   key: 'company_name';
   operation: 'like';
@@ -111,6 +117,7 @@ export type ReportFilterType = (
   | NaicsCodeFilter
   | ReportingYearFilter
   | IsUnlockedFilter
+  | StatusFilter
   | EmployeeCountRangeFilter
   | CompanyFilter
   | AdminLastAccessDateFilter

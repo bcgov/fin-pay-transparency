@@ -277,7 +277,7 @@ const adminReportService = {
    */
   convertFiltersToPrismaFormat(filterObj: ReportFilterType): any {
     const prismaFilterObj: Prisma.pay_transparency_reportWhereInput = {
-      report_status: 'Published',
+      report_status: { not: 'Draft' },
     };
 
     for (const item of filterObj) {

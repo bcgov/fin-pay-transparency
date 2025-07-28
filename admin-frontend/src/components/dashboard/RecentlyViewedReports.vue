@@ -69,6 +69,7 @@ async function refresh() {
 async function getRecentlyViewedReports(): Promise<Report[]> {
   const filter: ReportFilterType = [
     { key: 'admin_last_access_date', operation: 'not', value: null },
+    { key: 'report_status', operation: 'eq', value: 'Published' },
   ];
   const sort: IReportSearchSort = [{ admin_last_access_date: 'desc' }];
   const searchResults: IReportSearchResult = await ApiService.getReports(

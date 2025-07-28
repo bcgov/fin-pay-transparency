@@ -65,7 +65,9 @@ const headers = [
 ];
 
 async function getRecentlySubmittedReports(): Promise<Report[]> {
-  const filter: ReportFilterType = [];
+  const filter: ReportFilterType = [
+    { key: 'report_status', operation: 'eq', value: 'Published' },
+  ];
   const sort: IReportSearchSort = [{ update_date: 'desc' }];
   const searchResults: IReportSearchResult = await ApiService.getReports(
     0,

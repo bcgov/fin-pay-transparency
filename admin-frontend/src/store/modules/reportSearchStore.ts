@@ -13,11 +13,11 @@ export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
   page: 1,
   itemsPerPage: 20,
-  filter: undefined,
+  filter: [{ key: 'report_status', operation: 'eq', value: 'Published' }],
   sort: [{ create_date: 'desc' }],
 };
 export const DEFAULT_DOWNLOAD_CSV_PARAMS: IReportSearchParams = {
-  filter: undefined,
+  filter: [{ key: 'report_status', operation: 'eq', value: 'Published' }],
   sort: [{ create_date: 'desc' }],
 };
 
@@ -93,7 +93,9 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
       page: params.page,
       itemsPerPage: params.itemsPerPage,
       sort: dataTableSortByToBackendSort(params.sortBy),
-      filter: lastSubmittedReportSearchParams.value?.filter,
+      filter:
+        lastSubmittedReportSearchParams.value?.filter ||
+        DEFAULT_SEARCH_PARAMS.filter,
     };
     return searchReports(paramsAgumented);
   };
