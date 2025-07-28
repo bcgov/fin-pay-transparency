@@ -26,6 +26,9 @@ vi.mock('file-saver', async () => {
 describe('ApiService', () => {
   beforeEach(() => {});
 
+  // Reusable mock helpers
+  const mockAxiosError = new AxiosError();
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -111,6 +114,190 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('setAuthHeader', () => {
+    it('sets the Authorization header when token is provided', () => {
+      ApiService.setAuthHeader('test-token');
+      expect(ApiService.apiAxios.defaults.headers.common['Authorization']).toBe(
+        'Bearer test-token',
+      );
+    });
+    it('removes the Authorization header when token is not provided', () => {
+      ApiService.setAuthHeader(undefined);
+      expect(
+        ApiService.apiAxios.defaults.headers.common['Authorization'],
+      ).toBeUndefined();
+    });
+  });
+
+  describe('setCorrelationID', () => {
+    it('sets the x-correlation-id header when correlationID is provided', () => {
+      ApiService.setCorrelationID('test-correlation');
+      expect(
+        ApiService.apiAxios.defaults.headers.common['x-correlation-id'],
+      ).toBe('test-correlation');
+    });
+    it('removes the x-correlation-id header when correlationID is not provided', () => {
+      ApiService.setCorrelationID(undefined);
+      expect(
+        ApiService.apiAxios.defaults.headers.common['x-correlation-id'],
+      ).toBeUndefined();
+    });
+  });
+
+  describe('getEmployeeCountRanges', () => {
+    it('returns employee count ranges', async () => {
+      const mockResp = { data: [1, 2, 3] };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.getEmployeeCountRanges();
+      expect(resp).toEqual([1, 2, 3]);
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.getEmployeeCountRanges()).rejects.toEqual(
+        mockAxiosError,
+      );
+    });
+  });
+
+  describe('getNaicsCodes', () => {
+    it('returns NAICS codes', async () => {
+      const mockResp = { data: ['A', 'B'] };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.getNaicsCodes();
+      expect(resp).toEqual(['A', 'B']);
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.getNaicsCodes()).rejects.toEqual(mockAxiosError);
+    });
+  });
+
+  describe('getReports', () => {
+    it('returns report search results', async () => {
+      const mockResp = { data: { reports: [], total: 1 } };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.getReports();
+      expect(resp).toEqual({ reports: [], total: 1 });
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.getReports()).rejects.toEqual(mockAxiosError);
+    });
+  });
+
+  describe('getReportAdminActionHistory', () => {
+    it('returns admin action history', async () => {
+      const mockResp = { data: [{ action: 'edit' }] };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.getReportAdminActionHistory('1');
+      expect(resp).toEqual([{ action: 'edit' }]);
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.getReportAdminActionHistory('1')).rejects.toEqual(
+        mockAxiosError,
+      );
+    });
+  });
+
+  describe('getAnnouncements', () => {
+    it('returns announcement search results', async () => {
+      const mockResp = { data: { announcements: [], total: 1 } };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.getAnnouncements();
+      expect(resp).toEqual({ announcements: [], total: 1 });
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.getAnnouncements()).rejects.toEqual(
+        mockAxiosError,
+      );
+    });
+  });
+
+  describe('addAnnouncement', () => {
+    it('returns a promise that resolves when successful', async () => {
+      vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce({
+        data: {},
+        status: 201,
+      });
+      await expect(
+        ApiService.addAnnouncement({
+          title: 'test',
+          description: 'test',
+          status: 'PUBLISHED',
+          active_on: '2021-12-31',
+          expires_on: '2021-12-31',
+        }),
+      ).resolves;
+    });
+    it('returns a promise that rejects when unsuccessful', async () => {
+      vi.spyOn(ApiService.apiAxios, 'post').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(
+        ApiService.addAnnouncement({
+          title: '',
+          description: '',
+          status: 'DRAFT',
+          active_on: '',
+          expires_on: '',
+        }),
+      ).rejects.toEqual(mockAxiosError);
+    });
+  });
+
+  describe('lockUnlockReport', () => {
+    it('returns true when report is unlocked', async () => {
+      const mockResp = { data: { is_unlocked: true } };
+      vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.lockUnlockReport('1', true);
+      expect(resp).toBe(true);
+    });
+    it('returns false when report is locked', async () => {
+      const mockResp = { data: { is_unlocked: false } };
+      vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.lockUnlockReport('1', false);
+      expect(resp).toBe(false);
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'patch').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.lockUnlockReport('1', true)).rejects.toEqual(
+        mockAxiosError,
+      );
+    });
+  });
+
+  describe('withdrawReport', () => {
+    it('returns response data when successful', async () => {
+      const mockResp = { data: { is_withdrawn: true } };
+      vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.withdrawReport('1');
+      expect(resp).toEqual({ is_withdrawn: true });
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'patch').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.withdrawReport('1')).rejects.toEqual(
+        mockAxiosError,
+      );
+    });
+  });
+
   describe('inviteUser', () => {
     describe('when the data are successfully saved in the backend', () => {
       it('200 - success', async () => {

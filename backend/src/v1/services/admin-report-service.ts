@@ -11,7 +11,7 @@ import {
   ReportSortType,
 } from '../types/report-search';
 import { PayTransparencyUserError } from './file-upload-service';
-import { reportService } from './report-service';
+import { enumReportStatus, reportService } from './report-service';
 import { utils } from './utils-service';
 
 interface IGetReportMetricsInput {
@@ -326,6 +326,55 @@ const adminReportService = {
       }
     }
     return prismaFilterObj;
+  },
+
+  /**
+   * Withdraw a published report by changing its status to 'Withdrawn'.
+   * Only PTRT-ADMIN users should be able to call this method.
+   * @param reportId - The ID of the report to withdraw
+   * @param idirGuid - The IDIR GUID of the admin user performing the withdrawal
+   * @returns The withdrawn report
+   */
+  async withdrawReport(
+    reportId: string,
+    idirGuid: string,
+  ): Promise<pay_transparency_report> {
+    // Get the admin user ID from the IDIR GUID
+    const adminUser = await prisma.admin_user.findFirst({
+      where: { idir_user_guid: idirGuid },
+    });
+
+    if (!adminUser) {
+      throw new UserInputError('Admin user not found');
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      // Get the current report
+      const existingReport = await tx.pay_transparency_report.findUniqueOrThrow(
+        {
+          where: { report_id: reportId },
+        },
+      );
+
+      if (existingReport.report_status !== enumReportStatus.Published) {
+        throw new UserInputError('Only published reports can be withdrawn');
+      }
+
+      // Copy the current published report to history before withdrawal
+      await reportService.copyPublishedReportToHistory(tx, existingReport);
+
+      // Update the report status to Withdrawn
+      const withdrawnReport = await tx.pay_transparency_report.update({
+        where: { report_id: reportId },
+        data: {
+          report_status: enumReportStatus.Withdrawn,
+          admin_user_id: adminUser.admin_user_id,
+          admin_modified_date: new Date(),
+        },
+      });
+
+      return withdrawnReport;
+    });
   },
 };
 
