@@ -196,6 +196,30 @@
         </v-select>
       </v-col>
 
+      <v-col sm="4" md="3" lg="2" xl="1" class="d-flex flex-column">
+        <h5>Status</h5>
+        <v-select
+          id="status-filter"
+          v-model="selectedStatusValues"
+          :items="statusOptions"
+          variant="solo"
+          density="compact"
+          aria-label="Status"
+        >
+          <template #item="{ props, item }">
+            <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+              <template #append="{ isActive }">
+                <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              </template>
+            </v-list-item>
+          </template>
+          <template #selection="{ item }">
+            <span v-if="!item.raw">All</span>
+            <span v-if="item.raw">{{ item.raw }}</span>
+          </template>
+        </v-select>
+      </v-col>
+
       <v-col
         sm="4"
         md="1"
@@ -260,6 +284,7 @@ const selectedNaicsCodes = ref([]);
 const selectedReportYear = ref(undefined);
 const selectedLockedValues = ref(undefined);
 const selectedEmployeeCount = ref([]);
+const selectedStatusValues = ref('Published');
 
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
 const startYear = 2024;
@@ -269,6 +294,7 @@ const reportYearOptions = ref([
   ...range(startYear, currentYear + 1).reverse(),
 ]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
+const statusOptions = ref([null, 'Published', 'Withdrawn']);
 
 const formatDate = (date: Date) => {
   return LocalDate.from(nativeJs(date)).format(
@@ -338,6 +364,13 @@ function getReportSearchFilters(): ReportFilterType {
       value: selectedLockedValues.value == 'Unlocked',
     });
   }
+  if (selectedStatusValues.value && selectedStatusValues.value !== 'All') {
+    filters.push({
+      key: 'report_status',
+      operation: 'eq',
+      value: selectedStatusValues.value,
+    });
+  }
   return filters;
 }
 
@@ -373,7 +406,9 @@ function areSecondaryFiltersDirty() {
     selectedNaicsCodes.value?.length != 0 ||
     selectedReportYear.value != undefined ||
     selectedLockedValues.value != undefined ||
-    selectedEmployeeCount.value?.length !== 0
+    selectedEmployeeCount.value?.length !== 0 ||
+    (selectedStatusValues.value != undefined &&
+      selectedStatusValues.value !== 'Published')
   );
 }
 
@@ -384,6 +419,7 @@ function clear() {
   selectedReportYear.value = undefined;
   selectedLockedValues.value = undefined;
   selectedEmployeeCount.value = [];
+  selectedStatusValues.value = 'Published';
   reportSearchStore.reset();
 }
 

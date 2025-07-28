@@ -8,6 +8,7 @@ export type FilterKeyType =
   | 'naics_code'
   | 'reporting_year'
   | 'is_unlocked'
+  | 'report_status'
   | 'employee_count_range_id'
   | 'company_name'
   | 'admin_last_access_date';
@@ -50,6 +51,12 @@ export type IsUnlockedFilter = {
   value: boolean;
 };
 
+export type ReportStatusFilter = {
+  key: 'report_status';
+  operation: 'eq';
+  value: string;
+};
+
 export type CompanyFilter = {
   key: 'company_name';
   operation: 'like';
@@ -68,6 +75,7 @@ export type ReportFilterType = (
   | NaicsCodeFilter
   | ReportingYearFilter
   | IsUnlockedFilter
+  | ReportStatusFilter
   | EmployeeCountRangeFilter
   | CompanyFilter
   | AdminLastAccessDateFilter
@@ -138,6 +146,7 @@ const FILTER_OPERATION_SCHEMA: {
       'Only "eq" or "neq" or "gt" or "gte" or "lt" or "lte" operation is allowed',
   }),
   is_unlocked: z.enum(['eq'], { message: 'Only "eq" operation is allowed' }),
+  report_status: z.enum(['eq'], { message: 'Only "eq" operation is allowed' }),
   company_name: z.enum(['like'], {
     message: 'Only "like" operation is allowed',
   }),
@@ -153,6 +162,7 @@ const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   employee_count_range_id: z.array(z.string()).optional(),
   reporting_year: z.number().optional(),
   is_unlocked: z.boolean().optional(),
+  report_status: z.enum(['Published', 'Withdrawn']).optional(),
   company_name: z.string().optional(),
   admin_last_access_date: z.null(),
 };
@@ -167,6 +177,7 @@ export const FilterValidationSchema = z.array(
           'naics_code',
           'reporting_year',
           'is_unlocked',
+          'report_status',
           'employee_count_range_id',
           'company_name',
           'admin_last_access_date',
@@ -174,7 +185,7 @@ export const FilterValidationSchema = z.array(
         {
           required_error: 'Missing or invalid filter key',
           message:
-            'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
+            'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, report_status, employee_count_range_id',
         },
       ),
       operation: z.string({
