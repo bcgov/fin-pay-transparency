@@ -23,6 +23,10 @@ export const createJob = (
   mutex: AdvisoryLock,
   { title, message }: IErrorHandlerConfig,
 ) => {
+  if (!cronTime) {
+    // If cronTime is empty string, then don't create a CronJob which effectively disables the schedule
+    return null;
+  }
   return new CronJob(
     cronTime,
     async function () {
