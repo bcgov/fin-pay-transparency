@@ -136,7 +136,7 @@ describe('ReportSearchFilters', () => {
         );
       });
     });
-    describe(`when the report year is specified (and all other filters in the UI are empty)`, () => {
+    describe(`when the Locked field is specified (and all other filters in the UI are empty)`, () => {
       it('produces a valid filters array', async () => {
         wrapper.vm.clear();
         const isUnlocked = false;
@@ -146,6 +146,22 @@ describe('ReportSearchFilters', () => {
         expect(reportYearFilters.length).toBe(1);
         expect(reportYearFilters[0].operation).toBe('eq');
         expect(reportYearFilters[0].value).toBe(isUnlocked);
+      });
+    });
+    describe(`when the Status field is specified (and all other filters in the UI are empty)`, () => {
+      it('produces a valid filters array', async () => {
+        wrapper.vm.clear();
+        const isPublished = false;
+        wrapper.vm.selectedStatusValues = isPublished
+          ? 'Published'
+          : 'Withdrawn';
+        const filters = wrapper.vm.getReportSearchFilters();
+        const reportYearFilters = filters.filter(
+          (d) => d.key == 'report_status',
+        );
+        expect(reportYearFilters.length).toBe(1);
+        expect(reportYearFilters[0].operation).toBe('eq');
+        expect(reportYearFilters[0].value).toBe('Withdrawn');
       });
     });
   });
