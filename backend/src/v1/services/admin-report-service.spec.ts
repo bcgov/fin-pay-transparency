@@ -478,20 +478,16 @@ describe('admin-report-service', () => {
 
       describe('when filter is invalid', () => {
         it('should fail if key is invalid', async () => {
-          try {
-            expect(
-              await adminReportService.searchReport(
-                0,
-                101,
-                '[]',
-                '[{"key": "invalid", "operation": "eq", "value": 1}]',
-              ),
-            ).toThrow();
-          } catch (error) {
-            expect(error.errors.map((error) => error.message)).toContain(
-              'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, employee_count_range_id',
-            );
-          }
+          await expect(
+            adminReportService.searchReport(
+              0,
+              101,
+              '[]',
+              '[{"key": "invalid", "operation": "eq", "value": 1}]',
+            ),
+          ).rejects.toThrow(
+            'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, report_status, employee_count_range_id',
+          );
         });
         it('should fail if operation is invalid for the specified key', async () => {
           await expect(
@@ -501,56 +497,28 @@ describe('admin-report-service', () => {
               '[]',
               '[{"key": "create_date", "operation": "eq", "value": ["2024-04-19 21:46:53.876", "2024-04-19 21:46:53.876"]}]',
             ),
-          ).rejects.toThrow();
-        });
-        it('should fail if operation is invalid for the specified key', async () => {
-          try {
-            expect(
-              await adminReportService.searchReport(
-                0,
-                101,
-                '[]',
-                '[{"key": "update_date", "operation": "eq", "value": ["2024-04-19 21:46:53.876", "2024-04-19 21:46:53.876"]}]',
-              ),
-            ).toThrow();
-          } catch (error) {
-            expect(error.errors.map((error) => error.message)).toContain(
-              'Missing or invalid operation',
-            );
-          }
+          ).rejects.toThrow('Missing or invalid operation');
         });
         it('should fail if operation is missing', async () => {
-          try {
-            expect(
-              await adminReportService.searchReport(
-                0,
-                101,
-                '[]',
-                '[{"key": "update_date", "value": []}]',
-              ),
-            ).toThrow();
-          } catch (error) {
-            expect(error.errors.map((error) => error.message)).toContain(
-              'Missing operation',
-            );
-          }
+          await expect(
+            adminReportService.searchReport(
+              0,
+              101,
+              '[]',
+              '[{"key": "update_date", "value": []}]',
+            ),
+          ).rejects.toThrow('Missing operation');
         });
 
         it('should fail if filter value is invalid for the specified key', async () => {
-          try {
-            expect(
-              await adminReportService.searchReport(
-                0,
-                101,
-                '[]',
-                '[{"key": "is_unlocked", "operation": "eq", "value": []}]',
-              ),
-            ).toThrow();
-          } catch (error) {
-            expect(error.errors.map((error) => error.message)).toContain(
-              'Invalid or missing filter value',
-            );
-          }
+          await expect(
+            adminReportService.searchReport(
+              0,
+              101,
+              '[]',
+              '[{"key": "is_unlocked", "operation": "eq", "value": []}]',
+            ),
+          ).rejects.toThrow('Invalid or missing filter value');
         });
       });
     });
