@@ -230,17 +230,16 @@ export class SearchReportsPage extends AdminPortalPage {
         name: 'Lock report',
       });
     }
-    await toggleButton.click();
-
     const response = SearchReportsPage.waitForActionResult(this.page);
+    await toggleButton.click();
     await this.confirmDialogButton.click();
     await response;
   }
 
   async withdrawReport(rowNumber: number) {
     const targetRow = this.tableRows.nth(rowNumber);
-    await targetRow.getByRole('button', { name: 'Withdraw report' }).click();
     const response = SearchReportsPage.waitForActionResult(this.page);
+    await targetRow.getByRole('button', { name: 'Withdraw report' }).click();
     await this.confirmDialogButton.click();
     await response;
   }

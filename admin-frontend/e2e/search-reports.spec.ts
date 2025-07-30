@@ -40,7 +40,6 @@ test.describe.serial('Reports', () => {
       firstEmployerName,
     );
   });
-  /*
 
   test('should toggle lock on first report and reflect the change in the table', async ({
     page,
@@ -64,7 +63,7 @@ test.describe.serial('Reports', () => {
     displayedReports[0].isLocked = !displayedReports[0].isLocked;
     await reportsPage.verifySearchResultsMatch(displayedReports);
   });
-  
+
   test('should filter and display only unlocked reports', async ({ page }) => {
     const reportsPage = await SearchReportsPage.visit(page);
 
@@ -84,7 +83,7 @@ test.describe.serial('Reports', () => {
 
     // Get displayed reports and verify they are all unlocked
     await reportsPage.verifyDisplayedReportsLockStatus(false);
-  });*/
+  });
 
   test('should withdraw a report and reduce the report count', async ({
     page,
