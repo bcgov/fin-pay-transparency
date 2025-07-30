@@ -756,48 +756,272 @@ describe('admin-report-service', () => {
 
   describe('getReportAdminActionHistory', () => {
     describe('when there are no history records for the given report', () => {
-      it('returns an empty list', async () => {
+      it('returns an empty list when report has no admin actions in history', async () => {
         const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+        const mockReport = {
+          report_id: mockReportId,
+          update_date: new Date('2024-01-15T10:00:00Z'),
+          admin_modified_date: new Date('2024-01-10T10:00:00Z'), // admin_modified_date < update_date
+          is_unlocked: true,
+          report_status: 'Published',
+          admin_user: { admin_user_id: '1234', display_name: 'Admin User' },
+        };
+
+        mockFindUniqueReport.mockResolvedValue(mockReport);
         mockFindManyReportHistory.mockResolvedValue([]);
+
         const reportAdminActionHistory =
           await adminReportService.getReportAdminActionHistory(mockReportId);
         expect(reportAdminActionHistory).toStrictEqual([]);
       });
     });
-    describe('when there are history records for the given report, and some of those records are from admin-related events', () => {
-      it('the admin-related events', async () => {
+
+    describe('when there are admin action history records', () => {
+      it('returns current state if it was an admin action', async () => {
         const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
-        const mockAdminHistoryRecords = [
-          { report_history_id: '1', admin_modified_date: '12343' },
-          { report_history_id: '2', admin_modified_date: '15341' },
-        ];
         const mockReport = {
           report_id: mockReportId,
-          admin_modified_date: '12353',
+          update_date: new Date('2024-01-10T10:00:00Z'),
+          admin_modified_date: new Date('2024-01-15T10:00:00Z'), // admin_modified_date > update_date
+          is_unlocked: false,
+          report_status: 'Published',
+          admin_user: { admin_user_id: '1234', display_name: 'Admin User' },
         };
-        mockFindUniqueReport.mockResolvedValueOnce(mockReport);
-        mockFindManyReportHistory.mockResolvedValueOnce(
-          mockAdminHistoryRecords,
-        );
+
+        mockFindUniqueReport.mockResolvedValue(mockReport);
+        mockFindManyReportHistory.mockResolvedValue([]);
+
         const reportAdminActionHistory =
           await adminReportService.getReportAdminActionHistory(mockReportId);
 
-        const expectedResult = [...mockAdminHistoryRecords];
-        const mockModifiedReport: any = {
-          ...mockReport,
+        expect(reportAdminActionHistory).toHaveLength(1);
+        expect(reportAdminActionHistory[0]).toEqual({
           report_history_id: null,
-        };
-        expectedResult.unshift(mockModifiedReport);
+          action: 'Locked',
+          admin_modified_date: mockReport.admin_modified_date,
+          admin_user_display_name: 'Admin User',
+        });
+      });
 
-        expect(reportAdminActionHistory).toStrictEqual(expectedResult);
+      it('returns lock/unlock action history correctly', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+        const mockReport = {
+          report_id: mockReportId,
+          update_date: new Date('2024-01-01T10:00:00Z'),
+          admin_modified_date: new Date('2024-01-20T10:00:00Z'),
+          is_unlocked: false,
+          report_status: 'Published',
+          admin_user: { admin_user_id: '1234', display_name: 'Current Admin' },
+        };
+
+        const mockHistoryRecords = [
+          {
+            report_history_id: 'hist-1',
+            update_date: new Date('2024-01-01T10:00:00Z'),
+            admin_modified_date: new Date('2024-01-15T10:00:00Z'),
+            is_unlocked: true,
+            report_status: 'Published',
+            admin_user: {
+              admin_user_id: '1234',
+              display_name: 'History Admin 1',
+            },
+          },
+          {
+            report_history_id: 'hist-2',
+            update_date: new Date('2024-01-01T10:00:00Z'),
+            admin_modified_date: new Date('2024-01-10T10:00:00Z'),
+            is_unlocked: false,
+            report_status: 'Published',
+            admin_user: {
+              admin_user_id: '1234',
+              display_name: 'History Admin 2',
+            },
+          },
+        ];
+
+        mockFindUniqueReport.mockResolvedValue(mockReport);
+        mockFindManyReportHistory.mockResolvedValue(mockHistoryRecords);
+
+        const reportAdminActionHistory =
+          await adminReportService.getReportAdminActionHistory(mockReportId);
+
+        expect(reportAdminActionHistory).toHaveLength(3);
+
+        // Current state (most recent)
+        expect(reportAdminActionHistory[0]).toEqual({
+          report_history_id: null,
+          action: 'Locked',
+          admin_modified_date: mockReport.admin_modified_date,
+          admin_user_display_name: 'Current Admin',
+        });
+
+        // First history record
+        expect(reportAdminActionHistory[1]).toEqual({
+          report_history_id: 'hist-1',
+          action: 'Unlocked',
+          admin_modified_date: mockHistoryRecords[0].admin_modified_date,
+          admin_user_display_name: 'History Admin 1',
+        });
+
+        // Second history record
+        expect(reportAdminActionHistory[2]).toEqual({
+          report_history_id: 'hist-2',
+          action: 'Locked',
+          admin_modified_date: mockHistoryRecords[1].admin_modified_date,
+          admin_user_display_name: 'History Admin 2',
+        });
+      });
+
+      it('returns withdraw/publish action history correctly', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+        const mockReport = {
+          report_id: mockReportId,
+          update_date: new Date('2024-01-01T10:00:00Z'),
+          admin_modified_date: new Date('2024-01-20T10:00:00Z'),
+          is_unlocked: true,
+          report_status: 'Published',
+          admin_user: { admin_user_id: '1234', display_name: 'Current Admin' },
+        };
+
+        const mockHistoryRecords = [
+          {
+            report_history_id: 'hist-1',
+            update_date: new Date('2024-01-01T10:00:00Z'),
+            admin_modified_date: new Date('2024-01-15T10:00:00Z'),
+            is_unlocked: true,
+            report_status: 'Withdrawn',
+            admin_user: {
+              admin_user_id: '1234',
+              display_name: 'History Admin 1',
+            },
+          },
+        ];
+
+        mockFindUniqueReport.mockResolvedValue(mockReport);
+        mockFindManyReportHistory.mockResolvedValue(mockHistoryRecords);
+
+        const reportAdminActionHistory =
+          await adminReportService.getReportAdminActionHistory(mockReportId);
+
+        expect(reportAdminActionHistory).toHaveLength(2);
+
+        // Current state - republished
+        expect(reportAdminActionHistory[0]).toEqual({
+          report_history_id: null,
+          action: 'Published',
+          admin_modified_date: mockReport.admin_modified_date,
+          admin_user_display_name: 'Current Admin',
+        });
+
+        // History record - withdrawal
+        expect(reportAdminActionHistory[1]).toEqual({
+          report_history_id: 'hist-1',
+          action: 'Withdrawn',
+          admin_modified_date: mockHistoryRecords[0].admin_modified_date,
+          admin_user_display_name: 'History Admin 1',
+        });
+      });
+
+      it('filters out non-admin actions from history', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+        const mockReport = {
+          report_id: mockReportId,
+          update_date: new Date('2024-01-20T10:00:00Z'),
+          admin_modified_date: new Date('2024-01-10T10:00:00Z'), // admin_modified_date < update_date
+          is_unlocked: true,
+          report_status: 'Published',
+          admin_user: { admin_user_id: '1234', display_name: 'Admin User' },
+        };
+
+        const mockHistoryRecords = [
+          {
+            report_history_id: 'hist-1',
+            update_date: new Date('2024-01-10T10:00:00Z'),
+            admin_modified_date: new Date('2024-01-15T10:00:00Z'), // admin action
+            is_unlocked: false,
+            report_status: 'Published',
+            admin_user: {
+              admin_user_id: '1234',
+              display_name: 'History Admin 1',
+            },
+          },
+          {
+            report_history_id: 'hist-2',
+            update_date: new Date('2024-01-20T10:00:00Z'),
+            admin_modified_date: new Date('2024-01-05T10:00:00Z'), // not admin action
+            is_unlocked: true,
+            report_status: 'Published',
+            admin_user: {
+              admin_user_id: '1234',
+              display_name: 'History Admin 2',
+            },
+          },
+        ];
+
+        mockFindUniqueReport.mockResolvedValue(mockReport);
+        mockFindManyReportHistory.mockResolvedValue(mockHistoryRecords);
+
+        const reportAdminActionHistory =
+          await adminReportService.getReportAdminActionHistory(mockReportId);
+
+        expect(reportAdminActionHistory).toHaveLength(1);
+        expect(reportAdminActionHistory[0]).toEqual({
+          report_history_id: 'hist-1',
+          action: 'Locked',
+          admin_modified_date: mockHistoryRecords[0].admin_modified_date,
+          admin_user_display_name: 'History Admin 1',
+        });
+      });
+
+      it('handles unknown action when no changes detected', async () => {
+        const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
+        const mockReport = {
+          report_id: mockReportId,
+          update_date: new Date('2024-01-01T10:00:00Z'),
+          admin_modified_date: new Date('2024-01-15T10:00:00Z'),
+          is_unlocked: true,
+          report_status: 'Published',
+          admin_user: { admin_user_id: '1234', display_name: 'Current Admin' },
+        };
+
+        const mockHistoryRecords = [
+          {
+            report_history_id: 'hist-1',
+            update_date: new Date('2024-01-01T10:00:00Z'),
+            admin_modified_date: new Date('2024-01-10T10:00:00Z'),
+            is_unlocked: true, // same as current
+            report_status: 'Published', // same as current
+            admin_user: {
+              admin_user_id: '1234',
+              display_name: 'History Admin 1',
+            },
+          },
+        ];
+
+        mockFindUniqueReport.mockResolvedValue(mockReport);
+        mockFindManyReportHistory.mockResolvedValue(mockHistoryRecords);
+
+        const reportAdminActionHistory =
+          await adminReportService.getReportAdminActionHistory(mockReportId);
+
+        expect(reportAdminActionHistory).toHaveLength(2);
+        expect(reportAdminActionHistory[1]).toEqual({
+          report_history_id: 'hist-1',
+          action: 'Unknown',
+          admin_modified_date: mockHistoryRecords[0].admin_modified_date,
+          admin_user_display_name: 'History Admin 1',
+        });
       });
     });
+
     describe("when the given reportId doesn't correspond to a report", () => {
-      it('throws an error', async () => {
+      it('throws a UserInputError', async () => {
         const mockReportId = 'unknown-report-id';
+        mockFindUniqueReport.mockResolvedValue(null);
+
         await expect(
           adminReportService.getReportAdminActionHistory(mockReportId),
-        ).rejects.toThrow();
+        ).rejects.toThrow('Not found');
       });
     });
   });
