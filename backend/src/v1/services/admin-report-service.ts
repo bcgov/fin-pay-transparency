@@ -9,10 +9,12 @@ import {
   RELATION_MAPPER,
   ReportFilterType,
   ReportSortType,
+  ReportAdminActionHistory,
 } from '../types/report-search';
 import { PayTransparencyUserError } from './file-upload-service';
 import { enumReportStatus, reportService } from './report-service';
 import { utils } from './utils-service';
+import { update } from 'lodash';
 
 interface IGetReportMetricsInput {
   reportingYear: number;
@@ -180,15 +182,14 @@ const adminReportService = {
 
   /**
    * Gets a list of admin user actions that have updated a report with a given id.
-   * Currently, the only supported admin actions are locking and unlocking,
-   * so every item returned describes a lock or unlock event.
-   * @param req
    * @param reportId
    * @returns
    */
   async getReportAdminActionHistory(reportId: string) {
     const select = {
+      update_date: true,
       is_unlocked: true,
+      report_status: true,
       admin_modified_date: true,
       admin_user: {
         select: {
@@ -229,7 +230,7 @@ const adminReportService = {
     //adminActionHistory list.  the current state doesn't have a report_history_id
     //column, so explicitly add it and set it to null.
     const result = [...adminActionHistory];
-    if (existingReport.admin_modified_date) {
+    if (existingReport.admin_modified_date > existingReport.update_date) {
       const currentState = {
         report_history_id: null,
         ...existingReport,
@@ -237,7 +238,19 @@ const adminReportService = {
       result.unshift(currentState);
     }
 
-    return result;
+    //convert to ReportAdminActionHistory and add the action the admin user took to the array
+    const history: ReportAdminActionHistory[] = result.map((item) => ({
+      report_history_id: item.report_history_id,
+      action:
+        item.report_status === enumReportStatus.Withdrawn
+          ? 'Withdrawn'
+          : item.is_unlocked
+            ? 'Unlocked'
+            : 'Locked',
+      admin_modified_date: item.admin_modified_date,
+      admin_user_display_name: item.admin_user.display_name,
+    }));
+    return history;
   },
 
   async getReportPdf(req, reportId: string): Promise<Buffer> {
