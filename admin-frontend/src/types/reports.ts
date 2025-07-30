@@ -136,7 +136,5 @@ export type ReportAdminActionHistory = {
   report_history_id: string;
   action: 'Locked' | 'Unlocked' | 'Withdrawn';
   admin_modified_date: string;
-  admin_user: {
-    display_name: string;
-  };
+  admin_user_display_name: string;
 };

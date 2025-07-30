@@ -216,7 +216,7 @@ export const FilterValidationSchema = z.array(
 
 export type ReportAdminActionHistory = {
   report_history_id: string;
-  action: 'Locked' | 'Unlocked' | 'Withdrawn' | 'Published';
+  action: 'Locked' | 'Unlocked' | 'Withdrawn' | 'Published' | 'Unknown';
   admin_modified_date: Date;
   admin_user_display_name: string;
 };

@@ -14,7 +14,6 @@ import {
 import { PayTransparencyUserError } from './file-upload-service';
 import { enumReportStatus, reportService } from './report-service';
 import { utils } from './utils-service';
-import { update } from 'lodash';
 
 interface IGetReportMetricsInput {
   reportingYear: number;
@@ -209,11 +208,6 @@ const adminReportService = {
     const adminActionHistory = await prisma.report_history.findMany({
       where: {
         report_id: reportId,
-        //admin_modified_date > update_date means the record was last updated
-        //by an admin user (not the employer)
-        admin_modified_date: {
-          gt: prisma.report_history.fields.update_date,
-        },
       },
       select: {
         report_history_id: true,
@@ -229,27 +223,54 @@ const adminReportService = {
     //result of an admin event, add the current state to the head of the
     //adminActionHistory list.  the current state doesn't have a report_history_id
     //column, so explicitly add it and set it to null.
-    const result = [...adminActionHistory];
+    const allHistory = [...adminActionHistory];
     if (existingReport.admin_modified_date > existingReport.update_date) {
       const currentState = {
         report_history_id: null,
         ...existingReport,
       };
-      result.unshift(currentState);
+      allHistory.unshift(currentState);
     }
 
-    //convert to ReportAdminActionHistory and add the action the admin user took to the array
-    const history: ReportAdminActionHistory[] = result.map((item) => ({
-      report_history_id: item.report_history_id,
-      action:
-        item.report_status === enumReportStatus.Withdrawn
-          ? 'Withdrawn'
-          : item.is_unlocked
-            ? 'Unlocked'
-            : 'Locked',
-      admin_modified_date: item.admin_modified_date,
-      admin_user_display_name: item.admin_user.display_name,
-    }));
+    // Filter to only include admin actions and determine what actually changed
+    const history: ReportAdminActionHistory[] = allHistory.reduce(
+      (acc, item, index) => {
+        // Don't keep this if it wasn't an admin action
+        if (item.admin_modified_date < item.update_date) return acc;
+
+        // Determine the action based on what changed
+        const ret: ReportAdminActionHistory = {
+          report_history_id: item.report_history_id,
+          action: 'Unknown',
+          admin_modified_date: item.admin_modified_date,
+          admin_user_display_name: item.admin_user.display_name,
+        };
+
+        let previousItem;
+        if (index < allHistory.length - 1) {
+          // Next item in descending order is the previous action
+          previousItem = {
+            report_status: allHistory[index + 1].report_status,
+            is_unlocked: allHistory[index + 1].is_unlocked,
+          };
+        } else {
+          // If this is the last item, there is no next item to compare with
+          // Use the expected starting state as the previous item for comparison
+          previousItem = { report_status: 'Published', is_unlocked: true };
+        }
+
+        // Compare with previous action to see what changed
+        if (item.report_status !== previousItem.report_status) {
+          ret.action = item.report_status as 'Withdrawn' | 'Published';
+        } else if (item.is_unlocked !== previousItem.is_unlocked) {
+          ret.action = item.is_unlocked ? 'Unlocked' : 'Locked';
+        }
+        acc.push(ret);
+        return acc;
+      },
+      [] as ReportAdminActionHistory[],
+    );
+
     return history;
   },
 
