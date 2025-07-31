@@ -56,6 +56,18 @@
   </v-btn>
 
   <!-- dialogs -->
+  <ConfirmationDialog ref="confirmWithdrawDialog">
+    <template #message>
+      <p class="mb-2">
+        Are you sure this is the correct report the employer has requested to
+        remove?
+      </p>
+      <p>
+        If confirmed, the report will be hidden from the employer's view in the
+        Reporting Tool, and from the Analytics section in the Admin Portal.
+      </p>
+    </template>
+  </ConfirmationDialog>
   <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
 
@@ -88,6 +100,7 @@ const reportAdminActionHistory = ref<ReportAdminActionHistory | undefined>(
   undefined,
 );
 const confirmDialog = ref<typeof ConfirmationDialog>();
+const confirmWithdrawDialog = ref<typeof ConfirmationDialog>();
 
 const auth = authStore();
 
@@ -180,9 +193,9 @@ function reset() {
 }
 
 async function withdrawReport(reportId: string) {
-  const isConfirmed = await confirmDialog.value?.open(
+  const isConfirmed = await confirmWithdrawDialog.value?.open(
     'Withdraw report',
-    'Are you sure you want to withdraw this report? This action is permanent and cannot be undone. The report will no longer be visible to employers or in admin dashboards.',
+    null,
     {
       titleBold: true,
       resolveText: 'Yes, withdraw',
