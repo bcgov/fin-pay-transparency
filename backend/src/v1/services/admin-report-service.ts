@@ -208,14 +208,13 @@ const adminReportService = {
     const adminActionHistory = await prisma.report_history.findMany({
       where: {
         report_id: reportId,
+        admin_modified_date: { not: null },
       },
       select: {
         report_history_id: true,
         ...select,
       },
-      orderBy: {
-        admin_modified_date: 'desc',
-      },
+      orderBy: [{ admin_modified_date: 'desc' }, { update_date: 'desc' }],
     });
 
     //the current state of the report is not in the history table (it's in the
