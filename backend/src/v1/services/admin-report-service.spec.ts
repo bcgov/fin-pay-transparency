@@ -973,7 +973,7 @@ describe('admin-report-service', () => {
         });
       });
 
-      it('handles unknown action when no changes detected', async () => {
+      it('assumes locked status action when no changes detected', async () => {
         const mockReportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
         const mockReport = {
           report_id: mockReportId,
@@ -1007,7 +1007,7 @@ describe('admin-report-service', () => {
         expect(reportAdminActionHistory).toHaveLength(2);
         expect(reportAdminActionHistory[1]).toEqual({
           report_history_id: 'hist-1',
-          action: 'Unknown',
+          action: 'Unlocked',
           admin_modified_date: mockHistoryRecords[0].admin_modified_date,
           admin_user_display_name: 'History Admin 1',
         });
