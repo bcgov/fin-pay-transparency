@@ -237,14 +237,6 @@ const adminReportService = {
         // Don't keep this if it wasn't an admin action
         if (item.admin_modified_date < item.update_date) return acc;
 
-        // Determine the action based on what changed
-        const ret: ReportAdminActionHistory = {
-          report_history_id: item.report_history_id,
-          action: 'Unknown',
-          admin_modified_date: item.admin_modified_date,
-          admin_user_display_name: item.admin_user.display_name,
-        };
-
         let previousItem;
         if (index < allHistory.length - 1) {
           // Next item in descending order is the previous action
@@ -258,12 +250,19 @@ const adminReportService = {
           previousItem = { report_status: 'Published', is_unlocked: true };
         }
 
-        // Compare with previous action to see what changed
+        // prepare the return object
+        const ret: ReportAdminActionHistory = {
+          report_history_id: item.report_history_id,
+          action: item.is_unlocked ? 'Unlocked' : 'Locked', //assume the action was locking/unlocking
+          admin_modified_date: item.admin_modified_date,
+          admin_user_display_name: item.admin_user.display_name,
+        };
+
+        // If the report status changed, update the action accordingly
         if (item.report_status !== previousItem.report_status) {
           ret.action = item.report_status as 'Withdrawn' | 'Published';
-        } else if (item.is_unlocked !== previousItem.is_unlocked) {
-          ret.action = item.is_unlocked ? 'Unlocked' : 'Locked';
         }
+
         acc.push(ret);
         return acc;
       },
