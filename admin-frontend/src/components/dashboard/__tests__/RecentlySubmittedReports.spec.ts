@@ -62,10 +62,18 @@ describe('RecentlySubmittedReports', () => {
         .spyOn(ApiService, 'getReports')
         .mockResolvedValue({ reports: [], total: 0 });
       wrapper.vm.getRecentlySubmittedReports();
-      const searchParams = getReportsSpy.mock.calls[0][3];
-      expect(searchParams).toStrictEqual([
+      const filterParams = getReportsSpy.mock.calls[0][2];
+      const sortParams = getReportsSpy.mock.calls[0][3];
+      expect(sortParams).toStrictEqual([
         {
           update_date: 'desc',
+        },
+      ]);
+      expect(filterParams).toStrictEqual([
+        {
+          key: 'report_status',
+          operation: 'eq',
+          value: 'Published',
         },
       ]);
     });

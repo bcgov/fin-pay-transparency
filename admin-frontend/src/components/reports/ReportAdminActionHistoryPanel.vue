@@ -14,13 +14,33 @@
       <v-row no-gutters>
         <v-col class="d-flex justify-center first-column">
           <v-icon
-            :icon="item.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
-            :color="item.is_unlocked ? 'success' : 'error'"
+            :icon="
+              item.action === 'Unlocked'
+                ? 'mdi-lock-open'
+                : item.action === 'Locked'
+                  ? 'mdi-lock'
+                  : 'mdi-delete'
+            "
+            :color="
+              item.action === 'Unlocked'
+                ? 'success'
+                : item.action === 'Locked'
+                  ? 'error'
+                  : 'warning'
+            "
           ></v-icon>
         </v-col>
-        <v-col :class="item.is_unlocked ? 'text-success' : 'text-error'"
-          ><b>{{ item.is_unlocked ? 'Unlocked' : 'Locked' }}</b></v-col
+        <v-col
+          :class="
+            item.action === 'Unlocked'
+              ? 'text-success'
+              : item.action === 'Locked'
+                ? 'text-error'
+                : 'text-warning'
+          "
         >
+          <b>{{ item.action }}</b>
+        </v-col>
       </v-row>
       <v-row no-gutters>
         <v-col class="d-flex justify-center py-1 first-column"
@@ -37,8 +57,8 @@
               }}</small
             >
           </div>
-          <div v-if="item?.admin_user?.display_name">
-            By {{ item.admin_user.display_name }}
+          <div v-if="item?.admin_user_display_name">
+            By {{ item.admin_user_display_name }}
           </div>
         </v-col>
       </v-row>
@@ -58,7 +78,7 @@ import {
 } from '../../utils/date';
 
 defineProps<{
-  reportAdminActionHistory: ReportAdminActionHistory;
+  reportAdminActionHistory: ReportAdminActionHistory[];
 }>();
 </script>
 <style>

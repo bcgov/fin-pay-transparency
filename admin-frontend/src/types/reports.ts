@@ -94,6 +94,12 @@ export type IsUnlockedFilter = {
   value: boolean;
 };
 
+export type StatusFilter = {
+  key: 'report_status';
+  operation: 'eq';
+  value: string;
+};
+
 export type CompanyFilter = {
   key: 'company_name';
   operation: 'like';
@@ -111,6 +117,7 @@ export type ReportFilterType = (
   | NaicsCodeFilter
   | ReportingYearFilter
   | IsUnlockedFilter
+  | StatusFilter
   | EmployeeCountRangeFilter
   | CompanyFilter
   | AdminLastAccessDateFilter
@@ -125,13 +132,9 @@ export type ReportMetrics = {
   ];
 };
 
-export type ReportAdminActionHistory = [
-  {
-    report_history_id: string;
-    is_unlocked: boolean;
-    admin_modified_date: string;
-    admin_user: {
-      display_name: string;
-    };
-  },
-];
+export type ReportAdminActionHistory = {
+  report_history_id: string;
+  action: 'Locked' | 'Unlocked' | 'Withdrawn';
+  admin_modified_date: string;
+  admin_user_display_name: string;
+};

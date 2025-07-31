@@ -52,10 +52,16 @@ describe('ReportSearchFilters', () => {
 
   describe('getReportSearchFilters', () => {
     describe(`after 'clear' is called`, () => {
-      it('produces an empty filters array', async () => {
+      it('produces the default filters array', async () => {
         wrapper.vm.clear();
         const filters = wrapper.vm.getReportSearchFilters();
-        expect(filters).toStrictEqual([]);
+        expect(filters).toStrictEqual([
+          {
+            key: 'report_status',
+            operation: 'eq',
+            value: 'Published',
+          },
+        ]);
       });
     });
     describe(`when the naics code list has two items selected (and all other filters in the UI are empty)`, () => {
@@ -130,7 +136,7 @@ describe('ReportSearchFilters', () => {
         );
       });
     });
-    describe(`when the report year is specified (and all other filters in the UI are empty)`, () => {
+    describe(`when the Locked field is specified (and all other filters in the UI are empty)`, () => {
       it('produces a valid filters array', async () => {
         wrapper.vm.clear();
         const isUnlocked = false;
@@ -140,6 +146,22 @@ describe('ReportSearchFilters', () => {
         expect(reportYearFilters.length).toBe(1);
         expect(reportYearFilters[0].operation).toBe('eq');
         expect(reportYearFilters[0].value).toBe(isUnlocked);
+      });
+    });
+    describe(`when the Status field is specified (and all other filters in the UI are empty)`, () => {
+      it('produces a valid filters array', async () => {
+        wrapper.vm.clear();
+        const isPublished = false;
+        wrapper.vm.selectedStatusValues = isPublished
+          ? 'Published'
+          : 'Withdrawn';
+        const filters = wrapper.vm.getReportSearchFilters();
+        const reportYearFilters = filters.filter(
+          (d) => d.key == 'report_status',
+        );
+        expect(reportYearFilters.length).toBe(1);
+        expect(reportYearFilters[0].operation).toBe('eq');
+        expect(reportYearFilters[0].value).toBe('Withdrawn');
       });
     });
   });

@@ -1,29 +1,6 @@
 import { expect, Locator, Page } from 'playwright/test';
 import { AdminPortalPage } from '../admin-portal-page';
 import { PagePaths } from '../../utils';
-import { groupBy } from 'lodash';
-
-// Define types for the page object
-type Report = {
-  report_id: string;
-  naics_code: string;
-  report_start_date: string;
-  report_end_date: string;
-  report_status: string;
-  create_date: string;
-  update_date: string;
-  reporting_year: string;
-  is_unlocked: boolean;
-  admin_last_access_date: string;
-  employee_count_range: {
-    employee_count_range_id: string;
-    employee_count_range: string;
-  };
-  pay_transparency_company: {
-    company_id: string;
-    company_name: string;
-  };
-};
 
 type DisplayedReportRow = {
   submissionDate: string;
@@ -103,13 +80,12 @@ export class SearchReportsPage extends AdminPortalPage {
   }
 
   async getDisplayedReports(): Promise<DisplayedReportRow[]> {
+    await this.waitForTableToFinishLoading();
+
     // If the 'No reports matched the search criteria' message is visible, return an empty array
     if (await this.noReportsLocator.isVisible()) {
       return [];
     }
-
-    // Wait for the table to finish loading: wait for 'Loading items...' row to disappear
-    await this.loadingRow.waitFor({ state: 'detached' });
 
     // Get all table rows (excluding header)
     const rows = await this.tableRows.all();
@@ -163,9 +139,10 @@ export class SearchReportsPage extends AdminPortalPage {
   }
 
   async clickSearchButton() {
-    const searchResponse = SearchReportsPage.waitForSearchResults(this.page);
+    const searchResponse = this.waitForSearchResults();
     await this.searchButton.click();
-    await searchResponse; // Wait for the search to complete
+    await searchResponse;
+    await this.waitForTableToFinishLoading();
   }
 
   async toggleFilterDisplay() {
@@ -212,9 +189,10 @@ export class SearchReportsPage extends AdminPortalPage {
   }
 
   async applyFilter() {
-    const filterResponse = SearchReportsPage.waitForSearchResults(this.page);
+    const filterResponse = this.waitForSearchResults();
     await this.applyFilterButton.click();
     await filterResponse;
+    await this.waitForTableToFinishLoading();
   }
 
   async toggleReportLock(rowNumber: number) {
@@ -230,19 +208,20 @@ export class SearchReportsPage extends AdminPortalPage {
         name: 'Lock report',
       });
     }
+    const response = this.waitForActionResult();
     await toggleButton.click();
-
-    const response = SearchReportsPage.waitForActionResult(this.page);
     await this.confirmDialogButton.click();
     await response;
+    await this.waitForTableToFinishLoading();
   }
 
   async withdrawReport(rowNumber: number) {
     const targetRow = this.tableRows.nth(rowNumber);
+    const response = this.waitForActionResult();
     await targetRow.getByRole('button', { name: 'Withdraw report' }).click();
-    const response = SearchReportsPage.waitForActionResult(this.page);
     await this.confirmDialogButton.click();
     await response;
+    await this.waitForTableToFinishLoading();
   }
 
   // === PAGE VERIFICATION FUNCTIONS ===
@@ -292,21 +271,30 @@ export class SearchReportsPage extends AdminPortalPage {
 
   // === UTILITY FUNCTIONS ===
 
-  static waitForSearchResults(page) {
-    return page.waitForResponse((res) => {
-      return (
-        res.url().includes('/admin-api/v1/reports') && res.status() === 200
-      );
-    });
+  waitForSearchResults() {
+    return this.page.waitForResponse(
+      (res) =>
+        res.url().includes('/admin-api/v1/reports') && res.status() === 200,
+    );
   }
 
-  static waitForActionResult(page) {
-    return page.waitForResponse((res) => {
-      return (
+  waitForActionResult() {
+    return this.page.waitForResponse(
+      (res) =>
         res.url().includes('/admin-api/v1/reports') &&
         res.status() === 200 &&
-        res.request().method() === 'PATCH'
-      );
-    });
+        res.request().method() === 'PATCH',
+    );
+  }
+
+  // Wait for any loading states to complete
+  async waitForTableToFinishLoading() {
+    // First check if the loading row exists and wait for it to disappear
+    await this.loadingRow.waitFor({ state: 'detached' });
+
+    // Wait for the table loading state to finish
+    await this.page.waitForFunction(
+      () => !document.querySelector('.v-data-table--loading'),
+    );
   }
 }
