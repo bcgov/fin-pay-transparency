@@ -119,19 +119,33 @@ const externalConsumerService = {
       .$replica()
       .reports_view.findMany({
         where: whereClause,
-        include: {
-          calculated_data: {
+        take: limit,
+        skip: offset,
+        orderBy: [{ update_date: 'asc' }],
+      });
+
+    // Fetch calculated data separately for each report
+    const recordsWithCalculatedData = await Promise.all(
+      records.map(async (record) => {
+        const calculatedData = await prismaReadOnlyReplica
+          .$replica()
+          .calculated_data_view.findMany({
+            where: {
+              report_id: record.report_id,
+            },
             select: {
               value: true,
               is_suppressed: true,
               calculation_code: true,
             },
-          },
-        },
-        take: limit,
-        skip: offset,
-        orderBy: [{ update_date: 'asc' }],
-      });
+          });
+
+        return {
+          ...record,
+          calculated_data: calculatedData,
+        };
+      }),
+    );
 
     const totalRecordsCount = await prismaReadOnlyReplica
       .$replica()
@@ -139,7 +153,7 @@ const externalConsumerService = {
         where: whereClause,
       });
 
-    records.forEach((report) => {
+    recordsWithCalculatedData.forEach((report) => {
       delete report.report_change_id;
     });
 
@@ -147,7 +161,7 @@ const externalConsumerService = {
       totalRecords: totalRecordsCount,
       page: offset / limit,
       pageSize: limit,
-      records,
+      records: recordsWithCalculatedData,
     };
   },
 };
