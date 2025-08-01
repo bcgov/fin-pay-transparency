@@ -47,7 +47,9 @@ FROM
     )
   )
 WHERE
-  ((report.report_status) :: text = 'Published' :: text)
+  (
+    (report.report_status) :: text = ANY (ARRAY ['Published'::text, 'Withdrawn'::text])
+  )
 UNION
 SELECT
   report.report_id,
@@ -98,4 +100,6 @@ FROM
     )
   )
 WHERE
-  ((report.report_status) :: text = 'Published' :: text);
+  (
+    (report.report_status) :: text = ANY (ARRAY ['Published'::text, 'Withdrawn'::text])
+  );
