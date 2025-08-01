@@ -124,28 +124,55 @@ const externalConsumerService = {
         orderBy: [{ update_date: 'asc' }],
       });
 
-    // Fetch calculated data separately for each report
-    const recordsWithCalculatedData = await Promise.all(
-      records.map(async (record) => {
-        const calculatedData = await prismaReadOnlyReplica
-          .$replica()
-          .calculated_data_view.findMany({
-            where: {
-              report_id: record.report_id,
-            },
-            select: {
-              value: true,
-              is_suppressed: true,
-              calculation_code: true,
-            },
-          });
+    // Extract report IDs from the fetched records
+    const reportIds = records.map((record) => record.report_id);
 
-        return {
-          ...record,
-          calculated_data: calculatedData,
-        };
-      }),
+    // Fetch all calculated data in one query
+    const allCalculatedData = await prismaReadOnlyReplica
+      .$replica()
+      .calculated_data_view.findMany({
+        where: {
+          report_id: {
+            in: reportIds,
+          },
+        },
+        select: {
+          report_id: true,
+          value: true,
+          is_suppressed: true,
+          calculation_code: true,
+        },
+      });
+
+    // Group calculated data by report_id for efficient lookup
+    const calculatedDataByReportId = allCalculatedData.reduce(
+      (acc, data) => {
+        const reportId = data.report_id;
+        if (!acc[reportId]) {
+          acc[reportId] = [];
+        }
+        acc[reportId].push({
+          value: data.value,
+          is_suppressed: data.is_suppressed,
+          calculation_code: data.calculation_code,
+        });
+        return acc;
+      },
+      {} as Record<
+        string,
+        Array<{
+          value: string | null;
+          is_suppressed: boolean | null;
+          calculation_code: string | null;
+        }>
+      >,
     );
+
+    // Merge records with their calculated data
+    const recordsWithCalculatedData = records.map((record) => ({
+      ...record,
+      calculated_data: calculatedDataByReportId[record.report_id] || [],
+    }));
 
     const totalRecordsCount = await prismaReadOnlyReplica
       .$replica()
