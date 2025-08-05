@@ -390,10 +390,8 @@ model announcement_resource_type {
   announcement_resource_history announcement_resource_history[]
 }
 
-/// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-view reports_view {
+view reports_calculated_data_view {
   report_id                   String?   @db.Uuid
-  report_change_id            String?   @db.Uuid
   company_id                  String?   @db.Uuid
   user_id                     String?   @db.Uuid
   user_comment                String?
@@ -408,8 +406,12 @@ view reports_view {
   report_status               String?   @db.VarChar(255)
   revision                    Decimal?  @db.Decimal
   data_constraints            String?
+  is_unlocked                 Boolean?
   reporting_year              Decimal?  @db.Decimal
   report_unlock_date          DateTime? @db.Timestamp(6)
+  admin_user_id               String?   @db.Uuid
+  admin_modified_date         DateTime? @db.Timestamp(6)
+  admin_last_access_date      DateTime? @db.Timestamp(6)
   naics_code_label            String?   @db.VarChar(255)
   company_name                String?   @db.VarChar(255)
   company_bceid_business_guid String?   @db.Uuid
@@ -420,14 +422,5 @@ view reports_view {
   company_country             String?   @db.VarChar(255)
   company_postal_code         String?   @db.VarChar(255)
   employee_count_range        String?   @db.VarChar(255)
-}
-
-/// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-view calculated_data_view {
-  calculated_data_id  String?  @db.Uuid
-  report_id           String?  @db.Uuid
-  calculation_code_id String?  @db.Uuid
-  value               String?  @db.VarChar(50)
-  is_suppressed       Boolean?
-  calculation_code    String?  @db.VarChar(255)
+  calculated_data             Json?     @db.Json
 }
