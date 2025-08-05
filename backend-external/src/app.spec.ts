@@ -10,7 +10,6 @@ jest.mock('./v1/services/pay-transparency-service', () => ({
 
 jest.mock('./config', () => {
   const actualConfig = jest.requireActual('./config').config;
-  const mockedConfig = (jest.genMockFromModule('./config') as any).config;
   return {
     config: {
       get: jest.fn().mockImplementation((key) => {
