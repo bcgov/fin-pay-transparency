@@ -1,11 +1,11 @@
 admin_user
 pay_transparency_company
 pay_transparency_user
-calculation_code
 employee_count_range
 naics_code
 announcement_resource_type
 announcement_status
+calculation_code
 pay_transparency_report
 announcement
 pay_transparency_calculated_data

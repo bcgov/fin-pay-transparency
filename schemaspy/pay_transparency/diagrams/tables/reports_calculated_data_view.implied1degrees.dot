@@ -4,11 +4,11 @@ digraph "oneDegreeRelationshipsDiagramImplied" {
   "pay_transparency_report":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_report":"naics_code":w -> "naics_code":"naics_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_report":"user_id":w -> "pay_transparency_user":"user_id":e [arrowhead=none dir=back arrowtail=crowodot];
-  "reports_view":"company_id":w -> "pay_transparency_company":"company_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"naics_code":w -> "naics_code":"naics_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"user_id":w -> "pay_transparency_user":"user_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"company_id":w -> "pay_transparency_company":"company_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"naics_code":w -> "naics_code":"naics_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"user_id":w -> "pay_transparency_user":"user_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "employee_count_range" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -66,7 +66,7 @@ digraph "oneDegreeRelationshipsDiagramImplied" {
       <TR><TD PORT="report_unlock_date" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="153" HEIGHT="16">report_unlock_date</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="admin_user_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="153" HEIGHT="16">admin_user_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">5 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="pay_transparency_report.html"
     target="_top"
@@ -86,12 +86,11 @@ digraph "oneDegreeRelationshipsDiagramImplied" {
     target="_top"
     tooltip="pay_transparency_user"
   ];
-  "reports_view" [
+  "reports_calculated_data_view" [
    label=<
     <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="4"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="76" HEIGHT="16"><B>reports_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD COLSPAN="4"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="176" HEIGHT="16"><B>reports_calculated_data_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="report_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">report_id</TD></TR></TABLE></TD><TD PORT="report_id.type" ALIGN="LEFT">uuid[2147483647]</TD></TR>
-      <TR><TD PORT="report_change_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">report_change_id</TD></TR></TABLE></TD><TD PORT="report_change_id.type" ALIGN="LEFT">uuid[2147483647]</TD></TR>
       <TR><TD PORT="company_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">company_id</TD></TR></TABLE></TD><TD PORT="company_id.type" ALIGN="LEFT">uuid[2147483647]</TD></TR>
       <TR><TD PORT="user_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">user_id</TD></TR></TABLE></TD><TD PORT="user_id.type" ALIGN="LEFT">uuid[2147483647]</TD></TR>
       <TR><TD PORT="user_comment" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">user_comment</TD></TR></TABLE></TD><TD PORT="user_comment.type" ALIGN="LEFT">text[2147483647]</TD></TR>
@@ -106,8 +105,12 @@ digraph "oneDegreeRelationshipsDiagramImplied" {
       <TR><TD PORT="report_status" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">report_status</TD></TR></TABLE></TD><TD PORT="report_status.type" ALIGN="LEFT">varchar[255]</TD></TR>
       <TR><TD PORT="revision" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">revision</TD></TR></TABLE></TD><TD PORT="revision.type" ALIGN="LEFT">numeric[0]</TD></TR>
       <TR><TD PORT="data_constraints" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">data_constraints</TD></TR></TABLE></TD><TD PORT="data_constraints.type" ALIGN="LEFT">text[2147483647]</TD></TR>
+      <TR><TD PORT="is_unlocked" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">is_unlocked</TD></TR></TABLE></TD><TD PORT="is_unlocked.type" ALIGN="LEFT">bool[1]</TD></TR>
       <TR><TD PORT="reporting_year" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">reporting_year</TD></TR></TABLE></TD><TD PORT="reporting_year.type" ALIGN="LEFT">numeric[0]</TD></TR>
       <TR><TD PORT="report_unlock_date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">report_unlock_date</TD></TR></TABLE></TD><TD PORT="report_unlock_date.type" ALIGN="LEFT">timestamp[29,6]</TD></TR>
+      <TR><TD PORT="admin_user_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">admin_user_id</TD></TR></TABLE></TD><TD PORT="admin_user_id.type" ALIGN="LEFT">uuid[2147483647]</TD></TR>
+      <TR><TD PORT="admin_modified_date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">admin_modified_date</TD></TR></TABLE></TD><TD PORT="admin_modified_date.type" ALIGN="LEFT">timestamp[29,6]</TD></TR>
+      <TR><TD PORT="admin_last_access_date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">admin_last_access_date</TD></TR></TABLE></TD><TD PORT="admin_last_access_date.type" ALIGN="LEFT">timestamp[29,6]</TD></TR>
       <TR><TD PORT="naics_code_label" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">naics_code_label</TD></TR></TABLE></TD><TD PORT="naics_code_label.type" ALIGN="LEFT">varchar[255]</TD></TR>
       <TR><TD PORT="company_name" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">company_name</TD></TR></TABLE></TD><TD PORT="company_name.type" ALIGN="LEFT">varchar[255]</TD></TR>
       <TR><TD PORT="company_bceid_business_guid" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">company_bceid_business_guid</TD></TR></TABLE></TD><TD PORT="company_bceid_business_guid.type" ALIGN="LEFT">uuid[2147483647]</TD></TR>
@@ -118,9 +121,10 @@ digraph "oneDegreeRelationshipsDiagramImplied" {
       <TR><TD PORT="company_country" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">company_country</TD></TR></TABLE></TD><TD PORT="company_country.type" ALIGN="LEFT">varchar[255]</TD></TR>
       <TR><TD PORT="company_postal_code" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">company_postal_code</TD></TR></TABLE></TD><TD PORT="company_postal_code.type" ALIGN="LEFT">varchar[255]</TD></TR>
       <TR><TD PORT="employee_count_range" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">employee_count_range</TD></TR></TABLE></TD><TD PORT="employee_count_range.type" ALIGN="LEFT">varchar[255]</TD></TR>
+      <TR><TD PORT="calculated_data" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="179" HEIGHT="16">calculated_data</TD></TR></TABLE></TD><TD PORT="calculated_data.type" ALIGN="LEFT">json[2147483647]</TD></TR>
     </TABLE>>
-    URL="reports_view.html"
+    URL="reports_calculated_data_view.html"
     target="_top"
-    tooltip="reports_view"
+    tooltip="reports_calculated_data_view"
   ];
 }

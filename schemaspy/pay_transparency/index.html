@@ -78,7 +78,7 @@
                         <div class="col-md-12">
                             <div class="callout callout-info">
                                 <h4>SchemaSpy Analysis of default.pay_transparency</h4>
-                                <p>Generated on Fri Jul 25 21:21 GMT 2025</p>
+                                <p>Generated on Tue Aug 05 18:24 GMT 2025</p>
                             </div>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                                 <span class="info-box-icon bg-teal"><i class="fa fa-table"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">VIEWS</span>
-                                    <span class="info-box-number">2</span>
+                                    <span class="info-box-number">1</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -118,7 +118,7 @@
                                 <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">COLUMNS</span>
-                                    <span class="info-box-number">245</span>
+                                    <span class="info-box-number">243</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -231,7 +231,7 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/pay_transparency_calculated_data.html">pay_transparency_calculated_data</a></td>
-                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">9</td>
                                         <td class="detail" align="right">-1</td>
@@ -276,7 +276,7 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/pay_transparency_report.html">pay_transparency_report</a></td>
-                                        <td class="detail" align="right">5</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">5</td>
                                         <td class="detail" align="right">21</td>
                                         <td class="detail" align="right">-1</td>
@@ -380,7 +380,7 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/calculation_code.html">calculation_code</a></td>
-                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">3</td>
                                         <td class="detail" align="right">-1</td>
@@ -406,26 +406,15 @@
                                         <td class="comment detail" style="display: table-cell;"><p>A lookup table for the status of an announcement. Currently, there are four statuses: Draft, Published, Expired, and Archived. A human-readable description is provided for each code.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/reports_view.html">reports_view</a></td>
+                                        <td class="detail"><a href="tables/reports_calculated_data_view.html">reports_calculated_data_view</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">5</td>
-                                        <td class="detail" align="right">28</td>
+                                        <td class="detail" align="right">32</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">View</td>
                                         <td class="comment detail" style="display: table-cell;"><p>This view is a union of the <code>pay_transparency_report</code> table and <code>report_history</code> table. The columns <code>naics_code.naics_label</code> and <code>employee_count_range.employee_count_range</code>, as well as the full address and company name from <code>pay_transparency_company</code> have been included in this view.</p>
 <p>This view allows the webapp to fetch the most recent report as well as the historical versions of the report in one query.</p>
 <p>Only one new column is created in this view, <code>report_change_id</code>, which is used to associate this view with the <code>calculated_data_view</code> view. The <code>is_unlocked</code> column from the two report tables is not included in this view.</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/calculated_data_view.html">calculated_data_view</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">3</td>
-                                        <td class="detail" align="right">6</td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">View</td>
-                                        <td class="comment detail" style="display: table-cell;"><p>This view is a union of the <code>pay_transparency_calculated_data</code> table and <code>calculated_data_history</code> table. The column <code>calculation_code.calculation_code</code> have been included in this view.</p>
-<p>This view allows the webapp to fetch the calculated data for any report regardless of if that report is in the history table or not. It is used in combination with the <code>reports_view</code> view to fetch a single report with that report&rsquo;s history and also get the calculated data from this view.</p>
-<p>There are no new columns in this view, but some columns from the two <code>calculated_data</code> tables are not included in this view.</p></td>
                                     </tr>
                             </table>
                         </div>

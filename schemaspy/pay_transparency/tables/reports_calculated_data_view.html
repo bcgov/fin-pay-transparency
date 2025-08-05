@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>reports_view - default.pay_transparency</title>
+        <title>reports_calculated_data_view - default.pay_transparency</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>reports_view</h1><p><span id="recordNumber">0</span> rows</p><br />
+                    <h1>reports_calculated_data_view</h1><p><span id="recordNumber">0</span> rows</p><br />
                     <div class="box box-primary">
                         <div class="box-header with-border">
                             <i class="fa fa-file-text-o"></i>
@@ -137,30 +137,13 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="reports_view.report_id&#39;s name implies that it&#39;s a child of pay_transparency_report.report_id, but it doesn&#39;t reference that column."><a href='pay_transparency_report.html'>pay_transparency_report</a><span class='relatedKey'>.report_id</span></td>
+                                                <td title="reports_calculated_data_view.report_id&#39;s name implies that it&#39;s a child of pay_transparency_report.report_id, but it doesn&#39;t reference that column."><a href='pay_transparency_report.html'>pay_transparency_report</a><span class='relatedKey'>.report_id</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
                                     </td>
                                     <td><p>Primary unique ID for this report. Even when a published report is updated, this ID stays the same.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="report_change_id">report_change_id</span></td>
-                                    <td>uuid</td>
-                                    <td>2147483647</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>This id is created from merging the <code>report_id</code> from the <code>pay_transparency_report</code> table and <code>report_history_id</code> from the <code>report_history</code> table. It is used to associate this view with the <code>calculated_data_view</code> view.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="company_id">company_id</span></td>
@@ -176,7 +159,7 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="reports_view.company_id&#39;s name implies that it&#39;s a child of pay_transparency_company.company_id, but it doesn&#39;t reference that column."><a href='pay_transparency_company.html'>pay_transparency_company</a><span class='relatedKey'>.company_id</span></td>
+                                                <td title="reports_calculated_data_view.company_id&#39;s name implies that it&#39;s a child of pay_transparency_company.company_id, but it doesn&#39;t reference that column."><a href='pay_transparency_company.html'>pay_transparency_company</a><span class='relatedKey'>.company_id</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -198,7 +181,7 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="reports_view.user_id&#39;s name implies that it&#39;s a child of pay_transparency_user.user_id, but it doesn&#39;t reference that column."><a href='pay_transparency_user.html'>pay_transparency_user</a><span class='relatedKey'>.user_id</span></td>
+                                                <td title="reports_calculated_data_view.user_id&#39;s name implies that it&#39;s a child of pay_transparency_user.user_id, but it doesn&#39;t reference that column."><a href='pay_transparency_user.html'>pay_transparency_user</a><span class='relatedKey'>.user_id</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -237,7 +220,7 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="reports_view.employee_count_range_id&#39;s name implies that it&#39;s a child of employee_count_range.employee_count_range_id, but it doesn&#39;t reference that column."><a href='employee_count_range.html'>employee_count_range</a><span class='relatedKey'>.employee_count_range_id</span></td>
+                                                <td title="reports_calculated_data_view.employee_count_range_id&#39;s name implies that it&#39;s a child of employee_count_range.employee_count_range_id, but it doesn&#39;t reference that column."><a href='employee_count_range.html'>employee_count_range</a><span class='relatedKey'>.employee_count_range_id</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -259,7 +242,7 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="reports_view.naics_code&#39;s name implies that it&#39;s a child of naics_code.naics_code, but it doesn&#39;t reference that column."><a href='naics_code.html'>naics_code</a><span class='relatedKey'>.naics_code</span></td>
+                                                <td title="reports_calculated_data_view.naics_code&#39;s name implies that it&#39;s a child of naics_code.naics_code, but it doesn&#39;t reference that column."><a href='naics_code.html'>naics_code</a><span class='relatedKey'>.naics_code</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -421,6 +404,23 @@
                                     <td><p>User optionally fills this text area on the form, which is shown at the bottom of the report. This is for any relevant information, such as limitations, constraints, or dependencies, that may help explain the employers payroll data. Value should be HTML.</p></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="is_unlocked">is_unlocked</span></td>
+                                    <td>bool</td>
+                                    <td>1</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Indicates if the report is unlocked for editing.</p></td>
+                                </tr>
+                                <tr>
                                     <td><span id="reporting_year">reporting_year</span></td>
                                     <td>numeric</td>
                                     <td>0</td>
@@ -453,6 +453,57 @@
                                         </table>
                                     </td>
                                     <td><p>This date is set by an administrator and is used by a scheduled task to change <code>is_unlocked</code> to false after 3 days.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="admin_user_id">admin_user_id</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Admin users can lock a report which updates <code>report_unlock_date</code> and <code>admin_modified_date</code>. They can also look at reports which updates <code>admin_last_access_date</code>.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="admin_modified_date">admin_modified_date</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>The time when an admin user locked or unlocked a report.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="admin_last_access_date">admin_last_access_date</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>The time when an admin user last looked at this report.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="naics_code_label">naics_code_label</span></td>
@@ -624,6 +675,23 @@
                                     </td>
                                     <td><p>The name of the employee count record, for example &lsquo;50-100&rsquo;.</p></td>
                                 </tr>
+                                <tr>
+                                    <td><span id="calculated_data">calculated_data</span></td>
+                                    <td>json</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>This JSON column contains the all calculated data for the report instead of being in a separate view due to a limitation of the Database ORM.</p></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -648,9 +716,9 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="reports_view.html" target="_top" title="reports_view" alt="" coords="5,5,428,872">
+<area shape="rect" id="node1" href="reports_calculated_data_view.html" target="_top" title="reports_calculated_data_view" alt="" coords="5,5,428,989">
 </map>
-                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/reports_view.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/reports_calculated_data_view.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
@@ -659,27 +727,26 @@
 <area shape="rect" id="node3" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,363,287,539">
 <area shape="rect" id="node4" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,556,239,732">
 <area shape="rect" id="node5" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,169,287,345">
-<area shape="rect" id="node6" href="reports_view.html" target="_top" title="reports_view" alt="" coords="673,360,1096,1227">
+<area shape="rect" id="node6" href="reports_calculated_data_view.html" target="_top" title="reports_calculated_data_view" alt="" coords="673,389,1096,1373">
 </map>
-                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/reports_view.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/reports_calculated_data_view.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1140,993,1408,1081">
-<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="708,925,1061,1013">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="788,1067,981,1155">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,908,629,996">
-<area shape="rect" id="node7" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,624,307,712">
-<area shape="rect" id="node8" href="admin_user.html" target="_top" title="admin_user" alt="" coords="70,1083,242,1171">
-<area shape="rect" id="node9" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,872,287,960">
-<area shape="rect" id="node10" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,977,239,1065">
-<area shape="rect" id="node11" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,767,287,855">
-<area shape="rect" id="node5" href="calculated_data_view.html" target="_top" title="calculated_data_view" alt="" coords="1152,883,1396,947">
-<area shape="rect" id="node6" href="company_history.html" target="_top" title="company_history" alt="" coords="382,517,598,605">
-<area shape="rect" id="node12" href="reports_view.html" target="_top" title="reports_view" alt="" coords="673,5,1096,872">
-<area shape="rect" id="node13" href="user_error.html" target="_top" title="user_error" alt="" coords="409,695,571,783">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1140,1075,1408,1163">
+<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="708,1007,1061,1095">
+<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="788,1148,981,1236">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="351,972,629,1060">
+<area shape="rect" id="node6" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="5,724,307,812">
+<area shape="rect" id="node7" href="admin_user.html" target="_top" title="admin_user" alt="" coords="70,1184,242,1272">
+<area shape="rect" id="node8" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="25,972,287,1060">
+<area shape="rect" id="node9" href="naics_code.html" target="_top" title="naics_code" alt="" coords="73,1079,239,1167">
+<area shape="rect" id="node10" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="25,867,287,955">
+<area shape="rect" id="node5" href="company_history.html" target="_top" title="company_history" alt="" coords="382,617,598,705">
+<area shape="rect" id="node11" href="reports_calculated_data_view.html" target="_top" title="reports_calculated_data_view" alt="" coords="673,5,1096,989">
+<area shape="rect" id="node12" href="user_error.html" target="_top" title="user_error" alt="" coords="409,795,571,883">
 </map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/reports_view.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/reports_calculated_data_view.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>
@@ -695,7 +762,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT report.report_id,&#10;    report.report_id AS report_change_id,&#10;    report.company_id,&#10;    report.user_id,&#10;    report.user_comment,&#10;    report.employee_count_range_id,&#10;    report.naics_code,&#10;    report.report_start_date,&#10;    report.report_end_date,&#10;    report.create_date,&#10;    report.update_date,&#10;    report.create_user,&#10;    report.update_user,&#10;    report.report_status,&#10;    report.revision,&#10;    report.data_constraints,&#10;    report.reporting_year,&#10;    report.report_unlock_date,&#10;    naics_code.naics_label AS naics_code_label,&#10;    company.company_name,&#10;    company.bceid_business_guid AS company_bceid_business_guid,&#10;    company.address_line1 AS company_address_line1,&#10;    company.address_line2 AS company_address_line2,&#10;    company.city AS company_city,&#10;    company.province AS company_province,&#10;    company.country AS company_country,&#10;    company.postal_code AS company_postal_code,&#10;    employee_count_range.employee_count_range&#10;   FROM (((pay_transparency.pay_transparency_report report&#10;     LEFT JOIN pay_transparency.naics_code naics_code ON (((naics_code.naics_code)::text &#61; (report.naics_code)::text)))&#10;     LEFT JOIN pay_transparency.pay_transparency_company company ON ((company.company_id &#61; report.company_id)))&#10;     LEFT JOIN pay_transparency.employee_count_range employee_count_range ON ((employee_count_range.employee_count_range_id &#61; report.employee_count_range_id)))&#10;  WHERE ((report.report_status)::text &#61; ANY (ARRAY[&#39;Published&#39;::text, &#39;Withdrawn&#39;::text]))&#10;UNION&#10; SELECT report.report_id,&#10;    report.report_history_id AS report_change_id,&#10;    report.company_id,&#10;    report.user_id,&#10;    report.user_comment,&#10;    report.employee_count_range_id,&#10;    report.naics_code,&#10;    report.report_start_date,&#10;    report.report_end_date,&#10;    report.create_date,&#10;    report.update_date,&#10;    report.create_user,&#10;    report.update_user,&#10;    report.report_status,&#10;    report.revision,&#10;    report.data_constraints,&#10;    report.reporting_year,&#10;    report.report_unlock_date,&#10;    naics_code.naics_label AS naics_code_label,&#10;    company.company_name,&#10;    company.bceid_business_guid AS company_bceid_business_guid,&#10;    company.address_line1 AS company_address_line1,&#10;    company.address_line2 AS company_address_line2,&#10;    company.city AS company_city,&#10;    company.province AS company_province,&#10;    company.country AS company_country,&#10;    company.postal_code AS company_postal_code,&#10;    employee_count_range.employee_count_range&#10;   FROM (((pay_transparency.report_history report&#10;     LEFT JOIN pay_transparency.naics_code naics_code ON (((naics_code.naics_code)::text &#61; (report.naics_code)::text)))&#10;     LEFT JOIN pay_transparency.pay_transparency_company company ON ((company.company_id &#61; report.company_id)))&#10;     LEFT JOIN pay_transparency.employee_count_range employee_count_range ON ((employee_count_range.employee_count_range_id &#61; report.employee_count_range_id)))&#10;  WHERE ((report.report_status)::text &#61; ANY (ARRAY[&#39;Published&#39;::text, &#39;Withdrawn&#39;::text]));</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT report.report_id,&#10;    report.company_id,&#10;    report.user_id,&#10;    report.user_comment,&#10;    report.employee_count_range_id,&#10;    report.naics_code,&#10;    report.report_start_date,&#10;    report.report_end_date,&#10;    report.create_date,&#10;    report.update_date,&#10;    report.create_user,&#10;    report.update_user,&#10;    report.report_status,&#10;    report.revision,&#10;    report.data_constraints,&#10;    report.is_unlocked,&#10;    report.reporting_year,&#10;    report.report_unlock_date,&#10;    report.admin_user_id,&#10;    report.admin_modified_date,&#10;    report.admin_last_access_date,&#10;    naics_code.naics_label AS naics_code_label,&#10;    company.company_name,&#10;    company.bceid_business_guid AS company_bceid_business_guid,&#10;    company.address_line1 AS company_address_line1,&#10;    company.address_line2 AS company_address_line2,&#10;    company.city AS company_city,&#10;    company.province AS company_province,&#10;    company.country AS company_country,&#10;    company.postal_code AS company_postal_code,&#10;    employee_count_range.employee_count_range,&#10;    COALESCE(json_agg(json_build_object(&#39;value&#39;, calc_data.value, &#39;is_suppressed&#39;, calc_data.is_suppressed, &#39;calculation_code&#39;, calc_code.calculation_code)) FILTER (WHERE (calc_data.report_id IS NOT NULL)), &#39;[]&#39;::json) AS calculated_data&#10;   FROM (((((pay_transparency.pay_transparency_report report&#10;     LEFT JOIN pay_transparency.naics_code naics_code ON (((naics_code.naics_code)::text &#61; (report.naics_code)::text)))&#10;     LEFT JOIN pay_transparency.pay_transparency_company company ON ((company.company_id &#61; report.company_id)))&#10;     LEFT JOIN pay_transparency.employee_count_range employee_count_range ON ((employee_count_range.employee_count_range_id &#61; report.employee_count_range_id)))&#10;     LEFT JOIN pay_transparency.pay_transparency_calculated_data calc_data ON ((calc_data.report_id &#61; report.report_id)))&#10;     LEFT JOIN pay_transparency.calculation_code calc_code ON ((calc_code.calculation_code_id &#61; calc_data.calculation_code_id)))&#10;  WHERE ((report.report_status)::text &#61; ANY (ARRAY[&#39;Published&#39;::text, &#39;Withdrawn&#39;::text]))&#10;  GROUP BY report.report_id, report.company_id, report.user_id, report.user_comment, report.employee_count_range_id, report.naics_code, report.report_start_date, report.report_end_date, report.create_date, report.update_date, report.create_user, report.update_user, report.report_status, report.revision, report.data_constraints, report.is_unlocked, report.reporting_year, report.report_unlock_date, report.admin_user_id, report.admin_modified_date, report.admin_last_access_date, naics_code.naics_label, company.company_name, company.bceid_business_guid, company.address_line1, company.address_line2, company.city, company.province, company.country, company.postal_code, employee_count_range.employee_count_range&#10;UNION ALL&#10; SELECT report.report_id,&#10;    report.company_id,&#10;    report.user_id,&#10;    report.user_comment,&#10;    report.employee_count_range_id,&#10;    report.naics_code,&#10;    report.report_start_date,&#10;    report.report_end_date,&#10;    report.create_date,&#10;    report.update_date,&#10;    report.create_user,&#10;    report.update_user,&#10;    report.report_status,&#10;    report.revision,&#10;    report.data_constraints,&#10;    report.is_unlocked,&#10;    report.reporting_year,&#10;    report.report_unlock_date,&#10;    report.admin_user_id,&#10;    report.admin_modified_date,&#10;    report.admin_last_access_date,&#10;    naics_code.naics_label AS naics_code_label,&#10;    company.company_name,&#10;    company.bceid_business_guid AS company_bceid_business_guid,&#10;    company.address_line1 AS company_address_line1,&#10;    company.address_line2 AS company_address_line2,&#10;    company.city AS company_city,&#10;    company.province AS company_province,&#10;    company.country AS company_country,&#10;    company.postal_code AS company_postal_code,&#10;    employee_count_range.employee_count_range,&#10;    COALESCE(json_agg(json_build_object(&#39;value&#39;, calc_data.value, &#39;is_suppressed&#39;, calc_data.is_suppressed, &#39;calculation_code&#39;, calc_code.calculation_code)) FILTER (WHERE (calc_data.report_history_id IS NOT NULL)), &#39;[]&#39;::json) AS calculated_data&#10;   FROM (((((pay_transparency.report_history report&#10;     LEFT JOIN pay_transparency.naics_code naics_code ON (((naics_code.naics_code)::text &#61; (report.naics_code)::text)))&#10;     LEFT JOIN pay_transparency.pay_transparency_company company ON ((company.company_id &#61; report.company_id)))&#10;     LEFT JOIN pay_transparency.employee_count_range employee_count_range ON ((employee_count_range.employee_count_range_id &#61; report.employee_count_range_id)))&#10;     LEFT JOIN pay_transparency.calculated_data_history calc_data ON ((calc_data.report_history_id &#61; report.report_history_id)))&#10;     LEFT JOIN pay_transparency.calculation_code calc_code ON ((calc_code.calculation_code_id &#61; calc_data.calculation_code_id)))&#10;  WHERE ((report.report_status)::text &#61; ANY (ARRAY[&#39;Published&#39;::text, &#39;Withdrawn&#39;::text]))&#10;  GROUP BY report.report_id, report.company_id, report.user_id, report.user_comment, report.employee_count_range_id, report.naics_code, report.report_start_date, report.report_end_date, report.create_date, report.update_date, report.create_user, report.update_user, report.report_status, report.revision, report.data_constraints, report.is_unlocked, report.reporting_year, report.report_unlock_date, report.admin_user_id, report.admin_modified_date, report.admin_last_access_date, naics_code.naics_label, company.company_name, company.bceid_business_guid, company.address_line1, company.address_line2, company.city, company.province, company.country, company.postal_code, employee_count_range.employee_count_range;</textarea>
                             <div style="padding-top: 5px;"><hr></div>
                             <div class="box box-solid">
                                 <div class="box-header with-border">
@@ -707,6 +774,7 @@
                                     <ul class="list-unstyled">
                                         <li><a href="naics_code.html">naics_code</a></li>
                                         <li><a href="employee_count_range.html">employee_count_range</a></li>
+                                        <li><a href="calculation_code.html">calculation_code</a></li>
                                     </ul>
                                 </div><!-- /.box-body -->
                             </div>

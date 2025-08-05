@@ -3,8 +3,6 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "calculated_data_history":"elipses":w -> "pay_transparency_calculated_data":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "calculated_data_history":"elipses":w -> "report_history":"report_history_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "calculated_data_history":"elipses":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "calculated_data_view":"elipses":w -> "pay_transparency_calculated_data":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "calculated_data_view":"elipses":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "pay_transparency_calculated_data":"elipses":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_report":"admin_user_id":w -> "admin_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "pay_transparency_report":"company_id":w -> "pay_transparency_company":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -17,11 +15,11 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "report_history":"naics_code":w -> "naics_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "report_history":"user_id":w -> "pay_transparency_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "reports_view":"company_id":w -> "pay_transparency_company":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id.type":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"naics_code":w -> "naics_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "reports_view":"user_id":w -> "pay_transparency_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"company_id":w -> "pay_transparency_company":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"employee_count_range_id":w -> "employee_count_range":"employee_count_range_id.type":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"naics_code":w -> "naics_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"report_id":w -> "pay_transparency_report":"report_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "reports_calculated_data_view":"user_id":w -> "pay_transparency_user":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "admin_user" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -43,16 +41,6 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     URL="calculated_data_history.html"
     target="_top"
     tooltip="calculated_data_history"
-  ];
-  "calculated_data_view" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="126" HEIGHT="16"><B>calculated_data_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-    </TABLE>>
-    URL="calculated_data_view.html"
-    target="_top"
-    tooltip="calculated_data_view"
   ];
   "employee_count_range" [
    label=<
@@ -88,7 +76,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="205" HEIGHT="16"><B>pay_transparency_calculated_data</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="pay_transparency_calculated_data.html"
     target="_top"
@@ -110,7 +98,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="149" HEIGHT="16"><B>pay_transparency_report</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">5 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="pay_transparency_report.html"
     target="_top"
@@ -138,14 +126,14 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     target="_top"
     tooltip="report_history"
   ];
-  "reports_view" [
+  "reports_calculated_data_view" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="76" HEIGHT="16"><B>reports_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="176" HEIGHT="16"><B>reports_calculated_data_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
     </TABLE>>
-    URL="reports_view.html"
+    URL="reports_calculated_data_view.html"
     target="_top"
-    tooltip="reports_view"
+    tooltip="reports_calculated_data_view"
   ];
 }
