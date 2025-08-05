@@ -2,7 +2,6 @@ import express, { Application } from 'express';
 import request from 'supertest';
 import router from './external-consumer-routes';
 import { faker } from '@faker-js/faker';
-import { reportService } from '../services/report-service';
 
 const mockCount = jest.fn();
 const mockReportsViewFindMany = jest.fn();
@@ -12,7 +11,7 @@ jest.mock('../prisma/prisma-client-readonly-replica', () => {
     default: {
       $replica: () => {
         return {
-          reports_view: {
+          reports_calculated_data_view: {
             count: (...args) => mockCount(...args),
             findMany: (...args) => mockReportsViewFindMany(...args),
           },

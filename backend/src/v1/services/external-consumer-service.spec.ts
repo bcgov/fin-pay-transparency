@@ -1,5 +1,8 @@
 import { faker } from '@faker-js/faker';
-import { externalConsumerService, inputDateTimeFormatter } from './external-consumer-service';
+import {
+  externalConsumerService,
+  inputDateTimeFormatter,
+} from './external-consumer-service';
 import { LocalDateTime, ZoneId } from '@js-joda/core';
 
 const mockReportsViewFindMany = jest.fn();
@@ -10,7 +13,7 @@ jest.mock('../prisma/prisma-client-readonly-replica', () => {
     default: {
       $replica: () => {
         return {
-          reports_view: {
+          reports_calculated_data_view: {
             count: (...args) => mockReportsViewCount(...args),
             findMany: (...args) => mockReportsViewFindMany(...args),
           },
@@ -130,7 +133,9 @@ describe('external-consumer-service', () => {
         -1,
       );
     } catch (error) {
-      expect(error.message).toBe('Start date time must be before the end date time.');
+      expect(error.message).toBe(
+        'Start date time must be before the end date time.',
+      );
     }
   });
 
@@ -138,7 +143,10 @@ describe('external-consumer-service', () => {
     mockReportsViewFindMany.mockReturnValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
-        LocalDateTime.now().atZone(ZoneId.UTC).plusHours(24).format(inputDateTimeFormatter),
+        LocalDateTime.now()
+          .atZone(ZoneId.UTC)
+          .plusHours(24)
+          .format(inputDateTimeFormatter),
         '2023-01-01 11:00',
         -1,
         -1,
@@ -152,7 +160,10 @@ describe('external-consumer-service', () => {
     try {
       await externalConsumerService.exportDataWithPagination(
         '2023-01-01 11:00',
-        LocalDateTime.now().atZone(ZoneId.UTC).plusHours(24).format(inputDateTimeFormatter),
+        LocalDateTime.now()
+          .atZone(ZoneId.UTC)
+          .plusHours(24)
+          .format(inputDateTimeFormatter),
         -1,
         -1,
       );
@@ -161,12 +172,11 @@ describe('external-consumer-service', () => {
     }
   });
 
-
   describe('should default page size to 50', () => {
     it('when page size is not specified', async () => {
       mockReportsViewFindMany.mockImplementation((args) => {
-        expect(args.take).toBe(50)
-        return [testData]
+        expect(args.take).toBe(50);
+        return [testData];
       });
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01 11:00',
@@ -174,12 +184,11 @@ describe('external-consumer-service', () => {
         0,
         undefined,
       );
-
     });
     it('when page size is greater than max value (50)', async () => {
       mockReportsViewFindMany.mockImplementation((args) => {
-        expect(args.take).toBe(50)
-        return [testData]
+        expect(args.take).toBe(50);
+        return [testData];
       });
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01 11:00',
@@ -191,8 +200,8 @@ describe('external-consumer-service', () => {
 
     it('when page size is less than 1', async () => {
       mockReportsViewFindMany.mockImplementation((args) => {
-        expect(args.take).toBe(50)
-        return [testData]
+        expect(args.take).toBe(50);
+        return [testData];
       });
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01 11:00',

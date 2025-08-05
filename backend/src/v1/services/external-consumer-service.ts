@@ -94,60 +94,82 @@ const externalConsumerService = {
       );
     }
 
-    const whereClause: Prisma.reports_viewWhereInput = {
-      update_date: {
-        gte: convert(startDt).toDate(),
-        lt: convert(endDt).toDate(),
-      },
-    };
-
     /**
-     * Querying the reports and their data uses 2 sql views (reports_view, calculated_data_view) that
-     * are included in the Prisma schema by enabling views feature and running a db pull. The 2 views in the
-     * schema were modified to add unique columns keys and relations between the projects_view and the calculated_data_view
-     *
+     * Querying the reports and their data uses a single consolidated sql view (reports_with_calculated_data_view) that
+     * is included in the Prisma schema by enabling views feature and running a db pull. The view combines
+     * both current and historical reports with their calculated data pre-aggregated as JSON.
      *
      * The prisma views
      * is still in preview and we must monitor its status to mitigate risk using the following links:
      * 1) https://www.prisma.io/docs/orm/prisma-schema/data-model/views
      * 2) https://github.com/prisma/prisma/issues/17335
      *
-     * The views are added to the database using a database migration script (V1.0.24__add_reports_views.sql). The
+     * The view is added to the database using a database migration script (V1.0.48__update_reports_views.sql).
      */
 
-    const records = await prismaReadOnlyReplica
+    const whereClause: Prisma.reports_calculated_data_viewWhereInput = {
+      update_date: {
+        gte: convert(startDt).toDate(),
+        lt: convert(endDt).toDate(),
+      },
+    };
+
+    // Fetch reports with their calculated data using the consolidated view
+    const recordsWithCalculatedData = await prismaReadOnlyReplica
       .$replica()
-      .reports_view.findMany({
-        where: whereClause,
-        include: {
-          calculated_data: {
-            select: {
-              value: true,
-              is_suppressed: true,
-              calculation_code: true,
-            },
-          },
+      .reports_calculated_data_view.findMany({
+        select: {
+          report_id: true,
+          company_id: true,
+          user_id: true,
+          user_comment: true,
+          employee_count_range_id: true,
+          naics_code: true,
+          report_start_date: true,
+          report_end_date: true,
+          create_date: true,
+          update_date: true,
+          admin_modified_date: true,
+          create_user: true,
+          update_user: true,
+          report_status: true,
+          revision: true,
+          data_constraints: true,
+          reporting_year: true,
+          report_unlock_date: true,
+          naics_code_label: true,
+          company_name: true,
+          company_bceid_business_guid: true,
+          company_address_line1: true,
+          company_address_line2: true,
+          company_city: true,
+          company_province: true,
+          company_country: true,
+          company_postal_code: true,
+          employee_count_range: true,
+          calculated_data: true,
         },
+        where: whereClause,
         take: limit,
         skip: offset,
-        orderBy: [{ update_date: 'asc' }],
+        orderBy: [
+          { update_date: 'asc' },
+          { admin_modified_date: { sort: 'asc', nulls: 'first' } },
+        ],
       });
 
+    // Get total count using the same view
     const totalRecordsCount = await prismaReadOnlyReplica
       .$replica()
-      .reports_view.count({
+      .reports_calculated_data_view.count({
         where: whereClause,
       });
-
-    records.forEach((report) => {
-      delete report.report_change_id;
-    });
 
     return {
       totalRecords: totalRecordsCount,
       page: offset / limit,
       pageSize: limit,
-      records,
+      records: recordsWithCalculatedData,
     };
   },
 };
