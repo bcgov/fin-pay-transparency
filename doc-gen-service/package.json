@@ -20,7 +20,7 @@
     "ejs": "^3.1.9",
     "express": "^5.0.0",
     "express-prom-bundle": "^8.0.0",
-    "express-rate-limit": "^7.1.5",
+    "express-rate-limit": "^8.0.0",
     "helmet": "^8.0.0",
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
