@@ -58,8 +58,38 @@ on:
         type: number
 
 jobs:
+  # Job to clean up existing visual regression comments before starting tests
+  cleanup-comments:
+    name: Cleanup Previous Comments
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Delete existing visual regression comments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Delete any existing visual regression comments from this bot
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            for (const comment of comments.data) {
+              if (comment.user.type === 'Bot' && 
+                  comment.body.includes('🖼️ Playwright Visual Regression Test Results')) {
+                await github.rest.issues.deleteComment({
+                  comment_id: comment.id,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                });
+                console.log(`Deleted existing visual regression comment: ${comment.id}`);
+              }
+            }
+
   end-to-end:
     name: Tests
+    needs: cleanup-comments
     environment: ${{ inputs.environment }}
     defaults:
       run:
@@ -67,7 +97,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     strategy:
-      max-parallel: 5
+      max-parallel: 2
       matrix:
         project: [Google Chrome, firefox, safari, Microsoft Edge]
     steps:
@@ -82,6 +112,7 @@ jobs:
           npm ci
           npx playwright install --with-deps 
       - name: Run Tests
+        id: run-tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -89,10 +120,22 @@ jobs:
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html
+          set -e
+          npx playwright test --project="${{ matrix.project }}" --reporter=html 2>&1 | tee output.log || {
+            # Check if the failure is due to screenshot differences
+            if grep -q "Screenshot comparison failed" output.log || grep -q "A snapshot doesn't exist" output.log; then
+              echo "SCREENSHOT_DIFFERENCES=true" >> $GITHUB_ENV
+              echo "Screenshot differences detected"
+              exit 1
+            else
+              # Other test failures, re-exit with original code
+              exit 1
+            fi
+          }
 
       - uses: actions/upload-artifact@v4
         if: always()
+        id: artifact-upload
         name: upload results
         env:
           PW_TEST_HTML_REPORT_OPEN: always
@@ -100,4 +143,113 @@ jobs:
           name: playwright-report-${{ matrix.project }}
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
+
+      # Upload test output logs for screenshot difference detection
+      - uses: actions/upload-artifact@v4
+        if: always()
+        name: upload test logs
+        with:
+          name: test-output-${{ matrix.project }}
+          path: "./frontend/output.log"
+          retention-days: 7
+
+  # Job to create a single consolidated comment for all browsers
+  create-visual-comment:
+    name: Create Visual Regression Comment
+    needs: end-to-end
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download all test outputs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-output-*
+          path: test-outputs
+          merge-multiple: false
+
+      - name: Create consolidated comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Check each browser's test output for screenshot differences
+            const browsers = ['Google Chrome', 'firefox', 'safari', 'Microsoft Edge'];
+            const results = [];
+            let hasAnyScreenshotIssues = false;
+            
+            for (const browser of browsers) {
+              const outputDir = `test-outputs/test-output-${browser}`;
+              const outputFile = path.join(outputDir, 'output.log');
+              
+              let hasScreenshotIssues = false;
+              let screenshotErrors = [];
+              
+              try {
+                if (fs.existsSync(outputFile)) {
+                  const logContent = fs.readFileSync(outputFile, 'utf8');
+                  
+                  // Check for screenshot-related errors
+                  if (logContent.includes('Screenshot comparison failed') || 
+                      logContent.includes('A snapshot doesn\'t exist')) {
+                    hasScreenshotIssues = true;
+                    hasAnyScreenshotIssues = true;
+                    
+                    screenshotErrors = logContent
+                      .split('\n')
+                      .filter(line => line.includes('Screenshot comparison failed') || 
+                                     line.includes('snapshot doesn\'t exist'))
+                      .slice(0, 3); // Limit to first 3 errors per browser
+                  }
+                }
+              } catch (error) {
+                console.log(`Could not read test output for ${browser}: ${error.message}`);
+              }
+              
+              results.push({
+                browser,
+                hasScreenshotIssues,
+                screenshotErrors
+              });
+            }
+            
+            // Only create a comment if there are screenshot issues
+            if (hasAnyScreenshotIssues) {
+              let comment = `### 🖼️ Playwright Visual Regression Test Results
+              
+              Visual differences were detected in the following browsers:
+              
+              `;
+              
+              for (const result of results) {
+                if (result.hasScreenshotIssues) {
+                  comment += `#### ❌ ${result.browser}
+              **Issues Found:**
+              ${result.screenshotErrors.length > 0 ? result.screenshotErrors.map(error => `- ${error.trim()}`).join('\n') : '- Check the test logs for details'}
+              
+              `;
+                } else {
+                  comment += `#### ✅ ${result.browser} - No visual issues detected
+              
+              `;
+                }
+              }
+              
+              comment += `
+              **Next Steps:**
+              1. 📊 [View the detailed Playwright reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) to see visual differences
+              2. 🔍 Review the changes to determine if they're expected
+              3. ✅ If the visual changes are correct, comment \`/approve-screenshots\` to update the baseline screenshots
+              
+              **Reports:** Available in the workflow artifacts above`;
+              
+              // Create the consolidated comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
 
