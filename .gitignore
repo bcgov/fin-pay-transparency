@@ -146,3 +146,4 @@ backend/session-path
 sonar-project.properties
 .pub
 .idea
+*.user/

@@ -63,6 +63,46 @@ export class BaseReportPage extends PTPage {
     await yesButton.click();
     await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
   }
+
+  /**
+   * Stabilizes dynamic content for visual regression testing by setting consistent
+   * values in the employer details table
+   * @param reportingYear - Year for the reporting year field (e.g., '2025')
+   * @param timePeriod - Time period text (e.g., 'February 1, 2020 - January 31, 2021')
+   */
+  async stabilizeForVisualTesting(
+    reportingYear: string,
+    timePeriod: string,
+  ): Promise<void> {
+    // Set consistent values in the employer details table using JavaScript evaluation
+    await this.instance.evaluate(
+      ({ reportingYear, timePeriod }) => {
+        // Find the employer details table
+        const table = document.querySelector('.employer-details.table');
+        if (!table) return;
+
+        // Find all table rows
+        const rows = table.querySelectorAll('tr');
+
+        rows.forEach((row) => {
+          const headerCell = row.querySelector('td.table-header');
+          const valueCell = row.querySelector('td.text-normal');
+
+          if (!valueCell) return;
+
+          switch (headerCell?.textContent?.trim()) {
+            case 'Reporting Year:':
+              valueCell.textContent = reportingYear;
+              break;
+            case 'Time Period:':
+              valueCell.textContent = timePeriod;
+              break;
+          }
+        });
+      },
+      { reportingYear, timePeriod },
+    );
+  }
 }
 
 export class DraftReportPage extends BaseReportPage {
@@ -149,6 +189,8 @@ export class PublishedReportPage extends BaseReportPage {
     this.editReportButton = await this.instance.getByRole('button', {
       name: 'Edit this Report',
     });
+
+    await expect(this.editReportButton).toBeVisible();
   }
 
   async editReport() {
