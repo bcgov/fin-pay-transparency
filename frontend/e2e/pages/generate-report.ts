@@ -303,4 +303,73 @@ export class GenerateReportPage extends PTPage {
         res.url().includes('/api/v1/file-upload') && res.status() === 200,
     );
   }
+
+  /**
+   * Stabilizes dynamic content for visual regression testing by setting consistent
+   * values in the date/year form inputs
+   * @param reportingYear - Year for the reporting year field (e.g., '2025')
+   * @param startMonth - Month for the start period (e.g., 'Aug')
+   * @param startYear - Year for the start period (e.g., '2024')
+   * @param endMonth - Month for the end period (e.g., 'July')
+   * @param endYear - Year for the end period (e.g., '2025')
+   */
+  async stabilizeForVisualTesting(
+    reportingYear: string,
+    startMonth: string,
+    startYear: string,
+    endMonth: string,
+    endYear: string,
+  ): Promise<void> {
+    // Use the existing locators to modify the display values directly
+
+    // Set reporting year display value
+    await this.reportingYearInput.evaluate((el, year) => {
+      const selectionText = el.parentElement?.querySelector(
+        '.v-select__selection-text',
+      );
+      if (selectionText) {
+        selectionText.textContent = year;
+      }
+    }, reportingYear);
+
+    // Set start month display value
+    await this.startMonthInput.evaluate((el, month) => {
+      const selectionText = el.parentElement?.querySelector(
+        '.v-select__selection-text',
+      );
+      if (selectionText) {
+        selectionText.textContent = month;
+      }
+    }, startMonth);
+
+    // Set start year display value
+    await this.startYearInput.evaluate((el, year) => {
+      const selectionText = el.parentElement?.querySelector(
+        '.v-select__selection-text',
+      );
+      if (selectionText) {
+        selectionText.textContent = year;
+      }
+    }, startYear);
+
+    // Set end month display value
+    await this.endMonthInput.evaluate((el, month) => {
+      const selectionText = el.parentElement?.querySelector(
+        '.v-select__selection-text',
+      );
+      if (selectionText) {
+        selectionText.textContent = month;
+      }
+    }, endMonth);
+
+    // Set end year display value
+    await this.endYearInput.evaluate((el, year) => {
+      const selectionText = el.parentElement?.querySelector(
+        '.v-select__selection-text',
+      );
+      if (selectionText) {
+        selectionText.textContent = year;
+      }
+    }, endYear);
+  }
 }
