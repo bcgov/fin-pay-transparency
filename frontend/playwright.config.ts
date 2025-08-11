@@ -16,6 +16,10 @@ export default defineConfig({
   globalSetup: './e2e/utils/globalSetup.ts',
   /* Run tests in files in parallel */
   fullyParallel: false,
+  /* Configure expect timeout */
+  expect: {
+    timeout: 30000, // 30 seconds for expect assertions
+  },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */

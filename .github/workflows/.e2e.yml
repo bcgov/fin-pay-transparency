@@ -22,6 +22,11 @@ on:
         default: 8
         required: false
         type: number
+      update-screenshots:
+        description: 'Update visual regression screenshots instead of running tests'
+        default: false
+        required: false
+        type: boolean
   workflow_call:
     secrets:
       E2E_USERNAME:
@@ -49,6 +54,11 @@ on:
         default: 8
         required: false
         type: number
+      update-screenshots:
+        description: 'Update visual regression screenshots instead of running tests'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   end-to-end:
@@ -94,3 +104,27 @@ jobs:
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
 
+  # Job to create a single consolidated comment for all browsers
+  create-visual-comment:
+    name: Create Visual Regression Comment
+    needs: end-to-end
+    if: always() && github.event_name == 'pull_request' && !inputs.update-screenshots
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout for scripts
+
+      - name: Download all test outputs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-output-*
+          path: test-outputs
+          merge-multiple: false
+
+      - name: Create consolidated comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { createVisualRegressionComment } = require('./.github/scripts/create-visual-comment.js');
+            const browsers = ['Google Chrome', 'firefox', 'safari', 'Microsoft Edge'];
+            await createVisualRegressionComment(github, context, '${{ github.run_id }}', browsers);
