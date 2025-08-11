@@ -22,11 +22,6 @@ on:
         default: 8
         required: false
         type: number
-      update-screenshots:
-        description: 'Update visual regression screenshots instead of running tests'
-        default: false
-        required: false
-        type: boolean
   workflow_call:
     secrets:
       E2E_USERNAME:
@@ -54,33 +49,10 @@ on:
         default: 8
         required: false
         type: number
-      update-screenshots:
-        description: 'Update visual regression screenshots instead of running tests'
-        default: false
-        required: false
-        type: boolean
 
 jobs:
-  # Job to clean up existing visual regression comments before starting tests
-  cleanup-comments:
-    name: Cleanup Previous Comments
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        name: Checkout for scripts
-
-      - name: Delete existing visual regression comments
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { cleanupVisualRegressionComments } = require('./.github/scripts/create-visual-comment.js');
-            await cleanupVisualRegressionComments(github, context);
-
   end-to-end:
     name: Tests
-    needs: [cleanup-comments]
-    if: always() && (needs.cleanup-comments.result == 'success' || needs.cleanup-comments.result == 'skipped')
     environment: ${{ inputs.environment }}
     defaults:
       run:
@@ -88,7 +60,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     strategy:
-      max-parallel: 2
+      max-parallel: 5
       matrix:
         project: [Google Chrome, firefox, safari, Microsoft Edge]
     steps:
@@ -103,8 +75,6 @@ jobs:
           npm ci
           npx playwright install --with-deps 
       - name: Run Tests
-        if: ${{ !inputs.update-screenshots }}
-        id: run-tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -112,53 +82,10 @@ jobs:
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
-          set -e
-          npx playwright test --project="${{ matrix.project }}" --reporter=html 2>&1 | tee output.log || {
-            # Check if the failure is due to screenshot differences
-            if grep -q "Screenshot comparison failed" output.log || grep -q "A snapshot doesn't exist" output.log; then
-              echo "SCREENSHOT_DIFFERENCES=true" >> $GITHUB_ENV
-              echo "Screenshot differences detected"
-              exit 1
-            else
-              # Other test failures, re-exit with original code
-              exit 1
-            fi
-          }
-
-      - name: Update snapshots for specific browser
-        if: ${{ inputs.update-screenshots }}
-        env:
-          E2E_BASE_URL: ${{ inputs.frontend-url }}
-          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
-          EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
-          EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
-        run: |
-          # Run tests with update-snapshots flag for the specific browser
-          npx playwright test --project="${{ matrix.project }}" --update-snapshots || echo "Update completed with some test failures, but snapshots should be updated"
-
-      - name: Configure Git
-        if: ${{ inputs.update-screenshots }}
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-      - name: Commit updated snapshots
-        if: ${{ inputs.update-screenshots }}
-        run: |
-          git add .
-          if git diff --staged --quiet; then
-            echo "No screenshot changes to commit for ${{ matrix.project }}"
-            echo "CHANGES_COMMITTED=false" >> $GITHUB_ENV
-          else
-            git commit -m "Update e2e snapshots for ${{ matrix.project }}"
-            git push
-            echo "CHANGES_COMMITTED=true" >> $GITHUB_ENV
-          fi
+          npx playwright test --project="${{ matrix.project }}" --reporter=html
 
       - uses: actions/upload-artifact@v4
-        if: always() && !inputs.update-screenshots
-        id: artifact-upload
+        if: always()
         name: upload results
         env:
           PW_TEST_HTML_REPORT_OPEN: always
@@ -166,38 +93,4 @@ jobs:
           name: playwright-report-${{ matrix.project }}
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
-
-      # Upload test output logs for screenshot difference detection
-      - uses: actions/upload-artifact@v4
-        if: always() && !inputs.update-screenshots
-        name: upload test logs
-        with:
-          name: test-output-${{ matrix.project }}
-          path: "./frontend/output.log"
-          retention-days: 7
-
-  # Job to create a single consolidated comment for all browsers
-  create-visual-comment:
-    name: Create Visual Regression Comment
-    needs: end-to-end
-    if: always() && github.event_name == 'pull_request' && !inputs.update-screenshots
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        name: Checkout for scripts
-
-      - name: Download all test outputs
-        uses: actions/download-artifact@v4
-        with:
-          pattern: test-output-*
-          path: test-outputs
-          merge-multiple: false
-
-      - name: Create consolidated comment on PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { createVisualRegressionComment } = require('./.github/scripts/create-visual-comment.js');
-            const browsers = ['Google Chrome', 'firefox', 'safari', 'Microsoft Edge'];
-            await createVisualRegressionComment(github, context, '${{ github.run_id }}', browsers);
 
