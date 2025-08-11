@@ -64,6 +64,9 @@ jobs:
   end-to-end:
     name: Tests
     environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
     defaults:
       run:
         working-directory: frontend
@@ -109,6 +112,10 @@ jobs:
     name: Create Visual Regression Comment
     needs: end-to-end
     if: always() && github.event_name == 'pull_request' && !inputs.update-screenshots
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
