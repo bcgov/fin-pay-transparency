@@ -48,15 +48,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: bcgov-nr/action-builder-ghcr@v4.0.0
+      - uses: bcgov/action-builder-ghcr@v4.0.0
         with:
           package: ${{ matrix.package }}
-          tags: ${{ github.event.number }}
+          tags: |
+            ${{ github.event.number }}
+            pr-${{ github.event.number }}-${{ github.run_number }}
           tag_fallback: test
           build_context: ${{ matrix.build_context }}
-      - uses: shrink/actions-docker-registry-tag@v4
-        with:
-          registry: ghcr.io
-          repository: ${{ github.repository }}/${{ matrix.package }}
-          target: ${{ github.event.number }}
-          tags: pr-${{ github.event.number }}-${{ github.run_number }}

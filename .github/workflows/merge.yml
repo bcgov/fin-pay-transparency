@@ -31,13 +31,14 @@ jobs:
   vars:
     name: Set Variables
     outputs:
-      pr: ${{ steps.pr.outputs.pr }}
+      pr: ${{ steps.pr.outputs.pr || inputs.pr_no}}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps: # Get PR number for squash merges to main
       - name: PR Number
+        if: (github.event_name != 'workflow_dispatch')
         id: pr
-        uses: bcgov-nr/action-get-pr@v0.0.1
+        uses: bcgov/action-get-pr@v0.0.1
   codeql:
     name: Semantic Code Analysis
     runs-on: ubuntu-24.04
