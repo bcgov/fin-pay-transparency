@@ -18,7 +18,7 @@ async function cleanupVisualRegressionComments(github, context) {
   
   for (const comment of comments.data) {
     if (comment.user.type === 'Bot' && 
-        comment.body.includes('🖼️ Playwright Visual Regression Test Results')) {
+        comment.body.includes('Playwright Visual Regression Test Results')) {
       await github.rest.issues.deleteComment({
         comment_id: comment.id,
         owner: context.repo.owner,
@@ -41,10 +41,10 @@ async function cleanupVisualRegressionComments(github, context) {
  * @param {Object} github - GitHub API client
  * @param {Object} context - GitHub context object
  * @param {string} runId - GitHub Actions run ID
+ * @param {Array<string>} browsers - Array of browser names to check
  */
-async function createVisualRegressionComment(github, context, runId) {
+async function createVisualRegressionComment(github, context, runId, browsers) {
   // Check each browser's test output for screenshot differences
-  const browsers = ['Google Chrome', 'firefox', 'safari', 'Microsoft Edge'];
   const results = [];
   let hasAnyScreenshotIssues = false;
   
@@ -85,7 +85,7 @@ async function createVisualRegressionComment(github, context, runId) {
   
   // Only create a comment if there are screenshot issues
   if (hasAnyScreenshotIssues) {
-    let comment = `### 🖼️ Playwright Visual Regression Test Results
+    let comment = `### Playwright Visual Regression Test Results
 
 Visual differences were detected in the following browsers:
 
@@ -93,13 +93,13 @@ Visual differences were detected in the following browsers:
     
     for (const result of results) {
       if (result.hasScreenshotIssues) {
-        comment += `#### ❌ ${result.browser}
+        comment += `#### FAILED ${result.browser}
 **Issues Found:**
 ${result.screenshotErrors.length > 0 ? result.screenshotErrors.map(error => `- ${error.trim()}`).join('\n') : '- Check the test logs for details'}
 
 `;
       } else {
-        comment += `#### ✅ ${result.browser} - No visual issues detected
+        comment += `#### PASSED ${result.browser} - No visual issues detected
 
 `;
       }
@@ -107,9 +107,9 @@ ${result.screenshotErrors.length > 0 ? result.screenshotErrors.map(error => `- $
     
     comment += `
 **Next Steps:**
-1. 📊 [View the detailed Playwright reports](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}) to see visual differences
-2. 🔍 Review the changes to determine if they're expected
-3. ✅ If the visual changes are correct, comment \`/approve-screenshots\` to update the baseline screenshots
+1. [View the detailed Playwright reports](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}) to see visual differences
+2. Review the changes to determine if they're expected
+3. If the visual changes are correct, run the "Approve Screenshots" action from the Actions tab with this PR number to update the baseline screenshots
 
 **Reports:** Available in the workflow artifacts above`;
     

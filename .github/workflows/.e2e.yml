@@ -3,13 +3,6 @@ env:
   deployment_name: pay-transparency
 on:
   workflow_dispatch:
-    secrets:
-      E2E_USERNAME:
-        required: true
-      E2E_PASSWORD:
-        required: true
-      EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY:
-        required: true
     inputs:
       frontend-url:
         description: "Frontend URL of the application"
@@ -29,6 +22,11 @@ on:
         default: 8
         required: false
         type: number
+      update-screenshots:
+        description: 'Update visual regression screenshots instead of running tests'
+        default: false
+        required: false
+        type: boolean
   workflow_call:
     secrets:
       E2E_USERNAME:
@@ -56,6 +54,11 @@ on:
         default: 8
         required: false
         type: number
+      update-screenshots:
+        description: 'Update visual regression screenshots instead of running tests'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   # Job to clean up existing visual regression comments before starting tests
@@ -76,7 +79,8 @@ jobs:
 
   end-to-end:
     name: Tests
-    needs: cleanup-comments
+    needs: [cleanup-comments]
+    if: always() && (needs.cleanup-comments.result == 'success' || needs.cleanup-comments.result == 'skipped')
     environment: ${{ inputs.environment }}
     defaults:
       run:
@@ -99,6 +103,7 @@ jobs:
           npm ci
           npx playwright install --with-deps 
       - name: Run Tests
+        if: ${{ !inputs.update-screenshots }}
         id: run-tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
@@ -120,8 +125,39 @@ jobs:
             fi
           }
 
+      - name: Update snapshots for specific browser
+        if: ${{ inputs.update-screenshots }}
+        env:
+          E2E_BASE_URL: ${{ inputs.frontend-url }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
+          EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
+        run: |
+          # Run tests with update-snapshots flag for the specific browser
+          npx playwright test --project="${{ matrix.project }}" --update-snapshots || echo "Update completed with some test failures, but snapshots should be updated"
+
+      - name: Configure Git
+        if: ${{ inputs.update-screenshots }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Commit updated snapshots
+        if: ${{ inputs.update-screenshots }}
+        run: |
+          git add .
+          if git diff --staged --quiet; then
+            echo "No screenshot changes to commit for ${{ matrix.project }}"
+            echo "CHANGES_COMMITTED=false" >> $GITHUB_ENV
+          else
+            git commit -m "Update e2e snapshots for ${{ matrix.project }}"
+            git push
+            echo "CHANGES_COMMITTED=true" >> $GITHUB_ENV
+          fi
+
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && !inputs.update-screenshots
         id: artifact-upload
         name: upload results
         env:
@@ -133,7 +169,7 @@ jobs:
 
       # Upload test output logs for screenshot difference detection
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && !inputs.update-screenshots
         name: upload test logs
         with:
           name: test-output-${{ matrix.project }}
@@ -144,7 +180,7 @@ jobs:
   create-visual-comment:
     name: Create Visual Regression Comment
     needs: end-to-end
-    if: always() && github.event_name == 'pull_request'
+    if: always() && github.event_name == 'pull_request' && !inputs.update-screenshots
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -162,5 +198,6 @@ jobs:
         with:
           script: |
             const { createVisualRegressionComment } = require('./.github/scripts/create-visual-comment.js');
-            await createVisualRegressionComment(github, context, '${{ github.run_id }}');
+            const browsers = ['Google Chrome', 'firefox', 'safari', 'Microsoft Edge'];
+            await createVisualRegressionComment(github, context, '${{ github.run_id }}', browsers);
 

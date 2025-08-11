@@ -1,131 +1,20 @@
 name: Approve Screenshots
 on:
-  issue_comment:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      pull-request-number:
+        description: 'Pull Request Number to update screenshots for'
+        required: true
+        type: number
 
 jobs:
   update-screenshots:
     name: Update Screenshots
-    # Only run on pull request comments containing the approval command
-    if: github.event.issue.pull_request && contains(github.event.comment.body, '/approve-screenshots')
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-      pull-requests: write
-    defaults:
-      run:
-        working-directory: frontend
-    
-    strategy:
-      matrix:
-        project: [Google Chrome, firefox, safari, Microsoft Edge]
-    
-    steps:
-      - name: Get PR branch info
-        uses: xt0rted/pull-request-comment-branch@v2
-        id: comment-branch
-
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.comment-branch.outputs.head_ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Comment that action started
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### 🔄 Updating Screenshots for ${{ matrix.project }}
-              
-              The screenshot update process has started for browser: **${{ matrix.project }}**
-              
-              📋 [View progress](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-              
-              This will:
-              1. Install dependencies and browsers
-              2. Run tests with \`--update-snapshots\` flag
-              3. Commit new baseline screenshots
-              4. Notify you when complete`
-            });
-
-      - uses: actions/setup-node@v4
-        name: Setup Node
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: |
-          npm ci
-          npx playwright install --with-deps
-
-      - name: Update snapshots for specific browser
-        env:
-          E2E_BASE_URL: "http://localhost:3000"  # We'll update this to use a test instance
-          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
-          EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
-          EXTERNAL_API_BASE_URL: "http://localhost:3001"  # We'll update this to use a test instance
-        run: |
-          # Run tests with update-snapshots flag for the specific browser
-          npx playwright test --project="${{ matrix.project }}" --update-snapshots || echo "Update completed with some test failures, but snapshots should be updated"
-
-      - name: Configure Git
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-      - name: Commit updated snapshots
-        run: |
-          git add .
-          if git diff --staged --quiet; then
-            echo "No screenshot changes to commit for ${{ matrix.project }}"
-            echo "CHANGES_COMMITTED=false" >> $GITHUB_ENV
-          else
-            git commit -m "Update e2e snapshots for ${{ matrix.project }}"
-            git push
-            echo "CHANGES_COMMITTED=true" >> $GITHUB_ENV
-          fi
-
-      - name: Comment on success
-        uses: actions/github-script@v7
-        if: env.CHANGES_COMMITTED == 'true'
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### ✅ Screenshots Updated Successfully for ${{ matrix.project }}
-              
-              The baseline screenshots have been updated and committed to the PR branch.
-              
-              **Browser:** ${{ matrix.project }}
-              **Status:** Screenshots updated and committed
-              
-              The PR will now automatically re-run the E2E tests with the new baseline screenshots.`
-            });
-
-      - name: Comment if no changes
-        uses: actions/github-script@v7
-        if: env.CHANGES_COMMITTED == 'false'
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### ℹ️ No Screenshot Changes for ${{ matrix.project }}
-              
-              No screenshot updates were needed for **${{ matrix.project }}**.
-              
-              This could mean:
-              - The screenshots were already up to date
-              - The test environment couldn't reproduce the visual differences
-              - The specific test that failed wasn't run
-              
-              Check the [action logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.`
-            });
+    uses: ./.github/workflows/.e2e.yml
+    secrets: inherit
+    with:
+      frontend-url: https://pay-transparency-pr-${{ inputs.pull-request-number }}-frontend.apps.silver.devops.gov.bc.ca
+      external-api-base-url: https://pay-transparency-pr-${{ inputs.pull-request-number }}-backend-external.apps.silver.devops.gov.bc.ca
+      environment: dev
+      timeout-minutes: 15
+      update-screenshots: true
