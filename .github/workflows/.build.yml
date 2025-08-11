@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       packages: write
+      id-token: write
     strategy:
       matrix:
         package: [ backend,
