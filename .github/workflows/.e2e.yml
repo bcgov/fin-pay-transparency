@@ -111,7 +111,7 @@ jobs:
   create-visual-comment:
     name: Create Visual Regression Comment
     needs: end-to-end
-    if: always() && github.event_name == 'pull_request' && !inputs.update-screenshots
+    if: github.event_name == 'pull_request' && !inputs.update-screenshots
     permissions:
       id-token: write
       contents: read
