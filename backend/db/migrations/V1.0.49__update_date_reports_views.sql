@@ -1,8 +1,5 @@
 SET search_path TO pay_transparency;
 
-DROP VIEW reports_view;
-DROP VIEW calculated_data_view;
-
 CREATE OR REPLACE VIEW reports_calculated_data_view
 AS
 SELECT 
