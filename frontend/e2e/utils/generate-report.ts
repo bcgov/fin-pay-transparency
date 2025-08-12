@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
 import { DashboardPage } from '../pages/dashboard';
 import { GenerateReportPage } from '../pages/generate-report';
 import { DraftReportPage, PublishedReportPage } from '../pages/report';
@@ -27,9 +27,6 @@ export const generateReport = async (page: Page) => {
 
   const draftReportPage = await DraftReportPage.initialize(page, user);
   await draftReportPage.verifyEmployeerDetails(user, reportDetails);
-
-  // screenshot of draft
-  await expect(page).toHaveScreenshot({ fullPage: true });
 
   await draftReportPage.validateCanGoBack(generateReportPage);
 

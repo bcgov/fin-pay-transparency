@@ -1,5 +1,5 @@
 import { test as setup } from '@playwright/test';
-import { PagePaths, baseURL } from './utils/index';
+import { PagePaths } from './utils/index';
 import { LoginPage } from './pages/login';
 import { DashboardPage } from './pages/dashboard';
 

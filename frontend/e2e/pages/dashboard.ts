@@ -18,8 +18,6 @@ export class DashboardPage extends PTPage {
       name: /Upload your CSV here/i,
     });
     await expect(this.generateReportButton).toBeVisible();
-    const viewReportButtons = await this.instance.getByTestId(/view-report-.*/);
-    await expect(viewReportButtons).toBeVisible();
   }
 
   async gotoGenerateReport() {
@@ -115,6 +113,9 @@ export class DashboardPage extends PTPage {
    * variable date/year elements with consistent values
    */
   async stabilizeForVisualTesting(year: string, date: string): Promise<void> {
+    const viewReportButtons = await this.instance.getByTestId(/view-report-.*/);
+    await viewReportButtons.waitFor();
+
     await this.instance.addStyleTag({
       content: `
         /* Hide dynamic elements that change frequently */
