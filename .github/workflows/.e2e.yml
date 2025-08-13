@@ -71,7 +71,7 @@ jobs:
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     continue-on-error: true
     strategy:
-      max-parallel: 5
+      max-parallel: 2
       fail-fast: false
       matrix:
         project: [Google Chrome, firefox, safari, Microsoft Edge]
@@ -94,7 +94,7 @@ jobs:
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html
+          npx playwright test --project="${{ matrix.project }}" --reporter=html | tee output.log
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -106,36 +106,19 @@ jobs:
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
 
-  # Job to create a single consolidated comment for all browsers
-  create-visual-comment:
-    name: Create Visual Regression Comment
-    environment: ${{ inputs.environment }}
-    needs: end-to-end
-    if: always() && github.event_name == 'pull_request' && !inputs.update-screenshots
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        name: Checkout
-      - uses: actions/setup-node@v4
-        name: Setup Node
-        with:
-          node-version: 20
-      - name: Install dependencies
-        run: |
-          npm ci
-          npx playwright install --with-deps 
-
-      - name: Download all test outputs
-        uses: actions/download-artifact@v4
-        with:
-          pattern: playwright-report-*
-          path: "./frontend/playwright-report"
-          merge-multiple: false
-
-      - name: Create consolidated comment on PR
+      - name: Update visual regression comment
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
-            const { createVisualRegressionComment } = require('./.github/scripts/create-visual-comment.js');
-            const browsers = ['Google Chrome', 'firefox', 'safari', 'Microsoft Edge'];
-            await createVisualRegressionComment(github, context, '${{ github.run_id }}', browsers);
+            const { handleBrowserVisualResults } = require('./.github/scripts/create-visual-comment.js');
+            
+            // Check for visual issues and handle comment creation/updating
+            await handleBrowserVisualResults(
+              github, 
+              context, 
+              '${{ github.run_id }}',
+              '${{ matrix.project }}', 
+              '${{ matrix.project }}',
+              'frontend'
+            );
