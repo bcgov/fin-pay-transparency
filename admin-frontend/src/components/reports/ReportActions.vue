@@ -1,59 +1,86 @@
 <template v-if="props.report">
-  <v-btn
-    aria-label="Open Report"
-    density="compact"
-    variant="plain"
-    icon="mdi-file-pdf-box"
-    :loading="isLoadingPdf"
-    :disabled="isLoadingPdf"
-    @click="viewReportInNewTab(props.report.report_id)"
-  ></v-btn>
-  <v-btn
-    :aria-label="props.report.is_unlocked ? 'Lock report' : 'Unlock report'"
-    density="compact"
-    variant="plain"
-    :icon="props.report.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
-    :color="props.report.is_unlocked ? 'success' : 'error'"
-    @click="lockUnlockReport(props.report.report_id, !props.report.is_unlocked)"
-  ></v-btn>
+  <v-tooltip text="Open Report" location="bottom">
+    <template #activator="{ props: tooltipProps }">
+      <v-btn
+        v-bind="tooltipProps"
+        aria-label="Open Report"
+        density="compact"
+        variant="plain"
+        icon="mdi-file-pdf-box"
+        :loading="isLoadingPdf"
+        :disabled="isLoadingPdf"
+        @click="viewReportInNewTab(props.report.report_id)"
+      ></v-btn>
+    </template>
+  </v-tooltip>
 
-  <v-btn
-    v-if="canWithdrawReport"
-    aria-label="Withdraw report"
-    density="compact"
-    variant="plain"
-    icon="mdi-delete"
-    color="error"
-    @click="withdrawReport(props.report.report_id)"
-  ></v-btn>
-
-  <v-btn
-    aria-label="Admin action history"
-    density="compact"
-    variant="plain"
-    icon="mdi-clock-time-four"
-    :loading="isLoadingAdminActionHistory"
-    @click="openAdminActionHistory(props.report.report_id)"
+  <v-tooltip
+    :text="props.report.is_unlocked ? 'Lock report' : 'Unlock report'"
+    location="bottom"
   >
-    <v-icon size="large"></v-icon>
-    <v-menu activator="parent">
-      <v-card class="">
-        <v-card-text>
-          <div class="history-panel h-100">
-            <ReportAdminActionHistoryView
-              v-if="!isLoadingAdminActionHistory && reportAdminActionHistory"
-              :report-admin-action-history="reportAdminActionHistory"
-            ></ReportAdminActionHistoryView>
-          </div>
-          <v-skeleton-loader
-            v-if="isLoadingAdminActionHistory"
-            type="paragraph"
-            class="mt-0"
-          ></v-skeleton-loader>
-        </v-card-text>
-      </v-card>
-    </v-menu>
-  </v-btn>
+    <template #activator="{ props: tooltipProps }">
+      <v-btn
+        v-bind="tooltipProps"
+        :aria-label="props.report.is_unlocked ? 'Lock report' : 'Unlock report'"
+        density="compact"
+        variant="plain"
+        :icon="props.report.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
+        :color="props.report.is_unlocked ? 'success' : 'error'"
+        @click="
+          lockUnlockReport(props.report.report_id, !props.report.is_unlocked)
+        "
+      ></v-btn>
+    </template>
+  </v-tooltip>
+
+  <v-tooltip v-if="canWithdrawReport" text="Withdraw report" location="bottom">
+    <template #activator="{ props: tooltipProps }">
+      <v-btn
+        v-bind="tooltipProps"
+        aria-label="Withdraw report"
+        density="compact"
+        variant="plain"
+        icon="mdi-delete"
+        color="error"
+        @click="withdrawReport(props.report.report_id)"
+      ></v-btn>
+    </template>
+  </v-tooltip>
+
+  <v-tooltip text="Admin action history" location="bottom">
+    <template #activator="{ props: tooltipProps }">
+      <v-btn
+        v-bind="tooltipProps"
+        aria-label="Admin action history"
+        density="compact"
+        variant="plain"
+        icon="mdi-clock-time-four"
+        :loading="isLoadingAdminActionHistory"
+        @click="openAdminActionHistory(props.report.report_id)"
+      >
+        <v-icon size="large"></v-icon>
+        <v-menu activator="parent">
+          <v-card class="">
+            <v-card-text>
+              <div class="history-panel h-100">
+                <ReportAdminActionHistoryView
+                  v-if="
+                    !isLoadingAdminActionHistory && reportAdminActionHistory
+                  "
+                  :report-admin-action-history="reportAdminActionHistory"
+                ></ReportAdminActionHistoryView>
+              </div>
+              <v-skeleton-loader
+                v-if="isLoadingAdminActionHistory"
+                type="paragraph"
+                class="mt-0"
+              ></v-skeleton-loader>
+            </v-card-text>
+          </v-card>
+        </v-menu>
+      </v-btn>
+    </template>
+  </v-tooltip>
 
   <!-- dialogs -->
   <ConfirmationDialog ref="confirmWithdrawDialog">
@@ -96,7 +123,7 @@ const props = defineProps<{
 const isLoadingPdf = ref<boolean>(false);
 const isLoadingAdminActionHistory = ref<boolean>(false);
 const hadErrorLoadingAdminActionHistory = ref<boolean>(false);
-const reportAdminActionHistory = ref<ReportAdminActionHistory | undefined>(
+const reportAdminActionHistory = ref<ReportAdminActionHistory[] | undefined>(
   undefined,
 );
 const confirmDialog = ref<typeof ConfirmationDialog>();
