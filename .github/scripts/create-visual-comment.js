@@ -244,7 +244,9 @@ Visual differences were detected:
 **Next Steps:**
 1. [View the detailed Playwright reports](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}) to see visual differences
 2. Review the changes to determine if they're expected
-3. If the visual changes are correct, run the "Approve Screenshots" action from the Actions tab with this PR number to update the baseline screenshots
+3. If the visual changes are correct, choose one of these options to update the baseline screenshots:
+   - **Comment method**: Add a comment with \`/approve-screenshots\` to automatically update screenshots and re-run tests
+   - **Manual method**: Run the "Approve Screenshots" action from the Actions tab with this PR number
 
 **Reports:** Available in the workflow artifacts above
 
