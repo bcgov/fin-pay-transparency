@@ -30,7 +30,7 @@ export default defineConfig({
   reporter: [
     ['list', { printSteps: true }],
     ['html', { open: 'always' }],
-    ['json', { outputFile: 'test-results.json' }],
+    ['json', { outputFile: './playwright-report/test-results.json' }],
   ],
   // developer-machine-snapshots are in a different folder to prevent conflicts
   // developer snapshots should not be committed to the repository
