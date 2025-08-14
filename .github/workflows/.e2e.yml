@@ -76,13 +76,22 @@ jobs:
         name: Setup Node
         with:
           node-version: 22
+      
+      - name: Cleanup existing visual regression comments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { cleanupVisualRegressionComments } = require('./.github/scripts/create-visual-comment.js');
+            await cleanupVisualRegressionComments(github, context);
+      
       - name: Install dependencies
         run: |
           npm ci
-          npx playwright install --with-deps 
+          npx playwright install --with-deps
+
       - name: Run Tests
+        if: ${{ !inputs.update-screenshots }}
         id: playwright-tests
-        continue-on-error: true
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -92,18 +101,48 @@ jobs:
         run: |
           npx playwright test
 
+      - name: Update Screenshots
+        if: ${{ inputs.update-screenshots }}
+        id: playwright-update-screenshots
+        env:
+          E2E_BASE_URL: ${{ inputs.frontend-url }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
+          EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
+        run: |
+          npx playwright test --update-snapshots
+
       - uses: actions/upload-artifact@v4
         if: always()
         name: upload results
-        env:
-          PW_TEST_HTML_REPORT_OPEN: always
         with:
           name: playwright-report-frontend
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
 
-      - name: Update visual regression comment
+      - name: Check for visual regression issues
         if: always()
+        run: |
+          # Check if test-results.json exists and search for visual regression errors
+          if [ -f "./frontend/test-results.json" ]; then
+            echo "Checking for visual regression issues..."
+            
+            # Search for visual regression error patterns
+            if grep -q "A snapshot doesn't exist\|Screenshot comparison failed" "./frontend/test-results.json"; then
+              echo "::notice::Visual regression issues detected in test results!"
+              echo "::notice::To approve new screenshots, add a comment '/approve-screenshots' to this PR"
+              echo "::notice::Or manually run the 'Approve Screenshots' GitHub Action from the Actions tab"
+              echo "::notice::This will update the visual baselines and re-run the tests"
+            else
+              echo "No visual regression issues found in test results."
+            fi
+          else
+            echo "No test-results.json file found - tests may not have run or completed."
+          fi
+
+      - name: Update visual regression comment
+        if: ${{ always() && !inputs.update-screenshots }}
         uses: actions/github-script@v7
         with:
           script: |
