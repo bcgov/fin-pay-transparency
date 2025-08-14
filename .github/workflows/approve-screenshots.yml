@@ -1,5 +1,7 @@
 name: Approve Screenshots
 on:
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       pull-request-number:
@@ -8,13 +10,39 @@ on:
         type: number
 
 jobs:
-  update-screenshots:
-    name: Update Screenshots
+  check-comment:
+    name: Check Comment
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/approve-screenshots')
+    outputs:
+      should-run: ${{ steps.check.outputs.should-run }}
+      pr-number: ${{ steps.check.outputs.pr-number }}
+    steps:
+      - name: Check if comment should trigger workflow
+        id: check
+        run: |
+          echo "should-run=true" >> $GITHUB_OUTPUT
+          echo "pr-number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+
+  update-screenshots-comment:
+    name: Update Screenshots (from comment)
+    needs: check-comment
+    if: needs.check-comment.outputs.should-run == 'true'
+    uses: ./.github/workflows/.e2e.yml
+    secrets: inherit
+    with:
+      frontend-url: https://pay-transparency-pr-${{ needs.check-comment.outputs.pr-number }}-frontend.apps.silver.devops.gov.bc.ca
+      external-api-base-url: https://pay-transparency-pr-${{ needs.check-comment.outputs.pr-number }}-backend-external.apps.silver.devops.gov.bc.ca
+      environment: dev
+      update-screenshots: true
+
+  update-screenshots-manual:
+    name: Update Screenshots (manual)
+    if: github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
     with:
       frontend-url: https://pay-transparency-pr-${{ inputs.pull-request-number }}-frontend.apps.silver.devops.gov.bc.ca
       external-api-base-url: https://pay-transparency-pr-${{ inputs.pull-request-number }}-backend-external.apps.silver.devops.gov.bc.ca
       environment: dev
-      timeout-minutes: 15
       update-screenshots: true
