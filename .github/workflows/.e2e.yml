@@ -77,13 +77,6 @@ jobs:
         with:
           node-version: 22
       
-      - name: Cleanup existing visual regression comments
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { cleanupVisualRegressionComments } = require('./.github/scripts/create-visual-comment.js');
-            await cleanupVisualRegressionComments(github, context);
-      
       - name: Install dependencies
         run: |
           npm ci
@@ -131,6 +124,7 @@ jobs:
             # Search for visual regression error patterns
             if grep -q "A snapshot doesn't exist\|Screenshot comparison failed" "./frontend/test-results.json"; then
               echo "::notice::Visual regression issues detected in test results!"
+              echo "::notice::Download the playwright artifact to see differences."
               echo "::notice::To approve new screenshots, add a comment '/approve-screenshots' to this PR"
               echo "::notice::Or manually run the 'Approve Screenshots' GitHub Action from the Actions tab"
               echo "::notice::This will update the visual baselines and re-run the tests"
@@ -140,18 +134,3 @@ jobs:
           else
             echo "No test-results.json file found - tests may not have run or completed."
           fi
-
-      - name: Update visual regression comment
-        if: ${{ always() && !inputs.update-screenshots }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { handleBrowserVisualResults } = require('./.github/scripts/create-visual-comment.js');
-            
-            // Check for visual issues and handle comment creation/updating
-            await handleBrowserVisualResults(
-              github, 
-              context, 
-              '${{ github.run_id }}',
-              'frontend'
-            );
