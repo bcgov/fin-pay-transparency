@@ -98,7 +98,7 @@ jobs:
         env:
           PW_TEST_HTML_REPORT_OPEN: always
         with:
-          name: playwright-report
+          name: playwright-report-frontend
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
 
