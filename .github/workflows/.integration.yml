@@ -48,12 +48,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: Checkout
       - uses: actions/setup-node@v4
         name: Setup Node
         with:
-          node-version: 20
+          node-version: 22
       - name: Install dependencies
         run: |
           npm ci
