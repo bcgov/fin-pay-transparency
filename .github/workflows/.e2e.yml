@@ -69,12 +69,6 @@ jobs:
         working-directory: frontend
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
-    continue-on-error: true
-    strategy:
-      max-parallel: 2
-      fail-fast: false
-      matrix:
-        project: [Google Chrome, firefox, safari, Microsoft Edge]
     steps:
       - uses: actions/checkout@v5
         name: Checkout
@@ -87,6 +81,8 @@ jobs:
           npm ci
           npx playwright install --with-deps 
       - name: Run Tests
+        id: playwright-tests
+        continue-on-error: true
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -94,7 +90,7 @@ jobs:
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html | tee output.log
+          npx playwright test
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -102,7 +98,7 @@ jobs:
         env:
           PW_TEST_HTML_REPORT_OPEN: always
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report-frontend
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
 
@@ -118,7 +114,11 @@ jobs:
               github, 
               context, 
               '${{ github.run_id }}',
-              '${{ matrix.project }}', 
-              '${{ matrix.project }}',
               'frontend'
             );
+
+      - name: Fail job if Playwright tests failed
+        if: steps.playwright-tests.outcome == 'failure'
+        run: |
+          echo "Playwright tests failed"
+          exit 1
