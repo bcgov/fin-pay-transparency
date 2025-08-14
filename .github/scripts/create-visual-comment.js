@@ -2,23 +2,153 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Checks if a browser has visual regression issues and handles comment creation/updating
+ * Analyzes test results JSON for visual regression issues across all browsers
+ * @param {string} workingDirectory - Working directory where test-results.json is located
+ * @returns {Map<string, Array<Object>>} Map of browser name to array of error objects
+ */
+function analyzeVisualRegressionIssues(workingDirectory) {
+  const testResultsPath = path.join(workingDirectory, 'test-results.json');
+  const browserErrorMap = new Map();
+  
+  try {
+    if (!fs.existsSync(testResultsPath)) {
+      console.log(`No test-results.json found at ${testResultsPath}`);
+      return browserErrorMap;
+    }
+    
+    const testResults = JSON.parse(fs.readFileSync(testResultsPath, 'utf8'));
+    
+    // Process each suite
+    for (const suite of testResults.suites || []) {
+      processSuite(suite, [], browserErrorMap);
+    }
+    
+  } catch (error) {
+    console.log(`Could not read or parse test results: ${error.message}`);
+  }
+  
+  return browserErrorMap;
+}
+
+/**
+ * Recursively processes test suites to extract visual regression errors
+ * @param {Object} suite - Test suite object
+ * @param {Array<string>} titlePath - Accumulated title path
+ * @param {Map} browserErrorMap - Map to accumulate browser errors
+ */
+function processSuite(suite, titlePath, browserErrorMap) {
+  const currentPath = [...titlePath, suite.title].filter(Boolean);
+  
+  // Process specs in this suite
+  if (suite.specs) {
+    for (const spec of suite.specs) {
+      processSpec(spec, currentPath, browserErrorMap);
+    }
+  }
+  
+  // Process nested suites
+  if (suite.suites) {
+    for (const nestedSuite of suite.suites) {
+      processSuite(nestedSuite, currentPath, browserErrorMap);
+    }
+  }
+}
+
+/**
+ * Processes a test spec to extract visual regression errors
+ * @param {Object} spec - Test spec object
+ * @param {Array<string>} titlePath - Accumulated title path
+ * @param {Map} browserErrorMap - Map to accumulate browser errors
+ */
+function processSpec(spec, titlePath, browserErrorMap) {
+  const specPath = [...titlePath, spec.title].filter(Boolean);
+  
+  if (spec.tests) {
+    for (const test of spec.tests) {
+      processTest(test, specPath, browserErrorMap);
+    }
+  }
+}
+
+/**
+ * Processes a test to extract visual regression errors
+ * @param {Object} test - Test object
+ * @param {Array<string>} titlePath - Accumulated title path
+ * @param {Map} browserErrorMap - Map to accumulate browser errors
+ */
+function processTest(test, titlePath, browserErrorMap) {
+  if (test.results) {
+    for (const result of test.results) {
+      if (result.status === 'failed' && result.errors) {
+        for (const error of result.errors) {
+          if (isVisualRegressionError(error.message)) {
+            const browserName = test.projectName || 'Unknown';
+            const errorObj = createErrorObject(titlePath, error, result.attachments || []);
+            
+            if (!browserErrorMap.has(browserName)) {
+              browserErrorMap.set(browserName, []);
+            }
+            browserErrorMap.get(browserName).push(errorObj);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Checks if an error message indicates a visual regression issue
+ * @param {string} message - Error message
+ * @returns {boolean} True if it's a visual regression error
+ */
+function isVisualRegressionError(message) {
+  return message.includes('A snapshot doesn\'t exist') || 
+         message.includes('Screenshot comparison failed');
+}
+
+/**
+ * Creates an error object from test data
+ * @param {Array<string>} titlePath - Test title path
+ * @param {Object} error - Error object from test results
+ * @param {Array} attachments - Test attachments
+ * @returns {Object} Formatted error object
+ */
+function createErrorObject(titlePath, error, attachments) {
+  const titles = titlePath.join('/');
+  
+  let errorDisplay = 'Visual regression error';
+  if (error.message.includes('A snapshot doesn\'t exist')) {
+    errorDisplay = 'A snapshot doesn\'t exist';
+  } else if (error.message.includes('Screenshot comparison failed')) {
+    errorDisplay = 'Screenshot comparison failed';
+  }
+  
+  const files = attachments
+    .filter(att => att.contentType === 'image/png')
+    .map(att => att.name || 'unknown-file');
+  
+  return {
+    titles,
+    errorDisplay,
+    files
+  };
+}
+
+/**
+ * Checks if there are any visual regression issues across all browsers and handles comment creation/updating
  * @param {Object} github - GitHub API client
  * @param {Object} context - GitHub context object
  * @param {string} runId - GitHub Actions run ID
- * @param {string} browser - Browser name (e.g., 'Google Chrome')
- * @param {string} project - Project identifier from matrix
  * @param {string} workingDirectory - Working directory where the tests were run
  */
-async function handleBrowserVisualResults(github, context, runId, browser, project, workingDirectory) {
-  const outputFile = path.join(workingDirectory, 'output.log');
+async function handleBrowserVisualResults(github, context, runId, workingDirectory) {
+  const browserErrorMap = analyzeVisualRegressionIssues(workingDirectory);
   
-  const screenshotErrors = analyzeVisualRegressionIssues(outputFile, browser);
-  const hasScreenshotIssues = screenshotErrors.length > 0;
+  // Check if there are any visual issues at all
+  const hasAnyIssues = Array.from(browserErrorMap.values()).some(errors => errors.length > 0);
   
-  // Only proceed if there are screenshot issues
-  if (!hasScreenshotIssues) {
-    console.log(`No visual issues detected for ${browser} - no comment action needed`);
+  if (!hasAnyIssues) {
+    console.log('No visual regression issues detected across all browsers - no comment action needed');
     return;
   }
   
@@ -30,8 +160,8 @@ async function handleBrowserVisualResults(github, context, runId, browser, proje
     comment = await createVisualRegressionComment(github, context, runId);
   }
   
-  // Append browser results to the comment
-  await appendBrowserResultToComment(github, context, comment.id, comment.body, browser, project, workingDirectory);
+  // Update comment with all browser results
+  await updateCommentWithAllResults(github, context, comment.id, comment.body, browserErrorMap);
 }
 
 /**
@@ -67,37 +197,6 @@ async function cleanupVisualRegressionComments(github, context) {
   } else {
     console.log('No existing visual regression comments found to clean up');
   }
-}
-
-/**
- * Analyzes test output for visual regression issues
- * @param {string} outputFile - Path to the test output file
- * @param {string} browser - Browser name for logging
- * @returns {Array<string>} Array of screenshot error messages, empty if no issues found
- */
-function analyzeVisualRegressionIssues(outputFile, browser) {
-  let screenshotErrors = [];
-  
-  try {
-    if (fs.existsSync(outputFile)) {
-      const logContent = fs.readFileSync(outputFile, 'utf8');
-      
-      // Check for screenshot-related errors
-      if (logContent.includes('Screenshot comparison failed') || 
-          logContent.includes('A snapshot doesn\'t exist')) {
-        
-        screenshotErrors = logContent
-          .split('\n')
-          .filter(line => line.includes('Screenshot comparison failed') || 
-                         line.includes('snapshot doesn\'t exist'))
-          .slice(0, 3); // Limit to first 3 errors per browser
-      }
-    }
-  } catch (error) {
-    console.log(`Could not read test output for ${browser}: ${error.message}`);
-  }
-  
-  return screenshotErrors;
 }
 
 /**
@@ -167,42 +266,30 @@ Visual differences were detected:
 }
 
 /**
- * Appends browser-specific visual regression results to an existing comment
+ * Updates comment with all browser results
  * @param {Object} github - GitHub API client
  * @param {Object} context - GitHub context object
  * @param {number} commentId - ID of the comment to update
  * @param {string} currentBody - Current body of the comment
- * @param {string} browser - Browser name (e.g., 'Google Chrome')
- * @param {string} project - Project identifier from matrix
- * @param {string} workingDirectory - Working directory where the tests were run
+ * @param {Map<string, Array<Object>>} browserErrorMap - Map of browser errors
  */
-async function appendBrowserResultToComment(github, context, commentId, currentBody, browser, project, workingDirectory) {
-  const outputFile = path.join(workingDirectory, 'output.log');
+async function updateCommentWithAllResults(github, context, commentId, currentBody, browserErrorMap) {
+  let resultsSection = '';
   
-  const screenshotErrors = analyzeVisualRegressionIssues(outputFile, browser);
-  const hasScreenshotIssues = screenshotErrors.length > 0;
-  
-  // Only append if there are screenshot issues
-  if (!hasScreenshotIssues) {
-    console.log(`No visual issues detected for ${browser} - skipping comment update`);
-    return;
-  }
-  
-  // Create browser-specific section
-  let browserSection = `#### ${hasScreenshotIssues ? 'FAILED' : 'PASSED'} ${browser}`;
-  
-  if (hasScreenshotIssues) {
-    browserSection += `\n**Issues Found:**\n`;
-    if (screenshotErrors.length > 0) {
-      browserSection += screenshotErrors.map(error => `- ${error.trim()}`).join('\n');
-    } else {
-      browserSection += '- Check the test logs for details';
+  for (const [browserName, errors] of browserErrorMap.entries()) {
+    if (errors.length > 0) {
+      resultsSection += `#### FAILED ${browserName}\n`;
+      resultsSection += `**Issues Found:**\n`;
+      
+      for (const error of errors) {
+        resultsSection += `- **${error.titles}**: ${error.errorDisplay}\n`;
+        if (error.files.length > 0) {
+          resultsSection += `  - Files: ${error.files.join(', ')}\n`;
+        }
+      }
+      resultsSection += '\n';
     }
-  } else {
-    browserSection += ' - No visual issues detected';
   }
-  
-  browserSection += '\n\n';
   
   // Find insertion point (before "---" separator or at end)
   const separatorIndex = currentBody.indexOf('---');
@@ -210,10 +297,10 @@ async function appendBrowserResultToComment(github, context, commentId, currentB
   
   if (separatorIndex !== -1) {
     // Insert before the separator
-    updatedBody = currentBody.substring(0, separatorIndex) + browserSection + currentBody.substring(separatorIndex);
+    updatedBody = currentBody.substring(0, separatorIndex) + resultsSection + currentBody.substring(separatorIndex);
   } else {
     // Append to end
-    updatedBody = currentBody + browserSection;
+    updatedBody = currentBody + resultsSection;
   }
   
   // Update the comment
@@ -224,10 +311,10 @@ async function appendBrowserResultToComment(github, context, commentId, currentB
     body: updatedBody
   });
   
-  console.log(`Updated comment with ${browser} results`);
+  console.log(`Updated comment with results for ${Array.from(browserErrorMap.keys()).join(', ')}`);
 }
 
 module.exports = {
   cleanupVisualRegressionComments,
-  handleBrowserVisualResults,
+  handleBrowserVisualResults
 };
