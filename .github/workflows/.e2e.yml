@@ -94,6 +94,26 @@ jobs:
         run: |
           npx playwright test
 
+      - name: Check for visual regression issues
+        if: ${{ always() && !inputs.update-screenshots }}
+        id: check-visual-regression
+        run: |
+          if [ -f "./playwright-report/test-results.json" ]; then
+            if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" "./playwright-report/test-results.json"; then
+              echo "::notice::Visual regression issues detected in test results!"
+              echo "::notice::Download the playwright artifact to see differences."
+              echo "::notice::To approve new screenshots, add a comment '/approve-screenshots' to this PR"
+              echo "::notice::Or manually run the 'Approve Screenshots' GitHub Action from the Actions tab"
+              echo "::notice::This will update the visual baselines and re-run the tests"
+              exit 1 # fail the job
+            else
+              echo "::notice::No visual regression issues detected."
+            fi
+          else
+            echo "No test-results.json file found - tests may not have run or completed."
+            exit 1 # fail the job
+          fi
+
       - name: Update Screenshots
         if: ${{ inputs.update-screenshots }}
         id: playwright-update-screenshots
@@ -106,31 +126,28 @@ jobs:
         run: |
           npx playwright test --update-snapshots
 
+      - name: Commit updated screenshots
+        if: ${{ always() && inputs.update-screenshots }}
+        id: commit-screenshots
+        run: |
+          # Configure git for committing
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check if there are any changes to commit
+          if [ -n "$(git status --porcelain)" ]; then
+            git add e2e/snapshots.ci/
+            git commit -m "Update visual regression screenshots [skip ci]"
+            git push
+            echo "::notice::Screenshots updated and committed successfully"
+          else
+            echo "::notice::No screenshot changes to commit"
+          fi
+
       - uses: actions/upload-artifact@v4
         if: always()
-        name: upload results
+        name: Upload Playwright artifacts
         with:
           name: playwright-report-frontend
           path: "./frontend/playwright-report" # path from current folder
           retention-days: 7
-
-      - name: Check for visual regression issues
-        if: always()
-        run: |
-          # Check if test-results.json exists and search for visual regression errors
-          if [ -f "./frontend/test-results.json" ]; then
-            echo "Checking for visual regression issues..."
-            
-            # Search for visual regression error patterns
-            if grep -q "A snapshot doesn't exist\|Screenshot comparison failed" "./frontend/test-results.json"; then
-              echo "::notice::Visual regression issues detected in test results!"
-              echo "::notice::Download the playwright artifact to see differences."
-              echo "::notice::To approve new screenshots, add a comment '/approve-screenshots' to this PR"
-              echo "::notice::Or manually run the 'Approve Screenshots' GitHub Action from the Actions tab"
-              echo "::notice::This will update the visual baselines and re-run the tests"
-            else
-              echo "No visual regression issues found in test results."
-            fi
-          else
-            echo "No test-results.json file found - tests may not have run or completed."
-          fi
