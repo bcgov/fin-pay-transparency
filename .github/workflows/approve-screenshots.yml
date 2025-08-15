@@ -8,7 +8,6 @@ on:
         description: 'Pull Request Number to update screenshots for'
         required: true
         type: number
-  push:
     
 jobs:
   check-comment:
