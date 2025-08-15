@@ -85,6 +85,7 @@ jobs:
       - name: Run Tests
         if: ${{ !inputs.update-screenshots }}
         id: playwright-tests
+        
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -93,7 +94,6 @@ jobs:
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
           npx playwright test
-          # Check if test-results.json exists and search for visual regression errors
           if [ -f "./test-results.json" ]; then
             if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" "./test-results.json"; then
               echo "::notice::Visual regression issues detected in test results!"
