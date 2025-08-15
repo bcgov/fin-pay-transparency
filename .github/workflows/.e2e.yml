@@ -125,7 +125,11 @@ jobs:
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
           npx playwright test --update-snapshots
-          
+
+      - name: Commit updated screenshots
+        if: ${{ always() && inputs.update-screenshots }}
+        id: commit-screenshots
+        run: |
           # Configure git for committing
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
