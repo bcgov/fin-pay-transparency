@@ -192,7 +192,7 @@
               <v-col cols="12" sm="4" md="3">
                 <v-row>
                   <v-col>
-                    <div class="text-body-1 font-weight-bold">
+                    <div class="text-body-1 font-weight-bold text-no-wrap">
                       <label
                         for="reportYear"
                         :class="{ 'text-disabled': mode == ReportMode.Edit }"
