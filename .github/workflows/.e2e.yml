@@ -136,7 +136,7 @@ jobs:
           
           # Check if there are any changes to commit
           if [ -n "$(git status --porcelain)" ]; then
-            git add frontend/e2e/snapshots.ci/
+            git add e2e/snapshots.ci/
             git commit -m "Update visual regression screenshots [skip ci]"
             git push
             echo "::notice::Screenshots updated and committed successfully"
