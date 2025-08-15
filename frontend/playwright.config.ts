@@ -16,6 +16,10 @@ export default defineConfig({
   globalSetup: './e2e/utils/globalSetup.ts',
   /* Run tests in files in parallel */
   fullyParallel: false,
+  /* Configure expect timeout */
+  expect: {
+    timeout: 30000, // 30 seconds for expect assertions
+  },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -47,89 +51,33 @@ export default defineConfig({
   },
   /* Configure projects for major browsers */
   projects: [
-    // Browser-specific setup projects
     {
-      name: 'setup-chrome',
-      testMatch: /.*\.setup\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        channel: 'chrome',
-        baseURL: baseURL,
-      },
-    },
-    {
-      name: 'setup-firefox',
-      testMatch: /.*\.setup\.ts/,
-      use: {
-        ...devices['Desktop Firefox'],
-        baseURL: baseURL,
-      },
-    },
-    {
-      name: 'setup-safari',
-      testMatch: /.*\.setup\.ts/,
-      use: {
-        ...devices['Desktop Safari'],
-        baseURL: baseURL,
-      },
-    },
-    {
-      name: 'setup-edge',
+      name: 'setup',
       testMatch: /.*\.setup\.ts/,
       use: {
         ...devices['Desktop Edge'],
-        channel: 'msedge',
         baseURL: baseURL,
       },
     },
-
-    // Browser-specific teardown projects
     {
-      name: 'teardown-chrome',
-      testMatch: /.*\.teardown\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        channel: 'chrome',
-        storageState: 'user-chrome.json',
-      },
-    },
-    {
-      name: 'teardown-firefox',
-      testMatch: /.*\.teardown\.ts/,
-      use: {
-        ...devices['Desktop Firefox'],
-        storageState: 'user-firefox.json',
-      },
-    },
-    {
-      name: 'teardown-safari',
-      testMatch: /.*\.teardown\.ts/,
-      use: {
-        ...devices['Desktop Safari'],
-        storageState: 'user-safari.json',
-      },
-    },
-    {
-      name: 'teardown-edge',
+      name: 'teardown',
       testMatch: /.*\.teardown\.ts/,
       use: {
         ...devices['Desktop Edge'],
-        channel: 'msedge',
-        storageState: 'user-edge.json',
+        baseURL: baseURL,
+        storageState: 'user.json',
       },
     },
-
-    // Test projects that depend on their respective setup
     {
       name: 'Google Chrome',
       use: {
         ...devices['Desktop Chrome'],
         channel: 'chrome',
         baseURL: baseURL,
-        storageState: 'user-chrome.json',
+        storageState: 'user.json',
       },
-      dependencies: ['setup-chrome'],
-      teardown: 'teardown-chrome',
+      dependencies: ['setup'],
+      teardown: 'teardown',
     },
 
     {
@@ -137,10 +85,10 @@ export default defineConfig({
       use: {
         ...devices['Desktop Firefox'],
         baseURL: baseURL,
-        storageState: 'user-firefox.json',
+        storageState: 'user.json',
       },
-      dependencies: ['setup-firefox'],
-      teardown: 'teardown-firefox',
+      dependencies: ['setup'],
+      teardown: 'teardown',
     },
 
     {
@@ -148,10 +96,10 @@ export default defineConfig({
       use: {
         ...devices['Desktop Safari'],
         baseURL: baseURL,
-        storageState: 'user-safari.json',
+        storageState: 'user.json',
       },
-      dependencies: ['setup-safari'],
-      teardown: 'teardown-safari',
+      dependencies: ['setup'],
+      teardown: 'teardown',
     },
     {
       name: 'Microsoft Edge',
@@ -159,10 +107,10 @@ export default defineConfig({
         ...devices['Desktop Edge'],
         channel: 'msedge',
         baseURL: baseURL,
-        storageState: 'user-edge.json',
+        storageState: 'user.json',
       },
-      dependencies: ['setup-edge'],
-      teardown: 'teardown-edge',
+      dependencies: ['setup'],
+      teardown: 'teardown',
     },
   ],
 });
