@@ -1,6 +1,8 @@
 name: Build And Deploy ClamAV To Tools
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 8 1 * *' # 1st day of every month at midnight PST
 
 jobs:
   builds:
