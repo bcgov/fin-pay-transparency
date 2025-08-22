@@ -21,7 +21,7 @@ on:
 
 jobs:
   auto-approve:
-    if: github.actor == 'renovate[bot]'
+    if: github.actor == 'renovate[bot]' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
