@@ -1,0 +1,60 @@
+name: Auto-approve Renovate PRs (backend and backend-external only)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  auto-approve:
+    if: github.actor == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Get list of changed files
+        id: file-check
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const allowedPaths = [
+              /^backend\/package(-lock)?\.json$/,
+              /^backend-external\/package(-lock)?\.json$/
+            ];
+
+            for (const file of files) {
+              if (!allowedPaths.some(regex => regex.test(file.filename))) {
+                core.setFailed(`Unapproved file changed: ${file.filename}`);
+                return;
+              }
+            }
+
+            core.setOutput("approved", "true");
+            core.setOutput("prNumber", prNumber);
+
+       - name: Auto approve PR
+        if: steps.file-check.outputs.approved == 'true'
+        uses: hmarr/auto-approve-action@v3
+        with:
+          pull-request-number: ${{ steps.file-check.outputs.prNumber }}  
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add auto-approved label
+        if: steps.file-check.outputs.approved == 'true'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: auto-approved
+          number: ${{ steps.file-check.outputs.prNumber }}
