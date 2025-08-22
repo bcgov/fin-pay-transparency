@@ -90,6 +90,15 @@
       "automergeType": "pr",
       "labels": ["automerge", "npm-updates", "backend-external"],
       "minimumReleaseAge": "7 days"
+    },
+     {
+      "description": "Automerge npm updates for doc-gen-service",
+      "matchManagers": ["npm"],
+      "matchPaths": ["doc-gen-service/**"],
+      "automerge": true,
+      "automergeType": "pr",
+      "labels": ["automerge", "npm-updates", "doc-gen-service"],
+      "minimumReleaseAge": "7 days"
     }
   ],
   "lockFileMaintenance": {

@@ -2,10 +2,22 @@ name: Auto-approve Renovate PRs (backend and backend-external only)
 
 on:
   pull_request:
+    paths-ignore:
+      - "*.md"
+      - "docker-compose.yml"
+      - "renovate.json"
+      - "COMPLIANCE.yaml"
+      - ".gitignore"
+      - ".vscode/**"
+      - ".diagrams/**"
+      - ".graphics/**"
+      - "sysdig/**"
+      - ".github/workflows/sysdig.yml"
     types:
       - opened
       - synchronize
       - reopened
+  workflow_dispatch:
 
 jobs:
   auto-approve:
@@ -21,28 +33,26 @@ jobs:
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            const { data: files } = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-
-            const allowedPaths = [
-              /^backend\/package(-lock)?\.json$/,
-              /^backend-external\/package(-lock)?\.json$/
-            ];
-
-            for (const file of files) {
-              if (!allowedPaths.some(regex => regex.test(file.filename))) {
-                core.setFailed(`Unapproved file changed: ${file.filename}`);
-                return;
-              }
+        script: |
+          const prNumber = context.payload.pull_request.number;
+          const { data: files } = await github.rest.pulls.listFiles({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: prNumber
+          });
+          const allowedPaths = [
+            /^backend\/package(-lock)?\.json$/,
+            /^backend-external\/package(-lock)?\.json$/,
+            /^doc-gen-service\/package(-lock)?\.json$/,
+          ];
+          for (const file of files) {
+            if (!allowedPaths.some(regex => regex.test(file.filename))) {
+              core.setFailed(`Unapproved file changed: ${file.filename}`);
+              return;
             }
-
-            core.setOutput("approved", "true");
-            core.setOutput("prNumber", prNumber);
+          }
+          core.setOutput("approved", "true");
+          core.setOutput("prNumber", prNumber);
 
        - name: Auto approve PR
         if: steps.file-check.outputs.approved == 'true'
