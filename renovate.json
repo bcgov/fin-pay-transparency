@@ -72,6 +72,33 @@
       "matchPackageNames": [
         "/msal-node/"
       ]
+    },
+    {
+      "description": "Automerge npm updates for backend",
+      "matchManagers": ["npm"],
+      "matchPaths": ["backend/**"],
+      "automerge": true,
+      "automergeType": "pr",
+      "labels": ["automerge", "npm-updates", "backend"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Automerge npm updates for backend-external",
+      "matchManagers": ["npm"],
+      "matchPaths": ["backend-external/**"],
+      "automerge": true,
+      "automergeType": "pr",
+      "labels": ["automerge", "npm-updates", "backend-external"],
+      "minimumReleaseAge": "7 days"
+    },
+     {
+      "description": "Automerge npm updates for doc-gen-service",
+      "matchManagers": ["npm"],
+      "matchPaths": ["doc-gen-service/**"],
+      "automerge": true,
+      "automergeType": "pr",
+      "labels": ["automerge", "npm-updates", "doc-gen-service"],
+      "minimumReleaseAge": "7 days"
     }
   ],
   "lockFileMaintenance": {
