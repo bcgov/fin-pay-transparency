@@ -150,7 +150,7 @@ jobs:
         with:
           name: playwright-report-frontend
           path: |
-            "./frontend/playwright-report"
-            "./frontend/test-results"
-            "./frontend/test-results.json"
+            ./frontend/playwright-report
+            ./frontend/test-results
+            ./frontend/test-results.json
           retention-days: 7

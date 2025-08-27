@@ -11,6 +11,7 @@ setup('authenticate', async ({ page }) => {
     (res) => res.url().includes('/api/user') && res.status() === 200,
   );
   await loginPage.login();
+  await page.context().storageState({ path: 'user.json' });
 
   const response = await getUserResponse;
   const user = await response.json();
