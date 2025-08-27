@@ -26,7 +26,7 @@ export default defineConfig({
   reporter: [
     ['list', { printSteps: true }],
     ['html', { open: 'always' }],
-    ['json', { outputFile: './playwright-report/test-results.json' }],
+    ['json', { outputFile: './test-results.json' }],
   ],
   // developer-machine-snapshots are in a different folder to prevent conflicts
   // developer snapshots should not be committed to the repository
@@ -75,7 +75,6 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
-
     {
       name: 'firefox',
       use: {
@@ -86,7 +85,6 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
-
     {
       name: 'safari',
       use: {

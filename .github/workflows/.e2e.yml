@@ -98,8 +98,8 @@ jobs:
         if: ${{ always() && !inputs.update-screenshots }}
         id: check-visual-regression
         run: |
-          if [ -f "./playwright-report/test-results.json" ]; then
-            if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" "./playwright-report/test-results.json"; then
+          if [ -f "./test-results.json" ]; then
+            if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" "./test-results.json"; then
               echo "::notice::Visual regression issues detected in test results!"
               echo "::notice::Download the playwright artifact to see differences."
               echo "::notice::To approve new screenshots, add a comment '/approve-screenshots' to this PR"
@@ -149,5 +149,8 @@ jobs:
         name: Upload Playwright artifacts
         with:
           name: playwright-report-frontend
-          path: "./frontend/playwright-report" # path from current folder
+          path: |
+            "./frontend/playwright-report"
+            "./frontend/test-results"
+            "./frontend/test-results.json"
           retention-days: 7
