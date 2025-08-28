@@ -45,14 +45,18 @@ jobs:
               /^backend-external\/package(-lock)?\.json$/,
               /^doc-gen-service\/package(-lock)?\.json$/,
             ];
-            for (const file of files) {
-              if (!allowedPaths.some(regex => regex.test(file.filename))) {
-                core.setFailed(`Unapproved file changed: ${file.filename}`);
-                return;
-              }
+
+            const unapprovedFiles = files.filter(file =>
+              !allowedPaths.some(regex => regex.test(file.filename))
+            );
+
+            if (unapprovedFiles.length > 0) {
+              console.log(`Unapproved files found: ${unapprovedFiles.map(f => f.filename).join(', ')}`);
+              core.setOutput("approved", "false");
+            } else {
+              core.setOutput("approved", "true");
+              core.setOutput("prNumber", prNumber);
             }
-            core.setOutput("approved", "true");
-            core.setOutput("prNumber", prNumber);
 
       - name: Auto approve PR
         if: steps.file-check.outputs.approved == 'true'
@@ -68,3 +72,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: auto-approved
           number: ${{ steps.file-check.outputs.prNumber }}
+      
+      - name: Log approval
+        if: steps.file-check.outputs.approved == 'true'
+        run: echo "Auto-approved PR #${{ steps.file-check.outputs.prNumber }}"
