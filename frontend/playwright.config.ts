@@ -47,12 +47,12 @@ export default defineConfig({
   },
   /* Configure projects for major browsers */
   projects: [
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
       name: 'teardown',
       testMatch: /.*\.teardown\.ts/,
       use: {
-        ...devices['Desktop Edge'],
-        baseURL: baseURL,
+        storageState: 'user.json',
       },
     },
     {
@@ -61,23 +61,31 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         channel: 'chrome',
         baseURL: baseURL,
+        storageState: 'user.json',
       },
+      dependencies: ['setup'],
       teardown: 'teardown',
     },
+
     {
       name: 'firefox',
       use: {
         ...devices['Desktop Firefox'],
         baseURL: baseURL,
+        storageState: 'user.json',
       },
+      dependencies: ['setup'],
       teardown: 'teardown',
     },
+
     {
       name: 'safari',
       use: {
         ...devices['Desktop Safari'],
         baseURL: baseURL,
+        storageState: 'user.json',
       },
+      dependencies: ['setup'],
       teardown: 'teardown',
     },
     {
@@ -86,7 +94,9 @@ export default defineConfig({
         ...devices['Desktop Edge'],
         channel: 'msedge',
         baseURL: baseURL,
+        storageState: 'user.json',
       },
+      dependencies: ['setup'],
       teardown: 'teardown',
     },
   ],
