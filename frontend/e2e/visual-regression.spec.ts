@@ -1,4 +1,4 @@
-import { test, expect } from './playwright/fixtures';
+import { test, expect } from '@playwright/test';
 import { PagePaths } from './utils';
 import { DashboardPage } from './pages/dashboard';
 import { GenerateReportPage } from './pages/generate-report';

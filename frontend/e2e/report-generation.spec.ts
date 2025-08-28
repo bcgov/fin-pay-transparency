@@ -1,4 +1,4 @@
-import { test } from './playwright/fixtures';
+import { test } from '@playwright/test';
 import { generateReport } from './utils/generate-report';
 import { checkDashboardReports } from './utils/check-dashboard-reports';
 import { editReport } from './utils/edit-report';

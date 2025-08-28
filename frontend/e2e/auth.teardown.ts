@@ -1,4 +1,4 @@
-import { test } from './playwright/fixtures';
+import { test } from '@playwright/test';
 import {
   EXTERNAL_API_BASE_URL,
   EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY,
