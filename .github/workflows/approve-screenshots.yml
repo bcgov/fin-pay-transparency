@@ -10,6 +10,7 @@ on:
         type: number
 
 jobs:
+  ## Comment-trigger Workflow ##
   check-comment:
     name: Check Comment
     runs-on: ubuntu-latest
@@ -36,6 +37,17 @@ jobs:
       environment: dev
       update-screenshots: true
 
+  refresh-dev-sandbox-comment:
+    name: Refresh Dev Sandbox (from comment)
+    needs: ["check-comment","update-screenshots-comment"]
+    if: needs.check-comment.outputs.should-run == 'true'
+    uses: ./.github/workflows/ci_cd_on_pr_dev_sandbox.yml
+    secrets: inherit
+    with:
+      pr-number: ${{ needs.check-comment.outputs.pr-number }}
+      run-number: ${{ github.run_number }}
+
+  ## Manual-trigger Workflow ##
   update-screenshots-manual:
     name: Update Screenshots (manual)
     if: github.event_name == 'workflow_dispatch'
@@ -46,3 +58,13 @@ jobs:
       external-api-base-url: https://pay-transparency-pr-${{ inputs.pull-request-number }}-backend-external.apps.silver.devops.gov.bc.ca
       environment: dev
       update-screenshots: true
+
+  refresh-dev-sandbox-manual:
+    name: Refresh Dev Sandbox (manual)
+    needs: update-screenshots-manual
+    if: github.event_name == 'workflow_dispatch' && needs.update-screenshots-manual.result == 'success'
+    uses: ./.github/workflows/ci_cd_on_pr_dev_sandbox.yml
+    secrets: inherit
+    with:
+      pr-number: ${{ inputs.pull-request-number }}
+      run-number: ${{ github.run_number }}
