@@ -19,7 +19,7 @@ on:
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
-        default: 8
+        default: 12
         required: false
         type: number
       update-screenshots:
@@ -51,7 +51,7 @@ on:
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
-        default: 8
+        default: 12
         required: false
         type: number
       update-screenshots:
