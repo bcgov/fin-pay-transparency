@@ -15,21 +15,10 @@ on:
       - "clamav-service/**"
     branches:
       - main
-  workflow_call:
-    inputs:
-      pr-number:
-        description: 'Pull request number for deployment'
-        required: true
-        type: number
-      run-number:
-        description: 'Run number for tagging'
-        required: false
-        type: number
-        default: 1
 
 concurrency:
   # PR open and close use the same group, allowing only one at a time
-  group: pr-${{ github.workflow }}-${{ inputs.pr-number || github.event.number }}
+  group: pr-${{ github.workflow }}-${{ github.event.number }}
   cancel-in-progress: true
 
 jobs:
@@ -44,30 +33,30 @@ jobs:
     secrets: inherit
     with:
       autoscaling: false
-      target: pr-${{ inputs.pr-number || github.event.number }}
-      tag: pr-${{ inputs.pr-number || github.event.number }}-${{ inputs.run-number || github.run_number }}
+      target: pr-${{ github.event.number }}
+      tag: pr-${{ github.event.number }}-${{ github.run_number }}
       values: "values-pr.yaml"
-      frontend-url: https://pay-transparency-pr-${{ inputs.pr-number || github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
-      admin-frontend-url: https://pay-transparency-pr-${{ inputs.pr-number || github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca
+      frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+      admin-frontend-url: https://pay-transparency-pr-${{ github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca
   test-integration:
     name: Integration
     needs: [builds, deploys]
     uses: ./.github/workflows/.integration.yml
     secrets: inherit
     with:
-      backend-external-url: https://pay-transparency-pr-${{ inputs.pr-number || github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca/api
+      backend-external-url: https://pay-transparency-pr-${{ github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca/api
   test-e2e:
     name: E2E
     needs: [builds, deploys]
     uses: ./.github/workflows/.e2e.yml
     secrets: inherit
     with:
-      frontend-url: https://pay-transparency-pr-${{ inputs.pr-number || github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
-      external-api-base-url: https://pay-transparency-pr-${{ inputs.pr-number || github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca
+      frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+      external-api-base-url: https://pay-transparency-pr-${{ github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca
   test-e2e-admin:
     name: E2E-Admin
     needs: [builds, deploys, test-e2e]
     uses: ./.github/workflows/.e2e-admin.yml
     secrets: inherit
     with:
-      admin-frontend-url: https://pay-transparency-pr-${{ inputs.pr-number || github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca
+      admin-frontend-url: https://pay-transparency-pr-${{ github.event.number }}-admin-frontend.apps.silver.devops.gov.bc.ca
