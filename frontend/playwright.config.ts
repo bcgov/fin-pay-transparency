@@ -56,7 +56,8 @@ export default defineConfig({
       },
     },
     {
-      name: 'Google Chrome',
+      name: 'chrome',
+      testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
         channel: 'chrome',
@@ -66,9 +67,9 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
-
     {
       name: 'firefox',
+      testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Firefox'],
         baseURL: baseURL,
@@ -77,9 +78,9 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
-
     {
       name: 'safari',
+      testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Safari'],
         baseURL: baseURL,
@@ -89,7 +90,55 @@ export default defineConfig({
       teardown: 'teardown',
     },
     {
-      name: 'Microsoft Edge',
+      name: 'edge',
+      testIgnore: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Edge'],
+        channel: 'msedge',
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    // Visual regression only projects
+    {
+      name: 'chrome-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    {
+      name: 'firefox-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Firefox'],
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    {
+      name: 'safari-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Safari'],
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    {
+      name: 'edge-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Edge'],
         channel: 'msedge',

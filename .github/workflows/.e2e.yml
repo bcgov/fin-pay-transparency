@@ -1,4 +1,4 @@
-name: .E2E
+name: .E2E Functional
 env:
   deployment_name: pay-transparency
 on:
@@ -22,11 +22,6 @@ on:
         default: 12
         required: false
         type: number
-      update-screenshots:
-        description: 'Update visual regression screenshots instead of running tests'
-        default: false
-        required: false
-        type: boolean
   workflow_call:
     secrets:
       E2E_USERNAME:
@@ -54,11 +49,6 @@ on:
         default: 12
         required: false
         type: number
-      update-screenshots:
-        description: 'Update visual regression screenshots instead of running tests'
-        default: false
-        required: false
-        type: boolean
 
 jobs:
   end-to-end:
@@ -70,10 +60,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     strategy:
-      fail-fast: false
-      max-parallel: 2
+      fail-fast: true  # Early fail for functional tests
+      max-parallel: 1
       matrix:
-        project: [Google Chrome, firefox, safari, Microsoft Edge]
+        project: [chrome, firefox, safari, edge]
     steps:
       - uses: actions/checkout@v5
         name: Checkout
@@ -87,9 +77,8 @@ jobs:
           npm ci
           npx playwright install --with-deps
 
-      - name: Run Tests
-        if: ${{ !inputs.update-screenshots }}
-        id: playwright-tests
+      - name: Run Functional Tests (excluding visual regression)
+        id: playwright-functional-tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -98,59 +87,6 @@ jobs:
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
           npx playwright test --project="${{ matrix.project }}"
-
-      - name: Check for visual regression issues
-        if: ${{ always() && !inputs.update-screenshots }}
-        id: check-visual-regression
-        run: |
-          if [ -f "./test-results.json" ]; then
-            if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" "./test-results.json"; then
-              echo "::notice::Visual regression issues detected in test results!"
-              echo "::notice::Download the playwright artifact to see differences."
-              echo "::notice::To approve new screenshots, add a comment '/approve-screenshots' to this PR"
-              echo "::notice::Or manually run the 'Approve Screenshots' GitHub Action from the Actions tab"
-              echo "::notice::This will update the visual baselines and re-run the tests"
-              exit 1 # fail the job
-            else
-              echo "::notice::No visual regression issues detected."
-            fi
-          else
-            echo "No test-results.json file found - tests may not have run or completed."
-            exit 1 # fail the job
-          fi
-
-      - name: Update Screenshots
-        if: ${{ inputs.update-screenshots }}
-        id: playwright-update-screenshots
-        env:
-          E2E_BASE_URL: ${{ inputs.frontend-url }}
-          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
-          EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
-          EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
-        run: |
-          npx playwright test --update-snapshots --project="${{ matrix.project }}"
-
-      - name: Commit updated screenshots
-        if: ${{ always() && inputs.update-screenshots }}
-        id: commit-screenshots
-        run: |
-          # Configure git for committing
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"   
-                 
-          # Pull latest changes to avoid conflicts
-          git pull origin ${{ github.ref_name }}
-          
-          # Check if there are any changes to commit
-          if [ -n "$(git status --porcelain)" ]; then
-            git add e2e/snapshots.ci/
-            git commit -m "Update visual regression screenshots for ${{ matrix.project }}"
-            git push
-            echo "::notice::Screenshots updated and committed successfully"
-          else
-            echo "::notice::No screenshot changes to commit"
-          fi
 
       - uses: actions/upload-artifact@v4
         if: always()
