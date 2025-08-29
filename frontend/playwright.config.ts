@@ -24,10 +24,14 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['line'],
     ['list', { printSteps: true }],
     ['html', { open: 'always' }],
+    ['json', { outputFile: './test-results.json' }],
   ],
+  // developer-machine-snapshots are in a different folder to prevent conflicts
+  // developer snapshots should not be committed to the repository
+  snapshotDir: process.env.CI ? 'e2e/snapshots.ci' : 'e2e/snapshots.user',
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -41,7 +45,6 @@ export default defineConfig({
       args: ['--headless=new'],
     },
   },
-
   /* Configure projects for major browsers */
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },

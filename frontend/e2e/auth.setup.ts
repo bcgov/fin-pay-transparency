@@ -1,5 +1,5 @@
 import { test as setup } from '@playwright/test';
-import { PagePaths, baseURL } from './utils/index';
+import { PagePaths } from './utils/index';
 import { LoginPage } from './pages/login';
 import { DashboardPage } from './pages/dashboard';
 
@@ -11,6 +11,7 @@ setup('authenticate', async ({ page }) => {
     (res) => res.url().includes('/api/user') && res.status() === 200,
   );
   await loginPage.login();
+  await page.context().storageState({ path: 'user.json' });
 
   const response = await getUserResponse;
   const user = await response.json();

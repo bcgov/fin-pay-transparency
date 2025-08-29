@@ -22,10 +22,14 @@ env.js
 *.ntvs*
 *.njsproj
 *.sln
+#playwright
+test-results.json
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/
 .env.playwright
 user.json
+/.auth/
+#misc
 
