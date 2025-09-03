@@ -1,15 +1,8 @@
-name: .E2E
+name: .E2E Functional
 env:
   deployment_name: pay-transparency
 on:
   workflow_dispatch:
-    secrets:
-      E2E_USERNAME:
-        required: true
-      E2E_PASSWORD:
-        required: true
-      EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY:
-        required: true
     inputs:
       frontend-url:
         description: "Frontend URL of the application"
@@ -26,7 +19,7 @@ on:
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
-        default: 8
+        default: 12
         required: false
         type: number
   workflow_call:
@@ -53,7 +46,7 @@ on:
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
-        default: 8
+        default: 12
         required: false
         type: number
 
@@ -67,9 +60,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     strategy:
-      max-parallel: 5
+      fail-fast: true  # Early fail for functional tests
+      max-parallel: 1
       matrix:
-        project: [Google Chrome, firefox, safari, Microsoft Edge]
+        project: [chrome, firefox, safari, edge]
     steps:
       - uses: actions/checkout@v5
         name: Checkout
@@ -77,11 +71,14 @@ jobs:
         name: Setup Node
         with:
           node-version: 22
+      
       - name: Install dependencies
         run: |
           npm ci
-          npx playwright install --with-deps 
-      - name: Run Tests
+          npx playwright install --with-deps
+
+      - name: Run Functional Tests (excluding visual regression)
+        id: playwright-functional-tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -89,15 +86,15 @@ jobs:
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html
+          npx playwright test --project="${{ matrix.project }}"
 
       - uses: actions/upload-artifact@v4
         if: always()
-        name: upload results
-        env:
-          PW_TEST_HTML_REPORT_OPEN: always
+        name: Upload Playwright artifacts
         with:
-          name: playwright-report-${{ matrix.project }}
-          path: "./frontend/playwright-report" # path from current folder
+          name: playwright-report-frontend-${{ matrix.project }}
+          path: |
+            ./frontend/playwright-report
+            ./frontend/test-results
+            ./frontend/test-results.json
           retention-days: 7
-

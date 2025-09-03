@@ -17,11 +17,12 @@ export class DashboardPage extends PTPage {
     this.generateReportButton = await this.instance.getByRole('link', {
       name: /Upload your CSV here/i,
     });
+    await expect(this.generateReportButton).toBeVisible();
   }
 
   async gotoGenerateReport() {
     await waitForCodes(this.instance, async () => {
-      expect(this.generateReportButton).toBeVisible();
+      await expect(this.generateReportButton).toBeVisible();
       await this.generateReportButton.click();
       await this.instance.waitForURL(PagePaths.GENERATE_REPORT);
       await expect(
@@ -38,6 +39,15 @@ export class DashboardPage extends PTPage {
     );
     expect(viewReportButton).toBeVisible();
     await viewReportButton.click();
+    await this.instance.waitForURL(PagePaths.VIEW_REPORT);
+  }
+
+  async gotoFirstReport() {
+    // Find all view-report buttons and click the first one
+    const viewReportButtons = await this.instance.getByTestId(/view-report-.*/);
+    const firstButton = viewReportButtons.first();
+    await expect(firstButton).toBeVisible();
+    await firstButton.click();
     await this.instance.waitForURL(PagePaths.VIEW_REPORT);
   }
 
@@ -96,6 +106,55 @@ export class DashboardPage extends PTPage {
     });
     await expect(welcome).toBeVisible();
     await super.verifyUser(user);
+  }
+
+  /**
+   * Stabilizes dynamic content for visual regression testing by hiding and replacing
+   * variable date/year elements with consistent values
+   */
+  async stabilizeForVisualTesting(year: string, date: string): Promise<void> {
+    const viewReportButtons = await this.instance.getByTestId(/view-report-.*/);
+    await viewReportButtons.waitFor();
+
+    await this.instance.addStyleTag({
+      content: `
+        /* Hide dynamic elements that change frequently */
+        [data-testid*="timestamp"],
+        [data-testid*="report_published_date"],
+        [data-testid*="reporting_year"],
+        .dynamic-content {
+          visibility: hidden !important;
+        }
+      `,
+    });
+
+    // Replace dynamic content with consistent values using JavaScript
+    await this.instance.evaluate(
+      ({ year, date }) => {
+        // Replace all reporting year elements
+        const yearElements = document.querySelectorAll(
+          '[data-testid*="reporting_year-"]',
+        );
+        yearElements.forEach((el) => {
+          if (el instanceof HTMLElement) {
+            el.textContent = year;
+            el.style.visibility = 'visible';
+          }
+        });
+
+        // Replace all published date elements
+        const dateElements = document.querySelectorAll(
+          '[data-testid*="report_published_date-"]',
+        );
+        dateElements.forEach((el) => {
+          if (el instanceof HTMLElement) {
+            el.textContent = date;
+            el.style.visibility = 'visible';
+          }
+        });
+      },
+      { year, date },
+    );
   }
 
   static async visit(page: Page): Promise<DashboardPage> {
