@@ -53,9 +53,17 @@ jobs:
     with:
       frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
       external-api-base-url: https://pay-transparency-pr-${{ github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca
+  test-e2e-visual:
+    name: E2E Visual Tests
+    needs: [builds, deploys, test-e2e]
+    uses: ./.github/workflows/.e2e-visual.yml
+    secrets: inherit
+    with:
+      frontend-url: https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+      external-api-base-url: https://pay-transparency-pr-${{ github.event.number }}-backend-external.apps.silver.devops.gov.bc.ca
   test-e2e-admin:
     name: E2E-Admin
-    needs: [builds, deploys, test-e2e]
+    needs: [builds, deploys, test-e2e, test-e2e-visual]
     uses: ./.github/workflows/.e2e-admin.yml
     secrets: inherit
     with:

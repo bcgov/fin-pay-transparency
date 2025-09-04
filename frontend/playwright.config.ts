@@ -24,10 +24,14 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['line'],
     ['list', { printSteps: true }],
     ['html', { open: 'always' }],
+    ['json', { outputFile: './test-results.json' }],
   ],
+  // developer-machine-snapshots are in a different folder to prevent conflicts
+  // developer snapshots should not be committed to the repository
+  snapshotDir: process.env.CI ? 'e2e/snapshots.ci' : 'e2e/snapshots.user',
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -41,7 +45,6 @@ export default defineConfig({
       args: ['--headless=new'],
     },
   },
-
   /* Configure projects for major browsers */
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
@@ -53,7 +56,8 @@ export default defineConfig({
       },
     },
     {
-      name: 'Google Chrome',
+      name: 'chrome',
+      testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
         channel: 'chrome',
@@ -63,9 +67,9 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
-
     {
       name: 'firefox',
+      testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Firefox'],
         baseURL: baseURL,
@@ -74,9 +78,9 @@ export default defineConfig({
       dependencies: ['setup'],
       teardown: 'teardown',
     },
-
     {
       name: 'safari',
+      testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Safari'],
         baseURL: baseURL,
@@ -86,7 +90,55 @@ export default defineConfig({
       teardown: 'teardown',
     },
     {
-      name: 'Microsoft Edge',
+      name: 'edge',
+      testIgnore: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Edge'],
+        channel: 'msedge',
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    // Visual regression only projects
+    {
+      name: 'chrome-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    {
+      name: 'firefox-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Firefox'],
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    {
+      name: 'safari-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Safari'],
+        baseURL: baseURL,
+        storageState: 'user.json',
+      },
+      dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    {
+      name: 'edge-visual',
+      testMatch: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Edge'],
         channel: 'msedge',

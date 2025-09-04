@@ -20,7 +20,7 @@ export class LoginPage extends PTPage {
     if (html.includes('Use a Business BCeID')) {
       expect(this.instance.getByText('Use a Business BCeID'));
       /**
-       * Make sure to use test account to prevent the teardown from all deleting your local development reports 
+       * Make sure to use test account to prevent the teardown from all deleting your local development reports
        */
       await this.instance.fill('#user', process.env.E2E_USERNAME!);
       await this.instance.click('#password');
@@ -31,7 +31,6 @@ export class LoginPage extends PTPage {
       const dashboard = new DashboardPage(this.instance);
       await dashboard.setup();
       await expect(dashboard.generateReportButton).toBeVisible();
-      await this.instance.context().storageState({ path: 'user.json' });
     }
   }
 }
