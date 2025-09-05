@@ -73,6 +73,6 @@ jobs:
           labels: auto-approved
           number: ${{ steps.file-check.outputs.prNumber }}
       
-      - name: Log approval
+      - name: Log PR approval
         if: steps.file-check.outputs.approved == 'true'
         run: echo "Auto-approved PR #${{ steps.file-check.outputs.prNumber }}"
