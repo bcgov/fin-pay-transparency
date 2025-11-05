@@ -42,40 +42,55 @@ async function initBrowser(): Promise<void> {
  * @returns Promise<Browser> A connected browser instance
  * @throws Error if unable to establish a working browser instance
  */
-async function getBrowser(): Promise<Browser> {
+async function getBrowser(correlationId: string): Promise<Browser> {
   // Case 1: Check if existing browser is responsive
   if (browser) {
     try {
       await browser.version();
       return browser;
     } catch (versionError) {
-      logger.warn('Existing browser instance is not responsive.', versionError);
+      logger.warn(
+        `Existing browser instance is not responsive. correlationId = ${correlationId}.`,
+        versionError,
+      );
       // Fall through to reconnection attempt
     }
   }
 
   // Case 2: No browser or unresponsive - try reconnecting if we have a connection
   if (browser && !browser.connected) {
-    logger.info('Attempting to reconnect to existing browser instance.');
+    logger.info(
+      `Attempting to reconnect to existing browser instance. correlationId = ${correlationId}.`,
+    );
     try {
       browser = await connect({
         browserWSEndpoint: browser.wsEndpoint(),
       });
-      logger.info('Successfully reconnected to browser instance.');
+      logger.info(
+        `Successfully reconnected to browser instance. correlationId = ${correlationId}.`,
+      );
       return browser;
     } catch (connectError) {
-      logger.warn('Failed to reconnect to existing browser.', connectError);
+      logger.warn(
+        `Failed to reconnect to existing browser. correlationId = ${correlationId}.`,
+        connectError,
+      );
       // Fall through to new instance creation
     }
   }
 
   // Case 3: Create new instance as final fallback
   try {
-    logger.info('Creating new browser instance.');
+    logger.info(
+      `Creating new browser instance. correlationId = ${correlationId}.`,
+    );
     await initBrowser();
     return browser;
   } catch (error) {
-    logger.error('Critical error in browser management.', error);
+    logger.error(
+      `Critical error in browser management. correlationId = ${correlationId}.`,
+      error,
+    );
     throw new Error('Failed to establish browser instance: ' + error.message);
   }
 }

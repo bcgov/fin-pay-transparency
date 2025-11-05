@@ -31,9 +31,13 @@ describe('doc-gen-route', () => {
         .expect('x-correlation-id', '100')
         .then((res) => {
           expect(res.text).toContain('<p>Report generated</p>');
-          expect(mock_generateReport).toHaveBeenCalledWith('html', {
-            test: 1234,
-          });
+          expect(mock_generateReport).toHaveBeenCalledWith(
+            'html',
+            {
+              test: 1234,
+            },
+            '100',
+          );
         });
     });
     it('should catch error and return 500', () => {

@@ -10,7 +10,7 @@ beforeAll(async () => {
       '--allow-file-access-from-files',
       '--no-sandbox',
       '--disable-setuid-sandbox',
-      '--disable-gpu', // added due to error "ProtocolError: Network.enable timed out."
+      '--disable-gpu',
     ],
     headless: 'new',
     dumpio: true,

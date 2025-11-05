@@ -1,6 +1,5 @@
 import { Application } from 'express';
 import EventEmitter from 'node:events';
-import WaitFor from 'wait-for-expect';
 
 jest.mock('./app', () => ({
   app: {

@@ -970,8 +970,9 @@ const docGenServicePrivate = {
 async function generateReport(
   reportFormat: string,
   submittedReportData: SubmittedReportData,
+  correlationId: string,
 ) {
-  logger.info('Begin generate report');
+  logger.info(`Begin generate report. correlationId = ${correlationId}.`);
   let puppeteerPage: Page = null;
   const reportData = await docGenServicePrivate.addSupplementaryReportData(
     reportFormat,
@@ -983,7 +984,7 @@ async function generateReport(
     const workingHtml: string = ejs.render(ejsTemplate, reportData, {
       rmWhitespace: false,
     });
-    const browser: Browser = await getBrowser();
+    const browser: Browser = await getBrowser(correlationId);
     puppeteerPage = await browser.newPage();
     await puppeteerPage.addScriptTag({
       path: './node_modules/d3/dist/d3.min.js',
@@ -1139,10 +1140,14 @@ async function generateReport(
     }
 
     if (!result) {
-      throw new Error(`Unable to generate report in format: '${reportFormat}'`);
+      throw new Error(
+        `Unable to generate report in format: '${reportFormat}'. correlationId = ${correlationId}.`,
+      );
     }
 
-    logger.info(`Report generation complete (${reportFormat})`);
+    logger.info(
+      `Report generation complete (${reportFormat}). correlationId = ${correlationId}.`,
+    );
     return result;
   } catch (e) {
     /* istanbul ignore next */
