@@ -1,7 +1,7 @@
 import ejs from 'ejs';
 import fs from 'node:fs/promises';
 import { resolve } from 'path';
-import { Browser, Page } from 'puppeteer';
+import type { Browser, Page, ElementHandle } from 'puppeteer';
 import { config } from '../../config';
 import { logger } from '../../logger';
 import { getBrowser } from './puppeteer-service';
@@ -99,7 +99,7 @@ type SupplementaryReportData = {
     quartileGenderCategorySuppressed: string;
   };
   isGeneralSuppressedDataFootnoteVisible: boolean;
-  fontsToEmbed: any;
+  fontsToEmbed: ReportFonts;
 };
 
 /* Includes everything from SubmittedReportData and SupplementaryReportData */
@@ -209,7 +209,7 @@ const docGenServicePrivate = {
       <div class='explanatory-notes'></div>
     </div>
    */
-  async addReportPage(parent: any, isDraft: boolean) {
+  async addReportPage(parent: ElementHandle<Element>, isDraft: boolean) {
     //Implementation note (banders): classNames are inline strings here because
     //I cannot find a way to pass the STYLE_CLASSES values into Puppeteer's
     //evaluate function
@@ -578,7 +578,10 @@ const docGenServicePrivate = {
         );
 
         if (!blockExplanatoryNotes?.length) {
-          docGenServicePrivate.removeFromDom(puppeteerPage, explanatoryNotes);
+          await docGenServicePrivate.removeFromDom(
+            puppeteerPage,
+            explanatoryNotes,
+          );
         }
       }
     }
@@ -596,7 +599,7 @@ const docGenServicePrivate = {
         );
 
         if (!footnoteGroups?.length) {
-          docGenServicePrivate.removeFromDom(puppeteerPage, footnotes);
+          await docGenServicePrivate.removeFromDom(puppeteerPage, footnotes);
         }
       }
     }
@@ -687,7 +690,7 @@ const docGenServicePrivate = {
     elementToPlace,
     pageTargetSelector,
     reportPage,
-    reportPageOptions: any,
+    reportPageOptions: SupplementaryReportData['pageSize'],
   ): Promise<boolean> {
     if (!elementToPlace) {
       throw new Error('elementToPlace must be specified');
@@ -997,65 +1000,65 @@ async function generateReport(
       async (reportData) => {
         const chartData = reportData.chartData;
         document.getElementById('mean-hourly-pay-gap-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalBarChart(chartData.meanHourlyPayGap),
         );
         document.getElementById('median-hourly-pay-gap-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalBarChart(chartData.medianHourlyPayGap),
         );
         document.getElementById('mean-overtime-pay-gap-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalBarChart(chartData.meanOvertimePayGap),
         );
         document.getElementById('median-overtime-pay-gap-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalBarChart(chartData.medianOvertimePayGap),
         );
         document
           .getElementById('percent-receiving-overtime-pay-chart')
           ?.appendChild(
-            // @ts-ignore
+            // @ts-expect-error - this function exists in the browser context
             percentFilledHorizBarChart(chartData.percentReceivingOvertimePay, {
-              // @ts-ignore
+              // @ts-expect-error - this function exists in the browser context
               ariaLabel: reportData.chartSummaryText.percentOvertimePay,
             }),
           );
         document.getElementById('mean-bonus-pay-gap-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalBarChart(chartData.meanBonusPayGap),
         );
         document.getElementById('median-bonus-pay-gap-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalBarChart(chartData.medianBonusPayGap),
         );
         document
           .getElementById('percent-receiving-bonus-pay-chart')
           ?.appendChild(
-            // @ts-ignore
+            // @ts-expect-error - this function exists in the browser context
             percentFilledHorizBarChart(chartData.percentReceivingBonusPay, {
-              // @ts-ignore
+              // @ts-expect-error - this function exists in the browser context
               ariaLabel: reportData.chartSummaryText.percentBonusPay,
             }),
           );
         document.getElementById('hourly-pay-quartile-4-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalStackedBarChart(chartData.hourlyPayQuartile4),
         );
         document.getElementById('hourly-pay-quartile-3-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalStackedBarChart(chartData.hourlyPayQuartile3),
         );
         document.getElementById('hourly-pay-quartile-2-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalStackedBarChart(chartData.hourlyPayQuartile2),
         );
         document.getElementById('hourly-pay-quartile-1-chart')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           horizontalStackedBarChart(chartData.hourlyPayQuartile1),
         );
         document.getElementById('hourly-pay-quartiles-legend')?.appendChild(
-          // @ts-ignore
+          // @ts-expect-error - this function exists in the browser context
           createLegend(chartData.hourlyPayQuartilesLegend),
         );
       },
