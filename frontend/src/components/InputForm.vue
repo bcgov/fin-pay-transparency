@@ -992,7 +992,7 @@ export default {
       this.reportYear =
         typeof this.reportData.reporting_year === 'number'
           ? this.reportData.reporting_year
-          : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
+          : Number.parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
       this.reportingYearOptions = [this.reportYear];
       this.startYear = LocalDate.parse(
         this.reportData.report_start_date,

@@ -1287,7 +1287,8 @@ const reportService = {
             report_end_date: full_report_to_publish.report_end_date,
             user_comment: full_report_to_publish.user_comment,
             data_constraints: full_report_to_publish.data_constraints,
-            revision: parseInt(existing_published_report.revision as any) + 1,
+            revision:
+              Number.parseInt(existing_published_report.revision as any) + 1,
             pay_transparency_user: {
               connect: { user_id: full_report_to_publish.user_id },
             },

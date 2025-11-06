@@ -128,10 +128,10 @@ const errorService = {
     if (end.isAfter(ZonedDateTime.now(ZoneId.UTC)))
       throw Error('Invalid end date; cannot specify date in future');
 
-    const pageSize = parseInt(pageSizeStr);
+    const pageSize = Number.parseInt(pageSizeStr);
     if (Number.isNaN(pageSize) || pageSize <= 0 || pageSize > 1000)
       throw Error('Invalid pageSize; must be > 0 && <= 1000');
-    const page = parseInt(pageStr);
+    const page = Number.parseInt(pageStr);
     if (Number.isNaN(page) || page < 0)
       throw Error('Invalid page; must be >= 0');
 

@@ -150,7 +150,7 @@ const fileUploadService = {
         },
         data: {
           ...reportData,
-          revision: parseInt(existingDraftReport.revision) + 1,
+          revision: Number.parseInt(existingDraftReport.revision) + 1,
         },
       });
       return existingDraftReport.report_id;
