@@ -10,7 +10,7 @@ import promBundle from 'express-prom-bundle';
 import { utils } from './utils';
 import NodeClam from 'clamscan';
 import formData from 'express-form-data';
-import os from 'os';
+import os from 'node:os';
 import bodyParser from 'body-parser';
 import PATH from 'node:path';
 const register = new prom.Registry();

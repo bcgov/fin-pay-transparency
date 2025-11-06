@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-s3';
 import retry from 'async-retry';
 import fs from 'fs';
-import os from 'os';
+import os from 'node:os';
 import PATH from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
 import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';

@@ -1,6 +1,6 @@
 import { useUpload } from './upload';
 import path from 'node:path';
-import os from 'os';
+import os from 'node:os';
 
 const mockSend = jest.fn();
 jest.mock('@aws-sdk/client-s3', () => ({

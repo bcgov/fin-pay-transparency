@@ -1,6 +1,6 @@
 import { Request, Router } from 'express';
 import formData from 'express-form-data';
-import os from 'os';
+import os from 'node:os';
 import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
 import { logger } from '../../logger';
 import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';

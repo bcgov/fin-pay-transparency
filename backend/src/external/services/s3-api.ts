@@ -8,7 +8,7 @@ import {
   type _Error,
 } from '@aws-sdk/client-s3';
 import prisma from '../../v1/prisma/prisma-client';
-import os from 'os';
+import os from 'node:os';
 import fs from 'fs';
 import { logger } from '../../logger';
 import {
