@@ -9,7 +9,7 @@ import {
 } from '@aws-sdk/client-s3';
 import prisma from '../../v1/prisma/prisma-client';
 import os from 'node:os';
-import fs from 'fs';
+import fs from 'node:fs';
 import { logger } from '../../logger';
 import {
   APP_ANNOUNCEMENTS_FOLDER,

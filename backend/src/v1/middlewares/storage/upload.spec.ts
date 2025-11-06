@@ -11,9 +11,9 @@ jest.mock('@aws-sdk/client-s3', () => ({
 }));
 
 const realpathSyncMock = jest.fn();
-jest.mock('fs', () => ({
+jest.mock('node:fs', () => ({
   __esModule: true,
-  ...jest.requireActual('fs'),
+  ...jest.requireActual('node:fs'),
   default: {
     createReadStream: jest.fn(),
     realpathSync: (...args) => realpathSyncMock(...args),

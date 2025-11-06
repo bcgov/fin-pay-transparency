@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import fs from 'fs';
+import fs from 'node:fs';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { config } from './config';

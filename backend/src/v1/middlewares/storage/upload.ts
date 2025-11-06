@@ -4,7 +4,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import retry from 'async-retry';
-import fs from 'fs';
+import fs from 'node:fs';
 import os from 'node:os';
 import PATH from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
