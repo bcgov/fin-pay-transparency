@@ -14,7 +14,7 @@ const emitter = new EventEmitter();
 const mock_callbackHandler = jest.fn();
 const mock_getServerAddress = jest.fn();
 
-jest.mock('http', () => {
+jest.mock('node:http', () => {
   return {
     createServer: (app: Application) => {
       return {

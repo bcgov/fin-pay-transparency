@@ -1,4 +1,4 @@
-import http from 'http';
+import http from 'node:http';
 import { config } from './config/index';
 import { logger } from './logger';
 import { app } from './app';
