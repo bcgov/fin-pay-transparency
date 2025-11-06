@@ -93,6 +93,7 @@ describe('generateReport', () => {
         const report = await generateReport(
           REPORT_FORMAT.HTML,
           submittedReportData as any,
+          'corID1234',
         );
         expect(report).toBeDefined();
       },
@@ -114,6 +115,7 @@ describe('generateReport', () => {
         const report = await generateReport(
           REPORT_FORMAT.HTML,
           mockSubmittedReportData as any,
+          'corID1234',
         );
         expect(report).toBeDefined();
       },
@@ -127,6 +129,7 @@ describe('generateReport', () => {
         const report = await generateReport(
           REPORT_FORMAT.PDF,
           submittedReportData as any,
+          'corID1234',
         );
         expect(report instanceof Buffer).toBeTruthy();
       },
@@ -263,7 +266,7 @@ describe('moveElementInto', () => {
       </div>
       <div id='${id2}'></div>
     </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
 
@@ -299,7 +302,7 @@ describe('addReportPage', () => {
     <html><body>
       <div id='${parent}'></div>      
     </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
       const elemToBeParent = await puppeteerPage.$(`#${parent}`);
@@ -329,7 +332,7 @@ describe('addReportPage', () => {
     <html><body>
       <div id='${parent}'></div>      
     </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
       const elemToBeParent = await puppeteerPage.$(`#${parent}`);
@@ -360,7 +363,7 @@ describe('getContentHeight', () => {
     <html><body>
       <div id='${id1}' style='height: 100px'></div>      
     </body></html>`;
-    const browser: Browser = await getBrowser();
+    const browser: Browser = await getBrowser('corID1234');
     const puppeteerPage = await browser.newPage();
     await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
     const elemToTest = await puppeteerPage.$(`#${id1}`);
@@ -404,7 +407,7 @@ describe('clearEmptyNotes', () => {
         </div>     
       </div> 
     </body></html>`;
-    const browser: Browser = await getBrowser();
+    const browser: Browser = await getBrowser('corID1234');
     const puppeteerPage = await browser.newPage();
     await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
     const payTransparencyReport = await puppeteerPage.$(
@@ -480,7 +483,7 @@ describe('attemptToPlaceElementOnPage', () => {
           </div> 
         </div>      
       </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
 
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
@@ -532,7 +535,7 @@ describe('attemptToPlaceElementOnPage', () => {
             </div> 
           </div>      
         </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
 
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
@@ -571,7 +574,7 @@ describe('attemptToPlaceElementOnPage', () => {
 describe('splitBlock', () => {
   describe("when the given 'block' to split is undefined", () => {
     it('throws an error', async () => {
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
       await expect(
         docGenServicePrivate.splitBlock(puppeteerPage, undefined),
@@ -590,7 +593,7 @@ describe('splitBlock', () => {
             </div>     
           </div> 
         </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
       const blockToSplit = await puppeteerPage.$(`#block-to-split`);
@@ -615,7 +618,7 @@ describe('splitBlock', () => {
             </div>     
           </div> 
         </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
       await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
       const blockToSplit = await puppeteerPage.$(`#block-to-split`);
@@ -692,7 +695,7 @@ describe('placeFootnotes', () => {
             </div>
           </div>     
         </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
 
       await puppeteerPage.setContent(mockHtml, {
@@ -749,7 +752,7 @@ describe('placeFootnotes', () => {
             </div>
           </div>     
         </body></html>`;
-      const browser: Browser = await getBrowser();
+      const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
 
       await puppeteerPage.setContent(mockHtml, {

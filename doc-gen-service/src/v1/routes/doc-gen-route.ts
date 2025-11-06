@@ -20,9 +20,14 @@ docGenRoute.post(
     const reportData = req.body;
     const reportTypeQs = req.query.reportType;
     const reportFormat = reportTypeQs?.toString().toLowerCase();
+    const correlationId = req.header('x-correlation-id') || '';
 
     try {
-      const report = await generateReport(reportFormat, reportData);
+      const report = await generateReport(
+        reportFormat,
+        reportData,
+        correlationId,
+      );
       if (reportFormat == 'html') {
         res.setHeader('Content-Type', 'application/html');
       } else if (reportFormat == 'pdf') {

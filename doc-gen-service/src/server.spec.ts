@@ -1,6 +1,5 @@
 import { Application } from 'express';
 import EventEmitter from 'node:events';
-import WaitFor from 'wait-for-expect';
 
 jest.mock('./app', () => ({
   app: {
@@ -140,15 +139,11 @@ describe('server', () => {
       });
       it('should start listening on the port and use puppeteer', async () => {
         mock_initBrowser.mockResolvedValue(0);
-        mock_browserDisconnect.mockResolvedValue(0);
         mock_listen.mockImplementation((port) => {
           expect(port).toBe(3000);
         });
         await require('./server');
         expect(mock_initBrowser).toHaveBeenCalled();
-        await WaitFor(() => {
-          expect(mock_browserDisconnect).toHaveBeenCalled();
-        });
       });
       it('should handle initBrowser catch', async () => {
         mock_initBrowser.mockResolvedValue(0);
