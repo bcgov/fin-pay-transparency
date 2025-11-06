@@ -1,6 +1,6 @@
 import { LocalDate } from '@js-joda/core';
 import { Locator, Response, expect } from '@playwright/test';
-import path from 'path';
+import path from 'node:path';
 import { PagePaths } from '../utils';
 import { validateSubmitErrors, waitForApiResponses } from '../utils/report';
 import { PTPage, User } from './page';

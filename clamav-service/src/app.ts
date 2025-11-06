@@ -12,7 +12,7 @@ import NodeClam from 'clamscan';
 import formData from 'express-form-data';
 import os from 'os';
 import bodyParser from 'body-parser';
-import PATH from 'path';
+import PATH from 'node:path';
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
 const metricsMiddleware = promBundle({

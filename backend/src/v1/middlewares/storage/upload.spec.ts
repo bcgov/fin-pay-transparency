@@ -1,5 +1,5 @@
 import { useUpload } from './upload';
-import path from 'path';
+import path from 'node:path';
 import os from 'os';
 
 const mockSend = jest.fn();

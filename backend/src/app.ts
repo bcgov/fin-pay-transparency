@@ -10,7 +10,7 @@ import noCache from 'nocache';
 import passport from 'passport';
 import passportJWT from 'passport-jwt';
 import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import prom from 'prom-client';
 import fileSessionStore from 'session-file-store';
 import { config } from './config';

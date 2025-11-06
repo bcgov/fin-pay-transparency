@@ -1,6 +1,6 @@
 import ejs from 'ejs';
 import fs from 'node:fs/promises';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import type { Browser, Page, ElementHandle } from 'puppeteer';
 import { config } from '../../config';
 import { logger } from '../../logger';

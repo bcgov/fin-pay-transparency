@@ -6,7 +6,7 @@ import {
 import retry from 'async-retry';
 import fs from 'fs';
 import os from 'os';
-import PATH from 'path';
+import PATH from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
 import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';
 import { logger } from '../../../logger';
