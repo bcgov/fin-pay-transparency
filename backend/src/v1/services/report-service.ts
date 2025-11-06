@@ -153,7 +153,9 @@ const reportServicePrivate = {
     return {
       genderChartInfo: genderChartInfo,
       value: valueMapFunction(
-        parseFloat(calculations[calcCodeGenderCode.calculationCode].value),
+        Number.parseFloat(
+          calculations[calcCodeGenderCode.calculationCode].value,
+        ),
       ),
     };
   },

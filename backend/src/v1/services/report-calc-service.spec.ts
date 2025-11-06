@@ -369,10 +369,10 @@ describe('cleanCsvRecord', () => {
       const record = createSampleRecord(overrides);
       const cleanedCsvRecord = reportCalcServicePrivate.cleanCsvRecord(record);
       expect(cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.HOURS_WORKED]).toBe(
-        parseFloat(overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED]),
+        Number.parseFloat(overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED]),
       );
       expect(cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY]).toBe(
-        parseFloat(overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY]),
+        Number.parseFloat(overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY]),
       );
       expect(cleanedCsvRecord[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY]).toBe(0);
     });

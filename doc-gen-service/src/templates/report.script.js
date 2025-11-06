@@ -517,7 +517,7 @@ function lineWrap(text, width, fontSizePx) {
       lineHeight = 1,
       y = cloneText.attr('y'),
       x = cloneText.attr('x'),
-      dy = parseFloat(cloneText.attr('dy')),
+      dy = Number.parseFloat(cloneText.attr('dy')),
       tspan = text
         .text(null)
         .append('tspan')

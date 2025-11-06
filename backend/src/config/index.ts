@@ -39,7 +39,7 @@ config.defaults({
     sessionPath: process.env.SESSION_PATH,
     adminSessionPath: process.env.ADMIN_SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
-    uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
+    uploadFileMaxSizeBytes: Number.parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
     schedulerDeleteDraftCronTime: process.env.DELETE_DRAFT_REPORT_CRON_CRONTIME,
     schedulerLockReportCronTime: process.env.LOCK_REPORT_CRON_CRONTIME,
     emailExpiringAnnouncementsCronTime:
