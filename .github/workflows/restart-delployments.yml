@@ -1,0 +1,54 @@
+name: Restart Backend and Doc-Gen Deployments
+on:
+  schedule:    
+    - cron: '30 8 * * *'
+  workflow_dispatch:
+    inputs:
+        environment:            
+            description: 'Choose target environment'
+            required: false
+            default: prod
+            type: string
+
+jobs:
+  restart:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'prod' }}
+    env:
+      OC_NAMESPACE: ${{ vars.oc_namespace }}
+      OC_SERVER:    ${{ vars.oc_server }}
+      OC_TOKEN:     ${{ secrets.oc_token }}
+      DEPLOYMENTS:  pay-transparency-${{ inputs.environment }}-backend pay-transparency-${{ inputs.environment }}-doc-gen-service
+    steps:     
+      - name: Login to OpenShift
+        uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd   # v1.2.3
+        with:
+          oc_namespace: ${{ env.OC_NAMESPACE }}
+          oc_server:    ${{ env.OC_SERVER }}
+          oc_token:     ${{ env.OC_TOKEN }}
+          commands: |
+            oc project ${{ env.OC_NAMESPACE }}
+
+      - name: Restart selected deployments
+        id: restart
+        run: |
+          set -euo pipefail
+
+          echo "Deployments to restart: $DEPLOYMENTS"
+          echo "Namespace: $OC_NAMESPACE"
+
+          restarted=()
+          for dep in $DEPLOYMENTS; do
+            echo "Restarting deployment/$dep ..."
+            oc rollout restart deployment/"$dep" -n "$OC_NAMESPACE" --request-timeout=300s
+            restarted+=("$dep")
+          done
+
+          {
+            echo "## Restart Summary"
+            echo "| Deployment | Status |"
+            echo "|------------|--------|"
+            for d in "${restarted[@]}"; do
+              echo "| $d | Restarted |"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
