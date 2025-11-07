@@ -56,3 +56,4 @@ jobs:
             pr-${{ github.event.number }}-${{ github.run_number }}
           tag_fallback: test
           build_context: ${{ matrix.build_context }}
+          build_file: ${{ matrix.build_file }}
