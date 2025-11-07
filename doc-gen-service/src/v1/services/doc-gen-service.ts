@@ -310,7 +310,7 @@ const docGenServicePrivate = {
     /* istanbul ignore next */
     await puppeteerPage.evaluate(async (e) => {
       if (e?.parentNode) {
-        e.parentNode.removeChild(e);
+        e.remove();
       }
     }, elemToDelete);
   },
