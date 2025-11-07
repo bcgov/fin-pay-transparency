@@ -572,7 +572,6 @@
               dense
               class="pa-5 d-flex align-center"
               style="
-                border-style: dashed;
                 border: 3px dashed #666666;
                 border-radius: 10px;
                 min-height: 7em;
