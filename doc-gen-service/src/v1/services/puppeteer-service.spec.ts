@@ -20,7 +20,7 @@ describe('puppeteer-service', () => {
         return {};
       });
 
-      const browser = await PuppeteerService.getBrowser();
+      const browser = await PuppeteerService.getBrowser('corID1234');
 
       expect(mock_launch).toHaveBeenCalled();
 
@@ -28,7 +28,7 @@ describe('puppeteer-service', () => {
     });
 
     it('should launch new browser if none already exist', async () => {
-      const browser = await PuppeteerService.getBrowser();
+      const browser = await PuppeteerService.getBrowser('corID1234');
 
       expect(mock_launch).toHaveBeenCalled();
 
@@ -40,7 +40,7 @@ describe('puppeteer-service', () => {
         return { connected: false };
       });
 
-      const browser = await PuppeteerService.getBrowser();
+      const browser = await PuppeteerService.getBrowser('corID1234');
 
       expect(mock_launch).toHaveBeenCalled();
 

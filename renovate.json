@@ -75,29 +75,53 @@
     },
     {
       "description": "Automerge npm updates for backend",
-      "matchManagers": ["npm"],
-      "matchPaths": ["backend/**"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "backend/**"
+      ],
       "automerge": true,
       "automergeType": "pr",
-      "labels": ["automerge", "npm-updates", "backend"],
+      "labels": [
+        "automerge",
+        "npm-updates",
+        "backend"
+      ],
       "minimumReleaseAge": "7 days"
     },
     {
       "description": "Automerge npm updates for backend-external",
-      "matchManagers": ["npm"],
-      "matchPaths": ["backend-external/**"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "backend-external/**"
+      ],
       "automerge": true,
       "automergeType": "pr",
-      "labels": ["automerge", "npm-updates", "backend-external"],
+      "labels": [
+        "automerge",
+        "npm-updates",
+        "backend-external"
+      ],
       "minimumReleaseAge": "7 days"
     },
-     {
+    {
       "description": "Automerge npm updates for doc-gen-service",
-      "matchManagers": ["npm"],
-      "matchPaths": ["doc-gen-service/**"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "doc-gen-service/**"
+      ],
       "automerge": true,
       "automergeType": "pr",
-      "labels": ["automerge", "npm-updates", "doc-gen-service"],
+      "labels": [
+        "automerge",
+        "npm-updates",
+        "doc-gen-service"
+      ],
       "minimumReleaseAge": "7 days"
     }
   ],

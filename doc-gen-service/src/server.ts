@@ -2,7 +2,7 @@ import http from 'http';
 import { config } from './config/index';
 import { logger } from './logger';
 import { app } from './app';
-import { getBrowser, initBrowser } from './v1/services/puppeteer-service';
+import { initBrowser } from './v1/services/puppeteer-service';
 
 // run inside `async` function
 const port = config.get('server:port');
@@ -19,26 +19,10 @@ if (env === 'local') {
   initBrowser()
     .then(() => {
       logger.info('Browser initialized');
-      getBrowser()
-        .then((browser) => {
-          browser
-            .disconnect()
-            .then(() => {
-              logger.info('Browser disconnected');
-              app.set('port', port);
-              server.listen(port);
-              server.on('error', onError);
-              server.on('listening', onListening);
-            })
-            .catch((e) => {
-              logger.error(e);
-              process.exit(1);
-            });
-        })
-        .catch((e) => {
-          logger.error(e);
-          process.exit(1);
-        });
+      app.set('port', port);
+      server.listen(port);
+      server.on('error', onError);
+      server.on('listening', onListening);
     })
     .catch((error) => {
       logger.error(error);
