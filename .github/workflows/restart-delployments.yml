@@ -6,9 +6,14 @@ on:
     inputs:
         environment:            
             description: 'Choose target environment'
-            required: false
+            required: true
             default: prod
-            type: string
+            type: choice
+            options:
+              - dev
+              - test
+              - prod
+            
 
 jobs:
   restart:
@@ -18,7 +23,8 @@ jobs:
       OC_NAMESPACE: ${{ vars.oc_namespace }}
       OC_SERVER:    ${{ vars.oc_server }}
       OC_TOKEN:     ${{ secrets.oc_token }}
-      DEPLOYMENTS:  pay-transparency-${{ inputs.environment }}-backend pay-transparency-${{ inputs.environment }}-doc-gen-service
+      TARGET_ENV:  ${{ inputs.environment || 'prod' }}
+      
     steps:     
       - name: Login to OpenShift
         uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd   # v1.2.3
@@ -31,6 +37,10 @@ jobs:
 
       - name: Restart selected deployments
         id: restart
+        env:
+          DEPLOYMENTS: >-
+            pay-transparency-${{ env.TARGET_ENV }}-backend
+            pay-transparency-${{ env.TARGET_ENV }}-doc-gen-service
         run: |
           set -euo pipefail
 
@@ -38,10 +48,18 @@ jobs:
           echo "Namespace: $OC_NAMESPACE"
 
           restarted=()
+          failed=()
           for dep in $DEPLOYMENTS; do
             echo "Restarting deployment/$dep ..."
-            oc rollout restart deployment/"$dep" -n "$OC_NAMESPACE" --request-timeout=300s
-            restarted+=("$dep")
+            if oc rollout restart deployment/"$dep" -n "$OC_NAMESPACE" --request-timeout=300s && \
+               oc rollout status deployment/"$dep" -n "$OC_NAMESPACE" -request-timeout=300s; then
+              echo "Deployment $dep restarted successfully."
+              restarted+=("$dep")
+            else
+              echo "Failed to restart deployment $dep."
+              failed+=("$dep")
+              continue
+            fi            
           done
 
           {
