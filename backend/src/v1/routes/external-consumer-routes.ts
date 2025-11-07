@@ -14,7 +14,7 @@ router.get(
       const endDate = req.query.endDate?.toString();
       const offset = Number((req.query.offset || '0').toString());
       const limit = Number((req.query.limit || '1000').toString());
-      if (isNaN(offset) || isNaN(limit)) {
+      if (Number.isNaN(offset) || Number.isNaN(limit)) {
         return res.status(400).json({ error: 'Invalid offset or limit' });
       }
       const results = await externalConsumerService.exportDataWithPagination(

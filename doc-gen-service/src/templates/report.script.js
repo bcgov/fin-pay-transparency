@@ -217,9 +217,6 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
 
   const barWidth = (d) => x(d[1]) - x(d[0]);
 
-  // A function to format the value in the tooltip.
-  const formatValue = (x) => (isNaN(x) ? 'N/A' : x.toLocaleString('en'));
-
   // Create accessibility text for the visually impaired
   const ariaLabel = data.map((d) => label(d.genderChartInfo.code)).join(' ');
 

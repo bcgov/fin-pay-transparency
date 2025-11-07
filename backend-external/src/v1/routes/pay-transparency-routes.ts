@@ -238,7 +238,7 @@ router.get(
       const endDate = req.query.endDate?.toString();
       const page = Number((req.query.page || '0')?.toString());
       let pageSize = Number((req.query.pageSize || '50')?.toString());
-      if (isNaN(page) || isNaN(pageSize)) {
+      if (Number.isNaN(page) || Number.isNaN(pageSize)) {
         return res.status(400).json({ error: 'Invalid offset or limit' });
       }
 

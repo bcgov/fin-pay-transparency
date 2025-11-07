@@ -403,14 +403,12 @@ const validateService = {
   },
 
   isValidNumber(val: any): boolean {
-    if (val === null || isNaN(val)) {
-      return false;
-    }
-
     // Check that the value is either a number or a string that parses
     // to a number. Integer and float are both allowed.
     try {
-      Number.parseFloat(val);
+      if (val === null || Number.isNaN(Number(val))) {
+        return false;
+      }
     } catch (e) {
       console.log(e);
       return false;
