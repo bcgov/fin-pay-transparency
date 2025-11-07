@@ -187,13 +187,13 @@ const reportServicePrivate = {
     measureName: string,
     measureNameIsPlural: boolean = true,
   ) {
-    const refChartDataRecord = chartDataRecords.filter(
-      (d) => d.genderChartInfo.code == referenceGenderCode,
-    )[0];
-
     if (chartDataRecords.length < 2) {
       return null;
     }
+
+    const refChartDataRecord = chartDataRecords.find(
+      (d) => d.genderChartInfo.code == referenceGenderCode,
+    );
 
     //If the reference gender was suppressed from the chart...
     if (!refChartDataRecord) {
