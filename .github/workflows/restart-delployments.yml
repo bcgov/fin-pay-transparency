@@ -52,7 +52,7 @@ jobs:
           for dep in $DEPLOYMENTS; do
             echo "Restarting deployment/$dep ..."
             if oc rollout restart deployment/"$dep" -n "$OC_NAMESPACE" --request-timeout=300s && \
-               oc rollout status deployment/"$dep" -n "$OC_NAMESPACE" -request-timeout=300s; then
+               oc rollout status deployment/"$dep" -n "$OC_NAMESPACE" --request-timeout=300s; then
               echo "Deployment $dep restarted successfully."
               restarted+=("$dep")
             else
