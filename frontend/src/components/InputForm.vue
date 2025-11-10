@@ -572,7 +572,6 @@
               dense
               class="pa-5 d-flex align-center"
               style="
-                border-style: dashed;
                 border: 3px dashed #666666;
                 border-radius: 10px;
                 min-height: 7em;
@@ -993,7 +992,7 @@ export default {
       this.reportYear =
         typeof this.reportData.reporting_year === 'number'
           ? this.reportData.reporting_year
-          : parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
+          : Number.parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
       this.reportingYearOptions = [this.reportYear];
       this.startYear = LocalDate.parse(
         this.reportData.report_start_date,

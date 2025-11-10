@@ -736,6 +736,36 @@ async function getPublishedAnnouncements(): Promise<Announcement[]> {
   return result?.items;
 }
 
+function validateLink(values) {
+  if (!values.linkDisplayName && values.linkUrl) {
+    setErrors({ linkDisplayName: 'Link display name is required.' });
+    return false;
+  }
+
+  if (!values.linkUrl && values.linkDisplayName) {
+    setErrors({ linkUrl: 'Link URL is required.' });
+    return false;
+  }
+
+  return true;
+}
+
+function validateFile(values) {
+  if (fileDisplayOnly.value) return true; //existing files are okay
+
+  if (!values.fileDisplayName && values.attachment) {
+    setErrors({ fileDisplayName: 'File display text is required.' });
+    return false;
+  }
+
+  if (!values.attachment && values.fileDisplayName) {
+    setErrors({ attachment: 'File attachment is required.' });
+    return false;
+  }
+
+  return true;
+}
+
 const handleSave = handleSubmit(async (values) => {
   const hasActiveOnError = !validateActiveOnDate(values);
   const hasLinkError = !validateLink(values);
@@ -792,36 +822,6 @@ const handleSave = handleSubmit(async (values) => {
         });
         return false;
       }
-    }
-
-    return true;
-  }
-
-  function validateLink(values) {
-    if (!values.linkDisplayName && values.linkUrl) {
-      setErrors({ linkDisplayName: 'Link display name is required.' });
-      return false;
-    }
-
-    if (!values.linkUrl && values.linkDisplayName) {
-      setErrors({ linkUrl: 'Link URL is required.' });
-      return false;
-    }
-
-    return true;
-  }
-
-  function validateFile(values) {
-    if (fileDisplayOnly.value) return true; //existing files are okay
-
-    if (!values.fileDisplayName && values.attachment) {
-      setErrors({ fileDisplayName: 'File display text is required.' });
-      return false;
-    }
-
-    if (!values.attachment && values.fileDisplayName) {
-      setErrors({ attachment: 'File attachment is required.' });
-      return false;
     }
 
     return true;

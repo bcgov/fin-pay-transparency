@@ -386,7 +386,7 @@ const validateService = {
     //Check if the value can be parsed as number, and if it can,
     //check if that number is equal to zero.
     try {
-      const num = parseFloat(val);
+      const num = Number.parseFloat(val);
       if (num == 0) {
         return true;
       }
@@ -403,14 +403,12 @@ const validateService = {
   },
 
   isValidNumber(val: any): boolean {
-    if (val === null || isNaN(val)) {
-      return false;
-    }
-
     // Check that the value is either a number or a string that parses
     // to a number. Integer and float are both allowed.
     try {
-      parseFloat(val);
+      if (val === null || Number.isNaN(Number(val))) {
+        return false;
+      }
     } catch (e) {
       console.log(e);
       return false;

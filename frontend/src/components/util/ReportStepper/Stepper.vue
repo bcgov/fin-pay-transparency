@@ -38,6 +38,7 @@
     </v-col>
   </v-row>
 </template>
+
 <script lang="ts" setup>
 import Step from './Step.vue';
 import {
@@ -68,6 +69,7 @@ const getMarkClassName = (step: IStageOption) => {
   return `mark d-flex justify-center flex-column ${completeClassName}`;
 };
 </script>
+
 <style scoped lang="scss">
 .track-root {
   position: relative;
@@ -93,6 +95,7 @@ const getMarkClassName = (step: IStageOption) => {
       border-top-left-radius: 3px;
       border-top-right-radius: 3px;
       color: #fff;
+      font-weight: bold;
       text-align: center;
 
       &.completed {

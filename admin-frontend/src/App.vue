@@ -140,8 +140,8 @@ h1 {
 }
 
 button:disabled.v-btn {
-  background-color: #eeeeee !important;
-  color: #aaaaaa !important;
+  background-color: #ffffff !important;
+  color: #666666 !important;
   border: 1px solid #cccccc !important;
 }
 
@@ -221,13 +221,13 @@ button:disabled.v-btn {
 .v-chip.warning {
   background-color: #fef1d8 !important;
   border-color: #fef1d8 !important;
-  color: #f8bb47 !important;
+  color: #ffa600 !important;
 }
 
 .v-chip.error {
   background-color: #f4e1e2 !important;
   border-color: #f4e1e2 !important;
-  color: #ce3e39 !important;
+  color: #cf0700 !important;
 }
 
 /* rich-text */

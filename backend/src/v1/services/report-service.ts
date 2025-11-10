@@ -153,7 +153,9 @@ const reportServicePrivate = {
     return {
       genderChartInfo: genderChartInfo,
       value: valueMapFunction(
-        parseFloat(calculations[calcCodeGenderCode.calculationCode].value),
+        Number.parseFloat(
+          calculations[calcCodeGenderCode.calculationCode].value,
+        ),
       ),
     };
   },
@@ -185,13 +187,13 @@ const reportServicePrivate = {
     measureName: string,
     measureNameIsPlural: boolean = true,
   ) {
-    const refChartDataRecord = chartDataRecords.filter(
-      (d) => d.genderChartInfo.code == referenceGenderCode,
-    )[0];
-
     if (chartDataRecords.length < 2) {
       return null;
     }
+
+    const refChartDataRecord = chartDataRecords.find(
+      (d) => d.genderChartInfo.code == referenceGenderCode,
+    );
 
     //If the reference gender was suppressed from the chart...
     if (!refChartDataRecord) {
@@ -1285,7 +1287,8 @@ const reportService = {
             report_end_date: full_report_to_publish.report_end_date,
             user_comment: full_report_to_publish.user_comment,
             data_constraints: full_report_to_publish.data_constraints,
-            revision: parseInt(existing_published_report.revision as any) + 1,
+            revision:
+              Number.parseInt(existing_published_report.revision as any) + 1,
             pay_transparency_user: {
               connect: { user_id: full_report_to_publish.user_id },
             },

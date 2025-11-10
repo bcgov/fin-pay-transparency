@@ -2,7 +2,7 @@ import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
-import qs from 'querystring';
+import qs from 'node:querystring';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '../../config';
 import { logger as log } from '../../logger';

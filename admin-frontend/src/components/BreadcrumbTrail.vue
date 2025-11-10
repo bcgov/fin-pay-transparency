@@ -20,10 +20,7 @@ const router = useRouter();
 const route = useRoute();
 const breadcrumbItems = ref();
 
-const dashboardRoute = router
-  .getRoutes()
-  .filter((r) => r.name == 'dashboard')[0];
-const dashboardItem = routeToBreadcrumbItem(dashboardRoute);
+const dashboardRoute = router.getRoutes().find((r) => r.name == 'dashboard');
 
 function routeToBreadcrumbItem(route, isEnabled = true) {
   return {

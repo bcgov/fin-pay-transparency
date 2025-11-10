@@ -217,9 +217,6 @@ function horizontalStackedBarChart(data, numberFormat = '1.0f') {
 
   const barWidth = (d) => x(d[1]) - x(d[0]);
 
-  // A function to format the value in the tooltip.
-  const formatValue = (x) => (isNaN(x) ? 'N/A' : x.toLocaleString('en'));
-
   // Create accessibility text for the visually impaired
   const ariaLabel = data.map((d) => label(d.genderChartInfo.code)).join(' ');
 
@@ -517,7 +514,7 @@ function lineWrap(text, width, fontSizePx) {
       lineHeight = 1,
       y = cloneText.attr('y'),
       x = cloneText.attr('x'),
-      dy = parseFloat(cloneText.attr('dy')),
+      dy = Number.parseFloat(cloneText.attr('dy')),
       tspan = text
         .text(null)
         .append('tspan')

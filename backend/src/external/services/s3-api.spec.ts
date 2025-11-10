@@ -19,8 +19,8 @@ jest.mock('../../v1/prisma/prisma-client', () => ({
 
 const mockStreamWrite = jest.fn();
 
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
+jest.mock('node:fs', () => ({
+  ...jest.requireActual('node:fs'),
   createWriteStream: () => ({
     write: (...args) => mockStreamWrite(...args),
   }),

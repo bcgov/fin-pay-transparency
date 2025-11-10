@@ -1839,7 +1839,7 @@ const reportCalcServicePrivate = {
         if (validateService.isZeroSynonym(csvRecord[col])) {
           csvRecord[col] = 0;
         } else {
-          csvRecord[col] = parseFloat(csvRecord[col]);
+          csvRecord[col] = Number.parseFloat(csvRecord[col]);
         }
       }
     });

@@ -168,7 +168,7 @@ describe('horizontalBarChart', () => {
     expect(genderCategoryLabels).toEqual(
       params.chartData.map((d) => d.genderChartInfo.label),
     );
-    expect(payGapLabels.map((d) => parseFloat(d))).toEqual(
+    expect(payGapLabels.map((d) => Number.parseFloat(d))).toEqual(
       params.chartData.map((d) => d.value),
     );
   });
@@ -334,10 +334,10 @@ describe('getTextSize', () => {
     });
 
     // Extract the predicted width and height from the DOM.
-    const width = parseFloat(
+    const width = Number.parseFloat(
       await page.$eval('#text-width', (el) => el.innerText),
     );
-    const height = parseFloat(
+    const height = Number.parseFloat(
       await page.$eval('#text-height', (el) => el.innerText),
     );
 

@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import fs from 'fs';
+import fs from 'node:fs';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { config } from './config';
@@ -10,9 +10,9 @@ import promBundle from 'express-prom-bundle';
 import { utils } from './utils';
 import NodeClam from 'clamscan';
 import formData from 'express-form-data';
-import os from 'os';
+import os from 'node:os';
 import bodyParser from 'body-parser';
-import PATH from 'path';
+import PATH from 'node:path';
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
 const metricsMiddleware = promBundle({

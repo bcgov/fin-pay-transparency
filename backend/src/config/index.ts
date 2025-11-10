@@ -27,7 +27,7 @@ config.defaults({
     openshiftEnv: process.env.OPENSHIFT_ENV || 'local', // Set by HELM values-$env.yaml
     adminFrontend: process.env.SERVER_ADMIN_FRONTEND,
     adminFrontendUrl: process.env.ADMIN_FRONTEND_URL,
-    adminInvitationDurationInHours: parseInt(
+    adminInvitationDurationInHours: Number.parseInt(
       process.env.ADMIN_INVITATION_DURATION_IN_HOURS || '72',
     ),
     frontend: process.env.SERVER_FRONTEND,
@@ -39,7 +39,7 @@ config.defaults({
     sessionPath: process.env.SESSION_PATH,
     adminSessionPath: process.env.ADMIN_SESSION_PATH,
     templatePath: process.env.TEMPLATE_PATH || './src/templates',
-    uploadFileMaxSizeBytes: parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
+    uploadFileMaxSizeBytes: Number.parseFloat(process.env.UPLOAD_FILE_MAX_SIZE),
     schedulerDeleteDraftCronTime: process.env.DELETE_DRAFT_REPORT_CRON_CRONTIME,
     schedulerLockReportCronTime: process.env.LOCK_REPORT_CRON_CRONTIME,
     emailExpiringAnnouncementsCronTime:
@@ -50,17 +50,17 @@ config.defaults({
     deleteAnnouncementsCronTime: process.env.DELETE_ANNOUNCEMENTS_CRON_CRONTIME,
     enableEmailExpiringAnnouncements:
       process.env.ENABLE_EMAIL_EXPIRING_ANNOUNCEMENTS?.toUpperCase() == 'TRUE',
-    deleteAnnouncementsDurationInDays: parseInt(
+    deleteAnnouncementsDurationInDays: Number.parseInt(
       process.env.DELETE_ANNOUNCEMENTS_DURATION_IN_DAYS || '90',
     ),
     databaseUrl: datasourceUrl,
-    firstYearWithPrevReportingYearOption: parseInt(
+    firstYearWithPrevReportingYearOption: Number.parseInt(
       process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',
     ),
-    reportEditDurationInDays: parseInt(
+    reportEditDurationInDays: Number.parseInt(
       process.env.REPORT_EDIT_DURATION_IN_DAYS || '30',
     ),
-    reportUnlockDurationInDays: parseInt(
+    reportUnlockDurationInDays: Number.parseInt(
       process.env.REPORT_UNLOCK_DURATION_IN_DAYS || '2',
     ),
     userErrorLogging: {
@@ -81,9 +81,9 @@ config.defaults({
     },
     reportRichText: {
       maxParagraphs:
-        parseInt(process.env.REPORT_RICH_TEXT_MAX_PARAGRAPHS) || 100,
+        Number.parseInt(process.env.REPORT_RICH_TEXT_MAX_PARAGRAPHS) || 100,
       maxItemsPerList:
-        parseInt(process.env.REPORT_RICH_TEXT_MAX_ITEMS_PER_LIST) || 30,
+        Number.parseInt(process.env.REPORT_RICH_TEXT_MAX_ITEMS_PER_LIST) || 30,
     },
   },
   oidc: {

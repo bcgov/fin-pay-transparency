@@ -35,9 +35,11 @@ router.get(
     const isPaginationRequired = outputFormat != Format.CSV;
     const defaultLimit = isPaginationRequired ? 20 : undefined;
     const maxLimit = isPaginationRequired ? 100 : undefined;
-    const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+    const offset = req.query.offset
+      ? Number.parseInt(req.query.offset as string)
+      : 0;
     let limit = req.query.limit
-      ? parseInt(req.query.limit as string)
+      ? Number.parseInt(req.query.limit as string)
       : defaultLimit;
 
     if (maxLimit && limit > maxLimit) {
