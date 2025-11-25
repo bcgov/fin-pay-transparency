@@ -183,7 +183,7 @@ crunchy:
         prometheus.io/port: "9187"
     replicas: 3
     dataVolumeClaimSpec:
-      storage: 1500Mi
+      storage: 1510Mi
       storageClassName: netapp-block-standard
     requests:
       cpu: 150m
