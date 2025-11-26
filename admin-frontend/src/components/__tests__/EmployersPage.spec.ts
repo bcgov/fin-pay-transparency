@@ -1,11 +1,12 @@
 import { createTestingPinia } from '@pinia/testing';
-import { fireEvent, render } from '@testing-library/vue';
+import { fireEvent, render, within } from '@testing-library/vue';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import EmployersPage from '../EmployersPage.vue';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
@@ -28,6 +29,7 @@ describe('EmployersPage', () => {
     expect(getByRole('button', { name: 'Reset' })).toBeInTheDocument();
     expect(getByLabelText('Calendar Year(s)')).toBeInTheDocument();
     expect(getByLabelText('Search by employer name')).toBeInTheDocument();
+    expect(getByLabelText('First Log In Date Range')).toBeInTheDocument();
   });
   describe('search', () => {
     it('searches and displays the results', async () => {

@@ -1,6 +1,8 @@
 <template>
-  <v-row dense class="mt-0 w-100 mb-4">
-    <v-col sm="12" md="7" lg="6" xl="4" class="d-flex flex-column justify-end">
+  <v-row dense class="mt-0 w-100 mb-4 align-end">
+    <div
+      class="d-flex flex-column flex-grow-1 flex-shrink-1 ma-2 ml-0 flex-basis-200"
+    >
       <h3 class="mb-2">Search Employer</h3>
       <v-text-field
         v-model="searchText"
@@ -14,10 +16,10 @@
         @keyup.enter="search()"
       >
       </v-text-field>
-    </v-col>
+    </div>
 
-    <v-col sm="7" md="5" lg="3" xl="2" class="d-flex flex-column justify-end">
-      <h5 class="mt-4">
+    <div class="d-flex flex-column flex-grow-1 ma-2 ml-0">
+      <h5>
         Calendar Year(s)
         <ToolTip
           :text="'Select a calendar year to view employers by the first date they logged in.'"
@@ -59,9 +61,12 @@
           </span>
         </template>
       </v-select>
-    </v-col>
-    <v-col sm="4" md="12" lg="3" xl="2" class="d-flex flex-column justify-end">
-      <!-- on screen size 'md', right-align the buttons, otherwise left-align them -->
+    </div>
+    <DateRangeFilter v-model="dateRange" label="First Log In Date Range" />
+    <div class="d-flex flex-column ma-2 mr-0">
+      <h5>&nbsp;</h5>
+    </div>
+    <div class="d-flex flex-column ml-auto ma-2 mr-0">
       <div
         class="d-flex"
         :class="
@@ -82,7 +87,7 @@
           Reset
         </v-btn>
       </div>
-    </v-col>
+    </div>
   </v-row>
 
   <v-row v-if="hasSearched" dense class="w-100">
@@ -120,7 +125,9 @@ import {
 import { useDisplay } from 'vuetify';
 import { NotificationService } from '../services/notificationService';
 import ToolTip from './ToolTip.vue';
+import DateRangeFilter from './DateRangeFilter.vue';
 import ApiService from '../services/apiService';
+import { DateTimeFormatter, nativeJs, ZonedDateTime } from '@js-joda/core';
 
 const displayBreakpoint = useDisplay();
 const firstSearchableYear = 2024;
@@ -131,6 +138,7 @@ const yearOptions = new Array(currentYear - firstSearchableYear + 1)
   .map((d, i) => i + firstSearchableYear);
 const searchText = ref<string | undefined>(undefined);
 const selectedYears = ref<number[]>([]);
+const dateRange = ref<Date[] | undefined>(undefined);
 const maxSelectedYearShown = 2;
 
 const pageSizeOptions = [10, 25, 50];
@@ -141,7 +149,12 @@ const isSearching = ref<boolean>(false);
 const hasSearched = ref<boolean>(false);
 
 const isDirty = computed(() => {
-  return hasSearched.value || searchText.value || selectedYears.value?.length;
+  return (
+    hasSearched.value ||
+    searchText.value ||
+    selectedYears.value?.length ||
+    dateRange.value?.length
+  );
 });
 
 const headers = ref<any>([
@@ -162,6 +175,7 @@ const headers = ref<any>([
 function reset() {
   searchText.value = undefined;
   selectedYears.value = [];
+  dateRange.value = undefined;
   pageSize.value = pageSizeOptions[1];
   searchResults.value = undefined;
   totalNum.value = 0;
@@ -182,6 +196,29 @@ function buildSearchFilters(): EmployerFilterType {
       key: EmployerKeyEnum.Year,
       value: selectedYears.value,
       operation: 'in',
+    });
+  }
+  if (dateRange.value) {
+    filters.push({
+      key: EmployerKeyEnum.Date,
+      operation: 'between',
+      value: dateRange.value.map((d, i) => {
+        const jodaZonedDateTime = ZonedDateTime.from(nativeJs(d));
+        const adjusted =
+          i == 0
+            ? jodaZonedDateTime //start of day
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0)
+            : jodaZonedDateTime //end of day
+                .withHour(23)
+                .withMinute(59)
+                .withSecond(59)
+                .withNano(999);
+
+        return DateTimeFormatter.ISO_DATE_TIME.format(adjusted);
+      }),
     });
   }
   return filters;
@@ -226,5 +263,9 @@ function updateSearch(options: any) {
 }
 .v-input.calendar-year label {
   background-color: red;
+}
+/* 200% of the default flex-basis. (ie double the size) */
+.flex-basis-200 {
+  flex-basis: 300px;
 }
 </style>

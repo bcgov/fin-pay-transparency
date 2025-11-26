@@ -40,35 +40,10 @@
     v-if="areSecondaryFiltersVisible"
     class="secondary-filters py-2 d-flex flex-wrap"
   >
-    <div class="d-flex flex-column flex-grow-1 ma-2 ml-0">
-      <h5>
-        Submission Date Range
-        <ToolTip
-          id="submission-date-range-tooltip"
-          text="This is a date range selection. Please select the start and end date of the range. For 1 day please click the same date twice"
-          width="300px"
-          aria-label="submission-date-range-tooltip"
-        ></ToolTip>
-      </h5>
-
-      <VueDatePicker
-        v-model="submissionDateRange"
-        range
-        placeholder="Select date range"
-        format="yyyy-MM-dd"
-        :max-date="new Date()"
-        :enable-time-picker="false"
-        arrow-navigation
-        auto-apply
-        prevent-min-max-navigation
-      >
-        <template #day="{ day, date }">
-          <span :aria-label="formatDate(date)">
-            {{ day }}
-          </span>
-        </template>
-      </VueDatePicker>
-    </div>
+    <DateRangeFilter
+      v-model="submissionDateRange"
+      label="Submission Date Range"
+    />
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 307px">
       <h5>NAICS Code</h5>
@@ -250,19 +225,11 @@ export default {
 import { range } from 'lodash';
 import { storeToRefs } from 'pinia';
 import { ref, onMounted } from 'vue';
-import VueDatePicker from '@vuepic/vue-datepicker';
 import { useCodeStore } from '../store/modules/codeStore';
 import { useReportSearchStore } from '../store/modules/reportSearchStore';
-import '@vuepic/vue-datepicker/dist/main.css';
 import { ReportFilterType } from '../types/reports';
-import {
-  ZonedDateTime,
-  nativeJs,
-  DateTimeFormatter,
-  LocalDate,
-} from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
-import ToolTip from './ToolTip.vue';
+import { ZonedDateTime, nativeJs, DateTimeFormatter } from '@js-joda/core';
+import DateRangeFilter from './DateRangeFilter.vue';
 
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
@@ -286,12 +253,6 @@ const reportYearOptions = ref([
 ]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
 const statusOptions = ref([null, 'Published', 'Withdrawn']);
-
-const formatDate = (date: Date) => {
-  return LocalDate.from(nativeJs(date)).format(
-    DateTimeFormatter.ofPattern('EEEE d MMMM yyyy').withLocale(Locale.CANADA),
-  );
-};
 
 function getReportSearchFilters(): ReportFilterType {
   const filters: any[] = [];
@@ -453,20 +414,5 @@ input::placeholder {
 
 input::-ms-input-placeholder {
   color: black !important;
-}
-
-button.dp__action_button {
-  padding: 16px 16px 16px 16px !important;
-  width: 64px;
-  font-weight: 500;
-  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
-  font-size: 14px;
-  letter-spacing: 1.25px;
-}
-button.dp__action_button.dp__action_select {
-  background-color: #003366;
-}
-.dp__today {
-  border: 1px solid #003366;
 }
 </style>
