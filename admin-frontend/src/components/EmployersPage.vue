@@ -103,7 +103,6 @@
         :no-data-text="
           hasSearched ? 'No reports matched the search criteria' : ''
         "
-        @update:options="updateSearch"
       >
         <template #item.create_date="{ item }">
           {{ formatDate(item.create_date) }}
@@ -248,13 +247,6 @@ async function search(options?) {
     hasSearched.value = true;
     isSearching.value = false;
   }
-}
-
-function updateSearch(options: any) {
-  if (!hasSearched.value) {
-    return;
-  }
-  search(options);
 }
 </script>
 <style>
