@@ -32,7 +32,7 @@ describe('employer-routes', () => {
 
   describe('GET /api/employer', () => {
     describe('query parameters', () => {
-      describe('invalid parameters should succeed', () => {
+      describe('valid parameters should succeed', () => {
         it('all should work and convert strings to numbers', async () => {
           await request(app)
             .get('/')
@@ -51,6 +51,11 @@ describe('employer-routes', () => {
                     operation: 'in',
                     value: ['2023', '2024'],
                   },
+                  {
+                    key: 'create_date',
+                    operation: 'between',
+                    value: ['2024-01-01T00:00:00Z', '2024-12-31T23:59:59Z'],
+                  },
                 ],
               }),
             )
@@ -68,6 +73,11 @@ describe('employer-routes', () => {
                 key: 'create_year',
                 operation: 'in',
                 value: [2023, 2024],
+              },
+              {
+                key: 'create_date',
+                operation: 'between',
+                value: ['2024-01-01T00:00:00Z', '2024-12-31T23:59:59Z'],
               },
             ],
           );
@@ -109,6 +119,24 @@ describe('employer-routes', () => {
                   {
                     key: 'create_year',
                     operation: 'of', //missing value
+                  },
+                ],
+              }),
+            )
+            .expect(500);
+        });
+        it('unknown parameter should fail', async () => {
+          await request(app)
+            .get('/')
+            .query(
+              qs.stringify({
+                limit: '50',
+                offset: '0',
+                filter: [
+                  {
+                    key: 'whatever',
+                    operation: 'like',
+                    value: '2024-01-01T00:00:00Z',
                   },
                 ],
               }),

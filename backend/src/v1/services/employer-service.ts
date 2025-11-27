@@ -45,6 +45,11 @@ export const employerService = {
         where['OR'] = dates;
       } else if (q.key == EmployerKeyEnum.Name) {
         where['company_name'] = { contains: q.value, mode: 'insensitive' };
+      } else if (q.key == EmployerKeyEnum.Date) {
+        where['create_date'] = {
+          gte: new Date(q.value[0]),
+          lte: new Date(q.value[1]),
+        };
       }
     }
 

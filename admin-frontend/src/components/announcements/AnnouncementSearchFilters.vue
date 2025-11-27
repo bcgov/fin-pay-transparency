@@ -337,19 +337,4 @@ input::placeholder {
 input::-ms-input-placeholder {
   color: black !important;
 }
-
-button.dp__action_button {
-  padding: 16px 16px 16px 16px !important;
-  min-width: 64px;
-  font-weight: 500;
-  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
-  font-size: 14px;
-  letter-spacing: 1.25px;
-}
-button.dp__action_button.dp__action_select {
-  background-color: #003366;
-}
-.dp__today {
-  border: 1px solid #003366;
-}
 </style>
