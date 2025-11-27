@@ -104,8 +104,8 @@
           hasSearched ? 'No reports matched the search criteria' : ''
         "
       >
-        <template #item.create_date="{ item }">
-          {{ formatDate(item.create_date) }}
+        <template #[`item.create_date`]="{ item }">
+          {{ formatDate(item.create_date.toISOString()) }}
         </template>
       </v-data-table-server>
     </v-col>
@@ -127,6 +127,7 @@ import ToolTip from './ToolTip.vue';
 import DateRangeFilter from './DateRangeFilter.vue';
 import ApiService from '../services/apiService';
 import { DateTimeFormatter, nativeJs, ZonedDateTime } from '@js-joda/core';
+import { VDataTable } from 'vuetify/components';
 
 const displayBreakpoint = useDisplay();
 const firstSearchableYear = 2024;
@@ -140,8 +141,8 @@ const selectedYears = ref<number[]>([]);
 const dateRange = ref<Date[] | undefined>(undefined);
 const maxSelectedYearShown = 2;
 
-const pageSizeOptions = [10, 25, 50];
-const pageSize = ref<number>(pageSizeOptions[1]);
+const pageSizeOptions: number[] = [10, 25, 50];
+const pageSize = ref<number | undefined>(pageSizeOptions[1]);
 const searchResults = ref<Employer[] | undefined>(undefined);
 const totalNum = ref<number>(0);
 const isSearching = ref<boolean>(false);
@@ -156,7 +157,8 @@ const isDirty = computed(() => {
   );
 });
 
-const headers = ref<any>([
+type ReadonlyHeaders = VDataTable['$props']['headers'];
+const headers = ref<ReadonlyHeaders>([
   {
     title: 'Employer Name',
     align: 'start',
