@@ -26,12 +26,12 @@
         Analytics Overview
       </h4>
       <v-row :dense="true">
-        <v-col>
+        <v-col class="d-flex">
           <NumSubmissionsInYear
             ref="numSubmissionsInYear"
           ></NumSubmissionsInYear>
         </v-col>
-        <v-col>
+        <v-col class="d-flex">
           <NumEmployerLogons ref="numEmployerLogons"></NumEmployerLogons>
         </v-col>
       </v-row>

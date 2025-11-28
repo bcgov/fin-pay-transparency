@@ -30,6 +30,35 @@
           }}</span>
         </div>
       </div>
+
+      <v-divider :thickness="2"></v-divider>
+
+      <div class="widget-header flex-grow-0 flex-shrink-0">
+        Number of reports submitted since launch
+      </div>
+      <div
+        class="d-flex flex-column justify-center align-center text-primary flex-grow-1 flex-shrink-0"
+      >
+        <v-skeleton-loader v-if="isLoading" type="avatar"></v-skeleton-loader>
+        <div v-if="!isLoading">
+          <span v-if="hasError">
+            <v-tooltip text="Unable to load the data">
+              <template #activator="{ props }">
+                <v-icon
+                  icon="mdi-alert"
+                  size="x-large"
+                  color="grey"
+                  v-bind="props"
+                  @click="refresh"
+                ></v-icon>
+              </template>
+            </v-tooltip>
+          </span>
+          <span v-if="!hasError" class="widget-value">{{
+            numReportsTotal
+          }}</span>
+        </div>
+      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -45,6 +74,7 @@ onMounted(() => {
 
 const currentReportingYear = ref<number | null>();
 const numReportsInCurrentReportingYear = ref<number | null>();
+const numReportsTotal = ref<number | null>();
 const hasError = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 
@@ -57,7 +87,9 @@ async function refresh() {
       reportMetrics?.report_metrics[0].reporting_year;
     numReportsInCurrentReportingYear.value =
       reportMetrics?.report_metrics[0].num_published_reports;
-  } catch (e) {
+    numReportsTotal.value =
+      reportMetrics?.report_metrics[0].num_published_reports_total;
+  } catch {
     hasError.value = true;
   } finally {
     isLoading.value = false;
