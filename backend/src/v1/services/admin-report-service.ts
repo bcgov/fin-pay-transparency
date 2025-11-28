@@ -291,11 +291,18 @@ const adminReportService = {
           report_status: 'Published',
         },
       });
+    const totalReportsCount =
+      await prismaReadOnlyReplica.pay_transparency_report.count({
+        where: {
+          report_status: 'Published',
+        },
+      });
     return {
       report_metrics: [
         {
           reporting_year: reportingYear,
           num_published_reports: reportsCount,
+          num_published_reports_total: totalReportsCount,
         },
       ],
     };

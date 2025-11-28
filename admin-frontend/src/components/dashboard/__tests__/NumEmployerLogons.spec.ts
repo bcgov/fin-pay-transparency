@@ -7,12 +7,12 @@ import * as directives from 'vuetify/directives';
 import { EmployerMetrics } from '../../../types/employers';
 import NumEmployerLogons from '../NumEmployerLogons.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
 const mockEmployerMetrics: EmployerMetrics = {
   num_employers_logged_on_to_date: 6,
+  num_employers_logged_on_this_year: 4,
 };
 const mockGetEmployerMetrics = vi.fn().mockResolvedValue(mockEmployerMetrics);
 
@@ -45,6 +45,22 @@ describe('NumEmployerLogons', () => {
       expect(
         screen.getByText(
           `${mockEmployerMetrics.num_employers_logged_on_to_date}`,
+          {
+            exact: true,
+          },
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('displays the number of employers who have logged on this year', async () => {
+    await wrappedRender();
+    expect(mockGetEmployerMetrics).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          `${mockEmployerMetrics.num_employers_logged_on_this_year}`,
           {
             exact: true,
           },

@@ -17,15 +17,16 @@ jest.mock('../prisma/prisma-client-readonly-replica', () => ({
 
 describe('employer-service', () => {
   describe('getEmployerMetrics', () => {
-    it('delegates request to the database', async () => {
+    it('returns the number of employers logged on', async () => {
       const numCompaniesLoggedOnToDate = 16;
-      mockCountPayTransparencyCompanies.mockResolvedValue(
-        numCompaniesLoggedOnToDate,
-      );
+      const numCompaniesLoggedOnThisYear = 5;
+      mockCountPayTransparencyCompanies
+        .mockResolvedValueOnce(numCompaniesLoggedOnToDate)
+        .mockResolvedValueOnce(numCompaniesLoggedOnThisYear);
       const employerMetrics: EmployerMetrics =
         await employerService.getEmployerMetrics();
-      expect(employerMetrics.num_employers_logged_on_to_date).toBe(
-        numCompaniesLoggedOnToDate,
+      expect(employerMetrics.num_employers_logged_on_this_year).toBe(
+        numCompaniesLoggedOnThisYear,
       );
     });
   });

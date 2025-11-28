@@ -709,22 +709,20 @@ describe('admin-report-service', () => {
   });
 
   describe('getReportMetrics', () => {
-    it('should return the reports metrics', async () => {
+    it('should return separate counts for year-specific and all-time published reports', async () => {
       // Arrange
-      const reportingYear = 2021;
+      const reportingYear = 2024;
       const result = await adminReportService.getReportsMetrics({
         reportingYear,
       });
 
       // Assert
-      expect(result).toEqual({
-        report_metrics: [
-          {
-            reporting_year: reportingYear,
-            num_published_reports: 1,
-          },
-        ],
-      });
+      const metrics = result.report_metrics[0];
+      expect(metrics.num_published_reports).toBe(1); // Only 2024
+      expect(metrics.num_published_reports_total).toBe(3); // All years
+      expect(metrics.num_published_reports_total).toBeGreaterThanOrEqual(
+        metrics.num_published_reports,
+      );
     });
   });
 

@@ -7,12 +7,17 @@ import * as directives from 'vuetify/directives';
 import { ReportMetrics } from '../../../types/reports';
 import NumSubmissionsInYear from '../NumSubmissionsInYear.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
 const mockReportMetrics: ReportMetrics = {
-  report_metrics: [{ reporting_year: 2024, num_published_reports: 10 }],
+  report_metrics: [
+    {
+      reporting_year: 2024,
+      num_published_reports: 10,
+      num_published_reports_total: 25,
+    },
+  ],
 };
 const mockGetReportMetrics = vi.fn().mockResolvedValue(mockReportMetrics);
 
@@ -51,6 +56,22 @@ describe('NumSubmissionsInYear', () => {
       expect(
         screen.getByText(
           `${mockReportMetrics.report_metrics[0].num_published_reports}`,
+          {
+            exact: false /*  match substring */,
+          },
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('displays the total number of reports submitted since launch', async () => {
+    await wrappedRender();
+    expect(mockGetReportMetrics).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          `${mockReportMetrics.report_metrics[0].num_published_reports_total}`,
           {
             exact: false /*  match substring */,
           },

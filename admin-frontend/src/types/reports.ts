@@ -128,6 +128,7 @@ export type ReportMetrics = {
     {
       reporting_year: number;
       num_published_reports: number;
+      num_published_reports_total: number;
     },
   ];
 };

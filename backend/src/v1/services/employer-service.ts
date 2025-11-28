@@ -17,8 +17,18 @@ export const employerService = {
   async getEmployerMetrics(): Promise<EmployerMetrics> {
     const numEmployers =
       await prismaReadOnlyReplica.pay_transparency_company.count();
+    const numEmployersThisYear =
+      await prismaReadOnlyReplica.pay_transparency_company.count({
+        where: {
+          create_date: {
+            gte: new Date(new Date().getFullYear(), 0, 1),
+            lt: new Date(new Date().getFullYear() + 1, 0, 1),
+          },
+        },
+      });
     return {
       num_employers_logged_on_to_date: numEmployers,
+      num_employers_logged_on_this_year: numEmployersThisYear,
     };
   },
 
