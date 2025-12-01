@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 export type EmployerMetrics = {
   num_employers_logged_on_to_date: number;
+  num_employers_logged_on_this_year: number;
 };
 
 /* Get Employer - Filter */

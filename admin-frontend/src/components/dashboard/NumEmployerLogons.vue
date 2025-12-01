@@ -2,6 +2,35 @@
   <v-card class="ptap-widget">
     <v-card-text class="h-100 d-flex flex-column">
       <div class="widget-header flex-grow-0 flex-shrink-0">
+        Total number of employers who have logged on this calendar year
+      </div>
+      <div
+        class="d-flex flex-column justify-center align-center text-primary flex-grow-1 flex-shrink-0"
+      >
+        <v-skeleton-loader v-if="isLoading" type="avatar"></v-skeleton-loader>
+        <div v-if="!isLoading">
+          <span v-if="hasError">
+            <v-tooltip text="Unable to load the data">
+              <template #activator="{ props }">
+                <v-icon
+                  icon="mdi-alert"
+                  size="x-large"
+                  color="grey"
+                  v-bind="props"
+                  @click="refresh"
+                ></v-icon>
+              </template>
+            </v-tooltip>
+          </span>
+          <span v-if="!hasError" class="widget-value">{{
+            numEmployersWhoHaveLoggedOnThisYear
+          }}</span>
+        </div>
+      </div>
+
+      <v-divider :thickness="2"></v-divider>
+
+      <div class="widget-header flex-grow-0 flex-shrink-0">
         Total number of employers who have logged on to date
       </div>
       <div
@@ -40,6 +69,7 @@ onMounted(() => {
   refresh();
 });
 
+const numEmployersWhoHaveLoggedOnThisYear = ref<number | null>();
 const numEmployersWhoHaveLoggedOn = ref<number | null>();
 const hasError = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
@@ -52,7 +82,9 @@ async function refresh() {
       await ApiService.getEmployerMetrics();
     numEmployersWhoHaveLoggedOn.value =
       employerMetrics?.num_employers_logged_on_to_date;
-  } catch (e) {
+    numEmployersWhoHaveLoggedOnThisYear.value =
+      employerMetrics?.num_employers_logged_on_this_year;
+  } catch {
     hasError.value = true;
   } finally {
     isLoading.value = false;
