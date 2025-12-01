@@ -7,6 +7,7 @@ export type EmployerMetrics = {
 export enum EmployerKeyEnum {
   Name = 'company_name',
   Year = 'create_year',
+  Date = 'create_date',
 }
 
 export type EmployerFilterType = (
@@ -19,6 +20,11 @@ export type EmployerFilterType = (
       key: EmployerKeyEnum.Year;
       value: number[];
       operation: 'in';
+    }
+  | {
+      key: EmployerKeyEnum.Date;
+      value: string[];
+      operation: 'between';
     }
 )[];
 
