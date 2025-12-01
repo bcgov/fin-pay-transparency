@@ -31,7 +31,7 @@ describe('employer-service', () => {
     });
   });
   describe('getEmployer', () => {
-    it('prisma queries to be formed correctly', async () => {
+    it('prisma queries to be formed correctly with name, year, and date filters', async () => {
       await employerService.getEmployer(
         50, //limit:
         0, //offset:
@@ -47,6 +47,11 @@ describe('employer-service', () => {
             key: EmployerKeyEnum.Year,
             operation: 'in',
             value: [2023, 2024],
+          },
+          {
+            key: EmployerKeyEnum.Date,
+            operation: 'between',
+            value: ['2024-01-01T00:00:00Z', '2024-12-31T23:59:59Z'],
           },
         ],
       );
@@ -71,6 +76,10 @@ describe('employer-service', () => {
             },
           ],
           company_name: { contains: 'bc', mode: 'insensitive' },
+          create_date: {
+            gte: new Date('2024-01-01T00:00:00Z'),
+            lte: new Date('2024-12-31T23:59:59Z'),
+          },
         },
       });
       expect(mockCountPayTransparencyCompanies).toHaveBeenCalled();

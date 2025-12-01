@@ -11,6 +11,7 @@ export type EmployerMetrics = {
 export enum EmployerKeyEnum {
   Name = 'company_name',
   Year = 'create_year',
+  Date = 'create_date',
 }
 const EmployerNameFilterSchema = z.object({
   key: z.literal(EmployerKeyEnum.Name),
@@ -24,10 +25,17 @@ const EmployerYearFilterSchema = z.object({
   value: z.array(z.coerce.number()),
 });
 
+const EmployerDateFilterSchema = z.object({
+  key: z.literal(EmployerKeyEnum.Date),
+  operation: z.literal('between'),
+  value: z.array(z.string()),
+});
+
 const EmployerFilterSchema = z.array(
   z.discriminatedUnion('key', [
     EmployerNameFilterSchema,
     EmployerYearFilterSchema,
+    EmployerDateFilterSchema,
   ]),
 );
 
