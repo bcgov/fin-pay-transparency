@@ -79,7 +79,7 @@ describe('EmployersPage', () => {
       expect(wrapper.vm.pageSize).toBe(25);
       expect(wrapper.vm.isSearching).toBe(false);
       expect(wrapper.vm.hasSearched).toBe(false);
-      expect(wrapper.vm.searchResults).toBeUndefined();
+      expect(wrapper.vm.searchResults).toEqual([]);
       expect(wrapper.vm.totalNum).toBe(0);
     });
 
@@ -164,7 +164,7 @@ describe('EmployersPage', () => {
       wrapper.vm.reset();
 
       expect(wrapper.vm.pageSize).toBe(25);
-      expect(wrapper.vm.searchResults).toBeUndefined();
+      expect(wrapper.vm.searchResults).toEqual([]);
       expect(wrapper.vm.totalNum).toBe(0);
     });
   });
@@ -289,7 +289,7 @@ describe('EmployersPage', () => {
           {
             company_id: '1',
             company_name: 'Test Corp',
-            create_date: new Date('2024-01-01'),
+            create_date: '2024-01-15T00:00:00Z',
           },
         ],
         total: 1,
@@ -325,7 +325,7 @@ describe('EmployersPage', () => {
                     {
                       company_id: '1',
                       company_name: 'Test Corp',
-                      create_date: new Date('2024-01-01'),
+                      create_date: '2024-01-15T00:00:00Z',
                     },
                   ],
                   total: 1,
@@ -362,13 +362,13 @@ describe('EmployersPage', () => {
       const mockEmployers = [
         {
           company_id: '1',
-          company_name: 'Test Corp',
-          create_date: new Date('2024-01-01'),
+          company_name: 'Tech Corp',
+          create_date: '2024-01-15T00:00:00Z',
         },
         {
           company_id: '2',
-          company_name: 'Another Corp',
-          create_date: new Date('2024-02-01'),
+          company_name: 'Finance Inc',
+          create_date: '2024-02-20T00:00:00Z',
         },
       ];
       vi.spyOn(ApiService, 'getEmployers').mockResolvedValue({
@@ -457,12 +457,12 @@ describe('EmployersPage', () => {
           {
             company_id: '1',
             company_name: 'Tech Corp',
-            create_date: new Date('2024-01-15'),
+            create_date: '2024-01-15T00:00:00Z',
           },
           {
             company_id: '2',
             company_name: 'Finance Inc',
-            create_date: new Date('2024-02-20'),
+            create_date: '2024-02-20T00:00:00Z',
           },
         ],
         total: 2,
@@ -514,7 +514,7 @@ describe('EmployersPage', () => {
 
       wrapper.vm.reset();
 
-      expect(wrapper.vm.searchResults).toBeUndefined();
+      expect(wrapper.vm.searchResults).toEqual([]);
       expect(wrapper.vm.totalNum).toBe(0);
     });
   });
