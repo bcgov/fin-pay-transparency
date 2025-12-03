@@ -41,7 +41,7 @@ export type EmployerSortType = {
 export type Employer = {
   company_id: string;
   company_name: string;
-  create_date: Date;
+  create_date: string;
 };
 
 export interface IEmployerSearchResult {

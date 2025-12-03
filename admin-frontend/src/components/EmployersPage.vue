@@ -105,7 +105,7 @@
         "
       >
         <template #[`item.create_date`]="{ item }">
-          {{ formatDate(item.create_date.toISOString()) }}
+          {{ formatDate(item.create_date) }}
         </template>
       </v-data-table-server>
     </v-col>
@@ -141,9 +141,10 @@ const selectedYears = ref<number[]>([]);
 const dateRange = ref<Date[] | undefined>(undefined);
 const maxSelectedYearShown = 2;
 
-const pageSizeOptions: number[] = [10, 25, 50];
-const pageSize = ref<number | undefined>(pageSizeOptions[1]);
-const searchResults = ref<Employer[] | undefined>(undefined);
+const pageSizeDefault = 25;
+const pageSizeOptions: number[] = [10, pageSizeDefault, 50];
+const pageSize = ref<number>(pageSizeDefault);
+const searchResults = ref<Employer[]>([]);
 const totalNum = ref<number>(0);
 const isSearching = ref<boolean>(false);
 const hasSearched = ref<boolean>(false);
@@ -177,8 +178,8 @@ function reset() {
   searchText.value = undefined;
   selectedYears.value = [];
   dateRange.value = undefined;
-  pageSize.value = pageSizeOptions[1];
-  searchResults.value = undefined;
+  pageSize.value = pageSizeDefault;
+  searchResults.value = [];
   totalNum.value = 0;
   hasSearched.value = false;
 }
