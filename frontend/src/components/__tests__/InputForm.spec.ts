@@ -2,15 +2,22 @@ import { DateTimeFormatter, LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
-import { ReportMode } from '../../store/modules/reportStepper';
+import {
+  useReportStepperStore,
+  ReportMode,
+} from '../../store/modules/reportStepper';
 import InputForm, { ISubmissionError } from '../InputForm.vue';
+import { CsvService, ParseStatus } from '../../common/csvService';
+import ApiService from '../../common/apiService';
+
+global.ResizeObserver = require('resize-observer-polyfill');
 
 const DATE_FORMAT = 'yyyy-MM-dd';
 const dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -75,9 +82,14 @@ describe('InputForm', () => {
       },
     });
 
+    const mockRouter = {
+      push: vi.fn(),
+    };
+
     wrapper = mount(InputForm, {
       global: {
         plugins: [vuetify, pinia],
+        mocks: { $router: mockRouter },
       },
     });
     await flushPromises();
@@ -94,6 +106,169 @@ describe('InputForm', () => {
   });
 
   describe('submit', () => {
+    let mockParse;
+    let mockPostSubmission;
+    beforeEach(async () => {
+      // Form fields come from pinia store. Set them up for each test.
+      const codeStore = useCodeStore(pinia);
+      await codeStore.$patch({
+        employeeCountRanges: mockEmployeeCountRanges,
+      } as never);
+      await codeStore.$patch({ naicsCodes: mockNaicsCodes } as never);
+
+      // company name and address are automatically obtained. Set them up for each test.
+      const auth = authStore(pinia);
+      const userInfo = {
+        legalName: 'Fake Company',
+        addressLine1: '123 main st',
+        addressLine2: '',
+      };
+      await auth.$patch({ userInfo: userInfo } as never);
+
+      // Setup mocks that are used by all submit tests
+      mockParse = vi.spyOn(CsvService, 'parse').mockResolvedValue({
+        status: ParseStatus.Success,
+        data: [{ foo: 'bar' }],
+      });
+
+      mockPostSubmission = vi
+        .spyOn(ApiService, 'postSubmission')
+        .mockResolvedValue({
+          report_id: 10,
+          message: 'ok',
+        });
+    });
+
+    // Helper to populate all form fields with optional overrides
+    const populateAllFields = async (
+      overrides: { [key: string]: any } = {},
+    ) => {
+      const defaults = {
+        naicsCode: '11',
+        employeeCountRange: 1,
+        confirmReportingYear: true,
+        uploadFile: new File(['colA,colB\n1,2'], 'test.csv', {
+          type: 'text/csv',
+        }),
+      };
+      const config = { ...defaults, ...overrides };
+
+      if (config.naicsCode !== null) {
+        const naicsCodeComponent = wrapper.findComponent({ ref: 'naicsCode' });
+        await naicsCodeComponent.setValue(config.naicsCode);
+      }
+
+      if (config.employeeCountRange !== null) {
+        const employeeCountRangeComponent = wrapper.findComponent({
+          ref: 'employeeCountRange',
+        });
+        await employeeCountRangeComponent.setValue(config.employeeCountRange);
+      }
+
+      if (config.confirmReportingYear !== null) {
+        const confirmReportingYearComponent = wrapper.findComponent({
+          ref: 'confirmReportingYear',
+        });
+        await confirmReportingYearComponent.setValue(
+          config.confirmReportingYear,
+        );
+      }
+
+      if (config.uploadFile !== null) {
+        const fileInput = wrapper.findComponent({ ref: 'uploadFile' });
+        await fileInput.setValue(config.uploadFile);
+      }
+    };
+
+    it('submits the form when all fields are valid and a file is selected', async () => {
+      // populate fields
+      await populateAllFields();
+
+      // submit
+      await wrapper.find('#submitButton').trigger('submit');
+      await flushPromises();
+
+      // assertions
+
+      // CSV parsed
+      expect(mockParse).toHaveBeenCalledWith(expect.any(File));
+
+      // ApiService called with full submission
+      expect(mockPostSubmission).toHaveBeenCalledTimes(1);
+      const submission = mockPostSubmission.mock.calls[0]?.[0];
+
+      expect(submission).toMatchObject({
+        companyName: 'Fake Company',
+        companyAddress: '123 main st',
+        naicsCode: '11',
+        employeeCountRangeId: 1,
+        reportingYear: new Date().getFullYear(),
+        dataConstraints: null,
+        comments: null,
+        rows: [{ foo: 'bar' }],
+      });
+
+      expect(wrapper.text()).not.toContain(
+        'Please check the form and correct all errors before submitting.',
+      );
+    });
+
+    it('shows error when naicsCode not selected', async () => {
+      // populate fields (skip naicsCode)
+      await populateAllFields({ naicsCode: null });
+
+      // submit
+      await wrapper.find('#submitButton').trigger('submit');
+      await flushPromises();
+
+      // assertions
+      const naicsCodeComponent = wrapper.findComponent({ ref: 'naicsCode' });
+      expect(naicsCodeComponent.text()).toContain('Complete this field.');
+      expect(wrapper.text()).toContain(
+        'Please check the form and correct all errors before submitting.',
+      );
+    });
+
+    it('shows error when employeeCountRange not selected', async () => {
+      // populate fields (skip employeeCountRange)
+      await populateAllFields({ employeeCountRange: null });
+
+      // submit
+      await wrapper.find('#submitButton').trigger('submit');
+      await flushPromises();
+
+      // assertions
+      const employeeCountRangeComponent = wrapper.findComponent({
+        ref: 'employeeCountRange',
+      });
+      expect(employeeCountRangeComponent.text()).toContain(
+        'Complete this field.',
+      );
+      expect(wrapper.text()).toContain(
+        'Please check the form and correct all errors before submitting.',
+      );
+    });
+
+    it('shows error when confirmReportingYear not selected', async () => {
+      // populate fields (skip confirmReportingYear)
+      await populateAllFields({ confirmReportingYear: false });
+
+      // submit
+      await wrapper.find('#submitButton').trigger('submit');
+      await flushPromises();
+
+      // assertions
+      const confirmReportingYearComponent = wrapper.findComponent({
+        ref: 'confirmReportingYear',
+      });
+      expect(confirmReportingYearComponent.text()).toContain(
+        'Complete this field.',
+      );
+      expect(wrapper.text()).toContain(
+        'Please check the form and correct all errors before submitting.',
+      );
+    });
+
     describe('when no upload file has been selected', () => {
       it('throws an error', async () => {
         await expect(wrapper.vm.submit()).rejects.toThrow();
@@ -159,6 +334,7 @@ describe('InputForm', () => {
     expect(wrapper.findAll('#endMonth').length).toBe(1);
     expect(wrapper.findAll('#endYear').length).toBe(1);
     expect(wrapper.findAll('#reportYear').length).toBe(1);
+    expect(wrapper.findAll('#confirmReportingYear').length).toBe(1);
     expect(wrapper.findAll('#dataConstraints').length).toBe(1);
     expect(wrapper.findAll('#employerStatement').length).toBe(1);
     expect(wrapper.find('#csvFile').attributes('type')).toBe('file');
@@ -333,11 +509,13 @@ describe('InputForm Edit Mode', () => {
     expect(wrapper.vm.startDate).toBe(mockReport.report_start_date);
     expect(wrapper.vm.endDate).toBe(mockReport.report_end_date);
     expect(wrapper.vm.reportYear).toBe(mockReport.reporting_year);
+    expect(wrapper.vm.confirmReportingYear).toBeTruthy();
     expect(wrapper.vm.dataConstraints).toBe(mockReport.data_constraints);
     expect(wrapper.vm.comments).toBe(mockReport.user_comment);
   });
 
   it('disables the Reporting Year field', async () => {
     expect(wrapper.find('#reportYear').element.disabled).toBeTruthy();
+    expect(wrapper.find('#confirmReportingYear').element.disabled).toBeTruthy();
   });
 });
