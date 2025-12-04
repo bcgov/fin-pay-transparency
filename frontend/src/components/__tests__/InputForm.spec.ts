@@ -9,10 +9,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
-import {
-  useReportStepperStore,
-  ReportMode,
-} from '../../store/modules/reportStepper';
+import { ReportMode } from '../../store/modules/reportStepper';
 import InputForm, { ISubmissionError } from '../InputForm.vue';
 import { CsvService, ParseStatus } from '../../common/csvService';
 import ApiService from '../../common/apiService';
@@ -65,6 +62,7 @@ const mockConfig = {
 describe('InputForm', () => {
   let wrapper;
   let pinia;
+  const errors: Error[] = [];
 
   const initWrapper = async (options: any = {}) => {
     //create an instances of vuetify and pinia so we can inject them
@@ -90,6 +88,13 @@ describe('InputForm', () => {
       global: {
         plugins: [vuetify, pinia],
         mocks: { $router: mockRouter },
+        config: {
+          // Vue does not propagate thrown errors from methods DOM elements after activation.
+          // This captures them so we can assert against them in tests.
+          errorHandler(err: unknown) {
+            errors.push(err instanceof Error ? err : new Error(String(err)));
+          },
+        },
       },
     });
     await flushPromises();
@@ -222,6 +227,8 @@ describe('InputForm', () => {
       await flushPromises();
 
       // assertions
+      expect(errors[0]).toBeInstanceOf(Error);
+      expect(errors[0]?.message).toBe('Form missing required fields');
       const naicsCodeComponent = wrapper.findComponent({ ref: 'naicsCode' });
       expect(naicsCodeComponent.text()).toContain('Complete this field.');
       expect(wrapper.text()).toContain(
@@ -238,6 +245,8 @@ describe('InputForm', () => {
       await flushPromises();
 
       // assertions
+      expect(errors[0]).toBeInstanceOf(Error);
+      expect(errors[0]?.message).toBe('Form missing required fields');
       const employeeCountRangeComponent = wrapper.findComponent({
         ref: 'employeeCountRange',
       });
@@ -258,6 +267,8 @@ describe('InputForm', () => {
       await flushPromises();
 
       // assertions
+      expect(errors[0]).toBeInstanceOf(Error);
+      expect(errors[0]?.message).toBe('Form missing required fields');
       const confirmReportingYearComponent = wrapper.findComponent({
         ref: 'confirmReportingYear',
       });
@@ -269,10 +280,20 @@ describe('InputForm', () => {
       );
     });
 
-    describe('when no upload file has been selected', () => {
-      it('throws an error', async () => {
-        await expect(wrapper.vm.submit()).rejects.toThrow();
-      });
+    it('shows error when uploadFile not selected', async () => {
+      // populate fields (skip uploadFile)
+      await populateAllFields({ uploadFile: null });
+
+      // submit
+      await wrapper.find('#submitButton').trigger('submit');
+      await flushPromises();
+
+      // assertions
+      expect(errors[0]).toBeInstanceOf(Error);
+      expect(errors[0]?.message).toBe('Form missing required fields');
+      expect(wrapper.text()).toContain(
+        'Please check the form and correct all errors before submitting.',
+      );
     });
   });
 
