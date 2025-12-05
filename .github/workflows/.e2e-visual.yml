@@ -93,21 +93,20 @@ jobs:
         if: ${{ always() }}
         id: check-visual-regression
         run: |
-          if [ -f "./test-results.json" ]; then
-            if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" "./test-results.json"; then
-              echo "has_visual_issues=true" >> $GITHUB_OUTPUT
-              if [ -d "./test-results" ]; then
-                mv ./test-results ./test-results-diffs
-              fi
-              if [ -d "./playwright-report" ]; then
-                mv ./playwright-report ./playwright-report-diffs
-              fi
-            else
-              echo "has_visual_issues=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "has_visual_issues=false" >> $GITHUB_OUTPUT
+          if [ -d "./test-results" ]; then
+            mv ./test-results ./test-results-diffs
           fi
+          if [ -d "./playwright-report" ]; then
+            mv ./playwright-report ./playwright-report-diffs
+          fi
+          differences=false
+          if [ -f "./test-results.json" ]; then
+            unexpected=$(jq '.stats.unexpected' ./test-results.json)
+            if [ "$unexpected" -gt 0 ]; then
+              differences=true
+            fi
+          fi
+          echo "has_visual_issues=$differences" >> $GITHUB_OUTPUT
 
       - name: Generate updated screenshots
         if: ${{ always() && steps.check-visual-regression.outputs.has_visual_issues == 'true' }}
