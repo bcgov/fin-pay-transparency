@@ -199,7 +199,9 @@
                       >
                         Reporting Year:
                       </label>
-                      <span class="text-error font-weight-bold text-h6">*</span>
+                      <span class="text-error font-weight-bold text-h6"
+                        >**</span
+                      >
                       <v-tooltip
                         id="reporting-year-tooltip"
                         text="Reporting employers are required to submit pay transparency reports by November 1st of each year. Select the year you are submitting a report for."
@@ -346,6 +348,39 @@
                     </v-row>
                   </v-col>
                 </v-row>
+              </v-col>
+            </v-row>
+
+            <!-- Confirmation of reporting year -->
+            <v-row>
+              <v-col>
+                <v-checkbox
+                  id="confirmReportingYear"
+                  ref="confirmReportingYear"
+                  v-model="confirmReportingYear"
+                  :rules="requiredRules"
+                  :disabled="mode == ReportMode.Edit"
+                >
+                  <template #label>
+                    <div class="d-flex">
+                      <div
+                        class="text-error font-weight-bold text-h6 mr-2 text-no-wrap"
+                      >
+                        **
+                      </div>
+                      <div class="">
+                        I understand that I must select the current calendar
+                        year - the year I submit the report - as the Reporting
+                        Year, even if my data comes from a previous calendar or
+                        fiscal year. If you have questions about which reporting
+                        year to choose, please contact
+                        <a href="mailto:paytransparency@gov.bc.ca">
+                          PayTransparency@gov.bc.ca</a
+                        >.
+                      </div>
+                    </div>
+                  </template>
+                </v-checkbox>
               </v-col>
             </v-row>
 
@@ -750,6 +785,7 @@ export default {
       LocalDate.now().minusYears(1).minusMonths(1).monthValue() || undefined,
     endYear: LocalDate.now().minusMonths(1).year(),
     reportYear: LocalDate.now().year(),
+    confirmReportingYear: false,
     dataConstraints: null,
     comments: null,
     isSubmit: false, //whether or not the submit button has been pressed
@@ -821,6 +857,7 @@ export default {
         !!this.endMonth &&
         !!this.endYear &&
         !!this.reportYear &&
+        !!this.confirmReportingYear &&
         !!this.uploadFileValue &&
         this.isEmployerStatementValid &&
         this.isDataConstraintsValid
@@ -1006,6 +1043,7 @@ export default {
       ).monthValue();
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
+      this.confirmReportingYear = true;
     },
     initFormInNonEditMode() {
       const reportYearList = this.reportingYearOptions;
@@ -1143,6 +1181,7 @@ export default {
     async submit() {
       this.isSubmit = true;
       if (!this.formReady) {
+        console.log(this.companyName, this.companyAddress, this.naicsCode);
         throw new Error('Form missing required fields');
       }
       this.isProcessing = true;
@@ -1234,5 +1273,16 @@ textarea::placeholder {
 
 .fa-circle-info {
   color: #255a90 !important;
+}
+</style>
+
+<style lang="scss">
+/* Prevent the label color from changing when the checkbox is checked */
+label[for='confirmReportingYear'] {
+  color: inherit !important;
+}
+/* Align the checkbox to the top when the label is multi-line */
+.v-selection-control:has(#confirmReportingYear) {
+  align-items: start;
 }
 </style>

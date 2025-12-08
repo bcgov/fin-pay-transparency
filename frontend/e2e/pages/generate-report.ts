@@ -49,6 +49,7 @@ export class GenerateReportPage extends PTPage {
   public naicsInput: Locator;
   public employeeCountInput: Locator;
   public reportingYearInput: Locator;
+  public confirmReportingYearInput: Locator;
   public startMonthInput: Locator;
   public startYearInput: Locator;
   public endMonthInput: Locator;
@@ -65,6 +66,9 @@ export class GenerateReportPage extends PTPage {
       '#employeeCountRange',
     );
     this.reportingYearInput = await this.instance.locator('#reportYear');
+    this.confirmReportingYearInput = await this.instance.locator(
+      '#confirmReportingYear',
+    );
     this.startMonthInput = await this.instance.locator('#startMonth');
     this.startYearInput = await this.instance.locator('#startYear');
     this.endMonthInput = await this.instance.locator('#endMonth');
@@ -94,6 +98,11 @@ export class GenerateReportPage extends PTPage {
     const option = await this.instance.getByLabel(label);
     expect(option).toBeVisible();
     await option.click();
+  }
+
+  async setReportingYearConfirmation() {
+    expect(this.confirmReportingYearInput).toBeVisible();
+    await this.confirmReportingYearInput.setChecked(true);
   }
 
   async verifyUser(user: User): Promise<void> {
@@ -148,6 +157,7 @@ export class GenerateReportPage extends PTPage {
     // 2: Fill out the form in the generate report form page
     await this.setNaicsCode(values.naicsCode);
     await this.setEmployeeCount(values.employeeCountRange);
+    await this.setReportingYearConfirmation();
 
     // set values for the two rich text fields.  these are not standard html text area
     // inputs, and need a special technique to set the value.
@@ -185,6 +195,8 @@ export class GenerateReportPage extends PTPage {
     await expect(this.reportingYearInput).toBeVisible();
     await expect(this.reportingYearInput).toHaveValue(report.reporting_year);
     await expect(this.reportingYearInput).toBeDisabled();
+    await expect(this.confirmReportingYearInput).toBeChecked();
+    await expect(this.confirmReportingYearInput).toBeDisabled();
 
     await this.checkDate(
       report.report_start_date,
