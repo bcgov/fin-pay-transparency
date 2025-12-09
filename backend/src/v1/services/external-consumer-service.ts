@@ -130,6 +130,7 @@ const externalConsumerService = {
           create_date: true,
           update_date: true,
           admin_modified_date: true,
+          admin_modified_reason: true,
           create_user: true,
           update_user: true,
           report_status: true,
