@@ -153,6 +153,7 @@ const mockPublishedReportInDb: pay_transparency_report = {
   is_unlocked: true,
   report_unlock_date: null,
   admin_modified_date: new Date(),
+  admin_modified_reason: null,
   admin_user_id: '',
   admin_last_access_date: null,
 };
@@ -1109,6 +1110,7 @@ describe('getReportFileName', () => {
         is_unlocked: false,
         report_unlock_date: null,
         admin_modified_date: new Date(),
+        admin_modified_reason: null,
         admin_user_id: '',
         admin_last_access_date: null,
       };

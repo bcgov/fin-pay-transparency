@@ -1,3 +1,5 @@
+import * as z from 'zod';
+
 export type Report = {
   report_id: string;
   naics_code: string;
@@ -133,9 +135,20 @@ export type ReportMetrics = {
   ];
 };
 
+export const AdminModifiedReasonSchema = z.enum(['LOCK', 'UNLOCK', 'WITHDRAW']);
+
+export type AdminModifiedReason = z.infer<typeof AdminModifiedReasonSchema>;
+export const AdminModifiedReason = AdminModifiedReasonSchema.enum;
+
+export const AdminModifiedReasonDisplay = {
+  [AdminModifiedReason.LOCK]: 'Locked',
+  [AdminModifiedReason.UNLOCK]: 'Unlocked',
+  [AdminModifiedReason.WITHDRAW]: 'Withdrawn',
+} as const;
+
 export type ReportAdminActionHistory = {
   report_history_id: string;
-  action: 'Locked' | 'Unlocked' | 'Withdrawn';
+  action: AdminModifiedReason;
   admin_modified_date: string;
   admin_user_display_name: string;
 };

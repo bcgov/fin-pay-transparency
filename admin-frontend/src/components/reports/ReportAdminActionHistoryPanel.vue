@@ -15,16 +15,16 @@
         <v-col class="d-flex justify-center first-column">
           <v-icon
             :icon="
-              item.action === 'Unlocked'
+              item.action === AdminModifiedReason.UNLOCK
                 ? 'mdi-lock-open'
-                : item.action === 'Locked'
+                : item.action === AdminModifiedReason.LOCK
                   ? 'mdi-lock'
                   : 'mdi-delete'
             "
             :color="
-              item.action === 'Unlocked'
+              item.action === AdminModifiedReason.UNLOCK
                 ? 'success'
-                : item.action === 'Locked'
+                : item.action === AdminModifiedReason.LOCK
                   ? 'error'
                   : 'warning'
             "
@@ -32,14 +32,14 @@
         </v-col>
         <v-col
           :class="
-            item.action === 'Unlocked'
+            item.action === AdminModifiedReason.UNLOCK
               ? 'text-success'
-              : item.action === 'Locked'
+              : item.action === AdminModifiedReason.LOCK
                 ? 'text-error'
                 : 'text-warning'
           "
         >
-          <b>{{ item.action }}</b>
+          <b>{{ AdminModifiedReasonDisplay[item.action] }}</b>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -71,7 +71,11 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { ReportAdminActionHistory } from '../../types/reports';
+import {
+  AdminModifiedReason,
+  AdminModifiedReasonDisplay,
+  ReportAdminActionHistory,
+} from '../../types/reports';
 import {
   formatIsoDateTimeAsLocalDate,
   formatIsoDateTimeAsLocalTime,
