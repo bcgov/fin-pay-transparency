@@ -10,6 +10,7 @@ import {
   ReportFilterType,
   ReportSortType,
   ReportAdminActionHistory,
+  AdminModifiedReason,
 } from '../types/report-search';
 import { PayTransparencyUserError } from './file-upload-service';
 import { enumReportStatus, reportService } from './report-service';
@@ -46,7 +47,7 @@ const adminReportService = {
     try {
       sortObj = JSON.parse(sort);
       filters = JSON.parse(filter);
-    } catch (e) {
+    } catch {
       throw new PayTransparencyUserError('Invalid query parameters');
     }
 
@@ -98,7 +99,7 @@ const adminReportService = {
   a flattened structure, a subset of attributes (only the most important ones),
   and human-friendly names given to those attributes.
   */
-  toHumanFriendlyReport(report: any) {
+  toHumanFriendlyReport(report) {
     //created a flattened copy of the original object (i.e. one in which
     //none of the attributes values of type 'object')
     const flattened = { ...report };
@@ -159,6 +160,9 @@ const adminReportService = {
           is_unlocked: isUnLocked,
           report_unlock_date: currentDateUtc,
           admin_modified_date: currentDateUtc,
+          admin_modified_reason: isUnLocked
+            ? AdminModifiedReason.UNLOCK
+            : AdminModifiedReason.LOCK,
           admin_user: { connect: { idir_user_guid: idirGuid } },
         },
       });
@@ -181,93 +185,84 @@ const adminReportService = {
 
   /**
    * Gets a list of admin user actions that have updated a report with a given id.
+   * Retrieves all history records where admin_modified_date > update_date and uses
+   * admin_modified_reason to determine the action. Also includes the current report
+   * state if it has an admin action.
    * @param reportId
    * @returns
    */
-  async getReportAdminActionHistory(reportId: string) {
-    const select = {
-      update_date: true,
-      is_unlocked: true,
-      report_status: true,
-      admin_modified_date: true,
-      admin_user: {
-        select: {
-          admin_user_id: true,
-          display_name: true,
-        },
-      },
-    };
-    const existingReport = await prisma.pay_transparency_report.findUnique({
-      where: { report_id: reportId },
-      select: select,
-    });
-    if (!existingReport) {
-      throw new UserInputError('Not found');
-    }
-
+  async getReportAdminActionHistory(
+    reportId: string,
+  ): Promise<ReportAdminActionHistory[]> {
     const adminActionHistory = await prisma.report_history.findMany({
       where: {
         report_id: reportId,
-        admin_modified_date: { not: null },
+        admin_modified_date: {
+          not: null,
+          gt: prisma.report_history.fields.update_date,
+        },
+        admin_modified_reason: { not: null },
       },
       select: {
         report_history_id: true,
-        ...select,
+        admin_modified_date: true,
+        admin_modified_reason: true,
+        admin_user: {
+          select: {
+            display_name: true,
+          },
+        },
       },
-      orderBy: [{ admin_modified_date: 'desc' }, { update_date: 'desc' }],
+      orderBy: [{ admin_modified_date: 'desc' }],
     });
 
-    //the current state of the report is not in the history table (it's in the
-    //pay_transparency_report table).  if the current state was created as a
-    //result of an admin event, add the current state to the head of the
-    //adminActionHistory list.  the current state doesn't have a report_history_id
-    //column, so explicitly add it and set it to null.
-    const allHistory = [...adminActionHistory];
-    if (existingReport.admin_modified_date > existingReport.update_date) {
-      const currentState = {
+    const history: ReportAdminActionHistory[] = adminActionHistory.map(
+      (item) => ({
+        report_history_id: item.report_history_id,
+        action: item.admin_modified_reason as AdminModifiedReason,
+        admin_modified_date: item.admin_modified_date,
+        admin_user_display_name: item.admin_user.display_name,
+      }),
+    );
+
+    // Check the current report state in pay_transparency_report table
+    const currentReport = await prisma.pay_transparency_report.findUnique({
+      where: {
+        report_id: reportId,
+        admin_modified_date: {
+          not: null,
+          gt: prisma.pay_transparency_report.fields.update_date,
+        },
+        admin_modified_reason: { not: null },
+      },
+      select: {
+        admin_modified_date: true,
+        admin_modified_reason: true,
+        update_date: true,
+        admin_user: {
+          select: {
+            display_name: true,
+          },
+        },
+      },
+    });
+
+    // Add the current report state if it has an admin action
+    if (
+      currentReport &&
+      currentReport.admin_modified_date > currentReport.update_date
+    ) {
+      history.unshift({
         report_history_id: null,
-        ...existingReport,
-      };
-      allHistory.unshift(currentState);
+        action: currentReport.admin_modified_reason as AdminModifiedReason,
+        admin_modified_date: currentReport.admin_modified_date,
+        admin_user_display_name: currentReport.admin_user?.display_name || '',
+      });
     }
 
-    // Filter to only include admin actions and determine what actually changed
-    const history: ReportAdminActionHistory[] = allHistory.reduce(
-      (acc, item, index) => {
-        // Don't keep this if it wasn't an admin action
-        if (item.admin_modified_date < item.update_date) return acc;
-
-        let previousItem;
-        if (index < allHistory.length - 1) {
-          // Next item in descending order is the previous action
-          previousItem = {
-            report_status: allHistory[index + 1].report_status,
-            is_unlocked: allHistory[index + 1].is_unlocked,
-          };
-        } else {
-          // If this is the last item, there is no next item to compare with
-          // Use the expected starting state as the previous item for comparison
-          previousItem = { report_status: 'Published', is_unlocked: true };
-        }
-
-        // prepare the return object
-        const ret: ReportAdminActionHistory = {
-          report_history_id: item.report_history_id,
-          action: item.is_unlocked ? 'Unlocked' : 'Locked', //assume the action was locking/unlocking
-          admin_modified_date: item.admin_modified_date,
-          admin_user_display_name: item.admin_user.display_name,
-        };
-
-        // If the report status changed, update the action accordingly
-        if (item.report_status !== previousItem.report_status) {
-          ret.action = item.report_status as 'Withdrawn' | 'Published';
-        }
-
-        acc.push(ret);
-        return acc;
-      },
-      [] as ReportAdminActionHistory[],
-    );
+    if (!currentReport) {
+      throw new UserInputError('Not found');
+    }
 
     return history;
   },
@@ -314,7 +309,7 @@ const adminReportService = {
    * @param filterObj
    * @returns
    */
-  convertFiltersToPrismaFormat(filterObj: ReportFilterType): any {
+  convertFiltersToPrismaFormat(filterObj: ReportFilterType) {
     const prismaFilterObj: Prisma.pay_transparency_reportWhereInput = {
       report_status: { not: 'Draft' },
     };
@@ -409,6 +404,7 @@ const adminReportService = {
           report_status: enumReportStatus.Withdrawn,
           admin_user_id: adminUser.admin_user_id,
           admin_modified_date: new Date(),
+          admin_modified_reason: AdminModifiedReason.WITHDRAW,
         },
       });
 

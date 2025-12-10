@@ -214,9 +214,14 @@ export const FilterValidationSchema = z.array(
     ),
 );
 
+export const AdminModifiedReasonSchema = z.enum(['LOCK', 'UNLOCK', 'WITHDRAW']);
+
+export type AdminModifiedReason = z.infer<typeof AdminModifiedReasonSchema>;
+export const AdminModifiedReason = AdminModifiedReasonSchema.enum;
+
 export type ReportAdminActionHistory = {
   report_history_id: string;
-  action: 'Locked' | 'Unlocked' | 'Withdrawn' | 'Published' | 'Unknown';
+  action: AdminModifiedReason;
   admin_modified_date: Date;
   admin_user_display_name: string;
 };
