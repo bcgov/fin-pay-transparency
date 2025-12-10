@@ -78,7 +78,7 @@
                         <div class="col-md-12">
                             <div class="callout callout-info">
                                 <h4>SchemaSpy Analysis of default.pay_transparency</h4>
-                                <p>Generated on Mon Aug 18 16:11 GMT 2025</p>
+                                <p>Generated on Wed Dec 10 23:17 GMT 2025</p>
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@
                                 <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">COLUMNS</span>
-                                    <span class="info-box-number">243</span>
+                                    <span class="info-box-number">246</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -168,7 +168,7 @@
                             <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
                         </div><!-- /.box-header -->
                         <div class="box-body">
-                            <p>Database Type: PostgreSQL - 17.6 (Debian 17.6-1.pgdg13+1)</p>
+                            <p>Database Type: PostgreSQL - 18.1 (Debian 18.1-1.pgdg13+2)</p>
                         </div><!-- /.box-body -->
                     </div>
                     <div class="box box-primary">
@@ -278,7 +278,7 @@
                                         <td class="detail"><a href="tables/pay_transparency_report.html">pay_transparency_report</a></td>
                                         <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">5</td>
-                                        <td class="detail" align="right">21</td>
+                                        <td class="detail" align="right">22</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
                                         <td class="comment detail" style="display: table-cell;"><p>This table stores the latest versions of draft and published reports. Each report is submitted by a BCeID user, identified by <code>user_id</code>, and is associated with an employer with a BCeID Business account, identified by <code>company_id</code>. Reports are created after the user submits the form in the webapp. Initially <code>report_status</code> will be &lsquo;draft&rsquo;, but the user can choose to publish the report which changes it&rsquo;s <code>report_status</code> to &lsquo;published&rsquo;. The form allows the user to select <code>employee_count_range_id</code>, <code>naics_code</code>, <code>reporting_year</code>, <code>report_start_date</code>, <code>report_end_date</code>, <code>user_comment</code>, and <code>data_constraints</code>.</p>
@@ -291,7 +291,7 @@
                                         <td class="detail"><a href="tables/report_history.html">report_history</a></td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">6</td>
-                                        <td class="detail" align="right">22</td>
+                                        <td class="detail" align="right">23</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
                                         <td class="comment detail" style="display: table-cell;"><p>This table stores the report information of old published reports that have been replaced with a new version. Old draft reports are not stored. When a published report is updated, the report&rsquo;s information is copied from <code>pay_transparency_report</code> table to the <code>report_history</code> table. The purpose and meaning of the report information is described in the description of the <code>pay_transparency_report</code> table. Previous reports are not modified and are used as an internal archival record, and are not accessible to the end user. Admin users use this table to see a history of when reports were locked or unlocked.</p></td>
@@ -409,7 +409,7 @@
                                         <td class="detail"><a href="tables/reports_calculated_data_view.html">reports_calculated_data_view</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">5</td>
-                                        <td class="detail" align="right">32</td>
+                                        <td class="detail" align="right">33</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">View</td>
                                         <td class="comment detail" style="display: table-cell;"><p>This view is a union of the <code>pay_transparency_report</code> table and <code>report_history</code> table. The columns <code>naics_code.naics_label</code> and <code>employee_count_range.employee_count_range</code>, as well as the full address and company name from <code>pay_transparency_company</code> have been included in this view.</p>
