@@ -229,11 +229,6 @@ const adminReportService = {
     const currentReport = await prisma.pay_transparency_report.findUnique({
       where: {
         report_id: reportId,
-        admin_modified_date: {
-          not: null,
-          gt: prisma.pay_transparency_report.fields.update_date,
-        },
-        admin_modified_reason: { not: null },
       },
       select: {
         admin_modified_date: true,
