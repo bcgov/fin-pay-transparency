@@ -7,7 +7,8 @@ import {
   IEmployerSearchResult,
 } from '../types/employers';
 import { Prisma } from '@prisma/client';
-import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
+import { ChronoUnit, convert, ZonedDateTime, ZoneId } from '@js-joda/core';
+import '@js-joda/timezone';
 
 export const employerService = {
   /**
@@ -17,12 +18,17 @@ export const employerService = {
   async getEmployerMetrics(): Promise<EmployerMetrics> {
     const numEmployers =
       await prismaReadOnlyReplica.pay_transparency_company.count();
+    // Get start and end of current year in PST, then convert to UTC
+    const yearStartPst = ZonedDateTime.now(ZoneId.of('America/Vancouver'))
+      .withDayOfYear(1)
+      .truncatedTo(ChronoUnit.DAYS);
+    const yearEndPst = yearStartPst.plusYears(1);
     const numEmployersThisYear =
       await prismaReadOnlyReplica.pay_transparency_company.count({
         where: {
           create_date: {
-            gte: new Date(new Date().getFullYear(), 0, 1),
-            lt: new Date(new Date().getFullYear() + 1, 0, 1),
+            gte: convert(yearStartPst.withZoneSameInstant(ZoneId.UTC)).toDate(),
+            lt: convert(yearEndPst.withZoneSameInstant(ZoneId.UTC)).toDate(),
           },
         },
       });

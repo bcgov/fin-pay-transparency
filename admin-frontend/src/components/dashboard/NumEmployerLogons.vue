@@ -3,6 +3,11 @@
     <v-card-text class="h-100 d-flex flex-column">
       <div class="widget-header flex-grow-0 flex-shrink-0">
         Total number of employers who have logged on this calendar year
+        <ToolTip
+          text="This statistic is always calculated using Pacific Time (PST or PDT)."
+          aria-label="This statistic is always calculated using Pacific Time (PST or PDT)."
+          max-width="300px"
+        ></ToolTip>
       </div>
       <div
         class="d-flex flex-column justify-center align-center text-primary flex-grow-1 flex-shrink-0"
@@ -64,6 +69,7 @@
 import ApiService from '../../services/apiService';
 import { ref, onMounted } from 'vue';
 import { EmployerMetrics } from '../../types/employers';
+import ToolTip from '../ToolTip.vue';
 
 onMounted(() => {
   refresh();
