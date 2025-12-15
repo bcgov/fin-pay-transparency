@@ -47,33 +47,53 @@ const validateApiKey =
  *       properties:
  *         report_id:
  *           type: string
- *         user_comment:
+ *         user_id:
  *           type: string
- *         data_constrains:
+ *         create_date:
+ *           type: string
+ *         update_date:
+ *           type: string
+ *         admin_modified_date:
+ *           type: string
+ *         admin_modified_reason:
+ *           type: string
+ *         report_unlock_date:
  *           type: string
  *         report_status:
+ *           type: string
+ *         revision:
+ *           type: number
+ *         create_user:
+ *           type: string
+ *         update_user:
+ *           type: string
+ *         reporting_year:
  *           type: string
  *         report_start_date:
  *           type: string
  *         report_end_date:
  *           type: string
- *         create_update:
- *           type: string
- *         update_date:
- *           type: string
  *         naics_code:
  *           type: string
  *         naics_code_label:
  *           type: string
+ *         employee_count_range_id:
+ *           type: string
+ *         employee_count_range:
+ *           type: string
+ *         user_comment:
+ *           type: string
+ *         data_constrains:
+ *           type: string
  *         company_id:
+ *           type: string
+ *         company_bceid_business_guid:
  *           type: string
  *         company_name:
  *           type: string
  *         company_province:
  *           type: string
  *         company_city:
- *           type: string
- *         company_bceid_business_guid:
  *           type: string
  *         company_country:
  *           type: string
@@ -83,17 +103,10 @@ const validateApiKey =
  *           type: string
  *         company_postal_address_line2:
  *           type: string
- *         revision:
- *           type: number
- *         employee_count_range:
- *           type: string
  *         calculated_data:
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/CalculatedData"
- *     Report:
- *       allOf:
- *       - $ref: "#/components/schemas/ReportItem"
  *
  *     PaginatedReports:
  *       type: object
@@ -110,7 +123,7 @@ const validateApiKey =
  *         records:
  *           type: array
  *           items:
- *             $ref: "#/components/schemas/Report"
+ *             $ref: "#/components/schemas/ReportItem"
  *
  *     Error:
  *       type: object
@@ -184,6 +197,7 @@ const validateApiKey =
  * /reports:
  *   get:
  *     summary: Get published reports with update date within a date range (date range defaults to the last 30 days)
+ *     description: update_date is the date when the report was created or last modified by either a user or admin.
  *     tags: [Reports]
  *     security:
  *       - ApiKeyAuth: []
@@ -223,9 +237,8 @@ const validateApiKey =
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: "#/components/schemas/PaginatedReports"
+ *               type: object
+ *               $ref: "#/components/schemas/PaginatedReports"
  */
 router.get(
   '/',
