@@ -202,7 +202,7 @@ const adminReportService = {
       const existingReportForYear = await tx.pay_transparency_report.findFirst({
         where: {
           reporting_year: reportingYear,
-          report_status: 'Published',
+          report_status: enumReportStatus.Published,
           pay_transparency_company: {
             pay_transparency_report: {
               some: { report_id: reportId },
@@ -352,13 +352,13 @@ const adminReportService = {
       await prismaReadOnlyReplica.pay_transparency_report.count({
         where: {
           reporting_year: reportingYear,
-          report_status: 'Published',
+          report_status: enumReportStatus.Published,
         },
       });
     const totalReportsCount =
       await prismaReadOnlyReplica.pay_transparency_report.count({
         where: {
-          report_status: 'Published',
+          report_status: enumReportStatus.Published,
         },
       });
     return {
@@ -422,7 +422,20 @@ const adminReportService = {
           break;
       }
 
-      if (relationKey) {
+      if (item.key == 'admin_modified_reason') {
+        prismaFilterObj.OR = [
+          {
+            report_history: {
+              some: {
+                [item.key]: filterValue,
+              },
+            },
+          },
+          {
+            [item.key]: filterValue,
+          },
+        ];
+      } else if (relationKey) {
         prismaFilterObj[relationKey] = { [item.key]: filterValue };
       } else {
         prismaFilterObj[item.key] = filterValue;

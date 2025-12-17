@@ -7,14 +7,9 @@ import {
   reportCalcService,
 } from '../services/report-calc-service';
 import { codeService } from './code-service';
-import { Report, reportService } from './report-service';
+import { enumReportStatus, Report, reportService } from './report-service';
 import { utils } from './utils-service';
 import { ValidationError, validateService } from './validate-service';
-
-const REPORT_STATUS = {
-  DRAFT: 'Draft',
-  PUBLISHED: 'Published',
-};
 
 export enum SubmissionStatus {
   Success = 'success',
@@ -125,7 +120,7 @@ const fileUploadService = {
         company_id: payTransparencyCompany.company_id,
         user_id: payTransparencyUser.user_id,
         reporting_year: submission?.reportingYear,
-        report_status: REPORT_STATUS.DRAFT,
+        report_status: enumReportStatus.Draft,
       },
     });
 
@@ -137,7 +132,7 @@ const fileUploadService = {
       employee_count_range_id: submission?.employeeCountRangeId,
       naics_code: submission?.naicsCode,
       revision: 1,
-      report_status: REPORT_STATUS.DRAFT,
+      report_status: enumReportStatus.Draft,
       report_start_date: convert(startDate).toDate(),
       report_end_date: convert(endDate).toDate(),
       reporting_year: submission?.reportingYear,
@@ -306,4 +301,4 @@ const fileUploadService = {
   },
 };
 
-export { PayTransparencyUserError, REPORT_STATUS, fileUploadService };
+export { PayTransparencyUserError, fileUploadService };

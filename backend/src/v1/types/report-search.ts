@@ -11,7 +11,8 @@ export type FilterKeyType =
   | 'report_status'
   | 'employee_count_range_id'
   | 'company_name'
-  | 'admin_last_access_date';
+  | 'admin_last_access_date'
+  | 'admin_modified_reason';
 
 export type SubmissonDateFilter = {
   key: 'create_date';
@@ -69,6 +70,12 @@ export type AdminLastAccessDateFilter = {
   value: null;
 };
 
+export type AdminModifiedReasonFilter = {
+  key: 'admin_modified_reason';
+  operation: 'eq';
+  value: string;
+};
+
 export type ReportFilterType = (
   | SubmissonDateFilter
   | UpdateDateFilter
@@ -79,6 +86,7 @@ export type ReportFilterType = (
   | EmployeeCountRangeFilter
   | CompanyFilter
   | AdminLastAccessDateFilter
+  | AdminModifiedReasonFilter
 )[];
 
 export type SortFieldType =
@@ -153,6 +161,9 @@ const FILTER_OPERATION_SCHEMA: {
   admin_last_access_date: z.enum(['not'], {
     message: 'Only "not" operation is allowed',
   }),
+  admin_modified_reason: z.enum(['eq'], {
+    message: 'Only "eq" operation is allowed',
+  }),
 };
 
 const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
@@ -165,6 +176,7 @@ const FILTER_VALUE_SCHEMA: { [key in FilterKeyType]: any } = {
   report_status: z.enum(['Published', 'Withdrawn']).optional(),
   company_name: z.string().optional(),
   admin_last_access_date: z.null(),
+  admin_modified_reason: z.string().optional(),
 };
 
 export const FilterValidationSchema = z.array(
@@ -181,11 +193,12 @@ export const FilterValidationSchema = z.array(
           'employee_count_range_id',
           'company_name',
           'admin_last_access_date',
+          'admin_modified_reason',
         ],
         {
           required_error: 'Missing or invalid filter key',
           message:
-            'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, report_status, employee_count_range_id',
+            'key must be one of the following values: create_date, update_date, naics_code, reporting_year, is_unlocked, report_status, employee_count_range_id, company_name, admin_last_access_date, admin_modified_reason',
         },
       ),
       operation: z.string({

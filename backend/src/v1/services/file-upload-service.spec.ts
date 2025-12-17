@@ -1,7 +1,8 @@
 import prisma from '../prisma/prisma-client';
 import { codeService } from './code-service';
-import { REPORT_STATUS, fileUploadService } from './file-upload-service';
+import { fileUploadService } from './file-upload-service';
 import { CalculatedAmount } from './report-calc-service';
+import { enumReportStatus } from './report-service';
 import { utils } from './utils-service';
 import { SUBMISSION_ROW_COLUMNS } from './validate-service';
 import { createSampleRecord } from './validate-service.spec';
@@ -145,7 +146,7 @@ describe('saveSubmissionAsReport', () => {
       const newReport = {
         reportId: '1',
         revision: 1,
-        report_status: REPORT_STATUS.DRAFT,
+        report_status: enumReportStatus.Draft,
       };
       (
         prisma.pay_transparency_report.findFirst as jest.Mock
@@ -168,7 +169,7 @@ describe('saveSubmissionAsReport', () => {
       const existingReport = {
         reportId: '1',
         revision: 1,
-        report_status: REPORT_STATUS.DRAFT,
+        report_status: enumReportStatus.Draft,
         reporting_year: new Date().getFullYear(),
       };
       (
@@ -191,7 +192,7 @@ describe('saveSubmissionAsReport', () => {
       expect(existingReportFilter.reporting_year).toBe(
         mockValidSubmission.reportingYear,
       );
-      expect(existingReportFilter.report_status).toBe(REPORT_STATUS.DRAFT);
+      expect(existingReportFilter.report_status).toBe(enumReportStatus.Draft);
 
       //Check that the existing report was updated
       expect(prisma.pay_transparency_report.update).toHaveBeenCalled();

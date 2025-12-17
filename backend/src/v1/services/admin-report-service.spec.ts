@@ -14,6 +14,7 @@ import {
 import { reportService } from './report-service';
 import { UserInputError } from '../types/errors';
 import { date } from 'zod';
+import { ad } from '@faker-js/faker/dist/airline-C5Qwd7_q';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -102,6 +103,7 @@ describe('admin-report-service', () => {
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
         company_id: company1.company_id,
         admin_last_access_date: '2024-04-21T11:40:00.000',
+        admin_modified_reason: 'YEAR',
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e2',
@@ -114,6 +116,7 @@ describe('admin-report-service', () => {
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e9',
         company_id: company2.company_id,
         admin_last_access_date: null,
+        admin_modified_reason: 'YEAR',
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
@@ -126,6 +129,7 @@ describe('admin-report-service', () => {
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,
         admin_last_access_date: null,
+        admin_modified_reason: 'YEAR',
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d499',
@@ -138,6 +142,7 @@ describe('admin-report-service', () => {
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,
         admin_last_access_date: null,
+        admin_modified_reason: 'YEAR',
       },
     ];
     companies = [company2, company1];
@@ -456,6 +461,19 @@ describe('admin-report-service', () => {
               '[{"key": "is_unlocked", "operation": "eq", "value": false }]',
             );
             expect(response.reports.every((x) => !x.is_unlocked)).toBeTruthy();
+          });
+        });
+        describe('admin_modified_reason', () => {
+          it('should return all reports with a specific admin_modified_reason', async () => {
+            const response = await adminReportService.searchReport(
+              0,
+              10,
+              '[]',
+              '[{"key": "admin_modified_reason", "operation": "eq", "value": "YEAR" }]',
+            );
+            expect(
+              response.reports.every((x) => x.admin_modified_reason),
+            ).toBeTruthy();
           });
         });
 

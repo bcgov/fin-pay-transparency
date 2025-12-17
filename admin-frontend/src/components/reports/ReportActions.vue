@@ -306,39 +306,39 @@ const availableReportingYears = computed(() => {
 });
 
 async function changeReportingYear(reportId: string) {
-  // Open year selection dialog
-  const yearSelected = await changeYearDialog.value?.open(
-    'Change reporting year',
-    null,
-    {
-      titleBold: true,
-      resolveText: 'Next',
-      rejectText: 'Cancel',
-    },
-  );
-
-  if (!yearSelected) return;
-
-  if (!selectedReportingYear.value) {
-    NotificationService.pushNotificationError('No year selected.');
-    return;
-  }
-
-  // Open confirmation dialog
-  const confirmed = await confirmDialog.value?.open(
-    'Confirm reporting year change',
-    `Are you sure you want to change the reporting year for ${props.report?.pay_transparency_company?.company_name} from ${props.report?.reporting_year} to ${selectedReportingYear.value}?`,
-    {
-      titleBold: true,
-      resolveText: 'Yes, change year',
-      rejectText: 'Cancel',
-    },
-  );
-
-  if (!confirmed) return;
-
-  // Update reporting year
   try {
+    // Open year selection dialog
+    const yearSelected = await changeYearDialog.value?.open(
+      'Change reporting year',
+      null,
+      {
+        titleBold: true,
+        resolveText: 'Next',
+        rejectText: 'Cancel',
+      },
+    );
+
+    if (!yearSelected) return;
+
+    if (!selectedReportingYear.value) {
+      NotificationService.pushNotificationError('No year selected.');
+      return;
+    }
+
+    // Open confirmation dialog
+    const confirmed = await confirmDialog.value?.open(
+      'Confirm reporting year change',
+      `Are you sure you want to change the reporting year for ${props.report?.pay_transparency_company?.company_name} from ${props.report?.reporting_year} to ${selectedReportingYear.value}?`,
+      {
+        titleBold: true,
+        resolveText: 'Yes, change year',
+        rejectText: 'Cancel',
+      },
+    );
+
+    if (!confirmed) return;
+
+    // Update reporting year
     await ApiService.updateReportReportingYear(
       reportId,
       selectedReportingYear.value,
@@ -352,6 +352,8 @@ async function changeReportingYear(reportId: string) {
     NotificationService.pushNotificationError(
       'Failed to update reporting year. Please try again.',
     );
+  } finally {
+    selectedReportingYear.value = null;
   }
 }
 
