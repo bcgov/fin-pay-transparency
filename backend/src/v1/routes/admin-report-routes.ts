@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-import has from 'lodash/has';
 import Papa from 'papaparse';
 import { BAD_REQUEST } from '../../constants';
 import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
