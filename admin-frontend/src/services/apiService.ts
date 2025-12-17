@@ -512,6 +512,24 @@ export default {
     }
   },
 
+  async updateReportReportingYear(
+    reportId: string,
+    reportingYear: number,
+  ): Promise<boolean> {
+    try {
+      const resp = await apiAxios.patch(`${ApiRoutes.REPORTS}/${reportId}`, {
+        reporting_year: reportingYear,
+      });
+      if (resp?.data) {
+        return resp.data.is_unlocked;
+      }
+      throw new Error('Unexpected response from API.');
+    } catch (e) {
+      console.log(`Failed to update reporting year: ${e}`);
+      throw e;
+    }
+  },
+
   async withdrawReport(reportId: string): Promise<any> {
     try {
       // PATCH endpoint expects { is_withdrawn: true } as per backend route

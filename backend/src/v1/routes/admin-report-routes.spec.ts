@@ -57,6 +57,7 @@ const mockReport = {
 
 const mockSearchReport = jest.fn().mockResolvedValue({ reports: [mockReport] });
 const mockChangeReportLockStatus = jest.fn();
+const mockUpdateReportReportingYear = jest.fn();
 const mockWithdrawReport = jest.fn();
 const mockGetReportAdminActionHistory = jest.fn();
 jest.mock('../services/admin-report-service', () => ({
@@ -65,6 +66,8 @@ jest.mock('../services/admin-report-service', () => ({
       .adminReportService,
     searchReport: (...args) => mockSearchReport(...args),
     changeReportLockStatus: (...args) => mockChangeReportLockStatus(...args),
+    updateReportReportingYear: (...args) =>
+      mockUpdateReportReportingYear(...args),
     withdrawReport: (...args) => mockWithdrawReport(...args),
     getReportPdf: (...args) => mockGetReportPdf(...args),
     getReportAdminActionHistory: (...args) =>
@@ -201,7 +204,19 @@ describe('admin-report-routes', () => {
           .expect(400)
           .expect(({ body }) => {
             expect(body.error).toBe(
-              'At least one of "is_unlocked" or "is_withdrawn" must be provided',
+              'One of "is_unlocked", "is_withdrawn", or "reporting_year" must be provided',
+            );
+          });
+      });
+
+      it('should return 400 when more than one properties are provided', () => {
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ is_unlocked: true, reporting_year: 2025 })
+          .expect(400)
+          .expect(({ body }) => {
+            expect(body.error).toBe(
+              'Only one of "is_unlocked", "is_withdrawn", or "reporting_year" can be specified per call',
             );
           });
       });
@@ -212,9 +227,7 @@ describe('admin-report-routes', () => {
           .send({ is_withdrawn: false })
           .expect(400)
           .expect(({ body }) => {
-            expect(body.error).toBe(
-              'Invalid request. Use is_withdrawn: true to withdraw a report, or is_unlocked: true/false to change lock status.',
-            );
+            expect(body.error).toBe('Invalid literal value, expected true');
           });
       });
 
@@ -231,7 +244,19 @@ describe('admin-report-routes', () => {
           });
       });
 
-      it('should return 400 when withdraw report fails with specific error message', () => {
+      it('should return 400 when reporting year too old', () => {
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ reporting_year: 2020 })
+          .expect(400)
+          .expect(({ body }) => {
+            expect(body.error).toBe(
+              'reporting_year must be either the current year or previous year',
+            );
+          });
+      });
+
+      it('should return 500 when withdraw report fails with specific error message', () => {
         mockWithdrawReport.mockRejectedValue(
           new Error('Only published reports can be withdrawn'),
         );
@@ -244,13 +269,26 @@ describe('admin-report-routes', () => {
           });
       });
 
-      it('should return 400 when change lock status fails', () => {
+      it('should return 500 when change lock status fails', () => {
         mockChangeReportLockStatus.mockRejectedValue({
           error: 'Error happened',
         });
         return request(app)
           .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
           .send({ is_unlocked: false })
+          .expect(500)
+          .expect(({ body }) => {
+            expect(body.error).toBe('Something went wrong');
+          });
+      });
+
+      it('should return 500 when update reporting year fails', () => {
+        mockUpdateReportReportingYear.mockRejectedValue({
+          error: 'Error happened',
+        });
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ reporting_year: 2025 })
           .expect(500)
           .expect(({ body }) => {
             expect(body.error).toBe('Something went wrong');
@@ -275,6 +313,17 @@ describe('admin-report-routes', () => {
         return request(app)
           .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
           .send({ is_unlocked: false })
+          .expect(404)
+          .expect(({ body }) => {
+            expect(body.error).toBe('Report not found');
+          });
+      });
+
+      it('should return 404 when report is not found (reporting year)', () => {
+        mockUpdateReportReportingYear.mockRejectedValue({ code: 'P2025' });
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ reporting_year: 2025 })
           .expect(404)
           .expect(({ body }) => {
             expect(body.error).toBe('Report not found');
@@ -346,6 +395,30 @@ describe('admin-report-routes', () => {
               '4492feff-99d7-4b2b-8896-12a59a75d4e3',
               'test-guid-123',
               false,
+            );
+          });
+      });
+
+      it('should successfully update report reporting year', () => {
+        const year = new Date().getFullYear();
+        mockUpdateReportReportingYear.mockResolvedValue({
+          report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+          reporting_year: year,
+        });
+
+        return request(app)
+          .patch('/4492feff-99d7-4b2b-8896-12a59a75d4e3')
+          .send({ reporting_year: year })
+          .expect(200)
+          .expect(({ body }) => {
+            expect(body).toEqual({
+              report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+              reporting_year: year,
+            });
+            expect(mockUpdateReportReportingYear).toHaveBeenCalledWith(
+              '4492feff-99d7-4b2b-8896-12a59a75d4e3',
+              'test-guid-123',
+              year,
             );
           });
       });

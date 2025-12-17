@@ -13,6 +13,7 @@ import {
 } from './admin-report-service';
 import { reportService } from './report-service';
 import { UserInputError } from '../types/errors';
+import { date } from 'zod';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -692,6 +693,58 @@ describe('admin-report-service', () => {
         updateParam.data.report_unlock_date.getTime();
       expect(unlockDateDiffMs).toBeGreaterThanOrEqual(0);
       expect(unlockDateDiffMs).toBeLessThan(10000); //10 seconds
+    });
+  });
+
+  describe('updateReportReportingYear', () => {
+    it('should throw error if report does not exist', async () => {
+      await expect(
+        adminReportService.updateReportReportingYear(
+          '5492feff-99d7-4b2b-8896-12a59a75d4e2',
+          '5678',
+          2025,
+        ),
+      ).rejects.toThrow();
+    });
+
+    it('should change the reporting year', async () => {
+      const report = await adminReportService.updateReportReportingYear(
+        '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+        '5678',
+        2025,
+      );
+      expect(report.reporting_year).toBe(2025);
+      expect(report.admin_modified_date.toISOString()).toMatch(
+        new Date().toISOString().slice(0, 18),
+      );
+      expect(report.admin_user_id).toBe('1234');
+      expect(reportService.copyPublishedReportToHistory).toHaveBeenCalled();
+    });
+
+    it('should throw error if the selected reporting year is the same as the current reporting year', async () => {
+      await expect(
+        adminReportService.updateReportReportingYear(
+          '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+          '5678',
+          2023,
+        ),
+      ).rejects.toThrow(
+        new UserInputError('The report is already set to the year 2023.'),
+      );
+    });
+
+    it('Should throw error if a report for the selected year already exists for this company', async () => {
+      await expect(
+        adminReportService.updateReportReportingYear(
+          '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+          '5678',
+          2021,
+        ),
+      ).rejects.toThrow(
+        new UserInputError(
+          'A report for the year 2021 already exists for this company.',
+        ),
+      );
     });
   });
 

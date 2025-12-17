@@ -135,7 +135,12 @@ export type ReportMetrics = {
   ];
 };
 
-export const AdminModifiedReasonSchema = z.enum(['LOCK', 'UNLOCK', 'WITHDRAW']);
+export const AdminModifiedReasonSchema = z.enum([
+  'LOCK',
+  'UNLOCK',
+  'WITHDRAW',
+  'YEAR',
+]);
 
 export type AdminModifiedReason = z.infer<typeof AdminModifiedReasonSchema>;
 export const AdminModifiedReason = AdminModifiedReasonSchema.enum;
@@ -144,6 +149,7 @@ export const AdminModifiedReasonDisplay = {
   [AdminModifiedReason.LOCK]: 'Locked',
   [AdminModifiedReason.UNLOCK]: 'Unlocked',
   [AdminModifiedReason.WITHDRAW]: 'Withdrawn',
+  [AdminModifiedReason.YEAR]: 'Reporting Year Changed',
 } as const;
 
 export type ReportAdminActionHistory = {

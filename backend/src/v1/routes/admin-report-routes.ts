@@ -10,12 +10,69 @@ import { PayTransparencyUserError } from '../services/file-upload-service';
 import { reportService } from '../services/report-service';
 import { utils } from '../services/utils-service';
 import { UserInputError } from '../types/errors';
+import { z } from 'zod';
 
 enum Format {
   CSV = 'text/csv',
   JSON = 'application/json',
   PDF = 'application/pdf',
 }
+
+/**
+ * Validation schema for PATCH /admin-api/v1/reports/:id
+ * Ensures:
+ * - At least one property is provided
+ * - At most one property is provided per call
+ * - is_withdrawn can only be set to true
+ * - reporting_year must be current or previous year
+ */
+const updateReportBodySchema = z
+  .object({
+    is_unlocked: z.boolean().optional(),
+    is_withdrawn: z.literal(true).optional(),
+    reporting_year: z.number().optional(),
+  })
+  .refine(
+    (data) =>
+      data.is_unlocked !== undefined ||
+      data.is_withdrawn !== undefined ||
+      data.reporting_year !== undefined,
+    {
+      message:
+        'One of "is_unlocked", "is_withdrawn", or "reporting_year" must be provided',
+    },
+  )
+  .refine(
+    (data) => {
+      const providedFieldsCount = [
+        data.is_unlocked !== undefined,
+        data.is_withdrawn !== undefined,
+        data.reporting_year !== undefined,
+      ].filter(Boolean).length;
+      return providedFieldsCount <= 1;
+    },
+    {
+      message:
+        'Only one of "is_unlocked", "is_withdrawn", or "reporting_year" can be specified per call',
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.reporting_year === undefined) {
+        return true;
+      }
+      const currentYear = new Date().getFullYear();
+      const previousYear = currentYear - 1;
+      return (
+        data.reporting_year === currentYear ||
+        data.reporting_year === previousYear
+      );
+    },
+    {
+      message:
+        'reporting_year must be either the current year or previous year',
+    },
+  );
 
 const router = express.Router();
 /**
@@ -84,8 +141,8 @@ router.get(
 
 /**
  * PATCH - /admin-api/v1/reports/:id
- * Update report properties (is_unlocked and/or is_withdrawn)
- * Example:  body {is_unlocked: true/false, is_withdrawn: true}
+ * Update report properties (is_unlocked, is_withdrawn, or reporting_year)
+ * Example:  body {is_unlocked: true/false, is_withdrawn: true, reporting_year: 2023}
  */
 router.patch(
   '/:id',
@@ -97,14 +154,6 @@ router.patch(
       const { body, params } = req;
       const user = utils.getSessionUser(req);
 
-      // Check if at least one valid property is provided
-      if (!has(body, 'is_unlocked') && !has(body, 'is_withdrawn')) {
-        return res.status(400).json({
-          error:
-            'At least one of "is_unlocked" or "is_withdrawn" must be provided',
-        });
-      }
-
       const idirGuid = user?._json?.idir_user_guid;
       if (!idirGuid) {
         return res.status(404).json({
@@ -112,8 +161,18 @@ router.patch(
         });
       }
 
-      // Handle withdrawal if is_withdrawn is provided
-      if (has(body, 'is_withdrawn') && body.is_withdrawn === true) {
+      // Validate request body against schema
+      const validationResult = updateReportBodySchema.safeParse(body);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map((e) => e.message);
+        return res.status(400).json({
+          error: errors.length === 1 ? errors[0] : errors,
+        });
+      }
+      const validatedBody = validationResult.data;
+
+      // Handle the single update operation (schema guarantees exactly one is provided)
+      if (validatedBody.is_withdrawn === true) {
         const withdrawnReport = await adminReportService.withdrawReport(
           params?.id,
           idirGuid,
@@ -121,21 +180,24 @@ router.patch(
         return res.status(200).json(withdrawnReport);
       }
 
-      // Handle lock status change if is_unlocked is provided and no withdrawal
-      if (has(body, 'is_unlocked')) {
+      if (validatedBody.is_unlocked !== undefined) {
         const report = await adminReportService.changeReportLockStatus(
           params?.id,
           idirGuid,
-          body.is_unlocked,
+          validatedBody.is_unlocked,
         );
         return res.status(200).json(report);
       }
 
-      // If is_withdrawn is false or not a boolean, just treat as invalid
-      return res.status(400).json({
-        error:
-          'Invalid request. Use is_withdrawn: true to withdraw a report, or is_unlocked: true/false to change lock status.',
-      });
+      if (validatedBody.reporting_year !== undefined) {
+        const updatedReport =
+          await adminReportService.updateReportReportingYear(
+            params?.id,
+            idirGuid,
+            validatedBody.reporting_year,
+          );
+        return res.status(200).json(updatedReport);
+      }
     } catch (error) {
       logger.error(error);
       if (error.code === 'P2025') {

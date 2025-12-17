@@ -19,10 +19,13 @@
                 ? 'mdi-lock-open'
                 : item.action === AdminModifiedReason.LOCK
                   ? 'mdi-lock'
-                  : 'mdi-delete'
+                  : item.action === AdminModifiedReason.YEAR
+                    ? 'mdi-calendar'
+                    : 'mdi-delete'
             "
             :color="
-              item.action === AdminModifiedReason.UNLOCK
+              item.action === AdminModifiedReason.UNLOCK ||
+              item.action === AdminModifiedReason.YEAR
                 ? 'success'
                 : item.action === AdminModifiedReason.LOCK
                   ? 'error'
@@ -32,7 +35,8 @@
         </v-col>
         <v-col
           :class="
-            item.action === AdminModifiedReason.UNLOCK
+            item.action === AdminModifiedReason.UNLOCK ||
+            item.action === AdminModifiedReason.YEAR
               ? 'text-success'
               : item.action === AdminModifiedReason.LOCK
                 ? 'text-error'

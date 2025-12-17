@@ -33,6 +33,23 @@
     </template>
   </v-tooltip>
 
+  <v-tooltip
+    v-if="canChasngeReportingYear"
+    text="Edit reporting year"
+    location="bottom"
+  >
+    <template #activator="{ props: tooltipProps }">
+      <v-btn
+        v-bind="tooltipProps"
+        aria-label="Edit reporting year"
+        density="compact"
+        variant="plain"
+        icon="mdi-pencil"
+        @click="changeReportingYear(props.report.report_id)"
+      ></v-btn>
+    </template>
+  </v-tooltip>
+
   <v-tooltip v-if="canWithdrawReport" text="Withdraw report" location="bottom">
     <template #activator="{ props: tooltipProps }">
       <v-btn
@@ -83,6 +100,7 @@
   </v-tooltip>
 
   <!-- dialogs -->
+  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
   <ConfirmationDialog ref="confirmWithdrawDialog">
     <template #message>
       <p class="mb-2">
@@ -95,7 +113,36 @@
       </p>
     </template>
   </ConfirmationDialog>
-  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
+  <ConfirmationDialog ref="changeYearDialog">
+    <template #message>
+      <p class="mb-2">
+        for
+        <strong>{{
+          props.report?.pay_transparency_company?.company_name
+        }}</strong
+        >.
+      </p>
+      <p class="my-3">
+        Current reporting year:
+        <strong>{{ props.report?.reporting_year }}</strong>
+      </p>
+      <v-select
+        v-model="selectedReportingYear"
+        :items="availableReportingYears"
+        label="Select new reporting year"
+        variant="outlined"
+        density="compact"
+      >
+        <template #item="{ props: itemProps, item }">
+          <v-list-item
+            v-bind="itemProps"
+            :disabled="item.raw.disabled"
+            :subtitle="item.raw.subtitle"
+          ></v-list-item>
+        </template>
+      </v-select>
+    </template>
+  </ConfirmationDialog>
 </template>
 
 <script lang="ts">
@@ -120,23 +167,9 @@ const props = defineProps<{
   report: Report;
 }>();
 
-const isLoadingPdf = ref<boolean>(false);
-const isLoadingAdminActionHistory = ref<boolean>(false);
-const hadErrorLoadingAdminActionHistory = ref<boolean>(false);
-const reportAdminActionHistory = ref<ReportAdminActionHistory[] | undefined>(
-  undefined,
-);
 const confirmDialog = ref<typeof ConfirmationDialog>();
-const confirmWithdrawDialog = ref<typeof ConfirmationDialog>();
 
 const auth = authStore();
-
-const canWithdrawReport = computed(() => {
-  return (
-    props.report?.report_status === 'Published' &&
-    auth.doesUserHaveRole('PTRT-ADMIN')
-  );
-});
 
 onMounted(() => {
   ReportChangeService.listen(onAnyReportChanged);
@@ -152,6 +185,13 @@ function onAnyReportChanged(payload: ReportChangedEventPayload) {
     reset();
   }
 }
+
+function reset() {
+  reportAdminActionHistory.value = undefined;
+  hadErrorLoadingAdminActionHistory.value = false;
+}
+
+// #region Lock / Unlock Report
 
 async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
   const lockText = makeUnlocked ? 'unlock' : 'lock';
@@ -171,10 +211,13 @@ async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
   }
 }
 
-/*
-Downloads a PDF report with the given reportId, and opens it in a new tab
-(or a new window, depending on how the browser is configured).
-*/
+// #endregion
+// #region View Report PDF
+
+const isLoadingPdf = ref<boolean>(false);
+
+// Downloads a PDF report with the given reportId, and opens it in a new tab
+// (or a new window, depending on how the browser is configured).
 async function viewReportInNewTab(reportId: string) {
   isLoadingPdf.value = true;
   try {
@@ -191,6 +234,15 @@ async function viewReportInNewTab(reportId: string) {
   }
   isLoadingPdf.value = false;
 }
+
+// #endregion
+// #region Admin Action History
+
+const isLoadingAdminActionHistory = ref<boolean>(false);
+const hadErrorLoadingAdminActionHistory = ref<boolean>(false);
+const reportAdminActionHistory = ref<ReportAdminActionHistory[] | undefined>(
+  undefined,
+);
 
 async function openAdminActionHistory(reportId: string) {
   //fetch the "admin action history" from the backend, then cache it
@@ -214,10 +266,106 @@ async function fetchAdminActionHistory(reportId: string) {
   }
 }
 
-function reset() {
-  reportAdminActionHistory.value = undefined;
-  hadErrorLoadingAdminActionHistory.value = false;
+// #endregion
+// #region Change Reporting Year
+
+const changeYearDialog = ref<typeof ConfirmationDialog>();
+const selectedReportingYear = ref<number | null>(null);
+
+const canChasngeReportingYear = computed(() => {
+  return (
+    props.report?.report_status === 'Published' &&
+    auth.doesUserHaveRole('PTRT-ADMIN')
+  );
+});
+
+const availableReportingYears = computed(() => {
+  const currentYear = new Date().getFullYear();
+  const currentYearStr = currentYear.toString();
+  const previousYearStr = (currentYear - 1).toString();
+  return [
+    {
+      title: currentYearStr,
+      value: currentYear,
+      disabled: currentYearStr == props.report?.reporting_year,
+      subtitle:
+        currentYearStr == props.report?.reporting_year
+          ? ' (Current reporting year)'
+          : '',
+    },
+    {
+      title: previousYearStr,
+      value: currentYear - 1,
+      disabled: previousYearStr == props.report?.reporting_year,
+      subtitle:
+        previousYearStr == props.report?.reporting_year
+          ? ' (Current reporting year)'
+          : '',
+    },
+  ];
+});
+
+async function changeReportingYear(reportId: string) {
+  // Open year selection dialog
+  const yearSelected = await changeYearDialog.value?.open(
+    'Change reporting year',
+    null,
+    {
+      titleBold: true,
+      resolveText: 'Next',
+      rejectText: 'Cancel',
+    },
+  );
+
+  if (!yearSelected) return;
+
+  if (!selectedReportingYear.value) {
+    NotificationService.pushNotificationError('No year selected.');
+    return;
+  }
+
+  // Open confirmation dialog
+  const confirmed = await confirmDialog.value?.open(
+    'Confirm reporting year change',
+    `Are you sure you want to change the reporting year for ${props.report?.pay_transparency_company?.company_name} from ${props.report?.reporting_year} to ${selectedReportingYear.value}?`,
+    {
+      titleBold: true,
+      resolveText: 'Yes, change year',
+      rejectText: 'Cancel',
+    },
+  );
+
+  if (!confirmed) return;
+
+  // Update reporting year
+  try {
+    await ApiService.updateReportReportingYear(
+      reportId,
+      selectedReportingYear.value,
+    );
+    NotificationService.pushNotificationSuccess(
+      'Reporting year has been updated successfully.',
+    );
+    ReportChangeService.reportChanged(reportId);
+  } catch (error) {
+    console.error('Error updating reporting year:', error);
+    NotificationService.pushNotificationError(
+      'Failed to update reporting year. Please try again.',
+    );
+  }
 }
+
+// #endregion
+// #region Withdraw Report
+
+const confirmWithdrawDialog = ref<typeof ConfirmationDialog>();
+
+const canWithdrawReport = computed(() => {
+  return (
+    props.report?.report_status === 'Published' &&
+    auth.doesUserHaveRole('PTRT-ADMIN')
+  );
+});
 
 async function withdrawReport(reportId: string) {
   const isConfirmed = await confirmWithdrawDialog.value?.open(
@@ -248,6 +396,8 @@ async function withdrawReport(reportId: string) {
     }
   }
 }
+
+// #endregion
 </script>
 
 <style>

@@ -214,7 +214,12 @@ export const FilterValidationSchema = z.array(
     ),
 );
 
-export const AdminModifiedReasonSchema = z.enum(['LOCK', 'UNLOCK', 'WITHDRAW']);
+export const AdminModifiedReasonSchema = z.enum([
+  'LOCK',
+  'UNLOCK',
+  'WITHDRAW',
+  'YEAR',
+]);
 
 export type AdminModifiedReason = z.infer<typeof AdminModifiedReasonSchema>;
 export const AdminModifiedReason = AdminModifiedReasonSchema.enum;
