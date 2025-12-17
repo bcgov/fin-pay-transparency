@@ -521,7 +521,7 @@ export default {
         reporting_year: reportingYear,
       });
       if (resp?.data) {
-        return resp.data.is_unlocked;
+        return resp.data;
       }
       throw new Error('Unexpected response from API.');
     } catch (e) {

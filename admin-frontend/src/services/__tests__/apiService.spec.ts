@@ -281,6 +281,23 @@ describe('ApiService', () => {
     });
   });
 
+  describe('updateReportReportingYear', () => {
+    it('returns response data when successful', async () => {
+      const mockResp = { data: { admin_modified_reason: 'YEAR' } };
+      vi.spyOn(ApiService.apiAxios, 'patch').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.updateReportReportingYear('1', 2023);
+      expect(resp).toEqual({ admin_modified_reason: 'YEAR' });
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'patch').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(
+        ApiService.updateReportReportingYear('1', 2023),
+      ).rejects.toEqual(mockAxiosError);
+    });
+  });
+
   describe('withdrawReport', () => {
     it('returns response data when successful', async () => {
       const mockResp = { data: { is_withdrawn: true } };
