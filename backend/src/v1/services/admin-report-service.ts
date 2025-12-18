@@ -145,16 +145,17 @@ const adminReportService = {
   ): Promise<pay_transparency_report> {
     let updatedReport = null;
     await prisma.$transaction(async (tx) => {
-      const existingReport =
-        await prisma.pay_transparency_report.findUniqueOrThrow({
+      const existingReport = await tx.pay_transparency_report.findUniqueOrThrow(
+        {
           where: { report_id: reportId },
-        });
+        },
+      );
 
       const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
 
       await reportService.copyPublishedReportToHistory(tx, existingReport);
 
-      await prisma.pay_transparency_report.update({
+      await tx.pay_transparency_report.update({
         where: { report_id: reportId },
         data: {
           is_unlocked: isUnLocked,
@@ -167,7 +168,80 @@ const adminReportService = {
         },
       });
 
-      updatedReport = await prisma.pay_transparency_report.findUnique({
+      updatedReport = await tx.pay_transparency_report.findUnique({
+        where: { report_id: reportId },
+        include: {
+          employee_count_range: true,
+          pay_transparency_company: {
+            select: {
+              company_id: true,
+              company_name: true,
+            },
+          },
+        },
+      });
+    });
+    return updatedReport;
+  },
+
+  /**
+   * Set report's reporting year
+   * @param reportId the id of the report
+   * @param idirGuid the IDIR guid
+   * @param reportingYear the new reporting year
+   * @returns
+   */
+  async updateReportReportingYear(
+    reportId: string,
+    idirGuid: string,
+    reportingYear: number,
+  ): Promise<pay_transparency_report> {
+    let updatedReport = null;
+    await prisma.$transaction(async (tx) => {
+      // Check if another report already exists for the same company and reporting year
+      const existingReportForYear = await tx.pay_transparency_report.findFirst({
+        where: {
+          reporting_year: reportingYear,
+          report_status: enumReportStatus.Published,
+          pay_transparency_company: {
+            pay_transparency_report: {
+              some: { report_id: reportId },
+            },
+          },
+        },
+      });
+      if (existingReportForYear?.report_id === reportId) {
+        throw new UserInputError(
+          `The report is already set to the year ${reportingYear}.`,
+        );
+      }
+      if (existingReportForYear) {
+        throw new UserInputError(
+          `A report for the year ${reportingYear} already exists for this company.`,
+        );
+      }
+
+      const existingReport = await tx.pay_transparency_report.findUniqueOrThrow(
+        {
+          where: { report_id: reportId },
+        },
+      );
+
+      const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
+
+      await reportService.copyPublishedReportToHistory(tx, existingReport);
+
+      await tx.pay_transparency_report.update({
+        where: { report_id: reportId },
+        data: {
+          reporting_year: reportingYear,
+          admin_modified_date: currentDateUtc,
+          admin_modified_reason: AdminModifiedReason.YEAR,
+          admin_user: { connect: { idir_user_guid: idirGuid } },
+        },
+      });
+
+      updatedReport = await tx.pay_transparency_report.findUnique({
         where: { report_id: reportId },
         include: {
           employee_count_range: true,
@@ -278,13 +352,13 @@ const adminReportService = {
       await prismaReadOnlyReplica.pay_transparency_report.count({
         where: {
           reporting_year: reportingYear,
-          report_status: 'Published',
+          report_status: enumReportStatus.Published,
         },
       });
     const totalReportsCount =
       await prismaReadOnlyReplica.pay_transparency_report.count({
         where: {
-          report_status: 'Published',
+          report_status: enumReportStatus.Published,
         },
       });
     return {
@@ -348,7 +422,20 @@ const adminReportService = {
           break;
       }
 
-      if (relationKey) {
+      if (item.key == 'admin_modified_reason') {
+        prismaFilterObj.OR = [
+          {
+            report_history: {
+              some: {
+                [item.key]: filterValue,
+              },
+            },
+          },
+          {
+            [item.key]: filterValue,
+          },
+        ];
+      } else if (relationKey) {
         prismaFilterObj[relationKey] = { [item.key]: filterValue };
       } else {
         prismaFilterObj[item.key] = filterValue;

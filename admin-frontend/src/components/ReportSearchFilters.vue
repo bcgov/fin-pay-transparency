@@ -138,7 +138,7 @@
 
     <div
       class="d-flex flex-column flex-grow-1 ma-2 ml-0"
-      style="width: 320px; max-width: 400px"
+      style="width: 320px; max-width: 300px"
     >
       <h5>Employee Count</h5>
       <v-select
@@ -169,7 +169,7 @@
     </div>
 
     <div
-      class="d-flex flex-column flex-grow-1 me-auto ma-2 ml-0"
+      class="d-flex flex-column flex-grow-1 ma-2 ml-0"
       style="width: 148px; max-width: 300px"
     >
       <h5>Status</h5>
@@ -195,11 +195,34 @@
       </v-select>
     </div>
 
-    <div class="d-flex flex-column ma-2 mr-0">
+    <div
+      class="d-flex flex-column flex-grow-1 ma-2 ml-0"
+      style="width: 200px; max-width: 300px; min-width: 250px"
+    >
+      <h5>Admin Actions</h5>
+      <v-select
+        id="admin-actions-filter"
+        v-model="selectedAdminActions"
+        :items="adminActionsOptions"
+        variant="solo"
+        density="compact"
+        aria-label="Admin Actions"
+      >
+        <template #item="{ props, item }">
+          <v-list-item v-bind="props" :title="item.raw.title">
+            <template #append="{ isActive }">
+              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+            </template>
+          </v-list-item>
+        </template>
+      </v-select>
+    </div>
+
+    <div class="d-flex flex-column my-2">
       <h5>&nbsp;</h5>
     </div>
 
-    <div class="d-flex flex-column ml-auto ma-2 mr-0">
+    <div class="d-flex flex-column ml-auto ma-2">
       <h5>&nbsp;</h5>
       <div class="d-flex justify-end align-center filter-buttons">
         <v-btn class="btn-primary mr-0" @click="searchReports()"> Apply </v-btn>
@@ -243,6 +266,7 @@ const selectedReportYear = ref(undefined);
 const selectedLockedValues = ref(undefined);
 const selectedEmployeeCount = ref([]);
 const selectedStatusValues = ref('Published');
+const selectedAdminActions = ref(undefined);
 
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
 const startYear = 2024;
@@ -253,6 +277,10 @@ const reportYearOptions = ref([
 ]);
 const lockedOptions = ref([null, 'Locked', 'Unlocked']);
 const statusOptions = ref([null, 'Published', 'Withdrawn']);
+const adminActionsOptions = ref([
+  { title: 'All', value: null },
+  { title: 'Reporting year modified', value: 'YEAR' },
+]);
 
 function getReportSearchFilters(): ReportFilterType {
   const filters: any[] = [];
@@ -323,6 +351,13 @@ function getReportSearchFilters(): ReportFilterType {
       value: selectedStatusValues.value,
     });
   }
+  if (selectedAdminActions.value) {
+    filters.push({
+      key: 'admin_modified_reason',
+      operation: 'eq',
+      value: selectedAdminActions.value,
+    });
+  }
   return filters;
 }
 
@@ -360,7 +395,8 @@ function areSecondaryFiltersDirty() {
     selectedLockedValues.value != undefined ||
     selectedEmployeeCount.value?.length !== 0 ||
     (selectedStatusValues.value != undefined &&
-      selectedStatusValues.value !== 'Published')
+      selectedStatusValues.value !== 'Published') ||
+    selectedAdminActions.value != undefined
   );
 }
 
@@ -372,6 +408,7 @@ function clear() {
   selectedLockedValues.value = undefined;
   selectedEmployeeCount.value = [];
   selectedStatusValues.value = 'Published';
+  selectedAdminActions.value = undefined;
   reportSearchStore.reset();
 }
 

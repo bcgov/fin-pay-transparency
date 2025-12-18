@@ -1222,6 +1222,7 @@ const reportService = {
               in: [enumReportStatus.Published, enumReportStatus.Withdrawn],
             },
           },
+          orderBy: { report_status: 'asc' },
         });
 
       // Only block publishing if the existing report is Published and locked
