@@ -84,7 +84,7 @@ jobs:
             sonar_projectKey: fin-pay-transparency_backend-external
             token: SONAR_TOKEN_BACKEND_EXTERNAL
     steps:
-      - uses: bcgov/action-test-and-analyse@v1.4.0
+      - uses: bcgov/action-test-and-analyse@v1.6.0
         with:
           commands: |
             npm ci
