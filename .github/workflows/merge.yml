@@ -38,7 +38,7 @@ jobs:
       - name: PR Number
         if: (github.event_name != 'workflow_dispatch')
         id: pr
-        uses: bcgov/action-get-pr@v0.0.1
+        uses: bcgov/action-get-pr@v0.1.0
   codeql:
     name: Semantic Code Analysis
     runs-on: ubuntu-24.04
