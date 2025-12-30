@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { saveAs } from 'file-saver';
 import {
   CreateUserInviteInput,
@@ -526,6 +526,9 @@ export default {
       throw new Error('Unexpected response from API.');
     } catch (e) {
       console.log(`Failed to update reporting year: ${e}`);
+      if (e instanceof Error && isAxiosError(e.cause)) {
+        throw new Error(e.cause.response?.data.error);
+      }
       throw e;
     }
   },

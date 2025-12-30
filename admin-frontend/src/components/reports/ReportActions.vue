@@ -349,6 +349,10 @@ async function changeReportingYear(reportId: string) {
     ReportChangeService.reportChanged(reportId);
   } catch (error) {
     console.error('Error updating reporting year:', error);
+    if (error instanceof Error && error.message) {
+      NotificationService.pushNotificationError(error.message);
+      return;
+    }
     NotificationService.pushNotificationError(
       'Failed to update reporting year. Please try again.',
     );
