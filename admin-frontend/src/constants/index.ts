@@ -20,3 +20,11 @@ export const RoleOptions = [
 
 export const FILE_DOWNLOAD_ERROR =
   'There is a problem with this link/file, please try again later or contact the helpdesk.';
+
+export enum ReportAdminActions {
+  OpenReport = 'openReport',
+  LockUnlock = 'lockUnlock',
+  EditReportingYear = 'editReportingYear',
+  WithdrawReport = 'withdrawReport',
+  AdminActionHistory = 'adminActionHistory',
+}

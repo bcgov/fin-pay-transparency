@@ -19,10 +19,14 @@
           <slot :name="slotName" :item="item">{{ item[slotName] }} </slot>
         </template>
 
-        <template #item.actions="{ item }">
-          <div class="actions-column">
-            <ReportActions :report="item"></ReportActions>
-          </div>
+        <template #[`item.actions`]="{ item }">
+          <ReportActions
+            :report="item"
+            :actions="[
+              ReportAdminActions.OpenReport,
+              ReportAdminActions.AdminActionHistory,
+            ]"
+          ></ReportActions>
         </template>
       </v-data-table-server>
     </v-card-text>
@@ -56,15 +60,17 @@ export default {
 
 import { Report } from '../../types/reports';
 import { ref, onMounted, onUnmounted } from 'vue';
-import ReportActions from '../reports/ReportActions.vue';
 import {
   ReportChangeService,
   ReportChangedEventPayload,
 } from '../../services/reportChangeService';
+import ReportActions from '../reports/ReportActions.vue';
+import { ReportAdminActions } from '../../constants';
+import type { VDataTableServer } from 'vuetify/components';
 
 const props = defineProps<{
   pageSize: string | number | undefined;
-  headers: any[];
+  headers: VDataTableServer['headers'];
   getReports: () => Promise<Report[]>;
 }>();
 
