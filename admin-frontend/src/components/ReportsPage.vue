@@ -67,10 +67,7 @@ import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import { ReportKeys } from '../types/reports';
 import { formatDate } from '../utils/date';
 import ReportActions from './reports/ReportActions.vue';
-import {
-  ReportChangeService,
-  ReportChangedEventPayload,
-} from '../services/reportChangeService';
+import { ReportChangeService } from '../services/reportChangeService';
 import type { VDataTableServer } from 'vuetify/components';
 
 const reportSearchStore = useReportSearchStore();
