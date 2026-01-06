@@ -97,8 +97,7 @@ onUnmounted(() => {
   ReportChangeService.unlisten(onAnyReportChanged);
 });
 
-function onAnyReportChanged(payload: ReportChangedEventPayload) {
-  void payload;
+function onAnyReportChanged() {
   repeatSearch();
 }
 
