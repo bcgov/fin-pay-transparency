@@ -24,7 +24,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 type LinkResourceProps = {

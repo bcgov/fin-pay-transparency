@@ -19,7 +19,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import ApiService from '../../services/apiService';
 import { NotificationService } from '../../services/notificationService';
 import { FILE_DOWNLOAD_ERROR } from '../../constants';

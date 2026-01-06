@@ -1,5 +1,10 @@
 <template v-if="props.report">
-  <v-tooltip text="Open Report" location="bottom">
+  <!-- Open Report -->
+  <v-tooltip
+    v-if="props.actions.includes(ReportAdminActions.OpenReport)"
+    text="Open Report"
+    location="bottom"
+  >
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
@@ -14,7 +19,9 @@
     </template>
   </v-tooltip>
 
+  <!-- Lock/Unlock Report -->
   <v-tooltip
+    v-if="props.actions.includes(ReportAdminActions.LockUnlock)"
     :text="props.report.is_unlocked ? 'Lock report' : 'Unlock report'"
     location="bottom"
   >
@@ -33,8 +40,12 @@
     </template>
   </v-tooltip>
 
+  <!-- Edit Reporting Year -->
   <v-tooltip
-    v-if="canChasngeReportingYear"
+    v-if="
+      props.actions.includes(ReportAdminActions.EditReportingYear) &&
+      canChasngeReportingYear
+    "
     text="Edit reporting year"
     location="bottom"
   >
@@ -50,7 +61,15 @@
     </template>
   </v-tooltip>
 
-  <v-tooltip v-if="canWithdrawReport" text="Withdraw report" location="bottom">
+  <!-- Withdraw Report -->
+  <v-tooltip
+    v-if="
+      props.actions.includes(ReportAdminActions.WithdrawReport) &&
+      canWithdrawReport
+    "
+    text="Withdraw report"
+    location="bottom"
+  >
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
@@ -64,7 +83,12 @@
     </template>
   </v-tooltip>
 
-  <v-tooltip text="Admin action history" location="bottom">
+  <!-- Admin Action History -->
+  <v-tooltip
+    v-if="actions.includes(ReportAdminActions.AdminActionHistory)"
+    text="Admin action history"
+    location="bottom"
+  >
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
@@ -145,11 +169,6 @@
   </ConfirmationDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'ReportActions',
-};
-</script>
 <script setup lang="ts">
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import ApiService from '../../services/apiService';
@@ -162,10 +181,18 @@ import {
   ReportChangedEventPayload,
 } from '../../services/reportChangeService';
 import { authStore } from '../../store/modules/auth';
+import { ReportAdminActions } from '../../constants';
 
-const props = defineProps<{
-  report: Report;
-}>();
+// Apply defaults safely
+const props = withDefaults(
+  defineProps<{
+    report: Report;
+    actions?: ReportAdminActions[];
+  }>(),
+  {
+    actions: () => Object.values(ReportAdminActions),
+  },
+);
 
 const confirmDialog = ref<typeof ConfirmationDialog>();
 
@@ -227,7 +254,7 @@ async function viewReportInNewTab(reportId: string) {
     ReportChangeService.reportChanged(reportId);
     const objectUrl = URL.createObjectURL(pdfAsBlob);
     window.open(objectUrl);
-  } catch (e) {
+  } catch {
     NotificationService.pushNotificationError(
       'Something went wrong.  Unable to download report.',
     );
@@ -259,7 +286,7 @@ async function fetchAdminActionHistory(reportId: string) {
   try {
     reportAdminActionHistory.value =
       await ApiService.getReportAdminActionHistory(reportId);
-  } catch (e) {
+  } catch {
     hadErrorLoadingAdminActionHistory.value = true;
   } finally {
     isLoadingAdminActionHistory.value = false;
@@ -290,7 +317,7 @@ const availableReportingYears = computed(() => {
       disabled: currentYearStr == props.report?.reporting_year,
       subtitle:
         currentYearStr == props.report?.reporting_year
-          ? ' (Current reporting year)'
+          ? '(Current reporting year)'
           : '',
     },
     {
@@ -299,7 +326,7 @@ const availableReportingYears = computed(() => {
       disabled: previousYearStr == props.report?.reporting_year,
       subtitle:
         previousYearStr == props.report?.reporting_year
-          ? ' (Current reporting year)'
+          ? '(Current reporting year)'
           : '',
     },
   ];
