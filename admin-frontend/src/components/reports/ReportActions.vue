@@ -183,11 +183,16 @@ import {
 import { authStore } from '../../store/modules/auth';
 import { ReportAdminActions } from '../../constants';
 
-const { report, actions = Object.values(ReportAdminActions) } = defineProps<{
-  report: Report;
-  actions?: ReportAdminActions[];
-}>();
-const props = { report, actions };
+// Apply defaults safely
+const props = withDefaults(
+  defineProps<{
+    report: Report;
+    actions?: ReportAdminActions[];
+  }>(),
+  {
+    actions: () => Object.values(ReportAdminActions),
+  },
+);
 
 const confirmDialog = ref<typeof ConfirmationDialog>();
 
@@ -312,7 +317,7 @@ const availableReportingYears = computed(() => {
       disabled: currentYearStr == props.report?.reporting_year,
       subtitle:
         currentYearStr == props.report?.reporting_year
-          ? ' (Current reporting year)'
+          ? '(Current reporting year)'
           : '',
     },
     {
@@ -321,7 +326,7 @@ const availableReportingYears = computed(() => {
       disabled: previousYearStr == props.report?.reporting_year,
       subtitle:
         previousYearStr == props.report?.reporting_year
-          ? ' (Current reporting year)'
+          ? '(Current reporting year)'
           : '',
     },
   ];
