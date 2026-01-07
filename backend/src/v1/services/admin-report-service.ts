@@ -238,6 +238,7 @@ const adminReportService = {
           admin_modified_date: currentDateUtc,
           admin_modified_reason: AdminModifiedReason.YEAR,
           admin_user: { connect: { idir_user_guid: idirGuid } },
+          revision: existingReport.revision.add(1),
         },
       });
 
