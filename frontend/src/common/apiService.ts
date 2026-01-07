@@ -75,7 +75,7 @@ const responseErrorInterceptor = (error) => {
       .catch((e) => {
         processQueue(e, null);
         localStorage.removeItem('jwtToken');
-        window.location.href = '/token-expired';
+        globalThis.location.href = '/token-expired';
         reject(new Error('token expired', { cause: e }));
       });
   });
@@ -316,7 +316,7 @@ export default {
 
       const filename = `${name}.${extension}`;
 
-      const url = window.URL.createObjectURL(data);
+      const url = globalThis.URL.createObjectURL(data);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', filename);

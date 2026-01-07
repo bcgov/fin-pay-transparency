@@ -98,7 +98,7 @@ const setHtml = (html: string | undefined | null) => {
     return;
   }
   const delta = quill?.clipboard.convert({
-    html: html !== null ? html : undefined,
+    html: html ?? undefined,
   });
   if (delta) {
     quill?.setContents(delta, 'user');

@@ -129,7 +129,7 @@ const assignRole = async (role: (typeof RoleOptions)[0]) => {
       NotificationService.pushNotificationSuccess(
         `Permissions have been updated. If the user is currently logged in, please request that they log out and log in again`,
       );
-    } catch (error) {
+    } catch {
       NotificationService.pushNotificationError(
         `Failed to assign ${props.user.displayName} to role ${RoleLabels[nextRole]}`,
       );
@@ -156,7 +156,7 @@ const removeUser = async () => {
       NotificationService.pushNotificationSuccess(
         `${props.user.displayName} deleted successfully`,
       );
-    } catch (error) {
+    } catch {
       NotificationService.pushNotificationError(
         `Failed to delete ${props.user.displayName}`,
       );

@@ -30,7 +30,7 @@ export default {
   methods: {
     redirectToLogin() {
       authStore().setJwtToken();
-      window.location.href = this.authRoutesLogin;
+      globalThis.location.href = this.authRoutesLogin;
     },
   },
 };

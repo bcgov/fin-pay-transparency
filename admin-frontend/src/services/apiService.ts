@@ -75,7 +75,7 @@ const intercept = apiAxios.interceptors.response.use(
         .catch((e) => {
           processQueue(e, null);
           localStorage.removeItem(LOCAL_STORAGE_KEY_JWT);
-          window.location.href = '/token-expired';
+          globalThis.location.href = '/token-expired';
           reject(new Error('token expired', { cause: e }));
         });
     });
@@ -207,14 +207,14 @@ export default {
 
       const filename = `${name}.${extension}`;
       if (filename.toLowerCase().includes('pdf')) {
-        const file = window.URL.createObjectURL(
+        const file = globalThis.URL.createObjectURL(
           new Blob([data], { type: 'application/pdf' }),
         );
         window.open(file);
         return { mode: 'open', filename };
       }
 
-      const url = window.URL.createObjectURL(data);
+      const url = globalThis.URL.createObjectURL(data);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', filename);
@@ -245,12 +245,9 @@ export default {
     sort: any[] | null = null,
   ): Promise<IReportSearchResult> {
     try {
-      if (!filter) {
-        filter = [];
-      }
-      if (!sort) {
-        sort = [{ update_date: 'desc' }];
-      }
+      filter ??= [];
+      sort ??= [{ update_date: 'desc' }];
+
       const params = {
         offset: offset,
         limit: limit,
@@ -320,12 +317,9 @@ export default {
     sort: AnnouncementSortType | null = null,
   ): Promise<IAnnouncementSearchResult> {
     try {
-      if (!filter) {
-        filter = [];
-      }
-      if (!sort) {
-        sort = [{ field: 'active_on', order: 'asc' }];
-      }
+      filter ??= [];
+      sort ??= [{ field: 'active_on', order: 'asc' }];
+
       const params = {
         offset: offset,
         limit: limit,
@@ -417,12 +411,9 @@ export default {
     sort: any[] | null = null,
   ) {
     try {
-      if (!filter) {
-        filter = [];
-      }
-      if (!sort) {
-        sort = [{ update_date: 'desc' }];
-      }
+      filter ??= [];
+      sort ??= [{ update_date: 'desc' }];
+
       const resp = await apiAxios.get(ApiRoutes.REPORTS, {
         headers: { accept: 'text/csv' },
         params: { filter: JSON.stringify(filter), sort: JSON.stringify(sort) },
