@@ -24,8 +24,7 @@ export const useUpload = (options: Options) => {
     logger.log('info', 'Uploading file to S3');
 
     const { path, name, type, size } = file;
-    const lastDotIndex = name?.lastIndexOf('.') ?? -1;
-    const ext = lastDotIndex !== -1 ? name.substring(lastDotIndex + 1) : '';
+    const ext = PATH.extname(name ?? '');
 
     if (!path.startsWith(os.tmpdir())) {
       logger.error('File not uploaded to temp directory');

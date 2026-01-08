@@ -194,7 +194,7 @@ utils.getOidcDiscovery().then(
           ignoreExpiration: true,
         },
         (jwtPayload, done) => {
-          if (typeof jwtPayload === 'undefined' || jwtPayload === null) {
+          if (jwtPayload == null) {
             return done('No JWT token', null);
           }
 

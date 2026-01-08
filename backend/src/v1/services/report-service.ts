@@ -256,7 +256,7 @@ const reportServicePrivate = {
     if (chartDataRecords.length == 1)
       result = `This graph describes that in this organization ${summaries[0]}.`;
     else
-      result = `This graph describes that in this organization ${summaries.slice(0, -1).join(', ')}, and ${summaries[summaries.length - 1]}.`;
+      result = `This graph describes that in this organization ${summaries.slice(0, -1).join(', ')}, and ${summaries.at(-1)}.`;
     return result;
   },
 
@@ -322,7 +322,7 @@ const reportServicePrivate = {
   ): string {
     const genderCodesToSkip = [referenceGenderCode, GENDERS.UNKNOWN.code];
     const genderCodesToSummarize = Object.values(GENDERS).filter(
-      (d) => genderCodesToSkip.indexOf(d.code) == -1,
+      (d) => !genderCodesToSkip.includes(d.code),
     );
 
     const genderSummaries = [];
@@ -619,7 +619,7 @@ const reportService = {
               reportServicePrivate.payGapPercentToDollar,
             ),
           )
-          .filter((d) => d),
+          .filter(Boolean),
         medianHourlyPayGap: [
           {
             genderCode: GENDERS.MALE.code,
@@ -645,7 +645,7 @@ const reportService = {
               reportServicePrivate.payGapPercentToDollar,
             ),
           )
-          .filter((d) => d),
+          .filter(Boolean),
         meanOvertimePayGap: [
           {
             genderCode: GENDERS.MALE.code,
@@ -671,7 +671,7 @@ const reportService = {
               reportServicePrivate.payGapPercentToDollar,
             ),
           )
-          .filter((d) => d),
+          .filter(Boolean),
         medianOvertimePayGap: [
           {
             genderCode: GENDERS.MALE.code,
@@ -697,7 +697,7 @@ const reportService = {
               reportServicePrivate.payGapPercentToDollar,
             ),
           )
-          .filter((d) => d),
+          .filter(Boolean),
         percentReceivingOvertimePay: [
           {
             genderCode: GENDERS.MALE.code,
@@ -717,7 +717,7 @@ const reportService = {
           } as CalcCodeGenderCode,
         ]
           .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
-          .filter((d) => d),
+          .filter(Boolean),
         meanBonusPayGap: [
           {
             genderCode: GENDERS.MALE.code,
@@ -743,7 +743,7 @@ const reportService = {
               reportServicePrivate.payGapPercentToDollar,
             ),
           )
-          .filter((d) => d),
+          .filter(Boolean),
         medianBonusPayGap: [
           {
             genderCode: GENDERS.MALE.code,
@@ -769,7 +769,7 @@ const reportService = {
               reportServicePrivate.payGapPercentToDollar,
             ),
           )
-          .filter((d) => d),
+          .filter(Boolean),
         percentReceivingBonusPay: [
           {
             genderCode: GENDERS.MALE.code,
@@ -789,7 +789,7 @@ const reportService = {
           } as CalcCodeGenderCode,
         ]
           .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
-          .filter((d) => d),
+          .filter(Boolean),
         hourlyPayQuartile1: [
           {
             genderCode: GENDERS.MALE.code,
@@ -809,7 +809,7 @@ const reportService = {
           } as CalcCodeGenderCode,
         ]
           .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
-          .filter((d) => d),
+          .filter(Boolean),
         hourlyPayQuartile2: [
           {
             genderCode: GENDERS.MALE.code,
@@ -829,7 +829,7 @@ const reportService = {
           } as CalcCodeGenderCode,
         ]
           .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
-          .filter((d) => d),
+          .filter(Boolean),
         hourlyPayQuartile3: [
           {
             genderCode: GENDERS.MALE.code,
@@ -849,7 +849,7 @@ const reportService = {
           } as CalcCodeGenderCode,
         ]
           .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
-          .filter((d) => d),
+          .filter(Boolean),
         hourlyPayQuartile4: [
           {
             genderCode: GENDERS.MALE.code,
@@ -869,7 +869,7 @@ const reportService = {
           } as CalcCodeGenderCode,
         ]
           .map((d) => reportServicePrivate.toChartDataRecord(calcs, d))
-          .filter((d) => d),
+          .filter(Boolean),
       };
 
       chartData['hourlyPayQuartilesLegend'] = [
@@ -912,7 +912,7 @@ const reportService = {
           .map((d) =>
             reportServicePrivate.toChartDataRecord(calcs, d, Math.round),
           )
-          .filter((d) => d),
+          .filter(Boolean),
         medianOvertimeHoursGap: [
           {
             genderCode: GENDERS.MALE.code,
@@ -935,7 +935,7 @@ const reportService = {
           .map((d) =>
             reportServicePrivate.toChartDataRecord(calcs, d, Math.round),
           )
-          .filter((d) => d),
+          .filter(Boolean),
       };
 
       chartSummaryText = {
@@ -1047,18 +1047,18 @@ const reportService = {
       employeeCountRange: report.employee_count_range.employee_count_range,
       comments: report.user_comment,
       dataConstraints: report.data_constraints,
-      referenceGenderCategory: !isAllCalculatedDataSuppressed
-        ? referenceGenderChartInfo.label
-        : null,
-      chartSuppressedError: !isAllCalculatedDataSuppressed
-        ? GENERIC_CHART_SUPPRESSED_MSG
-        : null,
+      referenceGenderCategory: isAllCalculatedDataSuppressed
+        ? null
+        : referenceGenderChartInfo.label,
+      chartSuppressedError: isAllCalculatedDataSuppressed
+        ? null
+        : GENERIC_CHART_SUPPRESSED_MSG,
       tableData: tableData,
       chartData: chartData,
       chartSummaryText: chartSummaryText,
-      explanatoryNotes: !isAllCalculatedDataSuppressed
-        ? this.createExplanatoryNotes(report)
-        : null,
+      explanatoryNotes: isAllCalculatedDataSuppressed
+        ? null
+        : this.createExplanatoryNotes(report),
       isAllCalculatedDataSuppressed: isAllCalculatedDataSuppressed,
       genderCodes: Object.values(GENDERS).map((g) => g.code),
       isDraft: report.report_status == enumReportStatus.Draft,

@@ -189,7 +189,7 @@ const fileUploadService = {
     // Iterate through all the "calculated amounts".  For each, determine if there
     // is an existing DB record for it. Use that info to decide whether to update or
     // insert.
-    for (let calculatedAmount of calculatedAmounts) {
+    for (const calculatedAmount of calculatedAmounts) {
       const calculationCodeId =
         calculationCodeToIdMap[calculatedAmount.calculationCode];
       if (!calculationCodeId) {
@@ -204,12 +204,8 @@ const fileUploadService = {
       );
       const existing = calculatedDatas.length ? calculatedDatas[0] : null;
 
-      // All calculated values are cast to strings before saving to the
-      // database
-      const calculatedValueAsString =
-        calculatedAmount.value !== null
-          ? calculatedAmount.value.toString()
-          : null;
+      // All calculated values are cast to strings before saving to the database
+      const calculatedValueAsString = calculatedAmount.value?.toString();
 
       if (existing) {
         updates.push({

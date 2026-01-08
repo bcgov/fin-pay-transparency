@@ -245,7 +245,7 @@ class GroupedColumnStats {
   getMeanOfNonZeros(genderCode: string) {
     const count = this.getCountNonZeros(genderCode);
     const sum = this.getSum(genderCode);
-    const avg = count != 0 ? sum / count : 0;
+    const avg = count ? sum / count : 0;
     return avg;
   }
 
@@ -532,17 +532,17 @@ const reportCalcService = {
     // have at least <MIN_REQUIRED_PEOPLE_COUNT_PER_GENDER> employees.
     // If this is not the case, return null as a signal that calculations are
     // not permitted.
-    const suppressAllCalculations =
+    const doCalculations =
       Object.values(GENDER_CODES)
         .map((genderCodes) => genderCodes[0])
         .filter((genderCode) =>
           reportCalcServicePrivate.meetsPeopleCountThreshold(
             overtimeHoursStats.getCountAll(genderCode),
           ),
-        ).length <= 1;
+        ).length > 1;
 
     // The same reference gender category is used for all calculations
-    const refGenderCode = !suppressAllCalculations
+    const refGenderCode = doCalculations
       ? hourlyPayStats.getReferenceGenderCode()
       : null;
 
@@ -552,77 +552,57 @@ const reportCalcService = {
     // represents, and a value for that calculation)
     calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMeanHourlyPayGaps(
-        !suppressAllCalculations ? hourlyPayStats : null,
+        doCalculations ? hourlyPayStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMedianHourlyPayGaps(
-        !suppressAllCalculations ? hourlyPayStats : null,
+        doCalculations ? hourlyPayStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMeanOvertimePayGaps(
-        !suppressAllCalculations ? overtimePayStats : null,
+        doCalculations ? overtimePayStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMedianOvertimePayGaps(
-        !suppressAllCalculations ? overtimePayStats : null,
+        doCalculations ? overtimePayStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMeanOvertimeHoursGaps(
-        !suppressAllCalculations ? overtimeHoursStats : null,
+        doCalculations ? overtimeHoursStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMedianOvertimeHoursGaps(
-        !suppressAllCalculations ? overtimeHoursStats : null,
+        doCalculations ? overtimeHoursStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMeanBonusPayGaps(
-        !suppressAllCalculations ? bonusPayStats : null,
+        doCalculations ? bonusPayStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateMedianBonusPayGaps(
-        !suppressAllCalculations ? bonusPayStats : null,
+        doCalculations ? bonusPayStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculateHourlyPayQuartiles(
-        !suppressAllCalculations ? hourlyPayQuartileStats : null,
+        doCalculations ? hourlyPayQuartileStats : null,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculatePercentReceivingOvertimePay(
-        !suppressAllCalculations ? overtimePayStats : null,
+        doCalculations ? overtimePayStats : null,
         refGenderCode,
       ),
-    );
-    calculatedAmounts.push(
       ...reportCalcServicePrivate.calculatePercentReceivingBonusPay(
-        !suppressAllCalculations ? bonusPayStats : null,
+        doCalculations ? bonusPayStats : null,
         refGenderCode,
       ),
-    );
 
-    // Although not technically a calculation, also include the reference
-    // gender category code in the list of CalculatedAmounts.
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE,
-      value: refGenderCode,
-      isSuppressed: refGenderCode === null,
-    });
+      // Although not technically a calculation, also include the reference
+      // gender category code in the list of CalculatedAmounts.
+      {
+        calculationCode: CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE,
+        value: refGenderCode,
+        isSuppressed: refGenderCode === null,
+      },
+    );
 
     logger.debug(`Calculating all amounts for report finished.`);
     return calculatedAmounts;
@@ -760,26 +740,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M,
-      value: meanHourlyPayDiffM,
-      isSuppressed: meanHourlyPayDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W,
-      value: meanHourlyPayDiffF,
-      isSuppressed: meanHourlyPayDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X,
-      value: meanHourlyPayDiffX,
-      isSuppressed: meanHourlyPayDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U,
-      value: meanHourlyPayDiffU,
-      isSuppressed: meanHourlyPayDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_M,
+        value: meanHourlyPayDiffM,
+        isSuppressed: meanHourlyPayDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_W,
+        value: meanHourlyPayDiffF,
+        isSuppressed: meanHourlyPayDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_X,
+        value: meanHourlyPayDiffX,
+        isSuppressed: meanHourlyPayDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_HOURLY_PAY_DIFF_U,
+        value: meanHourlyPayDiffU,
+        isSuppressed: meanHourlyPayDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -868,26 +850,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M,
-      value: medianHourlyPayDiffM,
-      isSuppressed: medianHourlyPayDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W,
-      value: medianHourlyPayDiffF,
-      isSuppressed: medianHourlyPayDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X,
-      value: medianHourlyPayDiffX,
-      isSuppressed: medianHourlyPayDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U,
-      value: medianHourlyPayDiffU,
-      isSuppressed: medianHourlyPayDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_M,
+        value: medianHourlyPayDiffM,
+        isSuppressed: medianHourlyPayDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_W,
+        value: medianHourlyPayDiffF,
+        isSuppressed: medianHourlyPayDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_X,
+        value: medianHourlyPayDiffX,
+        isSuppressed: medianHourlyPayDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_HOURLY_PAY_DIFF_U,
+        value: medianHourlyPayDiffU,
+        isSuppressed: medianHourlyPayDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -976,26 +960,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_M,
-      value: meanOvertimePayDiffM,
-      isSuppressed: meanOvertimePayDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_W,
-      value: meanOvertimePayDiffF,
-      isSuppressed: meanOvertimePayDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_X,
-      value: meanOvertimePayDiffX,
-      isSuppressed: meanOvertimePayDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_U,
-      value: meanOvertimePayDiffU,
-      isSuppressed: meanOvertimePayDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_M,
+        value: meanOvertimePayDiffM,
+        isSuppressed: meanOvertimePayDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_W,
+        value: meanOvertimePayDiffF,
+        isSuppressed: meanOvertimePayDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_X,
+        value: meanOvertimePayDiffX,
+        isSuppressed: meanOvertimePayDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_PAY_DIFF_U,
+        value: meanOvertimePayDiffU,
+        isSuppressed: meanOvertimePayDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -1084,26 +1070,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M,
-      value: medianOvertimePayDiffM,
-      isSuppressed: medianOvertimePayDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W,
-      value: medianOvertimePayDiffF,
-      isSuppressed: medianOvertimePayDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X,
-      value: medianOvertimePayDiffX,
-      isSuppressed: medianOvertimePayDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U,
-      value: medianOvertimePayDiffU,
-      isSuppressed: medianOvertimePayDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_M,
+        value: medianOvertimePayDiffM,
+        isSuppressed: medianOvertimePayDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_W,
+        value: medianOvertimePayDiffF,
+        isSuppressed: medianOvertimePayDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_X,
+        value: medianOvertimePayDiffX,
+        isSuppressed: medianOvertimePayDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_PAY_DIFF_U,
+        value: medianOvertimePayDiffU,
+        isSuppressed: medianOvertimePayDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -1188,26 +1176,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M,
-      value: meanOvertimeHoursDiffM,
-      isSuppressed: meanOvertimeHoursDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W,
-      value: meanOvertimeHoursDiffF,
-      isSuppressed: meanOvertimeHoursDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X,
-      value: meanOvertimeHoursDiffX,
-      isSuppressed: meanOvertimeHoursDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U,
-      value: meanOvertimeHoursDiffU,
-      isSuppressed: meanOvertimeHoursDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_M,
+        value: meanOvertimeHoursDiffM,
+        isSuppressed: meanOvertimeHoursDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_W,
+        value: meanOvertimeHoursDiffF,
+        isSuppressed: meanOvertimeHoursDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_X,
+        value: meanOvertimeHoursDiffX,
+        isSuppressed: meanOvertimeHoursDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_OT_HOURS_DIFF_U,
+        value: meanOvertimeHoursDiffU,
+        isSuppressed: meanOvertimeHoursDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -1292,26 +1282,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M,
-      value: medianOvertimeHoursDiffM,
-      isSuppressed: medianOvertimeHoursDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W,
-      value: medianOvertimeHoursDiffF,
-      isSuppressed: medianOvertimeHoursDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X,
-      value: medianOvertimeHoursDiffX,
-      isSuppressed: medianOvertimeHoursDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U,
-      value: medianOvertimeHoursDiffU,
-      isSuppressed: medianOvertimeHoursDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_M,
+        value: medianOvertimeHoursDiffM,
+        isSuppressed: medianOvertimeHoursDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_W,
+        value: medianOvertimeHoursDiffF,
+        isSuppressed: medianOvertimeHoursDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_X,
+        value: medianOvertimeHoursDiffX,
+        isSuppressed: medianOvertimeHoursDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U,
+        value: medianOvertimeHoursDiffU,
+        isSuppressed: medianOvertimeHoursDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -1399,26 +1391,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M,
-      value: meanBonusPayDiffM,
-      isSuppressed: meanBonusPayDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W,
-      value: meanBonusPayDiffF,
-      isSuppressed: meanBonusPayDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X,
-      value: meanBonusPayDiffX,
-      isSuppressed: meanBonusPayDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U,
-      value: meanBonusPayDiffU,
-      isSuppressed: meanBonusPayDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_M,
+        value: meanBonusPayDiffM,
+        isSuppressed: meanBonusPayDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_W,
+        value: meanBonusPayDiffF,
+        isSuppressed: meanBonusPayDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_X,
+        value: meanBonusPayDiffX,
+        isSuppressed: meanBonusPayDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEAN_BONUS_PAY_DIFF_U,
+        value: meanBonusPayDiffU,
+        isSuppressed: meanBonusPayDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -1507,26 +1501,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M,
-      value: medianBonusPayDiffM,
-      isSuppressed: medianBonusPayDiffM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W,
-      value: medianBonusPayDiffF,
-      isSuppressed: medianBonusPayDiffF === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X,
-      value: medianBonusPayDiffX,
-      isSuppressed: medianBonusPayDiffX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U,
-      value: medianBonusPayDiffU,
-      isSuppressed: medianBonusPayDiffU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M,
+        value: medianBonusPayDiffM,
+        isSuppressed: medianBonusPayDiffM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W,
+        value: medianBonusPayDiffF,
+        isSuppressed: medianBonusPayDiffF === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X,
+        value: medianBonusPayDiffX,
+        isSuppressed: medianBonusPayDiffX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U,
+        value: medianBonusPayDiffU,
+        isSuppressed: medianBonusPayDiffU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -1693,26 +1689,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_M,
-      value: percentReceivingOvertimePayM,
-      isSuppressed: percentReceivingOvertimePayM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_W,
-      value: percentReceivingOvertimePayW,
-      isSuppressed: percentReceivingOvertimePayW === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_X,
-      value: percentReceivingOvertimePayX,
-      isSuppressed: percentReceivingOvertimePayX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_U,
-      value: percentReceivingOvertimePayU,
-      isSuppressed: percentReceivingOvertimePayU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_M,
+        value: percentReceivingOvertimePayM,
+        isSuppressed: percentReceivingOvertimePayM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_W,
+        value: percentReceivingOvertimePayW,
+        isSuppressed: percentReceivingOvertimePayW === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_X,
+        value: percentReceivingOvertimePayX,
+        isSuppressed: percentReceivingOvertimePayX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_OT_PAY_U,
+        value: percentReceivingOvertimePayU,
+        isSuppressed: percentReceivingOvertimePayU === null,
+      },
+    );
 
     return calculatedAmounts;
   },
@@ -1798,26 +1796,28 @@ const reportCalcServicePrivate = {
     }
 
     const calculatedAmounts = [];
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_M,
-      value: percentReceivingBonusPayM,
-      isSuppressed: percentReceivingBonusPayM === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_W,
-      value: percentReceivingBonusPayW,
-      isSuppressed: percentReceivingBonusPayW === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_X,
-      value: percentReceivingBonusPayX,
-      isSuppressed: percentReceivingBonusPayX === null,
-    });
-    calculatedAmounts.push({
-      calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_U,
-      value: percentReceivingBonusPayU,
-      isSuppressed: percentReceivingBonusPayU === null,
-    });
+    calculatedAmounts.push(
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_M,
+        value: percentReceivingBonusPayM,
+        isSuppressed: percentReceivingBonusPayM === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_W,
+        value: percentReceivingBonusPayW,
+        isSuppressed: percentReceivingBonusPayW === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_X,
+        value: percentReceivingBonusPayX,
+        isSuppressed: percentReceivingBonusPayX === null,
+      },
+      {
+        calculationCode: CALCULATION_CODES.PERCENT_RECEIVING_BONUS_PAY_U,
+        value: percentReceivingBonusPayU,
+        isSuppressed: percentReceivingBonusPayU === null,
+      },
+    );
 
     return calculatedAmounts;
   },

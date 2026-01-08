@@ -107,7 +107,7 @@ router.patch(
       const { user } = req;
       const data: PatchAnnouncementsType = req.body;
       const invalidRecs = data.filter(
-        (d) => supportedStatuses.indexOf(d.status as any) < 0,
+        (d) => !supportedStatuses.includes(d.status),
       );
       if (invalidRecs.length) {
         throw new Error(

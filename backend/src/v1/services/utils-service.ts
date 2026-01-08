@@ -174,8 +174,7 @@ async function updateManyUnsafe(
   //   javascript Dates are converted into an ISO8601 string and cast to TIMESTAMP
   //   javascript numbers, bools and other types are left "as is"
   const formatColValue = (v, typeHint = null) => {
-    const isTypeHintSupported =
-      supportedTypeHints.find((v) => v == typeHint) != null;
+    const isTypeHintSupported = supportedTypeHints.some((v) => v == typeHint);
     if (v === null) {
       return isTypeHintSupported ? `null::${typeHint}` : 'null';
     }
@@ -193,9 +192,7 @@ async function updateManyUnsafe(
     return v;
   };
 
-  if (typeHints == null) {
-    typeHints = {};
-  }
+  typeHints ??= {};
 
   // Create a list of statements which copy values from source columns to
   // target columns.
@@ -269,7 +266,7 @@ const convertIsoDateStringsToUtc = (items: any[], attrName: string): any[] => {
       modifiedItem[attrName] = value;
 
       return modifiedItem;
-    } catch (e) {
+    } catch {
       // The item's value isn't a date string (or an array of date strings), so
       // return a copy of the original, unmodified item
       return { ...item };
