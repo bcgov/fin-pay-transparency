@@ -8,10 +8,8 @@ import { omit } from 'lodash';
  * @param {*} colors
  */
 function getDomainWinstonLoggerFormat(
-  /* istanbul ignore next */
   colors: any = true,
 ) {
-  /* istanbul ignore next */
   const colorize = colors ? format.colorize() : null;
   const loggingFormats = [
     format.timestamp({
@@ -20,23 +18,17 @@ function getDomainWinstonLoggerFormat(
     format.errors({ stack: true }),
     colorize,
     format.printf((info) => {
-      /* istanbul ignore next */
       const stackTrace = info.stack ? `\n${info.stack}` : '';
 
       // handle single object
       if (!info.message) {
         const obj = omit(info, ['level', 'timestamp', Symbol.for('level')]);
-        return `${info.timestamp} - ${info.level}: ${JSON.stringify(
-          obj,
-        )}${stackTrace}`;
+        return `${info.timestamp} - ${info.level}: ${JSON.stringify(obj)}${stackTrace}`;
       }
       const splatArgs = info[Symbol.for('splat')] || [];
       const rest = splatArgs.join(' ');
-      /* istanbul ignore if */
       if (typeof info.message === 'object') {
-        return `${info.timestamp} - ${info.level}: ${JSON.stringify(
-          info.message,
-        )} ${rest}${stackTrace}`;
+        return `${info.timestamp} - ${info.level}: ${JSON.stringify(info.message)} ${rest}${stackTrace}`;
       }
       return `${info.timestamp} - ${info.level}: ${info.message} ${rest}${stackTrace}`;
     }),

@@ -257,7 +257,7 @@ const docGenServicePrivate = {
     const allReportPages = await parent.$$(
       `.${docGenServicePrivate.STYLE_CLASSES.PAGE}`,
     );
-    const newestReportPage = allReportPages[allReportPages.length - 1];
+    const newestReportPage = allReportPages.at(-1);
     if (!newestReportPage) {
       throw new Error('post condition failed: page not properly created');
     }
@@ -802,18 +802,22 @@ const docGenServicePrivate = {
     const numGenderCategories = submittedReportData.genderCodes.length;
     const hasAtLeastOneIncludedChartWithSuppression =
       submittedReportData.chartData &&
-      chartsToConsider
-        .map((chartName) => submittedReportData.chartData[chartName])
-        .filter((c) => c.length && c.length < numGenderCategories).length > 0;
+      chartsToConsider.some(
+        (chartName) =>
+          submittedReportData.chartData[chartName].length &&
+          submittedReportData.chartData[chartName].length < numGenderCategories,
+      );
 
     // Note: (numGenderCategories - 1) because because the reference gender
     // category isn't displayed in the tables
     const hasAtLeastOneIncludedTableWithSuppression =
       submittedReportData.tableData &&
-      tablesToConsider
-        .map((tableName) => submittedReportData.tableData[tableName])
-        .filter((c) => c.length && c.length < numGenderCategories - 1).length >
-        0;
+      tablesToConsider.some(
+        (tableName) =>
+          submittedReportData.tableData[tableName].length &&
+          submittedReportData.tableData[tableName].length <
+            numGenderCategories - 1,
+      );
     return (
       hasAtLeastOneIncludedChartWithSuppression ||
       hasAtLeastOneIncludedTableWithSuppression

@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
-import config from 'nconf';
+import nconf from 'nconf';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
 
-config.defaults({
+nconf.defaults({
   environment: env,
   server: {
     logLevel: process.env.LOG_LEVEL,
@@ -29,4 +29,4 @@ config.defaults({
     url: process.env.BACKEND_URL || 'http://localhost:3010',
   },
 });
-export { config };
+export { nconf as config };
