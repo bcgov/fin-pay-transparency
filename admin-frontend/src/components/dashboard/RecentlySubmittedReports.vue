@@ -5,7 +5,7 @@
     :headers="headers"
     :get-reports="getRecentlySubmittedReports"
   >
-    <template #item.update_date="{ item }">
+    <template #[`item.update_date`]="{ item }">
       <span class="date-column">
         <div>{{ formatIsoDateTimeAsLocalDate(item.update_date) }}</div>
         <small class="text-grey-darken-3">{{
@@ -35,6 +35,7 @@ import {
   formatIsoDateTimeAsLocalTime,
 } from '../../utils/date';
 import { ref } from 'vue';
+import type { VDataTableServer } from 'vuetify/components';
 
 const pageSize = 5;
 const reportsWidget = ref<typeof ReportsWidget>();
@@ -43,7 +44,7 @@ defineExpose({
   refresh,
 });
 
-const headers = [
+const headers: VDataTableServer['headers'] = [
   {
     title: 'Submission Date',
     align: 'start',

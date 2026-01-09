@@ -49,24 +49,15 @@
       "
       @update:options="updateSearch"
     >
-      <template #item.create_date="{ item }">
+      <template #[`item.create_date`]="{ item }">
         {{ formatDate(item.create_date) }}
       </template>
-      <template #item.actions="{ item }">
+      <template #[`item.actions`]="{ item }">
         <ReportActions :report="item"></ReportActions>
       </template>
     </v-data-table-server>
   </div>
-
-  <!-- dialogs -->
-  <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
 </template>
-
-<script lang="ts">
-export default {
-  name: 'Reports',
-};
-</script>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
@@ -74,17 +65,11 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import ReportSearchFilters from './ReportSearchFilters.vue';
 import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import { ReportKeys } from '../types/reports';
-import ApiService from '../services/apiService';
-import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { formatDate } from '../utils/date';
-import { NotificationService } from '../services/notificationService';
 import ReportActions from './reports/ReportActions.vue';
-import {
-  ReportChangeService,
-  ReportChangedEventPayload,
-} from '../services/reportChangeService';
+import { ReportChangeService } from '../services/reportChangeService';
+import type { VDataTableServer } from 'vuetify/components';
 
-const reportsCurrentlyBeingDownloaded = ref({});
 const reportSearchStore = useReportSearchStore();
 const {
   searchResults,
@@ -95,7 +80,6 @@ const {
   lastSubmittedReportSearchParams,
   isDownloadingCsv,
 } = storeToRefs(reportSearchStore);
-const confirmDialog = ref<typeof ConfirmationDialog>();
 const itemsPerPageOptions = ref([
   { value: 10, title: '10' },
   { value: 25, title: '25' },
@@ -110,11 +94,11 @@ onUnmounted(() => {
   ReportChangeService.unlisten(onAnyReportChanged);
 });
 
-function onAnyReportChanged(payload: ReportChangedEventPayload) {
+function onAnyReportChanged() {
   repeatSearch();
 }
 
-const headers = ref<any>([
+const headers = ref<VDataTableServer['headers']>([
   {
     title: 'Submission Date',
     align: 'start',
@@ -159,53 +143,6 @@ async function updateSearch(options) {
 
 async function repeatSearch() {
   await reportSearchStore.repeatSearch();
-}
-
-async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
-  const lockText = makeUnlocked ? 'unlock' : 'lock';
-  const isConfirmed = await confirmDialog.value?.open(
-    `${lockText} report`,
-    `Are you sure you want to ${lockText} the report?`,
-    {
-      titleBold: true,
-      resolveText: `Yes, ${lockText}`,
-    },
-  );
-  if (isConfirmed) {
-    await ApiService.lockUnlockReport(reportId, makeUnlocked);
-    await repeatSearch();
-  }
-}
-
-/*
-Downloads a PDF report with the given reportId, and opens it in a new tab
-(or a new window, depending on how the browser is configured).
-*/
-async function viewReportInNewTab(reportId: string) {
-  setReportDownloadInProgress(reportId);
-  try {
-    const pdfAsBlob = await ApiService.getPdfReportAsBlob(reportId);
-    const objectUrl = URL.createObjectURL(pdfAsBlob);
-    window.open(objectUrl);
-  } catch (e) {
-    console.log(e);
-    NotificationService.pushNotificationError(
-      'Something went wrong.  Unable to download report.',
-    );
-  }
-  clearReportDownloadInProgress(reportId);
-}
-
-function setReportDownloadInProgress(reportId: string) {
-  reportsCurrentlyBeingDownloaded.value[reportId] = true;
-}
-
-function clearReportDownloadInProgress(reportId: string) {
-  delete reportsCurrentlyBeingDownloaded.value[reportId];
-}
-
-function isDownloadingPdf(reportId: string) {
-  return reportsCurrentlyBeingDownloaded.value.hasOwnProperty(reportId);
 }
 
 function exportResults() {

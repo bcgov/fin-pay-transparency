@@ -13,8 +13,7 @@ import {
 } from './admin-report-service';
 import { reportService } from './report-service';
 import { UserInputError } from '../types/errors';
-import { date } from 'zod';
-import { ad } from '@faker-js/faker/dist/airline-C5Qwd7_q';
+import { Decimal } from '@prisma/client/runtime/library';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -99,6 +98,7 @@ describe('admin-report-service', () => {
         naics_code: '30',
         report_status: 'Published',
         reporting_year: 2024,
+        revision: new Decimal(1),
         is_unlocked: true,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
         company_id: company1.company_id,
@@ -112,6 +112,7 @@ describe('admin-report-service', () => {
         naics_code: '11',
         report_status: 'Published',
         reporting_year: 2023,
+        revision: new Decimal(1),
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e9',
         company_id: company2.company_id,
@@ -125,6 +126,7 @@ describe('admin-report-service', () => {
         naics_code: '40',
         report_status: 'Published',
         reporting_year: 2021,
+        revision: new Decimal(1),
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,
@@ -138,6 +140,7 @@ describe('admin-report-service', () => {
         naics_code: '40',
         report_status: 'Draft',
         reporting_year: 2021,
+        revision: new Decimal(1),
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,

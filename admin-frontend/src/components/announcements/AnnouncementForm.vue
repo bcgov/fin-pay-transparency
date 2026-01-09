@@ -367,7 +367,7 @@
 
 <script lang="ts" setup>
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { defineProps, defineEmits, watch, ref } from 'vue';
+import { watch, ref } from 'vue';
 import {
   AnnouncementFormValue,
   Announcement,
