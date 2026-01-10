@@ -57,9 +57,7 @@ export const NotificationService = {
   a related component that will listen for the notification events and display them.
   */
   pushNotification(notification: INotification) {
-    if (
-      Object.values(NotificationSeverity).indexOf(notification?.severity) == -1
-    ) {
+    if (!Object.values(NotificationSeverity).includes(notification?.severity)) {
       throw new Error(
         `Invalid notification severity '${notification?.severity}'.  Expected one of [${Object.values(NotificationSeverity)}]`,
       );

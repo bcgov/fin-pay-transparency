@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston';
-const { omit } = require('lodash');
+import { omit } from 'lodash';
 
 /**
  * Handles all the different log formats
@@ -21,7 +21,7 @@ function getDomainWinstonLoggerFormat(colors = true) {
       // handle single object
       if (!info.message) {
         const obj = omit(info, ['level', 'timestamp', Symbol.for('level')]);
-        return `${info.timestamp} - ${info.level}: ${obj}${stackTrace}`;
+        return `${info.timestamp} - ${info.level}: ${JSON.stringify(obj)}${stackTrace}`;
       }
       const splatArgs = info[Symbol.for('splat')] || [];
       const rest = splatArgs.join(' ');

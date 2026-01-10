@@ -87,7 +87,6 @@ async function archiveAnnouncement(announcementId: string) {
         `Announcement archived successfully.`,
         '',
       );
-    } catch (e) {
     } finally {
       isArchiving.value = false;
     }

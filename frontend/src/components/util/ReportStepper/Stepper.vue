@@ -91,7 +91,7 @@ const getMarkClassName = (step: IStageOption) => {
       line-height: 20px;
       font-size: small;
       position: relative;
-      background: rgb(124, 124, 123);
+      background: #767676;
       border-top-left-radius: 3px;
       border-top-right-radius: 3px;
       color: #fff;
@@ -112,7 +112,7 @@ const getMarkClassName = (step: IStageOption) => {
         left: 5px;
         width: 0;
         height: 0;
-        border-color: transparent rgb(124, 124, 123) transparent transparent;
+        border-color: transparent #767676 transparent transparent;
         border-style: solid;
         border-width: 10px 10px 10px 0;
         transform: rotate(-90deg);
@@ -128,7 +128,7 @@ const getMarkClassName = (step: IStageOption) => {
       .label {
         font-size: small;
         font-weight: 500;
-        color: rgb(124, 124, 123);
+        color: #767676;
         &.completed {
           color: #003366;
         }

@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import config from 'nconf';
+import nconf from 'nconf';
 import { logger } from '../logger';
 
 dotenv.config();
@@ -19,7 +19,7 @@ const datasourceUrl = process.env.DATABASE_URL
   : `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
 
 logger.silly(`Connecting to ${datasourceUrl}`);
-config.defaults({
+nconf.defaults({
   environment: env,
   siteMinder_logout_endpoint: process.env.SITEMINDER_LOGOUT_ENDPOINT,
   server: {
@@ -159,4 +159,4 @@ config.defaults({
   },
 });
 
-export { config };
+export { nconf as config };

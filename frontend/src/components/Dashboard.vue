@@ -94,7 +94,7 @@ export default {
   components: { ReportsTable, AnnouncementPager },
   data: (): DashboardData => ({
     reports: [],
-    frontendConfig: (window as any).config,
+    frontendConfig: (globalThis as any).config,
     announcements: [],
     areAnnouncementLoading: false,
   }),

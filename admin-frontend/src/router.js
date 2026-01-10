@@ -233,10 +233,10 @@ router.beforeEach((to, _from, next) => {
         });
     })
     .catch(() => {
-      if (!aStore.userInfo) {
-        next('/login');
-      } else {
+      if (aStore.userInfo) {
         next('/token-expired');
+      } else {
+        next('/login');
       }
     });
 });

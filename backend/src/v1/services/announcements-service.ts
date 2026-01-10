@@ -195,7 +195,7 @@ export const announcementService = {
       AnnouncementStatus.Expired,
     ];
     const hasUnsupportedUpdates = data.filter(
-      (item) => supportedStatuses.indexOf(item.status as any) < 0,
+      (item) => !supportedStatuses.includes(item.status),
     ).length;
     if (hasUnsupportedUpdates) {
       throw new UserInputError(
@@ -217,7 +217,7 @@ export const announcementService = {
       const updateDate = ZonedDateTime.now(ZoneId.UTC);
 
       const updates = data
-        .filter((item) => supportedStatuses.indexOf(item.status as any) >= 0)
+        .filter((item) => supportedStatuses.includes(item.status))
         .map((item) => ({
           announcement_id: item.id,
           status: item.status,
@@ -293,8 +293,8 @@ export const announcementService = {
       announcement_status: {
         connect: { code: input.status },
       },
-      active_on: !isEmpty(input.active_on) ? input.active_on : undefined,
-      expires_on: !isEmpty(input.expires_on) ? input.expires_on : undefined,
+      active_on: isEmpty(input.active_on) ? undefined : input.active_on,
+      expires_on: isEmpty(input.expires_on) ? undefined : input.expires_on,
       admin_user_announcement_created_byToadmin_user: {
         connect: { admin_user_id: currentUserId },
       },
@@ -450,8 +450,8 @@ export const announcementService = {
         announcement_status: {
           connect: { code: input.status },
         },
-        active_on: !isEmpty(input.active_on) ? input.active_on : null,
-        expires_on: !isEmpty(input.expires_on) ? input.expires_on : null,
+        active_on: isEmpty(input.active_on) ? null : input.active_on,
+        expires_on: isEmpty(input.expires_on) ? null : input.expires_on,
         admin_user_announcement_updated_byToadmin_user: {
           connect: { admin_user_id: currentUserId },
         },

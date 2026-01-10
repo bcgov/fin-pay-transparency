@@ -256,18 +256,15 @@ const validateService = {
       SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
     );
 
-    // Validation checks common to all columns with data in units of 'hours'
     errorMessages.push(
+      // Validation checks common to all columns with data in units of 'hours'
       ...this.numberValidation(record, HOURS_COLUMNS, MAX_HOURS),
-    );
-
-    // Validation checks common to all columns with data in units of 'dollars'
-    errorMessages.push(
+      // Validation checks common to all columns with data in units of 'dollars'
       ...this.numberValidation(record, DOLLARS_COLUMNS, MAX_DOLLARS),
     );
 
     // Other column-specific validation checks
-    if (ALL_VALID_GENDER_CODES.indexOf(genderCode) == -1) {
+    if (!ALL_VALID_GENDER_CODES.includes(genderCode)) {
       errorMessages.push(
         `Invalid ${SUBMISSION_ROW_COLUMNS.GENDER_CODE} '${genderCode}' (expected one of: ${ALL_VALID_GENDER_CODES.join(', ')}).`,
       );
@@ -347,7 +344,7 @@ const validateService = {
     let standardizedGenderCode = null;
     for (const key of Object.keys(GENDER_CODES)) {
       const genderCodeSynonyms = GENDER_CODES[key];
-      if (genderCodeSynonyms.indexOf(genderCode) >= 0) {
+      if (genderCodeSynonyms.includes(genderCode)) {
         //the standardized form is a list of all synonym codes separated by underscores.
         standardizedGenderCode = genderCodeSynonyms.join('_');
         //break out of the loop
@@ -390,7 +387,7 @@ const validateService = {
       if (num == 0) {
         return true;
       }
-    } catch (e) {
+    } catch {
       //ignore the error
     }
 
@@ -399,7 +396,7 @@ const validateService = {
     if (typeof val == 'string') {
       val = val.toUpperCase();
     }
-    return ZERO_SYNONYMS.indexOf(val) >= 0;
+    return ZERO_SYNONYMS.includes(val);
   },
 
   isValidNumber(val: any): boolean {
@@ -449,7 +446,7 @@ export const validateServicePrivate = {
         // (because the it would add complexity to the doc-gen-service to split long
         // lists at page boundaries.)
         result.childNodes.forEach((node) => {
-          if (listTypes.indexOf(node.rawTagName.toLowerCase()) >= 0) {
+          if (listTypes.includes(node.rawTagName.toLowerCase())) {
             if (
               node.childNodes.length >
               config.get('server:reportRichText:maxItemsPerList')
@@ -460,7 +457,7 @@ export const validateServicePrivate = {
             }
           }
         });
-      } catch (e) {
+      } catch {
         //if parsing the HTML failed, return a not-very-specific error message
         errorMsgs.push(`'${fieldName}' is not valid`);
       }

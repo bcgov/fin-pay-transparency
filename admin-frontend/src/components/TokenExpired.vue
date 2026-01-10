@@ -24,6 +24,6 @@ const authRoutesLogin = sanitizeUrl(AuthRoutes.LOGIN_AZUREIDIR);
 
 const clearStorageAndRedirectToLogin = () => {
   authStore().setJwtToken();
-  window.location.href = authRoutesLogin;
+  globalThis.location.href = authRoutesLogin;
 };
 </script>

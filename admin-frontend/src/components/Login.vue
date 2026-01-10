@@ -22,11 +22,10 @@ import { authStore } from '../store/modules/auth';
 import { AuthRoutes } from '../utils/constant';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
-const appTitle = 'Pay Transparency Admin Dashboard';
 const authRoutesLogin = sanitizeUrl(AuthRoutes.LOGIN_AZUREIDIR);
 const clearStorageAndRedirectToLogin = () => {
   authStore().setJwtToken();
-  window.location.href = authRoutesLogin;
+  globalThis.location.href = authRoutesLogin;
 };
 
 </script>

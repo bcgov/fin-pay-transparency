@@ -167,7 +167,7 @@ export const useAnnouncementSearchStore = defineStore(
       const unfiltered = sortBy.map((s) => {
         return { field: s?.key, order: s?.order };
       });
-      return unfiltered.filter((s) => s); //filter out null values
+      return unfiltered.filter(Boolean); //filter out falsy values
     };
 
     //---------------------------------------------------------------------------

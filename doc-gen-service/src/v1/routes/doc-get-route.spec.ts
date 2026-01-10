@@ -50,6 +50,7 @@ describe('doc-gen-route', () => {
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .set('x-correlation-id', '100')
+        .query({ reportType: 'html' })
         .expect(500);
     });
   });

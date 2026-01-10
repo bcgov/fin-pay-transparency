@@ -49,7 +49,7 @@ fileUploadRouter.post(
           return res.status(400).json(error);
         }
         return res.status(200).json(result);
-      } catch (err) {
+      } catch {
         error = new SubmissionError('Something went wrong');
         res.status(500).json(error);
       } finally {

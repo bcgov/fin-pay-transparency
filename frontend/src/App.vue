@@ -33,7 +33,7 @@ export default {
   computed: {
     ...mapState(appStore, ['pageTitle']),
     isIE() {
-      return /Trident\/|MSIE/.test(window.navigator.userAgent);
+      return /Trident\/|MSIE/.test(globalThis.navigator.userAgent);
     },
   },
   watch: {

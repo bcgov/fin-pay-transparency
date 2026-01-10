@@ -5,6 +5,15 @@ import { logger } from '../../logger';
 import { config } from '../../config';
 import { query } from 'express-validator';
 
+interface ExternalReportRequest extends Request {
+  query: {
+    startDate?: string;
+    endDate?: string;
+    page?: string;
+    pageSize?: string;
+  };
+}
+
 const router = express.Router();
 const validateApiKey =
   (validKey: string) => (req: Request, res: Response, next: NextFunction) => {
@@ -245,7 +254,7 @@ router.get(
   validateApiKey(config.get('server:apiKey')),
   query('startDate').isISO8601().withMessage('Invalid start date format'),
   query('endDate').isISO8601().withMessage('Invalid end date format'),
-  utils.asyncHandler(async (req: Request, res: Response) => {
+  utils.asyncHandler(async (req: ExternalReportRequest, res: Response) => {
     try {
       const startDate = req.query.startDate?.toString();
       const endDate = req.query.endDate?.toString();

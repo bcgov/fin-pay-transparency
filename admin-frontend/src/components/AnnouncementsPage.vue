@@ -274,7 +274,7 @@ async function updateSearch(options) {
 async function archiveAnnouncements(announcementIds: string[]) {
   const isConfirmed = await confirmDialog.value?.open(
     'Confirm Archive',
-    `Are you sure you want to archive the selected announcement${announcementIds.length != 1 ? 's' : ''}? These announcements will be permanently deleted from the database ${config.value?.deleteAnnouncementsDurationInDays} days after they have been archived.  This action cannot be undone.`,
+    `Are you sure you want to archive the selected announcement${announcementIds.length == 1 ? '' : 's'}? These announcements will be permanently deleted from the database ${config.value?.deleteAnnouncementsDurationInDays} days after they have been archived.  This action cannot be undone.`,
     {
       titleBold: true,
       resolveText: `Confirm`,
@@ -286,10 +286,9 @@ async function archiveAnnouncements(announcementIds: string[]) {
       await ApiService.archiveAnnouncements(announcementIds);
       announcementSearchStore.repeatSearch();
       NotificationService.pushNotificationSuccess(
-        `Announcement${announcementIds.length != 1 ? 's' : ''} archived successfully.`,
+        `Announcement${announcementIds.length == 1 ? '' : 's'} archived successfully.`,
         '',
       );
-    } catch (e) {
     } finally {
       isArchiving.value = false;
     }

@@ -124,16 +124,18 @@ const errorService = {
       .withNano(0);
 
     if (start.isAfter(end))
-      throw Error('Invalid start date; start date cannot be after end date');
+      throw new Error(
+        'Invalid start date; start date cannot be after end date',
+      );
     if (end.isAfter(ZonedDateTime.now(ZoneId.UTC)))
-      throw Error('Invalid end date; cannot specify date in future');
+      throw new Error('Invalid end date; cannot specify date in future');
 
     const pageSize = Number.parseInt(pageSizeStr);
     if (Number.isNaN(pageSize) || pageSize <= 0 || pageSize > 1000)
-      throw Error('Invalid pageSize; must be > 0 && <= 1000');
+      throw new Error('Invalid pageSize; must be > 0 && <= 1000');
     const page = Number.parseInt(pageStr);
     if (Number.isNaN(page) || page < 0)
-      throw Error('Invalid page; must be >= 0');
+      throw new Error('Invalid page; must be >= 0');
 
     const offset = page * pageSize;
 

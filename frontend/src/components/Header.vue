@@ -98,7 +98,7 @@ export default {
   },
   methods: {
     redirectToLogout() {
-      window.location.href = this.authRoutesLogout;
+      globalThis.location.href = this.authRoutesLogout;
     },
   },
 };

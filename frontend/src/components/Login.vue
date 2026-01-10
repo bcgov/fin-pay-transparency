@@ -269,7 +269,7 @@ export default {
       authRoutesLogin: sanitizeUrl(AuthRoutes.LOGIN_BCEID),
       stage: 'UPLOAD',
       imageSource: uploadpng,
-      frontendConfig: window.config,
+      frontendConfig: globalThis.config,
     };
   },
   computed: {
@@ -279,7 +279,7 @@ export default {
     sanitizeUrl: sanitizeUrl,
     clearStorageAndRedirectToLogin() {
       authStore().setJwtToken();
-      window.location.href = this.authRoutesLogin;
+      globalThis.location.href = this.authRoutesLogin;
     },
     changeStage: function (newstage) {
       switch (newstage) {
