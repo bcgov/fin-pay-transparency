@@ -204,8 +204,10 @@ const fileUploadService = {
       );
       const existing = calculatedDatas.length ? calculatedDatas[0] : null;
 
-      // All calculated values are cast to strings before saving to the database
-      const calculatedValueAsString = calculatedAmount.value?.toString();
+      // All calculated values are cast to strings before saving to the
+      // database
+      const calculatedValueAsString =
+        calculatedAmount.value?.toString() ?? null;
 
       if (existing) {
         updates.push({
