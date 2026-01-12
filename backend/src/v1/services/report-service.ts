@@ -320,9 +320,12 @@ const reportServicePrivate = {
     hourlyPayQuartile4: ChartDataRecord[],
     hourlyPayQuartile1: ChartDataRecord[],
   ): string {
-    const genderCodesToSkip = [referenceGenderCode, GENDERS.UNKNOWN.code];
+    const genderCodesToSkip = new Set([
+      referenceGenderCode,
+      GENDERS.UNKNOWN.code,
+    ]);
     const genderCodesToSummarize = Object.values(GENDERS).filter(
-      (d) => !genderCodesToSkip.includes(d.code),
+      (d) => !genderCodesToSkip.has(d.code),
     );
 
     const genderSummaries = [];

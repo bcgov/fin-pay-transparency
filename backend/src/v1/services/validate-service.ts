@@ -42,7 +42,7 @@ const ALL_VALID_GENDER_CODES = [
   ...GENDER_CODES.UNKNOWN,
 ];
 
-const ZERO_SYNONYMS = ['', null];
+const ZERO_SYNONYMS = new Set(['', null]);
 const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
 const MAX_LEN_DATA_CONSTRAINTS = 3000;
@@ -396,7 +396,7 @@ const validateService = {
     if (typeof val == 'string') {
       val = val.toUpperCase();
     }
-    return ZERO_SYNONYMS.includes(val);
+    return ZERO_SYNONYMS.has(val);
   },
 
   isValidNumber(val: any): boolean {
@@ -426,7 +426,7 @@ export const validateServicePrivate = {
   validateRichText(richText: string, fieldName: string): string[] {
     const errorMsgs = [];
 
-    const listTypes = ['ol', 'ul'];
+    const listTypes = new Set(['ol', 'ul']);
 
     if (richText) {
       try {
@@ -446,7 +446,7 @@ export const validateServicePrivate = {
         // (because the it would add complexity to the doc-gen-service to split long
         // lists at page boundaries.)
         result.childNodes.forEach((node) => {
-          if (listTypes.includes(node.rawTagName.toLowerCase())) {
+          if (listTypes.has(node.rawTagName.toLowerCase())) {
             if (
               node.childNodes.length >
               config.get('server:reportRichText:maxItemsPerList')
