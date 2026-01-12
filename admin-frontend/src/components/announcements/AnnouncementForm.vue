@@ -487,7 +487,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
     attachmentId: announcement?.attachmentId || v4(),
     status:
       announcement?.status &&
-      announcementStatusOptions.indexOf(announcement.status as any) >= 0
+      announcementStatusOptions.includes(announcement.status as any)
         ? announcement.status
         : AnnouncementStatus.Draft,
     attachment: undefined,
@@ -553,7 +553,7 @@ const { handleSubmit, setErrors, errors, meta, values } = useForm({
       if (!value) return true;
       try {
         await ApiService.clamavScanFile(value);
-      } catch (error) {
+      } catch {
         return 'File is invalid.';
       }
 

@@ -32,7 +32,7 @@ import Spinner from '../Spinner.vue';
 
 import { storeToRefs } from 'pinia';
 import { useReportStepperStore } from '../../store/modules/reportStepper';
-import { ref, onBeforeMount, defineEmits } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import ApiService from '../../common/apiService';
 import { useRouter } from 'vue-router';
 
@@ -49,7 +49,7 @@ const loadReport = async () => {
     loading.value = true;
     reportHtml.value = await ApiService.getHtmlReport(reportId.value);
     emit('html-report-loaded');
-  } catch (error) {
+  } catch {
     reportHtml.value = null;
     loadReportError.value = true;
   } finally {

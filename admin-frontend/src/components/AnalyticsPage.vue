@@ -45,13 +45,13 @@ type PowerBiDetails = {
   eventHandlersMap: Map<string, EventHandler>;
 };
 
-const snowplowUrl = (window as any).config?.SNOWPLOW_URL;
+const snowplowUrl = globalThis.config?.SNOWPLOW_URL;
 
 const powerBiDetailsPerResource = createDefaultPowerBiDetailsMap([
   POWERBI_RESOURCE.ANALYTICS,
 ]);
 
-getPowerBiAccessToken(powerBiDetailsPerResource);
+await getPowerBiAccessToken(powerBiDetailsPerResource);
 
 /** Create a Map containing the details of the resources. */
 function createDefaultPowerBiDetailsMap(
@@ -97,7 +97,7 @@ async function getPowerBiAccessToken(
     embedInfo = await ApiService.getPowerBiEmbedAnalytics(
       Array.from(resourceDetails.keys()),
     );
-  } catch (err) {
+  } catch {
     NotificationService.pushNotificationError(
       'Analytics failed to load. Please try again later or contact the helpdesk.',
       undefined,

@@ -52,7 +52,7 @@ export default {
     ...mapState(appStore, ['pageTitle']),
     ...mapState(authStore, ['isAuthenticated']),
     isIE() {
-      return /Trident\/|MSIE/.test(window.navigator.userAgent);
+      return /Trident\/|MSIE/.test(globalThis.navigator.userAgent);
     },
   },
   watch: {
@@ -221,7 +221,7 @@ button:disabled.v-btn {
 .v-chip.warning {
   background-color: #fef1d8 !important;
   border-color: #fef1d8 !important;
-  color: #ffa600 !important;
+  color: #996300 !important;
 }
 
 .v-chip.error {

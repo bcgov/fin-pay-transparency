@@ -54,7 +54,7 @@ const handleClick = () => {
     cursor: pointer;
 
     &.disabled {
-      background-color: rgb(124, 124, 123);
+      background-color: #767676;
       cursor: not-allowed;
     }
 

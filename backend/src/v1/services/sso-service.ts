@@ -133,7 +133,7 @@ export class SSO {
       // There should always be at least 1 user.
       // If none were found then there is a problem and the local database should not be modified
       logger.error(`Keycloak did not find any users with any permissions`);
-      throw Error('No users found from Keycloak');
+      throw new Error('No users found from Keycloak');
     }
 
     // get the users from the database

@@ -179,7 +179,7 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
       obj[sortKey] = s.order ? s.order : 'asc';
       return obj;
     });
-    return unfiltered.filter((s) => s); //filter out null values
+    return unfiltered.filter(Boolean); //filter out falsy values
   };
 
   //---------------------------------------------------------------------------

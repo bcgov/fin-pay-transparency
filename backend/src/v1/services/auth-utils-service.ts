@@ -39,12 +39,7 @@ abstract class AuthBase {
     const payload: JwtPayload = jsonwebtoken.decode(token) as JwtPayload;
 
     // Check if expiration exists, or lacks expiration
-    return (
-      (typeof payload.exp !== 'undefined' &&
-        payload.exp !== null &&
-        payload.exp === 0) ||
-      payload.exp > now
-    );
+    return payload.exp === 0 || payload.exp > now;
   }
 
   // Update or remove token based on JWT and user state

@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { z } from 'zod';
 import { externalConsumerService } from '../services/external-consumer-service';
 import { utils } from '../services/utils-service';
 import { reportService } from '../services/report-service';
@@ -9,14 +10,32 @@ const router = express.Router();
 router.get(
   '/',
   utils.asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const startDate = req.query.startDate?.toString();
-      const endDate = req.query.endDate?.toString();
-      const offset = Number((req.query.offset || '0').toString());
-      const limit = Number((req.query.limit || '1000').toString());
-      if (Number.isNaN(offset) || Number.isNaN(limit)) {
-        return res.status(400).json({ error: 'Invalid offset or limit' });
+    const querySchema = z.object({
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+      offset: z.coerce.number().int().nonnegative().default(0),
+      limit: z.coerce.number().int().positive().default(1000),
+    });
+
+    const parseResult = querySchema.safeParse(req.query);
+    if (!parseResult.success) {
+      //if offset or limit are invalid, return 400
+      if (
+        parseResult.error.formErrors.fieldErrors.offset ||
+        parseResult.error.formErrors.fieldErrors.limit
+      ) {
+        return res.status(400).json({
+          error: 'Invalid offset or limit',
+        });
       }
+
+      //else return 400 for any invalid query parameter
+      return res.status(400).json({
+        error: 'Invalid query parameters',
+      });
+    }
+    const { startDate, endDate, offset, limit } = parseResult.data;
+    try {
       const results = await externalConsumerService.exportDataWithPagination(
         startDate,
         endDate,

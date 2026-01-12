@@ -148,10 +148,10 @@ router.beforeEach((to, _from, next) => {
         });
     })
     .catch(() => {
-      if (!aStore.userInfo) {
-        next('/login');
-      } else {
+      if (aStore.userInfo) {
         next('/token-expired');
+      } else {
+        next('/login');
       }
     });
 });
@@ -160,7 +160,7 @@ router.afterEach((to, from) => {
   // Tell snowplow that the URL changed.  Snowplow will
   // record the event as a 'PageView' associated with the
   // new URL (which it reads from document.referrer).
-  window.snowplow('trackPageView');
+  globalThis.snowplow('trackPageView');
 });
 
 export default router;
