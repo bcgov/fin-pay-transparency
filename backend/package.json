@@ -108,6 +108,9 @@
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.(t|j)s$",
+    "transformIgnorePatterns": [
+      "node_modules/(?!@faker-js).+"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
