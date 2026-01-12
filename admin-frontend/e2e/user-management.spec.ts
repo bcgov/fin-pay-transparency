@@ -5,7 +5,7 @@ import { UserManagementPage } from './pages/user-management/user-management-page
 
 const user = {
   name: faker.person.fullName(),
-  email: faker.internet.userName(),
+  email: faker.internet.username(),
 };
 test.describe.serial('User Management', () => {
   let userManagementPage: UserManagementPage;

@@ -176,7 +176,7 @@ describe('admin-auth-service', () => {
       mockJWTDecode.mockReturnValue({
         idir_user_guid: faker.string.uuid(),
         email: faker.internet.email(),
-        preferred_username: faker.internet.userName(),
+        preferred_username: faker.internet.username(),
       });
       const result = await adminAuth.handleCallBackAzureIdir({} as any);
       expect(result).toBe('loginError');
@@ -186,7 +186,7 @@ describe('admin-auth-service', () => {
       mockJWTDecode.mockReturnValue({
         idir_user_guid: faker.string.uuid(),
         email: faker.internet.email(),
-        preferred_username: faker.internet.userName(),
+        preferred_username: faker.internet.username(),
         identity_provider: KEYCLOAK_IDP_HINT_AZUREIDIR,
       });
       const result = await adminAuth.handleCallBackAzureIdir({} as any);
@@ -345,7 +345,7 @@ describe('admin-auth-service', () => {
         const userDetails: IUserDetails = {
           idirUserGuid: faker.string.uuid(),
           displayName: 'Mock user',
-          preferredUsername: faker.internet.userName(),
+          preferredUsername: faker.internet.username(),
           email: faker.internet.email(),
           roles: [ROLE_ADMIN_USER],
         };
