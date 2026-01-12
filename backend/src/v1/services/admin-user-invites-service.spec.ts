@@ -4,9 +4,7 @@ import {
   PTRT_USER_ROLE_NAME,
 } from '../../constants/admin';
 import { UserInputError } from '../types/errors';
-import {
-  adminUserInvitesService,
-} from './admin-user-invites-service';
+import { adminUserInvitesService } from './admin-user-invites-service';
 
 const mockCreate = jest.fn();
 const mockDelete = jest.fn();
@@ -52,8 +50,8 @@ describe('admin-user-invite-service', () => {
         await adminUserInvitesService.createInvite(
           faker.internet.email(),
           PTRT_USER_ROLE_NAME,
-          faker.internet.userName(),
-          faker.internet.userName(),
+          faker.internet.username(),
+          faker.internet.username(),
         );
         expect(mockCreate).toHaveBeenCalledTimes(1);
         expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
@@ -63,8 +61,8 @@ describe('admin-user-invite-service', () => {
         await adminUserInvitesService.createInvite(
           faker.internet.email(),
           PTRT_ADMIN_ROLE_NAME,
-          faker.internet.userName(),
-          faker.internet.userName(),
+          faker.internet.username(),
+          faker.internet.username(),
         );
         expect(mockCreate).toHaveBeenCalledTimes(1);
         expect(mockCreate).toHaveBeenCalledWith({
@@ -81,8 +79,8 @@ describe('admin-user-invite-service', () => {
         await adminUserInvitesService.createInvite(
           faker.internet.email(),
           PTRT_ADMIN_ROLE_NAME,
-          faker.internet.userName(),
-          faker.internet.userName(),
+          faker.internet.username(),
+          faker.internet.username(),
         );
         expect(mockUpdate).toHaveBeenCalledTimes(1);
         expect(mockSendEmailWithRetry).toHaveBeenCalledTimes(1);
@@ -95,8 +93,8 @@ describe('admin-user-invite-service', () => {
           adminUserInvitesService.createInvite(
             faker.internet.email(),
             PTRT_ADMIN_ROLE_NAME,
-            faker.internet.userName(),
-            faker.internet.userName(),
+            faker.internet.username(),
+            faker.internet.username(),
           ),
         ).rejects.toThrow(UserInputError);
         expect(mockUpdate).toHaveBeenCalledTimes(0);

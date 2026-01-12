@@ -69,14 +69,14 @@ jest.mock('../services/admin-auth-service', () => {
 
 const mockDBAdminUsers: Partial<admin_user>[] = [
   {
-    admin_user_id: faker.internet.userName(),
-    preferred_username: faker.internet.userName(),
+    admin_user_id: faker.internet.username(),
+    preferred_username: faker.internet.username(),
     display_name: faker.person.fullName(),
     assigned_roles: PTRT_ADMIN_ROLE_NAME + ',' + PTRT_USER_ROLE_NAME,
   },
   {
     admin_user_id: faker.string.uuid(),
-    preferred_username: faker.internet.userName(),
+    preferred_username: faker.internet.username(),
     display_name: faker.person.fullName(),
     assigned_roles: PTRT_USER_ROLE_NAME,
   },
@@ -115,7 +115,7 @@ describe('sso-service', () => {
               username: mockDBAdminUsers[0].preferred_username,
               attributes: {
                 idir_user_guid: [faker.string.uuid()],
-                idir_username: [faker.internet.userName()],
+                idir_username: [faker.internet.username()],
                 display_name: [faker.internet.displayName()],
               },
             },
@@ -124,7 +124,7 @@ describe('sso-service', () => {
               username: mockDBAdminUsers[1].preferred_username,
               attributes: {
                 idir_user_guid: [faker.string.uuid()],
-                idir_username: [faker.internet.userName()],
+                idir_username: [faker.internet.username()],
                 display_name: [faker.internet.displayName()],
               },
             },
@@ -160,7 +160,7 @@ describe('sso-service', () => {
           ...mockDBAdminUsers,
           {
             admin_user_id: faker.string.uuid(), // add a bonus user that should not be there
-            preferred_username: faker.internet.userName(),
+            preferred_username: faker.internet.username(),
           },
         ])
         .mockResolvedValue(mockDBAdminUsers);
@@ -209,7 +209,7 @@ describe('sso-service', () => {
         },
       });
       const client = await SSO.init();
-      await client.getRolesByUser(faker.internet.userName());
+      await client.getRolesByUser(faker.internet.username());
       expect(mockAxiosGet).toHaveBeenCalledTimes(1);
     });
   });
@@ -219,7 +219,7 @@ describe('sso-service', () => {
         data: { access_token: 'jwt', token_type: 'Bearer' },
       });
       const client = await SSO.init();
-      const username = faker.internet.userName();
+      const username = faker.internet.username();
       await client.addRolesToUser(username, [{ name: 'admin' }]);
       expect(mockAxiosPost).toHaveBeenCalledTimes(2);
       const args = mockAxiosPost.mock.calls[1];
@@ -241,7 +241,7 @@ describe('sso-service', () => {
         it('should throw an error', async () => {
           mockFindUniqueOrThrow.mockResolvedValue({
             idirUserGuid: faker.string.uuid(),
-            displayName: faker.internet.userName(),
+            displayName: faker.internet.username(),
             assigned_roles: [],
           });
           const userId = faker.string.uuid();
@@ -259,8 +259,8 @@ describe('sso-service', () => {
           const user = {
             admin_user_id: userId,
             idirUserGuid: faker.string.uuid(),
-            preferred_username: faker.internet.userName(),
-            displayName: faker.internet.userName(),
+            preferred_username: faker.internet.username(),
+            displayName: faker.internet.username(),
             assigned_roles: 'PTRT-USER',
           };
           mockFindUniqueOrThrow.mockResolvedValue(user);
@@ -283,8 +283,8 @@ describe('sso-service', () => {
           const user = {
             admin_user_id: userId,
             idirUserGuid: faker.string.uuid(),
-            preferred_username: faker.internet.userName(),
-            displayName: faker.internet.userName(),
+            preferred_username: faker.internet.username(),
+            displayName: faker.internet.username(),
             assigned_roles: 'PTRT-ADMIN,PTRT-USER',
           };
           mockFindUniqueOrThrow.mockResolvedValue(user);
@@ -319,8 +319,8 @@ describe('sso-service', () => {
         const user = {
           admin_user_id: userId,
           idirUserGuid: faker.string.uuid(),
-          preferred_username: faker.internet.userName(),
-          displayName: faker.internet.userName(),
+          preferred_username: faker.internet.username(),
+          displayName: faker.internet.username(),
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
         };
 
@@ -350,7 +350,7 @@ describe('sso-service', () => {
           throw new Error('User not found');
         });
         await expect(
-          client.assignRoleToUser(faker.internet.userName(), 'PTRT-ADMIN'),
+          client.assignRoleToUser(faker.internet.username(), 'PTRT-ADMIN'),
         ).rejects.toThrow();
       });
     });
@@ -380,7 +380,7 @@ describe('sso-service', () => {
         it('should throw an error', async () => {
           mockFindUniqueOrThrow.mockResolvedValue({
             idirUserGuid: faker.string.uuid(),
-            displayName: faker.internet.userName(),
+            displayName: faker.internet.username(),
             assigned_roles: [],
           });
           const userId = faker.string.uuid();
@@ -399,8 +399,8 @@ describe('sso-service', () => {
         const user = {
           admin_user_id: userId,
           idirUserGuid: faker.string.uuid(),
-          preferred_username: faker.internet.userName(),
-          displayName: faker.internet.userName(),
+          preferred_username: faker.internet.username(),
+          displayName: faker.internet.username(),
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
         };
         mockFindUniqueOrThrow.mockResolvedValue(user);
