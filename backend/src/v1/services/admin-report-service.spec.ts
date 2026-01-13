@@ -157,9 +157,11 @@ describe('admin-report-service', () => {
     ];
 
     prismaClient = createPrismaMock({
-      pay_transparency_report: reports,
-      pay_transparency_company: companies,
-      admin_user: admins,
+      data: {
+        pay_transparency_report: reports,
+        pay_transparency_company: companies,
+        admin_user: admins,
+      },
     });
   });
   describe('searchReports', () => {
