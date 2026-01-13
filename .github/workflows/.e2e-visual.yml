@@ -8,7 +8,7 @@ on:
         description: "Frontend URL of the application"
         required: true
         type: string
-      external-api-base-url :
+      external-api-base-url:
         description: "Base URL to the external service API"
         required: true
         type: string
@@ -19,7 +19,7 @@ on:
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
-        default: 12
+        default: 20
         required: false
         type: number
   workflow_call:
@@ -40,13 +40,13 @@ on:
         required: false
         default: dev
         type: string
-      external-api-base-url :
+      external-api-base-url:
         description: "Base URL to the external service API"
         required: true
         type: string
       timeout-minutes:
         description: 'Timeout minutes'
-        default: 12
+        default: 20
         required: false
         type: number
 
@@ -59,11 +59,6 @@ jobs:
         working-directory: frontend
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
-    strategy:
-      fail-fast: false  # Don't fail fast - we need all browsers to generate screenshots
-      max-parallel: 1   # Run all browsers in parallel for faster screenshot generation
-      matrix:
-        project: [chrome-visual, firefox-visual, safari-visual, edge-visual]
     steps:
       - uses: actions/checkout@v6
         name: Checkout
@@ -77,8 +72,11 @@ jobs:
           npm ci
           npx playwright install --with-deps
 
-      - name: Run Visual Regression Tests
-        id: playwright-visual-tests
+      - name: Create blob reports directory
+        run: mkdir -p all-blob-reports
+
+      - name: Run Visual Tests - All Browsers
+        id: visual-tests
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -86,31 +84,48 @@ jobs:
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
-          npx playwright test --project="${{ matrix.project }}"
+          for browser in chrome-visual firefox-visual safari-visual edge-visual; do
+            echo "::group::Running tests for $browser"
+            npx playwright test --project="$browser" || true
+            if [ -d "blob-report" ] && [ -n "$(ls -A blob-report/*.zip 2>/dev/null)" ]; then
+              cp blob-report/*.zip all-blob-reports/
+              rm -rf blob-report
+            fi
+            echo "::endgroup::"
+          done
         continue-on-error: true
 
+      - name: Merge blob reports and generate outputs
+        if: always()
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
+          PLAYWRIGHT_HTML_OPEN: never
+        run: |
+          echo "Merging blob reports..."
+          npx playwright merge-reports --reporter json ./all-blob-reports
+          npx playwright merge-reports --reporter html ./all-blob-reports
+          
+          # Rename HTML report directory
+          if [ -d "playwright-report" ]; then
+            mv playwright-report playwright-report-diffs
+          fi
+
       - name: Check for visual regression issues
-        if: ${{ always() }}
+        if: always()
         id: check-visual-regression
         run: |
-          if [ -d "./test-results" ]; then
-            mv ./test-results ./test-results-diffs
-          fi
-          if [ -d "./playwright-report" ]; then
-            mv ./playwright-report ./playwright-report-diffs
-          fi
           differences=false
-          if [ -f "./test-results.json" ]; then
-            unexpected=$(jq '.stats.unexpected' ./test-results.json)
+          if [ -f "test-results.json" ]; then
+            unexpected=$(jq '.stats.unexpected' test-results.json)
             if [ "$unexpected" -gt 0 ]; then
               differences=true
+              echo "::warning::Found $unexpected unexpected visual regression(s)"
             fi
           fi
           echo "has_visual_issues=$differences" >> $GITHUB_OUTPUT
 
       - name: Generate updated screenshots
-        if: ${{ always() && steps.check-visual-regression.outputs.has_visual_issues == 'true' }}
-        id: generate-updated-screenshots
+        if: always() && steps.check-visual-regression.outputs.has_visual_issues == 'true'
         env:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
@@ -118,26 +133,28 @@ jobs:
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
           EXTERNAL_API_BASE_URL: ${{ inputs.external-api-base-url }}
         run: |
-          echo "::notice::Generating updated screenshots for comparison..."
-          npx playwright test --update-snapshots --project="${{ matrix.project }}"
+          echo "::notice::Generating updated screenshots for all browsers..."
+          npx playwright test --update-snapshots --project="chrome-visual"
+          npx playwright test --update-snapshots --project="firefox-visual"
+          npx playwright test --update-snapshots --project="safari-visual"
+          npx playwright test --update-snapshots --project="edge-visual"
 
       - uses: actions/upload-artifact@v6
         if: always()
-        name: Upload Playwright visual test artifacts with screenshots
+        name: Upload Playwright visual test artifacts
         with:
-          name: playwright-visual-report-${{ matrix.project }}
+          name: playwright-visual-report-all-browsers
           path: |
             ./frontend/playwright-report-diffs
-            ./frontend/test-results-diffs
             ./frontend/test-results.json
-            ./frontend/e2e/snapshots.ci/**/*${{ matrix.project }}*
+            ./frontend/e2e/snapshots.ci/**/*
           retention-days: 7
 
       - name: Review and Commit Approved Screenshots
-        if: ${{ steps.check-visual-regression.outputs.has_visual_issues == 'true' }}
+        if: steps.check-visual-regression.outputs.has_visual_issues == 'true'
         run: |
           echo "::error::Visual regression differences were detected."
-          echo "::notice::Download the artifacts for each browser (this one is 'playwright-visual-report-${{ matrix.project }}')."
-          echo "::notice::Review the new screenshots in test-results-diffs."
-          echo "::notice::Manually copy and commit the screenshots you approve from 'e2e/snapshots.ci/' to the repository."
+          echo "::notice::Download the artifact 'playwright-visual-report-all-browsers' to review all browser results."
+          echo "::notice::Review the differences in 'playwright-report-diffs' HTML report."
+          echo "::notice::Review the new screenshots and manually copy/commit approved ones from 'e2e/snapshots.ci/' to the repository."
           exit 1

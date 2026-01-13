@@ -23,11 +23,13 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['list', { printSteps: true }],
-    ['html', { open: 'always' }],
-    ['json', { outputFile: './test-results.json' }],
-  ],
+  reporter: process.env.CI
+    ? [['blob'], ['list', { printSteps: true }]]
+    : [
+        ['list', { printSteps: true }],
+        ['html', { open: 'always' }],
+        ['json', { outputFile: './test-results.json' }],
+      ],
   // developer-machine-snapshots are in a different folder to prevent conflicts
   // developer snapshots should not be committed to the repository
   snapshotDir: process.env.CI ? 'e2e/snapshots.ci' : 'e2e/snapshots.user',
