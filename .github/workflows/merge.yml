@@ -47,7 +47,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Initialize
         uses: github/codeql-action/init@v3
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Conventional Changelog Update
         uses: TriPSs/conventional-changelog-action@v6
         id: changelog

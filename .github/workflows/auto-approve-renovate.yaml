@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Get list of changed files
         id: file-check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
