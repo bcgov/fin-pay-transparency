@@ -27,6 +27,7 @@ test-results.json
 /test-results/
 /playwright-report/
 /blob-report/
+/all-blob-reports/
 /playwright/
 .env.playwright
 user.json
