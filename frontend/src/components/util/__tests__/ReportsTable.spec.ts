@@ -22,8 +22,6 @@ vi.mock('vue-router', () => ({
   }),
 }));
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 const wrappedRender = async () => {
   return render(ReportsTable, {
     global: {

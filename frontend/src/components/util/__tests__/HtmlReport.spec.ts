@@ -7,16 +7,6 @@ import * as directives from 'vuetify/directives';
 import ApiService from '../../../common/apiService';
 import HtmlReport from '../HtmlReport.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-// Stub the global ResizeObserver
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-
 describe('HtmlReport', () => {
   let wrapper;
   let pinia;

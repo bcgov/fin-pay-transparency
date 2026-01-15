@@ -8,8 +8,6 @@ import { useUsersStore } from '../../store/modules/usersStore';
 import { authStore } from '../../store/modules/auth';
 import { render, waitFor } from '@testing-library/vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 const mockGetUsers = vi.fn();
 vi.mock('../../../services/apiService', () => ({
   default: {

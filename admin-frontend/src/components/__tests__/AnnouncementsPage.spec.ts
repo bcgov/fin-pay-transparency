@@ -38,13 +38,6 @@ const mockAnnouncements = [
   },
 ];
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
 const mockGetAnnouncements = vi.fn();
 const mockArchiveAnnouncements = vi.fn();
 
@@ -54,10 +47,6 @@ vi.mock('../../services/apiService', () => ({
     archiveAnnouncements: (...args) => mockArchiveAnnouncements(...args),
   },
 }));
-
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('AnnouncementsPage', () => {
   let wrapper;

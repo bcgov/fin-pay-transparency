@@ -21,12 +21,7 @@ const mockDraftAnnouncement: Announcement = {
   announcement_resource: [],
 };
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+
 
 const mockDownloadFile = vi.fn();
 const mockSaveAs = vi.fn();
@@ -48,9 +43,6 @@ vi.mock('file-saver', () => ({
   saveAs: (...args) => mockSaveAs(...args),
 }));
 
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('AnnouncementItem', () => {
   let wrapper;

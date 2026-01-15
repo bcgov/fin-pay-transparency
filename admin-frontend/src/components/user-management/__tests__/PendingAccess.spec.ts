@@ -26,7 +26,6 @@ vi.mock('../../../services/notificationService', () => ({
   },
 }));
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const vuetify = createVuetify({ components, directives });
 const pinia = createTestingPinia();
 const wrappedRender = async () => {

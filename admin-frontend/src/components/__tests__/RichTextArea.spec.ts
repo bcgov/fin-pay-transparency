@@ -10,16 +10,6 @@ const mockPlaintext = '123';
 const mockHtml = `<p><strong>${mockPlaintext}</strong></p>`;
 const maxLength = 100;
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('RichTextArea', () => {
   let wrapper;

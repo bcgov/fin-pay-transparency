@@ -9,16 +9,7 @@ import { NotificationService } from '../../../services/notificationService';
 import { Announcement } from '../../../types/announcements';
 import AnnouncementActions from '../AnnouncementActions.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
 
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 const mockDraftAnnouncement: Announcement = {
   announcement_id: '24b9455e-154b-46ce-91c7-5ec4474ad6fd',

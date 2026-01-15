@@ -11,16 +11,6 @@ import {
 } from '../../../services/notificationService';
 import SnackBar from '../SnackBar.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-// Stub the global ResizeObserver
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-
 describe('SnackBar', () => {
   let wrapper;
   let snackbar;

@@ -11,17 +11,7 @@ import App from '../App.vue';
 import router from '../router';
 import { authStore } from '../store/modules/auth';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
 vi.mock('../services/apiService');
-
-// Stub the global ResizeObserver
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 const mockDoesUserHaveRole = vi.fn();
 const setupComponentEnvironment = async () => {
   const vuetify = createVuetify({

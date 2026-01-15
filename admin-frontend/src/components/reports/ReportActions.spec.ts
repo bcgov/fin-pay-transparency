@@ -13,7 +13,6 @@ import { ReportAdminActions } from '../../constants';
 import { Report } from '../../types/reports';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-global.ResizeObserver = require('resize-observer-polyfill');
 
 vi.mock('../../services/apiService');
 vi.mock('../../services/notificationService');
