@@ -366,7 +366,7 @@
 </template>
 
 <script lang="ts" setup>
-import VueDatePicker from '@vuepic/vue-datepicker';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
 import { watch, ref } from 'vue';
 import {
   AnnouncementFormValue,

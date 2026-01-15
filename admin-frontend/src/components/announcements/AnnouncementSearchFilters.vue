@@ -168,7 +168,7 @@ export default {
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import FilterDateRangeTooltip from './FilterDateRangeTooltip.vue';
 import { ref, onMounted } from 'vue';
-import VueDatePicker from '@vuepic/vue-datepicker';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import '@vuepic/vue-datepicker/dist/main.css';
 import {
