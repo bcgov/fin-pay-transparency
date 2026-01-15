@@ -7,8 +7,6 @@ import * as directives from 'vuetify/directives';
 import ApiService from '../../../common/apiService';
 import HtmlReport from '../HtmlReport.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 describe('HtmlReport', () => {
   let wrapper;
   let pinia;

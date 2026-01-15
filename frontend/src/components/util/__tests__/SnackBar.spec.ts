@@ -11,8 +11,6 @@ import {
 } from '../../../common/notificationService';
 import SnackBar from '../SnackBar.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 describe('SnackBar', () => {
   let wrapper;
   let snackbar;

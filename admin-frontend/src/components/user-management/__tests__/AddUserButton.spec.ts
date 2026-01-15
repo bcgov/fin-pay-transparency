@@ -12,7 +12,6 @@ import {
   USER_ROLE_NAME,
 } from '../../../constants';
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 

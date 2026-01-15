@@ -10,8 +10,6 @@ import {
 } from '../../../types/announcements';
 import AnnouncementForm from '../AnnouncementForm.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 const mockGetAnnouncements = vi.fn().mockResolvedValue({ items: [] });
 const mockClamavScan = vi.fn();
 

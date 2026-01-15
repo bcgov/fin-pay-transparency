@@ -11,8 +11,6 @@ import App from '../App.vue';
 import router from '../router';
 import { authStore } from '../store/modules/auth';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 vi.mock('../services/apiService');
 const mockDoesUserHaveRole = vi.fn();
 const setupComponentEnvironment = async () => {

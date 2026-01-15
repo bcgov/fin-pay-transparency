@@ -10,8 +10,6 @@ import { useAnnouncementSelectionStore } from '../../store/modules/announcementS
 import { AnnouncementResourceType } from '../../types/announcements';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 const mockRouterReplace = vi.fn();
 vi.mock('vue-router', async (importOriginal) => {
   const actual: any = await importOriginal();

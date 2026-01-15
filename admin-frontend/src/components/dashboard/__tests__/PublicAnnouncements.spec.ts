@@ -16,7 +16,6 @@ vi.mock('../../../services/apiService', () => ({
   },
 }));
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
@@ -41,6 +40,10 @@ describe('PublicAnnouncements', () => {
     };
     const { getByText } = await wrappedRender();
     expect(store.getAnnouncementMetrics).toHaveBeenCalled();
-    expect(getByText('There are 0 published announcements and 0 draft announcements')).not.toBeNull();
+    expect(
+      getByText(
+        'There are 0 published announcements and 0 draft announcements',
+      ),
+    ).not.toBeNull();
   });
 });

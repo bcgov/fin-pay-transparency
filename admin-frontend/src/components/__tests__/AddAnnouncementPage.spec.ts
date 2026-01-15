@@ -9,7 +9,6 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 

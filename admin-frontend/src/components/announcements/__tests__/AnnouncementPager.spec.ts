@@ -7,7 +7,6 @@ import * as directives from 'vuetify/directives';
 import { Announcement } from '../../../types/announcements';
 import AnnouncementPager from '../AnnouncementPager.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 

@@ -7,8 +7,6 @@ import * as directives from 'vuetify/directives';
 import { useReportSearchStore } from '../../store/modules/reportSearchStore';
 import ReportsPage from '../ReportsPage.vue';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 describe('ReportsPage', () => {
   let wrapper;
   let pinia;

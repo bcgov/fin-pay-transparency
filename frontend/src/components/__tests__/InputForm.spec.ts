@@ -14,8 +14,6 @@ import InputForm, { ISubmissionError } from '../InputForm.vue';
 import { CsvService, ParseStatus } from '../../common/csvService';
 import ApiService from '../../common/apiService';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 const DATE_FORMAT = 'yyyy-MM-dd';
 const dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 

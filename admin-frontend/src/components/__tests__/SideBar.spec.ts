@@ -6,8 +6,6 @@ import * as directives from 'vuetify/directives';
 import SideBar from '../SideBar.vue';
 import { createTestingPinia } from '@pinia/testing';
 
-global.ResizeObserver = require('resize-observer-polyfill');
-
 describe('SideBar', () => {
   let wrapper;
   let sidebar;

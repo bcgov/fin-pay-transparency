@@ -14,7 +14,6 @@ import {
 import { authStore } from '../../../store/modules/auth';
 import { createTestingPinia } from '@pinia/testing';
 
-global.ResizeObserver = require('resize-observer-polyfill');
 const pinia = createTestingPinia();
 const vuetify = createVuetify({ components, directives });
 
