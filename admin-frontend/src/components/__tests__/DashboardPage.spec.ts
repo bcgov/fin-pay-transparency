@@ -7,22 +7,11 @@ import * as directives from 'vuetify/directives';
 import DashboardPage from '../DashboardPage.vue';
 import NumEmployerLogins from '../dashboard/NumEmployerLogons.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
 vi.mock('../../services/apiService', () => ({
   default: {
     getReports: vi.fn().mockResolvedValue({ reports: [], total: 0 }),
   },
 }));
-
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('DashboardPage', () => {
   let wrapper;

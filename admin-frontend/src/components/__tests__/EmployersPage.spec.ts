@@ -9,17 +9,6 @@ import ApiService from '../../services/apiService';
 import { NotificationService } from '../../services/notificationService';
 import { waitFor } from '@testing-library/vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-// Stub global objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
-
 // Mock the ApiService
 vi.mock('../../services/apiService');
 

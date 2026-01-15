@@ -7,18 +7,10 @@ import * as directives from 'vuetify/directives';
 import ApiService from '../../../services/apiService';
 import RecentlyViewedReports from '../RecentlyViewedReports.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+
 
 vi.mock('../../../services/apiService');
 
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('RecentlyViewedReports', () => {
   let wrapper;

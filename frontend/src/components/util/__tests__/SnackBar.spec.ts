@@ -11,15 +11,7 @@ import {
 } from '../../../common/notificationService';
 import SnackBar from '../SnackBar.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-// Stub the global ResizeObserver
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+global.ResizeObserver = require('resize-observer-polyfill');
 
 describe('SnackBar', () => {
   let wrapper;

@@ -7,16 +7,6 @@ import * as directives from 'vuetify/directives';
 import { AnnouncementStatus } from '../../../types/announcements';
 import AnnouncementSearchFilters from '../AnnouncementSearchFilters.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('AnnouncementSearchFilters', () => {
   let wrapper;

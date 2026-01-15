@@ -6,8 +6,10 @@ export default defineConfig({
   plugins: [vue()],
   test: {
     environment: 'jsdom',
-    deps: {
-      inline: ['vuetify'],
+    server: {
+      deps: {
+        inline: ['vuetify'],
+      },
     },
     globals: true,
     coverage: {

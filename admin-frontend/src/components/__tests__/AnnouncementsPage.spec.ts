@@ -9,6 +9,8 @@ import * as directives from 'vuetify/directives';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import { default as AnnouncementsPage } from '../AnnouncementsPage.vue';
 
+global.ResizeObserver = require('resize-observer-polyfill');
+
 const mockAnnouncements = [
   {
     announcement_id: '5e590182-10fd-4fff-bde3-ce31c7d7ac7f',
@@ -38,13 +40,6 @@ const mockAnnouncements = [
   },
 ];
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
 const mockGetAnnouncements = vi.fn();
 const mockArchiveAnnouncements = vi.fn();
 
@@ -55,9 +50,6 @@ vi.mock('../../services/apiService', () => ({
   },
 }));
 
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('AnnouncementsPage', () => {
   let wrapper;

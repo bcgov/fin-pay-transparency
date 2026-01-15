@@ -30,7 +30,7 @@ describe('ApiService', () => {
   const mockAxiosError = new AxiosError();
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('getConfig', () => {

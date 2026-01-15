@@ -7,16 +7,7 @@ import * as directives from 'vuetify/directives';
 import { useReportSearchStore } from '../../store/modules/reportSearchStore';
 import ReportsPage from '../ReportsPage.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
-
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
+global.ResizeObserver = require('resize-observer-polyfill');
 
 describe('ReportsPage', () => {
   let wrapper;

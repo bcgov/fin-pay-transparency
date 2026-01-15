@@ -6,16 +6,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import ToolTip from '../ToolTip.vue';
 
-// Mock the ResizeObserver
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
 
-// Stub blobal objects needed for testing
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-vi.stubGlobal('URL', { createObjectURL: vi.fn() });
 
 describe('ToolTip', () => {
   let wrapper;
