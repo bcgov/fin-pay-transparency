@@ -111,7 +111,7 @@ jobs:
           npx playwright merge-reports --reporter json ./all-blob-reports
           npx playwright merge-reports --reporter html ./all-blob-reports
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         name: Upload Playwright artifacts
         with:
