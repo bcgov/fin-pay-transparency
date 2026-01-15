@@ -1,13 +1,17 @@
-/**
- * Helps add expect extensions to vitest
- */
+// additional 'expect' methods for testing-library
 import '@testing-library/jest-dom/vitest';
 
 //mock ResizeObserver
 class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe() {
+    // do nothing
+  }
+  unobserve() {
+    // do nothing
+  }
+  disconnect() {
+    // do nothing
+  }
 }
 
-global.ResizeObserver = ResizeObserver;
+globalThis.ResizeObserver = ResizeObserver;
