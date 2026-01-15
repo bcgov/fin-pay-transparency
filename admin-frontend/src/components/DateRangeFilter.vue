@@ -15,7 +15,7 @@
       :aria-labels="{ input: label }"
       range
       placeholder="Select date range"
-      format="yyyy-MM-dd"
+      :formats="{ input: 'yyyy-MM-dd', preview: 'yyyy-MM-dd' }"
       :max-date="new Date()"
       :enable-time-picker="false"
       arrow-navigation

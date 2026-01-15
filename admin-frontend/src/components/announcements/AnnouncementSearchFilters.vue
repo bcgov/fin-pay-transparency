@@ -60,7 +60,7 @@
           v-model="publishDateRange"
           range
           placeholder="Select date range"
-          format="yyyy-MM-dd"
+          :formats="{ input: 'yyyy-MM-dd', preview: 'yyyy-MM-dd' }"
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
@@ -80,7 +80,7 @@
         <VueDatePicker
           v-model="expiryDateRange"
           range
-          format="yyyy-MM-dd"
+          :formats="{ input: 'yyyy-MM-dd', preview: 'yyyy-MM-dd' }"
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
