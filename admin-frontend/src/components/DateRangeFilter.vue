@@ -15,7 +15,7 @@
       :aria-labels="{ input: label }"
       range
       placeholder="Select date range"
-      format="yyyy-MM-dd"
+      :formats="{ input: 'yyyy-MM-dd', preview: 'yyyy-MM-dd' }"
       :max-date="new Date()"
       :enable-time-picker="false"
       arrow-navigation
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import VueDatePicker from '@vuepic/vue-datepicker';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
 import { nativeJs, DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import ToolTip from './ToolTip.vue';

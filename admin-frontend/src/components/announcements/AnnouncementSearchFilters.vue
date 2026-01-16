@@ -60,7 +60,7 @@
           v-model="publishDateRange"
           range
           placeholder="Select date range"
-          format="yyyy-MM-dd"
+          :formats="{ input: 'yyyy-MM-dd', preview: 'yyyy-MM-dd' }"
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
@@ -80,7 +80,7 @@
         <VueDatePicker
           v-model="expiryDateRange"
           range
-          format="yyyy-MM-dd"
+          :formats="{ input: 'yyyy-MM-dd', preview: 'yyyy-MM-dd' }"
           :enable-time-picker="false"
           arrow-navigation
           auto-apply
@@ -168,7 +168,7 @@ export default {
 import AnnouncementStatusChip from './AnnouncementStatusChip.vue';
 import FilterDateRangeTooltip from './FilterDateRangeTooltip.vue';
 import { ref, onMounted } from 'vue';
-import VueDatePicker from '@vuepic/vue-datepicker';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import '@vuepic/vue-datepicker/dist/main.css';
 import {

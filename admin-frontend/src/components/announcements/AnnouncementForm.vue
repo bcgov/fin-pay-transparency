@@ -109,8 +109,13 @@
                   >
                     <VueDatePicker
                       v-model="activeOn"
-                      :state="errors.active_on == null ? undefined : false"
-                      format="yyyy-MM-dd hh:mm a"
+                      :input-attrs="{
+                        state: errors.active_on == null ? undefined : false,
+                      }"
+                      :formats="{
+                        input: 'yyyy-MM-dd hh:mm a',
+                        preview: 'yyyy-MM-dd hh:mm a',
+                      }"
                       :enable-time-picker="true"
                       arrow-navigation
                       auto-apply
@@ -143,9 +148,14 @@
                   </span>
                   <VueDatePicker
                     v-model="expiresOn"
-                    :state="errors.expires_on == null ? undefined : false"
+                    :input-attrs="{
+                      state: errors.expires_on == null ? undefined : false,
+                    }"
                     :aria-labels="{ input: 'Expires On' }"
-                    format="yyyy-MM-dd hh:mm a"
+                    :formats="{
+                      input: 'yyyy-MM-dd hh:mm a',
+                      preview: 'yyyy-MM-dd hh:mm a',
+                    }"
                     :enable-time-picker="true"
                     arrow-navigation
                     auto-apply
@@ -366,7 +376,7 @@
 </template>
 
 <script lang="ts" setup>
-import VueDatePicker from '@vuepic/vue-datepicker';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
 import { watch, ref } from 'vue';
 import {
   AnnouncementFormValue,
