@@ -51,7 +51,7 @@ const powerBiDetailsPerResource = createDefaultPowerBiDetailsMap([
   POWERBI_RESOURCE.ANALYTICS,
 ]);
 
-await getPowerBiAccessToken(powerBiDetailsPerResource);
+getPowerBiAccessToken(powerBiDetailsPerResource);
 
 /** Create a Map containing the details of the resources. */
 function createDefaultPowerBiDetailsMap(
