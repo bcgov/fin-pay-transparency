@@ -24,6 +24,7 @@
             :report="item"
             :actions="[
               ReportAdminActions.OpenReport,
+              ReportAdminActions.LockUnlock,
               ReportAdminActions.AdminActionHistory,
             ]"
           ></ReportActions>
@@ -34,9 +35,7 @@
 </template>
 
 <script lang="ts">
-export default {
-  name: 'ReportsWidget',
-};
+export default { name: 'ReportsWidget' };
 </script>
 <script setup lang="ts">
 /**
@@ -45,7 +44,7 @@ export default {
  * which columns to include, and how many reports to show.
  * Supports slots with item.<header_key> to provide custom rendering for \
  * certain columns.  Usage example:
- * 
+ *
  * <ReportsWidget
     :page-size="pageSize"
     :headers="headers"
@@ -55,7 +54,7 @@ export default {
       {{ formatDate(item.admin_last_access_date) }}
     </template>
   </ReportsWidget>
- * 
+ *
  */
 
 import { Report } from '../../types/reports';
