@@ -1,4 +1,5 @@
-import { LocalDate } from '@js-joda/core';
+import { DateTimeFormatter, LocalDate } from '@js-joda/core';
+import { Locale } from '@js-joda/locale_en';
 import { Locator, Response, expect } from '@playwright/test';
 import path from 'node:path';
 import { PagePaths } from '../utils';
@@ -61,7 +62,7 @@ export class GenerateReportPage extends PTPage {
   async setup() {
     await super.setup();
     await this.instance.waitForLoadState('networkidle');
-    this.naicsInput = await this.instance.getByLabel('NAICS Code');
+    this.naicsInput = await this.instance.locator('#naicsCode');
     this.employeeCountInput = await this.instance.locator(
       '#employeeCountRange',
     );
@@ -232,7 +233,9 @@ export class GenerateReportPage extends PTPage {
   async checkDate(value: string, monthLocator: Locator, yearLocator: Locator) {
     const date = LocalDate.parse(value);
     await expect(monthLocator).toBeVisible();
-    await expect(monthLocator).toHaveValue(`${date.monthValue()}`);
+    await expect(monthLocator).toHaveValue(
+      `${date.format(DateTimeFormatter.ofPattern('MMM').withLocale(Locale.CANADA))}`,
+    );
     await expect(yearLocator).toBeVisible();
     await expect(yearLocator).toHaveValue(`${date.year()}`);
   }

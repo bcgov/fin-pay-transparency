@@ -7,9 +7,7 @@ import { omit } from 'lodash';
  * https://github.com/winstonjs/winston/issues/1427#issuecomment-583199496
  * @param {*} colors
  */
-function getDomainWinstonLoggerFormat(
-  colors: any = true,
-) {
+function getDomainWinstonLoggerFormat(colors: any = true) {
   const colorize = colors ? format.colorize() : null;
   const loggingFormats = [
     format.timestamp({
@@ -25,7 +23,12 @@ function getDomainWinstonLoggerFormat(
         const obj = omit(info, ['level', 'timestamp', Symbol.for('level')]);
         return `${info.timestamp} - ${info.level}: ${JSON.stringify(obj)}${stackTrace}`;
       }
-      const splatArgs = info[Symbol.for('splat')] || [];
+      const splat = info[Symbol.for('splat')];
+      const splatArgs = Array.isArray(splat)
+        ? splat
+        : splat != null
+          ? [splat]
+          : [];
       const rest = splatArgs.join(' ');
       if (typeof info.message === 'object') {
         return `${info.timestamp} - ${info.level}: ${JSON.stringify(info.message)} ${rest}${stackTrace}`;

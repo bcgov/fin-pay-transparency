@@ -9,6 +9,8 @@ import * as directives from 'vuetify/directives';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import { default as AnnouncementsPage } from '../AnnouncementsPage.vue';
 
+//vi.stubGlobal('visualViewport', new EventTarget());
+
 const mockAnnouncements = [
   {
     announcement_id: '5e590182-10fd-4fff-bde3-ce31c7d7ac7f',

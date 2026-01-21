@@ -10,6 +10,12 @@ import { SSO } from '../services/sso-service';
 import { authorize } from '../middlewares/authorization/authorize';
 import { ExtendedRequest } from '../types';
 import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
+import z from 'zod';
+
+// Reusable Zod schema for string id
+const IdParamSchema = z.object({
+  userId: z.string(),
+});
 
 type SsoRequest = Request & { sso: SSO };
 type SsoExtendedRequest = ExtendedRequest & { sso: SSO };
@@ -50,7 +56,7 @@ router.patch(
   '/:userId',
   useValidate({ mode: 'body', schema: ASSIGN_ROLE_SCHEMA }),
   async (req: SsoRequest, res: Response) => {
-    const { userId } = req.params;
+    const { userId } = IdParamSchema.parse(req.params);
     const data: AssignRoleType = req.body;
 
     try {
@@ -72,9 +78,8 @@ router.delete(
   authenticateAdmin(),
   authorize(['PTRT-ADMIN']),
   async (req: SsoExtendedRequest, res: Response) => {
-    const { userId } = req.params;
-
     try {
+      const { userId } = IdParamSchema.parse(req.params);
       await req.sso.deleteUser(userId, req.user.admin_user_id);
       res.json();
     } catch (error) {

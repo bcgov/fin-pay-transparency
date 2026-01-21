@@ -23,7 +23,12 @@ function getDomainWinstonLoggerFormat(colors = true) {
         const obj = omit(info, ['level', 'timestamp', Symbol.for('level')]);
         return `${info.timestamp} - ${info.level}: ${JSON.stringify(obj)}${stackTrace}`;
       }
-      const splatArgs = info[Symbol.for('splat')] || [];
+      const splat = info[Symbol.for('splat')];
+      const splatArgs = Array.isArray(splat)
+        ? splat
+        : splat != null
+          ? [splat]
+          : [];
       const rest = splatArgs.join(' ');
       if (typeof info.message === 'object') {
         return `${info.timestamp} - ${info.level}: ${JSON.stringify(info.message)} ${rest}${stackTrace}`;

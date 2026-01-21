@@ -167,14 +167,16 @@ router.put(
   useValidate({ mode: 'body', schema: AnnouncementDataSchema }),
   async (req: ExtendedRequest, res) => {
     try {
-      const { user } = req;
+      if (Array.isArray(req.params.id)) {
+        throw new Error('Too many ID parameters provided');
+      }
       // Request body is validated
       const { file, ...data } = req.body;
       // Create announcement
       const announcement = await announcementService.updateAnnouncement(
         req.params.id,
         data,
-        user.admin_user_id,
+        req.user.admin_user_id,
       );
       res.json(announcement);
     } catch (error) {
@@ -186,6 +188,9 @@ router.put(
 
 router.get('/:id', authenticateAdmin(), async (req: Request, res) => {
   try {
+    if (Array.isArray(req.params.id)) {
+      throw new Error('Too many ID parameters provided');
+    }
     const announcement = await announcementService.getAnnouncementById(
       req.params.id,
     );
