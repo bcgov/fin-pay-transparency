@@ -5,11 +5,14 @@ import {
   S3Client,
   type ObjectIdentifier,
   type _Object,
-  type _Error,
 } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import prisma from '../../v1/prisma/prisma-client';
 import os from 'node:os';
 import fs from 'node:fs';
+import retry from 'async-retry';
+import PATH from 'node:path';
+import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../../logger';
 import {
   APP_ANNOUNCEMENTS_FOLDER,
@@ -38,7 +41,7 @@ const getMostRecentFile = async (s3Client: S3Client, key: string) => {
       return modifiedDateB - modifiedDateA;
     });
     return sortedData[0];
-  } catch (error) {
+  } catch {
     return undefined;
   }
 };
@@ -169,6 +172,41 @@ export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
     logger.error(error);
     return new Set();
   }
+};
+
+/**
+ * Uploads a file to S3 with retry logic
+ * @param params - Upload parameters
+ * @returns Promise that resolves when upload completes
+ */
+export const upload = async (
+  filePath: string,
+  fileName: string,
+  contentType: string,
+  folder: string,
+  attachmentId: string,
+): Promise<void> => {
+  const ext = PATH.extname(fileName ?? '');
+  const s3 = new S3Client(S3_OPTIONS);
+  const stream = fs.createReadStream(filePath);
+
+  const upload = new Upload({
+    client: s3,
+    params: {
+      Bucket: S3_BUCKET,
+      Key: `${folder}/${attachmentId}/${uuidv4()}${ext}`,
+      Body: stream,
+      ContentType: contentType,
+    },
+  });
+
+  await retry(
+    async () => {
+      const results = await upload.done();
+      return results;
+    },
+    { retries: 3 },
+  );
 };
 
 /**
