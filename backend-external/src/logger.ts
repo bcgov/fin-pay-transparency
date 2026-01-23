@@ -4,11 +4,16 @@ const safeStringify = (value: unknown, separator: string = '\n'): string => {
   try {
     if (typeof value === 'string') return value; // String - return as-is
     if (Array.isArray(value)) return value.join(separator); // Array - join with separator
-    if (value == null) return ''; // null or undefined
+    if (
+      value ==
+      null /*|| (typeof value === 'object' && Object.keys(value).length === 0)*/
+    )
+      return ''; // null, undefined, or empty object
 
     // Objects with custom toString
     if (
       typeof value === 'object' &&
+      typeof value.toString === 'function' &&
       value.toString !== Object.prototype.toString
     ) {
       return value.toString();
