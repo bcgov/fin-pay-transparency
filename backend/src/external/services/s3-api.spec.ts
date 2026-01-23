@@ -21,6 +21,18 @@ jest.mock('../../v1/prisma/prisma-client', () => ({
   },
 }));
 
+jest.mock('../../constants/admin', () => ({
+  APP_ANNOUNCEMENTS_FOLDER: 'announcements',
+  S3_BUCKET: 'test-bucket',
+  S3_OPTIONS: {
+    region: 'us-east-1',
+    credentials: {
+      accessKeyId: 'test-key',
+      secretAccessKey: 'test-secret',
+    },
+  },
+}));
+
 const mockStreamWrite = jest.fn();
 const mockCreateReadStream = jest.fn();
 
@@ -237,7 +249,7 @@ describe('S3Api', () => {
       expect(Upload).toHaveBeenCalledWith({
         client: expect.any(Object),
         params: {
-          Bucket: expect.anything(),
+          Bucket: expect.any(String),
           Key: expect.stringMatching(
             new RegExp(`^${folder}/${attachmentId}/[a-f0-9-]+\\.jpg$`),
           ),
