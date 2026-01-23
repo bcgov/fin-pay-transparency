@@ -1,11 +1,5 @@
 import { logger } from './logger';
 
-jest.mock('lodash', () => {
-  return {
-    __esModule: true,
-    ...jest.requireActual('lodash'),
-  };
-});
 describe('logger', () => {
   it('should create logger instance', () => {
     expect(logger).toBeDefined();
