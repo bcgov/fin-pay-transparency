@@ -168,7 +168,7 @@ router.put(
   async (req: ExtendedRequest, res) => {
     try {
       if (Array.isArray(req.params.id)) {
-        throw new Error('Too many ID parameters provided');
+        throw new TypeError('Too many ID parameters provided');
       }
       // Request body is validated
       const { file, ...data } = req.body;
@@ -189,7 +189,7 @@ router.put(
 router.get('/:id', authenticateAdmin(), async (req: Request, res) => {
   try {
     if (Array.isArray(req.params.id)) {
-      throw new Error('Too many ID parameters provided');
+      throw new TypeError('Too many ID parameters provided');
     }
     const announcement = await announcementService.getAnnouncementById(
       req.params.id,
