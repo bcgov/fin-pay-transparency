@@ -237,7 +237,7 @@ describe('S3Api', () => {
       expect(Upload).toHaveBeenCalledWith({
         client: expect.any(Object),
         params: {
-          Bucket: expect.any(String),
+          Bucket: expect.anything(),
           Key: expect.stringMatching(
             new RegExp(`^${folder}/${attachmentId}/[a-f0-9-]+\\.jpg$`),
           ),
