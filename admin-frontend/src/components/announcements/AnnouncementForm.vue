@@ -65,7 +65,7 @@
                 ref="announcementTitleRef"
                 v-model="announcementTitle"
                 single-line
-                label="Title"
+                aria-label="Title"
                 placeholder="Title"
                 counter
                 maxlength="100"
@@ -201,7 +201,6 @@
                     v-model="linkUrl"
                     single-line
                     placeholder="https://example.com"
-                    label="https://example.com"
                     aria-label="Link URL"
                     counter
                     :error-messages="errors.linkUrl"
@@ -232,7 +231,6 @@
                     single-line
                     variant="outlined"
                     placeholder="eg. Pay Transparency in B.C."
-                    label="eg. Pay Transparency in B.C."
                     aria-label="Display URL As"
                     counter
                     maxlength="100"
@@ -283,7 +281,6 @@
                     v-model="fileDisplayName"
                     single-line
                     placeholder="eg. Updated Pay Transparency Guidance Document"
-                    label="eg. Updated Pay Transparency Guidance Document"
                     aria-label="Display File Link As"
                     counter
                     maxlength="100"

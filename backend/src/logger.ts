@@ -1,5 +1,4 @@
 import { createLogger, format, transports } from 'winston';
-import { omit } from 'lodash';
 
 /**
  * Handles all the different log formats
@@ -15,21 +14,37 @@ function getDomainWinstonLoggerFormat(colors = true) {
     }),
     format.errors({ stack: true }),
     colorize,
-    format.printf((info) => {
-      const stackTrace = info.stack ? `\n${info.stack}` : '';
+    format.printf(
+      (info: {
+        level: string;
+        timestamp: string;
+        message: string | object;
+        stack: string;
+        [key: symbol]: Array<object>;
+      }) => {
+        const {
+          timestamp,
+          level,
+          stack,
+          message, // message is the first param passed to logger
+          [Symbol.for('splat')]: splat, // splat holds multiple params passed to logger after the first one
+        } = info;
 
-      // handle single object
-      if (!info.message) {
-        const obj = omit(info, ['level', 'timestamp', Symbol.for('level')]);
-        return `${info.timestamp} - ${info.level}: ${JSON.stringify(obj)}${stackTrace}`;
-      }
-      const splatArgs = info[Symbol.for('splat')] || [];
-      const rest = splatArgs.join(' ');
-      if (typeof info.message === 'object') {
-        return `${info.timestamp} - ${info.level}: ${JSON.stringify(info.message)} ${rest}${stackTrace}`;
-      }
-      return `${info.timestamp} - ${info.level}: ${info.message} ${rest}${stackTrace}`;
-    }),
+        const stackStr = stack ? `\n${stack}` : '';
+
+        // Combine message and splat into one array
+        const allParams = [message, ...(Array.isArray(splat) ? splat : [])];
+
+        // Process each parameter
+        const formattedParams = allParams
+          .map((param) =>
+            typeof param === 'string' ? param : JSON.stringify(param),
+          )
+          .join('\n');
+
+        return `${timestamp} - ${level}: ${formattedParams}${stackStr}`;
+      },
+    ),
   ].filter(Boolean);
   return format.combine(...loggingFormats);
 }
@@ -39,4 +54,5 @@ const logger = createLogger({
   format: getDomainWinstonLoggerFormat(true),
   transports: [new transports.Console()],
 });
+
 export { logger };

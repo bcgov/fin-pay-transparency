@@ -1,15 +1,8 @@
-import {
-  PutObjectCommand,
-  PutObjectCommandInput,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import retry from 'async-retry';
 import fs from 'node:fs';
 import os from 'node:os';
 import PATH from 'node:path';
-import { v4 as uuidv4 } from 'uuid';
-import { S3_BUCKET, S3_OPTIONS } from '../../../constants/admin';
 import { logger } from '../../../logger';
+import { upload } from '../../../external/services/s3-api';
 
 interface Options {
   folder: string;
@@ -18,13 +11,14 @@ interface Options {
 export const useUpload = (options: Options) => {
   return async (req, res, next) => {
     const { file, ...data } = req.body;
+
     if (!file || !data.attachmentId) {
       return next();
     }
+
     logger.log('info', 'Uploading file to S3');
 
-    const { path, name, type, size } = file;
-    const ext = PATH.extname(name ?? '');
+    const { path, name, type } = file;
 
     if (!path.startsWith(os.tmpdir())) {
       logger.error('File not uploaded to temp directory');
@@ -32,31 +26,17 @@ export const useUpload = (options: Options) => {
     }
 
     try {
-      const s3 = new S3Client(S3_OPTIONS);
       const filePath = fs.realpathSync(PATH.resolve(os.tmpdir(), path));
+
       if (!filePath.startsWith(os.tmpdir())) {
         logger.error('File path is not starting with temp directory.');
         res.statusCode = 403;
         res.end();
         return;
       }
-      const stream = fs.createReadStream(filePath);
-      const uploadParams: PutObjectCommandInput = {
-        Bucket: S3_BUCKET,
-        Key: `${options.folder}/${data.attachmentId}/${uuidv4()}.${ext}`,
-        Body: stream,
-        ContentType: type,
-        ContentLength: size,
-      };
 
-      const command = new PutObjectCommand(uploadParams);
-      await retry(
-        async () => {
-          const results = await s3.send(command);
-          return results;
-        },
-        { retries: 3 },
-      );
+      await upload(filePath, name, type, options.folder, data.attachmentId);
+
       next();
     } catch (error) {
       logger.error(error);

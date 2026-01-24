@@ -57,7 +57,7 @@ jest.mock('./v1/services/public-auth-service', () => {
   const actualPublicAuth = jest.requireActual(
     './v1/services/public-auth-service',
   );
-  const mockedPublicAuth = jest.genMockFromModule(
+  const mockedPublicAuth = jest.createMockFromModule(
     './v1/services/public-auth-service',
   ) as any;
   const mocked = {
@@ -88,7 +88,6 @@ jest.mock('./v1/services/public-auth-service', () => {
 // during builds by the CI/CD process.  Here we define the needed config properties.
 jest.mock('./config', () => {
   const actualConfig = jest.requireActual('./config').config;
-  const mockedConfig = (jest.genMockFromModule('./config') as any).config;
   return {
     config: {
       get: jest.fn().mockImplementation((key) => {

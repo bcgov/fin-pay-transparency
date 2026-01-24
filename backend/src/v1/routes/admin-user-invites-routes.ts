@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+import { z } from 'zod';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
 import { logger } from '../../logger';
@@ -11,6 +12,11 @@ import {
 import { adminUserInvitesService } from '../services/admin-user-invites-service';
 import { utils } from '../services/utils-service';
 import { UserInputError } from '../types/errors';
+
+// Reusable Zod schema for string id
+const IdParamSchema = z.object({
+  id: z.string(),
+});
 
 const router = Router();
 router.use(authorize([PTRT_ADMIN_ROLE_NAME]));
@@ -52,7 +58,7 @@ router.post(
 
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = IdParamSchema.parse(req.params);
     await adminUserInvitesService.resendInvite(id);
     res.status(200).json({ message: 'Invite resent' });
   } catch (error) {
@@ -63,7 +69,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = IdParamSchema.parse(req.params);
     await adminUserInvitesService.deleteInvite(id);
     res.status(200).json({ message: 'Invite deleted' });
   } catch (error) {

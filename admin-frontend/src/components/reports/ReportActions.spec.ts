@@ -12,8 +12,10 @@ import { authStore } from '../../store/modules/auth';
 import { ReportAdminActions } from '../../constants';
 import { Report } from '../../types/reports';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// Default data
+const currentYear = new Date().getFullYear();
 
+// Mocks
 vi.mock('../../services/apiService');
 vi.mock('../../services/notificationService');
 vi.mock('../../services/reportChangeService');
@@ -54,11 +56,10 @@ const dialogButtons = {
 
 const inputs = {
   yearSelect: () => screen.getByLabelText('Select new reporting year'),
+  currentYear: () => screen.getByText(currentYear.toString()),
   tryYearSelect: () => screen.queryByLabelText('Select new reporting year'),
+  tryCurrentYear: () => screen.queryByText(currentYear.toString()),
 };
-
-// Default data
-const currentYear = new Date().getFullYear();
 
 describe('ReportActions', () => {
   const mockReport: Report = {
@@ -600,12 +601,10 @@ describe('ReportActions', () => {
       });
 
       await user.click(inputs.yearSelect());
-      await user.keyboard('{ArrowDown}');
-      await user.keyboard('{Enter}');
+      await user.click(inputs.currentYear());
 
       // Click Next
       await user.click(dialogButtons.next());
-
       // Confirm
       await waitFor(() => {
         expect(dialogButtons.confirm('Yes, change year')).toBeInTheDocument();

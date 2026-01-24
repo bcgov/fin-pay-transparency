@@ -1,17 +1,19 @@
+import { vi } from 'vitest';
+
 // additional 'expect' methods for testing-library
 import '@testing-library/jest-dom/vitest';
 
-//mock ResizeObserver
-class ResizeObserver {
-  observe() {
-    // do nothing
-  }
-  unobserve() {
-    // do nothing
-  }
-  disconnect() {
-    // do nothing
-  }
-}
+// Mock the ResizeObserver
+const ResizeObserverMock = vi.fn(function ResizeObserver() {
+  return {
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  };
+});
 
-globalThis.ResizeObserver = ResizeObserver;
+// Stub the global ResizeObserver
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
+// Stub the global visualViewport
+vi.stubGlobal('visualViewport', new EventTarget());
