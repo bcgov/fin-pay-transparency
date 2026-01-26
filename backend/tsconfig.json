@@ -13,8 +13,5 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "./src",
-    "templates"
-  ]
+  "include": ["./src", "templates", "./tests/integration"]
 }

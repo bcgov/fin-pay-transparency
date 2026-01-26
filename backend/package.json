@@ -91,8 +91,9 @@
     "typescript-eslint": "^8.46.3"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --selectProjects unit",
     "test:cov": "npm run generate && jest --coverage --detectOpenHandles --forceExit",
+    "test:integration": "jest --selectProjects integration",
     "build": "npm run generate && tsc && copyfiles -u 1 src/**/*.html dist",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
     "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
@@ -102,26 +103,58 @@
     "prettier:write": "prettier src --write"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.(t|j)s$",
-    "transformIgnorePatterns": [
-      "node_modules/(?!@faker-js).+"
-    ],
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/test/"
+    "projects": [
+      {
+        "displayName": "unit",
+        "rootDir": "src",
+        "moduleFileExtensions": [
+          "js",
+          "json",
+          "ts"
+        ],
+        "testRegex": ".*\\.spec\\.(t|j)s$",
+        "transformIgnorePatterns": [
+          "node_modules/(?!@faker-js).+"
+        ],
+        "transform": {
+          "^.+\\.(t|j)s$": "ts-jest"
+        },
+        "collectCoverageFrom": [
+          "**/*.(t|j)s"
+        ],
+        "coverageDirectory": "../coverage",
+        "coveragePathIgnorePatterns": [
+          "/node_modules/",
+          "/test/"
+        ],
+        "testEnvironment": "node"
+      },
+      {
+        "displayName": "integration",
+        "rootDir": "tests/integration",
+        "moduleFileExtensions": [
+          "js",
+          "json",
+          "ts"
+        ],
+        "testRegex": ".*\\.spec\\.(t|j)s$",
+        "transformIgnorePatterns": [
+          "node_modules/(?!@faker-js).+"
+        ],
+        "transform": {
+          "^.+\\.(t|j)s$": "ts-jest"
+        },
+        "collectCoverageFrom": [
+          "**/*.(t|j)s"
+        ],
+        "coverageDirectory": "../coverage",
+        "coveragePathIgnorePatterns": [
+          "/node_modules/",
+          "/test/",
+          "./src/server.ts"
+        ],
+        "testEnvironment": "node"
+      }
     ],
     "coverageReporters": [
       "text",
@@ -129,7 +162,6 @@
       "cobertura",
       "jest-badges"
     ],
-    "testEnvironment": "node",
     "testResultsProcessor": "jest-sonar-reporter"
   },
   "prettier": {
