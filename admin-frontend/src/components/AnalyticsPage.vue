@@ -7,6 +7,7 @@
     rel="noopener"
     target="_blank"
     :href="sanitizeUrl(snowplowUrl)"
+    aria-label="Web Traffic Analytics"
     >Web Traffic Analytics</v-btn
   >
 
