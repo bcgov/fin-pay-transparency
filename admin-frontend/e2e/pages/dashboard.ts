@@ -3,56 +3,53 @@ import { PagePaths } from '../utils';
 import { AdminPortalPage } from './admin-portal-page';
 
 export class DashboardPage extends AdminPortalPage {
-  static path = PagePaths.DASHBOARD;
   public gotoAnnouncements: Locator;
+  public recentlyViewed: Locator;
+  public recentlySubmitted: Locator;
+  public analyticsView: Locator;
+  public currentYearReports: Locator;
+  public loggedInUsers: Locator;
+  public announcements: Locator;
 
-  async setup() {
-    await super.setup();
-    this.gotoAnnouncements = await this.page.getByRole('link', {
-      name: 'Go to edit',
-    });
-
-    const recentlyViewed = await this.page.getByRole('heading', {
+  constructor(page: Page) {
+    super(page);
+    this.gotoAnnouncements = page.getByRole('link', { name: 'Go to edit' });
+    this.recentlyViewed = page.getByRole('heading', {
       name: 'Recently Viewed Reports',
     });
-    const recentlySubmitted = await this.page.getByRole('heading', {
+    this.recentlySubmitted = page.getByRole('heading', {
       name: 'Recently Submitted Reports',
     });
-
-    const analyticsView = await this.page.getByRole('heading', {
+    this.analyticsView = page.getByRole('heading', {
       name: 'Analytics Overview',
     });
-
-    const currentYearReports = await this.page.getByText(
+    this.currentYearReports = page.getByText(
       `Number of reports submitted for the current reporting year (${new Date().getFullYear()})`,
     );
-
-    const loggedInUsers = await this.page.getByText(
+    this.loggedInUsers = page.getByText(
       'Total number of employers who have logged on to date',
     );
-
-    const announcements = await this.page.getByRole('heading', {
+    this.announcements = page.getByRole('heading', {
       name: 'Public Announcements',
     });
+  }
 
-    await expect(analyticsView).toBeVisible();
-    await expect(recentlySubmitted).toBeVisible();
-    await expect(loggedInUsers).toBeVisible();
-    await expect(currentYearReports).toBeVisible();
-    await expect(recentlyViewed).toBeVisible();
-    await expect(announcements).toBeVisible();
+  async validatePage() {
+    await expect(this.analyticsView).toBeVisible();
+    await expect(this.recentlySubmitted).toBeVisible();
+    await expect(this.loggedInUsers).toBeVisible();
+    await expect(this.currentYearReports).toBeVisible();
+    await expect(this.recentlyViewed).toBeVisible();
+    await expect(this.announcements).toBeVisible();
     await expect(this.gotoAnnouncements).toBeVisible();
+  }
+
+  async visit() {
+    await this.page.goto(PagePaths.DASHBOARD);
   }
 
   async clickGotoAnnouncementsAndVerify() {
     await this.gotoAnnouncements.click();
     await this.page.waitForURL(PagePaths.ANNOUNCEMENTS);
-  }
-
-  static async visit(page: Page): Promise<DashboardPage> {
-    await page.goto(PagePaths.DASHBOARD);
-    const dashboard = new DashboardPage(page);
-    await dashboard.setup();
-    return dashboard;
   }
 }

@@ -5,7 +5,9 @@ test.describe.serial('Reports', () => {
   test('should toggle filter visibility and reset page layout', async ({
     page,
   }) => {
-    const reportsPage = await SearchReportsPage.visit(page);
+    const reportsPage = new SearchReportsPage(page);
+    await reportsPage.visit();
+    await reportsPage.validatePage();
     await reportsPage.verifyReportButtons();
 
     // Filter should be hidden initially
@@ -23,7 +25,9 @@ test.describe.serial('Reports', () => {
   test('should search by employer and show only matching reports', async ({
     page,
   }) => {
-    const reportsPage = await SearchReportsPage.visit(page);
+    const reportsPage = new SearchReportsPage(page);
+    await reportsPage.visit();
+    await reportsPage.validatePage();
 
     // Get initial reports
     const initialReports = await reportsPage.getDisplayedReports();
@@ -44,7 +48,9 @@ test.describe.serial('Reports', () => {
   test('should toggle lock on first report and reflect the change in the table', async ({
     page,
   }) => {
-    const reportsPage = await SearchReportsPage.visit(page);
+    const reportsPage = new SearchReportsPage(page);
+    await reportsPage.visit();
+    await reportsPage.validatePage();
     // Get displayed reports
     const displayedReports = await reportsPage.getDisplayedReports();
     expect(displayedReports.length).toBeGreaterThan(0);
@@ -65,7 +71,9 @@ test.describe.serial('Reports', () => {
   });
 
   test('should filter and display only unlocked reports', async ({ page }) => {
-    const reportsPage = await SearchReportsPage.visit(page);
+    const reportsPage = new SearchReportsPage(page);
+    await reportsPage.visit();
+    await reportsPage.validatePage();
 
     // Ensure there is at least one of each locked and unlocked report
     const allReports = await reportsPage.getDisplayedReports();
@@ -88,7 +96,9 @@ test.describe.serial('Reports', () => {
   test('should withdraw a report and reduce the report count', async ({
     page,
   }) => {
-    const reportsPage = await SearchReportsPage.visit(page);
+    const reportsPage = new SearchReportsPage(page);
+    await reportsPage.visit();
+    await reportsPage.validatePage();
 
     // Get initial count of all reports
     const initialReports = await reportsPage.getDisplayedReports();

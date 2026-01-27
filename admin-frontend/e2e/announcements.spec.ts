@@ -7,11 +7,16 @@ import { AnnouncementStatus } from './types';
 test.describe('Announcements', () => {
   test.describe('add announcement', () => {
     test('save as draft', async ({ page }) => {
-      const announcementsPage = await AnnouncementsPage.visit(page);
+      const announcementsPage = new AnnouncementsPage(page);
+      await announcementsPage.visit();
+      await announcementsPage.validatePage();
       await announcementsPage.clickAddAnnouncementButton();
-      const addAnnouncementPage = await AddAnnouncementPage.visit(page);
+      const addAnnouncementPage = new AddAnnouncementPage(page);
+      await addAnnouncementPage.validatePage();
       await addAnnouncementPage.fillDraftForm();
-      const announcement = await addAnnouncementPage.save(AnnouncementStatus.DRAFT);
+      const announcement = await addAnnouncementPage.save(
+        AnnouncementStatus.DRAFT,
+      );
       await expect(announcement.status).toBe(AnnouncementStatus.DRAFT);
       await expect(announcement.title).toBeDefined();
       await expect(announcement.description).toBeDefined();
@@ -22,12 +27,17 @@ test.describe('Announcements', () => {
     });
 
     test('save as published', async ({ page }) => {
-      const announcementsPage = await AnnouncementsPage.visit(page);
+      const announcementsPage = new AnnouncementsPage(page);
+      await announcementsPage.visit();
+      await announcementsPage.validatePage();
       await announcementsPage.clickAddAnnouncementButton();
-      const addAnnouncementPage = await AddAnnouncementPage.visit(page);
+      const addAnnouncementPage = new AddAnnouncementPage(page);
+      await addAnnouncementPage.validatePage();
       await addAnnouncementPage.fillPublishedForm();
       await addAnnouncementPage.verifyPreview();
-      const announcement = await addAnnouncementPage.save(AnnouncementStatus.PUBLISHED);
+      const announcement = await addAnnouncementPage.save(
+        AnnouncementStatus.PUBLISHED,
+      );
       await expect(announcement.status).toBe(AnnouncementStatus.PUBLISHED);
       await expect(announcement.title).toBeDefined();
       await expect(announcement.description).toBeDefined();
@@ -38,15 +48,20 @@ test.describe('Announcements', () => {
     });
 
     test('save announcement with file attachment', async ({ page }) => {
-      const announcementsPage = await AnnouncementsPage.visit(page);
+      const announcementsPage = new AnnouncementsPage(page);
+      await announcementsPage.visit();
+      await announcementsPage.validatePage();
       await announcementsPage.clickAddAnnouncementButton();
-      const addAnnouncementPage = await AddAnnouncementPage.visit(page);
+      const addAnnouncementPage = new AddAnnouncementPage(page);
+      await addAnnouncementPage.validatePage();
 
       await addAnnouncementPage.fillDraftForm();
       await addAnnouncementPage.chooseFile(false);
       await addAnnouncementPage.expectFileInvalidError();
       await addAnnouncementPage.chooseFile(true);
-      const announcement = await addAnnouncementPage.save(AnnouncementStatus.DRAFT);
+      const announcement = await addAnnouncementPage.save(
+        AnnouncementStatus.DRAFT,
+      );
       await expect(announcement.status).toBe(AnnouncementStatus.DRAFT);
       await expect(announcement.title).toBeDefined();
       await expect(announcement.description).toBeDefined();
@@ -59,15 +74,19 @@ test.describe('Announcements', () => {
 
   test.describe('edit announcement', () => {
     test('should successfully edit and save announcement', async ({ page }) => {
-      const announcementsPage = await AnnouncementsPage.visit(page);
+      const announcementsPage = new AnnouncementsPage(page);
+      await announcementsPage.visit();
+      await announcementsPage.validatePage();
       await announcementsPage.clickAddAnnouncementButton();
-      const addAnnouncementPage = await AddAnnouncementPage.visit(page);
+      const addAnnouncementPage = new AddAnnouncementPage(page);
+      await addAnnouncementPage.validatePage();
       await addAnnouncementPage.fillPublishedForm();
-      const { title } = await addAnnouncementPage.save(AnnouncementStatus.PUBLISHED);
+      const { title } = await addAnnouncementPage.save(
+        AnnouncementStatus.PUBLISHED,
+      );
       const announcement = await announcementsPage.searchAndEdit(title);
-      const editAnnouncementPage = new EditAnnouncementPage(page);
-      await editAnnouncementPage.setup();
-      editAnnouncementPage.initialData = announcement;
+      const editAnnouncementPage = new EditAnnouncementPage(page, announcement);
+      await editAnnouncementPage.validatePage();
       await editAnnouncementPage.verifyLoadedData();
       await editAnnouncementPage.editForm();
       const changes = await editAnnouncementPage.saveChanges();
@@ -84,21 +103,31 @@ test.describe('Announcements', () => {
 
   test.describe('archive announcement', () => {
     test('should successfully archive an announcement', async ({ page }) => {
-      const announcementsPage = await AnnouncementsPage.visit(page);
+      const announcementsPage = new AnnouncementsPage(page);
+      await announcementsPage.visit();
+      await announcementsPage.validatePage();
       await announcementsPage.clickAddAnnouncementButton();
-      const addAnnouncementPage = await AddAnnouncementPage.visit(page);
+      const addAnnouncementPage = new AddAnnouncementPage(page);
+      await addAnnouncementPage.validatePage();
       await addAnnouncementPage.fillPublishedForm();
-      const { title } = await addAnnouncementPage.save(AnnouncementStatus.PUBLISHED);
+      const { title } = await addAnnouncementPage.save(
+        AnnouncementStatus.PUBLISHED,
+      );
       await announcementsPage.archiveAnnouncement(title);
     });
   });
   test.describe('unpublish announcement', () => {
     test('should successfully unpublish an announcement', async ({ page }) => {
-      const announcementsPage = await AnnouncementsPage.visit(page);
+      const announcementsPage = new AnnouncementsPage(page);
+      await announcementsPage.visit();
+      await announcementsPage.validatePage();
       await announcementsPage.clickAddAnnouncementButton();
-      const addAnnouncementPage = await AddAnnouncementPage.visit(page);
+      const addAnnouncementPage = new AddAnnouncementPage(page);
+      await addAnnouncementPage.validatePage();
       await addAnnouncementPage.fillPublishedForm();
-      const { title } = await addAnnouncementPage.save(AnnouncementStatus.PUBLISHED);
+      const { title } = await addAnnouncementPage.save(
+        AnnouncementStatus.PUBLISHED,
+      );
       await announcementsPage.unpublishedAnnouncement(title);
     });
   });
