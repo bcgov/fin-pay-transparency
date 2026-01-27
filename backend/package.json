@@ -92,7 +92,7 @@
   },
   "scripts": {
     "test": "jest --selectProjects unit",
-    "test:cov": "npm run generate && jest --coverage --detectOpenHandles --forceExit",
+    "test:cov": "npm run generate && jest --selectProjects unit --coverage --detectOpenHandles --forceExit",
     "test:integration": "jest --selectProjects integration",
     "build": "npm run generate && tsc && copyfiles -u 1 src/**/*.html dist",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
