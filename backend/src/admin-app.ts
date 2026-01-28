@@ -30,7 +30,7 @@ import analyticRoutes from './v1/routes/analytic-routes';
 import announcementsRoutes from './v1/routes/announcement-routes';
 import codeRouter from './v1/routes/code-routes';
 import { router as configRouter } from './v1/routes/config-routes';
-import dashboardMetricsRouter from './v1/routes/dashboard';
+import dashboardMetricsRouter from './v1/routes/dashboard/dashboard-routes';
 import employerRoutes from './v1/routes/employer-routes';
 import resourcesRoutes from './v1/routes/resources-routes';
 import { adminAuth } from './v1/services/admin-auth-service';
