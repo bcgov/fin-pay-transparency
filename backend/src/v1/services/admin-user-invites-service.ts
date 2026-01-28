@@ -6,7 +6,7 @@ import {
   PTRT_USER_ROLE_NAME,
 } from '../../constants/admin';
 import emailService from '../../external/services/ches/ches';
-import { EMAIL_TEMPLATES } from '../email-templates';
+import { EMAIL_TEMPLATES } from '../templates/email';
 import prisma from '../prisma/prisma-client';
 import { UserInputError } from '../types/errors';
 

@@ -14,7 +14,7 @@ import emailService from '../../external/services/ches/ches';
 import { config } from '../../config/config';
 import '@js-joda/timezone';
 import { Locale } from '@js-joda/locale_en';
-import { EMAIL_TEMPLATES } from '../email-templates';
+import { EMAIL_TEMPLATES } from '../templates/email';
 
 const schedulerService = {
   /*
