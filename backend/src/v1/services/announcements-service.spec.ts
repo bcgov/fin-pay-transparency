@@ -104,7 +104,7 @@ jest.mock('../../external/services/s3-api', () => ({
   deleteFiles: (...args) => mockS3ApiDeleteFiles(...args),
 }));
 
-jest.mock('../../config', () => ({
+jest.mock('../../config/config', () => ({
   config: {
     get: (key: string) => {
       const settings = {

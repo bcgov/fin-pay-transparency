@@ -7,7 +7,7 @@ import {
   nativeJs,
 } from '@js-joda/core';
 import type { pay_transparency_report } from '@prisma/client';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import {
   DISPLAY_REPORT_DATE_FORMAT,
   FILENAME_REPORT_DATE_FORMAT,

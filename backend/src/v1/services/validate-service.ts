@@ -1,6 +1,6 @@
 import { LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { parse as htmlParse } from 'node-html-parser';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import { ISubmission } from './file-upload-service';
 

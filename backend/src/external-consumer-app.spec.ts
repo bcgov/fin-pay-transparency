@@ -10,9 +10,8 @@ jest.mock('./v1/services/external-consumer-service', () => ({
   },
 }));
 
-jest.mock('./config', () => {
-  const actualConfig = jest.requireActual('./config').config;
-  const mockedConfig = (jest.genMockFromModule('./config') as any).config;
+jest.mock('./config/config', () => {
+  const actualConfig = jest.requireActual('./config/config').config;
   return {
     config: {
       get: jest.fn().mockImplementation((key) => {
@@ -60,7 +59,8 @@ describe('external-consumer-app', () => {
     });
     describe('without API Key', () => {
       it('should fail when api key is not available', async () => {
-        const response = await request(externalConsumerApp).get('/api/v1/reports');
+        const response =
+          await request(externalConsumerApp).get('/api/v1/reports');
         expect(response.status).toBe(400);
       });
     });

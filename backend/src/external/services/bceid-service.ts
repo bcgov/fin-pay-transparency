@@ -1,18 +1,24 @@
 import soapRequest from 'easy-soap-request';
-import {parseString} from 'xml2js';
-import {get} from 'lodash';
-import {promisify} from "util";
-import {config} from "../../config";
-import {logger} from "../../logger";
+import { parseString } from 'xml2js';
+import { get } from 'lodash';
+import { promisify } from 'util';
+import { config } from '../../config/config';
+import { logger } from '../../logger';
 
-const basic_auth = config.get('bceidWsIntegration:auth:username') + ':' + config.get('bceidWsIntegration:auth:password');
+const basic_auth =
+  config.get('bceidWsIntegration:auth:username') +
+  ':' +
+  config.get('bceidWsIntegration:auth:password');
 const base64BasicAuthVal = Buffer.from(basic_auth).toString('base64');
 const onlineServiceId = config.get('bceidWsIntegration:onlineServiceId');
 const parseStringSync = promisify(parseString);
 
 const serviceUrl = config.get('bceidWsIntegration:url');
 
-const generateXML = (userGuid: string, onlineServiceID: string = onlineServiceId) => `<?xml version="1.0" encoding="UTF-8"?>
+const generateXML = (
+  userGuid: string,
+  onlineServiceID: string = onlineServiceId,
+) => `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Header/>
  <soapenv:Body>
@@ -28,9 +34,12 @@ const generateXML = (userGuid: string, onlineServiceID: string = onlineServiceId
  </soapenv:Body>
 </soapenv:Envelope>`;
 
-
-const getCompanyDetails = async (userGuid: string, base64BasicAuth: string = base64BasicAuthVal, serviceURL: string = serviceUrl, xml: string = generateXML(userGuid)) => {
-
+const getCompanyDetails = async (
+  userGuid: string,
+  base64BasicAuth: string = base64BasicAuthVal,
+  serviceURL: string = serviceUrl,
+  xml: string = generateXML(userGuid),
+) => {
   const defaultHeaders = {
     'Content-Type': 'text/xml;charset=UTF-8',
     authorization: `Basic ${base64BasicAuth}`,
@@ -39,16 +48,19 @@ const getCompanyDetails = async (userGuid: string, base64BasicAuth: string = bas
   logger.silly(xml);
   logger.silly(serviceURL);
   logger.silly(defaultHeaders);
-  const {response}: any = await soapRequest({
+  const { response }: any = await soapRequest({
     url: serviceURL,
     headers: defaultHeaders,
     xml,
     timeout: 10000,
   });
 
-  const {headers, body, statusCode} = response;
+  const { headers, body, statusCode } = response;
   const result = await parseStringSync(body);
-  const data = get(result, 'soap:Envelope.soap:Body.0.getAccountDetailResponse.0.getAccountDetailResult.0');
+  const data = get(
+    result,
+    'soap:Envelope.soap:Body.0.getAccountDetailResponse.0.getAccountDetailResult.0',
+  );
   if (!data) throw Error('no data');
 
   const status = get(data, 'code.0');
@@ -75,10 +87,9 @@ const getCompanyDetails = async (userGuid: string, base64BasicAuth: string = bas
     city,
     province,
     country,
-    postal
-  }
+    postal,
+  };
   logger.silly(companyDetails);
   return companyDetails;
-
-}
-export {getCompanyDetails};
+};
+export { getCompanyDetails };

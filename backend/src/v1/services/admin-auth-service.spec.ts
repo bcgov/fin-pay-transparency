@@ -24,8 +24,8 @@ jest.mock('./utils-service', () => {
   };
 });
 
-jest.mock('../../config', () => {
-  const actualConfig = jest.requireActual('../../config').config;
+jest.mock('../../config/config', () => {
+  const actualConfig = jest.requireActual('../../config/config').config;
   return {
     config: {
       get: (key) => {

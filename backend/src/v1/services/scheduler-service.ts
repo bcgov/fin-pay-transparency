@@ -11,7 +11,7 @@ import { Prisma } from '@prisma/client';
 import { announcementService } from './announcements-service';
 import { SSO } from './sso-service';
 import emailService from '../../external/services/ches';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import '@js-joda/timezone';
 import { Locale } from '@js-joda/locale_en';
 import { EMAIL_TEMPLATES } from '../email-templates';

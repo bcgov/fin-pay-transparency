@@ -1,4 +1,4 @@
-import { config } from '../config';
+import { config } from '../config/config';
 import { RoleType } from '../v1/types/users';
 
 export const PTRT_ADMIN_ROLE_NAME = 'PTRT-ADMIN';

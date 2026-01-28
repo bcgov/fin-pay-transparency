@@ -6,7 +6,7 @@ let app: Application;
 
 const mockConfigGet = jest.fn();
 
-jest.mock('../../config', () => ({
+jest.mock('../../config/config', () => ({
   config: {
     get: (key) => mockConfigGet(key),
   },

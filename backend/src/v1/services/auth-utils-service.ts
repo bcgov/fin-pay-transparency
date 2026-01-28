@@ -4,7 +4,7 @@ import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'node:querystring';
 import { v4 as uuidv4 } from 'uuid';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import { logger as log } from '../../logger';
 import { utils } from './utils-service';
 

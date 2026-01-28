@@ -1,4 +1,4 @@
-import { config } from '../config';
+import { config } from '../config/config';
 import { logger as log } from '../logger';
 import advisoryLock from 'advisory-lock';
 import prisma from '../v1/prisma/prisma-client';

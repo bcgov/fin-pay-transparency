@@ -8,7 +8,7 @@ import {
   ZonedDateTime,
   convert,
 } from '@js-joda/core';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import prisma from '../prisma/prisma-client';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { SubmissionError } from '../services/file-upload-service';

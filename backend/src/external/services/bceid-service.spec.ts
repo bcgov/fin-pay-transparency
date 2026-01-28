@@ -1,9 +1,9 @@
 import { getCompanyDetails } from './bceid-service';
-import  soapRequest  from 'easy-soap-request';
-import { config } from "../../config";
+import soapRequest from 'easy-soap-request';
+import { config } from '../../config/config';
 
 jest.mock('easy-soap-request'); // Mock the soapRequest function
-jest.mock("../../config"); // Mock the config module
+jest.mock('../../config/config'); // Mock the config module
 
 // Define a mock response for the soapRequest function
 const mockSoapResponse = {
@@ -50,9 +50,7 @@ const mockSoapResponse = {
   },
 };
 
-
 describe('getCompanyDetails', () => {
-
   afterAll(() => {
     config.get.mockRestore();
   });
@@ -63,7 +61,12 @@ describe('getCompanyDetails', () => {
 
     // Call the function you want to test
     const userGuid = 'testUserGuid';
-    const companyDetails = await getCompanyDetails(userGuid, 'dGVzdFVzZXJuYW1lOnRlc3RQYXNzd29yZA==', 'https://example.com/soap-service','<getAccountDetail xmlns="http://www.bceid.ca/webservices/Client/V10/">');
+    const companyDetails = await getCompanyDetails(
+      userGuid,
+      'dGVzdFVzZXJuYW1lOnRlc3RQYXNzd29yZA==',
+      'https://example.com/soap-service',
+      '<getAccountDetail xmlns="http://www.bceid.ca/webservices/Client/V10/">',
+    );
 
     // Assertions
     expect(companyDetails).toEqual({
@@ -81,7 +84,9 @@ describe('getCompanyDetails', () => {
         'Content-Type': 'text/xml;charset=UTF-8',
         authorization: 'Basic dGVzdFVzZXJuYW1lOnRlc3RQYXNzd29yZA==',
       },
-      xml: expect.stringContaining('<getAccountDetail xmlns="http://www.bceid.ca/webservices/Client/V10/">'),
+      xml: expect.stringContaining(
+        '<getAccountDetail xmlns="http://www.bceid.ca/webservices/Client/V10/">',
+      ),
       timeout: 10000,
     });
   });
@@ -92,6 +97,8 @@ describe('getCompanyDetails', () => {
 
     // Call the function you want to test and expect it to throw an error
     const userGuid = 'testUserGuid';
-    await expect(getCompanyDetails(userGuid)).rejects.toThrow('SOAP request failed');
+    await expect(getCompanyDetails(userGuid)).rejects.toThrow(
+      'SOAP request failed',
+    );
   });
 });

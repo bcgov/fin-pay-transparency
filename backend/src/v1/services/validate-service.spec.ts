@@ -1,5 +1,5 @@
 import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants';
 import {
   FIELD_DATA_CONSTRAINTS,

@@ -1,6 +1,6 @@
 import { DateTimeFormatter, LocalDate, ZoneId } from '@js-joda/core';
 import advisoryLock from 'advisory-lock';
-import { config } from '../config';
+import { config } from '../config/config';
 import { logger as log } from '../logger';
 import { errorService } from '../v1/services/error-service';
 import { createJob } from './create-job';

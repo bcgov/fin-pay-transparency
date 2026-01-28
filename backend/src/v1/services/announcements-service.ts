@@ -13,7 +13,7 @@ import {
 } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import isEmpty from 'lodash/isEmpty';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import { deleteFiles } from '../../external/services/s3-api';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
