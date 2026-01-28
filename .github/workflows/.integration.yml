@@ -31,6 +31,10 @@ on:
       ENTRA_APP_CLIENT_SECRET:
         required: true
       ENTRA_APP_TENANT_ID:
+        required: true        
+      POWERBI_ANALYTICS_WORKSPACE_ID: 
+        required: true
+      POWERBI_ANALYTICS_REPORT_ID: 
         required: true
     inputs:
       backend-external-url:
@@ -99,5 +103,7 @@ jobs:
           ENTRA_APP_CLIENT_ID: ${{ secrets.ENTRA_APP_CLIENT_ID }}
           ENTRA_APP_CLIENT_SECRET: ${{ secrets.ENTRA_APP_CLIENT_SECRET }}
           ENTRA_APP_TENANT_ID: ${{ secrets.ENTRA_APP_TENANT_ID }}
+          POWERBI_ANALYTICS_WORKSPACE_ID: ${{ secrets.POWERBI_ANALYTICS_WORKSPACE_ID }}
+          POWERBI_ANALYTICS_REPORT_ID: ${{ secrets.POWERBI_ANALYTICS_REPORT_ID }}
         run: |
           npm run test:integration

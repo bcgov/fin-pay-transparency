@@ -7,14 +7,9 @@ import {
 // can be fetched successfully in each environment.
 describe('/ GET', () => {
   it('should return 200 OK', async () => {
-    let info;
-    try {
-      info = await analyticsService.getEmbedInfo([
-        PowerBiResourceName.Analytics,
-      ]);
-    } catch (error) {
-      throw new Error(`Failed to get embed info: ${error}`);
-    }
+    const info = await analyticsService.getEmbedInfo([
+      PowerBiResourceName.Analytics,
+    ]);
     expect(info).toHaveProperty('accessToken');
     expect(info).toHaveProperty('expiry');
     expect(info).toHaveProperty('resources');
