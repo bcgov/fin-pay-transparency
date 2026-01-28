@@ -23,7 +23,7 @@ jest.mock('async-retry', () => ({
 const mock_generateHtmlEmail = jest.fn();
 const mock_sendEmailWithRetry = jest.fn();
 
-jest.mock('../external/services/ches', () => ({
+jest.mock('../external/services/ches/ches', () => ({
   __esModule: true,
   default: {
     generateHtmlEmail: (...args) => mock_generateHtmlEmail(...args),

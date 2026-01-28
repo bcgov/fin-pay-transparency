@@ -3,7 +3,7 @@ import { CronJob } from 'cron';
 import retry from 'async-retry';
 import { logger as log } from '../logger';
 import { config } from '../config/config';
-import emailService from '../external/services/ches';
+import emailService from '../external/services/ches/ches';
 import { utils } from '../v1/services/utils-service';
 
 type CreateMutexFunction = ReturnType<typeof advisoryLock>;

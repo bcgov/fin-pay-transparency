@@ -1,4 +1,4 @@
-import emailService from './index';
+import emailService from './ches';
 
 jest.mock('./ches-service');
 
@@ -7,8 +7,7 @@ describe('emailService', () => {
     jest.clearAllMocks();
   });
 
-
   it('should not export the emailService instance', () => {
-    expect(emailService).toBeFalsy()
+    expect(emailService).toBeFalsy();
   });
 });
