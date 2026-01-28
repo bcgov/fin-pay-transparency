@@ -4,31 +4,30 @@ import { AdminPortalPage } from '../admin-portal-page';
 import { AnnouncementStatus } from '../../types';
 
 export class AnnouncementsPage extends AdminPortalPage {
-  static path = PagePaths.ANNOUNCEMENTS;
   addAnnouncementButton: Locator;
   searchInput: Locator;
   searchButton: Locator;
   resetButton: Locator;
 
-  static async visit(page: Page) {
-    await page.goto(PagePaths.ANNOUNCEMENTS);
-    const announcementsPage = new AnnouncementsPage(page);
-    await announcementsPage.setup();
-    return announcementsPage;
-  }
-
-  async setup() {
-    await super.setup();
-    this.addAnnouncementButton = await this.page.getByRole('link', {
+  constructor(page: Page) {
+    super(page);
+    this.addAnnouncementButton = page.getByRole('link', {
       name: 'Add Announcement',
     });
-    this.searchInput = await this.page.getByLabel('Search by title');
-    this.searchButton = await this.page.getByRole('button', { name: 'Search' });
-    this.resetButton = await this.page.getByRole('button', { name: 'Reset' });
+    this.searchInput = page.getByLabel('Search by title');
+    this.searchButton = page.getByRole('button', { name: 'Search' });
+    this.resetButton = page.getByRole('button', { name: 'Reset' });
+  }
+
+  async validatePage() {
     await expect(this.searchInput).toBeVisible();
     await expect(this.searchButton).toBeVisible();
     await expect(this.addAnnouncementButton).toBeVisible();
     await expect(this.resetButton).toBeVisible();
+  }
+
+  async visit() {
+    await this.page.goto(PagePaths.ANNOUNCEMENTS);
   }
 
   async clickAddAnnouncementButton() {
@@ -77,7 +76,7 @@ export class AnnouncementsPage extends AdminPortalPage {
     await this.expectTitleVisible(title);
     const actions = await this.page.getByRole('button', { name: 'Actions' });
     const actionsButton = await actions.first();
-    
+
     await actionsButton.click();
     const getAnnouncementResponse = this.waitForGetAnnouncement(
       items[0].announcement_id,
@@ -199,6 +198,4 @@ export class AnnouncementsPage extends AdminPortalPage {
 
     return getAnnouncementResponse;
   }
-
-  
 }

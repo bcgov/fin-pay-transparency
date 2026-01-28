@@ -4,5 +4,5 @@
     "noImplicitAny": false,
     "verbatimModuleSyntax": false
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*", "./e2e/*"]
 }

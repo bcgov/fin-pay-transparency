@@ -6,9 +6,8 @@ import { Locale } from '@js-joda/locale_en';
 
 export class AdminPortalPage {
   userManagementNav: Locator;
-  constructor(public readonly page: Page) {}
 
-  async setup() {
+  constructor(public readonly page: Page) {
     this.userManagementNav = this.page.getByRole('link', {
       name: 'User Management',
     });

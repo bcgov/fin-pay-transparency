@@ -12,7 +12,6 @@ type DisplayedReportRow = {
 };
 
 export class SearchReportsPage extends AdminPortalPage {
-  static PATH = PagePaths.REPORTS;
   searchInput: Locator;
   searchButton: Locator;
   resetButton: Locator;
@@ -29,51 +28,50 @@ export class SearchReportsPage extends AdminPortalPage {
   tableRows: Locator;
   loadingRow: Locator;
 
-  static async visit(page: Page): Promise<SearchReportsPage> {
-    await page.goto(SearchReportsPage.PATH);
-    const searchReportsPage = new SearchReportsPage(page);
-    await searchReportsPage.setup();
-    return searchReportsPage;
-  }
-
-  async setup(): Promise<void> {
-    super.setup();
-    this.searchInput = await this.page.getByLabel('Search by employer name');
-    this.searchButton = await this.page.getByRole('button', { name: 'Search' });
-    this.resetButton = await this.page.getByRole('button', { name: 'Reset' });
-    this.filterButton = await this.page.getByRole('button', { name: 'Filter' });
-    this.reportYearFilterInput = await this.page.getByLabel('Report Year');
-    this.lockFilterInput = await this.page.getByLabel('Locked/Unlocked');
-    this.applyFilterButton = await this.page.getByRole('button', {
+  constructor(page: Page) {
+    super(page);
+    this.searchInput = this.page.getByLabel('Search by employer name');
+    this.searchButton = this.page.getByRole('button', { name: 'Search' });
+    this.resetButton = this.page.getByRole('button', { name: 'Reset' });
+    this.filterButton = this.page.getByRole('button', { name: 'Filter' });
+    this.reportYearFilterInput = this.page.getByLabel('Report Year');
+    this.lockFilterInput = this.page.getByLabel('Locked/Unlocked');
+    this.applyFilterButton = this.page.getByRole('button', {
       name: 'Apply',
     });
-    this.openReportButton = await this.page.getByRole('button', {
+    this.openReportButton = this.page.getByRole('button', {
       name: 'Open report',
     });
-    this.lockReportButton = await this.page.getByRole('button', {
+    this.lockReportButton = this.page.getByRole('button', {
       name: 'Lock report',
     });
-    this.withdrawReportButton = await this.page.getByRole('button', {
+    this.withdrawReportButton = this.page.getByRole('button', {
       name: 'Withdraw report',
     });
-    this.reportHistoryButton = await this.page.getByRole('button', {
+    this.reportHistoryButton = this.page.getByRole('button', {
       name: 'Admin action history',
     });
-    this.noReportsLocator = await this.page.getByText(
+    this.noReportsLocator = this.page.getByText(
       'No reports matched the search criteria',
     );
 
-    this.confirmDialogButton = await this.page.getByRole('button', {
+    this.confirmDialogButton = this.page.getByRole('button', {
       name: 'Yes',
     });
 
     // Locator for all table rows (excluding header)
-    const table = await this.page.locator('table').first();
+    const table = this.page.locator('table').first();
     this.tableRows = table.locator('tbody tr');
 
     // Locator for the loading row
     this.loadingRow = this.page.getByText('Loading items...');
+  }
 
+  async visit() {
+    await this.page.goto(PagePaths.REPORTS);
+  }
+
+  async validatePage(): Promise<void> {
     await expect(this.searchInput).toBeVisible();
     await expect(this.searchButton).toBeVisible();
     await expect(this.filterButton).toBeVisible();

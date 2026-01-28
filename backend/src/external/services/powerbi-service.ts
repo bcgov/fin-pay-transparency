@@ -68,12 +68,21 @@ export class PowerBiService {
         }),
       );
 
-      // Limit the found reports to only the ones requested
-      const reports = reportNameInWorkspace.map((res) =>
-        reportsPerWorkspace[res.workspaceId].find(
-          (x) => x.name == res.reportName,
-        ),
-      );
+      // Limit the found reports to only the ones requested and filter out null/undefined
+      const reports = reportNameInWorkspace
+        .map((res) =>
+          reportsPerWorkspace[res.workspaceId].find(
+            (x) => x.name == res.reportName,
+          ),
+        )
+        .filter((report) => report != null);
+
+      // Throw if no valid reports found
+      if (reports.length === 0) {
+        throw new Error(
+          'No matching Power BI reports found for the given names.',
+        );
+      }
 
       // Get Embed token multiple resources
       const embedToken = await this.getEmbedTokenForV2Workspace(

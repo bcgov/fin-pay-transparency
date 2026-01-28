@@ -12,7 +12,6 @@ export interface User {
 setup('authenticate', async ({ page }) => {
   await page.goto(PagePaths.LOGIN);
   const loginPage = new LoginPage(page);
-  await loginPage.setup();
   await loginPage.login();
 
   const getUserResponse = page.waitForResponse(
@@ -23,7 +22,7 @@ setup('authenticate', async ({ page }) => {
 
   await page.goto(PagePaths.DASHBOARD);
   const dashboard = new DashboardPage(loginPage.page);
-  await dashboard.setup();
+  await dashboard.validatePage();
   await dashboard.verifyUserIsDisplayed(user);
 
   await page.context().storageState({ path: authFile });

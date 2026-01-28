@@ -27,38 +27,38 @@ export class FormPage extends AdminPortalPage {
   fileDisplayNameInput: Locator;
   fileInput: Locator;
 
-  async setup() {
-    await super.setup();
-    this.titleInput = await this.page.getByRole('textbox', { name: 'Title' });
-    this.descriptionInput = await this.getRichTextElement(
-      'announcementDescription',
-    );
-    this.cancelButton = await this.page.getByRole('button', { name: 'Cancel' });
-    this.draftOption = await this.page.getByRole('radio', { name: 'Draft' });
-    this.publishedOption = await this.page.getByRole('radio', {
+  constructor(page) {
+    super(page);
+    this.titleInput = this.page.getByRole('textbox', { name: 'Title' });
+    this.descriptionInput = this.getRichTextElement('announcementDescription');
+    this.cancelButton = this.page.getByRole('button', { name: 'Cancel' });
+    this.draftOption = this.page.getByRole('radio', { name: 'Draft' });
+    this.publishedOption = this.page.getByRole('radio', {
       name: 'Publish',
     });
-    this.saveButton = await this.page.getByRole('button', { name: 'Save' });
-    this.activeOnInput = await this.page.getByRole('textbox', {
+    this.saveButton = this.page.getByRole('button', { name: 'Save' });
+    this.activeOnInput = this.page.getByRole('textbox', {
       name: 'Active On',
     });
-    this.expiresOnInput = await this.page.getByRole('textbox', {
+    this.expiresOnInput = this.page.getByRole('textbox', {
       name: 'Expires On',
     });
-    this.linkUrlInput = await this.page.getByRole('textbox', {
+    this.linkUrlInput = this.page.getByRole('textbox', {
       name: 'Link URL',
     });
-    this.linkTextInput = await this.page.getByRole('textbox', {
+    this.linkTextInput = this.page.getByRole('textbox', {
       name: 'Display URL As',
     });
-    this.chooseFileButton = await this.page.getByRole('button', {
+    this.chooseFileButton = this.page.getByRole('button', {
       name: 'Choose file',
     });
-    this.fileDisplayNameInput = await this.page.getByRole('textbox', {
+    this.fileDisplayNameInput = this.page.getByRole('textbox', {
       name: 'Display File Link As',
     });
-    this.fileInput = await this.page.getByLabel('Attachment', { exact: true });
+    this.fileInput = this.page.getByLabel('Attachment', { exact: true });
+  }
 
+  async validatePage() {
     await expect(this.titleInput).toBeVisible();
     await expect(this.descriptionInput).toBeVisible();
     await expect(this.cancelButton).toBeVisible();
@@ -67,8 +67,8 @@ export class FormPage extends AdminPortalPage {
     await expect(this.expiresOnInput).toBeVisible();
   }
 
-  async getRichTextElement(id): Promise<Locator> {
-    return await this.page.locator(`#${id} .ql-editor`);
+  getRichTextElement(id): Locator {
+    return this.page.locator(`#${id} .ql-editor`);
   }
 
   async selectDraftOption() {

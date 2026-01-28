@@ -5,17 +5,12 @@ import { faker } from '@faker-js/faker';
 import { AnnouncementStatus } from '../../types';
 
 export class AddAnnouncementPage extends FormPage {
-  static path = PagePaths.ADD_ANNOUNCEMENTS;
-
-  async setup() {
-    await super.setup();
+  constructor(page) {
+    super(page);
   }
 
-  static async visit(page) {
-    await page.goto(AddAnnouncementPage.path);
-    const addAnnouncementPage = new AddAnnouncementPage(page);
-    await addAnnouncementPage.setup();
-    return addAnnouncementPage;
+  async visit() {
+    await this.page.goto(PagePaths.ADD_ANNOUNCEMENTS);
   }
 
   async saveAnnouncementAsDraft() {

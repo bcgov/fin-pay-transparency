@@ -8,18 +8,14 @@ import { FormPage } from './form-page';
 
 export class EditAnnouncementPage extends FormPage {
   initialData: any;
-  static path = PagePaths.EDIT_ANNOUNCEMENTS;
 
-  async setup() {
-    await super.setup();
+  constructor(page, initialData = null) {
+    super(page);
+    this.initialData = initialData;
   }
 
-  static async visit(page, initialData) {
-    await page.goto(EditAnnouncementPage.path);
-    const addAnnouncementPage = new EditAnnouncementPage(page);
-    addAnnouncementPage.initialData = initialData;
-    await addAnnouncementPage.setup();
-    return addAnnouncementPage;
+  async visit() {
+    await this.page.goto(PagePaths.EDIT_ANNOUNCEMENTS);
   }
 
   async verifyLoadedData() {

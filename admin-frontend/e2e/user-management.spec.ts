@@ -10,9 +10,9 @@ const user = {
 test.describe.serial('User Management', () => {
   let userManagementPage: UserManagementPage;
   test.beforeEach(async ({ page }) => {
-    await page.goto(PagePaths.USER_MANAGEMENT);
     userManagementPage = new UserManagementPage(page);
-    await userManagementPage.setup();
+    await userManagementPage.visit();
+    await userManagementPage.validatePage();
   });
   test('add new user', async () => {
     await userManagementPage.addNewUserAndVerify(user);

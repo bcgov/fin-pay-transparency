@@ -1,19 +1,24 @@
 import { expect, Locator } from 'playwright/test';
 import { AdminPortalPage } from '../admin-portal-page';
+import { PagePaths } from '../../utils';
 
 export class UserManagementPage extends AdminPortalPage {
   pendingAccessButton: Locator;
   addUserButton: Locator;
 
-  async setup() {
-    await super.setup();
-    this.pendingAccessButton = this.page.getByRole('button', {
+  constructor(page) {
+    super(page);
+    this.pendingAccessButton = page.getByRole('button', {
       name: 'Pending Access',
     });
-    this.addUserButton = this.page.getByRole('button', {
-      name: 'Add New User',
-    });
+    this.addUserButton = page.getByRole('button', { name: 'Add New User' });
+  }
 
+  async visit() {
+    await this.page.goto(PagePaths.USER_MANAGEMENT);
+  }
+
+  async validatePage() {
     await expect(this.pendingAccessButton).toBeVisible();
     await expect(this.addUserButton).toBeVisible();
   }
@@ -56,7 +61,10 @@ export class UserManagementPage extends AdminPortalPage {
     await expect(nameInput).toBeVisible();
     const emailInput = await this.page.getByLabel('Email');
     await expect(emailInput).toBeVisible();
-    const submitButton = await this.page.getByRole('button', { name: 'Add', exact: true });
+    const submitButton = await this.page.getByRole('button', {
+      name: 'Add',
+      exact: true,
+    });
 
     // Fill out form
     await nameInput.fill(user.name);
@@ -79,7 +87,8 @@ export class UserManagementPage extends AdminPortalPage {
     return this.page.waitForResponse(
       (response) =>
         response.url().includes('/v1/user-invites') &&
-        response.status() === 200 && response.request().method() === 'POST',
+        response.status() === 200 &&
+        response.request().method() === 'POST',
     );
   }
 

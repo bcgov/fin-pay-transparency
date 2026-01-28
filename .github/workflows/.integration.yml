@@ -22,6 +22,20 @@ on:
     secrets:
       EXTERNAL_CONSUMER_API_KEY:
         required: true
+      EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY:
+        required: true
+      BACKEND_POWERBI_URL:
+        required: true
+      ENTRA_APP_CLIENT_ID:
+        required: true
+      ENTRA_APP_CLIENT_SECRET:
+        required: true
+      ENTRA_APP_TENANT_ID:
+        required: true        
+      POWERBI_ANALYTICS_WORKSPACE_ID: 
+        required: true
+      POWERBI_ANALYTICS_REPORT_ID: 
+        required: true
     inputs:
       backend-external-url:
         description: "Backend-External URL of the application"
@@ -39,7 +53,7 @@ on:
         type: number
 
 jobs:
-  integration:
+  backend-external-integration:
     name: Backend-external
     environment: ${{ inputs.environment }}
     defaults:
@@ -62,5 +76,34 @@ jobs:
           BASE_URL: ${{ inputs.backend-external-url }}
           EXTERNAL_CONSUMER_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_API_KEY }}
           EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
+        run: |
+          npm run test:integration
+
+  backend-integration:
+    name: Backend Integration
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: backend
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@v6
+        name: Checkout
+      - uses: actions/setup-node@v6
+        name: Setup Node
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Run Backend Integration Tests
+        env:
+          BACKEND_POWERBI_URL: ${{ secrets.BACKEND_POWERBI_URL }}
+          ENTRA_APP_CLIENT_ID: ${{ secrets.ENTRA_APP_CLIENT_ID }}
+          ENTRA_APP_CLIENT_SECRET: ${{ secrets.ENTRA_APP_CLIENT_SECRET }}
+          ENTRA_APP_TENANT_ID: ${{ secrets.ENTRA_APP_TENANT_ID }}
+          POWERBI_ANALYTICS_WORKSPACE_ID: ${{ secrets.POWERBI_ANALYTICS_WORKSPACE_ID }}
+          POWERBI_ANALYTICS_REPORT_ID: ${{ secrets.POWERBI_ANALYTICS_REPORT_ID }}
         run: |
           npm run test:integration

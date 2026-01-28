@@ -5,8 +5,6 @@ import { AdminPortalPage } from './admin-portal-page';
 export class LoginPage extends AdminPortalPage {
   static path = PagePaths.LOGIN;
 
-  async setup() {}
-
   async login() {
     await this.page.getByTestId('login-button').click();
     await this.page.getByLabel('Enter your email, phone, or').click();

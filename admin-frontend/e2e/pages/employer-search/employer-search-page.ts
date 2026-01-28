@@ -1,5 +1,6 @@
 import { expect, Locator } from 'playwright/test';
 import { AdminPortalPage } from '../admin-portal-page';
+import { PagePaths } from '../../utils';
 
 export class EmployerSearchPage extends AdminPortalPage {
   searchInput: Locator;
@@ -7,16 +8,19 @@ export class EmployerSearchPage extends AdminPortalPage {
   searchButton: Locator;
   resetButton: Locator;
 
-  async setup(): Promise<void> {
-    this.searchInput = await this.page.getByLabel('Search by employer name');
-    this.calendarYearInput = await this.page.getByLabel('Calendar Year(s)');
-    this.searchButton = await this.page.getByRole('button', {
-      name: 'Search',
-    });
-    this.resetButton = await this.page.getByRole('button', {
-      name: 'Reset',
-    });
+  constructor(page) {
+    super(page);
+    this.searchInput = page.getByLabel('Search by employer name');
+    this.calendarYearInput = page.getByLabel('Calendar Year(s)');
+    this.searchButton = page.getByRole('button', { name: 'Search' });
+    this.resetButton = page.getByRole('button', { name: 'Reset' });
+  }
 
+  async visit() {
+    await this.page.goto(PagePaths.EMPLOYERS);
+  }
+
+  async validatePage(): Promise<void> {
     await expect(this.searchInput).toBeVisible();
     await expect(this.calendarYearInput).toBeVisible();
     await expect(this.searchButton).toBeVisible();
@@ -34,7 +38,9 @@ export class EmployerSearchPage extends AdminPortalPage {
 
     for (const employer of employers) {
       const employerName = await this.page.getByText(employer.company_name);
-      const count = employers.filter((e) => e.company_name === employer.company_name).length;
+      const count = employers.filter(
+        (e) => e.company_name === employer.company_name,
+      ).length;
       await expect(await employerName.count()).toBe(count);
     }
   }
