@@ -1,6 +1,6 @@
 import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
 import { config } from '../../config/config';
-import { JSON_REPORT_DATE_FORMAT } from '../../constants';
+import { JSON_REPORT_DATE_FORMAT } from '../../constants/constants';
 import {
   FIELD_DATA_CONSTRAINTS,
   GENDER_CODES,

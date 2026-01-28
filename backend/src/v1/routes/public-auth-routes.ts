@@ -5,7 +5,7 @@ import { config } from '../../config/config';
 import {
   MISSING_COMPANY_DETAILS_ERROR,
   MISSING_TOKENS_ERROR,
-} from '../../constants';
+} from '../../constants/constants';
 import { logger as log } from '../../logger';
 import { UnauthorizedRsp } from '../services/auth-utils-service';
 import { LogoutReason, publicAuth } from '../services/public-auth-service';

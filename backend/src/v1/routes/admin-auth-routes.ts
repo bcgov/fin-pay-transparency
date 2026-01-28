@@ -6,7 +6,7 @@ import {
   MISSING_TOKENS_ERROR,
   OIDC_AZUREIDIR_CALLBACK_NAME,
   OIDC_AZUREIDIR_STRATEGY_NAME,
-} from '../../constants';
+} from '../../constants/constants';
 import { logger as log } from '../../logger';
 import { LogoutReason, adminAuth } from '../services/admin-auth-service';
 import { UnauthorizedRsp } from '../services/auth-utils-service';

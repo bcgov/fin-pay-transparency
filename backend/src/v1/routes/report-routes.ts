@@ -5,7 +5,7 @@ import {
   MISSING_BUSINESS_GUID_ERROR,
   REPORT_NOT_FOUND_ERROR,
   REPORT_STATUS_NOT_VALID_ERROR,
-} from '../../constants';
+} from '../../constants/constants';
 import { logger } from '../../logger';
 import { enumReportStatus, reportService } from '../services/report-service';
 import { utils } from '../services/utils-service';
