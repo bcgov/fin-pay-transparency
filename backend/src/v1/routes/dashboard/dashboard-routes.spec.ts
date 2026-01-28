@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from '.';
+import router from './dashboard-routes';
 
 jest.mock('../../services/announcements-service', () => ({
   announcementService: { getAnnouncementMetrics: jest.fn() },
