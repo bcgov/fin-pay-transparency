@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { employerService } from '../services/employer-service';
 import { utils } from '../services/utils-service';
-import { useValidate } from '../middlewares/validations';
+import { useValidate } from '../middlewares/validations/validate';
 import {
   GetEmployerQuerySchema,
   GetEmployerQueryType,

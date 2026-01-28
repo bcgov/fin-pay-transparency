@@ -4,7 +4,7 @@ import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
 import { logger } from '../../logger';
 import { authorize } from '../middlewares/authorization/authorize';
-import { useValidate } from '../middlewares/validations';
+import { useValidate } from '../middlewares/validations/validate';
 import {
   AddNewUserSchema,
   AddNewUserType,

@@ -4,7 +4,7 @@ import {
   PowerBiResourceName,
 } from '../services/analytic-service';
 import { utils } from '../services/utils-service';
-import { useValidate } from '../middlewares/validations';
+import { useValidate } from '../middlewares/validations/validate';
 import z from 'zod';
 
 const EmbedQuerySchema = z.object({

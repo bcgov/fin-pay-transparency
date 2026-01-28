@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { logger } from '../../logger';
 import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
-import { useValidate } from '../middlewares/validations';
+import { useValidate } from '../middlewares/validations/validate';
 import {
   ASSIGN_ROLE_SCHEMA,
   AssignRoleType,
