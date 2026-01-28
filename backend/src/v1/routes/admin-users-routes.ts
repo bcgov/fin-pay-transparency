@@ -8,7 +8,7 @@ import {
 } from '../middlewares/validations/schemas';
 import { SSO } from '../services/sso-service';
 import { authorize } from '../middlewares/authorization/authorize';
-import { ExtendedRequest } from '../types';
+import { ExtendedRequest } from '../types/request';
 import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
 import z from 'zod';
 

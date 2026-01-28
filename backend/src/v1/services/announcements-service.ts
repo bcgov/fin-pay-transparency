@@ -17,7 +17,7 @@ import { config } from '../../config/config';
 import { deleteFiles } from '../../external/services/s3-api';
 import { logger } from '../../logger';
 import prisma from '../prisma/prisma-client';
-import { PaginatedResult } from '../types';
+import { PaginatedResult } from '../types/request';
 import {
   AnnouncementDataType,
   AnnouncementQueryType,
