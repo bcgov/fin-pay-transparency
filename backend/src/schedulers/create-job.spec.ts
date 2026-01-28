@@ -12,7 +12,7 @@ jest.mock('../v1/services/utils-service', () => ({
   },
 }));
 
-jest.mock('../external/services/ches', () => ({
+jest.mock('../external/services/ches/ches', () => ({
   __esModule: true,
   default: {
     generateHtmlEmail: (...args) => mock_generateHtmlEmail(...args),

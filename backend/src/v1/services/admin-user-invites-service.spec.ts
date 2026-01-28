@@ -31,7 +31,7 @@ jest.mock('../prisma/prisma-client', () => ({
 }));
 
 const mockSendEmailWithRetry = jest.fn();
-jest.mock('../../external/services/ches', () => ({
+jest.mock('../../external/services/ches/ches', () => ({
   __esModule: true,
   default: {
     sendEmailWithRetry: () => mockSendEmailWithRetry(),
