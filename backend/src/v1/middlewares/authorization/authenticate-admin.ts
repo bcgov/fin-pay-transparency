@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { utils } from '../../services/utils-service';
-import { ExtendedRequest } from '../../types';
+import { ExtendedRequest } from '../../types/request';
 import HttpStatus from 'http-status-codes';
 import prisma from '../../prisma/prisma-client';
 

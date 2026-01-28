@@ -8,7 +8,7 @@ import { authorize } from '../middlewares/authorization/authorize';
 import { useUpload } from '../middlewares/storage/upload';
 import { useValidate } from '../middlewares/validations';
 import { announcementService } from '../services/announcements-service';
-import { ExtendedRequest } from '../types';
+import { ExtendedRequest } from '../types/request';
 import {
   AnnouncementDataSchema,
   AnnouncementQuerySchema,
