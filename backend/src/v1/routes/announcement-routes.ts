@@ -6,7 +6,7 @@ import { logger } from '../../logger';
 import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
 import { authorize } from '../middlewares/authorization/authorize';
 import { useUpload } from '../middlewares/storage/upload';
-import { useValidate } from '../middlewares/validations';
+import { useValidate } from '../middlewares/validations/validate';
 import { announcementService } from '../services/announcements-service';
 import { ExtendedRequest } from '../types/request';
 import {
