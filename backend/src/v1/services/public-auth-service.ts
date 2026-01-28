@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config/config';
-import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
+import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants/constants';
 import { getCompanyDetails } from '../../external/services/bceid-service';
 import { logger as log } from '../../logger';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';

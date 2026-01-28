@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
 import axios from 'axios';
-import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants';
+import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants/constants';
 import prisma from '../prisma/prisma-client';
 import { adminAuth, IUserDetails } from './admin-auth-service';
 import { ROLE_ADMIN_USER } from './sso-service';

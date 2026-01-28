@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
+import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants/constants';
 import { LogoutReason, publicAuth } from '../services/public-auth-service';
 import router from './public-auth-routes';
 let app: Application;

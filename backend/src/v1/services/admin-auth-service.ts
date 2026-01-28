@@ -14,7 +14,7 @@ import { config } from '../../config/config';
 import {
   KEYCLOAK_IDP_HINT_AZUREIDIR,
   OIDC_AZUREIDIR_SCOPE,
-} from '../../constants';
+} from '../../constants/constants';
 import { logger as log } from '../../logger';
 import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
 import { AuthBase } from './auth-utils-service';

@@ -19,7 +19,7 @@ import {
   OIDC_AZUREIDIR_CALLBACK_NAME,
   OIDC_AZUREIDIR_SCOPE,
   OIDC_AZUREIDIR_STRATEGY_NAME,
-} from './constants';
+} from './constants/constants';
 import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
 import adminAuthRouter from './v1/routes/admin-auth-routes';

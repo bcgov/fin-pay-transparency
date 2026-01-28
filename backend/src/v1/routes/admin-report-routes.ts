@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import Papa from 'papaparse';
-import { BAD_REQUEST } from '../../constants';
+import { BAD_REQUEST } from '../../constants/constants';
 import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
 import { logger } from '../../logger';
 import { authorize } from '../middlewares/authorization/authorize';
