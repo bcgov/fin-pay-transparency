@@ -24,13 +24,13 @@ on:
         required: true
       EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY:
         required: true
-      POWERBI_URL:
+      BACKEND_POWERBI_URL:
         required: true
-      ENTRA_CLIENT_ID:
+      ENTRA_APP_CLIENT_ID:
         required: true
-      ENTRA_CLIENT_SECRET:
+      ENTRA_APP_CLIENT_SECRET:
         required: true
-      ENTRA_TENANT_ID:
+      ENTRA_APP_TENANT_ID:
         required: true
     inputs:
       backend-external-url:
@@ -95,9 +95,9 @@ jobs:
           npm ci
       - name: Run Backend Integration Tests
         env:
-          POWERBI_URL: ${{ secrets.POWERBI_URL }}
-          ENTRA_CLIENT_ID: ${{ secrets.ENTRA_CLIENT_ID }}
-          ENTRA_CLIENT_SECRET: ${{ secrets.ENTRA_CLIENT_SECRET }}
-          ENTRA_TENANT_ID: ${{ secrets.ENTRA_TENANT_ID }}
+          BACKEND_POWERBI_URL: ${{ secrets.BACKEND_POWERBI_URL }}
+          ENTRA_APP_CLIENT_ID: ${{ secrets.ENTRA_APP_CLIENT_ID }}
+          ENTRA_APP_CLIENT_SECRET: ${{ secrets.ENTRA_APP_CLIENT_SECRET }}
+          ENTRA_APP_TENANT_ID: ${{ secrets.ENTRA_APP_TENANT_ID }}
         run: |
           npm run test:integration
