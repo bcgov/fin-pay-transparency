@@ -3,7 +3,7 @@ import { DefaultArgs } from '@prisma/client/runtime/library';
 import axios, { AxiosInstance } from 'axios';
 import { difference } from 'lodash';
 import qs from 'qs';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import {
   EFFECTIVE_ROLES,
   PTRT_ADMIN_ROLE_NAME,

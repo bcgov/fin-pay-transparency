@@ -1,5 +1,5 @@
 import express from 'express';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import { validateService } from '../services/validate-service';
 
 const router = express.Router();

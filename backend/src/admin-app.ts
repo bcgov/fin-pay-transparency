@@ -13,7 +13,7 @@ import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
 import { resolve } from 'node:path';
 import prom from 'prom-client';
 import fileSessionStore from 'session-file-store';
-import { config } from './config';
+import { config } from './config/config';
 import {
   KEYCLOAK_IDP_HINT_AZUREIDIR,
   OIDC_AZUREIDIR_CALLBACK_NAME,

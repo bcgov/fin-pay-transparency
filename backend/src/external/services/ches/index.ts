@@ -1,7 +1,7 @@
-import {ChesService} from './ches-service';
-import { config } from '../../../config';
+import { ChesService } from './ches-service';
+import { config } from '../../../config/config';
 let emailService: ChesService;
-if(config.get('ches:enabled')) {
+if (config.get('ches:enabled')) {
   emailService = new ChesService({
     tokenUrl: config.get('ches:tokenUrl'),
     clientId: config.get('ches:clientId'),
@@ -10,4 +10,3 @@ if(config.get('ches:enabled')) {
   });
 }
 export default emailService;
-

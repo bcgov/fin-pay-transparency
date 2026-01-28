@@ -2,7 +2,7 @@ import waitFor from 'wait-for-expect';
 import deleteAnnouncementsJob from './delete-announcements-scheduler';
 import { announcementService } from '../v1/services/announcements-service';
 
-jest.mock('../config', () => ({
+jest.mock('../config/config', () => ({
   config: {
     get: (key: string) => {
       const settings = {

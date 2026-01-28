@@ -3,7 +3,7 @@ import externalConsumerRouter from './v1/routes/external-consumer-routes';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import noCache from 'nocache';
-import { config } from './config';
+import { config } from './config/config';
 import { logger } from './logger';
 import { rateLimit } from 'express-rate-limit';
 const externalConsumerApp = express();

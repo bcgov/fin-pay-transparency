@@ -8,8 +8,8 @@ const mock_sendEmailWithRetry = jest.fn();
 
 jest.mock('../v1/services/utils-service', () => ({
   utils: {
-    delay: jest.fn()
-  }
+    delay: jest.fn(),
+  },
 }));
 
 jest.mock('../external/services/ches', () => ({
@@ -32,7 +32,7 @@ jest.mock('cron', () => ({
   },
 }));
 
-jest.mock('../config', () => ({
+jest.mock('../config/config', () => ({
   config: {
     get: (key: string) => {
       const settings = {
@@ -71,18 +71,18 @@ describe('create-job', () => {
   });
 
   it('should retry and handle error and send email', async () => {
-    const error = new Error('Error Happened')
+    const error = new Error('Error Happened');
     mock_tryLock.mockReturnValue(mock_unlock);
     const fn = jest.fn(async () => {
-      throw error
-    })
+      throw error;
+    });
     createJob('* * * * *', fn, mutex as any, {
       title: 'Error title',
       message: 'Error details',
     }).start();
     await waitFor(() => {
       expect(mock_tryLock).toHaveBeenCalled();
-      expect(fn).toHaveBeenCalledTimes(6)
+      expect(fn).toHaveBeenCalledTimes(6);
       expect(mock_generateHtmlEmail).toHaveBeenCalledWith(
         'Pay Transparency | Error title | local | local',
         'test@payt.io',

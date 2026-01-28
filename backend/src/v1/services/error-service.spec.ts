@@ -1,5 +1,5 @@
 import { DateTimeFormatter, ZoneId, ZonedDateTime } from '@js-joda/core';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import prisma from '../prisma/prisma-client';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
 import { errorService } from './error-service';

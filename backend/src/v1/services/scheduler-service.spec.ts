@@ -89,7 +89,7 @@ jest.mock('./sso-service', () => ({
 }));
 
 const mockConfigGet = jest.fn();
-jest.mock('../../config', () => ({
+jest.mock('../../config/config', () => ({
   config: {
     get: (...args) => mockConfigGet(...args),
   },

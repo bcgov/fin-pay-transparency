@@ -2,7 +2,7 @@ import { pay_transparency_company } from '@prisma/client';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants';
 import { getCompanyDetails } from '../../external/services/bceid-service';
 import { logger as log } from '../../logger';

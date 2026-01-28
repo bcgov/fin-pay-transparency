@@ -1,6 +1,6 @@
 import axios from 'axios';
 import jsonwebtoken from 'jsonwebtoken';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import * as bceidService from '../../external/services/bceid-service';
 import prisma from '../prisma/prisma-client';
 import { LogoutReason, publicAuth } from './public-auth-service';
@@ -65,8 +65,25 @@ jest.mock('./utils-service', () => {
   };
 });
 
-jest.mock('../../config');
-const actualConfig = jest.requireActual('../../config').config;
+jest.mock('../../config/config', () => {
+  const actualConfig = jest.requireActual('../../config/config').config;
+  return {
+    config: {
+      get: (key) => {
+        const settings = {
+          'oidc:clientId': 'clientId',
+          'tokenGenerate:issuer': 'issuer',
+          'server:frontend': 'server-frontend',
+          'tokenGenerate:audience': 'audience',
+          'tokenGenerate:privateKey': actualConfig.get(
+            'tokenGenerate:privateKey',
+          ),
+        };
+        return settings[key];
+      },
+    },
+  };
+});
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -292,17 +309,6 @@ describe('refreshJWT', () => {
 
 describe('generateUiToken', () => {
   it('generates a new JWT token that expires in 30 minute (1800 seconds)', async () => {
-    (config.get as jest.Mock).mockImplementation((key) => {
-      return {
-        'tokenGenerate:issuer': 'issuer',
-        'server:frontend': 'server-frontend',
-        'tokenGenerate:audience': 'audience',
-        'tokenGenerate:privateKey': actualConfig.get(
-          'tokenGenerate:privateKey',
-        ),
-      }[key];
-    });
-
     const token = publicAuth.generateFrontendToken();
     const payload: any = jsonwebtoken.decode(token);
 
@@ -332,11 +338,6 @@ describe('isValidBackendToken', () => {
       //function depends on a remote service.  To remove this test's dependency on remote services
       //we instead mock utils.getKeycloakPublicKey().
       utils.getKeycloakPublicKey = jest.fn().mockResolvedValueOnce(secret);
-      (config.get as jest.Mock).mockImplementation((key) => {
-        return {
-          'oidc:clientId': 'clientId',
-        }[key];
-      });
       const backendAccessToken = jsonwebtoken.sign(
         {
           identity_provider: 'bceidbusiness',
@@ -559,11 +560,6 @@ describe('storeUserInfo', () => {
 });
 
 describe('handleCallBackBusinessBceid', () => {
-  (config.get as jest.Mock).mockImplementation((key) => {
-    return {
-      'oidc:clientId': 'clientId',
-    }[key];
-  });
   const res: any = {
     redirect: jest.fn(),
     status: jest.fn(),

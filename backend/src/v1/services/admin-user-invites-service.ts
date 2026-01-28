@@ -1,6 +1,6 @@
 import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { admin_user_onboarding } from '@prisma/client';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,

@@ -7,7 +7,7 @@ import {
 import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import { logger as log, logger } from '../../logger';
 
 axios.interceptors.response.use((response) => {

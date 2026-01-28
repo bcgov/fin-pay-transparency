@@ -10,7 +10,7 @@ import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
 import { isEqual } from 'lodash';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import {
   KEYCLOAK_IDP_HINT_AZUREIDIR,
   OIDC_AZUREIDIR_SCOPE,

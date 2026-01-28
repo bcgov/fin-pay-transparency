@@ -13,7 +13,7 @@ import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
 import { resolve } from 'node:path';
 import prom from 'prom-client';
 import fileSessionStore from 'session-file-store';
-import { config } from './config';
+import { config } from './config/config';
 import { logger } from './logger';
 import prisma from './v1/prisma/prisma-client';
 import announcementRouter from './v1/routes/announcement-routes';

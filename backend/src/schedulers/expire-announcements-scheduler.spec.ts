@@ -24,7 +24,7 @@ jest.mock('cron', () => ({
   },
 }));
 
-jest.mock('../config', () => ({
+jest.mock('../config/config', () => ({
   config: {
     get: (key: string) => {
       const settings = {

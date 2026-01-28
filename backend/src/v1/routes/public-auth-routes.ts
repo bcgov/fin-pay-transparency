@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import passport from 'passport';
-import { config } from '../../config';
+import { config } from '../../config/config';
 import {
   MISSING_COMPANY_DETAILS_ERROR,
   MISSING_TOKENS_ERROR,
