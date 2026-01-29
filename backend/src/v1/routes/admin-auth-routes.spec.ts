@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './admin-auth-routes';
+import router from './admin-auth-routes.js';
 
 const mockAuthenticate = jest.fn();
 jest.mock('passport', () => ({

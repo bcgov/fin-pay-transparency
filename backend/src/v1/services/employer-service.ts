@@ -1,11 +1,11 @@
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
+import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica.js';
 import {
   EmployerFilterType,
   EmployerKeyEnum,
   EmployerMetrics,
   EmployerSortType,
   IEmployerSearchResult,
-} from '../types/employers';
+} from '../types/employers.js';
 import { Prisma } from '@prisma/client';
 import { ChronoUnit, convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 import '@js-joda/timezone';

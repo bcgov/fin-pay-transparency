@@ -1,8 +1,8 @@
-import { config } from '../config/config';
-import { schedulerService } from '../v1/services/scheduler-service';
-import { logger as log } from '../logger';
+import { config } from '../config/config.js';
+import { schedulerService } from '../v1/services/scheduler-service.js';
+import { logger as log } from '../logger.js';
 import advisoryLock from 'advisory-lock';
-import { createJob } from './create-job';
+import { createJob } from './create-job.js';
 
 const SCHEDULER_NAME = 'EmailExpiringAnnouncements';
 const mutex = advisoryLock(config.get('server:databaseUrl'))(

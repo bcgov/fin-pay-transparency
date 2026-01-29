@@ -9,10 +9,10 @@ import omit from 'lodash/omit';
 import {
   AnnouncementDataType,
   AnnouncementStatus,
-} from '../types/announcements';
-import { UserInputError } from '../types/errors';
-import { announcementService } from './announcements-service';
-import { utils } from './utils-service';
+} from '../types/announcements.js';
+import { UserInputError } from '../types/errors.js';
+import { announcementService } from './announcements-service.js';
+import { utils } from './utils-service.js';
 
 const mockFindMany = jest.fn().mockResolvedValue([
   {

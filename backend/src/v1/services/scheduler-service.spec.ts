@@ -12,9 +12,9 @@ import {
   announcement,
   pay_transparency_report,
 } from '@prisma/client';
-import prisma from '../prisma/prisma-client';
-import { enumReportStatus } from './report-service';
-import { schedulerService } from './scheduler-service';
+import prisma from '../prisma/prisma-client.js';
+import { enumReportStatus } from './report-service.js';
+import { schedulerService } from './scheduler-service.js';
 import { faker } from '@faker-js/faker';
 
 jest.mock('./utils-service');

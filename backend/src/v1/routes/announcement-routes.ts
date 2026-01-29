@@ -1,14 +1,14 @@
 import { Request, Router } from 'express';
 import formData from 'express-form-data';
 import os from 'node:os';
-import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
-import { logger } from '../../logger';
-import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
-import { authorize } from '../middlewares/authorization/authorize';
-import { useUpload } from '../middlewares/storage/upload';
-import { useValidate } from '../middlewares/validations/validate';
-import { announcementService } from '../services/announcements-service';
-import { ExtendedRequest } from '../types/request';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin.js';
+import { logger } from '../../logger.js';
+import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin.js';
+import { authorize } from '../middlewares/authorization/authorize.js';
+import { useUpload } from '../middlewares/storage/upload.js';
+import { useValidate } from '../middlewares/validations/validate.js';
+import { announcementService } from '../services/announcements-service.js';
+import { ExtendedRequest } from '../types/request.js';
 import {
   AnnouncementDataSchema,
   AnnouncementQuerySchema,
@@ -16,7 +16,7 @@ import {
   AnnouncementStatus,
   PatchAnnouncementsSchema,
   PatchAnnouncementsType,
-} from '../types/announcements';
+} from '../types/announcements.js';
 import { DateTimeFormatter, ZonedDateTime } from '@js-joda/core';
 
 const router = Router();

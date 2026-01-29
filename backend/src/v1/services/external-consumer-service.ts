@@ -1,4 +1,4 @@
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
+import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica.js';
 import {
   DateTimeFormatter,
   LocalDateTime,
@@ -7,7 +7,7 @@ import {
   convert,
 } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
-import { PayTransparencyUserError } from './file-upload-service';
+import { PayTransparencyUserError } from './file-upload-service.js';
 import { Prisma } from '@prisma/client';
 
 const DEFAULT_PAGE_SIZE = 50;

@@ -1,6 +1,6 @@
-import { getCompanyDetails } from './bceid-service';
+import { getCompanyDetails } from './bceid-service.js';
 import soapRequest from 'easy-soap-request';
-import { config } from '../../config/config';
+import { config } from '../../config/config.js';
 
 jest.mock('easy-soap-request'); // Mock the soapRequest function
 jest.mock('../../config/config'); // Mock the config module

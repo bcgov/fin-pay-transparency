@@ -1,4 +1,4 @@
-import emailService from './ches';
+import emailService from './ches.js';
 
 jest.mock('./ches-service');
 

@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import qs from 'qs';
 import request from 'supertest';
-import router from './employer-routes';
+import router from './employer-routes.js';
 
 const mockGetEmployer = jest.fn().mockResolvedValue({
   items: [],

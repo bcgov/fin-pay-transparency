@@ -1,5 +1,5 @@
 import waitFor from 'wait-for-expect';
-import emailExpiringAnnouncementsJob from './email-expiring-announcements-scheduler';
+import emailExpiringAnnouncementsJob from './email-expiring-announcements-scheduler.js';
 
 jest.mock('../v1/services/utils-service', () => ({
   utils: {

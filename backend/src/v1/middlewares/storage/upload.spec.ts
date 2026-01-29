@@ -1,4 +1,4 @@
-import { useUpload } from './upload';
+import { useUpload } from './upload.js';
 import path from 'node:path';
 import os from 'node:os';
 

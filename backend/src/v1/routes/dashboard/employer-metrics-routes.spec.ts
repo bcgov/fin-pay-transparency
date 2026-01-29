@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './employer-metrics-routes';
+import router from './employer-metrics-routes.js';
 
 let app: Application;
 const getEmployerMetricsMock = jest.fn();

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { downloadFile, deleteFiles, upload } from './s3-api';
+import { downloadFile, deleteFiles, upload } from './s3-api.js';
 import {
   DeleteObjectsCommand,
   GetObjectCommand,
@@ -7,7 +7,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin.js';
 import path from 'node:path';
 import os from 'node:os';
 

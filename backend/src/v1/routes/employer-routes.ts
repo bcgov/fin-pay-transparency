@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { employerService } from '../services/employer-service';
-import { utils } from '../services/utils-service';
-import { useValidate } from '../middlewares/validations/validate';
+import { employerService } from '../services/employer-service.js';
+import { utils } from '../services/utils-service.js';
+import { useValidate } from '../middlewares/validations/validate.js';
 import {
   GetEmployerQuerySchema,
   GetEmployerQueryType,
-} from '../types/employers';
+} from '../types/employers.js';
 
 const router = Router();
 

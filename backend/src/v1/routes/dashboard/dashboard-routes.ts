@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import announcementMetricsRouter from './announcement-metrics-routes';
-import employerMetricsRouter from './employer-metrics-routes';
-import reportsMetricsRouter from './report-metrics-routes';
+import announcementMetricsRouter from './announcement-metrics-routes.js';
+import employerMetricsRouter from './employer-metrics-routes.js';
+import reportsMetricsRouter from './report-metrics-routes.js';
 
 const router = Router();
 

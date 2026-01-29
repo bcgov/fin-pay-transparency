@@ -7,8 +7,8 @@ import {
 import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
-import { config } from '../../config/config';
-import { logger as log, logger } from '../../logger';
+import { config } from '../../config/config.js';
+import { logger as log, logger } from '../../logger.js';
 
 axios.interceptors.response.use((response) => {
   const headers = response.headers;

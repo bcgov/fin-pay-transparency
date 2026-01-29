@@ -1,4 +1,4 @@
-import { authenticateAdmin } from './authenticate-admin';
+import { authenticateAdmin } from './authenticate-admin.js';
 
 const mockGetSessionUser = jest.fn();
 jest.mock('../../services/utils-service', () => ({

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import nconf from 'nconf';
-import { logger } from '../logger';
+import { logger } from '../logger.js';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';

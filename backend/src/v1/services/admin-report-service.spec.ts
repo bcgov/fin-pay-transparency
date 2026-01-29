@@ -6,13 +6,13 @@ import {
   ZoneOffset,
 } from '@js-joda/core';
 import createPrismaMock from 'prisma-mock';
-import prisma from '../prisma/prisma-client';
+import prisma from '../prisma/prisma-client.js';
 import {
   adminReportService,
   adminReportServicePrivate,
-} from './admin-report-service';
-import { reportService } from './report-service';
-import { UserInputError } from '../types/errors';
+} from './admin-report-service.js';
+import { reportService } from './report-service.js';
+import { UserInputError } from '../types/errors.js';
 import { Decimal } from '@prisma/client/runtime/library';
 
 const company1 = {

@@ -2,13 +2,13 @@ import { pay_transparency_company } from '@prisma/client';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
-import { config } from '../../config/config';
-import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants/constants';
-import { getCompanyDetails } from '../../external/services/bceid-service';
-import { logger as log } from '../../logger';
-import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
-import { AuthBase } from './auth-utils-service';
-import { utils } from './utils-service';
+import { config } from '../../config/config.js';
+import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants/constants.js';
+import { getCompanyDetails } from '../../external/services/bceid-service.js';
+import { logger as log } from '../../logger.js';
+import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client.js';
+import { AuthBase } from './auth-utils-service.js';
+import { utils } from './utils-service.js';
 
 enum LogoutReason {
   Login = 'login', // ie. don't log out

@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import request from 'supertest';
-import { PayTransparencyUserError } from '../services/file-upload-service';
-import { UserInputError } from '../types/errors';
-import router from './admin-report-routes';
+import { PayTransparencyUserError } from '../services/file-upload-service.js';
+import { UserInputError } from '../types/errors.js';
+import router from './admin-report-routes.js';
 
 jest.mock('../services/utils-service', () => ({
   utils: {

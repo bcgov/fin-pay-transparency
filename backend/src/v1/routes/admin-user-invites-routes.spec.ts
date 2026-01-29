@@ -2,8 +2,8 @@ import { faker } from '@faker-js/faker';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import request from 'supertest';
-import { UserInputError } from '../types/errors';
-import routes from '../routes/admin-user-invites-routes';
+import { UserInputError } from '../types/errors.js';
+import routes from '../routes/admin-user-invites-routes.js';
 
 const mockDeleteInvite = jest.fn();
 const mockGetPendingInvites = jest.fn();

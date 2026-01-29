@@ -1,6 +1,6 @@
 import waitFor from 'wait-for-expect';
-import deleteAnnouncementsJob from './delete-announcements-scheduler';
-import { announcementService } from '../v1/services/announcements-service';
+import deleteAnnouncementsJob from './delete-announcements-scheduler.js';
+import { announcementService } from '../v1/services/announcements-service.js';
 
 jest.mock('../config/config', () => ({
   config: {

@@ -1,5 +1,5 @@
 import waitFor from 'wait-for-expect';
-import deleteUserErrorsJob from './delete-user-errors-scheduler';
+import deleteUserErrorsJob from './delete-user-errors-scheduler.js';
 
 jest.mock('../v1/services/utils-service', () => ({
   utils: {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
-import { AuthBase } from './auth-utils-service';
+import { AuthBase } from './auth-utils-service.js';
 
 const mockRenewSuccessResult = {
   jwt: 'mock jwt',

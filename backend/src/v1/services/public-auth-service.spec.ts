@@ -1,10 +1,10 @@
 import axios from 'axios';
 import jsonwebtoken from 'jsonwebtoken';
-import { config } from '../../config/config';
-import * as bceidService from '../../external/services/bceid-service';
-import prisma from '../prisma/prisma-client';
-import { LogoutReason, publicAuth } from './public-auth-service';
-import { utils } from './utils-service';
+import { config } from '../../config/config.js';
+import * as bceidService from '../../external/services/bceid-service.js';
+import prisma from '../prisma/prisma-client.js';
+import { LogoutReason, publicAuth } from './public-auth-service.js';
+import { utils } from './utils-service.js';
 //Mock the entire axios module so we never inadvertently make real
 //HTTP calls to remote services
 jest.mock('axios');

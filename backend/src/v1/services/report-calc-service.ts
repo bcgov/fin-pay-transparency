@@ -1,4 +1,4 @@
-import { logger } from '../../logger';
+import { logger } from '../../logger.js';
 import {
   GENDER_CODES,
   NUMERIC_COLUMNS,
@@ -7,7 +7,7 @@ import {
   SUBMISSION_ROW_COLUMNS,
   validateService,
   ValidationError,
-} from './validate-service';
+} from './validate-service.js';
 
 const CALCULATION_CODES = {
   REFERENCE_GENDER_CATEGORY_CODE: 'REFERENCE_GENDER_CATEGORY_CODE',

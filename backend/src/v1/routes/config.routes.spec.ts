@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import { router } from './config-routes';
+import { router } from './config-routes.js';
 
 let app: Application;
 

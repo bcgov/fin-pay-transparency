@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './admin-users-routes';
+import router from './admin-users-routes.js';
 import bodyParser from 'body-parser';
 import { faker } from '@faker-js/faker';
 

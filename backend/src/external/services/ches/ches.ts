@@ -1,5 +1,5 @@
-import { ChesService } from './ches-service';
-import { config } from '../../../config/config';
+import { ChesService } from './ches-service.js';
+import { config } from '../../../config/config.js';
 let emailService: ChesService;
 if (config.get('ches:enabled')) {
   emailService = new ChesService({

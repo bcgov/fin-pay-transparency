@@ -2,9 +2,9 @@ import { faker } from '@faker-js/faker';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
-} from '../../constants/admin';
-import { UserInputError } from '../types/errors';
-import { adminUserInvitesService } from './admin-user-invites-service';
+} from '../../constants/admin.js';
+import { UserInputError } from '../types/errors.js';
+import { adminUserInvitesService } from './admin-user-invites-service.js';
 
 const mockCreate = jest.fn();
 const mockDelete = jest.fn();

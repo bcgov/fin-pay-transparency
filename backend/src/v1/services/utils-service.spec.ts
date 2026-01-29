@@ -1,7 +1,7 @@
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import { config } from '../../config/config';
-import { utils } from './utils-service';
+import { config } from '../../config/config.js';
+import { utils } from './utils-service.js';
 
 jest.mock('axios');
 

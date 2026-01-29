@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import {
   externalConsumerService,
   inputDateTimeFormatter,
-} from './external-consumer-service';
+} from './external-consumer-service.js';
 import { LocalDateTime, ZoneId } from '@js-joda/core';
 
 const mockReportsViewFindMany = jest.fn();

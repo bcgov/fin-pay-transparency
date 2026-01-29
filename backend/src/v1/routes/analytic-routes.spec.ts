@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import router from './analytic-routes';
+import router from './analytic-routes.js';
 import request from 'supertest';
 let app: Application;
 

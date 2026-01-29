@@ -1,6 +1,6 @@
-import ClientConnection from './connection';
+import ClientConnection from './connection.js';
 import { Axios } from 'axios';
-import { logger } from '../../../logger';
+import { logger } from '../../../logger.js';
 import retry from 'async-retry';
 
 const SERVICE = 'CHES';

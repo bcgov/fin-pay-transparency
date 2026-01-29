@@ -1,6 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "main": "src/server.ts",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.631.0",
@@ -91,14 +92,14 @@
     "typescript-eslint": "^8.46.3"
   },
   "scripts": {
-    "test": "jest --selectProjects unit",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --selectProjects unit",
     "test:cov": "npm run generate && jest --selectProjects unit --coverage --detectOpenHandles --forceExit",
     "test:integration": "jest --selectProjects integration",
     "build": "npm run generate && tsc && copyfiles -u 1 src/**/*.html dist",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
     "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
     "start": "node dist/server.js",
-    "dev": "npm run generate && nodemon src/server.ts",
+    "dev": "npm run generate && nodemon --exec \"node --loader ts-node/esm\" src/server.ts",
     "lint:fix": "eslint --ext js,ts,tsx src --fix",
     "prettier:write": "prettier src --write"
   },
