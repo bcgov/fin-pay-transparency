@@ -1,9 +1,9 @@
 import soapRequest from 'easy-soap-request';
 import { parseString } from 'xml2js';
-import { get } from 'lodash';
+import get from 'lodash/get.js';
 import { promisify } from 'util';
-import { config } from '../../config/config';
-import { logger } from '../../logger';
+import { config } from '../../config/config.js';
+import { logger } from '../../logger.js';
 
 const basic_auth =
   config.get('bceidWsIntegration:auth:username') +

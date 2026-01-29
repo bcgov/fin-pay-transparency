@@ -1,9 +1,9 @@
-import { config } from '../config/config';
-import { logger as log } from '../logger';
+import { config } from '../config/config.js';
+import { logger as log } from '../logger.js';
 import advisoryLock from 'advisory-lock';
-import prisma from '../v1/prisma/prisma-client';
+import prisma from '../v1/prisma/prisma-client.js';
 import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
-import { createJob } from './create-job';
+import { createJob } from './create-job.js';
 
 const mutex = advisoryLock(config.get('server:databaseUrl'))('lock_reports');
 const crontime = config.get('server:schedulerLockReportCronTime');

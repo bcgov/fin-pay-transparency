@@ -1,5 +1,5 @@
-import { employerService } from '../services/employer-service';
-import { EmployerKeyEnum, EmployerMetrics } from '../types/employers';
+import { employerService } from '../services/employer-service.js';
+import { EmployerKeyEnum, EmployerMetrics } from '../types/employers.js';
 
 const mockCountPayTransparencyCompanies = jest.fn();
 const mockFindManyPayTransparencyCompanies = jest.fn();

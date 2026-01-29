@@ -1,10 +1,10 @@
 import { DateTimeFormatter, ZoneId, ZonedDateTime } from '@js-joda/core';
-import { config } from '../../config/config';
-import prisma from '../prisma/prisma-client';
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { errorService } from './error-service';
-import { SubmissionError } from './file-upload-service';
-import { RowError, ValidationError } from './validate-service';
+import { config } from '../../config/config.js';
+import prisma from '../prisma/prisma-client.js';
+import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica.js';
+import { errorService } from './error-service.js';
+import { SubmissionError } from './file-upload-service.js';
+import { RowError, ValidationError } from './validate-service.js';
 
 jest.mock('../prisma/prisma-client', () => {
   return {

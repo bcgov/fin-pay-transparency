@@ -2,7 +2,7 @@ import {
   analyticsService,
   PowerBiEmbedInfo,
   PowerBiResourceName,
-} from './analytic-service';
+} from './analytic-service.js';
 
 const mockgetEmbedParamsForReportsByName = jest.fn();
 jest.mock('../../external/services/powerbi-service', () => {

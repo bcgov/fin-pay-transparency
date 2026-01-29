@@ -1,4 +1,4 @@
-import ClientConnection from './connection';
+import ClientConnection from './connection.js';
 
 describe('ClientConnection', () => {
   let clientConnection: ClientConnection;

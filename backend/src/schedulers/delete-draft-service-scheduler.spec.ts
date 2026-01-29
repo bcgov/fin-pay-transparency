@@ -1,5 +1,5 @@
 import waitFor from 'wait-for-expect';
-import deleteDraftReportsJob from './delete-draft-service-scheduler';
+import deleteDraftReportsJob from './delete-draft-service-scheduler.js';
 
 jest.mock('../v1/services/utils-service', () => ({
   utils: {

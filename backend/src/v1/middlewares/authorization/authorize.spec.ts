@@ -1,5 +1,5 @@
-import { RoleType } from '../../types/users';
-import { authorize as useAuthorize } from './authorize';
+import { RoleType } from '../../types/users.js';
+import { authorize as useAuthorize } from './authorize.js';
 const mockGetSessionUser = jest.fn();
 jest.mock('../../services/utils-service', () => ({
   utils: {

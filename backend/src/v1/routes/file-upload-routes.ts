@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { logger as log } from '../../logger';
-import { errorService } from '../services/error-service';
+import { logger as log } from '../../logger.js';
+import { errorService } from '../services/error-service.js';
 import {
   ISubmission,
   SubmissionError,
   fileUploadService,
-} from '../services/file-upload-service';
-import { utils } from '../services/utils-service';
+} from '../services/file-upload-service.js';
+import { utils } from '../services/utils-service.js';
 
 const fileUploadRouter = express.Router();
 fileUploadRouter.post(

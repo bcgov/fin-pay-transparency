@@ -1,6 +1,5 @@
-import { app } from './app';
 import request from 'supertest';
-import { externalConsumerApp } from './external-consumer-app';
+import { externalConsumerApp } from './external-consumer-app.js';
 
 const mockExportDataWithPagination = jest.fn();
 jest.mock('./v1/services/external-consumer-service', () => ({

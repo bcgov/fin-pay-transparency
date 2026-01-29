@@ -1,9 +1,9 @@
 import { DateTimeFormatter, LocalDate, ZoneId } from '@js-joda/core';
 import advisoryLock from 'advisory-lock';
-import { config } from '../config/config';
-import { logger as log } from '../logger';
-import { errorService } from '../v1/services/error-service';
-import { createJob } from './create-job';
+import { config } from '../config/config.js';
+import { logger as log } from '../logger.js';
+import { errorService } from '../v1/services/error-service.js';
+import { createJob } from './create-job.js';
 
 const SCHEDULER_NAME = 'DeleteUserErrors';
 const mutex = advisoryLock(config.get('server:databaseUrl'))(

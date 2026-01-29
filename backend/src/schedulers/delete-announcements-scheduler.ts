@@ -1,8 +1,8 @@
-import { config } from '../config/config';
-import { logger as log } from '../logger';
+import { config } from '../config/config.js';
+import { logger as log } from '../logger.js';
 import advisoryLock from 'advisory-lock';
-import { createJob } from './create-job';
-import { announcementService } from '../v1/services/announcements-service';
+import { createJob } from './create-job.js';
+import { announcementService } from '../v1/services/announcements-service.js';
 
 const SCHEDULER_NAME = 'DeleteAnnouncements';
 const mutex = advisoryLock(config.get('server:databaseUrl'))(

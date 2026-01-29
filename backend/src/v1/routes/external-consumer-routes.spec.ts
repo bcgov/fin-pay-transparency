@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './external-consumer-routes';
+import router from './external-consumer-routes.js';
 import { faker } from '@faker-js/faker';
 
 const mockCount = jest.fn();

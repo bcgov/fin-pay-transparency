@@ -1,17 +1,17 @@
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
-import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
-import { logger } from '../../logger';
-import { authorize } from '../middlewares/authorization/authorize';
-import { useValidate } from '../middlewares/validations/validate';
+import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin.js';
+import { logger } from '../../logger.js';
+import { authorize } from '../middlewares/authorization/authorize.js';
+import { useValidate } from '../middlewares/validations/validate.js';
 import {
   AddNewUserSchema,
   AddNewUserType,
-} from '../middlewares/validations/schemas';
-import { adminUserInvitesService } from '../services/admin-user-invites-service';
-import { utils } from '../services/utils-service';
-import { UserInputError } from '../types/errors';
+} from '../middlewares/validations/schemas.js';
+import { adminUserInvitesService } from '../services/admin-user-invites-service.js';
+import { utils } from '../services/utils-service.js';
+import { UserInputError } from '../types/errors.js';
 
 // Reusable Zod schema for string id
 const IdParamSchema = z.object({

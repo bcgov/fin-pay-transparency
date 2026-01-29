@@ -1,8 +1,8 @@
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import request from 'supertest';
-import { SubmissionError } from '../services/file-upload-service';
-import { fileUploadRouter } from './file-upload-routes';
+import { SubmissionError } from '../services/file-upload-service.js';
+import { fileUploadRouter } from './file-upload-routes.js';
 let app: Application;
 
 const maliciousObject = { $ne: '1' };

@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import resourcesRouter from './resources-routes';
+import resourcesRouter from './resources-routes.js';
 
 const mockDownloadFile = jest.fn();
 jest.mock('../../external/services/s3-api', () => ({
@@ -22,10 +22,10 @@ describe('resources-routes', () => {
 
   describe('GET /resources/:fileId', () => {
     it('should return 200', async () => {
-        mockDownloadFile.mockImplementation((res, fileId) => {
-            expect(fileId).toBe('fileId');
-            res.status(200).json({});
-        });
+      mockDownloadFile.mockImplementation((res, fileId) => {
+        expect(fileId).toBe('fileId');
+        res.status(200).json({});
+      });
       const fileId = 'fileId';
       const res = await request(app).get(`/resources/${fileId}`);
       expect(res.status).toBe(200);

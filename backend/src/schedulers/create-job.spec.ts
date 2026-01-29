@@ -1,6 +1,6 @@
 import waitFor from 'wait-for-expect';
 
-import { createJob } from './create-job';
+import { createJob } from './create-job.js';
 
 const runnable = jest.fn();
 const mock_generateHtmlEmail = jest.fn();

@@ -1,7 +1,7 @@
 import waitFor from 'wait-for-expect';
 import { LocalDateTime, ZoneId, convert } from '@js-joda/core';
 import createPrismaMock from 'prisma-mock';
-import lockReportsJob from './lock-reports-scheduler';
+import lockReportsJob from './lock-reports-scheduler.js';
 import { Prisma, PrismaClient } from '@prisma/client';
 
 const prismaClient: PrismaClient<

@@ -1,15 +1,15 @@
 import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
 
-import { logger as log, logger } from '../../logger';
-import prisma from '../prisma/prisma-client';
+import { logger as log, logger } from '../../logger.js';
+import prisma from '../prisma/prisma-client.js';
 import {
   CalculatedAmount,
   reportCalcService,
-} from '../services/report-calc-service';
-import { codeService } from './code-service';
-import { enumReportStatus, Report, reportService } from './report-service';
-import { utils } from './utils-service';
-import { ValidationError, validateService } from './validate-service';
+} from '../services/report-calc-service.js';
+import { codeService } from './code-service.js';
+import { enumReportStatus, Report, reportService } from './report-service.js';
+import { utils } from './utils-service.js';
+import { ValidationError, validateService } from './validate-service.js';
 
 export enum SubmissionStatus {
   Success = 'success',

@@ -1,4 +1,4 @@
-import { run } from './run.all';
+import { run } from './run.all.js';
 
 const mockStartReportLock = jest.fn();
 jest.mock('./lock-reports-scheduler', () => ({

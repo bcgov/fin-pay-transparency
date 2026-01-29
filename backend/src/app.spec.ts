@@ -1,7 +1,7 @@
-import { app } from './app';
-import prisma from './v1/prisma/prisma-client';
-import { publicAuth } from './v1/services/public-auth-service';
-const request = require('supertest');
+import { app } from './app.js';
+import prisma from './v1/prisma/prisma-client.js';
+import { publicAuth } from './v1/services/public-auth-service.js';
+import request from 'supertest';
 
 // ----------------------------------------------------------------------------
 // Setup

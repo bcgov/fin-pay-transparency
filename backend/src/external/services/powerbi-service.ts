@@ -7,9 +7,9 @@
 // ----------------------------------------------------------------------------
 
 import msal from '@azure/msal-node';
-import * as PowerBi from './powerbi-api';
+import * as PowerBi from './powerbi-api.js';
 import { AxiosError } from 'axios';
-import { uniq } from 'lodash';
+import uniq from 'lodash/uniq.js';
 
 type PowerBiResource = {
   id: string;

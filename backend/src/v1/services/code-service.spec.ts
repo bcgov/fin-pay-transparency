@@ -1,5 +1,5 @@
-import prisma from '../prisma/prisma-client';
-import { codeService } from './code-service';
+import prisma from '../prisma/prisma-client.js';
+import { codeService } from './code-service.js';
 
 jest.mock('../prisma/prisma-client', () => {
   return {

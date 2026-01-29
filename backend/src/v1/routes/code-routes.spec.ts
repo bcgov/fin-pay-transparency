@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import router from './code-routes';
+import router from './code-routes.js';
 import request from 'supertest';
 let app: Application;
 
@@ -21,16 +21,13 @@ describe('code-routes', () => {
 
   describe('/employee-count-ranges [GET]', () => {
     it('should return 200', () => {
-        return request(app).get('/employee-count-ranges')
-        .expect(200);
+      return request(app).get('/employee-count-ranges').expect(200);
     });
   });
   describe('/naics-codes [GET]', () => {
     it('should return 200', () => {
-        mockGetAllNaicsCodes.mockReturnValue([])
-        return request(app).get('/naics-codes')
-        .expect(200);
+      mockGetAllNaicsCodes.mockReturnValue([]);
+      return request(app).get('/naics-codes').expect(200);
     });
   });
-  
 });

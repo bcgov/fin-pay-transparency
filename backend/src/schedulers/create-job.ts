@@ -1,10 +1,10 @@
 import advisoryLock from 'advisory-lock';
 import { CronJob } from 'cron';
 import retry from 'async-retry';
-import { logger as log } from '../logger';
-import { config } from '../config/config';
-import emailService from '../external/services/ches/ches';
-import { utils } from '../v1/services/utils-service';
+import { logger as log } from '../logger.js';
+import { config } from '../config/config.js';
+import emailService from '../external/services/ches/ches.js';
+import { utils } from '../v1/services/utils-service.js';
 
 type CreateMutexFunction = ReturnType<typeof advisoryLock>;
 type AdvisoryLock = ReturnType<CreateMutexFunction>;

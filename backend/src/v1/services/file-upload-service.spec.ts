@@ -1,11 +1,11 @@
-import prisma from '../prisma/prisma-client';
-import { codeService } from './code-service';
-import { fileUploadService } from './file-upload-service';
-import { CalculatedAmount } from './report-calc-service';
-import { enumReportStatus } from './report-service';
-import { utils } from './utils-service';
-import { SUBMISSION_ROW_COLUMNS } from './validate-service';
-import { createSampleRecord } from './validate-service.spec';
+import prisma from '../prisma/prisma-client.js';
+import { codeService } from './code-service.js';
+import { fileUploadService } from './file-upload-service.js';
+import { CalculatedAmount } from './report-calc-service.js';
+import { enumReportStatus } from './report-service.js';
+import { utils } from './utils-service.js';
+import { SUBMISSION_ROW_COLUMNS } from './validate-service.js';
+import { createSampleRecord } from './validate-service.spec.js';
 const { mockRequest } = require('mock-req-res');
 
 jest.mock('./report-service', () => ({

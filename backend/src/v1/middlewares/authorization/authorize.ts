@@ -1,6 +1,6 @@
-import { utils } from '../../services/utils-service';
-import { RoleType } from '../../types/users';
-import intersection from 'lodash/intersection';
+import { utils } from '../../services/utils-service.js';
+import { RoleType } from '../../types/users.js';
+import intersection from 'lodash/intersection.js';
 import { Request, Response } from 'express';
 import { HttpStatusCode } from 'axios';
 

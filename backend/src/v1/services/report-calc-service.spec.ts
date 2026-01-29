@@ -5,14 +5,14 @@ import {
   TaggedColumnStats,
   reportCalcService,
   reportCalcServicePrivate,
-} from './report-calc-service';
+} from './report-calc-service.js';
 import {
   EXPECTED_COLUMNS,
   GENDER_CODES,
   STANDARDIZED_GENDER_CODES,
   SUBMISSION_ROW_COLUMNS,
-} from './validate-service';
-import { createSampleRecord } from './validate-service.spec';
+} from './validate-service.js';
+import { createSampleRecord } from './validate-service.spec.js';
 
 describe('GroupedColumnStats', () => {
   // Initialize a GroupedColumnStats object with a sample dataset that will

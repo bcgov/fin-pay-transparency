@@ -1,14 +1,14 @@
 import express, { Request, Response } from 'express';
 import Papa from 'papaparse';
-import { BAD_REQUEST } from '../../constants/constants';
-import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
-import { logger } from '../../logger';
-import { authorize } from '../middlewares/authorization/authorize';
-import { adminReportService } from '../services/admin-report-service';
-import { PayTransparencyUserError } from '../services/file-upload-service';
-import { reportService } from '../services/report-service';
-import { utils } from '../services/utils-service';
-import { UserInputError } from '../types/errors';
+import { BAD_REQUEST } from '../../constants/constants.js';
+import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin.js';
+import { logger } from '../../logger.js';
+import { authorize } from '../middlewares/authorization/authorize.js';
+import { adminReportService } from '../services/admin-report-service.js';
+import { PayTransparencyUserError } from '../services/file-upload-service.js';
+import { reportService } from '../services/report-service.js';
+import { utils } from '../services/utils-service.js';
+import { UserInputError } from '../types/errors.js';
 import { z } from 'zod';
 
 enum Format {

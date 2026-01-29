@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker';
-import { SSO } from './sso-service';
+import { SSO } from './sso-service.js';
 import { admin_user } from '@prisma/client';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
-} from '../../constants/admin';
+} from '../../constants/admin.js';
 
 const mockAxiosGet = jest.fn();
 const mockAxiosPost = jest.fn();

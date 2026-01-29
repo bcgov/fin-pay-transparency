@@ -12,9 +12,9 @@ import stream from 'stream';
 import {
   DISPLAY_REPORT_DATE_FORMAT,
   JSON_REPORT_DATE_FORMAT,
-} from '../../constants/constants';
-import prisma from '../prisma/prisma-client';
-import { CALCULATION_CODES } from './report-calc-service';
+} from '../../constants/constants.js';
+import prisma from '../prisma/prisma-client.js';
+import { CALCULATION_CODES } from './report-calc-service.js';
 import {
   CalcCodeGenderCode,
   GENDERS,
@@ -24,8 +24,8 @@ import {
   enumReportStatus,
   reportService,
   reportServicePrivate,
-} from './report-service';
-import { utils } from './utils-service';
+} from './report-service.js';
+import { utils } from './utils-service.js';
 
 const actualCopyPublishedReportToHistory =
   reportService.copyPublishedReportToHistory;

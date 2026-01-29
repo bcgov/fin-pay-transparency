@@ -4,17 +4,17 @@ import {
   nativeJs,
   ZoneId,
 } from '@js-joda/core';
-import prisma from '../prisma/prisma-client';
-import { enumReportStatus } from './report-service';
-import { logger } from '../../logger';
+import prisma from '../prisma/prisma-client.js';
+import { enumReportStatus } from './report-service.js';
+import { logger } from '../../logger.js';
 import { Prisma } from '@prisma/client';
-import { announcementService } from './announcements-service';
-import { SSO } from './sso-service';
-import emailService from '../../external/services/ches/ches';
-import { config } from '../../config/config';
+import { announcementService } from './announcements-service.js';
+import { SSO } from './sso-service.js';
+import emailService from '../../external/services/ches/ches.js';
+import { config } from '../../config/config.js';
 import '@js-joda/timezone';
 import { Locale } from '@js-joda/locale_en';
-import { EMAIL_TEMPLATES } from '../templates/email';
+import { EMAIL_TEMPLATES } from '../templates/email.js';
 
 const schedulerService = {
   /*

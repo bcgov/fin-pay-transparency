@@ -1,7 +1,7 @@
 import {
   analyticsService,
   PowerBiResourceName,
-} from '../../src/v1/services/analytic-service';
+} from '../../src/v1/services/analytic-service.js';
 
 // Integration tests to verify that the powerbi report
 // can be fetched successfully in each environment.

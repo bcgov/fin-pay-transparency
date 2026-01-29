@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './user-info-routes';
+import router from './user-info-routes.js';
 let app: Application;
 
 const mockGetUserInfo = jest.fn();

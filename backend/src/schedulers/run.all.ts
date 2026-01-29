@@ -1,10 +1,10 @@
-import { logger } from '../logger';
-import deleteDraftReportsJob from './delete-draft-service-scheduler';
-import deleteUserErrorsJob from './delete-user-errors-scheduler';
-import lockReportsJob from './lock-reports-scheduler';
-import expireAnnouncementsJob from './expire-announcements-scheduler';
-import emailExpiringAnnouncementsJob from './email-expiring-announcements-scheduler';
-import deleteAnnouncementsJob from './delete-announcements-scheduler';
+import { logger } from '../logger.js';
+import deleteDraftReportsJob from './delete-draft-service-scheduler.js';
+import deleteUserErrorsJob from './delete-user-errors-scheduler.js';
+import lockReportsJob from './lock-reports-scheduler.js';
+import expireAnnouncementsJob from './expire-announcements-scheduler.js';
+import emailExpiringAnnouncementsJob from './email-expiring-announcements-scheduler.js';
+import deleteAnnouncementsJob from './delete-announcements-scheduler.js';
 
 export const run = () => {
   try {

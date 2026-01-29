@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './report-metrics-routes';
+import router from './report-metrics-routes.js';
 
 let app: Application;
 const getReportsMetricsMock = jest.fn();
