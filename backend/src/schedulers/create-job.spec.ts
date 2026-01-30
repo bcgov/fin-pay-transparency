@@ -1,4 +1,4 @@
-import waitFor from 'wait-for-expect';
+import waitForExpect from 'wait-for-expect';
 
 import { createJob } from './create-job.js';
 
@@ -63,7 +63,7 @@ describe('create-job', () => {
       title: 'Error title',
       message: 'Error details',
     }).start();
-    await waitFor(async () => {
+    await waitForExpect(async () => {
       expect(mock_tryLock).toHaveBeenCalledTimes(1);
       expect(runnable).toHaveBeenCalled();
       expect(mock_unlock).toHaveBeenCalledTimes(1);
