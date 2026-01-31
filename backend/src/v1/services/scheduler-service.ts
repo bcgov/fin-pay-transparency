@@ -1,5 +1,7 @@
 import {
+  convert,
   DateTimeFormatter,
+  LocalDate,
   LocalDateTime,
   nativeJs,
   ZoneId,
@@ -15,6 +17,7 @@ import { config } from '../../config/config.js';
 import '@js-joda/timezone';
 import { Locale } from '@js-joda/locale_en';
 import { EMAIL_TEMPLATES } from '../templates/email.js';
+import { errorService } from './error-service.js';
 
 const schedulerService = {
   /*
@@ -80,6 +83,60 @@ const schedulerService = {
       );
       await emailService.sendEmailWithRetry(email);
     }
+  },
+  async lockReports(): Promise<void> {
+    const reportEditDurationInDays = config.get(
+      'server:reportEditDurationInDays',
+    );
+    const reportUnlockDurationInDays = config.get(
+      'server:reportUnlockDurationInDays',
+    );
+
+    await prisma.$transaction(async (tx) => {
+      await tx.pay_transparency_report.updateMany({
+        data: { is_unlocked: false },
+        where: {
+          AND: [
+            { is_unlocked: true },
+            { report_status: 'Published' },
+            {
+              OR: [
+                {
+                  report_unlock_date: null,
+                  create_date: {
+                    lt: convert(
+                      LocalDateTime.now(ZoneId.UTC).minusDays(
+                        reportEditDurationInDays,
+                      ),
+                    ).toDate(),
+                  },
+                },
+                {
+                  report_unlock_date: {
+                    not: null,
+                    lt: convert(
+                      LocalDateTime.now(ZoneId.UTC).minusDays(
+                        reportUnlockDurationInDays,
+                      ),
+                    ).toDate(),
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      });
+    });
+  },
+  async deleteUserErrors(): Promise<void> {
+    const numMonthsOfErrorsToKeep = config.get(
+      'server:userErrorLogging:numMonthsOfUserErrorsToKeep',
+    );
+    const thresholdDate = LocalDate.now(ZoneId.UTC)
+      .atStartOfDay(ZoneId.UTC)
+      .minusMonths(numMonthsOfErrorsToKeep)
+      .format(DateTimeFormatter.ISO_DATE_TIME);
+    await errorService.deleteErrorsOlderThan(thresholdDate);
   },
 };
 

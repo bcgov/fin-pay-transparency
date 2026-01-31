@@ -28,8 +28,8 @@ import userRouter from './v1/routes/user-info-routes.js';
 import { publicAuth } from './v1/services/public-auth-service.js';
 import { utils } from './v1/services/utils-service.js';
 
-import { run as startJobs } from './schedulers/run.all.js';
-startJobs();
+import { runJobs, JOB_CONFIGS } from './schedulers/jobs.js';
+runJobs(JOB_CONFIGS);
 
 const MAX_CSV_FILE_SIZE_ON_DISK_BYTES =
   config.get('server:uploadFileMaxSizeBytes') || 8388608;

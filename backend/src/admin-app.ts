@@ -38,9 +38,9 @@ import { utils } from './v1/services/utils-service.js';
 
 export const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
 
-import { run as startJobs } from './schedulers/run.all.js';
+import { runJobs, JOB_CONFIGS } from './schedulers/jobs.js';
 import adminUserInvitesRoutes from './v1/routes/admin-user-invites-routes.js';
-startJobs();
+runJobs(JOB_CONFIGS);
 
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
