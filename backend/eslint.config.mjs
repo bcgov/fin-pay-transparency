@@ -2,14 +2,15 @@
 import globals from 'globals';
 import pluginJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import pluginJest from 'eslint-plugin-jest';
+import pluginVitest from 'eslint-plugin-vitest';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import { defineConfig } from 'eslint/config';
 
-export default tseslint.config(
+export default defineConfig(
+  { plugins: { vitest: pluginVitest } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  pluginJest.configs['flat/recommended'],
-  eslintConfigPrettier,
+  pluginVitest.configs.recommended,
   {
     languageOptions: {
       globals: globals.node,
@@ -20,6 +21,7 @@ export default tseslint.config(
   },
   {
     rules: {
+      //...pluginVitest.configs.recommended.rules,
       '@typescript-eslint/no-floating-promises': 'error',
       'jest/expect-expect': [
         'warn',
@@ -29,4 +31,5 @@ export default tseslint.config(
       ],
     },
   },
+  eslintConfigPrettier,
 );
