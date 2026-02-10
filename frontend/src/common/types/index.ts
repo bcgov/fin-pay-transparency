@@ -15,4 +15,6 @@ export interface IReport {
   naics_code: string;
   report_status: string;
   employee_count_range_id: string;
+  user_comment: string | null;
+  data_constraints: string | null;
 }

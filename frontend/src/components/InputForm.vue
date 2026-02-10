@@ -729,7 +729,7 @@ import { NotificationService } from '../common/notificationService';
 import { CsvService, IParseSuccessResponse } from '../common/csvService';
 import { LocalDate, TemporalAdjusters, DateTimeFormatter } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
-import { IConfigValue } from '../common/types';
+import { IConfigValue, IReport } from '../common/types';
 import axios from 'axios';
 import { VFileInput } from 'vuetify/components';
 import _ from 'lodash';
@@ -1010,6 +1010,18 @@ export default {
         'Failed to load application settings. Please reload the page.',
       );
     });
+    const saved = sessionStorage.getItem('backupFormDraft');
+    if (saved) {
+      sessionStorage.removeItem('backupFormDraft');
+      try {
+        const draft = JSON.parse(saved);
+        this.setReportInfo(draft);
+        this.initFormInEditMode();
+      } catch (e) {
+        console.error('Failed to parse form draft from sessionStorage', e);
+        return;
+      }
+    }
     if (this.isEditMode) {
       this.initFormInEditMode();
     }
@@ -1180,7 +1192,6 @@ export default {
     async submit() {
       this.isSubmit = true;
       if (!this.formReady) {
-        console.log(this.companyName, this.companyAddress, this.naicsCode);
         throw new Error('Form missing required fields');
       }
       this.isProcessing = true;
@@ -1225,6 +1236,22 @@ export default {
           throw new Error(DEFAULT_SUBMISSION_ERROR_MESSAGE);
         }
       } catch (error: any) {
+        if (submission) {
+          const backupDraft: Partial<IReport> = {
+            report_id: submission.id || '',
+            report_start_date: submission.startDate,
+            report_end_date: submission.endDate,
+            reporting_year: submission.reportingYear,
+            naics_code: submission.naicsCode,
+            employee_count_range_id: submission.employeeCountRangeId,
+            user_comment: submission.comments,
+            data_constraints: submission.dataConstraints,
+          };
+          sessionStorage.setItem(
+            'backupFormDraft',
+            JSON.stringify(backupDraft),
+          );
+        }
         // Handle different kinds of error objects by converting them
         // into a SubmissionError
         this.onSubmitComplete(this.toISubmissionError(error));
