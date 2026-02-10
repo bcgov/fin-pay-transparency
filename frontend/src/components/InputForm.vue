@@ -839,7 +839,7 @@ export default {
   computed: {
     ...mapState(useConfigStore, ['config']),
     ...mapState(useCodeStore, ['employeeCountRanges', 'naicsCodes']),
-    ...mapState(authStore, ['userInfo']),
+    ...mapState(authStore, ['userInfo', 'keepAlive', 'stopKeepAlive']),
     ...mapState(useReportStepperStore, [
       'reportId',
       'reportInfo',
@@ -1004,6 +1004,7 @@ export default {
     },
   },
   async mounted() {
+    this.keepAlive();
     this.setStage('UPLOAD');
     this.loadConfig()?.catch(() => {
       NotificationService.pushNotificationError(
@@ -1025,6 +1026,9 @@ export default {
     if (this.isEditMode) {
       this.initFormInEditMode();
     }
+  },
+  beforeUnmount() {
+    this.stopKeepAlive();
   },
   methods: {
     ...mapActions(useReportStepperStore, [

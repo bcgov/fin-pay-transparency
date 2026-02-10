@@ -1,6 +1,23 @@
 import axios from 'axios';
 import { AuthRoutes } from '../utils/constant.js';
 
+function parseJwt(token) {
+  if (!token) return {};
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  var jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split('')
+      .map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join(''),
+  );
+
+  return JSON.parse(jsonPayload);
+}
+
 export default {
   //Retrieves an auth token from the API endpoint
   async getAuthToken() {
@@ -32,9 +49,9 @@ export default {
         return { error: response.data.error_description };
       }
 
-      return response.data;
+      return { ...response.data, ...parseJwt(response.data.jwtFrontend) };
     } catch (e) {
-      console.log(`Failed to refresh JWT token - ${e}`); // eslint-disable-line no-console
+      console.log(`Failed to refresh JWT token - ${e}`);
       throw e;
     }
   },
