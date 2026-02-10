@@ -77,8 +77,8 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const OidcStrategy = passportOIDCKCIdp.Strategy;
 const fileSession = fileSessionStore(session);
 const logStream = {
-  write: (message) => {
-    logger.info(message);
+  write: (message: string) => {
+    logger.info(message.trim());
   },
 };
 
