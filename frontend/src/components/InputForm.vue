@@ -1004,7 +1004,7 @@ export default {
     },
   },
   async mounted() {
-    this.keepAlive();
+    await this.keepAlive();
     this.setStage('UPLOAD');
     this.loadConfig()?.catch(() => {
       NotificationService.pushNotificationError(

@@ -7,32 +7,18 @@ function isFollowUpVisit(jwtToken) {
 }
 
 export const authStore = defineStore('auth', {
-  namespaced: true,
   state: () => ({
-    acronyms: [],
     isAuthenticated: false,
     userInfo: null,
-    error: false,
-    isLoading: true,
-    loginError: false,
     jwtToken: localStorage.getItem('jwtToken'),
     lastActivity: null,
     issuedTime: null,
     expiryTime: null,
     keepAliveTimeoutId: null,
   }),
-  getters: {
-    acronymsGet: (state) => state.acronyms,
-    isAuthenticatedGet: (state) => state.isAuthenticated,
-    jwtTokenGet: (state) => state.jwtToken,
-    userInfoGet: (state) => state.userInfo,
-    loginErrorGet: (state) => state.loginError,
-    errorGet: (state) => state.error,
-    isLoadingGet: (state) => state.isLoading,
-  },
   actions: {
     //sets Json web token and determines whether user is authenticated
-    async setJwtToken(token = null) {
+    setJwtToken(token = null) {
       if (token) {
         this.isAuthenticated = true;
         this.jwtToken = token;
@@ -50,28 +36,9 @@ export const authStore = defineStore('auth', {
         localStorage.removeItem('correlationID');
       }
     },
-    async setUserInfo(userInfo) {
-      if (userInfo) {
-        this.userInfo = userInfo;
-      } else {
-        this.userInfo = null;
-      }
-    },
-    async setLoginError() {
-      this.loginError = true;
-    },
-    async setError(error) {
-      this.error = error;
-    },
-    async setLoading(isLoading) {
-      this.isLoading = isLoading;
-    },
-    async loginErrorRedirect() {
-      this.loginError = true;
-    },
-    async logout() {
-      await this.setJwtToken();
-      await this.setUserInfo();
+    logout() {
+      this.setJwtToken();
+      this.userInfo = null;
     },
     async getUserInfo() {
       const userInfoRes = await ApiService.getUserInfo();
@@ -79,7 +46,6 @@ export const authStore = defineStore('auth', {
     },
     //retrieves the json web token from local storage. If not in local storage, retrieves it from API
     async getJwtToken() {
-      await this.setError(false);
       if (isFollowUpVisit(this.jwtToken)) {
         const response = await AuthService.refreshAuthToken(
           this.jwtToken,
@@ -130,7 +96,7 @@ export const authStore = defineStore('auth', {
         this.stopKeepAlive();
       }
     },
-    keepAlive() {
+    async keepAlive() {
       // Track user activity
       const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
       events.forEach((event) => {
@@ -140,7 +106,7 @@ export const authStore = defineStore('auth', {
       });
 
       // Refresh token periodically
-      this._refreshOnActivity();
+      await this._refreshOnActivity();
     },
     stopKeepAlive() {
       clearTimeout(this.keepAliveTimeoutId);

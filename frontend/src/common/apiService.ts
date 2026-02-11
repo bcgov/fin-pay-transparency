@@ -60,8 +60,6 @@ const responseErrorInterceptor = async (error) => {
 
   try {
     const aStore = authStore();
-
-    // Use the auth store's getJwtToken method which handles token refresh
     await aStore.getJwtToken();
 
     if (!aStore.isAuthenticated || !aStore.jwtToken) {
