@@ -5,7 +5,7 @@
   "dependencies": {
     "@js-joda/core": "^5.6.2",
     "@js-joda/locale_en": "^4.11.0",
-    "axios": "^1.6.7",
+    "axios": "^1.13.5",
     "dotenv": "^17.2.0",
     "express": "^5.0.0",
     "express-prom-bundle": "^8.0.0",
