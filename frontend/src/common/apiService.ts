@@ -53,7 +53,7 @@ const responseErrorInterceptor = async (error) => {
   // If there's an error, but not authentication related, reject immediately
   // If this request has already been retried, don't retry again
   if (error.response?.status !== 401 || originalRequest.authAlreadyRetried) {
-    return Promise.reject(new Error('AxiosError', { cause: error }));
+    throw new Error('AxiosError', { cause: error });
   }
 
   originalRequest.authAlreadyRetried = true; // Mark as retried to prevent authentication loops
@@ -80,7 +80,7 @@ const responseErrorInterceptor = async (error) => {
     processQueue(e, null);
 
     globalThis.location.href = '/token-expired';
-    return Promise.reject(new Error('token expired', { cause: e }));
+    throw new Error('token expired', { cause: e });
   }
 };
 

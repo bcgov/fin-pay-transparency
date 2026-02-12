@@ -3,15 +3,15 @@ import { AuthRoutes } from '../utils/constant.js';
 
 function parseJwt(token) {
   if (!token) return {};
-  var base64Url = token.split('.')[1];
+  const base64Url = token.split('.')[1];
   if (!base64Url) return {};
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  var jsonPayload = decodeURIComponent(
-    window
+  const base64 = base64Url.replaceAll('-', '+').replaceAll('_', '/');
+  const jsonPayload = decodeURIComponent(
+    globalThis
       .atob(base64)
       .split('')
       .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        return '%' + ('00' + c.codePointAt(0).toString(16)).slice(-2);
       })
       .join(''),
   );

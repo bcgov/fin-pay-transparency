@@ -85,7 +85,7 @@ export const authStore = defineStore('auth', {
       }
 
       // Choose next interval to check for activity, but don't set it longer than the time remaining until 1 minute before token expiry
-      const timeToExpiry = this.expiryTime - new Date();
+      const timeToExpiry = this.expiryTime - Date.now();
       const oneMinuteBeforeExpiry = timeToExpiry - 1 * 60 * 1000;
       if (oneMinuteBeforeExpiry > 0) {
         // Duration is the lesser of 10 minutes or the time remaining until 1 minute before token expiry
