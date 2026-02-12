@@ -2,6 +2,7 @@
 import authService from '../authService.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import axios, { AxiosError } from 'axios';
+import { mock } from 'node:test';
 
 vi.mock('axios', async () => {
   const actual: any = await vi.importActual('axios');
@@ -43,15 +44,23 @@ describe('Auth Service', () => {
   describe('refreshAuthToken', () => {
     // check for valid scenario , that api returns token
     it('should return token if api respond is OK.', async () => {
+      const mockData = {
+        jwtFrontend: '0.eyJpYXQiOjE1MTYyMzkwMjIsImVhdCI6MTUxODAzOTAyMn0.0',
+        correlationID: 'testCorrelationID',
+      };
       vi.spyOn(axios, 'post').mockResolvedValueOnce({
-        data: {
-          jwtFrontend: 'testToken',
-          correlationID: 'testCorrelationID',
-        },
+        data: mockData,
       });
-      const data = await authService.refreshAuthToken('testToken', 'testCorrelationID');
-      expect(data.jwtFrontend).toBe('testToken');
-      expect(data.correlationID).toBe('testCorrelationID');
+      const data = await authService.refreshAuthToken(
+        'testToken',
+        'testCorrelationID',
+      );
+      const expectedData = {
+        ...mockData,
+        eat: 1518039022,
+        iat: 1516239022,
+      };
+      expect(data).toEqual(expectedData);
     });
     it('should return error if api respond contains error.', async () => {
       vi.spyOn(axios, 'post').mockResolvedValueOnce({
@@ -60,7 +69,10 @@ describe('Auth Service', () => {
           error_description: 'refresh token expired.',
         },
       });
-      const  data  = await authService.refreshAuthToken('testToken', 'testCorrelationID');
+      const data = await authService.refreshAuthToken(
+        'testToken',
+        'testCorrelationID',
+      );
       expect(data.error).toBe('refresh token expired.');
     });
     it('should reject if api respond is unauthorized.', async () => {

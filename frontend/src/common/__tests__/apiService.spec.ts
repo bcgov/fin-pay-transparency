@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { DateTimeFormatter, ZonedDateTime, nativeJs } from '@js-joda/core';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { REPORT_STATUS } from '../../utils/constant';
 import ApiService, { ApiServicePrivate } from '../apiService';
-import authService from '../authService.js';
+import * as AuthStoreComplete from '../../store/modules/auth';
 
 //Mock the interceptor used by the ApiService so it no longer depends on
 //HTTP calls to the backend.
@@ -523,7 +523,6 @@ describe('ApiServicePrivate', () => {
       expect(result).toBe(expected);
     });
   });
-
   describe('responseErrorInterceptor', () => {
     describe('when response status is 401', () => {
       it('it tries to refresh the token, and then retries the original request (with the new token)', async () => {
@@ -543,30 +542,40 @@ describe('ApiServicePrivate', () => {
           correlationID: faker.string.alpha(50),
         };
 
-        //mock the request to the backend to refresh the token.
-        const refreshTokenRequestSpy = vi
-          .spyOn(authService, 'refreshAuthToken')
-          .mockResolvedValue(mockRefreshTokenResponse);
+        // Mock the auth store
+        const mockAuthStore = {
+          getJwtToken: vi.fn().mockResolvedValue(undefined),
+          isAuthenticated: true,
+          jwtToken: mockRefreshTokenResponse.jwtFrontend,
+        };
+        vi.spyOn(AuthStoreComplete, 'authStore').mockReturnValue(mockAuthStore);
 
-        //mock the resubmission of the original request (which occurs after
-        //receiving the new token)
+        // Mock localStorage
+        vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(
+          mockRefreshTokenResponse.correlationID,
+        );
+
+        // Spy on the apiAxios instance instead of global axios
         const axiosRequestSpy = vi
-          .spyOn(axios, 'request')
+          .spyOn(ApiService.apiAxios, 'request')
           .mockResolvedValue({});
+
+        // Mock processQueue if needed
+        global.processQueue = vi.fn();
 
         await expect(
           ApiServicePrivate.responseErrorInterceptor(mockUnauthorizedError),
         ).resolves;
 
-        //expect a request to refresh the token
-        expect(refreshTokenRequestSpy).toHaveBeenCalledOnce();
+        // Verify the auth store's getJwtToken was called
+        expect(mockAuthStore.getJwtToken).toHaveBeenCalledOnce();
 
-        //after token refresh, the original request is resubmitted (but with
-        //a new token in the authorization header)
+        // After token refresh, the original request is resubmitted
         expect(axiosRequestSpy).toHaveBeenCalledOnce();
-        const resubmittedRequest: any = axiosRequestSpy.mock.calls[0][0];
+        const resubmittedRequest = axiosRequestSpy.mock.calls[0][0];
         const expectedResubmittedRequest = {
           ...originalRequest,
+          authAlreadyRetried: true,
         };
         expectedResubmittedRequest.headers['Authorization'] =
           `Bearer ${mockRefreshTokenResponse.jwtFrontend}`;

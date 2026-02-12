@@ -76,6 +76,7 @@ describe('InputForm', () => {
         code: {},
         config: { config: mockConfig },
       },
+      stubActions: false,
     });
 
     const mockRouter = {
@@ -106,6 +107,8 @@ describe('InputForm', () => {
     if (wrapper) {
       wrapper.unmount();
     }
+    vi.restoreAllMocks();
+    sessionStorage.removeItem('backupFormDraft');
   });
 
   describe('submit', () => {
@@ -292,6 +295,53 @@ describe('InputForm', () => {
       expect(wrapper.text()).toContain(
         'Please check the form and correct all errors before submitting.',
       );
+    });
+
+    it('saves a backup draft when submission fails', async () => {
+      mockPostSubmission.mockRejectedValueOnce(new Error('Submission failed'));
+      // submit
+      await populateAllFields();
+      await wrapper.find('#submitButton').trigger('submit');
+      await flushPromises();
+
+      const saved = JSON.parse(sessionStorage.getItem('backupFormDraft') ?? '');
+      expect(mockPostSubmission).toHaveBeenCalledTimes(1);
+      expect(saved).toMatchObject({
+        naics_code: '11',
+        employee_count_range_id: 1,
+        reporting_year: new Date().getFullYear(),
+        data_constraints: null,
+        user_comment: null,
+      });
+      expect(saved).toHaveProperty('report_start_date');
+      expect(saved).toHaveProperty('report_end_date');
+    });
+  });
+
+  describe('mounted', () => {
+    it('loads a saved draft from session storage', async () => {
+      const draft = {
+        naics_code: '11',
+        employee_count_range_id: 1,
+        report_start_date: '2022-01-01',
+        report_end_date: '2022-12-31',
+        reporting_year: 2022,
+        data_constraints: '<p>test constraints</p>',
+        user_comment: '<p>test comment</p>',
+      };
+
+      sessionStorage.setItem('backupFormDraft', JSON.stringify(draft));
+      await initWrapper();
+
+      expect(wrapper.vm.naicsCode).toBe(draft.naics_code);
+      expect(wrapper.vm.employeeCountRange).toBe(draft.employee_count_range_id);
+      expect(wrapper.vm.startYear).toBe(2022);
+      expect(wrapper.vm.startMonth).toBe(1);
+      expect(wrapper.vm.endYear).toBe(2022);
+      expect(wrapper.vm.endMonth).toBe(12);
+      expect(wrapper.vm.reportYear).toBe(draft.reporting_year);
+      expect(wrapper.vm.dataConstraints).toBe(draft.data_constraints);
+      expect(wrapper.vm.comments).toBe(draft.user_comment);
     });
   });
 

@@ -62,7 +62,7 @@ const OidcStrategy = passportOIDCKCIdp.Strategy;
 const fileSession = fileSessionStore(session);
 const logStream = {
   write: (message) => {
-    logger.info(message);
+    logger.info(message.trim());
   },
 };
 

@@ -6,7 +6,7 @@ import {
   IAnnouncementSearchResult,
 } from '../types/announcements';
 import { ApiRoutes } from '../utils/constant';
-import AuthService from './authService';
+import { authStore } from '../store/modules/auth';
 import { IConfigValue, IReport } from './types';
 
 export enum REPORT_FORMATS {
@@ -46,40 +46,44 @@ function processQueue(error, token = null) {
 
 // Create new non-global axios instance and intercept strategy
 const apiAxios = axios.create();
-const responseErrorInterceptor = (error) => {
+
+const responseErrorInterceptor = async (error) => {
   const originalRequest = error.config;
-  if (error.response.status !== 401) {
-    return Promise.reject(new Error('AxiosError', { cause: error }));
+
+  // If there's an error, but not authentication related, reject immediately
+  // If this request has already been retried, don't retry again
+  if (error.response?.status !== 401 || originalRequest.authAlreadyRetried) {
+    throw new Error('AxiosError', { cause: error });
   }
-  axios.interceptors.response.eject(intercept);
-  return new Promise((resolve, reject) => {
-    AuthService.refreshAuthToken(
-      localStorage.getItem('jwtToken'),
-      localStorage.getItem('correlationID'),
-    )
-      .then((response) => {
-        if (response.jwtFrontend) {
-          localStorage.setItem('jwtToken', response.jwtFrontend);
-          localStorage.setItem('correlationID', response.correlationID);
-          apiAxios.defaults.headers.common['Authorization'] =
-            `Bearer ${response.jwtFrontend}`;
-          originalRequest.headers['Authorization'] =
-            `Bearer ${response.jwtFrontend}`;
-          apiAxios.defaults.headers.common['x-correlation-id'] =
-            response.correlationID;
-          originalRequest.headers['x-correlation-id'] = response.correlationID;
-        }
-        processQueue(null, response.jwtFrontend);
-        resolve(axios.request(originalRequest));
-      })
-      .catch((e) => {
-        processQueue(e, null);
-        localStorage.removeItem('jwtToken');
-        globalThis.location.href = '/token-expired';
-        reject(new Error('token expired', { cause: e }));
-      });
-  });
+
+  originalRequest.authAlreadyRetried = true; // Mark as retried to prevent authentication loops
+
+  try {
+    const aStore = authStore();
+    await aStore.getJwtToken();
+
+    if (!aStore.isAuthenticated || !aStore.jwtToken) {
+      throw new Error('Authentication failed');
+    }
+
+    // The auth store already updates ApiService headers, but we need to update
+    // the original request headers for the retry
+    originalRequest.headers['Authorization'] = `Bearer ${aStore.jwtToken}`;
+    originalRequest.headers['x-correlation-id'] =
+      localStorage.getItem('correlationID');
+
+    processQueue(null, aStore.jwtToken);
+
+    // Retry the original request
+    return apiAxios.request(originalRequest);
+  } catch (e) {
+    processQueue(e, null);
+
+    globalThis.location.href = '/token-expired';
+    throw new Error('token expired', { cause: e });
+  }
 };
+
 const intercept = apiAxios.interceptors.response.use(
   (config) => config,
   responseErrorInterceptor,

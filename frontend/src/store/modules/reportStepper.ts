@@ -64,8 +64,9 @@ export const useReportStepperStore = defineStore('reportStepper', () => {
 
   const setReportInfo = async (report: IReport) => {
     reportId.value = report.report_id;
-    reportInfo.value = report;
-    reportData.value = await ApiService.getReport(report.report_id);
+    if (report.report_id)
+      reportData.value = await ApiService.getReport(report.report_id);
+    else reportData.value = report;
   };
 
   const setMode = (newMode: ReportMode) => {
