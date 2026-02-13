@@ -1,4 +1,4 @@
-import { authenticator } from 'otplib';
+import { generate, createGuardrails } from 'otplib';
 import { PagePaths } from '../utils';
 import { AdminPortalPage } from './admin-portal-page';
 
@@ -18,9 +18,13 @@ export class LoginPage extends AdminPortalPage {
       .fill(process.env.E2E_ADMIN_PASSWORD!);
     await this.page.getByRole('button', { name: 'Sign in' }).click();
 
-    const totpToken = authenticator.generate(
-      process.env.E2E_ADMIN_TOTP_SECRET!,
-    );
+    const totpToken = await generate({
+      secret: process.env.E2E_ADMIN_TOTP_SECRET!,
+      guardrails: createGuardrails({
+        MIN_SECRET_BYTES: 10,
+      }),
+    });
+
     await this.page.getByPlaceholder('Code').click();
     await this.page.getByPlaceholder('Code').fill(totpToken);
     await this.page.getByRole('button', { name: 'Verify' }).click();
