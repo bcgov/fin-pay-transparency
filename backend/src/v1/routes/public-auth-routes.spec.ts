@@ -1,71 +1,72 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants/constants.js';
-import { LogoutReason, publicAuth } from '../services/public-auth-service.js';
+import { LogoutReason } from '../services/public-auth-service.js';
 import router from './public-auth-routes.js';
+
 let app: Application;
 
-const mockHandleCallbackBusinessBceid = jest.fn().mockResolvedValue(undefined);
-const mockIsTokenExpired = jest.fn();
-const mockIsRenewable = jest.fn();
-const mockRenew = jest.fn();
-const mockGenerateFrontendToken = jest.fn();
-const mockRenewBackendAndFrontendTokens = jest.fn((req, res) => {
+const mockHandleCallbackBusinessBceid = vi.fn();
+const mockIsTokenExpired = vi.fn();
+const mockIsRenewable = vi.fn();
+const mockRenew = vi.fn();
+const mockGenerateFrontendToken = vi.fn();
+const mockRenewBackendAndFrontendTokens = vi.fn((req, res) => {
   res.status(200).json({});
 });
+const mockRefreshJWT = vi.fn();
 
-jest.mock('../services/public-auth-service', () => {
-  const actualPublicAuth = jest.requireActual(
-    '../services/public-auth-service',
-  );
-  const mockedPublicAuth = jest.createMockFromModule(
-    '../services/public-auth-service',
-  ) as any;
+vi.mock(
+  import('../services/public-auth-service.js'),
+  async (importOriginal) => {
+    const actualPublicAuth = await importOriginal();
 
-  const mocked = {
-    ...mockedPublicAuth,
-    publicAuth: { ...actualPublicAuth.publicAuth },
-  };
-  mocked.publicAuth.handleCallBackBusinessBceid = (...args) => {
-    mockHandleCallbackBusinessBceid(...args);
-  };
-  mocked.publicAuth.refreshJWT = jest.fn((req, res, next) =>
-    mockRefreshJWT(req, res, next),
-  );
-  mocked.publicAuth.isTokenExpired = () => mockIsTokenExpired();
-  mocked.publicAuth.isRenewable = () => mockIsRenewable();
-  mocked.publicAuth.renew = function () {
-    mockRenew();
-  };
-  mocked.publicAuth.generateFrontendToken = () => mockGenerateFrontendToken();
-  mocked.publicAuth.renewBackendAndFrontendTokens = (req, res) => {
-    mockRenewBackendAndFrontendTokens(req, res);
-  };
+    return {
+      ...actualPublicAuth,
+      publicAuth: {
+        ...actualPublicAuth.publicAuth,
+        handleCallBackBusinessBceid: (...args) =>
+          mockHandleCallbackBusinessBceid(...args),
+        refreshJWT: vi.fn((req, res, next) => mockRefreshJWT(req, res, next)),
+        isTokenExpired: () => mockIsTokenExpired(),
+        isRenewable: () => mockIsRenewable(),
+        renew: function () {
+          mockRenew();
+        },
+        generateFrontendToken: () => mockGenerateFrontendToken(),
+        renewBackendAndFrontendTokens: (req, res) =>
+          mockRenewBackendAndFrontendTokens(req, res),
+      },
+    } as unknown as typeof actualPublicAuth;
+  },
+);
 
-  return mocked;
+const mockGetOidcDiscovery = vi.fn();
+vi.mock(import('../services/utils-service.js'), async (importOriginal) => {
+  const actualUtils = await importOriginal();
+  return {
+    ...actualUtils,
+    utils: {
+      ...actualUtils.utils,
+      getOidcDiscovery: (...args) => mockGetOidcDiscovery(...args),
+    },
+  };
 });
 
-const mockGetOidcDiscovery = jest.fn();
-jest.mock('../services/utils-service', () => ({
-  ...jest.requireActual('../services/utils-service'),
-  utils: {
-    ...jest.requireActual('../services/utils-service').utils,
-    getOidcDiscovery: (...args) => mockGetOidcDiscovery(...args),
+const mockAuthenticate = vi.fn();
+vi.mock('passport', () => ({
+  default: {
+    authenticate: (...args) =>
+      vi.fn((req, res, next) => mockAuthenticate(req, res, next)),
   },
 }));
 
-const mockAuthenticate = jest.fn();
-const mockRefreshJWT = jest.fn();
-jest.mock('passport', () => ({
-  authenticate: (...args) =>
-    jest.fn((req, res, next) => mockAuthenticate(req, res, next)),
-}));
-
-const mockLogout = jest.fn();
+const mockLogout = vi.fn((cb) => cb());
 const mockRequest = {
-  logout: jest.fn(mockLogout),
+  logout: mockLogout,
   session: {
-    destroy: jest.fn(),
+    destroy: vi.fn(),
   },
   user: {
     idToken: 'ey....',
@@ -75,9 +76,15 @@ const mockRequest = {
 
 describe('public-auth-routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use('', router);
+    app.use((err, req, res, next) => {
+      res.status(400).send({ error: err.message });
+    });
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
   describe('/callback_business_bceid [GET]', () => {
@@ -85,14 +92,11 @@ describe('public-auth-routes', () => {
       mockAuthenticate.mockImplementation((_, __, next) => {
         next();
       });
-      jest
-        .spyOn(publicAuth, 'handleCallBackBusinessBceid')
-        .mockResolvedValueOnce(LogoutReason.Login);
+      mockHandleCallbackBusinessBceid.mockResolvedValue(LogoutReason.Login);
 
       return request(app).get('/callback_business_bceid').expect(302);
     });
     it('should log out if error', () => {
-      mockLogout.mockImplementation((cb) => cb());
       mockGetOidcDiscovery.mockResolvedValue({
         end_session_endpoint: 'http://test.com/',
       });
@@ -106,9 +110,9 @@ describe('public-auth-routes', () => {
       mockAuthenticate.mockImplementation((_, __, next) => {
         next();
       });
-      jest
-        .spyOn(publicAuth, 'handleCallBackBusinessBceid')
-        .mockResolvedValueOnce(LogoutReason.ContactError);
+      mockHandleCallbackBusinessBceid.mockResolvedValueOnce(
+        LogoutReason.ContactError,
+      );
 
       return request(app).get('/auth/callback_business_bceid').expect(302);
     });
@@ -122,7 +126,6 @@ describe('public-auth-routes', () => {
 
   describe('/logout', () => {
     it('should successfully logout', () => {
-      mockLogout.mockImplementation((cb) => cb());
       mockGetOidcDiscovery.mockResolvedValue({
         end_session_endpoint: 'http://test.com/',
       });
@@ -138,7 +141,6 @@ describe('public-auth-routes', () => {
     });
 
     it('should handle session expired', () => {
-      mockLogout.mockImplementation((cb) => cb());
       mockGetOidcDiscovery.mockResolvedValue({
         end_session_endpoint: 'http://test.com/',
       });
@@ -156,7 +158,6 @@ describe('public-auth-routes', () => {
         .expect(302);
     });
     it('should handle contact error', () => {
-      mockLogout.mockImplementation((cb) => cb());
       mockGetOidcDiscovery.mockResolvedValue({
         end_session_endpoint: 'http://test.com/',
       });
@@ -174,7 +175,6 @@ describe('public-auth-routes', () => {
         .expect(302);
     });
     it('should handle loginBceid', () => {
-      mockLogout.mockImplementation((cb) => cb());
       mockGetOidcDiscovery.mockResolvedValue({
         end_session_endpoint: 'http://test.com/',
       });
@@ -192,7 +192,6 @@ describe('public-auth-routes', () => {
         .expect(302);
     });
     it('should handle login error', () => {
-      mockLogout.mockImplementation((cb) => cb());
       mockGetOidcDiscovery.mockResolvedValue({
         end_session_endpoint: 'http://test.com/',
       });
@@ -210,7 +209,6 @@ describe('public-auth-routes', () => {
         .expect(302);
     });
     it('should handle user idToken not found', () => {
-      mockLogout.mockImplementation((cb) => cb());
       mockGetOidcDiscovery.mockResolvedValue({
         end_session_endpoint: 'http://test.com/',
       });
@@ -237,7 +235,7 @@ describe('public-auth-routes', () => {
         next();
       });
       app.use('/auth', router);
-      const errorHandler = jest.fn();
+      const errorHandler = vi.fn();
       app.use((error, req, res, next) => {
         errorHandler(error);
         return res.status(400).json({});

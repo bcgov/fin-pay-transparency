@@ -1,51 +1,47 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
 import router from './admin-auth-routes.js';
 
-const mockAuthenticate = jest.fn();
-jest.mock('passport', () => ({
-  authenticate: (...args) =>
-    jest.fn((req, res, next) => mockAuthenticate(req, res, next)),
+const mockAuthenticate = vi.fn();
+vi.mock('passport', () => ({
+  default: {
+    authenticate: (...args) =>
+      vi.fn((req, res, next) => mockAuthenticate(req, res, next)),
+  },
 }));
 
-const mockIsTokenExpired = jest.fn();
-const mockIsRenewable = jest.fn();
-const mockRenew = jest.fn();
-const mockGenerateFrontendToken = jest.fn();
-const mockRenewBackendAndFrontendTokens = jest.fn((req, res) => {
+const mockIsTokenExpired = vi.fn();
+const mockIsRenewable = vi.fn();
+const mockRenew = vi.fn();
+const mockGenerateFrontendToken = vi.fn();
+const mockRenewBackendAndFrontendTokens = vi.fn((req, res) => {
   res.status(200).json({});
 });
-const mockHandleCallBackAzureIdir = jest.fn();
-jest.mock('../services/admin-auth-service', () => {
-  const actualAdminAuth = jest.requireActual(
-    '../services/admin-auth-service',
-  ) as any;
-  const mockedAdminAuth = jest.createMockFromModule(
-    '../services/admin-auth-service',
-  ) as any;
-
-  const mocked = {
-    ...mockedAdminAuth,
-    adminAuth: { ...actualAdminAuth.adminAuth },
-  };
-
-  mocked.adminAuth.handleCallBackAzureIdir = () =>
-    mockHandleCallBackAzureIdir();
-  mocked.adminAuth.isTokenExpired = () => mockIsTokenExpired();
-  mocked.adminAuth.isRenewable = () => mockIsRenewable();
-  mocked.adminAuth.renew = () => mockRenew();
-  mocked.adminAuth.generateFrontendToken = () => mockGenerateFrontendToken();
-  mocked.adminAuth.renewBackendAndFrontendTokens = (req, res) => {
-    mockRenewBackendAndFrontendTokens(req, res);
-  };
-  return mocked;
+const mockHandleCallBackAzureIdir = vi.fn();
+vi.mock(import('../services/admin-auth-service.js'), async (importOriginal) => {
+  const actualAdminAuth = await importOriginal();
+  return {
+    ...actualAdminAuth,
+    adminAuth: {
+      ...actualAdminAuth.adminAuth,
+      handleCallBackAzureIdir: () => mockHandleCallBackAzureIdir(),
+      isTokenExpired: () => mockIsTokenExpired(),
+      isRenewable: () => mockIsRenewable(),
+      renew: () => mockRenew(),
+      generateFrontendToken: () => mockGenerateFrontendToken(),
+      renewBackendAndFrontendTokens: (req, res) => {
+        mockRenewBackendAndFrontendTokens(req, res);
+      },
+    },
+  } as unknown as typeof actualAdminAuth;
 });
 
-const mockLogout = jest.fn();
+const mockLogout = vi.fn();
 const mockRequest = {
-  logout: jest.fn(mockLogout),
+  logout: vi.fn(() => mockLogout()),
   session: {
-    destroy: jest.fn(),
+    destroy: vi.fn(),
   },
   user: {
     idToken: 'ey....',
@@ -56,12 +52,15 @@ const mockRequest = {
 let app: Application;
 describe('admin-auth-routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use('', router);
     app.use((err, req, res, next) => {
       res.status(400).send({ error: err.message });
     });
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
   describe('/callback_azureidir', () => {
