@@ -92,7 +92,7 @@
     "test": "vitest run --project unit",
     "test:cov": "npm run generate && vitest run --coverage --project unit",
     "test:integration": "vitest run --project integration",
-    "build": "npm run generate && tsc && copyfiles -u 1 src/**/*.html dist",
+    "build": "npm run generate && tsc --project tsconfig.build.json && copyfiles -u 1 src/**/*.html dist",
     "generate": "prisma generate --schema=./src/v1/prisma/schema.prisma",
     "pull": "npx prisma db pull --schema=./src/v1/prisma/schema.prisma && prisma generate --schema=./src/v1/prisma/schema.prisma",
     "start": "node dist/src/src/server.js",
