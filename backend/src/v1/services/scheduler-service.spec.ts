@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import {
   LocalDate,
   LocalDateTime,
@@ -6,31 +7,19 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
-import {
-  Prisma,
+import type {
   admin_user,
   announcement,
   pay_transparency_report,
 } from '@prisma/client';
-import prisma from '../prisma/prisma-client.js';
+import { Prisma } from '@prisma/client';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 import { enumReportStatus } from './report-service.js';
 import { schedulerService } from './scheduler-service.js';
 import { faker } from '@faker-js/faker';
 
-jest.mock('./utils-service');
-jest.mock('../prisma/prisma-client', () => {
-  return {
-    pay_transparency_report: {
-      findMany: jest.fn(),
-      deleteMany: jest.fn(),
-    },
-    pay_transparency_calculated_data: {
-      findMany: jest.fn(),
-      deleteMany: jest.fn(),
-    },
-    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
-  };
-});
+vi.mock('./utils-service');
+vi.mock('../prisma/prisma-client');
 
 const mockDraftReport: pay_transparency_report = {
   report_id: '456768',
@@ -62,34 +51,33 @@ const mockCalculatedDatasInDB = [
   { ...mockDraftReport, report_id: '456769' },
 ];
 
-const mock_generateHtmlEmail = jest.fn();
-const mock_sendEmailWithRetry = jest.fn();
+const mock_generateHtmlEmail = vi.fn();
+const mock_sendEmailWithRetry = vi.fn();
 
-jest.mock('../../external/services/ches/ches', () => ({
-  __esModule: true,
+vi.mock('../../external/services/ches/ches', () => ({
   default: {
     generateHtmlEmail: (...args) => mock_generateHtmlEmail(...args),
     sendEmailWithRetry: (...args) => mock_sendEmailWithRetry(...args),
   },
 }));
 
-const mockGetExpiringAnnouncements = jest.fn();
-jest.mock('./announcements-service', () => ({
+const mockGetExpiringAnnouncements = vi.fn();
+vi.mock('./announcements-service', () => ({
   announcementService: {
     getExpiringAnnouncements: () => mockGetExpiringAnnouncements(),
   },
 }));
 
-const mockGetUsers = jest.fn();
-const mockInitSSO = jest.fn();
-jest.mock('./sso-service', () => ({
+const mockGetUsers = vi.fn();
+const mockInitSSO = vi.fn();
+vi.mock('./sso-service', () => ({
   SSO: {
     init: () => mockInitSSO(),
   },
 }));
 
-const mockConfigGet = jest.fn();
-jest.mock('../../config/config', () => ({
+const mockConfigGet = vi.fn();
+vi.mock('../../config/config', () => ({
   config: {
     get: (...args) => mockConfigGet(...args),
   },
@@ -112,21 +100,16 @@ const mockDBAnnouncement: Partial<announcement>[] = [
   },
 ];
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
 describe('deleteDraftReports', () => {
   it('cron job executes once at configured cron time', async () => {
-    (prisma.pay_transparency_report.findMany as jest.Mock).mockResolvedValue(
+    prisma.pay_transparency_report.findMany.mockResolvedValue(
       mockCalculatedDatasInDB,
     );
     await schedulerService.deleteDraftReports();
 
     //verify that it was called with one day previous
     const delete_date = LocalDate.now(ZoneId.UTC).minusDays(1).toString();
-    const call = (prisma.pay_transparency_report.deleteMany as jest.Mock).mock
-      .calls[0][0];
+    const call = prisma.pay_transparency_report.deleteMany.mock.calls[0][0];
     const callDate = LocalDateTime.from(
       nativeJs(new Date(call.where.create_date.lte), ZoneId.UTC),
     )

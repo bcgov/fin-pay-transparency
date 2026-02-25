@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
 import { config } from '../../config/config.js';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants/constants.js';
@@ -189,7 +190,7 @@ const mockValidSubmission = {
 // ----------------------------------------------------------------------------
 
 beforeEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 // ----------------------------------------------------------------------------
@@ -199,11 +200,11 @@ describe('validate-service', () => {
   describe('getValidReportingYears', () => {
     describe('when current year < server:firstYearWithPrevReportingYearOption', () => {
       it('returns an array of [currentYear]', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const firstYearWithPrevReportingYearOption = 2025;
         const currentYear = 2024;
-        jest.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
-        const configSpy = jest
+        vi.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
+        const configSpy = vi
           .spyOn(config, 'get')
           .mockReturnValueOnce(firstYearWithPrevReportingYearOption);
         const validReportingYears = validateService.getValidReportingYears();
@@ -212,11 +213,11 @@ describe('validate-service', () => {
     });
     describe('when current year >= server:firstYearWithPrevReportingYearOption', () => {
       it('returns an array of [previousYear, currentYear]', () => {
-        jest.useFakeTimers();
+        vi.useFakeTimers();
         const firstYearWithPrevReportingYearOption = 2024;
         const currentYear = 2024;
-        jest.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
-        const configSpy = jest
+        vi.setSystemTime(convert(LocalDate.of(currentYear, 12, 31)).toDate());
+        const configSpy = vi
           .spyOn(config, 'get')
           .mockReturnValueOnce(firstYearWithPrevReportingYearOption);
         const validReportingYears = validateService.getValidReportingYears();
@@ -360,9 +361,9 @@ describe('validate-service', () => {
     });
     describe('if the reporting year is outside the allowable range', () => {
       it('should return error', () => {
-        jest
-          .spyOn(validateService, 'getValidReportingYears')
-          .mockReturnValueOnce([2024]);
+        vi.spyOn(validateService, 'getValidReportingYears').mockReturnValueOnce(
+          [2024],
+        );
         const reportingYear = 2023;
         const invalidSubmission = Object.assign({}, validSubmission, {
           reportingYear: reportingYear,
@@ -381,9 +382,9 @@ describe('validate-service', () => {
     });
     describe('if the reporting year is within the allowable range', () => {
       it('returns no error messages related to reporting year', () => {
-        jest
-          .spyOn(validateService, 'getValidReportingYears')
-          .mockReturnValueOnce([2023, 2024]);
+        vi.spyOn(validateService, 'getValidReportingYears').mockReturnValueOnce(
+          [2023, 2024],
+        );
         const reportingYear = 2023;
         const invalidSubmission = Object.assign({}, validSubmission, {
           reportingYear: reportingYear,

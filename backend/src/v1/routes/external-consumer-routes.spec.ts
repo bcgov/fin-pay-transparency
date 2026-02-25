@@ -1,43 +1,34 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
 import router from './external-consumer-routes.js';
 import { faker } from '@faker-js/faker';
+import prisma from '../prisma/__mocks__/prisma-client-readonly-replica.js';
+import type { reports_calculated_data_view } from '@prisma/client';
 
-const mockCount = jest.fn();
-const mockReportsViewFindMany = jest.fn();
-jest.mock('../prisma/prisma-client-readonly-replica', () => {
-  return {
-    __esModule: true,
-    default: {
-      $replica: () => {
-        return {
-          reports_calculated_data_view: {
-            count: (...args) => mockCount(...args),
-            findMany: (...args) => mockReportsViewFindMany(...args),
-          },
-        };
-      },
+vi.mock('../prisma/prisma-client-readonly-replica');
+const mockCount = prisma.reports_calculated_data_view.count;
+const mockReportsViewFindMany = prisma.reports_calculated_data_view.findMany;
+
+const mockDeleteReports = vi.fn();
+vi.mock(
+  import('../services/external-consumer-service.js'),
+  async (importOriginal) => ({
+    externalConsumerService: {
+      ...(await importOriginal()).externalConsumerService,
+      deleteReports: (...args) => mockDeleteReports(...args),
     },
-  };
-});
+  }),
+);
 
-const mockDeleteReports = jest.fn();
-jest.mock('../services/external-consumer-service', () => ({
-  externalConsumerService: {
-    ...jest.requireActual('../services/external-consumer-service')
-      .externalConsumerService,
-    deleteReports: (...args) => mockDeleteReports(...args),
-  },
-}));
-
-jest.mock('../services/report-service', () => ({
+vi.mock('../services/report-service', () => ({
   reportService: {
     deleteReports: (...args) => mockDeleteReports(...args),
   },
 }));
 
-const mockRetrieveErrors = jest.fn();
-jest.mock('../services/error-service', () => ({
+const mockRetrieveErrors = vi.fn();
+vi.mock('../services/error-service', () => ({
   errorService: {
     retrieveErrors: (...args) => mockRetrieveErrors(...args),
   },
@@ -52,7 +43,7 @@ const REPORT = {
   update_date: faker.date.past(),
   data_constraints: faker.lorem.sentence(),
   user_comment: faker.lorem.sentence(),
-  revision: '12',
+  revision: 12,
   report_start_date: faker.date.past(),
   report_end_date: faker.date.past(),
   report_status: 'Published',
@@ -74,19 +65,18 @@ const REPORT = {
       calculation_code: faker.number.int(),
     },
   ],
-};
+} as unknown as reports_calculated_data_view;
 
 describe('external-consumer-routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use('', router);
   });
 
   describe('/ GET', () => {
     it('should return data if user doeas not send query params', () => {
-      mockCount.mockReturnValue(1);
-      mockReportsViewFindMany.mockReturnValue([REPORT]);
+      mockCount.mockResolvedValue(1);
+      mockReportsViewFindMany.mockResolvedValue([REPORT]);
       return request(app)
         .get('')
         .set('x-api-key', 'api-key')

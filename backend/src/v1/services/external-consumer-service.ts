@@ -115,9 +115,8 @@ const externalConsumerService = {
     };
 
     // Fetch reports with their calculated data using the consolidated view
-    const recordsWithCalculatedData = await prismaReadOnlyReplica
-      .$replica()
-      .reports_calculated_data_view.findMany({
+    const recordsWithCalculatedData =
+      await prismaReadOnlyReplica.reports_calculated_data_view.findMany({
         select: {
           report_id: true,
           company_id: true,
@@ -160,9 +159,8 @@ const externalConsumerService = {
       });
 
     // Get total count using the same view
-    const totalRecordsCount = await prismaReadOnlyReplica
-      .$replica()
-      .reports_calculated_data_view.count({
+    const totalRecordsCount =
+      await prismaReadOnlyReplica.reports_calculated_data_view.count({
         where: whereClause,
       });
 

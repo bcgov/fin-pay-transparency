@@ -1,27 +1,23 @@
+import { vi, describe, it, expect } from 'vitest';
 import {
   analyticsService,
   PowerBiEmbedInfo,
   PowerBiResourceName,
 } from './analytic-service.js';
 
-const mockgetEmbedParamsForReportsByName = jest.fn();
-jest.mock('../../external/services/powerbi-service', () => {
-  const actual = jest.requireActual('../../external/services/powerbi-service');
+const mockgetEmbedParamsForReportsByName = vi.fn();
+vi.mock('../../external/services/powerbi-service.js', () => {
   return {
-    ...actual,
-    PowerBiService: jest.fn().mockImplementation(() => {
+    PowerBiService: vi.fn(function () {
       return {
-        getEmbedParamsForReportsByName: mockgetEmbedParamsForReportsByName,
+        getEmbedParamsForReportsByName: (...args) =>
+          mockgetEmbedParamsForReportsByName(...args),
       };
     }),
   };
 });
 
 describe('getEmbedInfo', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('should return json when given multiple resources to embed', async () => {
     const output: PowerBiEmbedInfo = {
       resources: [

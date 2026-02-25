@@ -14,7 +14,11 @@ import {
 import { reportService } from './report-service.js';
 import { UserInputError } from '../types/errors.js';
 import { Decimal } from '@prisma/client/runtime/library';
-import { admin_user, pay_transparency_report, Prisma } from '@prisma/client';
+import type {
+  admin_user,
+  pay_transparency_report,
+  Prisma,
+} from '@prisma/client';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -48,7 +52,6 @@ const mockCountReport = prisma.pay_transparency_report.count;
 
 describe('admin-report-service', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     reports = [
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',

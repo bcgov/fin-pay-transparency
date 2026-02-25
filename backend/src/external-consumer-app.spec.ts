@@ -1,19 +1,22 @@
+import { vi, describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { externalConsumerApp } from './external-consumer-app.js';
 
-const mockExportDataWithPagination = jest.fn();
-jest.mock('./v1/services/external-consumer-service', () => ({
+const mockExportDataWithPagination = vi.fn();
+vi.mock('./v1/services/external-consumer-service', () => ({
   externalConsumerService: {
     exportDataWithPagination: (...args) =>
       mockExportDataWithPagination(...args),
   },
 }));
 
-jest.mock('./config/config', () => {
-  const actualConfig = jest.requireActual('./config/config').config;
+vi.mock(import('./config/config.js'), async (importOriginal) => {
+  const actualModule = await importOriginal();
+  const actualConfig = actualModule.config;
+
   return {
     config: {
-      get: jest.fn().mockImplementation((key) => {
+      get: vi.fn((key) => {
         return {
           'oidc:clientSecret': 'secret',
           'server:sessionPath': 'session-path',
@@ -36,10 +39,6 @@ jest.mock('./config/config', () => {
 });
 
 describe('external-consumer-app', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('/api/v1 GET', () => {
     describe('with API Key', () => {
       it('should get reports when api key is valid', async () => {

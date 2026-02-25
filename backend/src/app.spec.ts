@@ -1,11 +1,9 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { app } from './app.js';
 import prisma from './v1/prisma/__mocks__/prisma-client.js';
 import { publicAuth } from './v1/services/public-auth-service.js';
 import request from 'supertest';
-import { employee_count_range, naics_code } from '@prisma/client';
-import { Part } from '@aws-sdk/client-s3';
-import { config } from './config/config.js';
+import type { employee_count_range, naics_code } from '@prisma/client';
 
 // ----------------------------------------------------------------------------
 // Setup
@@ -49,7 +47,7 @@ vi.mock(import('./config/config.js'), async (importOriginal) => {
   return {
     config: {
       ...actualModule.config,
-      get: vi.fn().mockImplementation(
+      get: vi.fn(
         (key) =>
           ({
             'oidc:clientSecret': 'secret',
@@ -85,10 +83,6 @@ beforeEach(() => {
       next();
     },
   );
-});
-
-afterEach(() => {
-  vi.clearAllMocks();
 });
 
 // ----------------------------------------------------------------------------

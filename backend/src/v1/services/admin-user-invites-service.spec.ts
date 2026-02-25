@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import { faker } from '@faker-js/faker';
 import {
   PTRT_ADMIN_ROLE_NAME,
@@ -5,45 +6,26 @@ import {
 } from '../../constants/admin.js';
 import { UserInputError } from '../types/errors.js';
 import { adminUserInvitesService } from './admin-user-invites-service.js';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 
-const mockCreate = jest.fn();
-const mockDelete = jest.fn();
-const mockFindMany = jest.fn();
-const mockOnboardingFindFirst = jest.fn();
-const mockUpdate = jest.fn();
-const mockFindUniqueOrThrow = jest.fn();
-const mockAdminUserFindFirst = jest.fn();
-jest.mock('../prisma/prisma-client', () => ({
-  __esModule: true,
-  default: {
-    admin_user_onboarding: {
-      findMany: (...args) => mockFindMany(...args),
-      delete: (...args) => mockDelete(...args),
-      create: (...args) => mockCreate(...args),
-      update: (...args) => mockUpdate(...args),
-      findFirst: (...args) => mockOnboardingFindFirst(...args),
-      findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
-    },
-    admin_user: {
-      findFirst: (...args) => mockAdminUserFindFirst(...args),
-    },
-  },
-}));
+const mockCreate = prisma.admin_user_onboarding.create;
+const mockDelete = prisma.admin_user_onboarding.delete;
+const mockFindMany = prisma.admin_user_onboarding.findMany;
+const mockOnboardingFindFirst = prisma.admin_user_onboarding.findFirst;
+const mockUpdate = prisma.admin_user_onboarding.update;
+const mockFindUniqueOrThrow = prisma.admin_user_onboarding.findUniqueOrThrow;
+const mockAdminUserFindFirst = prisma.admin_user.findFirst;
+vi.mock('../prisma/prisma-client');
 
-const mockSendEmailWithRetry = jest.fn();
-jest.mock('../../external/services/ches/ches', () => ({
-  __esModule: true,
+const mockSendEmailWithRetry = vi.fn();
+vi.mock('../../external/services/ches/ches', () => ({
   default: {
     sendEmailWithRetry: () => mockSendEmailWithRetry(),
-    generateHtmlEmail: () => jest.fn(),
+    generateHtmlEmail: () => vi.fn(),
   },
 }));
 
 describe('admin-user-invite-service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('createInvite', () => {
     describe('when invitation does not exist', () => {
       it('should send a new invitation', async () => {

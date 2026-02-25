@@ -1,11 +1,12 @@
+import { vi, describe, it, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import router from './code-routes.js';
 import request from 'supertest';
 let app: Application;
 
-const mockGetAllEmployeeCountRanges = jest.fn();
-const mockGetAllNaicsCodes = jest.fn();
-jest.mock('../services/code-service', () => ({
+const mockGetAllEmployeeCountRanges = vi.fn();
+const mockGetAllNaicsCodes = vi.fn();
+vi.mock('../services/code-service', () => ({
   codeService: {
     getAllEmployeeCountRanges: (...args) =>
       mockGetAllEmployeeCountRanges(...args),
@@ -14,7 +15,6 @@ jest.mock('../services/code-service', () => ({
 }));
 describe('code-routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use(router);
   });

@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { downloadFile, deleteFiles, upload } from './s3-api.js';
 import {
@@ -61,10 +61,6 @@ const mockAsyncRetry = vi.fn((fn, options) => fn());
 vi.mock('async-retry', () => ({
   default: (fn, options) => mockAsyncRetry(fn, options),
 }));
-
-afterEach(() => {
-  vi.resetAllMocks();
-});
 
 describe('S3Api', () => {
   describe('downloadFile', () => {

@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants/constants.js';
@@ -81,10 +81,6 @@ describe('public-auth-routes', () => {
     app.use((err, req, res, next) => {
       res.status(400).send({ error: err.message });
     });
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   describe('/callback_business_bceid [GET]', () => {

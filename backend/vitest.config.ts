@@ -9,6 +9,7 @@ export default defineConfig({
           name: 'unit',
           environment: 'node',
           include: ['src/**/*.{test,spec}.ts'],
+          mockReset: true,
         },
       },
       {

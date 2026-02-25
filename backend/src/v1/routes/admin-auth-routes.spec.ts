@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
 import router from './admin-auth-routes.js';
@@ -57,10 +57,6 @@ describe('admin-auth-routes', () => {
     app.use((err, req, res, next) => {
       res.status(400).send({ error: err.message });
     });
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   describe('/callback_azureidir', () => {

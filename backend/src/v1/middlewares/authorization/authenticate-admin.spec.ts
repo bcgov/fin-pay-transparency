@@ -1,15 +1,13 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { authenticateAdmin } from './authenticate-admin.js';
+import prisma from '../../prisma/__mocks__/prisma-client.js';
 
-const mockGetSessionUser = jest.fn();
-jest.mock('../../services/utils-service', () => ({
+vi.mock('../../prisma/prisma-client');
+const mockFindFirst = prisma.admin_user.findFirst;
+
+const mockGetSessionUser = vi.fn();
+vi.mock('../../services/utils-service', () => ({
   utils: { getSessionUser: () => mockGetSessionUser() },
-}));
-
-const mockFindFirst = jest.fn();
-jest.mock('../../prisma/prisma-client', () => ({
-  admin_user: {
-    findFirst: () => mockFindFirst(),
-  },
 }));
 
 describe('authenticateAdmin', () => {
@@ -18,14 +16,13 @@ describe('authenticateAdmin', () => {
   let next: any;
 
   beforeEach(() => {
-    jest.clearAllMocks;
-    jest.resetModules();
+    vi.resetModules();
     req = {};
     res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
     };
-    next = jest.fn();
+    next = vi.fn();
   });
 
   it('should return 401 if no session data', async () => {

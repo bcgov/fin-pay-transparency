@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import request from 'supertest';
@@ -20,31 +21,31 @@ const validSubmissionBody = {
 };
 
 // Mock the module, but only override handleSubmission
-const mockHandleSubmission = jest.fn().mockResolvedValue({});
-jest.mock('../services/file-upload-service', () => {
-  const actualFileUploadService = jest.requireActual(
-    '../services/file-upload-service',
-  );
-  return {
-    ...actualFileUploadService,
-    fileUploadService: {
-      ...actualFileUploadService.fileUploadService,
-      handleSubmission: jest.fn((...args) => mockHandleSubmission(...args)),
-    },
-  };
-});
+const mockHandleSubmission = vi.fn().mockResolvedValue({});
+vi.mock(
+  import('../services/file-upload-service.js'),
+  async (importOriginal) => {
+    const actualFileUploadService = await importOriginal();
+    return {
+      ...actualFileUploadService,
+      fileUploadService: {
+        ...actualFileUploadService.fileUploadService,
+        handleSubmission: vi.fn((...args) => mockHandleSubmission(...args)),
+      },
+    };
+  },
+);
 
-const mockStoreError = jest.fn();
-jest.mock('../services/error-service', () => ({
+const mockStoreError = vi.fn();
+vi.mock('../services/error-service', () => ({
   errorService: {
     storeError: () => mockStoreError(),
-    retrieveErrors: jest.fn(),
+    retrieveErrors: vi.fn(),
   },
 }));
 
 describe('file-upload', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use(bodyParser.json());
     app.use(fileUploadRouter);

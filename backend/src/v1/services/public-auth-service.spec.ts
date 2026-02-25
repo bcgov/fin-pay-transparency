@@ -1,81 +1,64 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import axios from 'axios';
 import jsonwebtoken from 'jsonwebtoken';
-import { config } from '../../config/config.js';
 import * as bceidService from '../../external/services/bceid-service.js';
-import prisma from '../prisma/prisma-client.js';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 import { LogoutReason, publicAuth } from './public-auth-service.js';
 import { utils } from './utils-service.js';
+import type { pay_transparency_user } from '@prisma/client';
+
 //Mock the entire axios module so we never inadvertently make real
 //HTTP calls to remote services
-jest.mock('axios');
+vi.mock('axios');
 
-jest.mock('../prisma/prisma-client', () => {
-  return {
-    company_history: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    pay_transparency_company: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    pay_transparency_user: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
-  };
-});
+vi.mock('../prisma/prisma-client');
+
 //Mock only the renew method in auth-service (for all other methods
 //in this module keep the original implementation)
 
-jest.mock('./public-auth-service', () => {
-  const actualPublicAuth = jest.requireActual('./public-auth-service');
-  const mockedPublicAuth = jest.genMockFromModule(
-    './public-auth-service',
-  ) as any;
-
+vi.mock(import('./public-auth-service.js'), async (importOriginal) => {
+  const actual = await importOriginal();
   const mocked = {
-    ...mockedPublicAuth,
-    publicAuth: Object.create(actualPublicAuth.publicAuth),
+    ...actual,
+    publicAuth: Object.create(actual.publicAuth),
   };
-  mocked.publicAuth.renew = jest.fn((refreshToken) => {});
+  mocked.publicAuth.renew = vi.fn();
   return mocked;
 });
 
-//publicAuth = Object.create(publicAuth);
-
 //Keep a copy of the non-mocked auth-service because certain methods from
-//this module are mocked in some tests byt the original is required for other tests
-const actualAuth = jest.requireActual('./public-auth-service').publicAuth;
+//this module are mocked in some tests but the original is required for other tests
+const actualAuth = (
+  await vi.importActual<typeof import('./public-auth-service.js')>(
+    './public-auth-service.js',
+  )
+).publicAuth;
 
 //In utils-service mock only those methods that make calls to remote services
 //(for all other methods in this module keep the original implementation)
-jest.mock('./utils-service', () => {
-  const actualUtils = jest.requireActual('./utils-service').utils;
+vi.mock(import('./utils-service.js'), async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     utils: {
-      ...actualUtils,
-      getOidcDiscovery: jest.fn(),
-      getKeycloakPublicKey: jest.fn(),
+      ...actual.utils,
+      getOidcDiscovery: vi.fn(),
+      getKeycloakPublicKey: vi.fn(),
     },
   };
 });
 
-jest.mock('../../config/config', () => {
-  const actualConfig = jest.requireActual('../../config/config').config;
+vi.mock(import('../../config/config.js'), async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     config: {
+      ...actual.config,
       get: (key) => {
         const settings = {
           'oidc:clientId': 'clientId',
           'tokenGenerate:issuer': 'issuer',
           'server:frontend': 'server-frontend',
           'tokenGenerate:audience': 'audience',
-          'tokenGenerate:privateKey': actualConfig.get(
+          'tokenGenerate:privateKey': actual.config.get(
             'tokenGenerate:privateKey',
           ),
         };
@@ -83,10 +66,6 @@ jest.mock('../../config/config', () => {
       },
     },
   };
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
 });
 
 describe('isTokenExpired', () => {
@@ -143,7 +122,7 @@ describe('renew', () => {
       //property, but the value of that property isn't important because
       //we're also mocking the HTTP request (see below) that uses the return value
       const mockGetOidcDiscoveryResponse = { token_endpoint: null };
-      (utils.getOidcDiscovery as jest.Mock).mockResolvedValueOnce(
+      vi.mocked(utils.getOidcDiscovery).mockResolvedValueOnce(
         mockGetOidcDiscoveryResponse,
       );
 
@@ -157,7 +136,7 @@ describe('renew', () => {
           id_token: 'new_id_token',
         },
       };
-      (axios.post as jest.Mock).mockResolvedValueOnce(
+      vi.mocked(axios.post).mockResolvedValueOnce(
         mockSuccessfulRefreshTokenResponse,
       );
 
@@ -165,7 +144,7 @@ describe('renew', () => {
       //identify provider
       const dummyRefreshToken = 'old_refresh_token';
 
-      (publicAuth.renew as jest.Mock).mockImplementationOnce(actualAuth.renew);
+      vi.mocked(publicAuth.renew).mockImplementationOnce(actualAuth.renew);
 
       const result = await publicAuth.renew(dummyRefreshToken);
 
@@ -189,7 +168,7 @@ describe('renew', () => {
       //property, but the value of that property isn't important because
       //we're also mocking the HTTP request (see below) that uses the return value
       const mockGetOidcDiscoveryResponse = { token_endpoint: null };
-      (utils.getOidcDiscovery as jest.Mock).mockResolvedValueOnce(
+      vi.mocked(utils.getOidcDiscovery).mockResolvedValueOnce(
         mockGetOidcDiscoveryResponse,
       );
 
@@ -200,7 +179,7 @@ describe('renew', () => {
         message: 'something went wrong',
         response: { data: 'some data' },
       };
-      (axios.post as jest.Mock).mockImplementationOnce((url: string) => {
+      vi.mocked(axios.post).mockImplementationOnce((url: string) => {
         throw mockError;
       });
 
@@ -209,7 +188,7 @@ describe('renew', () => {
       const dummyRefreshToken = 'dummy_refresh_token';
 
       //Use the "actual" auth.renew implementation for this test
-      publicAuth.renew = jest.fn().mockImplementationOnce(actualAuth.renew);
+      publicAuth.renew = vi.fn().mockImplementationOnce(actualAuth.renew);
 
       const result = await publicAuth.renew(dummyRefreshToken);
 
@@ -225,7 +204,7 @@ describe('renew', () => {
       //property, but the value of that property isn't important because
       //we're also mocking the HTTP request (see below) that uses the return value
       const mockGetOidcDiscoveryResponse = { token_endpoint: null };
-      (utils.getOidcDiscovery as jest.Mock).mockResolvedValueOnce(
+      vi.mocked(utils.getOidcDiscovery).mockResolvedValueOnce(
         mockGetOidcDiscoveryResponse,
       );
 
@@ -235,7 +214,7 @@ describe('renew', () => {
       const mockUnexpectedRefreshTokenResponse = {
         unexpectedResponse: 'foobar',
       };
-      (axios.post as jest.Mock).mockResolvedValueOnce(
+      vi.mocked(axios.post).mockResolvedValueOnce(
         mockUnexpectedRefreshTokenResponse,
       );
 
@@ -243,7 +222,7 @@ describe('renew', () => {
       //identify provider
       const dummyRefreshToken = 'old_refresh_token';
 
-      publicAuth.renew = jest.fn().mockImplementationOnce(actualAuth.renew);
+      publicAuth.renew = vi.fn().mockImplementationOnce(actualAuth.renew);
 
       const result = await publicAuth.renew(dummyRefreshToken);
 
@@ -263,7 +242,7 @@ describe('refreshJWT', () => {
         },
       };
       const res: any = {};
-      const next: any = jest.fn();
+      const next: any = vi.fn();
       await publicAuth.refreshJWT(req, res, next);
 
       //The user from the request object should have been deleted
@@ -292,7 +271,7 @@ describe('refreshJWT', () => {
       const originalReq = JSON.parse(JSON.stringify(req));
 
       const res: any = {};
-      const next: any = jest.fn();
+      const next: any = vi.fn();
       await publicAuth.refreshJWT(req, res, next);
 
       //No change to the req parameter
@@ -337,7 +316,7 @@ describe('isValidBackendToken', () => {
       //Internally isValidBackendToken(..) makes a call to utils.getKeycloakPublicKey().  That
       //function depends on a remote service.  To remove this test's dependency on remote services
       //we instead mock utils.getKeycloakPublicKey().
-      utils.getKeycloakPublicKey = jest.fn().mockResolvedValueOnce(secret);
+      utils.getKeycloakPublicKey = vi.fn().mockResolvedValueOnce(secret);
       const backendAccessToken = jsonwebtoken.sign(
         {
           identity_provider: 'bceidbusiness',
@@ -356,11 +335,11 @@ describe('isValidBackendToken', () => {
         },
       };
       const res: any = {
-        status: jest.fn().mockImplementation((val: any) => {
-          return { json: jest.fn() };
+        status: vi.fn().mockImplementation((val: any) => {
+          return { json: vi.fn() };
         }),
       };
-      const next: any = jest.fn();
+      const next: any = vi.fn();
       await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(0);
@@ -374,7 +353,7 @@ describe('isValidBackendToken', () => {
       //Internally isValidBackendToken(..) makes a call to utils.getKeycloakPublicKey().  That
       //function depends on a remote service.  To remove this test's dependency on remote services
       //we instead mock utils.getKeycloakPublicKey().
-      (utils.getKeycloakPublicKey as jest.Mock).mockResolvedValueOnce(secret);
+      vi.mocked(utils.getKeycloakPublicKey).mockResolvedValueOnce(secret);
 
       const backendAccessToken = 'fake token';
 
@@ -388,11 +367,11 @@ describe('isValidBackendToken', () => {
         },
       };
       const res: any = {
-        status: jest.fn().mockImplementation((val: any) => {
-          return { json: jest.fn() };
+        status: vi.fn().mockImplementation((val: any) => {
+          return { json: vi.fn() };
         }),
       };
-      const next: any = jest.fn();
+      const next: any = vi.fn();
       await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(1);
@@ -406,15 +385,15 @@ describe('isValidBackendToken', () => {
       //Internally isValidBackendToken(..) makes a call to utils.getKeycloakPublicKey().  That
       //function depends on a remote service.  To remove this test's dependency on remote services
       //we instead mock utils.getKeycloakPublicKey().
-      (utils.getKeycloakPublicKey as jest.Mock).mockResolvedValueOnce(secret);
+      vi.mocked(utils.getKeycloakPublicKey).mockResolvedValueOnce(secret);
 
       const req: any = {};
       const res: any = {
-        status: jest.fn().mockImplementation((val: any) => {
-          return { json: jest.fn() };
+        status: vi.fn().mockImplementation((val: any) => {
+          return { json: vi.fn() };
         }),
       };
-      const next: any = jest.fn();
+      const next: any = vi.fn();
       await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(1);
@@ -426,15 +405,15 @@ describe('isValidBackendToken', () => {
       //Internally isValidBackendToken(..) makes a call to utils.getKeycloakPublicKey().  That
       //function depends on a remote service.  To remove this test's dependency on remote services
       //we instead mock utils.getKeycloakPublicKey().
-      (utils.getKeycloakPublicKey as jest.Mock).mockReturnValueOnce(null);
+      vi.mocked(utils.getKeycloakPublicKey).mockReturnValueOnce(null);
 
       const req: any = {};
       const res: any = {
-        status: jest.fn().mockImplementation((val: any) => {
-          return { json: jest.fn() };
+        status: vi.fn().mockImplementation((val: any) => {
+          return { json: vi.fn() };
         }),
       };
-      const next: any = jest.fn();
+      const next: any = vi.fn();
       await publicAuth.isValidBackendToken()(req, res, next);
 
       expect(res.status).toHaveBeenCalledTimes(1);
@@ -471,7 +450,7 @@ const mockUserInDB = {
   display_name: 'Test User',
   bceid_user_guid: '727dc60a-95a3-4a83-9b6b-1fb0e1de7cc3', // random guid
   bceid_business_guid: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
-};
+} as pay_transparency_user;
 // Arrange
 const userInfo = {
   jwt: 'validJwt',
@@ -503,12 +482,10 @@ describe('storeUserInfo', () => {
 
   it('should call updatePayTransparencyCompany and updatePayTransparencyUser if session data is present and data is stored in DB', async () => {
     // when findFirst is called on mock, it will return the mock objects.
-    (
-      prisma.pay_transparency_company.findFirst as jest.Mock
-    ).mockResolvedValueOnce(mockCompanyInDB);
-    (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
-      mockUserInDB,
+    prisma.pay_transparency_company.findFirst.mockResolvedValueOnce(
+      mockCompanyInDB,
     );
+    prisma.pay_transparency_user.findFirst.mockResolvedValueOnce(mockUserInDB);
     await publicAuth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
@@ -521,12 +498,9 @@ describe('storeUserInfo', () => {
 
   it('should call createPayTransparencyCompany and createPayTransparencyUser if session data is present and data is not present in DB', async () => {
     // when findFirst is called on mock, it will return the mock objects.
-    (
-      prisma.pay_transparency_company.findFirst as jest.Mock
-    ).mockResolvedValueOnce(undefined);
-    (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
-      undefined,
-    );
+
+    prisma.pay_transparency_company.findFirst.mockResolvedValueOnce(undefined);
+    prisma.pay_transparency_user.findFirst.mockResolvedValueOnce(undefined);
     await publicAuth.storeUserInfo(mockCompanyInSession, userInfo);
 
     expect(prisma.$transaction).toHaveBeenCalled();
@@ -538,13 +512,9 @@ describe('storeUserInfo', () => {
   });
   it('should throw error if db transaction fails', async () => {
     // when findFirst is called on mock, it will return the mock objects.
-    (
-      prisma.pay_transparency_company.findFirst as jest.Mock
-    ).mockResolvedValueOnce(undefined);
-    (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
-      undefined,
-    );
-    (prisma.pay_transparency_user.create as jest.Mock).mockRejectedValue(
+    prisma.pay_transparency_company.findFirst.mockResolvedValueOnce(undefined);
+    prisma.pay_transparency_user.findFirst.mockResolvedValueOnce(undefined);
+    prisma.pay_transparency_user.create.mockRejectedValue(
       'DB transaction failed',
     );
     await expect(publicAuth.storeUserInfo(req, userInfo)).rejects.toThrow(
@@ -561,12 +531,12 @@ describe('storeUserInfo', () => {
 
 describe('handleCallBackBusinessBceid', () => {
   const res: any = {
-    redirect: jest.fn(),
-    status: jest.fn(),
-    json: jest.fn(),
+    redirect: vi.fn(),
+    status: vi.fn(),
+    json: vi.fn(),
   };
   beforeEach(() => {
-    jest.spyOn(jsonwebtoken, 'decode').mockReturnValue({
+    vi.spyOn(jsonwebtoken, 'decode').mockReturnValue({
       bceid_user_guid: '727dc60a-95a3-4a83-9b6b-1fb0e1de7cc3',
       bceid_business_guid: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2',
       display_name: 'Test User',
@@ -582,16 +552,14 @@ describe('handleCallBackBusinessBceid', () => {
   });
 
   it('should Add the company details to session if it is not present  and add it to db', async () => {
-    jest.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
+    vi.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
       return Promise.resolve(mockCompanyInSession);
     });
 
-    (
-      prisma.pay_transparency_company.findFirst as jest.Mock
-    ).mockResolvedValueOnce(mockCompanyInDB);
-    (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
-      mockUserInDB,
+    prisma.pay_transparency_company.findFirst.mockResolvedValueOnce(
+      mockCompanyInDB,
     );
+    prisma.pay_transparency_user.findFirst.mockResolvedValueOnce(mockUserInDB);
     const modifiedReq: any = {
       ...req,
     };
@@ -608,16 +576,14 @@ describe('handleCallBackBusinessBceid', () => {
   });
 
   it('should redirect to error if db call was error', async () => {
-    jest.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
+    vi.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
       return Promise.resolve(mockCompanyInSession);
     });
-    (
-      prisma.pay_transparency_company.findFirst as jest.Mock
-    ).mockResolvedValueOnce(mockCompanyInDB);
-    (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
-      mockUserInDB,
+    prisma.pay_transparency_company.findFirst.mockResolvedValueOnce(
+      mockCompanyInDB,
     );
-    (prisma.pay_transparency_company.update as jest.Mock).mockRejectedValueOnce(
+    prisma.pay_transparency_user.findFirst.mockResolvedValueOnce(mockUserInDB);
+    prisma.pay_transparency_company.update.mockRejectedValueOnce(
       'DB transaction failed',
     );
     const modifiedReq = {
@@ -638,16 +604,14 @@ describe('handleCallBackBusinessBceid', () => {
       ...mockCompanyInSession,
       city: '',
     };
-    jest.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
+    vi.spyOn(bceidService, 'getCompanyDetails').mockImplementation(() => {
       return Promise.resolve(mockCompanyInSessionMissingData);
     });
-    (
-      prisma.pay_transparency_company.findFirst as jest.Mock
-    ).mockResolvedValueOnce(mockCompanyInDB);
-    (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValueOnce(
-      mockUserInDB,
+    prisma.pay_transparency_company.findFirst.mockResolvedValueOnce(
+      mockCompanyInDB,
     );
-    (prisma.pay_transparency_company.update as jest.Mock).mockRejectedValueOnce(
+    prisma.pay_transparency_user.findFirst.mockResolvedValueOnce(mockUserInDB);
+    prisma.pay_transparency_company.update.mockRejectedValueOnce(
       'DB transaction failed',
     );
     const modifiedReq = {

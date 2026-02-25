@@ -1,27 +1,15 @@
+import { vi, describe, it, expect } from 'vitest';
 import { faker } from '@faker-js/faker';
 import {
   externalConsumerService,
   inputDateTimeFormatter,
 } from './external-consumer-service.js';
 import { LocalDateTime, ZoneId } from '@js-joda/core';
+import replica from '../prisma/__mocks__/prisma-client-readonly-replica.js';
+import type { reports_calculated_data_view } from '@prisma/client';
 
-const mockReportsViewFindMany = jest.fn();
-const mockReportsViewCount = jest.fn();
-jest.mock('../prisma/prisma-client-readonly-replica', () => {
-  return {
-    __esModule: true,
-    default: {
-      $replica: () => {
-        return {
-          reports_calculated_data_view: {
-            count: (...args) => mockReportsViewCount(...args),
-            findMany: (...args) => mockReportsViewFindMany(...args),
-          },
-        };
-      },
-    },
-  };
-});
+const mockReportsViewFindMany = replica.reports_calculated_data_view.findMany;
+vi.mock('../prisma/prisma-client-readonly-replica');
 
 const testData = {
   report_id: faker.string.uuid(),
@@ -53,15 +41,11 @@ const testData = {
       calculation_code: faker.number.int(),
     },
   ],
-};
+} as unknown as reports_calculated_data_view;
 
 describe('external-consumer-service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('should return reports with defaults values', async () => {
-    mockReportsViewFindMany.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockResolvedValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination();
     expect(results.page).toBe(0);
     expect(results.records[0]).toStrictEqual({
@@ -98,7 +82,7 @@ describe('external-consumer-service', () => {
   });
 
   it('should parse date strings', async () => {
-    mockReportsViewFindMany.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockResolvedValue([testData]);
     const results = await externalConsumerService.exportDataWithPagination(
       '2024-01-01 11:00',
       '2024-01-01 11:00',
@@ -109,7 +93,7 @@ describe('external-consumer-service', () => {
   });
 
   it('should fail parse invalid date strings', async () => {
-    mockReportsViewFindMany.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockResolvedValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
         '20241-01-01 11:00',
@@ -124,7 +108,7 @@ describe('external-consumer-service', () => {
     }
   });
   it('should fail when endDate is before the startDate', async () => {
-    mockReportsViewFindMany.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockResolvedValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01 11:00',
@@ -140,7 +124,7 @@ describe('external-consumer-service', () => {
   });
 
   it('should fail if startDate is in the future', async () => {
-    mockReportsViewFindMany.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockResolvedValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
         LocalDateTime.now()
@@ -156,7 +140,7 @@ describe('external-consumer-service', () => {
     }
   });
   it('should fail if endDate is in the future', async () => {
-    mockReportsViewFindMany.mockReturnValue([testData]);
+    mockReportsViewFindMany.mockResolvedValue([testData]);
     try {
       await externalConsumerService.exportDataWithPagination(
         '2023-01-01 11:00',
@@ -174,40 +158,41 @@ describe('external-consumer-service', () => {
 
   describe('should default page size to 50', () => {
     it('when page size is not specified', async () => {
-      mockReportsViewFindMany.mockImplementation((args) => {
-        expect(args.take).toBe(50);
-        return [testData];
-      });
+      mockReportsViewFindMany.mockResolvedValue([testData]);
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01 11:00',
         '2024-01-01 11:00',
         0,
         undefined,
       );
+      expect(mockReportsViewFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 50 }),
+      );
     });
+
     it('when page size is greater than max value (50)', async () => {
-      mockReportsViewFindMany.mockImplementation((args) => {
-        expect(args.take).toBe(50);
-        return [testData];
-      });
+      mockReportsViewFindMany.mockResolvedValue([testData]);
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01 11:00',
         '2024-01-01 11:00',
         0,
         100,
       );
+      expect(mockReportsViewFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 50 }),
+      );
     });
 
     it('when page size is less than 1', async () => {
-      mockReportsViewFindMany.mockImplementation((args) => {
-        expect(args.take).toBe(50);
-        return [testData];
-      });
+      mockReportsViewFindMany.mockResolvedValue([testData]);
       await externalConsumerService.exportDataWithPagination(
         '2024-01-01 11:00',
         '2024-01-01 11:00',
         0,
         -1,
+      );
+      expect(mockReportsViewFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 50 }),
       );
     });
   });

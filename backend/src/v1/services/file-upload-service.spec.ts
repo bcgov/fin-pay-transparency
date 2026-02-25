@@ -1,4 +1,5 @@
-import prisma from '../prisma/prisma-client.js';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 import { codeService } from './code-service.js';
 import { fileUploadService } from './file-upload-service.js';
 import { CalculatedAmount } from './report-calc-service.js';
@@ -6,14 +7,12 @@ import { enumReportStatus } from './report-service.js';
 import { utils } from './utils-service.js';
 import { SUBMISSION_ROW_COLUMNS } from './validate-service.js';
 import { createSampleRecord } from './validate-service.spec.js';
-const { mockRequest } = require('mock-req-res');
-
-jest.mock('./report-service', () => ({
-  ...jest.requireActual('./report-service'),
-  reportService: {
-    ...jest.requireActual('./report-service').reportService,
-  },
-}));
+import type {
+  pay_transparency_company,
+  pay_transparency_report,
+  pay_transparency_user,
+} from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
 const MOCK_CALCULATION_CODES = {
   mock_calculation_code_1: 'calculation_id_1',
@@ -37,58 +36,16 @@ const mockValidSubmission = {
   rows: [Object.keys(mockRecord), Object.values(mockRecord)],
 };
 
-jest.mock('./file-upload-service', () => {
-  const actual = jest.requireActual('./file-upload-service');
-  const mocked = jest.createMockFromModule('./file-upload-service') as any;
+vi.mock('./utils-service');
+vi.mock('./code-service');
 
-  return {
-    ...mocked,
-    ...actual,
-    fileUploadService: {
-      ...mocked.fileUploadService,
-      ...actual.fileUploadService,
-    },
-  };
-});
-const actualFileUploadService = jest.requireActual(
-  './file-upload-service',
-).fileUploadService;
-
-jest.mock('./utils-service');
-jest.mock('./code-service');
-(codeService.getAllCalculationCodesAndIds as jest.Mock).mockResolvedValue(
-  MOCK_CALCULATION_CODES,
-);
-
-afterEach(() => {
-  jest.clearAllMocks();
+beforeEach(() => {
+  vi.mocked(codeService.getAllCalculationCodesAndIds).mockResolvedValue(
+    MOCK_CALCULATION_CODES,
+  );
 });
 
-jest.mock('../prisma/prisma-client', () => {
-  return {
-    pay_transparency_company: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    pay_transparency_user: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    pay_transparency_report: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    pay_transparency_calculated_data: {
-      findMany: jest.fn(),
-      createMany: jest.fn(),
-      update: jest.fn(),
-    },
-    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
-  };
-});
+vi.mock('../prisma/prisma-client');
 
 const mockCompanyInDB = {
   company_id: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
@@ -101,13 +58,13 @@ const mockCompanyInDB = {
   postal_code: 'V8V 4K9',
   create_date: new Date(),
   update_date: new Date(),
-};
+} as pay_transparency_company;
 const mockUserInDB = {
   user_id: '727dc60a-95a3-4a83-9b6b-1fb0e1de7cc3', // random guid
   display_name: 'Test User',
   bceid_user_guid: '727dc60a-95a3-4a83-9b6b-1fb0e1de7cc3', // random guid
   bceid_business_guid: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
-};
+} as pay_transparency_user;
 const mockUserInfo = {
   jwt: 'validJwt',
   _json: {
@@ -131,29 +88,27 @@ describe('handleSubmission', () => {
 });
 
 describe('saveSubmissionAsReport', () => {
-  (prisma.pay_transparency_company.findFirst as jest.Mock).mockResolvedValue(
-    mockCompanyInDB,
-  );
-  (prisma.pay_transparency_user.findFirst as jest.Mock).mockResolvedValue(
-    mockUserInDB,
-  );
-
-  (utils.getSessionUser as jest.Mock).mockReturnValue(mockUserInfo);
+  beforeEach(() => {
+    prisma.pay_transparency_company.findFirst.mockResolvedValue(
+      mockCompanyInDB,
+    );
+    prisma.pay_transparency_user.findFirst.mockResolvedValue(mockUserInDB);
+  });
+  vi.mocked(utils.getSessionUser).mockReturnValue(mockUserInfo);
 
   describe("when the report isn't yet in the database", () => {
     it('saves a new draft report', async () => {
       const existingReport = null;
       const newReport = {
-        reportId: '1',
-        revision: 1,
+        report_id: '1',
+        revision: Decimal(1),
         report_status: enumReportStatus.Draft,
-      };
-      (
-        prisma.pay_transparency_report.findFirst as jest.Mock
-      ).mockResolvedValueOnce(existingReport);
-      (
-        prisma.pay_transparency_report.create as jest.Mock
-      ).mockResolvedValueOnce(newReport);
+      } as pay_transparency_report;
+
+      prisma.pay_transparency_report.findFirst.mockResolvedValueOnce(
+        existingReport,
+      );
+      prisma.pay_transparency_report.create.mockResolvedValueOnce(newReport);
       await fileUploadService.saveSubmissionAsReport(
         mockValidSubmission,
         mockUserInfo,
@@ -167,14 +122,15 @@ describe('saveSubmissionAsReport', () => {
   describe('when draft report already exists', () => {
     it('updated the existing report', async () => {
       const existingReport = {
-        reportId: '1',
-        revision: 1,
+        report_id: '1',
+        revision: Decimal(1),
         report_status: enumReportStatus.Draft,
-        reporting_year: new Date().getFullYear(),
-      };
-      (
-        prisma.pay_transparency_report.findFirst as jest.Mock
-      ).mockResolvedValueOnce(existingReport);
+        reporting_year: Decimal(new Date().getFullYear()),
+      } as pay_transparency_report;
+
+      prisma.pay_transparency_report.findFirst.mockResolvedValueOnce(
+        existingReport,
+      );
       await fileUploadService.saveSubmissionAsReport(
         mockValidSubmission,
         mockUserInfo,
@@ -184,9 +140,8 @@ describe('saveSubmissionAsReport', () => {
       // Confirm that the database fetch of the existing report
       // filters by all the fields that are unique to a draft report
       // (company_id, user_id, reporting_year, report_status).
-      const existingReportFilter = (
-        prisma.pay_transparency_report.findFirst as jest.Mock
-      ).mock.calls[0][0].where;
+      const existingReportFilter =
+        prisma.pay_transparency_report.findFirst.mock.calls[0][0].where;
       expect(existingReportFilter).toHaveProperty('company_id');
       expect(existingReportFilter).toHaveProperty('user_id');
       expect(existingReportFilter.reporting_year).toBe(
@@ -214,13 +169,14 @@ describe('saveReportCalculations', () => {
     });
 
     it('saves the calculations to new records', async () => {
-      (
-        prisma.pay_transparency_calculated_data.findMany as jest.Mock
-      ).mockResolvedValue(existingCalculatedData);
-      (
-        prisma.pay_transparency_calculated_data.createMany as jest.Mock
-      ).mockResolvedValue(null);
-      (utils.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
+      prisma.pay_transparency_calculated_data.findMany.mockResolvedValue(
+        existingCalculatedData,
+      );
+
+      prisma.pay_transparency_calculated_data.createMany.mockResolvedValue(
+        null,
+      );
+      vi.mocked(utils.updateManyUnsafe).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(
         mockCalculatedAmounts,
         reportId,
@@ -250,13 +206,13 @@ describe('saveReportCalculations', () => {
     });
 
     it('updates the existing calculated data records', async () => {
-      (
-        prisma.pay_transparency_calculated_data.findMany as jest.Mock
-      ).mockResolvedValue(existingCalculatedData);
-      (
-        prisma.pay_transparency_calculated_data.createMany as jest.Mock
-      ).mockResolvedValue(null);
-      (utils.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
+      prisma.pay_transparency_calculated_data.findMany.mockResolvedValue(
+        existingCalculatedData,
+      );
+      prisma.pay_transparency_calculated_data.createMany.mockResolvedValue(
+        null,
+      );
+      vi.mocked(utils.updateManyUnsafe).mockResolvedValue(null);
       await fileUploadService.saveReportCalculations(
         mockCalculatedAmounts,
         reportId,
@@ -278,13 +234,14 @@ describe('saveReportCalculations', () => {
     ];
 
     it('throws an error', async () => {
-      (
-        prisma.pay_transparency_calculated_data.findMany as jest.Mock
-      ).mockResolvedValue(existingCalculatedData);
-      (
-        prisma.pay_transparency_calculated_data.createMany as jest.Mock
-      ).mockResolvedValue(null);
-      (utils.updateManyUnsafe as jest.Mock).mockResolvedValue(null);
+      prisma.pay_transparency_calculated_data.findMany.mockResolvedValue(
+        existingCalculatedData,
+      );
+
+      prisma.pay_transparency_calculated_data.createMany.mockResolvedValue(
+        null,
+      );
+      vi.mocked(utils.updateManyUnsafe).mockResolvedValue(null);
       await expect(
         fileUploadService.saveReportCalculations(
           mockCalculatedAmounts,

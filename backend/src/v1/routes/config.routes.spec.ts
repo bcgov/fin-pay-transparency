@@ -1,12 +1,13 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
 import { router } from './config-routes.js';
 
 let app: Application;
 
-const mockConfigGet = jest.fn();
+const mockConfigGet = vi.fn();
 
-jest.mock('../../config/config', () => ({
+vi.mock('../../config/config', () => ({
   config: {
     get: (key) => mockConfigGet(key),
   },

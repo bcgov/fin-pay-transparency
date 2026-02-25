@@ -1,73 +1,39 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { SSO } from './sso-service.js';
-import { admin_user } from '@prisma/client';
+import type { admin_user } from '@prisma/client';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
 } from '../../constants/admin.js';
+import prisma from '../prisma/__mocks__/prisma-client.js';
+import axios from 'axios';
 
-const mockAxiosGet = jest.fn();
-const mockAxiosPost = jest.fn();
-const mockAxiosDelete = jest.fn();
-const mockAxiosCreate = jest.fn((args) => ({
-  get: () => mockAxiosGet(),
-  post: (...args) => mockAxiosPost(...args),
-  delete: (...args) => mockAxiosDelete(...args),
-}));
-jest.mock('axios', () => ({
-  ...jest.requireActual('axios'),
-  post: () => mockAxiosPost(),
-  create: (args) => mockAxiosCreate(args),
-}));
+vi.mock('axios');
+const mockAxiosGet = vi.mocked(axios.get);
+const mockAxiosPost = vi.mocked(axios.post);
+const mockAxiosDelete = vi.mocked(axios.delete);
+const mockAxiosCreate = vi.mocked(axios.create);
 
-const mockFindMany = jest.fn();
-const mockFindUniqueOrThrow = jest.fn();
-const mockUpdate = jest.fn();
-const mockCreateHistory = jest.fn();
-const mockPrisma = {
-  admin_user: {
-    findUniqueOrThrow: (...args) => {
-      return mockFindUniqueOrThrow(...args);
+vi.mock('../prisma/prisma-client');
+const mockFindMany = prisma.admin_user.findMany;
+const mockFindUniqueOrThrow = prisma.admin_user.findUniqueOrThrow;
+const mockUpdate = prisma.admin_user.update;
+const mockCreateHistory = prisma.admin_user_history.create;
+
+const mockStoreUserInfoWithHistory = vi.fn();
+vi.mock(import('../services/admin-auth-service.js'), async (importOriginal) => {
+  const actualAdminAuth = await importOriginal();
+  return {
+    ...actualAdminAuth,
+    adminAuth: {
+      ...actualAdminAuth.adminAuth,
+      storeUserInfoWithHistory: () => mockStoreUserInfoWithHistory(),
     },
-    update: (...args) => mockUpdate(...args),
-    findMany: (...args) => mockFindMany(...args),
-  },
-  admin_user_history: {
-    create: (...args) => mockCreateHistory(...args),
-  },
-};
-
-jest.mock('../prisma/prisma-client', () => ({
-  admin_user: {
-    findMany: (...args) => mockFindMany(...args),
-    findUniqueOrThrow: (...args) => {
-      return mockFindUniqueOrThrow(...args);
-    },
-  },
-  $transaction: jest.fn().mockImplementation((fn) => fn(mockPrisma)),
-}));
-
-const mockStoreUserInfoWithHistory = jest.fn();
-jest.mock('../services/admin-auth-service', () => {
-  const actualAdminAuth = jest.requireActual(
-    '../services/admin-auth-service',
-  ) as any;
-  const mockedAdminAuth = jest.createMockFromModule(
-    '../services/admin-auth-service',
-  ) as any;
-
-  const mocked = {
-    ...mockedAdminAuth,
-    adminAuth: { ...actualAdminAuth.adminAuth },
-  };
-
-  mocked.adminAuth.storeUserInfoWithHistory = () =>
-    mockStoreUserInfoWithHistory();
-
-  return mocked;
+  } as unknown as typeof actualAdminAuth;
 });
 
-const mockDBAdminUsers: Partial<admin_user>[] = [
+const mockDBAdminUsers = [
   {
     admin_user_id: faker.internet.username(),
     preferred_username: faker.internet.username(),
@@ -80,11 +46,11 @@ const mockDBAdminUsers: Partial<admin_user>[] = [
     display_name: faker.person.fullName(),
     assigned_roles: PTRT_USER_ROLE_NAME,
   },
-];
+] as admin_user[];
 
 describe('sso-service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockAxiosCreate.mockReturnThis();
   });
   it('should initialize SSO client', async () => {
     mockAxiosPost.mockResolvedValue({
@@ -94,8 +60,7 @@ describe('sso-service', () => {
     expect(mockAxiosPost).toHaveBeenCalledTimes(1);
 
     const { headers } = mockAxiosCreate.mock.calls[0][0];
-
-    expect(headers.Authorization).toBe('Bearer jwt');
+    expect(headers).toMatchObject({ Authorization: 'Bearer jwt' });
   });
 
   describe('getUsers', () => {
@@ -161,7 +126,7 @@ describe('sso-service', () => {
           {
             admin_user_id: faker.string.uuid(), // add a bonus user that should not be there
             preferred_username: faker.internet.username(),
-          },
+          } as admin_user,
         ])
         .mockResolvedValue(mockDBAdminUsers);
 
@@ -179,9 +144,9 @@ describe('sso-service', () => {
       client = await SSO.init();
     });
     it('should convert the list of users into an object for the frontend', async () => {
-      jest
-        .spyOn(client, 'getUsers')
-        .mockResolvedValueOnce(mockDBAdminUsers as admin_user[]);
+      vi.spyOn(client, 'getUsers').mockResolvedValueOnce(
+        mockDBAdminUsers as admin_user[],
+      );
       const users = await client.getUsersForDisplay();
       expect(users).toStrictEqual([
         {
@@ -240,10 +205,10 @@ describe('sso-service', () => {
       describe('username is not set', () => {
         it('should throw an error', async () => {
           mockFindUniqueOrThrow.mockResolvedValue({
-            idirUserGuid: faker.string.uuid(),
-            displayName: faker.internet.username(),
-            assigned_roles: [],
-          });
+            idir_user_guid: faker.string.uuid(),
+            display_name: faker.internet.username(),
+            assigned_roles: '',
+          } as admin_user);
           const userId = faker.string.uuid();
           await expect(
             client.assignRoleToUser(userId, 'PTRT-ADMIN'),
@@ -258,11 +223,11 @@ describe('sso-service', () => {
           const userId = faker.string.uuid();
           const user = {
             admin_user_id: userId,
-            idirUserGuid: faker.string.uuid(),
+            idir_user_guid: faker.string.uuid(),
             preferred_username: faker.internet.username(),
-            displayName: faker.internet.username(),
+            display_name: faker.internet.username(),
             assigned_roles: 'PTRT-USER',
-          };
+          } as admin_user;
           mockFindUniqueOrThrow.mockResolvedValue(user);
           await client.assignRoleToUser(userId, 'PTRT-ADMIN');
           expect(mockAxiosDelete).not.toHaveBeenCalled();
@@ -282,11 +247,11 @@ describe('sso-service', () => {
           const userId = faker.string.uuid();
           const user = {
             admin_user_id: userId,
-            idirUserGuid: faker.string.uuid(),
+            idir_user_guid: faker.string.uuid(),
             preferred_username: faker.internet.username(),
-            displayName: faker.internet.username(),
+            display_name: faker.internet.username(),
             assigned_roles: 'PTRT-ADMIN,PTRT-USER',
-          };
+          } as admin_user;
           mockFindUniqueOrThrow.mockResolvedValue(user);
           await client.assignRoleToUser(userId, 'PTRT-USER');
           expect(mockAxiosDelete).toHaveBeenCalledWith(
@@ -308,8 +273,8 @@ describe('sso-service', () => {
         mockUpdate.mockImplementationOnce(() => {
           throw new Error('User update failed');
         });
-        const mockPost = jest.fn();
-        const mockDelete = jest.fn();
+        const mockPost = vi.fn();
+        const mockDelete = vi.fn();
         const client = new SSO({
           post: (...args) => mockPost(...args),
           delete: (...args) => mockDelete(...args),
@@ -318,11 +283,11 @@ describe('sso-service', () => {
         const userId = faker.string.uuid();
         const user = {
           admin_user_id: userId,
-          idirUserGuid: faker.string.uuid(),
+          idir_user_guid: faker.string.uuid(),
           preferred_username: faker.internet.username(),
-          displayName: faker.internet.username(),
+          display_name: faker.internet.username(),
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
-        };
+        } as admin_user;
 
         mockFindUniqueOrThrow.mockResolvedValue(user);
         await expect(
@@ -379,10 +344,10 @@ describe('sso-service', () => {
       describe('username is not set', () => {
         it('should throw an error', async () => {
           mockFindUniqueOrThrow.mockResolvedValue({
-            idirUserGuid: faker.string.uuid(),
-            displayName: faker.internet.username(),
-            assigned_roles: [],
-          });
+            idir_user_guid: faker.string.uuid(),
+            display_name: faker.internet.username(),
+            assigned_roles: '',
+          } as admin_user);
           const userId = faker.string.uuid();
           await expect(
             client.deleteUser(userId, faker.string.uuid()),
@@ -398,11 +363,11 @@ describe('sso-service', () => {
         const modifiedByUserId = faker.string.uuid();
         const user = {
           admin_user_id: userId,
-          idirUserGuid: faker.string.uuid(),
+          idir_user_guid: faker.string.uuid(),
           preferred_username: faker.internet.username(),
-          displayName: faker.internet.username(),
+          display_name: faker.internet.username(),
           assigned_roles: 'PTRT-ADMIN,PTRT-USER',
-        };
+        } as admin_user;
         mockFindUniqueOrThrow.mockResolvedValue(user);
         await client.deleteUser(userId, modifiedByUserId);
         expect(mockAxiosDelete).toHaveBeenCalledTimes(2);

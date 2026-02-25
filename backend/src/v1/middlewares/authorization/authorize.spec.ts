@@ -1,21 +1,18 @@
+import { vi, describe, it, expect } from 'vitest';
 import { RoleType } from '../../types/users.js';
 import { authorize as useAuthorize } from './authorize.js';
-const mockGetSessionUser = jest.fn();
-jest.mock('../../services/utils-service', () => ({
+const mockGetSessionUser = vi.fn();
+vi.mock('../../services/utils-service', () => ({
   utils: {
     getSessionUser: () => mockGetSessionUser(),
   },
 }));
 describe('authorize', () => {
-  const mockJson = jest.fn();
-  const mockStatus = jest.fn().mockReturnValue({ json: mockJson });
-  const mockNext = jest.fn();
+  const mockJson = vi.fn();
+  const mockStatus = vi.fn(() => ({ json: mockJson }));
+  const mockNext = vi.fn();
   const mockRequest = {} as any;
   const mockResponse = { status: mockStatus } as any;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should return 401 if user is not authorized', async () => {
     mockGetSessionUser.mockReturnValue({

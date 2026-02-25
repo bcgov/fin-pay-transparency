@@ -1,11 +1,12 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import router from './analytic-routes.js';
 import request from 'supertest';
 let app: Application;
 
-const mockGetEmbedInfo = jest.fn();
-jest.mock('../services/analytic-service', () => {
-  const actual = jest.requireActual('../services/analytic-service');
+const mockGetEmbedInfo = vi.fn();
+vi.mock(import('../services/analytic-service.js'), async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     ...actual,
     analyticsService: {
@@ -17,7 +18,6 @@ jest.mock('../services/analytic-service', () => {
 
 describe('analytics', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.set('query parser', 'extended');
     app.use(router);

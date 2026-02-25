@@ -1,9 +1,10 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { getCompanyDetails } from './bceid-service.js';
 import soapRequest from 'easy-soap-request';
 import { config } from '../../config/config.js';
 
-jest.mock('easy-soap-request'); // Mock the soapRequest function
-jest.mock('../../config/config'); // Mock the config module
+vi.mock(import('easy-soap-request')); // Mock the soapRequest function
+vi.mock(import('../../config/config.js')); // Mock the config module
 
 // Define a mock response for the soapRequest function
 const mockSoapResponse = {
@@ -51,8 +52,8 @@ const mockSoapResponse = {
 };
 
 describe('getCompanyDetails', () => {
-  afterAll(() => {
-    config.get.mockRestore();
+  beforeEach(() => {
+    vi.mocked(config.get).mockReset();
   });
 
   it('should return company details on successful SOAP request', async () => {

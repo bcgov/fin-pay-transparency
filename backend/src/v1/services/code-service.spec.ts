@@ -1,23 +1,13 @@
-import prisma from '../prisma/prisma-client.js';
+import { vi, describe, it, expect } from 'vitest';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 import { codeService } from './code-service.js';
+import type {
+  calculation_code,
+  employee_count_range,
+  naics_code,
+} from '@prisma/client';
 
-jest.mock('../prisma/prisma-client', () => {
-  return {
-    employee_count_range: {
-      findMany: jest.fn(),
-    },
-    naics_code: {
-      findMany: jest.fn(),
-    },
-    calculation_code: {
-      findMany: jest.fn(),
-    },
-  };
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
+vi.mock('../prisma/prisma-client');
 
 describe('getAllEmployeeCountRanges', () => {
   it('returns an array of code values', async () => {
@@ -34,11 +24,9 @@ describe('getAllEmployeeCountRanges', () => {
         employee_count_range_id: '5f26cc90-7960-4e14-9700-87ecd75f0a0f',
         employee_count_range: '500+',
       },
-    ];
+    ] as employee_count_range[];
 
-    (prisma.employee_count_range.findMany as jest.Mock).mockResolvedValue(
-      mockDBResp,
-    );
+    prisma.employee_count_range.findMany.mockResolvedValue(mockDBResp);
 
     // Expect the first call to the function to cause the implementation
     // provide a response by fetching data from a database (also confirm the
@@ -79,9 +67,9 @@ describe('getAllNaicsCodes', () => {
         naics_code: '3',
         naics_label: 'test3',
       },
-    ];
+    ] as naics_code[];
 
-    (prisma.naics_code.findMany as jest.Mock).mockResolvedValue(mockDBResp);
+    prisma.naics_code.findMany.mockResolvedValue(mockDBResp);
 
     // Expect the first call to the function to cause the implementation
     // provide a response by fetching data from a database (also confirm the
@@ -122,16 +110,14 @@ describe('getAllCalculationCodesAndIds', () => {
         calculation_code_id: '1f689572-8d55-456f-ac91-3fe86e059398',
         calculation_code: 'MEAN_OT_PAY_DIFF_X',
       },
-    ];
+    ] as calculation_code[];
     const expectedResult = {
       MEAN_HOURLY_PAY_DIFF_M: '50da3659-fe7c-4d2d-9fcf-58b653a2bd00',
       MEDIAN_HOURLY_PAY_DIFF_W: '59ad14f8-6d9a-41c4-a9a9-288150e0e69b',
       MEAN_OT_PAY_DIFF_X: '1f689572-8d55-456f-ac91-3fe86e059398',
     };
 
-    (prisma.calculation_code.findMany as jest.Mock).mockResolvedValue(
-      mockDBResp,
-    );
+    prisma.calculation_code.findMany.mockResolvedValue(mockDBResp);
 
     // Expect the first call to the function to cause the implementation
     // provide a response by fetching data from a database (also confirm the

@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import request from 'supertest';
@@ -5,9 +6,9 @@ import { PayTransparencyUserError } from '../services/file-upload-service.js';
 import { UserInputError } from '../types/errors.js';
 import router from './admin-report-routes.js';
 
-jest.mock('../services/utils-service', () => ({
+vi.mock(import('../services/utils-service.js'), async (importOriginal) => ({
   utils: {
-    ...jest.requireActual('../services/utils-service').utils,
+    ...(await importOriginal()).utils,
     getSessionUser: () => ({
       idir_username: 'SOME_USR',
       _json: {
@@ -55,30 +56,30 @@ const mockReport = {
   },
 };
 
-const mockSearchReport = jest.fn().mockResolvedValue({ reports: [mockReport] });
-const mockChangeReportLockStatus = jest.fn();
-const mockUpdateReportReportingYear = jest.fn();
-const mockWithdrawReport = jest.fn();
-const mockGetReportAdminActionHistory = jest.fn();
-jest.mock('../services/admin-report-service', () => ({
-  adminReportService: {
-    ...jest.requireActual('../services/admin-report-service')
-      .adminReportService,
-    searchReport: (...args) => mockSearchReport(...args),
-    changeReportLockStatus: (...args) => mockChangeReportLockStatus(...args),
-    updateReportReportingYear: (...args) =>
-      mockUpdateReportReportingYear(...args),
-    withdrawReport: (...args) => mockWithdrawReport(...args),
-    getReportPdf: (...args) => mockGetReportPdf(...args),
-    getReportAdminActionHistory: (...args) =>
-      mockGetReportAdminActionHistory(...args),
-  },
-}));
-const mockGetReportPdf = jest
-  .fn()
-  .mockResolvedValue(Buffer.from('mock pdf', 'utf8'));
-const mockGetReportFileName = jest.fn().mockResolvedValue('report.pdf');
-jest.mock('../services/report-service', () => ({
+const mockSearchReport = vi.fn((...args) => ({ reports: [mockReport] }));
+const mockChangeReportLockStatus = vi.fn();
+const mockUpdateReportReportingYear = vi.fn();
+const mockWithdrawReport = vi.fn();
+const mockGetReportAdminActionHistory = vi.fn();
+vi.mock(
+  import('../services/admin-report-service.js'),
+  async (importOriginal) => ({
+    adminReportService: {
+      ...(await importOriginal()).adminReportService,
+      searchReport: (...args) => mockSearchReport(...args),
+      changeReportLockStatus: (...args) => mockChangeReportLockStatus(...args),
+      updateReportReportingYear: (...args) =>
+        mockUpdateReportReportingYear(...args),
+      withdrawReport: (...args) => mockWithdrawReport(...args),
+      getReportPdf: (...args) => mockGetReportPdf(...args),
+      getReportAdminActionHistory: (...args) =>
+        mockGetReportAdminActionHistory(...args),
+    },
+  }),
+);
+const mockGetReportPdf = vi.fn((...args) => Buffer.from('mock pdf', 'utf8'));
+const mockGetReportFileName = vi.fn((...args) => 'report.pdf');
+vi.mock('../services/report-service', () => ({
   reportService: {
     getReportPdf: (...args) => mockGetReportPdf(...args),
     getReportFileName: (...args) => mockGetReportFileName(...args),
@@ -88,7 +89,6 @@ jest.mock('../services/report-service', () => ({
 let app: Application;
 describe('admin-report-routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use(bodyParser.json());
     app.use(router);
