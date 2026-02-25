@@ -4,8 +4,8 @@
   "type": "module",
   "main": "dist/src/server.js",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.985.0",
-    "@aws-sdk/lib-storage": "^3.985.0",
+    "@aws-sdk/client-s3": "^3.997.0",
+    "@aws-sdk/lib-storage": "^3.997.0",
     "@azure/msal-node": "^3.6.0",
     "@js-joda/core": "^5.6.1",
     "@js-joda/locale_en": "^4.8.11",
