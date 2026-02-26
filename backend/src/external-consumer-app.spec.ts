@@ -1,21 +1,22 @@
-import { app } from './app';
+import { vi, describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { externalConsumerApp } from './external-consumer-app';
+import { externalConsumerApp } from './external-consumer-app.js';
 
-const mockExportDataWithPagination = jest.fn();
-jest.mock('./v1/services/external-consumer-service', () => ({
+const mockExportDataWithPagination = vi.fn();
+vi.mock('./v1/services/external-consumer-service', () => ({
   externalConsumerService: {
     exportDataWithPagination: (...args) =>
       mockExportDataWithPagination(...args),
   },
 }));
 
-jest.mock('./config', () => {
-  const actualConfig = jest.requireActual('./config').config;
-  const mockedConfig = (jest.genMockFromModule('./config') as any).config;
+vi.mock(import('./config/config.js'), async (importOriginal) => {
+  const actualModule = await importOriginal();
+  const actualConfig = actualModule.config;
+
   return {
     config: {
-      get: jest.fn().mockImplementation((key) => {
+      get: vi.fn((key) => {
         return {
           'oidc:clientSecret': 'secret',
           'server:sessionPath': 'session-path',
@@ -38,10 +39,6 @@ jest.mock('./config', () => {
 });
 
 describe('external-consumer-app', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('/api/v1 GET', () => {
     describe('with API Key', () => {
       it('should get reports when api key is valid', async () => {
@@ -60,7 +57,8 @@ describe('external-consumer-app', () => {
     });
     describe('without API Key', () => {
       it('should fail when api key is not available', async () => {
-        const response = await request(externalConsumerApp).get('/api/v1/reports');
+        const response =
+          await request(externalConsumerApp).get('/api/v1/reports');
         expect(response.status).toBe(400);
       });
     });

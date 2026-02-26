@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { downloadFile } from '../../external/services/s3-api';
+import { downloadFile } from '../../external/services/s3-api.js';
 
 const router = Router();
 router.get('/:id', async (req, res) => {

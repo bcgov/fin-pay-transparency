@@ -7,18 +7,18 @@ import {
   type _Object,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import prisma from '../../v1/prisma/prisma-client';
+import prisma from '../../v1/prisma/prisma-client.js';
 import os from 'node:os';
 import fs from 'node:fs';
 import retry from 'async-retry';
 import PATH from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
-import { logger } from '../../logger';
+import { logger } from '../../logger.js';
 import {
   APP_ANNOUNCEMENTS_FOLDER,
   S3_BUCKET,
   S3_OPTIONS,
-} from '../../constants/admin';
+} from '../../constants/admin.js';
 
 /*  */
 

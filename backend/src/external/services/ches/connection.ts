@@ -1,5 +1,5 @@
 import axios from 'axios';
-import oauth from 'axios-oauth-client';
+import * as oauth from 'axios-oauth-client';
 import tokenProvider from 'axios-token-interceptor';
 
 class ClientConnection {
@@ -15,20 +15,19 @@ class ClientConnection {
         axios.create(),
         this.tokenUrl,
         clientId,
-        clientSecret
+        clientSecret,
       );
       this.axios.interceptors.request.use(
         tokenProvider({
           getToken: async () => {
             const data = await this.clientCreds('');
             return data.access_token;
-          }
-        })
+          },
+        }),
       );
     } else {
       this.axios = axiosInstance;
     }
-
   }
 
   getAxios() {

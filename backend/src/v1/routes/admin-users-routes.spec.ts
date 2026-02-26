@@ -1,29 +1,30 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './admin-users-routes';
+import router from './admin-users-routes.js';
 import bodyParser from 'body-parser';
 import { faker } from '@faker-js/faker';
 
-const mockGetUsersForDisplay = jest.fn();
-const mockInitSSO = jest.fn();
-jest.mock('../services/sso-service', () => ({
+const mockGetUsersForDisplay = vi.fn();
+const mockInitSSO = vi.fn();
+vi.mock('../services/sso-service', () => ({
   SSO: {
     init: () => mockInitSSO(),
   },
 }));
 
-const mockGetSessionUser = jest.fn();
-jest.mock('../services/utils-service', () => ({
+const mockGetSessionUser = vi.fn();
+vi.mock('../services/utils-service', () => ({
   utils: {
     getSessionUser: () => mockGetSessionUser(),
   },
 }));
 
-jest.mock('../middlewares/authorization/authorize', () => ({
+vi.mock('../middlewares/authorization/authorize', () => ({
   authorize: () => (req, res, next) => next(),
 }));
 
-jest.mock('../middlewares/authorization/authenticate-admin', () => ({
+vi.mock('../middlewares/authorization/authenticate-admin', () => ({
   authenticateAdmin:
     (...args) =>
     (req, res, next) => {
@@ -36,7 +37,6 @@ jest.mock('../middlewares/authorization/authenticate-admin', () => ({
 let app: Application;
 describe('admin-users-router', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.set('query parser', 'extended');
     app.use(bodyParser.json());
@@ -129,7 +129,7 @@ describe('admin-users-router', () => {
         describe('validation passes', () => {
           it('200 - success assign role', () => {
             mockInitSSO.mockReturnValue({
-              assignRoleToUser: jest.fn(),
+              assignRoleToUser: vi.fn(),
             });
             return request(app)
               .patch('/1')
@@ -152,7 +152,7 @@ describe('admin-users-router', () => {
 
         it('200 - success delete user', () => {
           mockInitSSO.mockReturnValue({
-            deleteUser: jest.fn(),
+            deleteUser: vi.fn(),
           });
           return request(app).delete('/1').expect(200);
         });

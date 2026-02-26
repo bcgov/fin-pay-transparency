@@ -13,23 +13,23 @@ import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
 import { resolve } from 'node:path';
 import prom from 'prom-client';
 import fileSessionStore from 'session-file-store';
-import { config } from './config';
-import { logger } from './logger';
-import prisma from './v1/prisma/prisma-client';
-import announcementRouter from './v1/routes/announcement-routes';
-import codeRouter from './v1/routes/code-routes';
-import { router as configRouter } from './v1/routes/config-routes';
-import { fileUploadRouter } from './v1/routes/file-upload-routes';
-import authRouter from './v1/routes/public-auth-routes';
-import { reportRouter } from './v1/routes/report-routes';
-import resourcesRoutes from './v1/routes/resources-routes';
-import userRouter from './v1/routes/user-info-routes';
+import { config } from './config/config.js';
+import { logger } from './logger.js';
+import prisma from './v1/prisma/prisma-client.js';
+import announcementRouter from './v1/routes/announcement-routes.js';
+import codeRouter from './v1/routes/code-routes.js';
+import { router as configRouter } from './v1/routes/config-routes.js';
+import { fileUploadRouter } from './v1/routes/file-upload-routes.js';
+import authRouter from './v1/routes/public-auth-routes.js';
+import { reportRouter } from './v1/routes/report-routes.js';
+import resourcesRoutes from './v1/routes/resources-routes.js';
+import userRouter from './v1/routes/user-info-routes.js';
 
-import { publicAuth } from './v1/services/public-auth-service';
-import { utils } from './v1/services/utils-service';
+import { publicAuth } from './v1/services/public-auth-service.js';
+import { utils } from './v1/services/utils-service.js';
 
-import { run as startJobs } from './schedulers/run.all';
-startJobs();
+import { runJobs, JOB_CONFIGS } from './schedulers/jobs.js';
+runJobs(JOB_CONFIGS);
 
 const MAX_CSV_FILE_SIZE_ON_DISK_BYTES =
   config.get('server:uploadFileMaxSizeBytes') || 8388608;

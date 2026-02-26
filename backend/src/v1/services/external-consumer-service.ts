@@ -1,4 +1,4 @@
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
+import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica.js';
 import {
   DateTimeFormatter,
   LocalDateTime,
@@ -7,7 +7,7 @@ import {
   convert,
 } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
-import { PayTransparencyUserError } from './file-upload-service';
+import { PayTransparencyUserError } from './file-upload-service.js';
 import { Prisma } from '@prisma/client';
 
 const DEFAULT_PAGE_SIZE = 50;
@@ -115,9 +115,8 @@ const externalConsumerService = {
     };
 
     // Fetch reports with their calculated data using the consolidated view
-    const recordsWithCalculatedData = await prismaReadOnlyReplica
-      .$replica()
-      .reports_calculated_data_view.findMany({
+    const recordsWithCalculatedData =
+      await prismaReadOnlyReplica.reports_calculated_data_view.findMany({
         select: {
           report_id: true,
           company_id: true,
@@ -160,9 +159,8 @@ const externalConsumerService = {
       });
 
     // Get total count using the same view
-    const totalRecordsCount = await prismaReadOnlyReplica
-      .$replica()
-      .reports_calculated_data_view.count({
+    const totalRecordsCount =
+      await prismaReadOnlyReplica.reports_calculated_data_view.count({
         where: whereClause,
       });
 

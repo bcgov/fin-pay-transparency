@@ -30,6 +30,7 @@
       "infrastructure",
       "frontend",
       "admin-frontend",
+      "backend",
       "clamav-service"
     ],
     "editor.defaultFormatter": "esbenp.prettier-vscode",

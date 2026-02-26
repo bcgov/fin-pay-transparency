@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import {
   LocalDate,
   TemporalAdjusters,
@@ -12,9 +13,9 @@ import stream from 'stream';
 import {
   DISPLAY_REPORT_DATE_FORMAT,
   JSON_REPORT_DATE_FORMAT,
-} from '../../constants';
-import prisma from '../prisma/prisma-client';
-import { CALCULATION_CODES } from './report-calc-service';
+} from '../../constants/constants.js';
+import prisma from '../prisma//__mocks__/prisma-client.js';
+import { CALCULATION_CODES } from './report-calc-service.js';
 import {
   CalcCodeGenderCode,
   GENDERS,
@@ -24,58 +25,24 @@ import {
   enumReportStatus,
   reportService,
   reportServicePrivate,
-} from './report-service';
-import { utils } from './utils-service';
+} from './report-service.js';
+import { utils } from './utils-service.js';
 
 const actualCopyPublishedReportToHistory =
   reportService.copyPublishedReportToHistory;
 
-jest.mock('./utils-service');
+vi.mock('./utils-service');
 
-const mockCompanyFindFirst = jest.fn();
-const mockReportFindFirst = jest.fn();
-const mockReportFindUnique = jest.fn();
-const mockReportsDeleteMany = jest.fn();
-const mockCalculatedDataDeleteMany = jest.fn();
-const mockCalculatedHistoryDataDeleteMany = jest.fn();
-const mockReportHistoryDeleteMany = jest.fn();
-
-jest.mock('../prisma/prisma-client', () => {
-  return {
-    pay_transparency_company: {
-      findFirst: (...args) => mockCompanyFindFirst(...args),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    pay_transparency_report: {
-      findUnique: (...args) => mockReportFindUnique(...args),
-      findFirst: (...args) => mockReportFindFirst(...args),
-      deleteMany: (...args) => mockReportsDeleteMany(...args),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-    report_history: {
-      create: jest.fn(),
-      deleteMany: (...args) => mockReportHistoryDeleteMany(...args),
-    },
-    pay_transparency_calculated_data: {
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      deleteMany: (...args) => mockCalculatedDataDeleteMany(...args),
-    },
-    calculated_data_history: {
-      createMany: jest.fn(),
-      deleteMany: (...args) => mockCalculatedHistoryDataDeleteMany(...args),
-    },
-    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
-  };
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
+vi.mock('../prisma/prisma-client');
+const mockCompanyFindFirst = prisma.pay_transparency_company.findFirst;
+const mockReportFindFirst = prisma.pay_transparency_report.findFirst;
+const mockReportFindUnique = prisma.pay_transparency_report.findUnique;
+const mockReportsDeleteMany = prisma.pay_transparency_report.deleteMany;
+const mockCalculatedDataDeleteMany =
+  prisma.pay_transparency_calculated_data.deleteMany;
+const mockCalculatedHistoryDataDeleteMany =
+  prisma.calculated_data_history.deleteMany;
+const mockReportHistoryDeleteMany = prisma.report_history.deleteMany;
 
 const mockCompanyInDB = {
   company_id: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
@@ -99,7 +66,7 @@ const mockUserInfo = {
 };
 const mockReportInDB = {
   report_id: '57005aff-117e-7678-cd51-31a3dd198778',
-};
+} as pay_transparency_report;
 const mockCalculatedDatasInDB = [
   {
     calculated_data_id: '43dcf60a-9c33-3282-9bba-43c0e2227cc2',
@@ -131,7 +98,9 @@ const mockCalculatedDatasInDB = [
       calculation_code: 'MOCK_CALC_CODE_3',
     },
   },
-];
+] as Prisma.pay_transparency_calculated_dataGetPayload<{
+  include: { calculation_code: true };
+}>[];
 
 const mockPublishedReportInDb: pay_transparency_report = {
   report_id: '456768',
@@ -181,9 +150,9 @@ describe('getReportAndCalculations', () => {
     it('returns an object containing both the report and the values of its calculations', async () => {
       const mockReportId = mockReportInDB.report_id;
       mockReportFindFirst.mockResolvedValue(mockReportInDB);
-      (
-        prisma.pay_transparency_calculated_data.findMany as jest.Mock
-      ).mockResolvedValue(mockCalculatedDatasInDB);
+      prisma.pay_transparency_calculated_data.findMany.mockResolvedValue(
+        mockCalculatedDatasInDB,
+      );
       const reportAndCalculations: ReportAndCalculations =
         await reportService.getReportAndCalculations(mockReportId);
 
@@ -247,9 +216,9 @@ describe('getReportData', () => {
         CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
       ] = { value: GENDERS.MALE.code };
 
-      jest
-        .spyOn(reportService, 'getReportAndCalculations')
-        .mockResolvedValueOnce(mockReportAndCalculations);
+      vi.spyOn(reportService, 'getReportAndCalculations').mockResolvedValueOnce(
+        mockReportAndCalculations,
+      );
 
       const reportData: any = await reportService.getReportData(
         mockReq,
@@ -298,9 +267,9 @@ describe('getReportData', () => {
         CALCULATION_CODES.REFERENCE_GENDER_CATEGORY_CODE
       ] = { value: null, isSuppressed: true };
 
-      jest
-        .spyOn(reportService, 'getReportAndCalculations')
-        .mockResolvedValueOnce(mockReportAndCalculations);
+      vi.spyOn(reportService, 'getReportAndCalculations').mockResolvedValueOnce(
+        mockReportAndCalculations,
+      );
 
       const reportData: any = await reportService.getReportData(
         mockReq,
@@ -320,9 +289,9 @@ describe('getReportData', () => {
       const mockReq = {};
       const mockReportId = mockReportInDB.report_id;
 
-      jest
-        .spyOn(reportService, 'getReportAndCalculations')
-        .mockResolvedValueOnce(null);
+      vi.spyOn(reportService, 'getReportAndCalculations').mockResolvedValueOnce(
+        null,
+      );
 
       const reportData = await reportService.getReportData(
         mockReq,
@@ -391,12 +360,12 @@ describe('getReportHtml', () => {
       const mockReportId = mockReportInDB.report_id;
       const mockReportData = {};
 
-      jest
-        .spyOn(reportService, 'getReportData')
-        .mockResolvedValueOnce(mockReportData);
-      jest
-        .spyOn(utils, 'postDataToDocGenService')
-        .mockResolvedValueOnce('<html></html>');
+      vi.spyOn(reportService, 'getReportData').mockResolvedValueOnce(
+        mockReportData,
+      );
+      vi.spyOn(utils, 'postDataToDocGenService').mockResolvedValueOnce(
+        '<html></html>',
+      );
 
       const html: string = await reportService.getReportHtml(
         mockReq,
@@ -423,12 +392,12 @@ describe('getReportPdf', () => {
       mockPdfStream.push('testpdf');
       mockPdfStream.push(null);
 
-      jest
-        .spyOn(reportService, 'getReportData')
-        .mockResolvedValueOnce(mockReportData);
-      jest
-        .spyOn(utils, 'postDataToDocGenService')
-        .mockResolvedValueOnce(mockPdfStream);
+      vi.spyOn(reportService, 'getReportData').mockResolvedValueOnce(
+        mockReportData,
+      );
+      vi.spyOn(utils, 'postDataToDocGenService').mockResolvedValueOnce(
+        mockPdfStream,
+      );
 
       const result: Buffer = await reportService.getReportPdf(
         mockReq,
@@ -447,8 +416,8 @@ describe('getReportPdf', () => {
       };
       const invalidReportId = '1';
 
-      jest.spyOn(reportService, 'getReportData').mockResolvedValueOnce(null);
-      jest.spyOn(utils, 'postDataToDocGenService').mockResolvedValueOnce(null);
+      vi.spyOn(reportService, 'getReportData').mockResolvedValueOnce(null);
+      vi.spyOn(utils, 'postDataToDocGenService').mockResolvedValueOnce(null);
       await expect(
         reportService.getReportPdf(mockReq, invalidReportId),
       ).rejects.toThrow();
@@ -810,9 +779,10 @@ describe('publishReport', () => {
   describe('if the given report has status=Draft, and there is no existing Published report', () => {
     it('changes the status from Draft to Published', async () => {
       mockReportFindFirst.mockResolvedValue(null);
-      jest
-        .spyOn(reportService, 'copyPublishedReportToHistory')
-        .mockReturnValueOnce(null);
+      vi.spyOn(
+        reportService,
+        'copyPublishedReportToHistory',
+      ).mockReturnValueOnce(null);
 
       await reportService.publishReport(mockDraftReportInApi);
 
@@ -828,9 +798,8 @@ describe('publishReport', () => {
 
       // Fetch the parameter passed to the update statement so we can
       // verify if performed the correct action
-      const updateStatement = (
-        prisma.pay_transparency_report.update as jest.Mock
-      ).mock.calls[0][0];
+      const updateStatement =
+        prisma.pay_transparency_report.update.mock.calls[0][0];
 
       // Expect only one record to be updated (the report that was passed to
       // publishReport(...)
@@ -853,9 +822,10 @@ describe('publishReport', () => {
         ...mockPublishedReportInDb,
         pay_transparency_calculated_data: [],
       });
-      jest
-        .spyOn(reportService, 'copyPublishedReportToHistory')
-        .mockReturnValueOnce(null);
+      vi.spyOn(
+        reportService,
+        'copyPublishedReportToHistory',
+      ).mockReturnValueOnce(null);
 
       await reportService.publishReport(mockDraftReportInApi);
 
@@ -879,9 +849,8 @@ describe('publishReport', () => {
 
       // Fetch the parameter passed to the update statement so we can
       // verify if performed the correct action
-      const updateStatement = (
-        prisma.pay_transparency_report.update as jest.Mock
-      ).mock.calls[0][0];
+      const updateStatement =
+        prisma.pay_transparency_report.update.mock.calls[0][0];
 
       // Expect only one record to be updated (the report that was passed to
       // publishReport(...)
@@ -910,9 +879,10 @@ describe('publishReport', () => {
         pay_transparency_calculated_data: [],
       });
 
-      jest
-        .spyOn(reportService, 'copyPublishedReportToHistory')
-        .mockReturnValueOnce(null);
+      vi.spyOn(
+        reportService,
+        'copyPublishedReportToHistory',
+      ).mockReturnValueOnce(null);
 
       await expect(
         reportService.publishReport(mockDraftReportInApi),
@@ -936,9 +906,10 @@ describe('publishReport', () => {
         pay_transparency_calculated_data: [],
       });
 
-      jest
-        .spyOn(reportService, 'copyPublishedReportToHistory')
-        .mockReturnValueOnce(null);
+      vi.spyOn(
+        reportService,
+        'copyPublishedReportToHistory',
+      ).mockReturnValueOnce(null);
 
       await reportService.publishReport(mockDraftReportInApi);
 
@@ -959,9 +930,10 @@ describe('publishReport', () => {
         pay_transparency_calculated_data: [],
       });
 
-      jest
-        .spyOn(reportService, 'copyPublishedReportToHistory')
-        .mockReturnValueOnce(null);
+      vi.spyOn(
+        reportService,
+        'copyPublishedReportToHistory',
+      ).mockReturnValueOnce(null);
 
       await expect(
         reportService.publishReport(mockDraftReportInApi),
@@ -974,7 +946,7 @@ describe('publishReport', () => {
 describe('copyPublishedReportToHistory', () => {
   describe("if the given report isn't Published", () => {
     it('throws an error', async () => {
-      const tx = jest.fn();
+      const tx = vi.fn();
       await expect(
         actualCopyPublishedReportToHistory(tx, mockDraftReportInDb),
       ).rejects.toThrow();
@@ -982,20 +954,17 @@ describe('copyPublishedReportToHistory', () => {
   });
   describe('if the given report is Published', () => {
     it('copies the report and its calculated data to history tables', async () => {
-      (prisma.report_history.create as jest.Mock).mockResolvedValue(
-        mockHistoryReport,
+      prisma.report_history.create.mockResolvedValue(mockHistoryReport);
+      prisma.pay_transparency_calculated_data.findMany.mockResolvedValue(
+        mockCalculatedDatasInDB,
       );
-      (
-        prisma.pay_transparency_calculated_data.findMany as jest.Mock
-      ).mockResolvedValue(mockCalculatedDatasInDB);
       await prisma.$transaction(async (tx) => {
         await actualCopyPublishedReportToHistory(tx, mockPublishedReportInDb);
       });
 
       // Confirm that the report was copied to the history table
       expect(prisma.report_history.create).toHaveBeenCalledTimes(1);
-      const createReportHistory = (prisma.report_history.create as jest.Mock)
-        .mock.calls[0][0];
+      const createReportHistory = prisma.report_history.create.mock.calls[0][0];
       expect(createReportHistory.data.report_id).toBe(
         mockPublishedReportInDb.report_id,
       );
@@ -1004,9 +973,8 @@ describe('copyPublishedReportToHistory', () => {
       expect(
         prisma.pay_transparency_calculated_data.findMany,
       ).toHaveBeenCalledTimes(1);
-      const findCalculated = (
-        prisma.pay_transparency_calculated_data.findMany as jest.Mock
-      ).mock.calls[0][0];
+      const findCalculated =
+        prisma.pay_transparency_calculated_data.findMany.mock.calls[0][0];
       expect(findCalculated.where.report_id).toBe(
         mockPublishedReportInDb.report_id,
       );
@@ -1015,9 +983,8 @@ describe('copyPublishedReportToHistory', () => {
       expect(prisma.calculated_data_history.createMany).toHaveBeenCalledTimes(
         1,
       );
-      const createCalculatedHistory = (
-        prisma.calculated_data_history.createMany as jest.Mock
-      ).mock.calls[0][0];
+      const createCalculatedHistory =
+        prisma.calculated_data_history.createMany.mock.calls[0][0];
       expect(createCalculatedHistory.data[0].report_history_id).toBe(
         mockHistoryReport.report_history_id,
       );
@@ -1082,12 +1049,12 @@ describe('getReportById', () => {
 });
 
 describe('getReportFileName', () => {
-  afterEach(() => {
-    jest.useRealTimers();
+  beforeEach(() => {
+    vi.useRealTimers();
   });
   describe('when the given reportId is valid', () => {
     it('returns a filename', async () => {
-      jest.useFakeTimers().setSystemTime(new Date('2023-12-10'));
+      vi.useFakeTimers().setSystemTime(new Date('2023-12-10'));
       const reportInDb = {
         report_id: '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
         company_id: mockCompanyInDB.company_id,
@@ -1116,9 +1083,9 @@ describe('getReportFileName', () => {
       };
       const reportInApi = reportServicePrivate.prismaReportToReport(reportInDb);
 
-      jest
-        .spyOn(reportService, 'getReportById')
-        .mockResolvedValueOnce(reportInApi);
+      vi.spyOn(reportService, 'getReportById').mockResolvedValueOnce(
+        reportInApi,
+      );
 
       const ret = await reportService.getReportFileName(
         '32655fd3-22b7-4b9a-86de-2bfc0fcf9102',
@@ -1128,7 +1095,7 @@ describe('getReportFileName', () => {
   });
   describe('when the given reportId is invalid', () => {
     it('throws an error', async () => {
-      const getReportByIdSpy = jest
+      const getReportByIdSpy = vi
         .spyOn(reportService, 'getReportById')
         .mockRejectedValueOnce(null);
       const invalidReportId = '66655fd3-22b7-4b9a-86de-2bfc0fcf2f2f';

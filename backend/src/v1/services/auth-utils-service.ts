@@ -4,9 +4,9 @@ import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import qs from 'node:querystring';
 import { v4 as uuidv4 } from 'uuid';
-import { config } from '../../config';
-import { logger as log } from '../../logger';
-import { utils } from './utils-service';
+import { config } from '../../config/config.js';
+import { logger as log } from '../../logger.js';
+import { utils } from './utils-service.js';
 
 /*
 This service contains functions related to authentication that are common between

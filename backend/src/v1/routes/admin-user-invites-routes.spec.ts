@@ -1,15 +1,16 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import request from 'supertest';
-import { UserInputError } from '../types/errors';
-import routes from '../routes/admin-user-invites-routes';
+import { UserInputError } from '../types/errors.js';
+import routes from '../routes/admin-user-invites-routes.js';
 
-const mockDeleteInvite = jest.fn();
-const mockGetPendingInvites = jest.fn();
-const mockCreateInvite = jest.fn();
-const mockResendInvite = jest.fn();
-jest.mock('../services/admin-user-invites-service', () => ({
+const mockDeleteInvite = vi.fn();
+const mockGetPendingInvites = vi.fn();
+const mockCreateInvite = vi.fn();
+const mockResendInvite = vi.fn();
+vi.mock('../services/admin-user-invites-service', () => ({
   adminUserInvitesService: {
     deleteInvite: (...args) => mockDeleteInvite(...args),
     getPendingInvites: (...args) => mockGetPendingInvites(...args),
@@ -18,20 +19,20 @@ jest.mock('../services/admin-user-invites-service', () => ({
   },
 }));
 
-jest.mock('../middlewares/authorization/authorize', () => ({
+vi.mock('../middlewares/authorization/authorize', () => ({
   authorize: () => (req, res, next) => next(),
 }));
 
-const mockJWTDecode = jest.fn();
-jest.mock('jsonwebtoken', () => ({
-  ...jest.requireActual('jsonwebtoken'),
+const mockJWTDecode = vi.fn();
+vi.mock(import('jsonwebtoken'), async (importOriginal) => ({
+  ...(await importOriginal()),
   decode: () => {
     return mockJWTDecode();
   },
 }));
 
-const mockGetSessionUser = jest.fn();
-jest.mock('../services/utils-service', () => ({
+const mockGetSessionUser = vi.fn();
+vi.mock('../services/utils-service', () => ({
   utils: {
     getSessionUser: () => mockGetSessionUser(),
   },
@@ -41,7 +42,6 @@ describe('admin-user-invites-routes', () => {
   let app: Application;
 
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.set('query parser', 'extended');
     app.use(bodyParser.json());

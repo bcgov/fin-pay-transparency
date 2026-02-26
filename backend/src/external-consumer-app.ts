@@ -1,10 +1,10 @@
 import express, { json, NextFunction, Request, Response } from 'express';
-import externalConsumerRouter from './v1/routes/external-consumer-routes';
+import externalConsumerRouter from './v1/routes/external-consumer-routes.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import noCache from 'nocache';
-import { config } from './config';
-import { logger } from './logger';
+import { config } from './config/config.js';
+import { logger } from './logger.js';
 import { rateLimit } from 'express-rate-limit';
 const externalConsumerApp = express();
 const externalConsumerApiRouter = express.Router();

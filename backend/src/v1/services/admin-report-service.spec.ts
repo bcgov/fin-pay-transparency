@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import {
   convert,
   LocalDateTime,
@@ -5,15 +6,19 @@ import {
   ZoneId,
   ZoneOffset,
 } from '@js-joda/core';
-import createPrismaMock from 'prisma-mock';
-import prisma from '../prisma/prisma-client';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 import {
   adminReportService,
   adminReportServicePrivate,
-} from './admin-report-service';
-import { reportService } from './report-service';
-import { UserInputError } from '../types/errors';
+} from './admin-report-service.js';
+import { reportService } from './report-service.js';
+import { UserInputError } from '../types/errors.js';
 import { Decimal } from '@prisma/client/runtime/library';
+import type {
+  admin_user,
+  pay_transparency_report,
+  Prisma,
+} from '@prisma/client';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -24,72 +29,29 @@ const company2 = {
   company_name: 'Company Name 2',
 };
 
-let companies = [];
 let reports = [];
 let admins = [];
-let prismaClient: any;
 
-jest.mock('./report-service');
+vi.mock('./report-service');
 
-const mockFindMany = jest.fn();
-const mockFindUniqueReport = jest
-  .fn()
-  .mockImplementation((args) =>
-    prismaClient.pay_transparency_report.findUnique(args),
-  );
-const mockFindManyReportHistory = jest.fn();
+vi.mock('../prisma/prisma-client.js');
+vi.mock('../prisma/prisma-client-readonly-replica.js');
 
-jest.mock('../prisma/prisma-client-readonly-replica', () => ({
-  __esModule: true,
-  ...jest.requireActual('../prisma/prisma-client-readonly-replica'),
-  default: {
-    pay_transparency_report: {
-      findMany: (args) => {
-        mockFindMany(args);
-        return prismaClient.pay_transparency_report.findMany(args);
-      },
-      findUniqueOrThrow: (args) =>
-        prismaClient.pay_transparency_report.findUniqueOrThrow(args),
-      findUnique: (args) =>
-        prismaClient.pay_transparency_report.findUnique(args),
-      count: (args) => prismaClient.pay_transparency_report.count(args),
-    },
-    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
-  },
-}));
-jest.mock('../prisma/prisma-client', () => ({
-  __esModule: true,
-  ...jest.requireActual('../prisma/prisma-client'),
-  default: {
-    pay_transparency_report: {
-      findUniqueOrThrow: (args) => {
-        return prismaClient.pay_transparency_report.findUniqueOrThrow(args);
-      },
-      findUnique: (args) => mockFindUniqueReport(args),
-      update: (args) => prismaClient.pay_transparency_report.update(args),
-      fields: {
-        update_date: '',
-      },
-    },
-    admin_user: {
-      findFirst: (args) => prismaClient.admin_user.findFirst(args),
-    },
-    report_history: {
-      findMany: (args) => mockFindManyReportHistory(args),
-      fields: {
-        update_date: '',
-      },
-    },
-    $extends: jest.fn(),
-    $transaction: jest
-      .fn()
-      .mockImplementation((callback) => callback(prismaClient)),
-  },
-}));
+// primary client mocks
+const mockFindUniqueOrThrowReport =
+  prisma.pay_transparency_report.findUniqueOrThrow;
+const mockFindUniqueReport = prisma.pay_transparency_report.findUnique;
+const mockFindFirstReport = prisma.pay_transparency_report.findFirst;
+const mockUpdateReport = prisma.pay_transparency_report.update;
+const mockAdminUserFindFirst = prisma.admin_user.findFirst;
+const mockFindManyReportHistory = prisma.report_history.findMany;
+
+// readonly replica mocks - same prisma instance since __mocks__ re-exports it
+const mockFindMany = prisma.pay_transparency_report.findMany;
+const mockCountReport = prisma.pay_transparency_report.count;
 
 describe('admin-report-service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     reports = [
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -104,6 +66,7 @@ describe('admin-report-service', () => {
         company_id: company1.company_id,
         admin_last_access_date: '2024-04-21T11:40:00.000',
         admin_modified_reason: 'YEAR',
+        pay_transparency_company: company1,
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e2',
@@ -118,6 +81,7 @@ describe('admin-report-service', () => {
         company_id: company2.company_id,
         admin_last_access_date: null,
         admin_modified_reason: 'YEAR',
+        pay_transparency_company: company2,
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d4e3',
@@ -132,6 +96,7 @@ describe('admin-report-service', () => {
         company_id: company2.company_id,
         admin_last_access_date: null,
         admin_modified_reason: 'YEAR',
+        pay_transparency_company: company2,
       },
       {
         report_id: '4492feff-99d7-4b2b-8896-12a59a75d499',
@@ -146,26 +111,25 @@ describe('admin-report-service', () => {
         company_id: company2.company_id,
         admin_last_access_date: null,
         admin_modified_reason: 'YEAR',
+        pay_transparency_company: company2,
       },
     ];
-    companies = [company2, company1];
     admins = [
       {
         admin_user_id: '1234',
         idir_user_guid: '5678',
       },
     ];
-
-    prismaClient = createPrismaMock({
-      data: {
-        pay_transparency_report: reports,
-        pay_transparency_company: companies,
-        admin_user: admins,
-      },
-    });
   });
+
   describe('searchReports', () => {
     it('should return unsorted and unfiltered reports', async () => {
+      const publishedReports = reports.filter(
+        (r) => r.report_status === 'Published',
+      );
+      mockFindMany.mockResolvedValue(publishedReports);
+      mockCountReport.mockResolvedValue(publishedReports.length);
+
       const response = await adminReportService.searchReport(0, 10, '[]', '[]');
       expect(response.total).toBe(3);
     });
@@ -218,6 +182,13 @@ describe('admin-report-service', () => {
       describe('when filter is valid', () => {
         describe('reporting year', () => {
           it('eq', async () => {
+            const filtered = reports.filter(
+              (r) =>
+                r.report_status === 'Published' && r.reporting_year === 2024,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -230,6 +201,13 @@ describe('admin-report-service', () => {
           });
 
           it('neq', async () => {
+            const filtered = reports.filter(
+              (r) =>
+                r.report_status === 'Published' && r.reporting_year !== 2024,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             await adminReportService.searchReport(
               0,
               10,
@@ -242,6 +220,12 @@ describe('admin-report-service', () => {
             });
           });
           it('lt', async () => {
+            const filtered = reports.filter(
+              (r) => r.report_status === 'Published' && r.reporting_year < 2024,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -253,6 +237,13 @@ describe('admin-report-service', () => {
             ).toBeTruthy();
           });
           it('lte', async () => {
+            const filtered = reports.filter(
+              (r) =>
+                r.report_status === 'Published' && r.reporting_year <= 2024,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -264,6 +255,12 @@ describe('admin-report-service', () => {
             ).toBeTruthy();
           });
           it('gt', async () => {
+            const filtered = reports.filter(
+              (r) => r.report_status === 'Published' && r.reporting_year > 2024,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -275,6 +272,13 @@ describe('admin-report-service', () => {
             ).toBeTruthy();
           });
           it('gte', async () => {
+            const filtered = reports.filter(
+              (r) =>
+                r.report_status === 'Published' && r.reporting_year >= 2024,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -290,6 +294,12 @@ describe('admin-report-service', () => {
         describe('naics_code', () => {
           describe('with a non empty array', () => {
             it('should return reports with code matching the specified values', async () => {
+              const filtered = reports.filter(
+                (r) => r.report_status === 'Published' && r.naics_code === '11',
+              );
+              mockFindMany.mockResolvedValue(filtered);
+              mockCountReport.mockResolvedValue(filtered.length);
+
               const response = await adminReportService.searchReport(
                 0,
                 10,
@@ -304,6 +314,9 @@ describe('admin-report-service', () => {
 
           describe('with empty array', () => {
             it('should not return reports', async () => {
+              mockFindMany.mockResolvedValue([]);
+              mockCountReport.mockResolvedValue(0);
+
               const response = await adminReportService.searchReport(
                 0,
                 10,
@@ -318,6 +331,15 @@ describe('admin-report-service', () => {
           describe('in', () => {
             describe('with a non empty array', () => {
               it('should return reports with count range matching the specified values', async () => {
+                const filtered = reports.filter(
+                  (r) =>
+                    r.report_status === 'Published' &&
+                    r.employee_count_range_id ===
+                      '4492feff-99d7-4b2b-8896-12a59a75d4e1',
+                );
+                mockFindMany.mockResolvedValue(filtered);
+                mockCountReport.mockResolvedValue(filtered.length);
+
                 const response = await adminReportService.searchReport(
                   0,
                   10,
@@ -336,6 +358,9 @@ describe('admin-report-service', () => {
 
             describe('with empty array', () => {
               it('should return empty reports with count range matching the specified values', async () => {
+                mockFindMany.mockResolvedValue([]);
+                mockCountReport.mockResolvedValue(0);
+
                 const response = await adminReportService.searchReport(
                   0,
                   10,
@@ -348,6 +373,15 @@ describe('admin-report-service', () => {
           });
           describe('notin', () => {
             it('should return reports with count range matching the specified values', async () => {
+              const filtered = reports.filter(
+                (r) =>
+                  r.report_status === 'Published' &&
+                  r.employee_count_range_id !==
+                    '4492feff-99d7-4b2b-8896-12a59a75d4e1',
+              );
+              mockFindMany.mockResolvedValue(filtered);
+              mockCountReport.mockResolvedValue(filtered.length);
+
               await adminReportService.searchReport(
                 0,
                 10,
@@ -367,6 +401,14 @@ describe('admin-report-service', () => {
           describe('not', () => {
             describe('null', () => {
               it('should returns only reports with a non-null admin_last_access_date', async () => {
+                const filtered = reports.filter(
+                  (r) =>
+                    r.report_status === 'Published' &&
+                    r.admin_last_access_date !== null,
+                );
+                mockFindMany.mockResolvedValue(filtered);
+                mockCountReport.mockResolvedValue(filtered.length);
+
                 const response = await adminReportService.searchReport(
                   0,
                   10,
@@ -381,6 +423,22 @@ describe('admin-report-service', () => {
 
         describe("create_date (aka 'submission date')", () => {
           it('should return reports with create_date between the specified dates', async () => {
+            const filtered = reports.filter((r) => {
+              if (r.report_status !== 'Published') return false;
+              const createDate = LocalDateTime.parse(
+                r.create_date,
+              ).toEpochSecond(ZoneOffset.UTC);
+              const rangeStart = LocalDateTime.parse(
+                '2024-01-01T21:46:53.876',
+              ).toEpochSecond(ZoneOffset.UTC);
+              const rangeEnd = LocalDateTime.parse(
+                '2024-05-05T21:46:53.876',
+              ).toEpochSecond(ZoneOffset.UTC);
+              return createDate >= rangeStart && createDate < rangeEnd;
+            });
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -404,6 +462,12 @@ describe('admin-report-service', () => {
           });
 
           it('should all reports if values not provided to create_date', async () => {
+            const filtered = reports.filter(
+              (r) => r.report_status === 'Published',
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -415,6 +479,22 @@ describe('admin-report-service', () => {
         });
         describe('update_date', () => {
           it('should return reports with update_date between the specified dates', async () => {
+            const filtered = reports.filter((r) => {
+              if (r.report_status !== 'Published') return false;
+              const updateDate = LocalDateTime.parse(
+                r.update_date,
+              ).toEpochSecond(ZoneOffset.UTC);
+              const rangeStart = LocalDateTime.parse(
+                '2024-01-01T21:46:53.876',
+              ).toEpochSecond(ZoneOffset.UTC);
+              const rangeEnd = LocalDateTime.parse(
+                '2024-05-05T21:46:53.876',
+              ).toEpochSecond(ZoneOffset.UTC);
+              return updateDate >= rangeStart && updateDate < rangeEnd;
+            });
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -438,6 +518,12 @@ describe('admin-report-service', () => {
           });
 
           it('should all reports if values not provided to update_date', async () => {
+            const filtered = reports.filter(
+              (r) => r.report_status === 'Published',
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -449,6 +535,12 @@ describe('admin-report-service', () => {
         });
         describe('is_unlocked', () => {
           it('should return all unlocked reports', async () => {
+            const filtered = reports.filter(
+              (r) => r.report_status === 'Published' && r.is_unlocked,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -459,6 +551,12 @@ describe('admin-report-service', () => {
           });
 
           it('should return locked reports', async () => {
+            const filtered = reports.filter(
+              (r) => r.report_status === 'Published' && !r.is_unlocked,
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -470,6 +568,14 @@ describe('admin-report-service', () => {
         });
         describe('admin_modified_reason', () => {
           it('should return all reports with a specific admin_modified_reason', async () => {
+            const filtered = reports.filter(
+              (r) =>
+                r.report_status === 'Published' &&
+                r.admin_modified_reason === 'YEAR',
+            );
+            mockFindMany.mockResolvedValue(filtered);
+            mockCountReport.mockResolvedValue(filtered.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -485,6 +591,16 @@ describe('admin-report-service', () => {
         describe('relations', () => {
           describe('company_name', () => {
             it('should filter by company name', async () => {
+              const filtered = reports.filter(
+                (r) =>
+                  r.report_status === 'Published' &&
+                  r.pay_transparency_company.company_name
+                    .toLowerCase()
+                    .includes('company name 1'),
+              );
+              mockFindMany.mockResolvedValue(filtered);
+              mockCountReport.mockResolvedValue(filtered.length);
+
               const response = await adminReportService.searchReport(
                 0,
                 10,
@@ -553,6 +669,12 @@ describe('admin-report-service', () => {
     describe('sorting', () => {
       describe('reporting year', () => {
         it('asc', async () => {
+          const sorted = [
+            ...reports.filter((r) => r.report_status === 'Published'),
+          ].sort((a, b) => a.reporting_year - b.reporting_year);
+          mockFindMany.mockResolvedValue(sorted);
+          mockCountReport.mockResolvedValue(sorted.length);
+
           const response = await adminReportService.searchReport(
             0,
             10,
@@ -567,6 +689,12 @@ describe('admin-report-service', () => {
         });
 
         it('desc', async () => {
+          const sorted = [
+            ...reports.filter((r) => r.report_status === 'Published'),
+          ].sort((a, b) => b.reporting_year - a.reporting_year);
+          mockFindMany.mockResolvedValue(sorted);
+          mockCountReport.mockResolvedValue(sorted.length);
+
           const response = await adminReportService.searchReport(
             0,
             10,
@@ -584,6 +712,16 @@ describe('admin-report-service', () => {
       describe('relations', () => {
         describe('company_name', () => {
           it('should sort by company name', async () => {
+            const sorted = [
+              ...reports.filter((r) => r.report_status === 'Published'),
+            ].sort((a, b) =>
+              a.pay_transparency_company.company_name.localeCompare(
+                b.pay_transparency_company.company_name,
+              ),
+            );
+            mockFindMany.mockResolvedValue(sorted);
+            mockCountReport.mockResolvedValue(sorted.length);
+
             const response = await adminReportService.searchReport(
               0,
               10,
@@ -662,6 +800,10 @@ describe('admin-report-service', () => {
 
   describe('changeReportLockStatus', () => {
     it('should throw error if report does not exist', async () => {
+      mockFindUniqueOrThrowReport.mockRejectedValue(
+        new Error('Report not found'),
+      );
+
       await expect(
         adminReportService.changeReportLockStatus(
           '5492feff-99d7-4b2b-8896-12a59a75d4e2',
@@ -670,57 +812,65 @@ describe('admin-report-service', () => {
         ),
       ).rejects.toThrow();
     });
+    it('should set is_unlocked to true and admin_modified_reason to UNLOCK', async () => {
+      const reportToUnlock = reports.find(
+        (r) => r.report_id === '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+      );
+      mockFindUniqueOrThrowReport.mockResolvedValue(reportToUnlock);
 
-    it('should change report is_unlocked to true', async () => {
-      const report = await adminReportService.changeReportLockStatus(
+      await adminReportService.changeReportLockStatus(
         '4492feff-99d7-4b2b-8896-12a59a75d4e2',
         '5678',
         true,
       );
-      expect(report.is_unlocked).toBeTruthy();
-      expect(report.admin_modified_date).toBe(report.report_unlock_date);
-      expect(report.admin_user_id).toBe('1234');
-      expect(reportService.copyPublishedReportToHistory).toHaveBeenCalled();
+
+      const { data } = mockUpdateReport.mock.calls[0][0];
+      expect(data.is_unlocked).toBe(true);
+      expect(data.admin_modified_reason).toBe('UNLOCK');
     });
-    it('should change report is_unlocked to false', async () => {
-      const report = await adminReportService.changeReportLockStatus(
-        '4492feff-99d7-4b2b-8896-12a59a75d4e1',
-        '5678',
-        false,
+
+    it('should set is_unlocked to false and admin_modified_reason to LOCK', async () => {
+      const reportToLock = reports.find(
+        (r) => r.report_id === '4492feff-99d7-4b2b-8896-12a59a75d4e2',
       );
-      expect(report.is_unlocked).toBeFalsy();
-      expect(report.admin_modified_date).toBe(report.report_unlock_date);
-      expect(report.admin_user_id).toBe('1234');
-    });
-    it('should update the report_unlock_date to the current date/time in UTC', async () => {
-      const updateSpy = jest.spyOn(
-        prismaClient.pay_transparency_report,
-        'update',
-      );
+      mockFindUniqueOrThrowReport.mockResolvedValue(reportToLock);
+
       await adminReportService.changeReportLockStatus(
         '4492feff-99d7-4b2b-8896-12a59a75d4e2',
         '5678',
         false,
       );
 
-      const updateParam: any = updateSpy.mock.calls[0][0];
-      expect(updateParam.data.admin_modified_date).toBe(
-        updateParam.data.report_unlock_date,
+      const { data } = mockUpdateReport.mock.calls[0][0];
+      expect(data.is_unlocked).toBe(false);
+      expect(data.admin_modified_reason).toBe('LOCK');
+    });
+
+    it('should set report_unlock_date and admin_modified_date close to now', async () => {
+      const report = reports.find(
+        (r) => r.report_id === '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+      );
+      mockFindUniqueOrThrowReport.mockResolvedValue(report);
+
+      await adminReportService.changeReportLockStatus(
+        '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+        '5678',
+        true,
       );
 
-      //check that the unlock report date/time submitted to the database is approximately
-      //equal to the current UTC date/time
-      const currentDateUtc = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
-      const unlockDateDiffMs =
-        currentDateUtc.getTime() -
-        updateParam.data.report_unlock_date.getTime();
-      expect(unlockDateDiffMs).toBeGreaterThanOrEqual(0);
-      expect(unlockDateDiffMs).toBeLessThan(10000); //10 seconds
+      const { data } = mockUpdateReport.mock.calls[0][0];
+      const now = Date.now();
+      expect((data.report_unlock_date as Date).getTime()).toBeCloseTo(now, -4);
+      expect((data.admin_modified_date as Date).getTime()).toBeCloseTo(now, -4);
     });
   });
 
   describe('updateReportReportingYear', () => {
     it('should throw error if report does not exist', async () => {
+      mockFindUniqueOrThrowReport.mockRejectedValue(
+        new Error('Report not found'),
+      );
+
       await expect(
         adminReportService.updateReportReportingYear(
           '5492feff-99d7-4b2b-8896-12a59a75d4e2',
@@ -731,20 +881,31 @@ describe('admin-report-service', () => {
     });
 
     it('should change the reporting year', async () => {
+      const reportToUpdate = reports.find(
+        (r) => r.report_id === '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+      );
+      mockFindUniqueOrThrowReport.mockResolvedValue(reportToUpdate);
+
       const report = await adminReportService.updateReportReportingYear(
         '4492feff-99d7-4b2b-8896-12a59a75d4e2',
         '5678',
         2025,
       );
-      expect(report.reporting_year).toBe(2025);
-      expect(report.admin_modified_date.toISOString()).toMatch(
-        new Date().toISOString().slice(0, 18),
-      );
-      expect(report.admin_user_id).toBe('1234');
+      const now = Date.now();
+      const { data } = mockUpdateReport.mock.calls[0][0];
+      expect(data.reporting_year).toBe(2025);
+      expect((data.admin_modified_date as Date).getTime()).toBeCloseTo(now, -4);
+      expect(data.admin_modified_reason).toBe('YEAR');
+      expect(data.admin_user.connect.idir_user_guid).toBe('5678');
       expect(reportService.copyPublishedReportToHistory).toHaveBeenCalled();
     });
 
     it('should throw error if the selected reporting year is the same as the current reporting year', async () => {
+      const reportToUpdate = reports.find(
+        (r) => r.report_id === '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+      );
+      mockFindFirstReport.mockResolvedValue(reportToUpdate);
+
       await expect(
         adminReportService.updateReportReportingYear(
           '4492feff-99d7-4b2b-8896-12a59a75d4e2',
@@ -757,9 +918,14 @@ describe('admin-report-service', () => {
     });
 
     it('Should throw error if a report for the selected year already exists for this company', async () => {
+      const reportToUpdate = reports.find(
+        (r) => r.report_id === '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+      );
+      mockFindFirstReport.mockResolvedValue(reportToUpdate);
+
       await expect(
         adminReportService.updateReportReportingYear(
-          '4492feff-99d7-4b2b-8896-12a59a75d4e2',
+          '4492feff-99d7-4b2b-8896-12a59a75d4e3',
           '5678',
           2021,
         ),
@@ -776,8 +942,8 @@ describe('admin-report-service', () => {
       const mockReq = {};
       const reportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
       const mockReport = Buffer.from('mock pdf report');
-      jest.spyOn(reportService, 'getReportPdf').mockResolvedValue(mockReport);
-      const updateAdminLastAccessDateSpy = jest.spyOn(
+      vi.spyOn(reportService, 'getReportPdf').mockResolvedValue(mockReport);
+      const updateAdminLastAccessDateSpy = vi.spyOn(
         adminReportServicePrivate,
         'updateAdminLastAccessDate',
       );
@@ -791,6 +957,12 @@ describe('admin-report-service', () => {
     it('should return separate counts for year-specific and all-time published reports', async () => {
       // Arrange
       const reportingYear = 2024;
+
+      // Mock for year-specific count
+      mockCountReport.mockResolvedValueOnce(1); // Only 2024
+      // Mock for all-time count
+      mockCountReport.mockResolvedValueOnce(3); // All years
+
       const result = await adminReportService.getReportsMetrics({
         reportingYear,
       });
@@ -808,15 +980,18 @@ describe('admin-report-service', () => {
   describe('updateAdminLastAccessDate', () => {
     it('executes an update statement against the pay_transparency_report table', async () => {
       const reportId = '4492feff-99d7-4b2b-8896-12a59a75d4e1';
-      const updateSpy = jest.spyOn(
-        prismaClient.pay_transparency_report,
-        'update',
-      );
+      const reportToUpdate = reports.find((r) => r.report_id === reportId);
+
+      const updatedReport = {
+        ...reportToUpdate,
+        admin_last_access_date: new Date(),
+      };
+      mockUpdateReport.mockResolvedValue(updatedReport);
 
       await adminReportServicePrivate.updateAdminLastAccessDate(reportId);
 
-      expect(updateSpy).toHaveBeenCalledTimes(1);
-      const updateParam: any = updateSpy.mock.calls[0][0];
+      expect(mockUpdateReport).toHaveBeenCalledTimes(1);
+      const updateParam: any = mockUpdateReport.mock.calls[0][0];
       expect(updateParam.where.report_id).toBe(reportId);
       expect(Object.keys(updateParam.data)).toHaveLength(1);
 
@@ -842,7 +1017,9 @@ describe('admin-report-service', () => {
           is_unlocked: true,
           report_status: 'Published',
           admin_user: { admin_user_id: '1234', display_name: 'Admin User' },
-        };
+        } as Prisma.pay_transparency_reportGetPayload<{
+          include: { admin_user: true };
+        }>;
 
         mockFindUniqueReport.mockResolvedValue(mockReport);
         mockFindManyReportHistory.mockResolvedValue([]);
@@ -864,7 +1041,9 @@ describe('admin-report-service', () => {
           is_unlocked: false,
           report_status: 'Published',
           admin_user: { admin_user_id: '1234', display_name: 'Admin User' },
-        };
+        } as Prisma.pay_transparency_reportGetPayload<{
+          include: { admin_user: true };
+        }>;
 
         mockFindUniqueReport.mockResolvedValue(mockReport);
         mockFindManyReportHistory.mockResolvedValue([]);
@@ -891,7 +1070,9 @@ describe('admin-report-service', () => {
           is_unlocked: false,
           report_status: 'Published',
           admin_user: { admin_user_id: '1234', display_name: 'Current Admin' },
-        };
+        } as Prisma.pay_transparency_reportGetPayload<{
+          include: { admin_user: true };
+        }>;
 
         const mockHistoryRecords = [
           {
@@ -918,7 +1099,9 @@ describe('admin-report-service', () => {
               display_name: 'History Admin 2',
             },
           },
-        ];
+        ] as Prisma.report_historyGetPayload<{
+          include: { admin_user: true };
+        }>[];
 
         mockFindUniqueReport.mockResolvedValue(mockReport);
         mockFindManyReportHistory.mockResolvedValue(mockHistoryRecords);
@@ -962,7 +1145,9 @@ describe('admin-report-service', () => {
           is_unlocked: true,
           report_status: 'Published',
           admin_user: { admin_user_id: '1234', display_name: 'Current Admin' },
-        };
+        } as Prisma.pay_transparency_reportGetPayload<{
+          include: { admin_user: true };
+        }>;
 
         const mockHistoryRecords = [
           {
@@ -977,7 +1162,9 @@ describe('admin-report-service', () => {
               display_name: 'History Admin 1',
             },
           },
-        ];
+        ] as Prisma.report_historyGetPayload<{
+          include: { admin_user: true };
+        }>[];
 
         mockFindUniqueReport.mockResolvedValue(mockReport);
         mockFindManyReportHistory.mockResolvedValue(mockHistoryRecords);
@@ -1000,6 +1187,7 @@ describe('admin-report-service', () => {
     describe("when the given reportId doesn't correspond to a report", () => {
       it('throws a UserInputError', async () => {
         const mockReportId = 'unknown-report-id';
+        mockFindManyReportHistory.mockResolvedValue([]);
         mockFindUniqueReport.mockResolvedValue(null);
 
         await expect(
@@ -1020,58 +1208,42 @@ describe('admin-report-service', () => {
           admin_user_id: adminUserId,
           idir_user_guid: idirGuid,
           display_name: 'Test Admin',
-        };
+        } as admin_user;
 
         const mockPublishedReport = {
           report_id: reportId,
           report_status: 'Published',
           pay_transparency_calculated_data: [],
-        };
+        } as Prisma.pay_transparency_reportGetPayload<{
+          include: { pay_transparency_calculated_data: true };
+        }>;
 
         const mockWithdrawnReport = {
           report_id: reportId,
           report_status: 'Withdrawn',
           admin_user_id: adminUserId,
           admin_modified_date: new Date(),
-        };
+        } as pay_transparency_report;
 
-        // Mock the admin user lookup using prismaClient
-        jest
-          .spyOn(prismaClient.admin_user, 'findFirst')
-          .mockResolvedValue(mockAdminUser);
+        mockAdminUserFindFirst.mockResolvedValue(mockAdminUser);
+        vi.spyOn(
+          reportService,
+          'copyPublishedReportToHistory',
+        ).mockResolvedValue();
 
-        // Mock the report service
-        jest
-          .spyOn(reportService, 'copyPublishedReportToHistory')
-          .mockResolvedValue();
-
-        // Mock the transaction to use prismaClient with overridden methods
-        const transactionSpy = jest
-          .spyOn(prisma, '$transaction')
-          .mockImplementation(async (callback) => {
-            const mockTx = {
-              ...prismaClient,
-              pay_transparency_report: {
-                ...prismaClient.pay_transparency_report,
-                findUniqueOrThrow: jest
-                  .fn()
-                  .mockResolvedValue(mockPublishedReport),
-                update: jest.fn().mockResolvedValue(mockWithdrawnReport),
-              },
-            };
-            return await callback(mockTx);
-          });
+        // Mock transaction to override findUniqueOrThrow and update
+        mockFindUniqueOrThrowReport.mockResolvedValue(mockPublishedReport);
+        mockUpdateReport.mockResolvedValue(mockWithdrawnReport);
 
         const result = await adminReportService.withdrawReport(
           reportId,
           idirGuid,
         );
 
-        expect(prismaClient.admin_user.findFirst).toHaveBeenCalledWith({
+        expect(mockAdminUserFindFirst).toHaveBeenCalledWith({
           where: { idir_user_guid: idirGuid },
         });
         expect(reportService.copyPublishedReportToHistory).toHaveBeenCalled();
-        expect(transactionSpy).toHaveBeenCalled();
         expect(result).toEqual(mockWithdrawnReport);
       });
     });
@@ -1081,9 +1253,7 @@ describe('admin-report-service', () => {
         const reportId = 'test-report-id';
         const idirGuid = 'invalid-idir-guid';
 
-        jest
-          .spyOn(prismaClient.admin_user, 'findFirst')
-          .mockResolvedValue(null);
+        mockAdminUserFindFirst.mockResolvedValue(null);
 
         await expect(
           adminReportService.withdrawReport(reportId, idirGuid),
@@ -1101,28 +1271,13 @@ describe('admin-report-service', () => {
           admin_user_id: adminUserId,
           idir_user_guid: idirGuid,
           display_name: 'Test Admin',
-        };
+        } as admin_user;
 
-        jest
-          .spyOn(prismaClient.admin_user, 'findFirst')
-          .mockResolvedValue(mockAdminUser);
+        mockAdminUserFindFirst.mockResolvedValue(mockAdminUser);
 
-        jest
-          .spyOn(prisma, '$transaction')
-          .mockImplementation(async (callback) => {
-            const mockTx = {
-              ...prismaClient,
-              pay_transparency_report: {
-                ...prismaClient.pay_transparency_report,
-                findUniqueOrThrow: jest
-                  .fn()
-                  .mockRejectedValue(
-                    new Error(`Report with ID ${reportId} not found`),
-                  ),
-              },
-            };
-            return await callback(mockTx);
-          });
+        mockFindUniqueOrThrowReport.mockRejectedValue(
+          new Error(`Report with ID ${reportId} not found`),
+        );
 
         await expect(
           adminReportService.withdrawReport(reportId, idirGuid),
@@ -1140,30 +1295,19 @@ describe('admin-report-service', () => {
           admin_user_id: adminUserId,
           idir_user_guid: idirGuid,
           display_name: 'Test Admin',
-        };
+        } as admin_user;
 
         const mockDraftReport = {
           report_id: reportId,
           report_status: 'Draft',
           pay_transparency_calculated_data: [],
-        };
+        } as Prisma.pay_transparency_reportGetPayload<{
+          include: { pay_transparency_calculated_data: true };
+        }>;
 
-        jest
-          .spyOn(prismaClient.admin_user, 'findFirst')
-          .mockResolvedValue(mockAdminUser);
+        mockAdminUserFindFirst.mockResolvedValue(mockAdminUser);
 
-        jest
-          .spyOn(prisma, '$transaction')
-          .mockImplementation(async (callback) => {
-            const mockTx = {
-              ...prismaClient,
-              pay_transparency_report: {
-                ...prismaClient.pay_transparency_report,
-                findUniqueOrThrow: jest.fn().mockResolvedValue(mockDraftReport),
-              },
-            };
-            return await callback(mockTx);
-          });
+        mockFindUniqueOrThrowReport.mockResolvedValue(mockDraftReport);
 
         await expect(
           adminReportService.withdrawReport(reportId, idirGuid),

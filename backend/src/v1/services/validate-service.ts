@@ -1,8 +1,8 @@
 import { LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { parse as htmlParse } from 'node-html-parser';
-import { config } from '../../config';
-import { JSON_REPORT_DATE_FORMAT } from '../../constants';
-import { ISubmission } from './file-upload-service';
+import { config } from '../../config/config.js';
+import { JSON_REPORT_DATE_FORMAT } from '../../constants/constants.js';
+import { ISubmission } from './file-upload-service.js';
 
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const SUBMISSION_ROW_COLUMNS = {

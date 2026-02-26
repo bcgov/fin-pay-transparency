@@ -2,9 +2,9 @@ import { Router, Request, Response } from 'express';
 import {
   analyticsService,
   PowerBiResourceName,
-} from '../services/analytic-service';
-import { utils } from '../services/utils-service';
-import { useValidate } from '../middlewares/validations';
+} from '../services/analytic-service.js';
+import { utils } from '../services/utils-service.js';
+import { useValidate } from '../middlewares/validations/validate.js';
 import z from 'zod';
 
 const EmbedQuerySchema = z.object({

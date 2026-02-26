@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import PATH from 'node:path';
-import { logger } from '../../../logger';
-import { upload } from '../../../external/services/s3-api';
+import { logger } from '../../../logger.js';
+import { upload } from '../../../external/services/s3-api.js';
 
 interface Options {
   folder: string;

@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
-import { codeService } from '../services/code-service';
-import { utils } from '../services/utils-service';
+import { codeService } from '../services/code-service.js';
+import { utils } from '../services/utils-service.js';
 
 const router = express.Router();
 
@@ -20,4 +20,4 @@ router.get(
   }),
 );
 
-export = router;
+export default router;

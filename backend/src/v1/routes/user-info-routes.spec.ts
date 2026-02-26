@@ -1,17 +1,17 @@
+import { vi, describe, it, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './user-info-routes';
+import router from './user-info-routes.js';
 let app: Application;
 
-const mockGetUserInfo = jest.fn();
-jest.mock('../services/public-auth-service', () => ({
+const mockGetUserInfo = vi.fn();
+vi.mock('../services/public-auth-service', () => ({
   publicAuth: {
-    handleGetUserInfo: jest.fn((...args) => mockGetUserInfo(...args)),
+    handleGetUserInfo: vi.fn((...args) => mockGetUserInfo(...args)),
   },
 }));
 describe('user-info-routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use(router);
   });

@@ -13,34 +13,34 @@ import passportOIDCKCIdp from 'passport-openidconnect-keycloak-idp';
 import { resolve } from 'node:path';
 import prom from 'prom-client';
 import fileSessionStore from 'session-file-store';
-import { config } from './config';
+import { config } from './config/config.js';
 import {
   KEYCLOAK_IDP_HINT_AZUREIDIR,
   OIDC_AZUREIDIR_CALLBACK_NAME,
   OIDC_AZUREIDIR_SCOPE,
   OIDC_AZUREIDIR_STRATEGY_NAME,
-} from './constants';
-import { logger } from './logger';
-import prisma from './v1/prisma/prisma-client';
-import adminAuthRouter from './v1/routes/admin-auth-routes';
-import adminReportRoutes from './v1/routes/admin-report-routes';
-import adminUserRouter from './v1/routes/admin-user-info-routes';
-import adminUsersRoutes from './v1/routes/admin-users-routes';
-import analyticRoutes from './v1/routes/analytic-routes';
-import announcementsRoutes from './v1/routes/announcement-routes';
-import codeRouter from './v1/routes/code-routes';
-import { router as configRouter } from './v1/routes/config-routes';
-import dashboardMetricsRouter from './v1/routes/dashboard';
-import employerRoutes from './v1/routes/employer-routes';
-import resourcesRoutes from './v1/routes/resources-routes';
-import { adminAuth } from './v1/services/admin-auth-service';
-import { utils } from './v1/services/utils-service';
+} from './constants/constants.js';
+import { logger } from './logger.js';
+import prisma from './v1/prisma/prisma-client.js';
+import adminAuthRouter from './v1/routes/admin-auth-routes.js';
+import adminReportRoutes from './v1/routes/admin-report-routes.js';
+import adminUserRouter from './v1/routes/admin-user-info-routes.js';
+import adminUsersRoutes from './v1/routes/admin-users-routes.js';
+import analyticRoutes from './v1/routes/analytic-routes.js';
+import announcementsRoutes from './v1/routes/announcement-routes.js';
+import codeRouter from './v1/routes/code-routes.js';
+import { router as configRouter } from './v1/routes/config-routes.js';
+import dashboardMetricsRouter from './v1/routes/dashboard/dashboard-routes.js';
+import employerRoutes from './v1/routes/employer-routes.js';
+import resourcesRoutes from './v1/routes/resources-routes.js';
+import { adminAuth } from './v1/services/admin-auth-service.js';
+import { utils } from './v1/services/utils-service.js';
 
 export const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
 
-import { run as startJobs } from './schedulers/run.all';
-import adminUserInvitesRoutes from './v1/routes/admin-user-invites-routes';
-startJobs();
+import { runJobs, JOB_CONFIGS } from './schedulers/jobs.js';
+import adminUserInvitesRoutes from './v1/routes/admin-user-invites-routes.js';
+runJobs(JOB_CONFIGS);
 
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });

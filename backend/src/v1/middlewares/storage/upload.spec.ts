@@ -1,26 +1,21 @@
-import { useUpload } from './upload';
+import { vi, describe, it, expect } from 'vitest';
+import { useUpload } from './upload.js';
 import path from 'node:path';
 import os from 'node:os';
 
-const mockS3ApiUpload = jest.fn();
-jest.mock('../../../external/services/s3-api', () => ({
+const mockS3ApiUpload = vi.fn();
+vi.mock('../../../external/services/s3-api', () => ({
   upload: (...args) => mockS3ApiUpload(...args),
 }));
 
-const realpathSyncMock = jest.fn();
-jest.mock('node:fs', () => ({
-  __esModule: true,
-  ...jest.requireActual('node:fs'),
+const realpathSyncMock = vi.fn();
+vi.mock('node:fs', () => ({
   default: {
     realpathSync: (...args) => realpathSyncMock(...args),
   },
 }));
 
 describe('upload', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('should upload a file', async () => {
     const req = {
       body: {
@@ -37,11 +32,11 @@ describe('upload', () => {
     realpathSyncMock.mockReturnValue(path.join(os.tmpdir(), 'test.jpg'));
 
     const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
     };
 
-    const next = jest.fn();
+    const next = vi.fn();
 
     mockS3ApiUpload.mockResolvedValue(undefined);
 
@@ -63,11 +58,11 @@ describe('upload', () => {
     };
 
     const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
     };
 
-    const next = jest.fn();
+    const next = vi.fn();
 
     mockS3ApiUpload.mockResolvedValue(undefined);
 
@@ -90,11 +85,11 @@ describe('upload', () => {
     };
 
     const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
     };
 
-    const next = jest.fn();
+    const next = vi.fn();
 
     mockS3ApiUpload.mockResolvedValue(undefined);
 
@@ -116,11 +111,11 @@ describe('upload', () => {
       };
 
       const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
       };
 
-      await useUpload({ folder: 'app' })(req, res, jest.fn());
+      await useUpload({ folder: 'app' })(req, res, vi.fn());
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ message: 'Invalid request' });
@@ -145,12 +140,12 @@ describe('upload', () => {
 
       const res = {
         statusCode: 0,
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-        end: jest.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+        end: vi.fn(),
       };
 
-      const next = jest.fn();
+      const next = vi.fn();
 
       await useUpload({ folder: 'app' })(req, res, next);
 
@@ -176,11 +171,11 @@ describe('upload', () => {
     realpathSyncMock.mockReturnValue(path.join(os.tmpdir(), 'test.jpg'));
 
     const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
     };
 
-    const next = jest.fn();
+    const next = vi.fn();
     const uploadError = new Error('S3 upload failed');
 
     mockS3ApiUpload.mockRejectedValue(uploadError);

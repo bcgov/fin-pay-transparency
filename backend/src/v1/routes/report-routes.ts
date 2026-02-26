@@ -5,10 +5,10 @@ import {
   MISSING_BUSINESS_GUID_ERROR,
   REPORT_NOT_FOUND_ERROR,
   REPORT_STATUS_NOT_VALID_ERROR,
-} from '../../constants';
-import { logger } from '../../logger';
-import { enumReportStatus, reportService } from '../services/report-service';
-import { utils } from '../services/utils-service';
+} from '../../constants/constants.js';
+import { logger } from '../../logger.js';
+import { enumReportStatus, reportService } from '../services/report-service.js';
+import { utils } from '../services/utils-service.js';
 
 const reportRouter = express.Router();
 

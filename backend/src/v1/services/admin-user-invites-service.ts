@@ -1,14 +1,14 @@
 import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { admin_user_onboarding } from '@prisma/client';
-import { config } from '../../config';
+import { config } from '../../config/config.js';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
-} from '../../constants/admin';
-import emailService from '../../external/services/ches';
-import { EMAIL_TEMPLATES } from '../email-templates';
-import prisma from '../prisma/prisma-client';
-import { UserInputError } from '../types/errors';
+} from '../../constants/admin.js';
+import emailService from '../../external/services/ches/ches.js';
+import { EMAIL_TEMPLATES } from '../templates/email.js';
+import prisma from '../prisma/prisma-client.js';
+import { UserInputError } from '../types/errors.js';
 
 export const adminUserInvitesService = {
   /**

@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { utils } from '../../services/utils-service';
-import { ExtendedRequest } from '../../types';
+import { utils } from '../../services/utils-service.js';
+import { ExtendedRequest } from '../../types/request.js';
 import HttpStatus from 'http-status-codes';
-import prisma from '../../prisma/prisma-client';
+import prisma from '../../prisma/prisma-client.js';
 
 /**
  * Middleware to authenticate admin users

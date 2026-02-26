@@ -1,5 +1,5 @@
-import { config } from '../config';
-import { RoleType } from '../v1/types/users';
+import { config } from '../config/config.js';
+import { RoleType } from '../v1/types/users.js';
 
 export const PTRT_ADMIN_ROLE_NAME = 'PTRT-ADMIN';
 export const PTRT_USER_ROLE_NAME = 'PTRT-USER';

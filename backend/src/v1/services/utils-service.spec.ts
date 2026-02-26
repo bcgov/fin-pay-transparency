@@ -1,18 +1,12 @@
+import { vi, describe, it, expect } from 'vitest';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import { config } from '../../config';
-import { utils } from './utils-service';
+import { config } from '../../config/config.js';
+import { utils } from './utils-service.js';
 
-jest.mock('axios');
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
+vi.mock('axios');
 
 describe('utils-service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
   describe('postDataToDocGenService (&& postData)', () => {
     describe('when the config parameter is omitted', () => {
       it('creates a new config', async () => {
@@ -27,7 +21,7 @@ describe('utils-service', () => {
           },
         };
 
-        const spyPostData = jest.spyOn(axios, 'post').mockResolvedValue({
+        const spyPostData = vi.spyOn(axios, 'post').mockResolvedValue({
           data: 'test',
         });
 
@@ -58,7 +52,7 @@ describe('utils-service', () => {
           responseType: 'stream',
         };
 
-        const spyPostData = jest.spyOn(axios, 'post').mockResolvedValue({
+        const spyPostData = vi.spyOn(axios, 'post').mockResolvedValue({
           data: 'test',
         });
 
@@ -70,13 +64,9 @@ describe('utils-service', () => {
   });
 
   describe('parseJwt', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
     describe('when the JWT is invalid', () => {
       it('throws an error', () => {
-        jest.spyOn(jwt, 'decode').mockImplementationOnce(() => {
+        vi.spyOn(jwt, 'decode').mockImplementationOnce(() => {
           throw new Error('test');
         });
 
@@ -123,7 +113,7 @@ describe('utils-service', () => {
     describe('when requesting that multiple records in a given table be updated', () => {
       it('creates and executes a bulk update statement against the database', () => {
         const mockTx = {
-          $executeRawUnsafe: jest.fn(),
+          $executeRawUnsafe: vi.fn(),
         };
         const updates = [
           { mock_table_id: '1', another_col: 'aaa' },
@@ -160,7 +150,7 @@ describe('utils-service', () => {
     describe('when typeHints are provided', () => {
       it('the executed SQL includes casts to te specified hints', async () => {
         const mockTx = {
-          $executeRawUnsafe: jest.fn(),
+          $executeRawUnsafe: vi.fn(),
         };
         const updates = [
           { mock_table_id: '1', second_col: 'aaa', third_col: 'bbb' },

@@ -1,11 +1,11 @@
-import { faker } from '@faker-js/faker';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import qs from 'qs';
 import request from 'supertest';
-import router from './employer-routes';
+import router from './employer-routes.js';
 
-const mockGetEmployer = jest.fn().mockResolvedValue({
+const mockGetEmployer = vi.fn().mockResolvedValue({
   items: [],
   total: 0,
   offset: 0,
@@ -13,7 +13,7 @@ const mockGetEmployer = jest.fn().mockResolvedValue({
   totalPages: 0,
 });
 
-jest.mock('../services/employer-service', () => ({
+vi.mock('../services/employer-service', () => ({
   employerService: {
     getEmployer: (...args) => {
       return mockGetEmployer(...args);

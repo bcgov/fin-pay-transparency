@@ -1,40 +1,26 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { DateTimeFormatter, ZoneId, ZonedDateTime } from '@js-joda/core';
-import { config } from '../../config';
-import prisma from '../prisma/prisma-client';
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { errorService } from './error-service';
-import { SubmissionError } from './file-upload-service';
-import { RowError, ValidationError } from './validate-service';
+import { config } from '../../config/config.js';
+import prisma from '../prisma/__mocks__/prisma-client.js';
+import prismaReadOnlyReplica from '../prisma/__mocks__/prisma-client-readonly-replica.js';
+import { errorService } from './error-service.js';
+import { SubmissionError } from './file-upload-service.js';
+import { RowError, ValidationError } from './validate-service.js';
+import type {
+  pay_transparency_company,
+  pay_transparency_user,
+} from '@prisma/client';
 
-jest.mock('../prisma/prisma-client', () => {
-  return {
-    user_error: {
-      createMany: jest.fn(),
-    },
-  };
-});
+vi.mock('../prisma/prisma-client');
 
-jest.mock('../prisma/prisma-client-readonly-replica', () => {
-  return {
-    pay_transparency_user: {
-      findFirst: jest.fn(),
-    },
-    pay_transparency_company: {
-      findFirst: jest.fn(),
-    },
-    user_error: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-    },
-  };
-});
+vi.mock('../prisma/prisma-client-readonly-replica');
 
 const mockCompanyInDB = {
   company_id: 'cf175a22-217f-4f3f-b2a4-8b43dd19a9a2', // random guid
-};
+} as pay_transparency_company;
 const mockUserInDB = {
   user_id: '727dc60a-95a3-4a83-9b6b-1fb0e1de7cc3', // random guid
-};
+} as pay_transparency_user;
 
 const mockUserInfo = {
   _json: {
@@ -72,10 +58,6 @@ const mockArray = [
   'Something went wrong.',
 ];
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
 const mockConfigLoggingDisbled = (key) => {
   if (key == 'server:userErrorLogging:isEnabled') {
     return false;
@@ -90,58 +72,55 @@ const mockConfigLoggingEnabled = (key) => {
 };
 
 describe('storeError', () => {
-  (
-    prismaReadOnlyReplica.pay_transparency_company.findFirst as jest.Mock
-  ).mockResolvedValue(mockCompanyInDB);
-  (
-    prismaReadOnlyReplica.pay_transparency_user.findFirst as jest.Mock
-  ).mockResolvedValue(mockUserInDB);
+  beforeEach(() => {
+    prismaReadOnlyReplica.pay_transparency_company.findFirst.mockResolvedValue(
+      mockCompanyInDB,
+    );
+    prismaReadOnlyReplica.pay_transparency_user.findFirst.mockResolvedValue(
+      mockUserInDB,
+    );
+  });
   describe('if error logging is disabled', () => {
     it('', async () => {
-      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingDisbled);
+      vi.spyOn(config, 'get').mockImplementation(mockConfigLoggingDisbled);
       await errorService.storeError(
         mockUserInfo,
         new SubmissionError(mockValidationError),
       );
-      expect(prisma.user_error.createMany as jest.Mock).toHaveBeenCalledTimes(
-        0,
-      );
+      expect(prisma.user_error.createMany).toHaveBeenCalledTimes(0);
     });
   });
   describe('if error logging is enabled', () => {
     it('stores SubmissionError with ValidationError', async () => {
-      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      vi.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
       await errorService.storeError(
         mockUserInfo,
         new SubmissionError(mockValidationError),
       );
-      const createMany = (prisma.user_error.createMany as jest.Mock).mock
-        .calls[0][0];
+      const createMany = prisma.user_error.createMany.mock.calls[0][0];
       expect(createMany.data.map((x) => x.error)).toStrictEqual(mockArray);
     });
 
     it('stores SubmissionError with string', async () => {
-      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      vi.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
       const error = 'Something went wrong';
       const subError = new SubmissionError(error);
       await errorService.storeError(mockUserInfo, subError);
-      const createMany = (prisma.user_error.createMany as jest.Mock).mock
-        .calls[0][0];
+      const createMany = prisma.user_error.createMany.mock.calls[0][0];
       expect(createMany.data.map((x) => x.error)).toStrictEqual([error]);
     });
 
     it('stores Error', async () => {
-      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      vi.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
       const error = 'test error';
       const errorObj = new Error(error);
       await errorService.storeError(mockUserInfo, errorObj);
-      const createMany = (prisma.user_error.createMany as jest.Mock).mock
-        .calls[0][0];
+      const createMany = prisma.user_error.createMany.mock.calls[0][0];
       expect(createMany.data.map((x) => x.error)).toStrictEqual([error]);
     });
 
     it('does not store anything if there are no errors', async () => {
-      jest.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
+      vi.spyOn(config, 'get').mockImplementation(mockConfigLoggingEnabled);
       await errorService.storeError(
         mockUserInfo,
         new SubmissionError(new ValidationError([], [], [])),

@@ -1,6 +1,6 @@
 import express from 'express';
-import { config } from '../../config';
-import { validateService } from '../services/validate-service';
+import { config } from '../../config/config.js';
+import { validateService } from '../services/validate-service.js';
 
 const router = express.Router();
 

@@ -2,7 +2,7 @@ import z from 'zod';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
-} from '../../../constants/admin';
+} from '../../../constants/admin.js';
 
 export const AddNewUserSchema = z.object({
   firstName: z.string({ required_error: 'First name is required' }).min(1),

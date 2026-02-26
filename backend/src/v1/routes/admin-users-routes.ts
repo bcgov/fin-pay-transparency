@@ -1,15 +1,15 @@
 import express, { Request, Response } from 'express';
-import { logger } from '../../logger';
-import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin';
-import { useValidate } from '../middlewares/validations';
+import { logger } from '../../logger.js';
+import { PTRT_ADMIN_ROLE_NAME } from '../../constants/admin.js';
+import { useValidate } from '../middlewares/validations/validate.js';
 import {
   ASSIGN_ROLE_SCHEMA,
   AssignRoleType,
-} from '../middlewares/validations/schemas';
-import { SSO } from '../services/sso-service';
-import { authorize } from '../middlewares/authorization/authorize';
-import { ExtendedRequest } from '../types';
-import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin';
+} from '../middlewares/validations/schemas.js';
+import { SSO } from '../services/sso-service.js';
+import { authorize } from '../middlewares/authorization/authorize.js';
+import { ExtendedRequest } from '../types/request.js';
+import { authenticateAdmin } from '../middlewares/authorization/authenticate-admin.js';
 import z from 'zod';
 
 // Reusable Zod schema for string id

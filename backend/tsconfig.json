@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "allowJs": true,
-    "module": "commonjs",
+    "target": "ES2024",
+    "module": "node20",
+    "moduleResolution": "node16",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "allowJs": true,
     "strict": false,
     "noImplicitAny": false,
     "esModuleInterop": true,
@@ -13,5 +13,6 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["./src", "templates", "./tests/integration"]
+  "include": ["./src", "templates", "./tests/integration"],
+  "files": ["./eslint.config.mjs", "./vitest.config.ts"]
 }

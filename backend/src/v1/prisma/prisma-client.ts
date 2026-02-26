@@ -1,6 +1,6 @@
-import { logger } from '../../logger';
+import { logger } from '../../logger.js';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { config } from '../../config';
+import { config } from '../../config/config.js';
 
 const prisma: PrismaClient<
   Prisma.PrismaClientOptions,

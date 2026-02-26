@@ -1,15 +1,15 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import passport from 'passport';
-import { config } from '../../config';
+import { config } from '../../config/config.js';
 import {
   MISSING_COMPANY_DETAILS_ERROR,
   MISSING_TOKENS_ERROR,
-} from '../../constants';
-import { logger as log } from '../../logger';
-import { UnauthorizedRsp } from '../services/auth-utils-service';
-import { LogoutReason, publicAuth } from '../services/public-auth-service';
-import { utils } from '../services/utils-service';
+} from '../../constants/constants.js';
+import { logger as log } from '../../logger.js';
+import { UnauthorizedRsp } from '../services/auth-utils-service.js';
+import { LogoutReason, publicAuth } from '../services/public-auth-service.js';
+import { utils } from '../services/utils-service.js';
 
 const router = express.Router();
 
