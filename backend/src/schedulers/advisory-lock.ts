@@ -79,7 +79,7 @@ export class AdvisoryLock {
   }
 
   /**
-   * Attempts to acquire the advisory lock without blocking.
+   * Attempts to acquire the advisory lock and returns false if it couldn't do it.
    *
    * @returns Promise that resolves to true if lock was acquired, false if another process holds it
    * @throws {Error} If the lock is already acquired by this instance or if database query fails
@@ -105,7 +105,7 @@ export class AdvisoryLock {
       return false;
     } catch (error) {
       throw new Error(
-        `Failed to acquire advisory lock "${this.lockName}": ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to acquire advisory lock "${this.lockName}": ${error.message}`,
       );
     }
   }
@@ -132,7 +132,7 @@ export class AdvisoryLock {
       this.isAcquired = true;
     } catch (error) {
       throw new Error(
-        `Failed to acquire advisory lock "${this.lockName}": ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to acquire advisory lock "${this.lockName}": ${error.message}`,
       );
     }
   }
@@ -164,7 +164,7 @@ export class AdvisoryLock {
       // Reset state even on error to prevent deadlock
       this.isAcquired = false;
       throw new Error(
-        `Failed to release advisory lock "${this.lockName}": ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to release advisory lock "${this.lockName}": ${error.message}`,
       );
     }
   }
