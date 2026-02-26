@@ -13,5 +13,6 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["./src", "templates", "./tests/integration"]
+  "include": ["./src", "templates", "./tests/integration"],
+  "files": ["./eslint.config.mjs", "./vitest.config.ts"]
 }

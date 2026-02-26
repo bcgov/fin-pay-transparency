@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     coverage: {
+      provider: 'v8',
       reporter: ['lcov', 'text-summary', 'text', 'json', 'html'],
       exclude: ['src/**/index.ts'],
     },

@@ -1,4 +1,3 @@
-// @ts-check
 import globals from 'globals';
 import pluginJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
@@ -14,7 +13,13 @@ export default [
       globals: globals.node,
       parserOptions: {
         projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
+    },
+  },
+  {
+    rules: {
+      'vitest/no-mocks-import': 'off',
     },
   },
   eslintConfigPrettier,
