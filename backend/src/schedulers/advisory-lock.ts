@@ -94,7 +94,7 @@ export class AdvisoryLock {
     try {
       const [key1, key2] = this.lockKey;
       const result = await this.prisma.$queryRaw<AdvisoryLockResult[]>`
-        SELECT pg_try_advisory_lock(${key1}, ${key2})
+        SELECT pg_try_advisory_lock(${key1}::int4, ${key2}::int4)
       `;
 
       if (result[0]?.pg_try_advisory_lock) {
@@ -126,7 +126,7 @@ export class AdvisoryLock {
     try {
       const [key1, key2] = this.lockKey;
       await this.prisma.$queryRaw<AdvisoryLockBlockingResult[]>`
-        SELECT pg_advisory_lock(${key1}, ${key2})
+        SELECT pg_advisory_lock(${key1}::int4, ${key2}::int4)
       `;
 
       this.isAcquired = true;
@@ -152,7 +152,7 @@ export class AdvisoryLock {
     try {
       const [key1, key2] = this.lockKey;
       const result = await this.prisma.$queryRaw<AdvisoryUnlockResult[]>`
-        SELECT pg_advisory_unlock(${key1}, ${key2})
+        SELECT pg_advisory_unlock(${key1}::int4, ${key2}::int4)
       `;
 
       this.isAcquired = false;
