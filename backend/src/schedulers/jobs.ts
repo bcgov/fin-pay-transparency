@@ -34,7 +34,7 @@ export const JOB_CONFIGS: JobConfig[] = [
   {
     name: 'ExpireAnnouncements',
     cronTime: config.get('server:schedulerExpireAnnouncementsCronTime'),
-    callback: announcementService.expireAnnouncements,
+    callback: announcementService.expireAnnouncements.bind(announcementService),
   },
   {
     name: 'EmailExpiringAnnouncements',
