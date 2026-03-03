@@ -7,15 +7,26 @@
 import { logger } from '../../logger.js';
 import { readReplicas } from '@prisma/extension-read-replicas';
 import prisma from './prisma-client.js';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from './generated/client.js';
 import { config } from '../../config/config.js';
 
 const readReplicaUrl = config.get('server:datasourceUrlReplica');
 logger.silly(`Connecting to readonly replica at ${readReplicaUrl}`);
 
+const schema = new URL(readReplicaUrl).searchParams.get('schema');
+const replicaAdapter = new PrismaPg(
+  {
+    connectionString: readReplicaUrl,
+    options: schema && `-c search_path="${schema}"`,
+  },
+  { schema },
+);
+
+const replicaClient = new PrismaClient({ adapter: replicaAdapter });
+
 const prismaReadOnlyReplica = prisma.$extends(
-  readReplicas({
-    url: readReplicaUrl,
-  }),
+  readReplicas({ replicas: [replicaClient] }),
 );
 
 export default prismaReadOnlyReplica;

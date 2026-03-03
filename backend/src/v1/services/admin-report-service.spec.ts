@@ -13,12 +13,11 @@ import {
 } from './admin-report-service.js';
 import { reportService } from './report-service.js';
 import { UserInputError } from '../types/errors.js';
-import { Decimal } from '@prisma/client/runtime/library';
-import type {
-  admin_user,
-  pay_transparency_report,
+import {
+  type admin_user,
+  type pay_transparency_report,
   Prisma,
-} from '@prisma/client';
+} from '../prisma/generated/client.js';
 
 const company1 = {
   company_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
@@ -30,7 +29,6 @@ const company2 = {
 };
 
 let reports = [];
-let admins = [];
 
 vi.mock('./report-service');
 
@@ -60,7 +58,7 @@ describe('admin-report-service', () => {
         naics_code: '30',
         report_status: 'Published',
         reporting_year: 2024,
-        revision: new Decimal(1),
+        revision: new Prisma.Decimal(1),
         is_unlocked: true,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e1',
         company_id: company1.company_id,
@@ -75,7 +73,7 @@ describe('admin-report-service', () => {
         naics_code: '11',
         report_status: 'Published',
         reporting_year: 2023,
-        revision: new Decimal(1),
+        revision: new Prisma.Decimal(1),
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e9',
         company_id: company2.company_id,
@@ -90,7 +88,7 @@ describe('admin-report-service', () => {
         naics_code: '40',
         report_status: 'Published',
         reporting_year: 2021,
-        revision: new Decimal(1),
+        revision: new Prisma.Decimal(1),
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,
@@ -105,19 +103,13 @@ describe('admin-report-service', () => {
         naics_code: '40',
         report_status: 'Draft',
         reporting_year: 2021,
-        revision: new Decimal(1),
+        revision: new Prisma.Decimal(1),
         is_unlocked: false,
         employee_count_range_id: '4492feff-99d7-4b2b-8896-12a59a75d4e5',
         company_id: company2.company_id,
         admin_last_access_date: null,
         admin_modified_reason: 'YEAR',
         pay_transparency_company: company2,
-      },
-    ];
-    admins = [
-      {
-        admin_user_id: '1234',
-        idir_user_guid: '5678',
       },
     ];
   });

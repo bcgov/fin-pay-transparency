@@ -9,5 +9,9 @@
   "[sql]": {
     "editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode"
   },
-  "prettier.requireConfig": true
+  "prettier.requireConfig": true,
+  "search.exclude": {
+    "**/prisma/generated": true,
+    "**/prisma/views": true
+  }
 }

@@ -5,7 +5,10 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
-import { admin_user, admin_user_onboarding } from '@prisma/client';
+import {
+  admin_user,
+  admin_user_onboarding,
+} from '../prisma/generated/client.js';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';

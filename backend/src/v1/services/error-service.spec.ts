@@ -9,7 +9,7 @@ import { RowError, ValidationError } from './validate-service.js';
 import type {
   pay_transparency_company,
   pay_transparency_user,
-} from '@prisma/client';
+} from '../prisma/generated/client.js';
 
 vi.mock('../prisma/prisma-client');
 

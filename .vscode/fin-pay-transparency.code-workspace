@@ -45,6 +45,12 @@
       "doc-gen-service": true,
       "backend-external": true,
       "clamav-service": true
-    }
+      },
+    "search.exclude": {
+      // prisma has generated code which shouldn't be touched, no point in searching for them
+      "**/prisma/generated": true,
+      "**/prisma/views": true
+    },
+    "prisma.hidePrisma6Prompts": true,
   }
 }

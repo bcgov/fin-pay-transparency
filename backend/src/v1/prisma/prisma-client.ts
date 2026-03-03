@@ -1,9 +1,18 @@
 import { logger } from '../../logger.js';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from './generated/client.js';
 import { config } from '../../config/config.js';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const datasourceUrl = config.get('server:databaseUrl');
-logger.silly(`Connecting to ${datasourceUrl}`);
+const connectionString = config.get('server:databaseUrl');
+logger.silly(`Connecting to ${connectionString}`);
+const schema = new URL(connectionString).searchParams.get('schema');
+const adapter = new PrismaPg(
+  {
+    connectionString: connectionString,
+    options: schema && `-c search_path="${schema}"`,
+  },
+  { schema },
+);
 
 const prisma: PrismaClient<
   Prisma.PrismaClientOptions,
@@ -16,7 +25,7 @@ const prisma: PrismaClient<
     { emit: 'stdout', level: 'error' },
   ],
   errorFormat: 'pretty',
-  datasourceUrl: datasourceUrl,
+  adapter,
 });
 prisma.$on('query', (e) => {
   logger.debug(

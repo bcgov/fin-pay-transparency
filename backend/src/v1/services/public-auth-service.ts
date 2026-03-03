@@ -1,4 +1,4 @@
-import { pay_transparency_company } from '@prisma/client';
+import { pay_transparency_company } from '../prisma/generated/client.js';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';

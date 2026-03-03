@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '../v1/prisma/generated/client.js';
 import { createHash } from 'node:crypto';
 
 interface AdvisoryLockResult {

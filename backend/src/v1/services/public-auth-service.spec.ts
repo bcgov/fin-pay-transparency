@@ -5,7 +5,7 @@ import * as bceidService from '../../external/services/bceid-service.js';
 import prisma from '../prisma/__mocks__/prisma-client.js';
 import { LogoutReason, publicAuth } from './public-auth-service.js';
 import { utils } from './utils-service.js';
-import type { pay_transparency_user } from '@prisma/client';
+import type { pay_transparency_user } from '../prisma/generated/client.js';
 
 //Mock the entire axios module so we never inadvertently make real
 //HTTP calls to remote services

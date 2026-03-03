@@ -6,7 +6,7 @@ import {
 } from './external-consumer-service.js';
 import { LocalDateTime, ZoneId } from '@js-joda/core';
 import replica from '../prisma/__mocks__/prisma-client-readonly-replica.js';
-import type { reports_calculated_data_view } from '@prisma/client';
+import type { reports_calculated_data_view } from '../prisma/generated/client.js';
 
 const mockReportsViewFindMany = replica.reports_calculated_data_view.findMany;
 vi.mock('../prisma/prisma-client-readonly-replica');

@@ -3,7 +3,10 @@ import { app } from './app.js';
 import prisma from './v1/prisma/__mocks__/prisma-client.js';
 import { publicAuth } from './v1/services/public-auth-service.js';
 import request from 'supertest';
-import type { employee_count_range, naics_code } from '@prisma/client';
+import type {
+  employee_count_range,
+  naics_code,
+} from './v1/prisma/generated/client.js';
 
 // ----------------------------------------------------------------------------
 // Setup
