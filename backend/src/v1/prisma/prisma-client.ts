@@ -1,5 +1,5 @@
 import { logger } from '../../logger.js';
-import { Prisma, PrismaClient } from './generated/client.js';
+import { PrismaClient } from './generated/client.js';
 import { config } from '../../config/config.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -14,10 +14,7 @@ const adapter = new PrismaPg(
   { schema },
 );
 
-const prisma: PrismaClient<
-  Prisma.PrismaClientOptions,
-  'query' | 'info' | 'warn' | 'error'
-> = new PrismaClient({
+const prisma = new PrismaClient({
   log: [
     { emit: 'event', level: 'query' },
     { emit: 'stdout', level: 'info' },
@@ -27,15 +24,11 @@ const prisma: PrismaClient<
   errorFormat: 'pretty',
   adapter,
 });
+
 prisma.$on('query', (e) => {
   logger.debug(
     `Query: ${e.query}- Params: ${e.params} - Duration: ${e.duration}ms`,
   );
 });
-
-// Transaction type
-export type PrismaTransactionalClient = Parameters<
-  Parameters<PrismaClient['$transaction']>[0]
->[0];
 
 export default prisma;

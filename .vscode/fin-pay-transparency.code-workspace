@@ -48,8 +48,8 @@
       },
     "search.exclude": {
       // prisma has generated code which shouldn't be touched, no point in searching for them
-      "**/prisma/generated": true,
-      "**/prisma/views": true
+      "**/prisma/generated/**": true,
+      "**/prisma/views/**": true
     },
     "prisma.hidePrisma6Prompts": true,
   }

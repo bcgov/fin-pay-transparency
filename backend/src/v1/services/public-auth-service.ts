@@ -1,4 +1,7 @@
-import { pay_transparency_company } from '../prisma/generated/client.js';
+import type {
+  pay_transparency_company,
+  Prisma,
+} from '../prisma/generated/client.js';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
@@ -6,7 +9,7 @@ import { config } from '../../config/config.js';
 import { MISSING_COMPANY_DETAILS_ERROR } from '../../constants/constants.js';
 import { getCompanyDetails } from '../../external/services/bceid-service.js';
 import { logger as log } from '../../logger.js';
-import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client.js';
+import prisma from '../prisma/prisma-client.js';
 import { AuthBase } from './auth-utils-service.js';
 import { utils } from './utils-service.js';
 
@@ -94,7 +97,7 @@ class PublicAuth extends AuthBase {
    */
   public async createOrUpdatePayTransparencyCompany(
     company: pay_transparency_company,
-    tx: PrismaTransactionalClient,
+    tx: Prisma.TransactionClient,
   ) {
     const { company_id, create_date, update_date, ...data } = company; // remove some properties
 
@@ -123,7 +126,7 @@ class PublicAuth extends AuthBase {
 
   public async createOrUpdatePayTransparencyUser(
     userInfo,
-    tx: PrismaTransactionalClient,
+    tx: Prisma.TransactionClient,
   ) {
     const existingPayTransparencyUser =
       await tx.pay_transparency_user.findFirst({

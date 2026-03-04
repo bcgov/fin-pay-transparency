@@ -16,10 +16,23 @@ export default [
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    ignores: [
+      'src/v1/prisma/generated/**',
+      'src/v1/prisma/view/**',
+      'coverage/**',
+    ],
   },
   {
     rules: {
       'vitest/no-mocks-import': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
     },
   },
   eslintConfigPrettier,

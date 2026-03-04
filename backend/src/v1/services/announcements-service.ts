@@ -8,7 +8,6 @@ import '@js-joda/timezone';
 import {
   type announcement,
   type announcement_resource,
-  type PrismaClient,
   Prisma,
 } from '../prisma/generated/client.js';
 import isEmpty from 'lodash/isEmpty.js';
@@ -27,7 +26,7 @@ import { UserInputError } from '../types/errors.js';
 import { utils } from './utils-service.js';
 
 const saveHistory = async (
-  tx: PrismaClient,
+  tx: Prisma.TransactionClient,
   announcement: announcement & {
     announcement_resource: announcement_resource[];
   },

@@ -1,4 +1,4 @@
-import type { admin_user, PrismaClient } from '../prisma/generated/client.js';
+import { type admin_user, Prisma } from '../prisma/generated/client.js';
 import axios, { AxiosInstance } from 'axios';
 import difference from 'lodash/difference.js';
 import qs from 'qs';
@@ -343,7 +343,7 @@ export class SSO {
     });
   }
 
-  private async recordHistory(tx: PrismaClient, user: admin_user) {
+  private async recordHistory(tx: Prisma.TransactionClient, user: admin_user) {
     await tx.admin_user_history.create({
       data: user,
     });

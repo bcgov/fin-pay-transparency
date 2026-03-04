@@ -19,10 +19,7 @@ const adapter = new PrismaPg(
   { schema },
 );
 
-const prismaSingle: PrismaClient<
-  Prisma.PrismaClientOptions,
-  'query' | 'info' | 'warn' | 'error'
-> = new PrismaClient({
+const prismaSingle = new PrismaClient({
   log: [
     { emit: 'event', level: 'query' },
     { emit: 'stdout', level: 'info' },

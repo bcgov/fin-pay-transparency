@@ -9,6 +9,7 @@ import { NextFunction, Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
 import { config } from '../../config/config.js';
 import { logger as log, logger } from '../../logger.js';
+import { Prisma } from '../prisma/generated/client.js';
 
 axios.interceptors.response.use((response) => {
   const headers = response.headers;
@@ -151,7 +152,7 @@ async function postData(url, body, axiosConfig) {
   specified in objects of the 'updates' array)
   */
 async function updateManyUnsafe(
-  tx,
+  tx: Prisma.TransactionClient,
   updates,
   typeHints,
   tableName: string,
