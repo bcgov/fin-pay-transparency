@@ -7,7 +7,7 @@ import { announcementService } from '../v1/services/announcements-service.js';
 import { schedulerService } from '../v1/services/scheduler-service.js';
 import emailService from '../external/services/ches/ches.js';
 import { utils } from '../v1/services/utils-service.js';
-import prisma from '../v1/prisma/prisma-client.js';
+import prismaSingle from '../v1/prisma/prisma-client-single.js';
 
 export interface JobConfig {
   name: string;
@@ -59,8 +59,9 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
   return new CronJob(
     cronTime,
     async function () {
-      const advisoryLock = new AdvisoryLock(prisma, name);
+      let advisoryLock = null;
       try {
+        advisoryLock = new AdvisoryLock(prismaSingle, name);
         if (await advisoryLock.tryAcquire()) {
           log.info(`Starting scheduled job '${name}'.`);
           await retry(
@@ -91,8 +92,10 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
           await emailService.sendEmailWithRetry(email);
         }
       } finally {
-        await utils.delay(10000);
-        await advisoryLock.release();
+        if (advisoryLock?.acquired) {
+          await utils.delay(10000);
+          await advisoryLock.release();
+        }
       }
     }, // onTick
     null, // onComplete

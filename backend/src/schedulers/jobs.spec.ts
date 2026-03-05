@@ -8,11 +8,15 @@ import { utils } from '../v1/services/utils-service.js';
 import { AdvisoryLock } from './advisory-lock.js';
 import { runJobs, type JobConfig } from './jobs.js';
 
+const mockAcquired = vi.fn(() => true);
 vi.mock('./advisory-lock.js', () => ({
   AdvisoryLock: vi.fn(function () {
     return {
       tryAcquire: vi.fn(async () => true),
-      release: vi.fn(async () => undefined),
+      release: vi.fn(),
+      get acquired() {
+        return mockAcquired();
+      },
     };
   }),
 }));
@@ -87,7 +91,7 @@ vi.mock('../v1/services/utils-service.js', () => ({
   },
 }));
 
-vi.mock('../v1/prisma/prisma-client.js');
+vi.mock('../v1/prisma/prisma-client-single.js');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -212,6 +216,22 @@ describe('createJob', () => {
       expect(utils.delay).toHaveBeenCalledWith(10000);
       const lockInstance = vi.mocked(AdvisoryLock).mock.results[0].value;
       expect(lockInstance.release).toHaveBeenCalledOnce();
+    });
+
+    it('should not call delay and release when failed to acquire lock', async () => {
+      const callback = vi.fn(async () => {
+        throw new Error('callback error');
+      });
+      mockAcquired.mockReturnValue(false);
+      runJobs([makeJobConfig({ callback })]);
+      const { onTick } = lastCronJob();
+
+      await onTick();
+
+      const lockInstance = vi.mocked(AdvisoryLock).mock.results[0].value;
+      expect(mockAcquired).toHaveBeenCalled();
+      expect(lockInstance.release).not.toHaveBeenCalled();
+      expect(utils.delay).not.toHaveBeenCalled();
     });
 
     it('should log error when callback throws', async () => {

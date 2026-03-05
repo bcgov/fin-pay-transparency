@@ -1,11 +1,16 @@
+/**
+ * This file is used to create a prisma instance with a single connection in the pool.
+ * This is used to acquire an advisory lock and then release the lock on the same session.
+ * This can be used by other services that require multiple queries to be executed on the same session.
+ */
 import { logger } from '../../logger.js';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { config } from '../../config/config.js';
 
-const datasourceUrl = config.get('server:databaseUrl');
+const datasourceUrl = config.get('server:datasourceUrlSingle');
 logger.silly(`Connecting to ${datasourceUrl}`);
 
-const prisma: PrismaClient<
+const prismaSingle: PrismaClient<
   Prisma.PrismaClientOptions,
   'query' | 'info' | 'warn' | 'error'
 > = new PrismaClient({
@@ -18,15 +23,10 @@ const prisma: PrismaClient<
   errorFormat: 'pretty',
   datasourceUrl: datasourceUrl,
 });
-prisma.$on('query', (e) => {
+prismaSingle.$on('query', (e) => {
   logger.debug(
     `Query: ${e.query}- Params: ${e.params} - Duration: ${e.duration}ms`,
   );
 });
 
-// Transaction type
-export type PrismaTransactionalClient = Parameters<
-  Parameters<PrismaClient['$transaction']>[0]
->[0];
-
-export default prisma;
+export default prismaSingle;

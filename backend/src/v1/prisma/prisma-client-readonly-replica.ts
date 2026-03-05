@@ -7,20 +7,9 @@
 import { logger } from '../../logger.js';
 import { readReplicas } from '@prisma/extension-read-replicas';
 import prisma from './prisma-client.js';
+import { config } from '../../config/config.js';
 
-const DB_USER = process.env.POSTGRESQL_USER || 'postgres';
-const DB_PWD = encodeURIComponent(
-  process.env.POSTGRESQL_PASSWORD || 'postgres',
-);
-const DB_PORT = process.env.POSTGRESQL_PORT || 5432;
-const DB_NAME = process.env.POSTGRESQL_DATABASE || 'postgres';
-const DB_SCHEMA = process.env.DB_SCHEMA || 'pay_transparency';
-const DB_CONNECTION_POOL_SIZE = process.env.DB_CONNECTION_POOL_SIZE || 5;
-const READ_ONLY_REPLICA_HOST =
-  process.env.READ_ONLY_REPLICA_HOST ||
-  process.env.POSTGRESQL_HOST ||
-  'localhost';
-const readReplicaUrl = `postgresql://${DB_USER}:${DB_PWD}@${READ_ONLY_REPLICA_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
+const readReplicaUrl = config.get('server:datasourceUrlReplica');
 logger.silly(`Connecting to readonly replica at ${readReplicaUrl}`);
 
 const prismaReadOnlyReplica = prisma.$extends(

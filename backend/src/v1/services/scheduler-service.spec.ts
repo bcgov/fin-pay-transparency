@@ -20,6 +20,7 @@ import { faker } from '@faker-js/faker';
 
 vi.mock('./utils-service');
 vi.mock('../prisma/prisma-client');
+vi.mock('../prisma/prisma-client-readonly-replica.ts');
 
 const mockDraftReport: pay_transparency_report = {
   report_id: '456768',

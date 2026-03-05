@@ -2,6 +2,8 @@ import { vi, describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { externalConsumerApp } from './external-consumer-app.js';
 
+vi.mock('./v1/prisma/prisma-client-readonly-replica');
+
 const mockExportDataWithPagination = vi.fn();
 vi.mock('./v1/services/external-consumer-service', () => ({
   externalConsumerService: {
