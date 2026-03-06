@@ -1,14 +1,14 @@
 import http from 'node:http';
-import { config } from './config/index';
+import { config } from './config/config.js';
 
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 import { AddressInfo } from 'node:net';
-import { adminApp } from './admin-app';
-import { app } from './app';
-import { externalConsumerApp } from './external-consumer-app';
-import prisma from './v1/prisma/prisma-client';
-import prismaReadOnlyReplica from './v1/prisma/prisma-client-readonly-replica';
+import { adminApp } from './admin-app.js';
+import { app } from './app.js';
+import { externalConsumerApp } from './external-consumer-app.js';
+import prisma from './v1/prisma/prisma-client.js';
+import prismaReadOnlyReplica from './v1/prisma/prisma-client-readonly-replica.js';
 
 // run inside `async` function
 

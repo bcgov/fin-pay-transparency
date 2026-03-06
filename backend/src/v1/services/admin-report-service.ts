@@ -1,9 +1,9 @@
 import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 import type { pay_transparency_report } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import prisma from '../prisma/prisma-client';
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { UserInputError } from '../types/errors';
+import prisma from '../prisma/prisma-client.js';
+import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica.js';
+import { UserInputError } from '../types/errors.js';
 import {
   FilterValidationSchema,
   RELATION_MAPPER,
@@ -11,10 +11,10 @@ import {
   ReportSortType,
   ReportAdminActionHistory,
   AdminModifiedReason,
-} from '../types/report-search';
-import { PayTransparencyUserError } from './file-upload-service';
-import { enumReportStatus, reportService } from './report-service';
-import { utils } from './utils-service';
+} from '../types/report-search.js';
+import { PayTransparencyUserError } from './file-upload-service.js';
+import { enumReportStatus, reportService } from './report-service.js';
+import { utils } from './utils-service.js';
 
 interface IGetReportMetricsInput {
   reportingYear: number;

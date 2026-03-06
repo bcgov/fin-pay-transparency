@@ -1,17 +1,17 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from './report-metrics-routes';
+import router from './report-metrics-routes.js';
 
 let app: Application;
-const getReportsMetricsMock = jest.fn();
-jest.mock('../../services/admin-report-service', () => ({
+const getReportsMetricsMock = vi.fn();
+vi.mock('../../services/admin-report-service', () => ({
   adminReportService: {
     getReportsMetrics: (...args) => getReportsMetricsMock(...args),
   },
 }));
 describe('reports-metrics-routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     app = express();
     app.use('/dashboard', router);
   });

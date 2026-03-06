@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import {
   DateTimeFormatter,
@@ -5,106 +6,70 @@ import {
   ZonedDateTime,
   ZoneId,
 } from '@js-joda/core';
-import omit from 'lodash/omit';
+import omit from 'lodash/omit.js';
 import {
   AnnouncementDataType,
   AnnouncementStatus,
-} from '../types/announcements';
-import { UserInputError } from '../types/errors';
-import { announcementService } from './announcements-service';
-import { utils } from './utils-service';
+} from '../types/announcements.js';
+import { UserInputError } from '../types/errors.js';
+import { announcementService } from './announcements-service.js';
+import { utils } from './utils-service.js';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 
-const mockFindMany = jest.fn().mockResolvedValue([
-  {
-    id: 1,
-    title: 'Announcement 1',
-    description: 'Description 1',
-    active_on: new Date(),
-    expires_on: new Date(),
-    status: 'active',
-  },
-  {
-    id: 2,
-    title: 'Announcement 2',
-    description: 'Description 2',
-    active_on: new Date(),
-    expires_on: new Date(),
-    status: 'active',
-  },
-]);
+const mockFindMany = prisma.announcement.findMany;
+const mockUpdateMany = prisma.announcement.updateMany;
+const mockCreateAnnouncement = prisma.announcement.create;
+const mockFindUniqueOrThrow = prisma.announcement.findUniqueOrThrow;
+const mockUpdate = prisma.announcement.update;
+const mockDeleteMany = prisma.announcement.deleteMany;
 
-const mockUpdateMany = jest.fn();
-const mockCreateAnnouncement = jest.fn();
-const mockFindUniqueOrThrow = jest.fn();
-const mockUpdate = jest.fn();
-const mockDeleteMany = jest.fn();
+const mockHistoryCreate = prisma.announcement_history.create;
+const mockDeleteManyHistory = prisma.announcement_history.deleteMany;
 
-const mockHistoryCreate = jest.fn();
-const mockFindManyResource = jest.fn();
-const mockDeleteManyHistory = jest.fn();
+const mockFindManyResource = prisma.announcement_resource.findMany;
+const mockCreateResource = prisma.announcement_resource.create;
+const mockDeleteResource = prisma.announcement_resource.delete;
+const mockUpdateResource = prisma.announcement_resource.update;
+const mockDeleteManyResource = prisma.announcement_resource.deleteMany;
 
-const mockCreateResource = jest.fn();
-const mockDeleteResource = jest.fn();
-const mockUpdateResource = jest.fn();
-const mockDeleteManyResource = jest.fn();
+const mockDeleteManyResourceHistory =
+  prisma.announcement_resource_history.deleteMany;
 
-const mockDeleteManyResourceHistory = jest.fn();
+vi.mock('../prisma/prisma-client');
 
-jest.mock('../prisma/prisma-client', () => ({
-  __esModule: true,
-  default: {
-    announcement: {
-      findMany: (...args) => mockFindMany(...args),
-      updateMany: (...args) => mockUpdateMany(...args),
-      create: (...args) => mockCreateAnnouncement(...args),
-      findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
-      count: jest.fn().mockResolvedValue(2),
-      groupBy: jest.fn().mockResolvedValueOnce([
-        { status: 'PUBLISHED', _count: 1 },
-        { status: 'DRAFT', _count: 2 },
-      ]),
+beforeEach(() => {
+  mockFindMany.mockResolvedValue([
+    {
+      announcement_id: '1',
+      title: 'Announcement 1',
+      description: 'Description 1',
+      active_on: new Date(),
+      expires_on: new Date(),
+      status: 'active',
     },
-    announcement_history: {
-      create: (...args) => mockHistoryCreate(...args),
+    {
+      announcement_id: '2',
+      title: 'Announcement 2',
+      description: 'Description 2',
+      active_on: new Date(),
+      expires_on: new Date(),
+      status: 'active',
     },
-    announcement_resource: {
-      findMany: (...args) => mockFindManyResource(...args),
-    },
-    $transaction: jest.fn().mockImplementation((cb) =>
-      cb({
-        announcement: {
-          findMany: (...args) => mockFindMany(...args),
-          updateMany: (...args) => mockUpdateMany(...args),
-          findUniqueOrThrow: (...args) => mockFindUniqueOrThrow(...args),
-          update: (...args) => mockUpdate(...args),
-          deleteMany: (...args) => mockDeleteMany(...args),
-        },
-        announcement_resource: {
-          create: (...args) => mockCreateResource(...args),
-          update: (...args) => mockUpdateResource(...args),
-          delete: (...args) => mockDeleteResource(...args),
-          deleteMany: (...args) => mockDeleteManyResource(...args),
-        },
-        announcement_history: {
-          create: (...args) => mockHistoryCreate(...args),
-          update: (...args) => mockUpdateResource(...args),
-          deleteMany: (...args) => mockDeleteManyHistory(...args),
-        },
-        announcement_resource_history: {
-          deleteMany: (...args) => mockDeleteManyResourceHistory(...args),
-        },
-        $executeRawUnsafe: jest.fn(),
-      }),
-    ),
-  },
-}));
+  ] as any);
 
-const mockS3ApiDeleteFiles = jest.fn();
-jest.mock('../../external/services/s3-api', () => ({
+  prisma.announcement.count.mockResolvedValue(2);
+  prisma.announcement.groupBy.mockResolvedValueOnce([
+    { status: 'PUBLISHED', _count: 1 },
+    { status: 'DRAFT', _count: 2 },
+  ]);
+});
+
+const mockS3ApiDeleteFiles = vi.fn();
+vi.mock('../../external/services/s3-api', () => ({
   deleteFiles: (...args) => mockS3ApiDeleteFiles(...args),
 }));
 
-jest.mock('../../config', () => ({
+vi.mock('../../config/config', () => ({
   config: {
     get: (key: string) => {
       const settings = {
@@ -117,10 +82,6 @@ jest.mock('../../config', () => ({
 }));
 
 describe('AnnouncementsService', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('getAnnouncements', () => {
     describe('when no query is provided', () => {
       it('should return announcements', async () => {
@@ -432,7 +393,7 @@ describe('AnnouncementsService', () => {
     describe('when provided a list of objects with valid status changes', () => {
       it("should change status and update the 'updated_by' and 'updated_date' cols", async () => {
         const mockUserId = 'user-id';
-        const mockUpdateManyUnsafe = jest
+        const mockUpdateManyUnsafe = vi
           .spyOn(utils, 'updateManyUnsafe')
           .mockResolvedValue(null);
         mockFindMany.mockResolvedValue([
@@ -1043,9 +1004,9 @@ describe('AnnouncementsService', () => {
     describe('when there are no announcements to expire', () => {
       it('exits without updating any announcements', async () => {
         mockFindMany.mockResolvedValue([]);
-        const patchAnnouncementsMock = jest
+        const patchAnnouncementsMock = vi
           .spyOn(announcementService, 'patchAnnouncements')
-          .mockImplementation();
+          .mockResolvedValue(undefined);
         await announcementService.expireAnnouncements();
         expect(mockFindMany).toHaveBeenCalled();
         expect(patchAnnouncementsMock).not.toHaveBeenCalled();
@@ -1054,10 +1015,9 @@ describe('AnnouncementsService', () => {
     describe('when there are some announcements to expire', () => {
       it('updates the announcements', async () => {
         mockFindMany.mockResolvedValue([{ announcement_id: '123' }]);
-        const patchAnnouncementsMock = jest.spyOn(
-          announcementService,
-          'patchAnnouncements',
-        );
+        const patchAnnouncementsMock = vi
+          .spyOn(announcementService, 'patchAnnouncements')
+          .mockResolvedValue(undefined);
         await announcementService.expireAnnouncements();
         expect(mockFindMany).toHaveBeenCalled();
         expect(patchAnnouncementsMock).toHaveBeenCalled();
@@ -1067,14 +1027,9 @@ describe('AnnouncementsService', () => {
 
   describe('getExpiringAnnouncements', () => {
     it('should return only announcements that will expire', async () => {
-      jest
-        .spyOn(ZonedDateTime, 'now')
-        .mockImplementationOnce((zone: ZoneId) =>
-          ZonedDateTime.of(
-            LocalDateTime.parse('2024-08-26T11:38:23.561'),
-            zone,
-          ),
-        );
+      vi.spyOn(ZonedDateTime, 'now').mockImplementationOnce((zone: ZoneId) =>
+        ZonedDateTime.of(LocalDateTime.parse('2024-08-26T11:38:23.561'), zone),
+      );
       await announcementService.getExpiringAnnouncements();
 
       expect(mockFindMany).toHaveBeenCalledWith({

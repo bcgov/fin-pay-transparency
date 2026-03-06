@@ -9,17 +9,17 @@ import { admin_user, admin_user_onboarding } from '@prisma/client';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
-import { isEqual } from 'lodash';
-import { config } from '../../config';
+import isEqual from 'lodash/isEqual.js';
+import { config } from '../../config/config.js';
 import {
   KEYCLOAK_IDP_HINT_AZUREIDIR,
   OIDC_AZUREIDIR_SCOPE,
-} from '../../constants';
-import { logger as log } from '../../logger';
-import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client';
-import { AuthBase } from './auth-utils-service';
-import { SSO } from './sso-service';
-import { utils } from './utils-service';
+} from '../../constants/constants.js';
+import { logger as log } from '../../logger.js';
+import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client.js';
+import { AuthBase } from './auth-utils-service.js';
+import { SSO } from './sso-service.js';
+import { utils } from './utils-service.js';
 
 enum LogoutReason {
   Login = 'login', // ie. don't log out

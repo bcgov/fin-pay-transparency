@@ -8,11 +8,11 @@ import {
   ZonedDateTime,
   convert,
 } from '@js-joda/core';
-import { config } from '../../config';
-import prisma from '../prisma/prisma-client';
-import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica';
-import { SubmissionError } from '../services/file-upload-service';
-import { ValidationError } from './validate-service';
+import { config } from '../../config/config.js';
+import prisma from '../prisma/prisma-client.js';
+import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica.js';
+import { SubmissionError } from '../services/file-upload-service.js';
+import { ValidationError } from './validate-service.js';
 
 function ConvertStringToZonedISO(str: string): ZonedDateTime {
   str = str.toUpperCase().trim();

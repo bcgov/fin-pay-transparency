@@ -1,25 +1,27 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import bodyParser from 'body-parser';
-import { Application } from 'express';
+import express, { Application } from 'express';
 import qs from 'qs';
 import request from 'supertest';
+import router from './announcement-routes.js';
+import { setAdminAuthState } from '../middlewares/authorization/__mocks__/authenticate-admin.js';
 
-const mockGetAnnouncements = jest.fn().mockResolvedValue({
+const mockGetAnnouncements = vi.fn((...args) => ({
   items: [],
   total: 0,
   offset: 0,
   limit: 10,
   totalPages: 0,
-});
-const mockPatchAnnouncements = jest.fn();
-const mockCreateAnnouncement = jest.fn();
-const mockUpdateAnnouncement = jest.fn();
-const mockGetAnnouncementById = jest.fn();
-jest.mock('../services/announcements-service', () => ({
+}));
+
+const mockPatchAnnouncements = vi.fn();
+const mockCreateAnnouncement = vi.fn();
+const mockUpdateAnnouncement = vi.fn();
+const mockGetAnnouncementById = vi.fn();
+vi.mock('../services/announcements-service', () => ({
   announcementService: {
-    getAnnouncements: (...args) => {
-      return mockGetAnnouncements(...args);
-    },
+    getAnnouncements: (...args) => mockGetAnnouncements(...args),
     patchAnnouncements: (...args) => mockPatchAnnouncements(...args),
     createAnnouncement: (...args) => mockCreateAnnouncement(...args),
     updateAnnouncement: (...args) => mockUpdateAnnouncement(...args),
@@ -27,12 +29,8 @@ jest.mock('../services/announcements-service', () => ({
   },
 }));
 
-const mockAuthenticateAdmin = jest.fn();
-jest.mock('../middlewares/authorization/authenticate-admin', () => ({
-  authenticateAdmin: () => mockAuthenticateAdmin,
-}));
-
-jest.mock('../middlewares/authorization/authorize', () => ({
+vi.mock('../middlewares/authorization/authenticate-admin');
+vi.mock('../middlewares/authorization/authorize', () => ({
   authorize:
     (...args) =>
     (req, res, next) => {
@@ -43,15 +41,11 @@ jest.mock('../middlewares/authorization/authorize', () => ({
 describe('announcement-routes', () => {
   let app: Application;
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockAuthenticateAdmin.mockImplementation((req, res, next) => {
-      req.user = { admin_user_id: faker.string.uuid(), userInfo: {} };
-      next();
-    });
-    app = require('express')();
+    setAdminAuthState('admin');
+    app = express();
     app.set('query parser', 'extended');
     app.use(bodyParser.json());
-    app.use(require('./announcement-routes').default);
+    app.use(router);
     app.use((error, req, res, next) => {
       res.status(400).json({ error: error.message });
     });
@@ -160,9 +154,7 @@ describe('announcement-routes', () => {
 
         describe('when sort is provided in public frontend', () => {
           it('should be ignored and set to the default', async () => {
-            mockAuthenticateAdmin.mockImplementation((req, res, next) => {
-              next();
-            });
+            setAdminAuthState('non-admin');
             const response = await request(app)
               .get('/')
               .query(
@@ -335,9 +327,7 @@ describe('announcement-routes', () => {
 
         describe('when filters are provided in public frontend', () => {
           it('should be ignored and set to the default', async () => {
-            mockAuthenticateAdmin.mockImplementation((req, res, next) => {
-              next();
-            });
+            setAdminAuthState('non-admin');
             const response = await request(app)
               .get('/')
               .query(

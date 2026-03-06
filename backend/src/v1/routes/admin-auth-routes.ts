@@ -1,16 +1,16 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import passport from 'passport';
-import { config } from '../../config';
+import { config } from '../../config/config.js';
 import {
   MISSING_TOKENS_ERROR,
   OIDC_AZUREIDIR_CALLBACK_NAME,
   OIDC_AZUREIDIR_STRATEGY_NAME,
-} from '../../constants';
-import { logger as log } from '../../logger';
-import { LogoutReason, adminAuth } from '../services/admin-auth-service';
-import { UnauthorizedRsp } from '../services/auth-utils-service';
-import { utils } from '../services/utils-service';
+} from '../../constants/constants.js';
+import { logger as log } from '../../logger.js';
+import { LogoutReason, adminAuth } from '../services/admin-auth-service.js';
+import { UnauthorizedRsp } from '../services/auth-utils-service.js';
+import { utils } from '../services/utils-service.js';
 
 const router = express.Router();
 

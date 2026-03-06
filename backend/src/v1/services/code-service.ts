@@ -1,5 +1,5 @@
 import { LocalDateTime, convert } from '@js-joda/core';
-import prisma from '../prisma/prisma-client';
+import prisma from '../prisma/prisma-client.js';
 
 const cacheExpirationTimeHours = 25;
 

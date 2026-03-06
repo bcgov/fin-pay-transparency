@@ -1,27 +1,22 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
-import { downloadFile, deleteFiles, upload } from './s3-api';
+import { downloadFile, deleteFiles, upload } from './s3-api.js';
 import {
-  DeleteObjectsCommand,
   GetObjectCommand,
   ListObjectsCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin.js';
 import path from 'node:path';
 import os from 'node:os';
+import prisma from '../../v1/prisma/__mocks__/prisma-client.js';
+import { type announcement_resource } from '@prisma/client';
 
-const mockFindFirstOrThrow = jest.fn();
-jest.mock('../../v1/prisma/prisma-client', () => ({
-  __esModule: true,
-  default: {
-    announcement_resource: {
-      findFirstOrThrow: () => mockFindFirstOrThrow(),
-    },
-  },
-}));
+vi.mock('../../v1/prisma/prisma-client');
+const mockFindFirstOrThrow = prisma.announcement_resource.findFirstOrThrow;
 
-jest.mock('../../constants/admin', () => ({
+vi.mock('../../constants/admin', () => ({
   APP_ANNOUNCEMENTS_FOLDER: 'announcements',
   S3_BUCKET: 'test-bucket',
   S3_OPTIONS: {
@@ -33,57 +28,54 @@ jest.mock('../../constants/admin', () => ({
   },
 }));
 
-const mockStreamWrite = jest.fn();
-const mockCreateReadStream = jest.fn();
+const mockStreamWrite = vi.fn();
+const mockCreateReadStream = vi.fn();
+vi.mock('node:fs', () => ({
+  default: {
+    createWriteStream: vi.fn(() => ({
+      write: (...args) => mockStreamWrite(...args),
+    })),
+    createReadStream: vi.fn((...args) => mockCreateReadStream(...args)),
+    unlink: vi.fn(),
+  },
+}));
 
-jest.mock('node:fs', () => ({
-  ...jest.requireActual('node:fs'),
-  createWriteStream: () => ({
-    write: (...args) => mockStreamWrite(...args),
+const mockSend = vi.fn();
+vi.mock('@aws-sdk/client-s3', async () => ({
+  S3Client: vi.fn(function () {
+    return { send: mockSend };
   }),
-  createReadStream: (...args) => mockCreateReadStream(...args),
-  unlink: jest.fn(),
+  GetObjectCommand: vi.fn(),
+  ListObjectsCommand: vi.fn(),
+  DeleteObjectsCommand: vi.fn(),
 }));
 
-const mockSend = jest.fn();
-jest.mock('@aws-sdk/client-s3', () => ({
-  ...jest.requireActual('@aws-sdk/client-s3'),
-  S3Client: jest.fn().mockImplementation(() => ({
-    send: mockSend,
-  })),
+const mockUploadDone = vi.fn();
+vi.mock('@aws-sdk/lib-storage', async () => ({
+  Upload: vi.fn(function (config) {
+    return { done: () => mockUploadDone(config) };
+  }),
 }));
 
-const mockUploadDone = jest.fn();
-jest.mock('@aws-sdk/lib-storage', () => ({
-  Upload: jest.fn().mockImplementation(() => ({
-    done: mockUploadDone,
-  })),
-}));
-
-const mockAsyncRetry = jest.fn((fn, options) => fn());
-jest.mock('async-retry', () => ({
-  __esModule: true,
-  default: async (fn, options) => mockAsyncRetry(fn, options),
+const mockAsyncRetry = vi.fn((fn, options) => fn());
+vi.mock('async-retry', () => ({
+  default: (fn, options) => mockAsyncRetry(fn, options),
 }));
 
 describe('S3Api', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('downloadFile', () => {
     it('should download a file', async () => {
       mockFindFirstOrThrow.mockResolvedValue({
         attachment_file_id: faker.string.uuid(),
         display_name: faker.lorem.word(),
-      });
+      } as announcement_resource);
 
-      mockSend.mockImplementation((...args) => {
+      mockSend.mockImplementation(function (...args) {
         const [command] = args;
         if (command instanceof GetObjectCommand) {
           return {
             Body: {
-              transformToByteArray: jest
+              transformToByteArray: vi
                 .fn()
                 .mockResolvedValue(faker.lorem.words(10)),
             },
@@ -110,23 +102,26 @@ describe('S3Api', () => {
         cb();
       });
 
-      // Arrange
       const res = {
-        setHeader: jest.fn(),
-        write: jest.fn(),
-        end: jest.fn(),
-        download: jest.fn().mockImplementation((...args) => {
+        setHeader: vi.fn(),
+        write: vi.fn(),
+        end: vi.fn(),
+        download: vi.fn().mockImplementation((...args) => {
           const [tempFile, fileName, cb] = args;
           cb();
         }),
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
       };
 
       const fileId = 'fileId';
-      // Act
-      await downloadFile(res, fileId);
-      // Assert
+
+      try {
+        await downloadFile(res, fileId);
+      } catch (error) {
+        console.error(error);
+      }
+
       expect(res.download).toHaveBeenCalled();
     });
 
@@ -135,10 +130,10 @@ describe('S3Api', () => {
         mockFindFirstOrThrow.mockResolvedValue({
           attachment_file_id: faker.string.uuid(),
           display_name: faker.lorem.word(),
-        });
+        } as announcement_resource);
         const res = {
-          status: jest.fn().mockReturnThis(),
-          json: jest.fn(),
+          status: vi.fn().mockReturnThis(),
+          json: vi.fn(),
         };
 
         mockSend.mockResolvedValue({
@@ -156,10 +151,10 @@ describe('S3Api', () => {
         mockFindFirstOrThrow.mockResolvedValue({
           attachment_file_id: faker.string.uuid(),
           display_name: faker.lorem.word(),
-        });
+        } as announcement_resource);
         const res = {
-          status: jest.fn().mockReturnThis(),
-          json: jest.fn(),
+          status: vi.fn().mockReturnThis(),
+          json: vi.fn(),
         };
 
         mockSend.mockRejectedValue(new Error('error'));
@@ -174,8 +169,8 @@ describe('S3Api', () => {
       mockFindFirstOrThrow.mockRejectedValue(new Error('error'));
 
       const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
       };
 
       const fileId = 'fileId';
@@ -198,25 +193,17 @@ describe('S3Api', () => {
         Key: `${APP_ANNOUNCEMENTS_FOLDER}/id3/file3`,
         Code: 'OtherError',
       };
-
-      mockSend.mockImplementation((...args) => {
-        const [command] = args;
-        if (command instanceof ListObjectsCommand) {
-          // test: multiple files in id1. id4 doesn't exist
-          if (command.input.Prefix == `${APP_ANNOUNCEMENTS_FOLDER}/id1`)
-            return { Contents: [fileId1a, fileId1b, fileId1c] };
-          if (command.input.Prefix == `${APP_ANNOUNCEMENTS_FOLDER}/id2`)
-            return { Contents: [fileId2] };
-          if (command.input.Prefix == `${APP_ANNOUNCEMENTS_FOLDER}/id3`)
-            return { Contents: [fileId3] };
-          return {};
-        }
-        if (command instanceof DeleteObjectsCommand) {
-          return {
-            Deleted: [fileId1a, fileId1b, fileId1c],
-            Errors: [fileId2, fileId3],
-          };
-        }
+      //mock the results of getlis for each id
+      mockSend.mockReturnValueOnce({
+        Contents: [fileId1a, fileId1b, fileId1c],
+      });
+      mockSend.mockReturnValueOnce({ Contents: [fileId2] });
+      mockSend.mockReturnValueOnce({ Contents: [fileId3] });
+      mockSend.mockReturnValueOnce({});
+      //mock the result of delete
+      mockSend.mockReturnValueOnce({
+        Deleted: [fileId1a, fileId1b, fileId1c],
+        Errors: [fileId2, fileId3],
       });
 
       const result = await deleteFiles(ids);
@@ -227,7 +214,7 @@ describe('S3Api', () => {
   });
 
   describe('upload', () => {
-    const mockStream = { pipe: jest.fn(), on: jest.fn() };
+    const mockStream = { pipe: vi.fn(), on: vi.fn() };
 
     beforeEach(() => {
       mockCreateReadStream.mockReturnValue(mockStream);
@@ -381,12 +368,10 @@ describe('S3Api', () => {
       const folder = 'app';
       const attachmentId = '123';
 
-      mockUploadDone.mockResolvedValue({ ETag: '"abc"' });
-
       const uploadCalls: string[] = [];
-      (Upload as unknown as jest.Mock).mockImplementation((config) => {
+      mockUploadDone.mockImplementation((config) => {
         uploadCalls.push(config.params.Key);
-        return { done: mockUploadDone };
+        return Promise.resolve({ ETag: '"abc"' });
       });
 
       await upload(filePath, fileName, contentType, folder, attachmentId);

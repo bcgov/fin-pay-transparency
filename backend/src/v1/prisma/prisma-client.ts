@@ -1,6 +1,9 @@
-import { logger } from '../../logger';
+import { logger } from '../../logger.js';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { config } from '../../config';
+import { config } from '../../config/config.js';
+
+const datasourceUrl = config.get('server:databaseUrl');
+logger.silly(`Connecting to ${datasourceUrl}`);
 
 const prisma: PrismaClient<
   Prisma.PrismaClientOptions,
@@ -13,7 +16,7 @@ const prisma: PrismaClient<
     { emit: 'stdout', level: 'error' },
   ],
   errorFormat: 'pretty',
-  datasourceUrl: config.get('server:databaseUrl'),
+  datasourceUrl: datasourceUrl,
 });
 prisma.$on('query', (e) => {
   logger.debug(

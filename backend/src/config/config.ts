@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import nconf from 'nconf';
-import { logger } from '../logger';
+import { logger } from '../logger.js';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
@@ -13,12 +13,16 @@ const DB_PORT = process.env.POSTGRESQL_PORT || 5432;
 const DB_NAME = process.env.POSTGRESQL_DATABASE || 'postgres';
 const DB_SCHEMA = process.env.DB_SCHEMA || 'pay_transparency';
 const DB_CONNECTION_POOL_SIZE = process.env.DB_CONNECTION_POOL_SIZE || 5;
-
+const READ_ONLY_REPLICA_HOST =
+  process.env.READ_ONLY_REPLICA_HOST ||
+  process.env.POSTGRESQL_HOST ||
+  'localhost';
 const datasourceUrl = process.env.DATABASE_URL
   ? `${process.env.DATABASE_URL}?schema=${DB_SCHEMA}&pgbouncer=true`
   : `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
+const datasourceUrlReplica = `postgresql://${DB_USER}:${DB_PWD}@${READ_ONLY_REPLICA_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
+const datasourceUrlSingle = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=1&connection_timeout=60`;
 
-logger.silly(`Connecting to ${datasourceUrl}`);
 nconf.defaults({
   environment: env,
   siteMinder_logout_endpoint: process.env.SITEMINDER_LOGOUT_ENDPOINT,
@@ -54,6 +58,8 @@ nconf.defaults({
       process.env.DELETE_ANNOUNCEMENTS_DURATION_IN_DAYS || '90',
     ),
     databaseUrl: datasourceUrl,
+    datasourceUrlReplica: datasourceUrlReplica,
+    datasourceUrlSingle: datasourceUrlSingle,
     firstYearWithPrevReportingYearOption: Number.parseInt(
       process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',
     ),

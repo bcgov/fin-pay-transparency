@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import { externalConsumerService } from '../services/external-consumer-service';
-import { utils } from '../services/utils-service';
-import { reportService } from '../services/report-service';
-import { errorService } from '../services/error-service';
+import { externalConsumerService } from '../services/external-consumer-service.js';
+import { utils } from '../services/utils-service.js';
+import { reportService } from '../services/report-service.js';
+import { errorService } from '../services/error-service.js';
 
 const router = express.Router();
 

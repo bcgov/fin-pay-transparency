@@ -1,6 +1,7 @@
+import { vi, describe, it, expect } from 'vitest';
 import { Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
-import { AuthBase } from './auth-utils-service';
+import { AuthBase } from './auth-utils-service.js';
 
 const mockRenewSuccessResult = {
   jwt: 'mock jwt',
@@ -23,10 +24,6 @@ class MockAuthSubclass extends AuthBase {
   public override handleGetToken(req: Request, res: Response) {}
 }
 const mockAuth = new MockAuthSubclass();
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
 
 describe('isTokenExpired', () => {
   describe('when the token is expired', () => {
@@ -78,8 +75,8 @@ describe('renewBackendAndFrontendTokens', () => {
   describe('when the refresh token is successfully exchanged for new backend tokens', () => {
     it('sets a success code in the response', async () => {
       const mockFrontendToken = 'sdf345dsf';
-      jest.spyOn(mockAuth, 'renew').mockResolvedValue(mockRenewSuccessResult);
-      const generateFrontendTokenSpy = jest
+      vi.spyOn(mockAuth, 'renew').mockResolvedValue(mockRenewSuccessResult);
+      const generateFrontendTokenSpy = vi
         .spyOn(mockAuth, 'generateFrontendToken')
         .mockReturnValue(mockFrontendToken);
       const req = {
@@ -87,8 +84,8 @@ describe('renewBackendAndFrontendTokens', () => {
         session: {},
       } as Request;
       const res: any = new Object();
-      res.status = jest.fn().mockReturnValue(res) as unknown;
-      res.json = jest.fn() as unknown;
+      res.status = vi.fn().mockReturnValue(res) as unknown;
+      res.json = vi.fn() as unknown;
 
       await mockAuth.renewBackendAndFrontendTokens(req, res);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -99,14 +96,14 @@ describe('renewBackendAndFrontendTokens', () => {
   });
   describe('when the refresh token is not successfully exchanged for new backend tokens', () => {
     it('sets an unauthorized code in the response', async () => {
-      jest.spyOn(mockAuth, 'renew').mockResolvedValue(null);
+      vi.spyOn(mockAuth, 'renew').mockResolvedValue(null);
       const req = {
         user: { refreshToken: 'mock refresh token' } as unknown,
         session: {},
       } as Request;
       const res = {
-        status: jest.fn().mockReturnValue({
-          json: jest.fn(),
+        status: vi.fn().mockReturnValue({
+          json: vi.fn(),
         }) as unknown,
       } as Response;
       await mockAuth.renewBackendAndFrontendTokens(req, res);

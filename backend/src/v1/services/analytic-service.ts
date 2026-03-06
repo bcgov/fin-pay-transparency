@@ -1,8 +1,8 @@
-import { config } from '../../config';
+import { config } from '../../config/config.js';
 import {
   PowerBiService,
   ReportNameInWorkspace,
-} from '../../external/services/powerbi-service';
+} from '../../external/services/powerbi-service.js';
 
 // Embed info for Reports, Dashboards, and other resources
 export type PowerBiEmbedInfo = {

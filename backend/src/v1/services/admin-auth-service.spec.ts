@@ -1,31 +1,33 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
 import axios from 'axios';
-import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants';
-import prisma from '../prisma/prisma-client';
-import { adminAuth, IUserDetails } from './admin-auth-service';
-import { ROLE_ADMIN_USER } from './sso-service';
-import { utils } from './utils-service';
+import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants/constants.js';
+import prisma from '../prisma/__mocks__/prisma-client.js';
+import type { admin_user, admin_user_onboarding } from '@prisma/client';
+import { adminAuth, IUserDetails } from './admin-auth-service.js';
+import { ROLE_ADMIN_USER } from './sso-service.js';
+import { utils } from './utils-service.js';
 
 //Mock the entire axios module so we never inadvertently make real
 //HTTP calls to remote services
-jest.mock('axios');
+vi.mock('axios');
 
-const mockGetSessionUser = jest.fn();
-jest.mock('./utils-service', () => {
-  const actualUtils = jest.requireActual('./utils-service').utils;
+const mockGetSessionUser = vi.fn();
+vi.mock(import('./utils-service.js'), async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     utils: {
-      ...actualUtils,
+      ...actual.utils,
       getSessionUser: () => mockGetSessionUser(),
-      getOidcDiscovery: jest.fn(),
-      getKeycloakPublicKey: jest.fn(),
+      getOidcDiscovery: vi.fn(),
+      getKeycloakPublicKey: vi.fn(),
     },
   };
 });
 
-jest.mock('../../config', () => {
-  const actualConfig = jest.requireActual('../../config').config;
+vi.mock(import('../../config/config.js'), async (importOriginal) => {
+  const actual = await importOriginal();
   return {
     config: {
       get: (key) => {
@@ -34,69 +36,49 @@ jest.mock('../../config', () => {
           'tokenGenerate:issuer': 'issuer',
           'server:adminFrontend': 'server-admin-frontend',
           'tokenGenerate:audience': 'audience',
-          'tokenGenerate:privateKey': actualConfig.get(
+          'tokenGenerate:privateKey': actual.config.get(
             'tokenGenerate:privateKey',
           ),
         };
         return settings[key];
       },
     },
-  };
+  } as unknown as typeof actual;
 });
 
-const actualJsonWebToken = jest.requireActual('jsonwebtoken');
+const actualJsonWebToken =
+  await vi.importActual<typeof import('jsonwebtoken')>('jsonwebtoken');
 
-const mockJWTDecode = jest.fn();
-jest.mock('jsonwebtoken', () => ({
-  ...jest.requireActual('jsonwebtoken'),
-  decode: () => {
-    return mockJWTDecode();
-  },
-}));
-
-const mockGetRolesByUser = jest.fn();
-const mockAddRolesToUser = jest.fn();
-const mockInitSSO = jest.fn();
-jest.mock('./sso-service', () => ({
-  SSO: {
-    init: () => mockInitSSO(),
-  },
-}));
-
-const mockFindFirst = jest.fn();
-const mockCreate = jest.fn();
-const mockUpdate = jest.fn();
-const mockAdminUserFindFirst = jest.fn();
-const mockAdminUserCreate = jest.fn();
-const mockAdminUserUpdate = jest.fn();
-const mockAdminUserHistoryCreate = jest.fn();
-jest.mock('../prisma/prisma-client', () => ({
-  __esModule: true,
-  ...jest.requireActual('../prisma/prisma-client'),
+const mockJWTDecode = vi.fn();
+vi.mock(import('jsonwebtoken'), async (importOriginal) => ({
   default: {
-    admin_user_onboarding: {
-      findFirst: (args) => mockFindFirst(args),
-      create: (args) => mockCreate(args),
-      update: (args) => mockUpdate(args),
-    },
-    admin_user: {
-      findFirst: (args) => mockAdminUserFindFirst(args),
-      create: (args) => mockAdminUserCreate(args),
-      update: (args) => mockAdminUserUpdate(args),
-    },
-    admin_user_history: {
-      create: (args) => mockAdminUserHistoryCreate(args),
-    },
-    $transaction: jest.fn().mockImplementation((callback) => callback(prisma)),
-    $extends: jest.fn(),
+    ...(await importOriginal()).default,
+    decode: () => mockJWTDecode(),
   },
 }));
+
+const mockGetRolesByUser = vi.fn();
+const mockAddRolesToUser = vi.fn();
+const mockInitSSO = vi.fn();
+vi.mock(import('./sso-service.js'), async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    SSO: {
+      ...actual.SSO,
+      init: () => mockInitSSO(),
+    },
+  } as typeof actual;
+});
+
+vi.mock('../prisma/prisma-client.js');
+const mockFindFirst = prisma.admin_user_onboarding.findFirst;
+const mockAdminUserFindFirst = prisma.admin_user.findFirst;
+const mockAdminUserCreate = prisma.admin_user.create;
+const mockAdminUserUpdate = prisma.admin_user.update;
+const mockAdminUserHistoryCreate = prisma.admin_user_history.create;
 
 describe('admin-auth-service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('generateFrontendToken', () => {
     it('generates a new JWT token that expires in 30 minute (1800 seconds)', async () => {
       const token = adminAuth.generateFrontendToken();
@@ -127,7 +109,7 @@ describe('admin-auth-service', () => {
         //property, but the value of that property isn't important because
         //we're also mocking the HTTP request (see below) that uses the return value
         const mockGetOidcDiscoveryResponse = { token_endpoint: null };
-        (utils.getOidcDiscovery as jest.Mock).mockResolvedValueOnce(
+        vi.mocked(utils.getOidcDiscovery).mockResolvedValueOnce(
           mockGetOidcDiscoveryResponse,
         );
 
@@ -140,7 +122,7 @@ describe('admin-auth-service', () => {
             id_token: 'new_id_token',
           },
         };
-        (axios.post as jest.Mock).mockResolvedValueOnce(
+        vi.mocked(axios.post).mockResolvedValueOnce(
           mockSuccessfulRefreshTokenResponse,
         );
 
@@ -213,7 +195,7 @@ describe('admin-auth-service', () => {
             expiry_date: convert(
               LocalDateTime.now(ZoneId.UTC).minusDays(1),
             ).toDate(),
-          });
+          } as admin_user_onboarding);
           const result = await adminAuth.handleCallBackAzureIdir({} as any);
           expect(result).toBe('invitationExpired');
         });
@@ -231,7 +213,7 @@ describe('admin-auth-service', () => {
             expiry_date: convert(
               LocalDateTime.now(ZoneId.UTC).plusDays(1),
             ).toDate(),
-          });
+          } as admin_user_onboarding);
           const result = await adminAuth.handleCallBackAzureIdir({} as any);
           expect(result).toBe('roleChanged');
         });
@@ -266,7 +248,7 @@ describe('admin-auth-service', () => {
             preferred_username: 'user123',
             assigned_roles: 'user',
             is_active: false,
-          });
+          } as admin_user);
           mockFindFirst.mockResolvedValue(undefined);
           mockGetRolesByUser.mockResolvedValue([{ name: 'user' }]);
           mockInitSSO.mockReturnValue({
@@ -290,7 +272,7 @@ describe('admin-auth-service', () => {
             preferred_username: 'user123',
             assigned_roles: 'user',
             is_active: true,
-          });
+          } as admin_user);
 
           const result = await adminAuth.handleCallBackAzureIdir({} as any);
           expect(result).toBe('login');
@@ -328,7 +310,7 @@ describe('admin-auth-service', () => {
           });
           mockAdminUserFindFirst.mockResolvedValue({
             assigned_roles: 'user',
-          });
+          } as admin_user);
 
           const result = await adminAuth.handleCallBackAzureIdir({} as any);
           expect(result).toBe('login');
@@ -361,8 +343,8 @@ describe('admin-auth-service', () => {
 
   describe('handleGetUserInfo', () => {
     it('should return user info', async () => {
-      const mockStatus = jest.fn();
-      const mockJson = jest.fn();
+      const mockStatus = vi.fn();
+      const mockJson = vi.fn();
       const res = {
         status: mockStatus.mockImplementation(() => {
           return {
@@ -370,7 +352,9 @@ describe('admin-auth-service', () => {
           };
         }),
       };
-      mockAdminUserFindFirst.mockResolvedValue({ admin_user_id: '1234' });
+      mockAdminUserFindFirst.mockResolvedValue({
+        admin_user_id: '1234',
+      } as admin_user);
       mockGetSessionUser.mockReturnValue({
         _json: { display_name: 'test' },
         jwt: { preferred_username: 'user123' },
@@ -384,8 +368,8 @@ describe('admin-auth-service', () => {
     });
 
     it('should return 404 if user not found', async () => {
-      const mockStatus = jest.fn();
-      const mockJson = jest.fn();
+      const mockStatus = vi.fn();
+      const mockJson = vi.fn();
       const res = {
         status: mockStatus.mockImplementation(() => {
           return {

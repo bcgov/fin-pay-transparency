@@ -1,13 +1,14 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import express, { Application } from 'express';
 import request from 'supertest';
-import router from '.';
+import router from './dashboard-routes.js';
 
-jest.mock('../../services/announcements-service', () => ({
-  announcementService: { getAnnouncementMetrics: jest.fn() },
+vi.mock('../../services/announcements-service', () => ({
+  announcementService: { getAnnouncementMetrics: vi.fn() },
 }));
-jest.mock('../../services/admin-report-service', () => ({
+vi.mock('../../services/admin-report-service', () => ({
   adminReportService: {
-    getReportsMetrics: jest.fn(),
+    getReportsMetrics: vi.fn(),
   },
 }));
 describe('Dashboard', () => {

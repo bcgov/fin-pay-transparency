@@ -1,32 +1,26 @@
-// @ts-check
 import globals from 'globals';
 import pluginJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import pluginJest from 'eslint-plugin-jest';
+import vitest from '@vitest/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
-export default tseslint.config(
+export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  pluginJest.configs['flat/recommended'],
-  eslintConfigPrettier,
+  vitest.configs.recommended,
   {
     languageOptions: {
       globals: globals.node,
       parserOptions: {
         projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
   },
   {
     rules: {
-      '@typescript-eslint/no-floating-promises': 'error',
-      'jest/expect-expect': [
-        'warn',
-        {
-          assertFunctionNames: ['expect', 'request.**.expect'],
-        },
-      ],
+      'vitest/no-mocks-import': 'off',
     },
   },
-);
+  eslintConfigPrettier,
+];

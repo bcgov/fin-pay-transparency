@@ -1,4 +1,5 @@
-import ClientConnection from './connection';
+import { describe, it, expect, beforeEach } from 'vitest';
+import ClientConnection from './connection.js';
 
 describe('ClientConnection', () => {
   let clientConnection: ClientConnection;

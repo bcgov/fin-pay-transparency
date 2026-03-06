@@ -12,20 +12,20 @@ import {
   PrismaClient,
 } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
-import isEmpty from 'lodash/isEmpty';
-import { config } from '../../config';
-import { deleteFiles } from '../../external/services/s3-api';
-import { logger } from '../../logger';
-import prisma from '../prisma/prisma-client';
-import { PaginatedResult } from '../types';
+import isEmpty from 'lodash/isEmpty.js';
+import { config } from '../../config/config.js';
+import { deleteFiles } from '../../external/services/s3-api.js';
+import { logger } from '../../logger.js';
+import prisma from '../prisma/prisma-client.js';
+import { PaginatedResult } from '../types/request.js';
 import {
   AnnouncementDataType,
   AnnouncementQueryType,
   AnnouncementStatus,
   PatchAnnouncementsType,
-} from '../types/announcements';
-import { UserInputError } from '../types/errors';
-import { utils } from './utils-service';
+} from '../types/announcements.js';
+import { UserInputError } from '../types/errors.js';
+import { utils } from './utils-service.js';
 
 const saveHistory = async (
   tx: Omit<

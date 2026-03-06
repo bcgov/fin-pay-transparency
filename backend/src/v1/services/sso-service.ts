@@ -1,18 +1,18 @@
 import { admin_user, Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import axios, { AxiosInstance } from 'axios';
-import { difference } from 'lodash';
+import difference from 'lodash/difference.js';
 import qs from 'qs';
-import { config } from '../../config';
+import { config } from '../../config/config.js';
 import {
   EFFECTIVE_ROLES,
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,
-} from '../../constants/admin';
-import { logger } from '../../logger';
-import prisma from '../prisma/prisma-client';
-import { adminAuth, IUserDetails } from '../services/admin-auth-service';
-import { RoleType } from '../types/users';
+} from '../../constants/admin.js';
+import { logger } from '../../logger.js';
+import prisma from '../prisma/prisma-client.js';
+import { adminAuth, IUserDetails } from '../services/admin-auth-service.js';
+import { RoleType } from '../types/users.js';
 import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';

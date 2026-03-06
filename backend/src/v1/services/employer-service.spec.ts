@@ -1,19 +1,14 @@
-import { employerService } from '../services/employer-service';
-import { EmployerKeyEnum, EmployerMetrics } from '../types/employers';
+import { vi, describe, it, expect } from 'vitest';
+import { employerService } from '../services/employer-service.js';
+import { EmployerKeyEnum, EmployerMetrics } from '../types/employers.js';
+import prismaReadOnly from '../prisma/__mocks__/prisma-client-readonly-replica.js';
 
-const mockCountPayTransparencyCompanies = jest.fn();
-const mockFindManyPayTransparencyCompanies = jest.fn();
+const mockCountPayTransparencyCompanies =
+  prismaReadOnly.pay_transparency_company.count;
+const mockFindManyPayTransparencyCompanies =
+  prismaReadOnly.pay_transparency_company.findMany;
 
-jest.mock('../prisma/prisma-client-readonly-replica', () => ({
-  __esModule: true,
-  ...jest.requireActual('../prisma/prisma-client-readonly-replica'),
-  default: {
-    pay_transparency_company: {
-      count: () => mockCountPayTransparencyCompanies(),
-      findMany: (...args) => mockFindManyPayTransparencyCompanies(...args),
-    },
-  },
-}));
+vi.mock('../prisma/prisma-client-readonly-replica');
 
 describe('employer-service', () => {
   describe('getEmployerMetrics', () => {
