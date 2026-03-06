@@ -14,5 +14,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["./src", "templates", "./tests/integration"],
-  "files": ["./eslint.config.mjs", "./vitest.config.ts"]
+  "files": ["./eslint.config.mjs", "./vitest.config.ts", "./prisma.config.ts"]
 }

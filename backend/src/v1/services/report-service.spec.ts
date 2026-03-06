@@ -7,14 +7,17 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
-import type { pay_transparency_report, report_history } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import {
+  type pay_transparency_report,
+  type report_history,
+  Prisma,
+} from '../prisma/generated/client.js';
 import stream from 'stream';
 import {
   DISPLAY_REPORT_DATE_FORMAT,
   JSON_REPORT_DATE_FORMAT,
 } from '../../constants/constants.js';
-import prisma from '../prisma//__mocks__/prisma-client.js';
+import prisma from '../prisma/__mocks__/prisma-client.js';
 import { CALCULATION_CODES } from './report-calc-service.js';
 import {
   CalcCodeGenderCode,

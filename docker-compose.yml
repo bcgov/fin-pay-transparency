@@ -39,6 +39,8 @@ services:
     image: clamav/clamav
     container_name: clamav
     restart: unless-stopped
+    environment:
+      - CLAMAV_NO_FRESHCLAMD=true 
     ports:
       - "3310:3310"
     networks:

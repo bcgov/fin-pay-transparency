@@ -6,12 +6,10 @@ import {
 } from '@js-joda/core';
 import '@js-joda/timezone';
 import {
-  announcement,
-  announcement_resource,
+  type announcement,
+  type announcement_resource,
   Prisma,
-  PrismaClient,
-} from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
+} from '../prisma/generated/client.js';
 import isEmpty from 'lodash/isEmpty.js';
 import { config } from '../../config/config.js';
 import { deleteFiles } from '../../external/services/s3-api.js';
@@ -28,10 +26,7 @@ import { UserInputError } from '../types/errors.js';
 import { utils } from './utils-service.js';
 
 const saveHistory = async (
-  tx: Omit<
-    PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
-    '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
-  >,
+  tx: Prisma.TransactionClient,
   announcement: announcement & {
     announcement_resource: announcement_resource[];
   },

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '../v1/prisma/generated/client.js';
 import { AdvisoryLock } from './advisory-lock.js';
 
 let mockPrismaAdvisoryLockValue = true;

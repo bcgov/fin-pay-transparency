@@ -5,7 +5,11 @@ import {
   convert,
   nativeJs,
 } from '@js-joda/core';
-import { admin_user, admin_user_onboarding } from '@prisma/client';
+import type {
+  admin_user,
+  admin_user_onboarding,
+  Prisma,
+} from '../prisma/generated/client.js';
 import { Request, Response } from 'express';
 import HttpStatus from 'http-status-codes';
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken';
@@ -16,7 +20,7 @@ import {
   OIDC_AZUREIDIR_SCOPE,
 } from '../../constants/constants.js';
 import { logger as log } from '../../logger.js';
-import prisma, { PrismaTransactionalClient } from '../prisma/prisma-client.js';
+import prisma from '../prisma/prisma-client.js';
 import { AuthBase } from './auth-utils-service.js';
 import { SSO } from './sso-service.js';
 import { utils } from './utils-service.js';
@@ -239,7 +243,7 @@ class AdminAuth extends AuthBase {
   ): Promise<boolean> {
     const assigned_roles = userDetails?.roles.join(',');
     let modified = false;
-    await prisma.$transaction(async (tx: PrismaTransactionalClient) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // update the user onboarding record, idempotent operation, also solves the edge
       // case when call to keycloak was successful earlier but db operation had failed.
       if (adminUserOnboarding) {

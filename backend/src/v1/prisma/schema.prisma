@@ -1,12 +1,12 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["metrics", "views"]
+  provider        = "prisma-client"
+  output          = "./generated"
+  previewFeatures = ["views"]
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("PRISMA_DATABASE_URL")
 }
 
 model company_history {

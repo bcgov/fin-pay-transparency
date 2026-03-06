@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../prisma/generated/client.js';
 import { z } from 'zod';
 
 export type EmployerMetrics = {

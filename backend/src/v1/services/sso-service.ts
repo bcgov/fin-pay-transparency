@@ -1,5 +1,4 @@
-import { admin_user, Prisma, PrismaClient } from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
+import { type admin_user, Prisma } from '../prisma/generated/client.js';
 import axios, { AxiosInstance } from 'axios';
 import difference from 'lodash/difference.js';
 import qs from 'qs';
@@ -18,11 +17,6 @@ import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 const CSS_SSO_BASE_URL = 'https://api.loginproxy.gov.bc.ca/api/v1';
 const CSS_SSO_TOKEN_URL =
   'https://loginproxy.gov.bc.ca/auth/realms/standard/protocol/openid-connect/token';
-
-type PrismaTransactionalClient = Omit<
-  PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
-  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
->;
 
 type LoginReponse = {
   access_token: string;
@@ -349,7 +343,7 @@ export class SSO {
     });
   }
 
-  private async recordHistory(tx: PrismaTransactionalClient, user: admin_user) {
+  private async recordHistory(tx: Prisma.TransactionClient, user: admin_user) {
     await tx.admin_user_history.create({
       data: user,
     });

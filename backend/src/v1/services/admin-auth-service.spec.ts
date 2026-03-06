@@ -4,7 +4,10 @@ import { convert, LocalDateTime, ZoneId } from '@js-joda/core';
 import axios from 'axios';
 import { KEYCLOAK_IDP_HINT_AZUREIDIR } from '../../constants/constants.js';
 import prisma from '../prisma/__mocks__/prisma-client.js';
-import type { admin_user, admin_user_onboarding } from '@prisma/client';
+import type {
+  admin_user,
+  admin_user_onboarding,
+} from '../prisma/generated/client.js';
 import { adminAuth, IUserDetails } from './admin-auth-service.js';
 import { ROLE_ADMIN_USER } from './sso-service.js';
 import { utils } from './utils-service.js';

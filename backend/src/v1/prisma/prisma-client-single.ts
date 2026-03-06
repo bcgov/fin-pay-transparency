@@ -4,16 +4,22 @@
  * This can be used by other services that require multiple queries to be executed on the same session.
  */
 import { logger } from '../../logger.js';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from './generated/client.js';
 import { config } from '../../config/config.js';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const datasourceUrl = config.get('server:datasourceUrlSingle');
-logger.silly(`Connecting to ${datasourceUrl}`);
+const connectionString = config.get('server:datasourceUrlSingle');
+logger.silly(`Connecting to ${connectionString}`);
+const schema = new URL(connectionString).searchParams.get('schema');
+const adapter = new PrismaPg(
+  {
+    connectionString: connectionString,
+    options: schema && `-c search_path="${schema}"`,
+  },
+  { schema },
+);
 
-const prismaSingle: PrismaClient<
-  Prisma.PrismaClientOptions,
-  'query' | 'info' | 'warn' | 'error'
-> = new PrismaClient({
+const prismaSingle = new PrismaClient({
   log: [
     { emit: 'event', level: 'query' },
     { emit: 'stdout', level: 'info' },
@@ -21,7 +27,7 @@ const prismaSingle: PrismaClient<
     { emit: 'stdout', level: 'error' },
   ],
   errorFormat: 'pretty',
-  datasourceUrl: datasourceUrl,
+  adapter,
 });
 prismaSingle.$on('query', (e) => {
   logger.debug(

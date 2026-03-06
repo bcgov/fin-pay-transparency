@@ -6,7 +6,7 @@ import {
   EmployerSortType,
   IEmployerSearchResult,
 } from '../types/employers.js';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../prisma/generated/client.js';
 import { ChronoUnit, convert, ZonedDateTime, ZoneId } from '@js-joda/core';
 import '@js-joda/timezone';
 

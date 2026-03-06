@@ -45,7 +45,7 @@ app.use(
   bodyParser.urlencoded({
     extended: true,
     limit: `50MB`,
-  })
+  }),
 );
 
 if ('production' === config.get('environment')) {
@@ -62,8 +62,8 @@ app.use(
           req.baseUrl === '' || req.baseUrl === '/' || req.baseUrl === '/health'
         );
       },
-    }
-  )
+    },
+  ),
 );
 
 if (config.get('server:rateLimit:enabled')) {
@@ -88,7 +88,7 @@ app.get(
       /* istanbul ignore next  */
       res.status(500).send('Health check failed');
     }
-  })
+  }),
 );
 
 app.use(/(\/clamav-api)?/, apiRouter);
@@ -139,7 +139,12 @@ apiRouter.post(
       return;
     }
     const stream = fs.createReadStream(filePath);
-    const ClamAVScanner = await _getClamAvScanner();
+    let ClamAVScanner;
+    try {
+      ClamAVScanner = await _getClamAvScanner();
+    } catch (error) {
+      logger.error('Failed to initialize ClamAV scanner:', error);
+    }
 
     const clamavScanResult = await ClamAVScanner.scanStream(stream);
     if (clamavScanResult.isInfected) {
@@ -155,7 +160,7 @@ apiRouter.post(
         clamavScanResult,
       });
     }
-  })
+  }),
 );
 app.use((_req: Request, res: Response) => {
   res.sendStatus(404);
@@ -168,7 +173,7 @@ app.use(
       logger.error(err);
     }
     res.sendStatus(500);
-  }
+  },
 );
 
 export { app };
