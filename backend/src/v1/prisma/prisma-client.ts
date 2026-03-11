@@ -1,14 +1,20 @@
 import { logger } from '../../logger.js';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from './generated/client.js';
 import { config } from '../../config/config.js';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const datasourceUrl = config.get('server:databaseUrl');
-logger.silly(`Connecting to ${datasourceUrl}`);
+const connectionString = config.get('server:databaseUrl');
+logger.silly(`Connecting to ${connectionString}`);
+const schema = new URL(connectionString).searchParams.get('schema');
+const adapter = new PrismaPg(
+  {
+    connectionString: connectionString,
+    options: schema && `-c search_path="${schema}"`,
+  },
+  { schema },
+);
 
-const prisma: PrismaClient<
-  Prisma.PrismaClientOptions,
-  'query' | 'info' | 'warn' | 'error'
-> = new PrismaClient({
+const prisma = new PrismaClient({
   log: [
     { emit: 'event', level: 'query' },
     { emit: 'stdout', level: 'info' },
@@ -16,17 +22,13 @@ const prisma: PrismaClient<
     { emit: 'stdout', level: 'error' },
   ],
   errorFormat: 'pretty',
-  datasourceUrl: datasourceUrl,
+  adapter,
 });
+
 prisma.$on('query', (e) => {
   logger.debug(
     `Query: ${e.query}- Params: ${e.params} - Duration: ${e.duration}ms`,
   );
 });
-
-// Transaction type
-export type PrismaTransactionalClient = Parameters<
-  Parameters<PrismaClient['$transaction']>[0]
->[0];
 
 export default prisma;

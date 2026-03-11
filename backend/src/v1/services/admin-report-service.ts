@@ -1,6 +1,8 @@
 import { convert, ZonedDateTime, ZoneId } from '@js-joda/core';
-import type { pay_transparency_report } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import {
+  type pay_transparency_report,
+  Prisma,
+} from '../prisma/generated/client.js';
 import prisma from '../prisma/prisma-client.js';
 import prismaReadOnlyReplica from '../prisma/prisma-client-readonly-replica.js';
 import { UserInputError } from '../types/errors.js';

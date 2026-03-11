@@ -3,7 +3,10 @@ import { app } from './app.js';
 import prisma from './v1/prisma/__mocks__/prisma-client.js';
 import { publicAuth } from './v1/services/public-auth-service.js';
 import request from 'supertest';
-import type { employee_count_range, naics_code } from '@prisma/client';
+import type {
+  employee_count_range,
+  naics_code,
+} from './v1/prisma/generated/client.js';
 
 // ----------------------------------------------------------------------------
 // Setup
@@ -38,6 +41,8 @@ vi.mock('./v1/services/utils-service', async () => {
 // just wipe out the default implementation.  Override the default mocks by individual
 // tests below if necessary.
 vi.mock('./v1/prisma/prisma-client');
+vi.mock('./v1/prisma/prisma-client-single');
+vi.mock('./v1/prisma/prisma-client-readonly-replica');
 
 // Setup in app.ts requires access to certain config properties.  These may be present when
 // testing in a development environment (via a .env file), but they may not be present
@@ -182,7 +187,7 @@ describe('GET /health', () => {
 
     const response = await request(app).get('/health');
 
-    // expect(response.status).toBe(500);
-    // expect(response.text).toBe('Health check failed');
+    expect(response.status).toBe(500);
+    expect(response.text).toBe('Health check failed');
   });
 });

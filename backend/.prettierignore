@@ -1,0 +1,3 @@
+# Ignore generated and view folders for Prettier
+src/v1/prisma/generated/
+src/v1/prisma/view/

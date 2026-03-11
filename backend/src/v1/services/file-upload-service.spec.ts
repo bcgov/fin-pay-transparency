@@ -7,12 +7,12 @@ import { enumReportStatus } from './report-service.js';
 import { utils } from './utils-service.js';
 import { SUBMISSION_ROW_COLUMNS } from './validate-service.js';
 import { createSampleRecord } from './validate-service.spec.js';
-import type {
-  pay_transparency_company,
-  pay_transparency_report,
-  pay_transparency_user,
-} from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
+import {
+  type pay_transparency_company,
+  type pay_transparency_report,
+  type pay_transparency_user,
+  Prisma,
+} from '../prisma/generated/client.js';
 
 const MOCK_CALCULATION_CODES = {
   mock_calculation_code_1: 'calculation_id_1',
@@ -101,7 +101,7 @@ describe('saveSubmissionAsReport', () => {
       const existingReport = null;
       const newReport = {
         report_id: '1',
-        revision: Decimal(1),
+        revision: Prisma.Decimal(1),
         report_status: enumReportStatus.Draft,
       } as pay_transparency_report;
 
@@ -123,9 +123,9 @@ describe('saveSubmissionAsReport', () => {
     it('updated the existing report', async () => {
       const existingReport = {
         report_id: '1',
-        revision: Decimal(1),
+        revision: Prisma.Decimal(1),
         report_status: enumReportStatus.Draft,
-        reporting_year: Decimal(new Date().getFullYear()),
+        reporting_year: Prisma.Decimal(new Date().getFullYear()),
       } as pay_transparency_report;
 
       prisma.pay_transparency_report.findFirst.mockResolvedValueOnce(

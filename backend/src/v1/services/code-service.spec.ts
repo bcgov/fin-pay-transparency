@@ -5,7 +5,7 @@ import type {
   calculation_code,
   employee_count_range,
   naics_code,
-} from '@prisma/client';
+} from '../prisma/generated/client.js';
 
 vi.mock('../prisma/prisma-client');
 

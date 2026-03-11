@@ -255,9 +255,8 @@ app.use(metricsMiddleware);
 app.get(
   '/metrics',
   utils.asyncHandler(async (_req: Request, res: Response) => {
-    const prismaMetrics = await prisma.$metrics.prometheus();
     const appMetrics = await register.metrics();
-    res.end(prismaMetrics + appMetrics);
+    res.end(appMetrics);
   }),
 );
 app.get(

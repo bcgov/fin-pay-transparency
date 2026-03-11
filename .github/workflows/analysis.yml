@@ -90,9 +90,9 @@ jobs:
             npm ci
             npm run test:cov
           dir: ${{ matrix.dir }}
-          node_version: "20"
+          node_version: 24
           sonar_args: >
-            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/dist/**,**/ches/**,**/templates/**,**/prisma/views/pay_transparency/**,**/__mocks__/**
+            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/dist/**,**/ches/**,**/templates/**,**/prisma/**,**/__mocks__/**
             -Dsonar.organization=bcgov-sonarcloud
             -Dsonar.project.monorepo.enabled=true
             -Dsonar.projectKey=${{ matrix.sonar_projectKey }}

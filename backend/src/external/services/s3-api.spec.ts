@@ -11,7 +11,7 @@ import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin.js';
 import path from 'node:path';
 import os from 'node:os';
 import prisma from '../../v1/prisma/__mocks__/prisma-client.js';
-import { type announcement_resource } from '@prisma/client';
+import { type announcement_resource } from '../../v1/prisma/generated/client.js';
 
 vi.mock('../../v1/prisma/prisma-client');
 const mockFindFirstOrThrow = prisma.announcement_resource.findFirstOrThrow;

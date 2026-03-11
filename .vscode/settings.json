@@ -6,8 +6,10 @@
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
-  "[sql]": {
-    "editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode"
+  "prettier.requireConfig": true,
+  "search.exclude": {
+    // prisma has generated code which shouldn't be touched, no point in searching for them
+    "**/prisma/generated/**": true,
+    "**/prisma/views/**": true
   },
-  "prettier.requireConfig": true
 }

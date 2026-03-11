@@ -4,7 +4,7 @@ import request from 'supertest';
 import router from './external-consumer-routes.js';
 import { faker } from '@faker-js/faker';
 import prisma from '../prisma/__mocks__/prisma-client-readonly-replica.js';
-import type { reports_calculated_data_view } from '@prisma/client';
+import type { reports_calculated_data_view } from '../prisma/generated/client.js';
 
 vi.mock('../prisma/prisma-client-readonly-replica');
 const mockCount = prisma.reports_calculated_data_view.count;

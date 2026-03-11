@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { SSO } from './sso-service.js';
-import type { admin_user } from '@prisma/client';
+import type { admin_user } from '../prisma/generated/client.js';
 import {
   PTRT_ADMIN_ROLE_NAME,
   PTRT_USER_ROLE_NAME,

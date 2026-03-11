@@ -9,7 +9,7 @@ import {
 import prisma from '../prisma/prisma-client.js';
 import { enumReportStatus } from './report-service.js';
 import { logger } from '../../logger.js';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../prisma/generated/client.js';
 import { announcementService } from './announcements-service.js';
 import { SSO } from './sso-service.js';
 import emailService from '../../external/services/ches/ches.js';

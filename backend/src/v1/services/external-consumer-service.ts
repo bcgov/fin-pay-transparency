@@ -8,7 +8,7 @@ import {
 } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { PayTransparencyUserError } from './file-upload-service.js';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../prisma/generated/client.js';
 
 const DEFAULT_PAGE_SIZE = 50;
 

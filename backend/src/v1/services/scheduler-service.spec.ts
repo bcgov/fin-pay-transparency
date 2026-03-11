@@ -11,8 +11,8 @@ import type {
   admin_user,
   announcement,
   pay_transparency_report,
-} from '@prisma/client';
-import { Prisma } from '@prisma/client';
+} from '../prisma/generated/client.js';
+import { Prisma } from '../prisma/generated/client.js';
 import prisma from '../prisma/__mocks__/prisma-client.js';
 import { enumReportStatus } from './report-service.js';
 import { schedulerService } from './scheduler-service.js';
