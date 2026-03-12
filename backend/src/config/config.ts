@@ -60,6 +60,7 @@ nconf.defaults({
     datasourceUrlReplica: datasourceUrlReplica,
     datasourceUrlSingle: datasourceUrlSingle,
     databaseConnectionLimit: DB_CONNECTION_POOL_SIZE,
+    databaseSchema: DB_SCHEMA,
     firstYearWithPrevReportingYearOption: Number.parseInt(
       process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',
     ),
