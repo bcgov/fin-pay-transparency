@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import nconf from 'nconf';
-import { logger } from '../logger.js';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
@@ -19,9 +18,9 @@ const READ_ONLY_REPLICA_HOST =
   'localhost';
 const datasourceUrl = process.env.DATABASE_URL
   ? `${process.env.DATABASE_URL}?schema=${DB_SCHEMA}&pgbouncer=true`
-  : `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
-const datasourceUrlReplica = `postgresql://${DB_USER}:${DB_PWD}@${READ_ONLY_REPLICA_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=${DB_CONNECTION_POOL_SIZE}`;
-const datasourceUrlSingle = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=1&connection_timeout=60`;
+  : `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}`;
+const datasourceUrlReplica = `postgresql://${DB_USER}:${DB_PWD}@${READ_ONLY_REPLICA_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}`;
+const datasourceUrlSingle = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}`;
 
 nconf.defaults({
   environment: env,
@@ -60,6 +59,7 @@ nconf.defaults({
     databaseUrl: datasourceUrl,
     datasourceUrlReplica: datasourceUrlReplica,
     datasourceUrlSingle: datasourceUrlSingle,
+    databaseConnectionLimit: DB_CONNECTION_POOL_SIZE,
     firstYearWithPrevReportingYearOption: Number.parseInt(
       process.env.FIRST_YEAR_WITH_PREV_REPORTING_YEAR_OPTION || '2025',
     ),

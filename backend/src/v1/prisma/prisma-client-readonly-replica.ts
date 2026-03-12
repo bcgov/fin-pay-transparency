@@ -18,7 +18,7 @@ const schema = new URL(readReplicaUrl).searchParams.get('schema');
 const replicaAdapter = new PrismaPg(
   {
     connectionString: readReplicaUrl,
-    options: schema && `-c search_path="${schema}"`,
+    max: config.get('server:databaseConnectionLimit'),
   },
   { schema },
 );

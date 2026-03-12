@@ -14,7 +14,8 @@ const schema = new URL(connectionString).searchParams.get('schema');
 const adapter = new PrismaPg(
   {
     connectionString: connectionString,
-    options: schema && `-c search_path="${schema}"`,
+    max: 1,
+    idleTimeoutMillis: 120_000, //120 seconds (default 10s)
   },
   { schema },
 );
