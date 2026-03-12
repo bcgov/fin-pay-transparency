@@ -108,9 +108,15 @@ const ReportStepperStore = useReportStepperStore();
 
 let approvedRoute: string;
 
-onBeforeMount(() => {
+defineOptions({
+  beforeRouteEnter() {
+    const store = useReportStepperStore();
+    if (store.reportId == null) return { name: 'dashboard' };
+  },
+});
+
+onBeforeMount(async () => {
   ReportStepperStore.setStage('REVIEW');
-  if (ReportStepperStore.reportId == null) router.push({ path: '/' });
 });
 
 onBeforeRouteLeave(async (to, from, next) => {
