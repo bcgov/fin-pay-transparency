@@ -38,7 +38,7 @@ global:
     is_user_error_logging_enabled: "true"
     delete_draft_report_cron_crontime: "40 10 * * *" # 10:30 AM PST/PDT
   crunchyEnabled: true
-  seedData: true
+  seedData: false
 backend:
   deploymentStrategy: Recreate
   initResources:
