@@ -8,8 +8,8 @@ import { PrismaClient } from './generated/client.js';
 import { config } from '../../config/config.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-const connectionString = config.get('server:datasourceUrlSingle');
-logger.silly(`Connecting to ${connectionString}`);
+const connectionString = config.get('server:databaseUrl');
+logger.silly(`Connecting to single connection ${connectionString}`);
 const schema = new URL(connectionString).searchParams.get('schema');
 const adapter = new PrismaPg(
   {
