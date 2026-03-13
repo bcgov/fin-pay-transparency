@@ -17,10 +17,9 @@ const READ_ONLY_REPLICA_HOST =
   process.env.POSTGRESQL_HOST ||
   'localhost';
 const datasourceUrl = process.env.DATABASE_URL
-  ? `${process.env.DATABASE_URL}?schema=${DB_SCHEMA}&pgbouncer=true`
+  ? `${process.env.DATABASE_URL}?schema=${DB_SCHEMA}`
   : `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}`;
 const datasourceUrlReplica = `postgresql://${DB_USER}:${DB_PWD}@${READ_ONLY_REPLICA_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}`;
-const datasourceUrlSingle = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}`;
 
 nconf.defaults({
   environment: env,
@@ -57,8 +56,7 @@ nconf.defaults({
       process.env.DELETE_ANNOUNCEMENTS_DURATION_IN_DAYS || '90',
     ),
     databaseUrl: datasourceUrl,
-    datasourceUrlReplica: datasourceUrlReplica,
-    datasourceUrlSingle: datasourceUrlSingle,
+    databaseUrlReplica: datasourceUrlReplica,
     databaseConnectionLimit: DB_CONNECTION_POOL_SIZE,
     databaseSchema: DB_SCHEMA,
     firstYearWithPrevReportingYearOption: Number.parseInt(
