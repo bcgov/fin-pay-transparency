@@ -56,7 +56,7 @@ nconf.defaults({
       process.env.DELETE_ANNOUNCEMENTS_DURATION_IN_DAYS || '90',
     ),
     databaseUrl: datasourceUrl,
-    datasourceUrlReplica: datasourceUrlReplica,
+    databaseUrlReplica: datasourceUrlReplica,
     databaseConnectionLimit: DB_CONNECTION_POOL_SIZE,
     databaseSchema: DB_SCHEMA,
     firstYearWithPrevReportingYearOption: Number.parseInt(
