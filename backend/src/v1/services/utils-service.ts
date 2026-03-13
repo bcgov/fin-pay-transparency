@@ -164,6 +164,7 @@ async function updateManyUnsafe(
   const supportedTypeHints = ['UUID', 'TIMESTAMP'];
   const targetAlias = 't';
   const srcAlias = 's';
+  const schema = config.get('server:databaseSchema');
 
   const colNames = Object.keys(updates[0]);
 
@@ -214,7 +215,7 @@ async function updateManyUnsafe(
   // Assemble a single SQL statement to update each row identified in the
   // "updates" array.
   const sql = `
-    update ${tableName} as ${targetAlias} set
+    update ${schema}.${tableName} as ${targetAlias} set
     ${setColumnStmts.join(',')}
     from (values
       ${valueTuples.join(',')}

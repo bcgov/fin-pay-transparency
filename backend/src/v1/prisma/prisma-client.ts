@@ -9,7 +9,7 @@ const schema = new URL(connectionString).searchParams.get('schema');
 const adapter = new PrismaPg(
   {
     connectionString: connectionString,
-    options: schema && `-c search_path="${schema}"`,
+    max: config.get('server:databaseConnectionLimit'),
   },
   { schema },
 );

@@ -11,14 +11,14 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from './generated/client.js';
 import { config } from '../../config/config.js';
 
-const readReplicaUrl = config.get('server:datasourceUrlReplica');
+const readReplicaUrl = config.get('server:databaseUrlReplica');
 logger.silly(`Connecting to readonly replica at ${readReplicaUrl}`);
 
 const schema = new URL(readReplicaUrl).searchParams.get('schema');
 const replicaAdapter = new PrismaPg(
   {
     connectionString: readReplicaUrl,
-    options: schema && `-c search_path="${schema}"`,
+    max: config.get('server:databaseConnectionLimit'),
   },
   { schema },
 );
