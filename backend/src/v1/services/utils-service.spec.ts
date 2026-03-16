@@ -3,8 +3,10 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { config } from '../../config/config.js';
 import { utils } from './utils-service.js';
+import mockPrisma from '../prisma/prisma-client.js';
 
 vi.mock('axios');
+vi.mock('../prisma/prisma-client.js');
 
 describe('utils-service', () => {
   describe('postDataToDocGenService (&& postData)', () => {
@@ -111,10 +113,7 @@ describe('utils-service', () => {
 
   describe('updateManyUnsafe', () => {
     describe('when requesting that multiple records in a given table be updated', () => {
-      it('creates and executes a bulk update statement against the database', () => {
-        const mockTx = {
-          $executeRawUnsafe: vi.fn(),
-        };
+      it('creates and executes a bulk update statement against the database', async () => {
         const updates = [
           { mock_table_id: '1', another_col: 'aaa' },
           { mock_table_id: '2', another_col: 'bbb' },
@@ -122,24 +121,31 @@ describe('utils-service', () => {
         const typeHints = null;
         const mockTableName = 'mock_table';
         const primaryKeyCol = 'mock_table_id';
+        const schema = config.get('server:databaseSchema');
 
-        utils.updateManyUnsafe(
-          mockTx,
-          updates,
-          typeHints,
-          mockTableName,
-          primaryKeyCol,
-        );
+        let mockedExecuteRawUnsafe;
+        await mockPrisma.$transaction(async (mockTx) => {
+          await utils.updateManyUnsafe(
+            mockTx,
+            updates,
+            typeHints,
+            mockTableName,
+            primaryKeyCol,
+          );
+          mockedExecuteRawUnsafe = vi.mocked(mockTx.$executeRawUnsafe);
+        });
 
-        expect(mockTx.$executeRawUnsafe).toHaveBeenCalledTimes(1);
+        expect(mockedExecuteRawUnsafe).toHaveBeenCalledTimes(1);
 
-        // Get the SQL was was submitted to the database
-        const executedSql = mockTx.$executeRawUnsafe.mock.calls[0][0];
+        // Get the SQL that was submitted to the database
+        const executedSql = vi.mocked(mockedExecuteRawUnsafe).mock.calls[0][0];
 
         // Check that the submitted SQL includes several expected keywords
         // (We stop short of checking the exact format of the SQL and that
         // it is valid according to the database engine.)
-        expect(executedSql.toLowerCase()).toContain(`update ${mockTableName}`);
+        expect(executedSql.toLowerCase()).toContain(
+          `update ${schema}.${mockTableName}`,
+        );
         expect(executedSql.toLowerCase()).toContain('set');
         expect(executedSql.toLowerCase()).toContain('where');
         Object.keys(updates[0]).forEach((k) => {
@@ -149,33 +155,37 @@ describe('utils-service', () => {
     });
     describe('when typeHints are provided', () => {
       it('the executed SQL includes casts to te specified hints', async () => {
-        const mockTx = {
-          $executeRawUnsafe: vi.fn(),
-        };
         const updates = [
           { mock_table_id: '1', second_col: 'aaa', third_col: 'bbb' },
         ];
         const typeHints = { second_col: 'UUID', third_col: 'TIMESTAMP' };
         const mockTableName = 'mock_table';
         const primaryKeyCol = 'mock_table_id';
+        const schema = config.get('server:databaseSchema');
 
-        await utils.updateManyUnsafe(
-          mockTx,
-          updates,
-          typeHints,
-          mockTableName,
-          primaryKeyCol,
-        );
+        let mockedExecuteRawUnsafe;
+        await mockPrisma.$transaction(async (mockTx) => {
+          await utils.updateManyUnsafe(
+            mockTx,
+            updates,
+            typeHints,
+            mockTableName,
+            primaryKeyCol,
+          );
+          mockedExecuteRawUnsafe = vi.mocked(mockTx.$executeRawUnsafe);
+        });
 
-        expect(mockTx.$executeRawUnsafe).toHaveBeenCalledTimes(1);
+        expect(mockedExecuteRawUnsafe).toHaveBeenCalledTimes(1);
 
         // Get the SQL was was submitted to the database
-        const executedSql = mockTx.$executeRawUnsafe.mock.calls[0][0];
+        const executedSql = vi.mocked(mockedExecuteRawUnsafe).mock.calls[0][0];
 
         // Check that the submitted SQL includes several expected keywords
         // (We stop short of checking the exact format of the SQL and that
         // it is valid according to the database engine.)
-        expect(executedSql.toLowerCase()).toContain(`update ${mockTableName}`);
+        expect(executedSql.toLowerCase()).toContain(
+          `update ${schema}.${mockTableName}`,
+        );
         expect(executedSql.toLowerCase()).toContain('set');
         expect(executedSql.toLowerCase()).toContain('where');
 
