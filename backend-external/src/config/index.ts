@@ -19,8 +19,8 @@ nconf.defaults({
     port: process.env.PORT || 3002,
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
-      windowMs: process.env.RATE_LIMIT_WINDOW_MS || 60000, // 1 minute
-      limit: process.env.RATE_LIMIT_LIMIT || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
+      windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000, // 1 minute
+      limit: Number.parseInt(process.env.RATE_LIMIT_LIMIT) || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
     },
     baseURL: process.env.BASE_URL || 'http://localhost:3002',
   },
