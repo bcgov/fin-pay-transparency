@@ -147,9 +147,9 @@ spec:
             - name: IS_RATE_LIMIT_ENABLED
               value: 'true'
             - name: RATE_LIMIT_WINDOW_MS
-              value: '60000'
+              value: {{ 60000 | quote }}
             - name: RATE_LIMIT_LIMIT
-              value: '1000'
+              value: {{ 1000 | quote }}
             {{- if .Values.global.serverAdminFrontend }}
             - name: SERVER_ADMIN_FRONTEND
               value: {{ tpl .Values.global.serverAdminFrontend $ }}

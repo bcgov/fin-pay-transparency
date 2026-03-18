@@ -1,14 +1,25 @@
-FROM node:22-alpine
+FROM node:22-slim
+
 WORKDIR /app
-# Install chromium and its dependencies.  This is needed
-# to support Puppeteer
-RUN apk add --no-cache \
-      chromium \
-      nss \
-      freetype \
-      harfbuzz \
-      ca-certificates \
-      ttf-freefont
+
+# Install Chromium + dependencies
+RUN apt-get update && apt-get install -y \
+    chromium \
+    fonts-liberation \
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libasound2 \
+    libxshmfence1 \
+    ca-certificates \
+    wget \
+    --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 # Install packages, build and keep only prod packages
 
 COPY *.json ./
@@ -20,10 +31,7 @@ ENV PUPPETEER_DOWNLOAD_PATH=/puppeteer_downloads
 RUN npm ci && \
     npm run build
 
-
-
-
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Port and health check
 EXPOSE 3001

@@ -27,7 +27,7 @@ jobs:
       
     steps:     
       - name: Login to OpenShift
-        uses: bcgov/action-oc-runner@f900830adadd4d9eef3ca6ff80103e839ba8b7c0   # v1.3.0
+        uses: bcgov/action-oc-runner@d2fc921aaa9d70684c186dbb7754e6985d44d86f   # v1.4.1
         with:
           oc_namespace: ${{ env.OC_NAMESPACE }}
           oc_server:    ${{ env.OC_SERVER }}
