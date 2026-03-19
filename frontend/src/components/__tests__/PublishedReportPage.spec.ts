@@ -122,17 +122,17 @@ describe('PublishedReportPage', () => {
   describe('ReportStepper', () => {
     it('is hidden when mode is View', async () => {
       await renderComponent({ mode: ReportMode.View });
-      expect(screen.queryByTestId('report-stepper')).toBeNull();
+      expect(screen.queryByTestId('report-stepper')).not.toBeInTheDocument();
     });
 
     it('is visible when mode is Edit', async () => {
       await renderComponent({ mode: ReportMode.Edit });
-      expect(screen.getByTestId('report-stepper')).toBeTruthy();
+      expect(screen.getByTestId('report-stepper')).toBeVisible();
     });
 
     it('is visible when mode is New', async () => {
       await renderComponent({ mode: ReportMode.New });
-      expect(screen.getByTestId('report-stepper')).toBeTruthy();
+      expect(screen.getByTestId('report-stepper')).toBeVisible();
     });
   });
 
@@ -144,13 +144,13 @@ describe('PublishedReportPage', () => {
     it('is not rendered before HtmlReport emits html-report-loaded', async () => {
       await renderComponent();
       // Neither button should be present yet
-      expect(screen.queryByText('Download PDF')).toBeNull();
+      expect(screen.queryByText('Download PDF')).not.toBeInTheDocument();
     });
 
     it('shows the Download PDF button after html-report-loaded is emitted', async () => {
       const { getByTestId, getByText, user } = await renderComponent();
       await user.click(getByTestId('emit-html-report-loaded'));
-      expect(getByText('Download PDF')).toBeTruthy();
+      expect(getByText('Download PDF')).toBeVisible();
     });
 
     it('does not show Edit button when reportData is null', async () => {
@@ -158,7 +158,9 @@ describe('PublishedReportPage', () => {
         reportData: null,
       });
       await user.click(getByTestId('emit-html-report-loaded'));
-      expect(queryByTestId('published-report-edit-button')).toBeNull();
+      expect(
+        queryByTestId('published-report-edit-button'),
+      ).not.toBeInTheDocument();
     });
 
     it('does not show Edit button when report is locked (is_unlocked = false)', async () => {
@@ -166,7 +168,9 @@ describe('PublishedReportPage', () => {
         reportData: { is_unlocked: false },
       });
       await user.click(getByTestId('emit-html-report-loaded'));
-      expect(queryByTestId('published-report-edit-button')).toBeNull();
+      expect(
+        queryByTestId('published-report-edit-button'),
+      ).not.toBeInTheDocument();
     });
 
     it('shows Edit button when report is unlocked', async () => {
@@ -174,7 +178,7 @@ describe('PublishedReportPage', () => {
         reportData: { is_unlocked: true },
       });
       await user.click(getByTestId('emit-html-report-loaded'));
-      expect(getByTestId('published-report-edit-button')).toBeTruthy();
+      expect(getByTestId('published-report-edit-button')).toBeVisible();
     });
   });
 
@@ -296,7 +300,7 @@ describe('PublishedReportPage', () => {
   describe('HtmlReport', () => {
     it('is always rendered regardless of mode', async () => {
       const { getByTestId } = await renderComponent({ mode: ReportMode.View });
-      expect(getByTestId('html-report')).toBeTruthy();
+      expect(getByTestId('html-report')).toBeVisible();
     });
   });
 
@@ -307,7 +311,7 @@ describe('PublishedReportPage', () => {
   describe('Back button', () => {
     it('is always rendered', async () => {
       const { getByText } = await renderComponent();
-      expect(getByText('Back')).toBeTruthy();
+      expect(getByText('Back')).toBeVisible();
     });
   });
 });

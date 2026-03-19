@@ -1,6 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
 import { flushPromises } from '@vue/test-utils';
-import { render, fireEvent, screen } from '@testing-library/vue';
+import { render, fireEvent, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { createTestingPinia } from '@pinia/testing';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -179,17 +179,17 @@ describe('DraftReportPage', () => {
   describe('Static elements', () => {
     it('ReportStepper is always rendered', async () => {
       const { getByTestId } = await renderComponent();
-      expect(getByTestId('report-stepper')).toBeTruthy();
+      expect(getByTestId('report-stepper')).toBeVisible();
     });
 
     it('HtmlReport is always rendered', async () => {
       const { getByTestId } = await renderComponent();
-      expect(getByTestId('html-report')).toBeTruthy();
+      expect(getByTestId('html-report')).toBeVisible();
     });
 
     it('Back button is always rendered', async () => {
       const { getByText } = await renderComponent();
-      expect(getByText('Back')).toBeTruthy();
+      expect(getByText('Back')).toBeVisible();
     });
   });
 
@@ -200,23 +200,25 @@ describe('DraftReportPage', () => {
   describe('bottom action banner', () => {
     it('is not rendered before HtmlReport emits html-report-loaded', async () => {
       await renderComponent();
-      expect(screen.queryByText('Download PDF')).toBeNull();
-      expect(screen.queryByText('Generate Final Report')).toBeNull();
+      expect(screen.queryByText('Download PDF')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Generate Final Report'),
+      ).not.toBeInTheDocument();
     });
 
     it('shows Download PDF button after html-report-loaded is emitted', async () => {
       const { getByText } = await renderWithReport();
-      expect(getByText('Download PDF')).toBeTruthy();
+      expect(getByText('Download PDF')).toBeVisible();
     });
 
     it('shows Generate Final Report button after html-report-loaded is emitted', async () => {
       const { getByText } = await renderWithReport();
-      expect(getByText('Generate Final Report')).toBeTruthy();
+      expect(getByText('Generate Final Report')).toBeVisible();
     });
 
     it('shows the checkbox after html-report-loaded is emitted', async () => {
       const { getByRole } = await renderWithReport();
-      expect(getByRole('checkbox')).toBeTruthy();
+      expect(getByRole('checkbox')).toBeVisible();
     });
   });
 
@@ -397,7 +399,9 @@ describe('DraftReportPage', () => {
 
       // The component navigated itself to /published-report via nextStage(),
       // which sets approvedRoute first — so the guard must not block it.
-      expect(router.currentRoute.value.path).toBe('/published-report');
+      await waitFor(() => {
+        expect(router.currentRoute.value.path).toBe('/published-report');
+      });
     });
   });
 });
