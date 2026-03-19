@@ -13,6 +13,8 @@ import { ReportMode } from '../../store/modules/reportStepper';
 import InputForm, { ISubmissionError } from '../InputForm.vue';
 import { CsvService, ParseStatus } from '../../common/csvService';
 import ApiService from '../../common/apiService';
+import { NotificationService } from '../../common/notificationService';
+import { useConfigStore } from '../../store/modules/config';
 
 const DATE_FORMAT = 'yyyy-MM-dd';
 const dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -57,6 +59,21 @@ const mockConfig = {
   reportingYearOptions: [LocalDate.now().year() - 1, LocalDate.now().year()],
 };
 
+const openSpy = vi.fn(async () => true);
+vi.mock('../util/ConfirmationDialog.vue', () => ({
+  default: {
+    name: 'ConfirmationDialog',
+    setup(_, { expose }) {
+      expose({ open: openSpy });
+    },
+    template: `
+      <div data-testid="confirmation-dialog">
+        <slot name="message" />
+      </div>
+    `,
+  },
+}));
+
 describe('InputForm', () => {
   let wrapper;
   let pinia;
@@ -100,6 +117,7 @@ describe('InputForm', () => {
   };
 
   beforeEach(async () => {
+    vi.resetAllMocks();
     await initWrapper();
   });
 
@@ -107,7 +125,6 @@ describe('InputForm', () => {
     if (wrapper) {
       wrapper.unmount();
     }
-    vi.restoreAllMocks();
     sessionStorage.removeItem('backupFormDraft');
   });
 
@@ -524,6 +541,209 @@ describe('InputForm', () => {
       ).toBeFalsy();
     }
   });
+
+  // ===========================================================================
+  // beforeRouteLeave
+  // ===========================================================================
+
+  describe('beforeRouteLeave', () => {
+    it('calls next() immediately without opening the confirmation dialog', async () => {
+      const next = vi.fn();
+
+      await (InputForm as any).beforeRouteLeave.call(
+        wrapper.vm,
+        { fullPath: '/some-other-route' },
+        {},
+        next,
+      );
+
+      expect(next).toHaveBeenCalledWith();
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  // ===========================================================================
+  // uploadFileSize computed property
+  // ===========================================================================
+
+  describe('uploadFileSize', () => {
+    it('returns an empty string when no file is selected', async () => {
+      wrapper.vm.uploadFileValue = undefined;
+      expect(wrapper.vm.uploadFileSize).toBe('');
+    });
+
+    it('returns a human-readable size string when a file is selected', async () => {
+      // Create a mock File with a known byte size (1024 bytes = 1 KiB)
+      const mockFile = new File(['x'.repeat(1024)], 'test.csv', {
+        type: 'text/csv',
+      });
+      wrapper.vm.uploadFileValue = mockFile;
+      const size = wrapper.vm.uploadFileSize;
+      // The value should be a non-empty string produced by humanFileSize()
+      expect(typeof size).toBe('string');
+      expect(size.length).toBeGreaterThan(0);
+    });
+
+    it('reflects the correct size after the file changes', async () => {
+      const small = new File(['abc'], 'small.csv', { type: 'text/csv' });
+      const large = new File(['x'.repeat(1024 * 1024)], 'large.csv', {
+        type: 'text/csv',
+      });
+
+      wrapper.vm.uploadFileValue = small;
+      const smallSize = wrapper.vm.uploadFileSize;
+
+      wrapper.vm.uploadFileValue = large;
+      const largeSize = wrapper.vm.uploadFileSize;
+
+      // Sizes should differ – larger file → larger formatted string value
+      expect(largeSize).not.toBe(smallSize);
+    });
+  });
+
+  // ===========================================================================
+  // mounted – loadConfig error handling
+  // ===========================================================================
+
+  describe('mounted loadConfig error handling', () => {
+    it('pushes an error notification when loadConfig rejects', async () => {
+      const pushNotificationError = vi
+        .spyOn(NotificationService, 'pushNotificationError')
+        .mockImplementation(() => {});
+
+      // Mount with a pinia that lets us override loadConfig action
+      const vuetify = createVuetify({ components, directives });
+      const pinia = createTestingPinia({
+        initialState: { code: {}, config: { config: mockConfig } },
+        stubActions: false,
+      });
+
+      // Patch loadConfig on the config store to return a rejecting promise
+      const configStore = useConfigStore(pinia);
+      vi.spyOn(configStore, 'loadConfig').mockReturnValue(
+        Promise.reject(new Error('network error')) as any,
+      );
+
+      const wrapper = mount(InputForm, {
+        global: { plugins: [vuetify, pinia] },
+      });
+      await flushPromises();
+
+      expect(pushNotificationError).toHaveBeenCalledWith(
+        'Failed to load application settings. Please reload the page.',
+      );
+
+      wrapper.unmount();
+    });
+
+    it('does NOT push a notification when loadConfig resolves successfully', async () => {
+      const pushNotificationError = vi
+        .spyOn(NotificationService, 'pushNotificationError')
+        .mockImplementation(() => {});
+
+      const vuetify = createVuetify({ components, directives });
+      const pinia = createTestingPinia({
+        initialState: { code: {}, config: { config: mockConfig } },
+        stubActions: false,
+      });
+
+      const configStore = useConfigStore(pinia);
+      vi.spyOn(configStore, 'loadConfig').mockReturnValue(
+        Promise.resolve(mockConfig) as any,
+      );
+
+      const wrapper = mount(InputForm, {
+        global: { plugins: [vuetify, pinia] },
+      });
+      await flushPromises();
+
+      expect(pushNotificationError).not.toHaveBeenCalled();
+
+      wrapper.unmount();
+    });
+  });
+
+  // ===========================================================================
+  // onSubmitComplete
+  // ===========================================================================
+
+  describe('onSubmitComplete', () => {
+    describe('when called with a non-null ISubmissionError', () => {
+      it('sets submissionErrors and clears alertMessage', async () => {
+        const err: ISubmissionError = {
+          bodyErrors: ['bad column'],
+          rowErrors: null,
+          generalErrors: ['Something went wrong.'],
+        };
+
+        await wrapper.vm.onSubmitComplete(err);
+
+        expect(wrapper.vm.submissionErrors).toStrictEqual(err);
+        expect(wrapper.vm.alertMessage).toBeNull();
+      });
+
+      it('sets isProcessing to false', async () => {
+        wrapper.vm.isProcessing = true;
+        const err: ISubmissionError = {
+          bodyErrors: null,
+          rowErrors: null,
+          generalErrors: ['err'],
+        };
+
+        await wrapper.vm.onSubmitComplete(err);
+
+        expect(wrapper.vm.isProcessing).toBe(false);
+      });
+
+      it('does NOT navigate to the next stage', async () => {
+        const err: ISubmissionError = {
+          bodyErrors: null,
+          rowErrors: null,
+          generalErrors: ['err'],
+        };
+
+        await wrapper.vm.onSubmitComplete(err);
+
+        expect(wrapper.vm.$router.push).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when called with null (no errors)', () => {
+      it('sets the success alert message', async () => {
+        await wrapper.vm.onSubmitComplete(null);
+
+        expect(wrapper.vm.alertMessage).toBe('Submission received.');
+      });
+
+      it('clears submissionErrors', async () => {
+        wrapper.vm.submissionErrors = {
+          bodyErrors: null,
+          rowErrors: null,
+          generalErrors: ['stale error'],
+        };
+
+        await wrapper.vm.onSubmitComplete(null);
+
+        expect(wrapper.vm.submissionErrors).toBeNull();
+      });
+
+      it('sets isProcessing to false', async () => {
+        wrapper.vm.isProcessing = true;
+
+        await wrapper.vm.onSubmitComplete(null);
+
+        expect(wrapper.vm.isProcessing).toBe(false);
+      });
+
+      it('navigates to /draft-report', async () => {
+        await wrapper.vm.onSubmitComplete(null);
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+          path: '/draft-report',
+        });
+      });
+    });
+  });
 });
 
 describe('InputForm Edit Mode', () => {
@@ -531,6 +751,7 @@ describe('InputForm Edit Mode', () => {
   let pinia;
 
   beforeEach(async () => {
+    vi.resetAllMocks();
     //create an instances of vuetify and pinia so we can inject them
     //into the mounted component, allowing it to behave as it would
     //in a browser
@@ -586,5 +807,57 @@ describe('InputForm Edit Mode', () => {
   it('disables the Reporting Year field', async () => {
     expect(wrapper.find('#reportYear').element.disabled).toBeTruthy();
     expect(wrapper.find('#confirmReportingYear').element.disabled).toBeTruthy();
+  });
+
+  // ===========================================================================
+  // beforeRouteLeave - edit mode
+  // ===========================================================================
+
+  describe('beforeRouteLeave - edit mode', () => {
+    it('calls next() immediately without opening the confirmation dialog when destination is the approvedRoute', async () => {
+      wrapper.vm.approvedRoute = '/draft-report';
+      const next = vi.fn();
+
+      await (InputForm as any).beforeRouteLeave.call(
+        wrapper.vm,
+        { fullPath: '/draft-report' },
+        {},
+        next,
+      );
+
+      expect(next).toHaveBeenCalledWith();
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+
+    it('opens the confirmation dialog and passes its response to next() when destination is NOT the approvedRoute', async () => {
+      wrapper.vm.approvedRoute = '/draft-report';
+      const next = vi.fn();
+      openSpy.mockResolvedValueOnce(true);
+
+      await (InputForm as any).beforeRouteLeave.call(
+        wrapper.vm,
+        { fullPath: '/' },
+        {},
+        next,
+      );
+
+      expect(openSpy).toHaveBeenCalledWith('Please Confirm');
+      expect(next).toHaveBeenCalledWith(true);
+    });
+
+    it('passes false to next() when the user dismisses the dialog', async () => {
+      wrapper.vm.approvedRoute = '/draft-report';
+      const next = vi.fn();
+      openSpy.mockResolvedValueOnce(false);
+
+      await (InputForm as any).beforeRouteLeave.call(
+        wrapper.vm,
+        { fullPath: '/' },
+        {},
+        next,
+      );
+
+      expect(next).toHaveBeenCalledWith(false);
+    });
   });
 });
