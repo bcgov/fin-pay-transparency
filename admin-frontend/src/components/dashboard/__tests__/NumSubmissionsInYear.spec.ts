@@ -19,12 +19,12 @@ const mockReportMetrics: ReportMetrics = {
     },
   ],
 };
-const mockGetReportMetrics = vi.fn().mockResolvedValue(mockReportMetrics);
+const mockGetReportMetrics = vi.fn(async () => mockReportMetrics);
 
 vi.mock('../../../services/apiService', () => ({
   default: {
-    getReportMetrics: (...args) => {
-      return mockGetReportMetrics(...args);
+    getReportMetrics: () => {
+      return mockGetReportMetrics();
     },
   },
 }));
@@ -38,10 +38,6 @@ const wrappedRender = () => {
 };
 
 describe('NumSubmissionsInYear', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('displays the number of reports submitted in the current reporting year', async () => {
     await wrappedRender();
     expect(mockGetReportMetrics).toHaveBeenCalled();

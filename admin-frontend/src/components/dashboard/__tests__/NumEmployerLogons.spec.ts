@@ -14,12 +14,12 @@ const mockEmployerMetrics: EmployerMetrics = {
   num_employers_logged_on_to_date: 6,
   num_employers_logged_on_this_year: 4,
 };
-const mockGetEmployerMetrics = vi.fn().mockResolvedValue(mockEmployerMetrics);
+const mockGetEmployerMetrics = vi.fn(async () => mockEmployerMetrics);
 
 vi.mock('../../../services/apiService', () => ({
   default: {
-    getEmployerMetrics: (...args) => {
-      return mockGetEmployerMetrics(...args);
+    getEmployerMetrics: () => {
+      return mockGetEmployerMetrics();
     },
   },
 }));
@@ -33,10 +33,6 @@ const wrappedRender = () => {
 };
 
 describe('NumEmployerLogons', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('displays the number of employers who have logged on to date', async () => {
     await wrappedRender();
     expect(mockGetEmployerMetrics).toHaveBeenCalled();
