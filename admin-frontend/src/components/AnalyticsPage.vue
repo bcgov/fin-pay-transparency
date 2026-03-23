@@ -116,7 +116,7 @@ async function getPowerBiAccessToken(
   const expiry = ZonedDateTime.parse(embedInfo.expiry);
   const now = ZonedDateTime.now();
   const msToExpiry = Duration.between(now, expiry).minusMinutes(1).toMillis();
-  setTimeout(getPowerBiAccessToken, msToExpiry);
+  setTimeout(() => getPowerBiAccessToken(resourceDetails), msToExpiry);
 }
 
 /**
