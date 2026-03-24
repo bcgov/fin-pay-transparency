@@ -139,7 +139,7 @@ jobs:
           npx playwright test --update-snapshots --project="safari-visual"
           npx playwright test --update-snapshots --project="edge-visual"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         name: Upload Playwright visual test artifacts
         with:
