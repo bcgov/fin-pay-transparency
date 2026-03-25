@@ -12,12 +12,14 @@ export interface User {
 setup('authenticate', async ({ page }) => {
   await page.goto(PagePaths.LOGIN);
   const loginPage = new LoginPage(page);
-  await loginPage.login();
 
-  const getUserResponse = page.waitForResponse(
-    (res) => res.url().includes('/admin-api/user') && res.status() === 200,
-  );
-  const response = await getUserResponse;
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      (res) => res.url().includes('/admin-api/user') && res.status() === 200,
+    ),
+    loginPage.login(),
+  ]);
+
   const user = await response.json();
 
   await page.goto(PagePaths.DASHBOARD);
