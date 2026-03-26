@@ -75,6 +75,11 @@ jobs:
       - name: Create blob reports directory
         run: mkdir -p all-blob-reports
 
+      - name: Print E2E_USERNAME
+        run: echo "E2E_USERNAME is $E2E_USERNAME"
+        env:
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+
       - name: Run Functional Tests (excluding visual regression)
         id: playwright-functional-tests
         env:
