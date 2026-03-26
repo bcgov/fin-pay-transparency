@@ -1,22 +1,10 @@
 name: Auto-approve Renovate PRs
 
 on:
-  pull_request:
-    paths-ignore:
-      - "*.md"
-      - "docker-compose.yml"
-      - "renovate.json"
-      - "COMPLIANCE.yaml"
-      - ".gitignore"
-      - ".vscode/**"
-      - ".diagrams/**"
-      - ".graphics/**"
-      - "sysdig/**"
-      - ".github/workflows/sysdig.yml"
+  workflow_run:
+    workflows: ["Build And Deploy to Sandbox in Dev namespace"]
     types:
-      - opened
-      - synchronize
-      - reopened
+      - completed
   workflow_dispatch:
 
 jobs:
@@ -72,7 +60,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: auto-approved
           number: ${{ steps.file-check.outputs.prNumber }}
-      
-      - name: Log PR approval
-        if: steps.file-check.outputs.approved == 'true'
-        run: echo "Auto-approved PR #${{ steps.file-check.outputs.prNumber }}"
