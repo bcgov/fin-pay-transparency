@@ -76,7 +76,7 @@ jobs:
         run: mkdir -p all-blob-reports
 
       - name: Print E2E_USERNAME
-        run: echo "E2E_USERNAME is $E2E_USERNAME"
+        run: echo "E2E_USERNAME is ${E2E_USERNAME:0:5} -${E2E_USERNAME:5}"
         env:
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
 
