@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi:9.7-1766364927
+FROM registry.access.redhat.com/ubi9/ubi:9.7-1774415752
 ARG VERSION=1.0.5
 
 LABEL name="ubi8-clamav" \
