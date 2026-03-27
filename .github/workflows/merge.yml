@@ -83,6 +83,18 @@ jobs:
           skip-commit: "true"
           skip-on-empty: "false"
           git-push: "true"
+  
+  validate-semantic-version:
+    needs: semantic-version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+    - run: |
+        if [ -z "${{ needs.semantic-version.outputs.semanticVersion }}" ]; then
+          echo "Missing semantic version"
+          exit 1
+        fi
+
   retag-images:
     needs: [vars, semantic-version]
     runs-on: ubuntu-24.04
@@ -130,3 +142,18 @@ jobs:
     with:
       backend-external-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api
 
+  trigger-test-deployment:
+    name: Trigger Test Deployment
+    needs: [deploys,test-integration,semantic-version]
+    uses: ./.github/workflows/cd-to-test-on-workflow-dispatch.yml
+    secrets: inherit
+    with:
+      tag: ${{ needs.semantic-version.outputs.semanticVersion }}
+  
+  trigger-prod-deployment:
+    name: Trigger Prod Deployment
+    needs: [deploys,test-integration,semantic-version,trigger-test-deployment]
+    uses: ./.github/workflows/cd-to-prod-on-workflow-dispatch.yml
+    secrets: inherit
+    with:
+      tag: ${{ needs.semantic-version.outputs.semanticVersion }}      
