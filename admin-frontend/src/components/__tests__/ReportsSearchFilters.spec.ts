@@ -1,6 +1,8 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -15,6 +17,61 @@ vi.mock('./DateRangeFilter.vue', () => ({
     template: '<div data-testid="date-range-filter" />',
   },
 }));
+
+const mockNaicsCodes = [
+  {
+    naics_code: '11',
+    naics_label: 'Agriculture, forestry, fishing and hunting',
+  },
+  {
+    naics_code: '21',
+    naics_label: 'Mining, quarrying, and oil and gas extraction',
+  },
+  { naics_code: '22', naics_label: 'Utilities' },
+  { naics_code: '23', naics_label: 'Construction' },
+];
+
+const mockEmployeeCountRanges = [
+  { employee_count_range_id: 'id-1', employee_count_range: '1-99' },
+  { employee_count_range_id: 'id-2', employee_count_range: '100-499' },
+];
+
+async function renderComponent() {
+  const vuetify = createVuetify({ components, directives });
+  const pinia = createTestingPinia({
+    initialState: {
+      code: {
+        naicsCodes: mockNaicsCodes,
+        employeeCountRanges: mockEmployeeCountRanges,
+      },
+    },
+  });
+
+  const user = userEvent.setup();
+
+  const result = render(ReportSearchFilters, {
+    global: { plugins: [vuetify, pinia] },
+  });
+
+  await flushPromises();
+
+  // Open the secondary filters panel so all v-selects are mounted.
+  await user.click(screen.getByText('Filter'));
+  await flushPromises();
+
+  return { ...result, user };
+}
+
+async function openSelect(
+  user: ReturnType<typeof userEvent.setup>,
+  selector: string,
+) {
+  const input = document.querySelector(
+    `${selector} .v-field__input`,
+  ) as HTMLElement;
+  await user.click(input);
+  await flushPromises();
+}
 
 describe('ReportSearchFilters', () => {
   let wrapper;
@@ -473,6 +530,185 @@ describe('ReportSearchFilters', () => {
           ]),
         );
       });
+    });
+  });
+  describe('drop-down lists', () => {
+    let user: ReturnType<typeof userEvent.setup>;
+
+    beforeEach(async () => {
+      ({ user } = await renderComponent());
+    });
+
+    it('renders NAICS Code list', async () => {
+      const select = await screen.findByLabelText('NAICS Code');
+      expect(screen.queryByText(/11/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/21/)).not.toBeInTheDocument();
+      await user.click(select);
+      expect(await screen.findByText(/11/)).toBeVisible();
+      expect(await screen.findByText(/21/)).toBeVisible();
+
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(mockNaicsCodes.length);
+      expect(await screen.findByText(/Agriculture/)).toBeVisible();
+
+      //selecting two options should show numbers in selection list
+      await user.click(options[0]!);
+      await user.click(options[1]!);
+      await user.keyboard('{escape}'); // close the dropdown
+      await waitFor(() => {
+        expect(screen.queryByText(/22/)).not.toBeVisible();
+      });
+      // For some reason (probably JSDom) the text isn't removed
+      // from the DOM, so now the search text apears twice; one shown
+      // on the screen as selected, the other in the hidden dropdown.
+      // Check that at least one element with /11/ is visible
+      const elements11 = screen.getAllByText(/11/);
+      expect(elements11.length).toBeGreaterThan(0);
+      expect(
+        elements11.some((el) => {
+          try {
+            expect(el).toBeVisible();
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ).toBeTruthy();
+    });
+
+    it('renders "(+1 more)" message in NAICS Code list', async () => {
+      const select = await screen.findByLabelText('NAICS Code');
+      await user.click(select);
+
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(mockNaicsCodes.length);
+      expect(await screen.findByText(/Agriculture/)).toBeVisible();
+
+      //selecting two options should show numbers in selection list
+      await user.click(options[0]!);
+      await user.click(options[1]!);
+      await user.click(options[2]!);
+      await user.click(options[3]!);
+      await user.keyboard('{escape}'); // close the dropdown
+      expect(await screen.findByText('(+1 more)')).toBeVisible();
+    });
+
+    it('renders Report Year list', async () => {
+      const select = await screen.findByLabelText('Report Year');
+      await user.click(select);
+      const currentYear = new Date().getFullYear();
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(currentYear - 2023 + 1); // 2024 and up, plus "All"
+      expect(options[0]?.textContent).toBe('All');
+      expect(await screen.findByText(currentYear.toString())).toBeVisible();
+
+      //selecting an option should show that selection
+      await user.click(options[1]!);
+      const elements = await screen.findAllByText(currentYear.toString());
+      expect(
+        elements.some((el) => {
+          try {
+            expect(el).toBeVisible();
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ).toBeTruthy();
+    });
+
+    it('renders Locked/Unlocked list', async () => {
+      const select = await screen.findByLabelText('Locked/Unlocked');
+      await user.click(select);
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(3);
+      expect(options[0]?.textContent).toBe('All');
+      expect(options[1]?.textContent).toBe('Locked');
+      expect(options[2]?.textContent).toBe('Unlocked');
+
+      //selecting an option should show that selection
+      await user.click(options[1]!);
+      const elements = await screen.findAllByText('Locked');
+      expect(
+        elements.some((el) => {
+          try {
+            expect(el).toBeVisible();
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ).toBeTruthy();
+    });
+
+    it('renders Employee Count list', async () => {
+      const select = await screen.findByLabelText('Employee Count');
+      await user.click(select);
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(2);
+      expect(options[0]?.textContent).toBe('1-99');
+      expect(options[1]?.textContent).toBe('100-499');
+
+      //selecting an option should show that selection
+      await user.click(options[1]!);
+      const elements = await screen.findAllByText('100-499');
+      expect(
+        elements.some((el) => {
+          try {
+            expect(el).toBeVisible();
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ).toBeTruthy();
+    });
+
+    it('renders Status list', async () => {
+      const select = await screen.findByLabelText('Status');
+      await user.click(select);
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(3);
+      expect(options[0]?.textContent).toBe('All');
+      expect(options[1]?.textContent).toBe('Published');
+      expect(options[2]?.textContent).toBe('Withdrawn');
+
+      //selecting an option should show that selection
+      await user.click(options[1]!);
+      const elements = await screen.findAllByText('Published');
+      expect(
+        elements.some((el) => {
+          try {
+            expect(el).toBeVisible();
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ).toBeTruthy();
+    });
+
+    it('renders Admin Actions list', async () => {
+      const select = await screen.findByLabelText('Admin Actions');
+      await user.click(select);
+      const options = await screen.findAllByRole('option');
+      expect(options).toHaveLength(2);
+      expect(options[0]?.textContent).toBe('All');
+      expect(options[1]?.textContent).toBe('Reporting year modified');
+
+      //selecting an option should show that selection
+      await user.click(options[1]!);
+      const elements = await screen.findAllByText('Reporting year modified');
+      expect(
+        elements.some((el) => {
+          try {
+            expect(el).toBeVisible();
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ).toBeTruthy();
     });
   });
 });
