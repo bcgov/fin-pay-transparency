@@ -144,6 +144,7 @@ jobs:
 
   trigger-test-deployment:
     name: Trigger Test Deployment
+    if:  ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' )
     needs: [deploys,test-integration,semantic-version]
     uses: ./.github/workflows/cd-to-test-on-workflow-dispatch.yml
     secrets: inherit
@@ -152,6 +153,7 @@ jobs:
   
   trigger-prod-deployment:
     name: Trigger Prod Deployment
+    if:  ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' )
     needs: [deploys,test-integration,semantic-version,trigger-test-deployment]
     uses: ./.github/workflows/cd-to-prod-on-workflow-dispatch.yml
     secrets: inherit
