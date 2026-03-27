@@ -1,4 +1,4 @@
-name: Auto-approve Renovate PRs
+name: Auto-approve Renovate and Dependabot PRs
 
 on:
   workflow_run:
@@ -9,7 +9,8 @@ on:
 
 jobs:
   auto-approve:
-    if: github.actor == 'renovate[bot]' || github.event_name == 'workflow_dispatch'
+    if: |
+      (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]' || github.event_name == 'workflow_dispatch') && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -22,16 +23,25 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const prNumber = context.payload.pull_request.number;
+            const prs = context.payload.workflow_run.pull_requests;
+            if (!prs || prs.length === 0) {
+              core.setOutput("approved", "false");
+              return;
+            }
+            
+            const prNumber = prs[0].number;
             const { data: files } = await github.rest.pulls.listFiles({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: prNumber
             });
+
             const allowedPaths = [
               /^backend\/package(-lock)?\.json$/,
               /^backend-external\/package(-lock)?\.json$/,
               /^doc-gen-service\/package(-lock)?\.json$/,
+              /^admin-frontend\/package(-lock)?\.json$/,
+              /^frontend\/package(-lock)?\.json$/,
             ];
 
             const unapprovedFiles = files.filter(file =>
@@ -60,3 +70,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: auto-approved
           number: ${{ steps.file-check.outputs.prNumber }}
+
+      - name: Enable auto-merge
+        if: steps.file-check.outputs.approved == 'true' && ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' )
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ steps.file-check.outputs.prNumber }}
+          merge-method: squash
