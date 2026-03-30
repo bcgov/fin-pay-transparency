@@ -25,12 +25,12 @@
         </v-col>
       </v-row>
       <v-banner
+        v-if="htmlReportLoaded"
         sticky
         width="fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0.9)"
         class="d-flex justify-center w-100 sticky-bottom"
-        v-if="htmlReportLoaded"
       >
         <v-btn
           id="downloadPdfButton"
@@ -74,7 +74,6 @@ import { onBeforeMount, ref } from 'vue';
 import ApiService from '../common/apiService';
 import { storeToRefs } from 'pinia';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
-import { useConfigStore } from '../store/modules/config';
 
 const router = useRouter();
 const ReportStepperStore = useReportStepperStore();
@@ -91,7 +90,6 @@ onBeforeRouteLeave(async (to, from, next) => {
 });
 
 const { reportId, mode, reportData } = storeToRefs(useReportStepperStore());
-const { config } = storeToRefs(useConfigStore());
 const isProcessing = ref(false);
 const isDownloadingPdf = ref<boolean>(false);
 const htmlReportLoaded = ref<boolean>(false);

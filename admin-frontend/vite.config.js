@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
@@ -19,6 +20,7 @@ export default defineConfig({
     include: ['./src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     setupFiles: ['./src/vitest.setup.ts'],
     exclude: ['./e2e/**'],
+    mockReset: true,
   },
   server: {
     port: 8084,

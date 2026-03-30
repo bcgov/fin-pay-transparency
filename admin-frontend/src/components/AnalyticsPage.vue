@@ -94,16 +94,26 @@ async function getPowerBiAccessToken(
   resourceDetails: Reactive<Map<POWERBI_RESOURCE, PowerBiDetails>>,
 ) {
   let embedInfo;
+  let error = false;
   try {
     embedInfo = await ApiService.getPowerBiEmbedAnalytics(
       Array.from(resourceDetails.keys()),
     );
   } catch {
+    error = true;
+  }
+  if (
+    error ||
+    !embedInfo?.accessToken ||
+    !embedInfo?.expiry ||
+    !embedInfo?.resources
+  ) {
     NotificationService.pushNotificationError(
       'Analytics failed to load. Please try again later or contact the helpdesk.',
       undefined,
       1000 * 60 * 3,
     );
+    return;
   }
   for (let resource of embedInfo.resources) {
     const ref = resourceDetails.get(resource.name);
@@ -116,7 +126,7 @@ async function getPowerBiAccessToken(
   const expiry = ZonedDateTime.parse(embedInfo.expiry);
   const now = ZonedDateTime.now();
   const msToExpiry = Duration.between(now, expiry).minusMinutes(1).toMillis();
-  setTimeout(getPowerBiAccessToken, msToExpiry);
+  setTimeout(() => getPowerBiAccessToken(resourceDetails), msToExpiry);
 }
 
 /**

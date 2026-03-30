@@ -56,6 +56,7 @@
         class="w-100"
         variant="solo"
         density="compact"
+        aria-label="NAICS Code"
       >
         <template #item="{ props, item }">
           <v-list-item
@@ -150,6 +151,7 @@
         class="w-100"
         variant="solo"
         density="compact"
+        aria-label="Employee Count"
       >
         <template #item="{ props, item }">
           <v-list-item v-bind="props" :title="item.raw.employee_count_range">
