@@ -11,6 +11,7 @@ import { ReportChangeService } from '../../services/reportChangeService';
 import { authStore } from '../../store/modules/auth';
 import { ReportAdminActions } from '../../constants';
 import { Report } from '../../types/reports';
+import { createTestingPinia } from '@pinia/testing';
 
 // Default data
 const currentYear = new Date().getFullYear();
@@ -95,11 +96,23 @@ describe('ReportActions', () => {
     actions?: ReportAdminActions[];
   };
 
+  let pinia;
+
   const renderWithVuetify = (props: ReportActionsProps) => {
+    pinia = createTestingPinia({
+      initialState: {
+        config: {
+          config: {
+            reportUnlockDurationInDays: 777,
+          },
+        },
+      },
+    });
+
     return render(ReportActions, {
       props,
       global: {
-        plugins: [vuetify],
+        plugins: [vuetify, pinia],
         stubs: {
           // Only stub the child component that we're not testing
           ReportAdminActionHistoryView: {
@@ -231,6 +244,19 @@ describe('ReportActions', () => {
       });
 
       expect(buttons.lockReport()).toBeInTheDocument();
+    });
+
+    it('should display number of days remaining for unlocked report', async () => {
+      const user = userEvent.setup();
+
+      renderWithVuetify({
+        report: { ...mockReport, is_unlocked: true },
+        actions: [ReportAdminActions.LockUnlock],
+      });
+
+      await user.click(buttons.lockReport());
+
+      expect(await screen.findByText(/777/)).toBeInTheDocument();
     });
 
     it('should call ApiService.lockUnlockReport when unlock button is clicked', async () => {

@@ -125,6 +125,18 @@
 
   <!-- dialogs -->
   <ConfirmationDialog ref="confirmDialog"> </ConfirmationDialog>
+  <ConfirmationDialog ref="confirmLockDialog">
+    <template #message>
+      <p class="mb-2">
+        Are you sure you want to {{ unlocked ? 'lock' : 'unlock' }} the report?
+      </p>
+      <p v-if="!unlocked">
+        Report will auto re-lock in
+        {{ config?.reportUnlockDurationInDays ?? '<unknown>' }}
+        calendar days.
+      </p>
+    </template>
+  </ConfirmationDialog>
   <ConfirmationDialog ref="confirmWithdrawDialog">
     <template #message>
       <p class="mb-2">
@@ -182,6 +194,8 @@ import {
 } from '../../services/reportChangeService';
 import { authStore } from '../../store/modules/auth';
 import { ReportAdminActions } from '../../constants';
+import { useConfigStore } from '../../store/modules/config';
+import { storeToRefs } from 'pinia';
 
 // Apply defaults safely
 const props = withDefaults(
@@ -197,8 +211,11 @@ const props = withDefaults(
 const confirmDialog = ref<typeof ConfirmationDialog>();
 
 const auth = authStore();
+const configStore = useConfigStore();
+const { config } = storeToRefs(configStore);
 
 onMounted(() => {
+  configStore.loadConfig();
   ReportChangeService.listen(onAnyReportChanged);
 });
 
@@ -220,11 +237,18 @@ function reset() {
 
 // #region Lock / Unlock Report
 
+const confirmLockDialog = ref<typeof ConfirmationDialog>();
+const unlocked = ref<boolean>(false);
+
 async function lockUnlockReport(reportId: string, makeUnlocked: boolean) {
   const lockText = makeUnlocked ? 'unlock' : 'lock';
-  const isConfirmed = await confirmDialog.value?.open(
+
+  // Update reactive variables
+  unlocked.value = makeUnlocked;
+
+  const isConfirmed = await confirmLockDialog.value?.open(
     `${lockText} report`,
-    `Are you sure you want to ${lockText} the report?`,
+    null,
     {
       titleBold: true,
       resolveText: `Yes, ${lockText}`,
