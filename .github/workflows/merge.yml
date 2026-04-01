@@ -83,6 +83,40 @@ jobs:
           skip-commit: "true"
           skip-on-empty: "false"
           git-push: "true"
+
+  check-human-changes:
+    name: Check for Unpromoted Human Changes
+    runs-on: ubuntu-24.04
+    outputs:
+      human_changes_exist: ${{ steps.check.outputs.human_changes }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: check
+        run: |
+          # Get last promoted tag (assuming tags like v1.4.2 exist)
+          LAST_PROMOTED=$(git tag --list --sort=-creatordate "v*" | head -n1)
+          echo "Last promoted version: $LAST_PROMOTED"
+
+          # Get commits after last promoted version
+          COMMITS=$(git log ${LAST_PROMOTED}..HEAD --pretty=format:"%H|%an|%ae")
+          echo "Commits since last promotion:"
+          echo "$COMMITS"
+
+          HUMAN_CHANGES=false
+
+          for COMMIT in $COMMITS; do
+            AUTHOR_NAME=$(echo $COMMIT | cut -d'|' -f2)
+            # Skip known bots
+            if [[ "$AUTHOR_NAME" != "renovate[bot]" && "$AUTHOR_NAME" != "dependabot[bot]" ]]; then
+              HUMAN_CHANGES=true
+              break
+            fi
+          done
+
+          echo "human_changes=$HUMAN_CHANGES" >> $GITHUB_OUTPUT
   
   validate-semantic-version:
     needs: semantic-version
@@ -144,8 +178,10 @@ jobs:
 
   trigger-test-deployment:
     name: Trigger Test Deployment
-    if:  ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' )
-    needs: [deploys,test-integration,semantic-version]
+    if:  >
+      ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' ) &&
+      ( needs.check-human-changes.outputs.human_changes_exist == 'false' )
+    needs: [deploys,test-integration,semantic-version,check-human-changes]
     uses: ./.github/workflows/cd-to-test-on-workflow-dispatch.yml
     secrets: inherit
     with:
@@ -153,8 +189,10 @@ jobs:
   
   trigger-prod-deployment:
     name: Trigger Prod Deployment
-    if:  ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' )
-    needs: [deploys,test-integration,semantic-version,trigger-test-deployment]
+    if:  >
+      ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' ) &&
+      ( needs.check-human-changes.outputs.human_changes_exist == 'false' )
+    needs: [deploys,test-integration,semantic-version,trigger-test-deployment,check-human-changes]
     uses: ./.github/workflows/cd-to-prod-on-workflow-dispatch.yml
     secrets: inherit
     with:
