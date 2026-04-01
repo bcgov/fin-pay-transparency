@@ -23,6 +23,7 @@ describe('config-routes', () => {
   it('should setup the route', () => {
     return request(app).get('/config').expect(200);
   });
+
   it('should correct config values', () => {
     mockConfigGet.mockReturnValue(800000);
 
@@ -30,6 +31,7 @@ describe('config-routes', () => {
       .get('/config')
       .expect(({ body }) => {
         expect(body.deleteAnnouncementsDurationInDays).not.toBeNull();
+        expect(body.reportUnlockDurationInDays).not.toBeNull();
         expect(body.maxUploadFileSize).not.toBeNull();
         expect(body.reportEditDurationInDays).not.toBeNull();
         expect(body.reportingYearOptions.length).toBeGreaterThanOrEqual(1);

@@ -33,6 +33,12 @@ export default [
           destructuredArrayIgnorePattern: '^_',
         },
       ],
+      'vitest/expect-expect': [
+        'error',
+        {
+          assertFunctionNames: ['expect', 'request.**.expect'],
+        },
+      ],
     },
   },
   eslintConfigPrettier,

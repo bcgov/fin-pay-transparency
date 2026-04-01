@@ -12,6 +12,7 @@ router.get('', (_, res) => {
     deleteAnnouncementsDurationInDays: config.get(
       'server:deleteAnnouncementsDurationInDays',
     ),
+    reportUnlockDurationInDays: config.get('server:reportUnlockDurationInDays'),
   };
 
   res.status(200).json(settings);

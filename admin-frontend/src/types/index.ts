@@ -1,5 +1,6 @@
 export interface IConfigValue {
   deleteAnnouncementsDurationInDays: number;
+  reportUnlockDurationInDays: number;
 }
 
 export type User = {
