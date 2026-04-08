@@ -32,10 +32,11 @@
       "description": "Always update vulnerable npm packages immediately",
       "matchDatasources": ["npm"],
       "vulnerabilityAlerts": true,
-      "minimumReleaseAge": null,
+      "minimumReleaseAge": "5 days",
       "groupName": null,
       "prPriority": 100,
       "labels": ["vulnerability"],
+      "separateMinorPatch": true,
       "automerge": true,
       "platformAutomerge": true
     },
