@@ -24,7 +24,7 @@
     "@mdi/font": "^7.1.96",
     "@types/papaparse": "^5.3.14",
     "@vee-validate/zod": "^4.13.2",
-    "@vue/tsconfig": "^0.8.0",
+    "@vue/tsconfig": "^0.9.0",
     "@vuepic/vue-datepicker": "^12.0.0",
     "axios": "^1.15.0",
     "dotenv": "^17.2.0",
@@ -33,7 +33,7 @@
     "pinia": "^3.0.0",
     "powerbi-client": "^2.23.1",
     "powerbi-client-vue-js": "^1.1.1",
-    "quill": "2.0.2",
+    "quill": "2.0.3",
     "regenerator-runtime": "^0.14.0",
     "rfdc": "^1.3.0",
     "sass": "^1.58.3",
@@ -96,7 +96,7 @@
   },
   "overrides": {
     "cldr-data-downloader@1.0.0-1": {
-      "axios": "1.13.5"
+      "axios": "1.14.0"
     }
   }
 }
