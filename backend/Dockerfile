@@ -44,14 +44,17 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends procps \
  && rm -rf /var/lib/apt/lists/*
 
-# Non-privileged user
-USER app
+# Create /.config directory and make it writable for clinic insight
+RUN mkdir -p /.config && chmod 777 /.config
 
 # Entrypoint settings
 ENV SERVER_MODE=clinic
 ENV CLINIC_OPTION=heapprofiler
 ENV CLINIC_INTERVAL=10
 ENV NO_INSIGHT=true
+
+# Non-privileged user
+USER app
 
 # Use entrypoint script to handle different startup modes
 #ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
