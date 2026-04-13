@@ -47,6 +47,9 @@ RUN apt-get update \
 # Create /.config directory and make it writable for clinic insight
 RUN mkdir -p /.config && chmod 777 /.config
 
+# Create .clinic directory for clinic heap profiler data
+RUN mkdir -p /app/.clinic && chmod 777 /app/.clinic
+
 # Entrypoint settings
 ENV SERVER_MODE=clinic
 ENV CLINIC_OPTION=heapprofiler
