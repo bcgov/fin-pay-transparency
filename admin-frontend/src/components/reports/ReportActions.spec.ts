@@ -246,15 +246,15 @@ describe('ReportActions', () => {
       expect(buttons.lockReport()).toBeInTheDocument();
     });
 
-    it('should display number of days remaining for unlocked report', async () => {
+    it('should display number of days report will be unlocked', async () => {
       const user = userEvent.setup();
 
       renderWithVuetify({
-        report: { ...mockReport, is_unlocked: true },
+        report: { ...mockReport, is_unlocked: false },
         actions: [ReportAdminActions.LockUnlock],
       });
 
-      await user.click(buttons.lockReport());
+      await user.click(buttons.unlockReport());
 
       expect(await screen.findByText(/777/)).toBeInTheDocument();
     });
