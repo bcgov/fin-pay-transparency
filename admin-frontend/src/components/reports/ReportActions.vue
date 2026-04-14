@@ -128,9 +128,9 @@
   <ConfirmationDialog ref="confirmLockDialog">
     <template #message>
       <p class="mb-2">
-        Are you sure you want to {{ unlocked ? 'lock' : 'unlock' }} the report?
+        Are you sure you want to {{ unlocked ? 'unlock' : 'lock' }} the report?
       </p>
-      <p v-if="!unlocked">
+      <p v-if="unlocked">
         Report will auto re-lock in
         {{ config?.reportUnlockDurationInDays ?? '<unknown>' }}
         calendar days.
