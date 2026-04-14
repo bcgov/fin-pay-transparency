@@ -97,7 +97,6 @@ spec:
             - name: {{ include "backend.fullname" . }}-seed-data-config
               mountPath: /flyway/sql
         {{- end }}
-      restartPolicy: Never
       containers:
         - name: {{ include "backend.fullname" . }}
           securityContext:
