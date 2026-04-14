@@ -60,9 +60,9 @@ ENV NO_INSIGHT=true
 USER app
 
 # Use entrypoint script to handle different startup modes
-#ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Start up command with 250MB of heap size, each application needs to determine what is the best value. DONT use default as it is 4GB.
-#CMD ["--max-old-space-size=250", "/app/dist/server"]
-CMD ["sh", "-c", "clinic heapprofiler --collect-only -- node --max-old-space-size=250 /app/dist/server.js; sleep 120"]
+# CMD ["--max-old-space-size=250", "/app/dist/server"]
+# CMD ["sh", "-c", "clinic heapprofiler --collect-only -- node --max-old-space-size=250 /app/dist/server.js; sleep 120"]
 

@@ -13,7 +13,7 @@ case $SERVER_MODE in
     exec node --max-old-space-size=250 --inspect=0.0.0.0:9229 /app/dist/server
     ;;
   clinic)
-    exec sh -c "NO_INSIGHT=true clinic $CLINIC_OPTION --sample-interval $CLINIC_INTERVAL --collect-only -- node --max-old-space-size=250 /app/dist/server.js"
+    exec sh -c "clinic $CLINIC_OPTION --sample-interval $CLINIC_INTERVAL --collect-only -- node --max-old-space-size=250 /app/dist/server.js; sleep 120"
     ;;
   *)
     echo "Error: Unknown SERVER_MODE '$SERVER_MODE'"
