@@ -52,7 +52,7 @@ RUN mkdir -p /app/.clinic && chmod 777 /app/.clinic
 
 # Entrypoint settings
 ENV SERVER_MODE=clinic
-ENV CLINIC_OPTION=heapprofiler
+ENV CLINIC_OPTION=doctor
 ENV CLINIC_INTERVAL=10
 ENV NO_INSIGHT=true
 
