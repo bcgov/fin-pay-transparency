@@ -49,6 +49,7 @@ RUN mkdir -p /.config && chmod 777 /.config
 
 # Create .clinic directory for clinic heap profiler data
 RUN mkdir -p /app/.clinic && chmod 777 /app/.clinic
+RUN chmod 777 /app
 
 # Entrypoint settings
 ENV SERVER_MODE=clinic
