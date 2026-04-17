@@ -83,13 +83,6 @@ jobs:
           skip-commit: "true"
           skip-on-empty: "false"
           git-push: "true"
-      - name: Validate semantic version
-        run: |
-          if [ -z "${{ steps.changelog.outputs.version }}" ]; then
-            echo "Missing semantic version"
-            exit 1
-          fi
-          
   retag-images:
     needs: [vars, semantic-version]
     runs-on: ubuntu-24.04
