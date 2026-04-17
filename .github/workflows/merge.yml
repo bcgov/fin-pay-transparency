@@ -138,17 +138,11 @@ jobs:
       backend-external-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api
 
   get-last-deployed-and-check-human:
-<<<<<<< HEAD
     if: vars.PR_AUTO_APPROVAL_ENABLED == 'true'
     name: Get Last Deployed Version & Check Human Changes
     needs: [semantic-version, deploys]
     runs-on: ubuntu-24.04
     environment: prod
-=======
-    name: Get Last Deployed Version & Check Human Changes
-    needs: [semantic-version, deploys]
-    runs-on: ubuntu-24.04
->>>>>>> 8404608 (chore: auto deployment for renovate/dependabot PRs (#1065))
     permissions:
       actions: read
     outputs:
@@ -170,11 +164,7 @@ jobs:
         with:
           oc_namespace: db4642-prod
           oc_server: ${{ vars.oc_server }}
-<<<<<<< HEAD
           oc_token: ${{ secrets.OC_TOKEN }} 
-=======
-          oc_token: ${{ secrets.oc_token }} 
->>>>>>> 8404608 (chore: auto deployment for renovate/dependabot PRs (#1065))
           commands: | 
              oc project db4642-prod
 
