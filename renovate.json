@@ -23,20 +23,31 @@
     ":semanticCommitScope(deps)"
   ],
   "automerge": false,
+  "platformAutomerge": true,
+  "automergeType": "pr",
   "prConcurrentLimit": 2,
   "dependencyDashboard": true,
   "packageRules": [
     {
+      "description": "Always update vulnerable npm packages immediately",
+      "matchDatasources": ["npm"],
+      "vulnerabilityAlerts": true,
+      "minimumReleaseAge": "5 days",
+      "groupName": null,
+      "prPriority": 100,
+      "labels": ["vulnerability"],
+      "separateMinorPatch": true,
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
       "description": "One week stability period for npm packages",
-      "matchDatasources": [
-        "npm"
-      ],
+      "matchDatasources": ["npm"],
       "minimumReleaseAge": "5 days"
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
+      "description": "Grouped GitHub Actions updates",
+      "matchManagers": ["github-actions"],
       "groupName": "github actions all dependencies",
       "groupSlug": "github actions all",
       "minimumReleaseAge": "3 days"
@@ -62,67 +73,28 @@
     {
       "description": "JS - puppeteer",
       "groupName": "puppeteer",
-      "matchPackageNames": [
-        "/puppeteer/"
-      ]
+      "matchPackageNames": ["/puppeteer/"]
     },
     {
       "description": "JS - group microsoft",
       "groupName": "microsoft",
-      "matchPackageNames": [
-        "/msal-node/"
-      ]
+      "matchPackageNames": ["/msal-node/"]
     },
     {
-      "description": "Automerge npm updates for backend",
-      "matchManagers": [
-        "npm"
-      ],
+      "description": "Automerge npm updates",
+      "matchManagers": ["npm"],
       "matchFileNames": [
-        "backend/**"
-      ],
-      "automerge": true,
-      "automergeType": "pr",
-      "labels": [
-        "automerge",
-        "npm-updates",
-        "backend"
-      ],
-      "minimumReleaseAge": "7 days"
-    },
-    {
-      "description": "Automerge npm updates for backend-external",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchFileNames": [
-        "backend-external/**"
-      ],
-      "automerge": true,
-      "automergeType": "pr",
-      "labels": [
-        "automerge",
-        "npm-updates",
-        "backend-external"
-      ],
-      "minimumReleaseAge": "7 days"
-    },
-    {
-      "description": "Automerge npm updates for doc-gen-service",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchFileNames": [
+        "backend/**",
+        "backend-external/**",
+        "frontend/**",
+        "admin-frontend/**",
         "doc-gen-service/**"
       ],
       "automerge": true,
+      "platformAutomerge": true,
       "automergeType": "pr",
-      "labels": [
-        "automerge",
-        "npm-updates",
-        "doc-gen-service"
-      ],
-      "minimumReleaseAge": "7 days"
+      "labels": ["automerge", "npm-updates"],
+      "minimumReleaseAge": "7 days"     
     }
   ],
   "lockFileMaintenance": {
