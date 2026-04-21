@@ -138,9 +138,11 @@ jobs:
       backend-external-url: https://pay-transparency-dev-backend-external.apps.silver.devops.gov.bc.ca/api
 
   get-last-deployed-and-check-human:
+    if: vars.PR_AUTO_APPROVAL_ENABLED == 'true'
     name: Get Last Deployed Version & Check Human Changes
     needs: [semantic-version, deploys]
     runs-on: ubuntu-24.04
+    environment: prod
     permissions:
       actions: read
     outputs:
@@ -162,7 +164,7 @@ jobs:
         with:
           oc_namespace: db4642-prod
           oc_server: ${{ vars.oc_server }}
-          oc_token: ${{ secrets.oc_token }} 
+          oc_token: ${{ secrets.OC_TOKEN }} 
           commands: | 
              oc project db4642-prod
 
@@ -221,7 +223,8 @@ jobs:
     name: Trigger Test Deployment
     if:  >
       ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' ) &&
-      ( needs.get-last-deployed-and-check-human.outputs.human_changes_exist == 'false' )
+      ( needs.get-last-deployed-and-check-human.outputs.human_changes_exist == 'false' ) &&
+      ( vars.PR_AUTO_APPROVAL_ENABLED == 'true' )
     needs: [deploys,test-integration,semantic-version,get-last-deployed-and-check-human]
     uses: ./.github/workflows/cd-to-test-on-workflow-dispatch.yml
     secrets: inherit
@@ -232,7 +235,8 @@ jobs:
     name: Trigger Prod Deployment
     if:  >
       ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' ) &&
-      ( needs.get-last-deployed-and-check-human.outputs.human_changes_exist == 'false' )
+      ( needs.get-last-deployed-and-check-human.outputs.human_changes_exist == 'false' ) &&
+      ( vars.PR_AUTO_APPROVAL_ENABLED == 'true' )
     needs: [deploys,test-integration,semantic-version,trigger-test-deployment,get-last-deployed-and-check-human]
     uses: ./.github/workflows/cd-to-prod-on-workflow-dispatch.yml
     secrets: inherit
