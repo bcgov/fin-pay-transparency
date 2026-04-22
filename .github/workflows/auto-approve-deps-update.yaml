@@ -5,11 +5,10 @@ on:
     workflows: ["Build And Deploy to Sandbox in Dev namespace"]
     types:
       - completed
-  workflow_dispatch:
 
 jobs:
   auto-approve:
-    if: (github.actor == 'renovate[bot]' || github.event_name == 'workflow_dispatch') && vars.PR_AUTO_APPROVAL_ENABLED == 'true'
+    if: (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]' || github.event_name == 'workflow_dispatch') && vars.PR_AUTO_APPROVAL_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
