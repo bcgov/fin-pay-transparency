@@ -12,12 +12,6 @@ on:
         required: false
         default: false
         type: boolean
-  workflow_call:
-    inputs:
-      tag: 
-        description: "The Docker Tag to deploy, it would be the latest tagged version that you want to deploy to PROD."
-        required: true
-        type: string
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
