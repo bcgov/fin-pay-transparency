@@ -8,7 +8,10 @@ on:
 
 jobs:
   auto-approve:
-    if: (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]' || github.event_name == 'workflow_dispatch') && vars.PR_AUTO_APPROVAL_ENABLED == 'true'
+    if: >
+      (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]') &&
+       github.event.workflow_run.conclusion == 'success' &&
+       vars.PR_AUTO_APPROVAL_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -68,10 +71,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: auto-approved
           number: ${{ steps.file-check.outputs.prNumber }}
-
-      - name: Enable auto-merge
-        if: steps.file-check.outputs.approved == 'true' && ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' )
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          pull-request-number: ${{ steps.file-check.outputs.prNumber }}
-          merge-method: squash
