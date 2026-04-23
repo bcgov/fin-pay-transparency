@@ -9,7 +9,7 @@ on:
 jobs:
   auto-approve:
     if: >
-      (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]' || github.event_name == 'workflow_dispatch') &&
+      (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]') &&
       github.event.workflow_run.conclusion == 'success' &&
       vars.PR_AUTO_APPROVAL_ENABLED == 'true'
     runs-on: ubuntu-latest
