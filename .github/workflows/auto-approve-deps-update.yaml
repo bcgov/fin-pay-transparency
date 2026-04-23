@@ -68,10 +68,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: auto-approved
           number: ${{ steps.file-check.outputs.prNumber }}
-
-      - name: Enable auto-merge
-        if: steps.file-check.outputs.approved == 'true' && ( github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' )
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          pull-request-number: ${{ steps.file-check.outputs.prNumber }}
-          merge-method: squash
