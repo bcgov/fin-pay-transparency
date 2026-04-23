@@ -181,11 +181,6 @@ jobs:
             exit 1
           fi
 
-          # Ensure 'v' is prepended if not already
-          if [[ "$LATEST_DEPLOYED_VERSION" != v* ]]; then
-            LATEST_DEPLOYED_VERSION="v$LATEST_DEPLOYED_VERSION"
-          fi
-
           echo "Latest deployed Version: $LATEST_DEPLOYED_VERSION"
           echo "latest_deployed_version=$LATEST_DEPLOYED_VERSION" >> $GITHUB_OUTPUT
 
