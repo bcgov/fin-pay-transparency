@@ -26,11 +26,13 @@
               <hr class="mt-8 mb-8" />
 
               <div class="final-report-confirmation">
-                <h3>Ready to finalize your report?</h3>
+                <p class="mb-4">
+                  <strong>Ready to finalize your report?</strong>
+                </p>
 
-                <p>Generating your Final Report will:</p>
+                <p class="mb-1">Generating your Final Report will:</p>
 
-                <ul>
+                <ul class="mt-0 mb-4 ml-6">
                   <li>Remove the DRAFT watermark for publishing</li>
                   <li>
                     Let our office know that you've completed the report
@@ -38,13 +40,14 @@
                   </li>
                 </ul>
 
-                <p>
-                  Your CSV data stays private. The government does not retain
-                  your CSV or the underlying data used to generate the report.
-                  Only the final report is filed in this reporting tool.
+                <p class="mb-4">
+                  <strong>Your CSV data stays private.</strong>
+                  The government does not retain your CSV or the underlying data
+                  used to generate the report. Only the final report is filed in
+                  this reporting tool.
                 </p>
 
-                <p>
+                <p class="mb-4">
                   Please note that you must publish the report on your own
                   website (if applicable) to fulfill the posting requirement
                   under section 7 of the Act.
@@ -52,6 +55,7 @@
 
                 <v-checkbox
                   v-model="isReadyToGenerate"
+                  class="mt-4"
                   label="I'm ready to create my final report."
                 ></v-checkbox>
               </div>
