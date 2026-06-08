@@ -72,8 +72,12 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
+
+      - name: Update apt packages and install Playwright
+        run: |
+          sudo apt-get update
           npx --no-install playwright install --with-deps
-          
+
       - name: Run Tests
         env:
           E2E_ADMIN_BASE_URL: ${{ inputs.admin-frontend-url }}

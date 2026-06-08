@@ -70,6 +70,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
+
+      - name: Update apt packages and install Playwright
+        run: |
+          sudo apt-get update
           npx --no-install playwright install --with-deps          
 
       - name: Create blob reports directory
