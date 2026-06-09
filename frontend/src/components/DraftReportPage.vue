@@ -36,7 +36,7 @@
                   <li>Remove the DRAFT watermark for publishing</li>
                   <li>
                     Let our office know that you've completed the report
-                    preparation step.
+                    preparation step
                   </li>
                 </ul>
 
