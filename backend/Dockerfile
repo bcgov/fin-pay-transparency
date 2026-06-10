@@ -53,7 +53,7 @@ RUN chmod 777 /app
 
 # Entrypoint settings
 ENV SERVER_MODE=clinic
-ENV CLINIC_OPTION=doctor
+ENV CLINIC_OPTION=heapprofiler
 ENV CLINIC_INTERVAL=10
 ENV NO_INSIGHT=true
 
