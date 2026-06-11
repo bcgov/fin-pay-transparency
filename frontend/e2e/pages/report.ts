@@ -115,7 +115,7 @@ export class DraftReportPage extends BaseReportPage {
       name: 'Generate Final Report',
     });
     this.finalReportCheckBox = await this.instance.getByRole('checkbox', {
-      name: 'I am ready to create a final report that will be shared with the B.C. Government and can be shared publicly by my employer. Please note, this draft report will not be saved after closing this window or logging out of the system',
+      name: "I'm ready to create my final report.",
     });
   }
 
