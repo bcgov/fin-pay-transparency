@@ -25,10 +25,40 @@
             <div v-if="htmlReportLoaded">
               <hr class="mt-8 mb-8" />
 
-              <v-checkbox
-                v-model="isReadyToGenerate"
-                label="I am ready to create a final report that will be shared with the B.C. Government and can be shared publicly by my employer. Please note, this draft report will not be saved after closing this window or logging out of the system"
-              ></v-checkbox>
+              <div class="final-report-confirmation">
+                <p class="mb-4">
+                  <strong>Ready to finalize your report?</strong>
+                </p>
+
+                <p class="mb-1">Generating your Final Report will:</p>
+
+                <ul class="mt-0 mb-4 ml-6">
+                  <li>Remove the DRAFT watermark for publishing</li>
+                  <li>
+                    Let our office know that you've completed the report
+                    preparation step
+                  </li>
+                </ul>
+
+                <p class="mb-4">
+                  <strong>Your CSV data stays private.</strong>
+                  The government does not retain your CSV or the underlying data
+                  used to generate the report. Only the final report is filed in
+                  this reporting tool.
+                </p>
+
+                <p class="mb-4">
+                  Please note that you must publish the report on your own
+                  website (if applicable) to fulfill the posting requirement
+                  under section 7 of the Act.
+                </p>
+
+                <v-checkbox
+                  v-model="isReadyToGenerate"
+                  class="mt-4"
+                  label="I'm ready to create my final report."
+                ></v-checkbox>
+              </div>
 
               <div class="d-flex justify-center w-100 mt-4">
                 <v-btn
