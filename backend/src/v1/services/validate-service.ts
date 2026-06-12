@@ -270,19 +270,11 @@ const validateService = {
       );
     }
     if (
-      !this.isZeroSynonym(hoursWorked) &&
-      !this.isZeroSynonym(specialSalary)
+      !this.isZeroSynonym(specialSalary) &&
+      (!this.isZeroSynonym(hoursWorked) || !this.isZeroSynonym(ordinaryPay))
     ) {
       errorMessages.push(
-        `${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} must not contain data when ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} contains data.`,
-      );
-    }
-    if (
-      !this.isZeroSynonym(ordinaryPay) &&
-      !this.isZeroSynonym(specialSalary)
-    ) {
-      errorMessages.push(
-        `${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} must not contain data when ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} contains data.`,
+        `${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} must not contain data when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} or ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} contains data.`,
       );
     }
     if (
@@ -291,7 +283,7 @@ const validateService = {
       this.isZeroSynonym(specialSalary)
     ) {
       errorMessages.push(
-        `${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} must contain data when ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} and ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} do not contain data.`,
+        `${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} must contain data.`,
       );
     }
     if (this.isZeroSynonym(hoursWorked) && !this.isZeroSynonym(ordinaryPay)) {
