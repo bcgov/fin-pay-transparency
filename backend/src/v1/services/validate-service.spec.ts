@@ -505,6 +505,59 @@ describe('validate-service', () => {
       });
     });
 
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = VALID_HOUR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        expect(result).not.toBeNull();
+        console.log(result);
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies both ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.ORDINARY_PAY and SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY
+        expect(result).not.toBeNull();
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
     describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}`, () => {
       it('returns a RowError', () => {
         const overrides = {};
@@ -533,8 +586,86 @@ describe('validate-service', () => {
       it('returns a RowError', () => {
         const overrides = {};
         overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
-        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = 35;
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] =
+          VALID_DOLLAR_AMOUNTS[0];
         overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.HOURS_WORKED and SUBMISSION_ROW_COLUMNS.ORDINARY_PAY
+        expect(result).not.toBeNull();
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} but not ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = 35;
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        expect(result).not.toBeNull();
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = 20;
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.HOURS_WORKED and SUBMISSION_ROW_COLUMNS.ORDINARY_PAY
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}, ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = 20;
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
         const invalidRecord = createSampleRecord(overrides);
 
         const recordNum = 1;
@@ -574,7 +705,6 @@ describe('validate-service', () => {
           doesAnyRowErrorContainAll(result, [
             SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
             SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
-            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
           ]),
         ).toBeTruthy();
       });

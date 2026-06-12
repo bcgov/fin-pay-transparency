@@ -38,8 +38,8 @@ const mockValidationError = new ValidationError(
   //rowErrors
   [
     new RowError(13, [
-      'Hours Worked must not contain data when Special Salary contains data.',
-      'Ordinary Pay must not be blank or 0 when Hours Worked contains data.',
+      'Ordinary Pay and Hours Worked must contain data.',
+      'Special Salary must not contain data when Hours Worked or Ordinary Pay contains data.',
     ]),
     new RowError(1142, [
       "Invalid Gender Code 'D' (expected one of: M, W, F, X, U).",
@@ -52,8 +52,8 @@ const mockValidationError = new ValidationError(
 const mockArray = [
   'Minimum allowed start date is 2024.',
   'Start date and end date must always be 12 months apart.',
-  'Hours Worked must not contain data when Special Salary contains data.',
-  'Ordinary Pay must not be blank or 0 when Hours Worked contains data.',
+  'Ordinary Pay and Hours Worked must contain data.',
+  'Special Salary must not contain data when Hours Worked or Ordinary Pay contains data.',
   "Invalid Gender Code 'D' (expected one of: M, W, F, X, U).",
   'Something went wrong.',
 ];
