@@ -31,7 +31,9 @@
     {
       "description": "Always update vulnerable npm packages immediately",
       "matchDatasources": ["npm"],
-      "vulnerabilityAlerts": true,
+      "vulnerabilityAlerts": {
+        "enabled": true
+      },
       "minimumReleaseAge": "5 days",
       "groupName": null,
       "prPriority": 100,
@@ -100,7 +102,5 @@
   "lockFileMaintenance": {
     "enabled": true
   },
-  "autodiscover": true,
-  "autodiscoverFilter": "bcgov/fin-pay-transparency",
   "rebaseWhen": "behind-base-branch"
 }
