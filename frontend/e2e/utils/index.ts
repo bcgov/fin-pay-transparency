@@ -9,5 +9,5 @@ export const PagePaths = {
   DRAFT_REPORT: `${baseURL}/draft-report`,
 };
 
-export const EXTERNAL_API_BASE_URL = process.env.EXTERNAL_API_BASE_URL;
-export const EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY =process.env.EXTERNAL_CONSUMER_API_KEY;
+const EXTERNAL_API_BASE_URL = process.env.EXTERNAL_API_BASE_URL;
+const EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY = process.env.EXTERNAL_CONSUMER_API_KEY;

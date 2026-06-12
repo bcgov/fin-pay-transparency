@@ -46,7 +46,7 @@ export enum ReportKeys {
   EMPLOYEE_COUNT = 'employee_count_range.employee_count_range',
   REPORTING_YEAR = 'reporting_year',
 }
-export enum BackendReportSortKeys {
+enum BackendReportSortKeys {
   COMPANY_NAME = 'company_name',
   CREATE_DATE = 'create_date',
   UPDATE_DATE = 'update_date',
@@ -64,51 +64,51 @@ SORT_KEY_MAPPING[ReportKeys.NAICS_CODE] = BackendReportSortKeys.NAICS_CODE;
 SORT_KEY_MAPPING[ReportKeys.EMPLOYEE_COUNT] =
   BackendReportSortKeys.EMPLOYEE_COUNT;
 
-export type SubmissonDateFilter = {
+type SubmissonDateFilter = {
   key: 'create_date';
   operation: 'between';
   value: string[];
 };
 
-export type ArrayFilter = {
+type ArrayFilter = {
   key: string;
   operation: 'in' | 'notin';
   value: string[];
 };
 
-export type NaicsCodeFilter = ArrayFilter & {
+type NaicsCodeFilter = ArrayFilter & {
   key: 'naics_code';
 };
 
-export type EmployeeCountRangeFilter = ArrayFilter & {
+type EmployeeCountRangeFilter = ArrayFilter & {
   key: 'employee_count_range_id';
 };
 
-export type ReportingYearFilter = {
+type ReportingYearFilter = {
   key: 'reporting_year';
   operation: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte';
   value: number;
 };
 
-export type IsUnlockedFilter = {
+type IsUnlockedFilter = {
   key: 'is_unlocked';
   operation: 'eq';
   value: boolean;
 };
 
-export type StatusFilter = {
+type StatusFilter = {
   key: 'report_status';
   operation: 'eq';
   value: string;
 };
 
-export type CompanyFilter = {
+type CompanyFilter = {
   key: 'company_name';
   operation: 'like';
   value: string;
 };
 
-export type AdminLastAccessDateFilter = {
+type AdminLastAccessDateFilter = {
   key: 'admin_last_access_date';
   operation: 'not';
   value: null;
@@ -135,7 +135,7 @@ export type ReportMetrics = {
   ];
 };
 
-export const AdminModifiedReasonSchema = z.enum([
+const AdminModifiedReasonSchema = z.enum([
   'LOCK',
   'UNLOCK',
   'WITHDRAW',

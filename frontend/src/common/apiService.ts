@@ -9,7 +9,7 @@ import { ApiRoutes } from '../utils/constant';
 import { authStore } from '../store/modules/auth';
 import { IConfigValue, IReport } from './types';
 
-export enum REPORT_FORMATS {
+enum REPORT_FORMATS {
   HTML = 'html',
   PDF = 'pdf',
   JSON = 'json',

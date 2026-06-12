@@ -11,8 +11,8 @@ import {
   StatusFilter,
 } from '../../types/announcements';
 
-export const DEFAULT_PAGE_SIZE = 10;
-export const DEFAULT_SEARCH_PARAMS: IAnnouncementSearchParams = {
+const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_SEARCH_PARAMS: IAnnouncementSearchParams = {
   page: 1,
   itemsPerPage: DEFAULT_PAGE_SIZE,
   filter: undefined,

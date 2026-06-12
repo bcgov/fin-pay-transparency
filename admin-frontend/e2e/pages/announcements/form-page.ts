@@ -7,11 +7,6 @@ import { AnnouncementStatus } from '../../types';
 import { AdminPortalPage } from '../admin-portal-page';
 declare const Buffer;
 
-export enum FormMode {
-  ADD,
-  EDIT,
-}
-
 export class FormPage extends AdminPortalPage {
   titleInput: Locator;
   descriptionInput: Locator; //ElementHandle<HTMLElement | SVGElement | null> | null;

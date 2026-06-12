@@ -3,13 +3,13 @@ import { z } from 'zod';
 type PublishedOnField = 'active_on';
 type ExpiresOnField = 'expires_on';
 
-export type TitleFilter = {
+type TitleFilter = {
   key: 'title';
   operation: 'like';
   value: string;
 };
 
-export type DateFilter<T> = {
+type DateFilter<T> = {
   key: T;
   operation: 'between' | 'lte' | 'gt';
   value: string | string[];
@@ -22,25 +22,25 @@ export enum AnnouncementStatus {
   Archived = 'ARCHIVED',
 }
 
-export type StatusFilter = {
+type StatusFilter = {
   key: 'status';
   operation: 'in' | 'notin';
   value: AnnouncementStatus[];
 };
 
-export type AnnouncementFilterType = (
+type AnnouncementFilterType = (
   | TitleFilter
   | DateFilter<PublishedOnField>
   | DateFilter<ExpiresOnField>
   | StatusFilter
 )[];
 
-export type AnnouncementSortType = {
+type AnnouncementSortType = {
   field: 'active_on' | 'expires_on' | 'title' | 'status' | 'updated_date';
   order: 'asc' | 'desc';
 }[];
 
-export type FilterKeyType = 'title' | 'active_on' | 'expires_on' | 'status';
+type FilterKeyType = 'title' | 'active_on' | 'expires_on' | 'status';
 
 // Filter schema
 const FILTER_OPERATION_SCHEMA: {
