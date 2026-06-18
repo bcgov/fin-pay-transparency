@@ -35,11 +35,6 @@ on:
         description: "Frontend URL of the application"
         required: true
         type: string
-      environment:
-        description: "Environment to read secrets from GitHub secrets"
-        required: false
-        default: dev
-        type: string
       external-api-base-url:
         description: "Base URL to the external service API"
         required: true
@@ -53,7 +48,6 @@ on:
 jobs:
   end-to-end-visual:
     name: Visual Regression Tests
-    environment: ${{ inputs.environment }}
     defaults:
       run:
         working-directory: frontend
