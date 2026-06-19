@@ -8,6 +8,3 @@ export const PagePaths = {
   VIEW_REPORT: `${baseURL}/published-report`,
   DRAFT_REPORT: `${baseURL}/draft-report`,
 };
-
-const EXTERNAL_API_BASE_URL = process.env.EXTERNAL_API_BASE_URL;
-const EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY = process.env.EXTERNAL_CONSUMER_API_KEY;
