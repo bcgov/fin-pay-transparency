@@ -2,22 +2,6 @@ name: .E2E-Admin
 env:
   deployment_name: pay-transparency
 on:
-  workflow_dispatch:
-    inputs:
-      admin-frontend-url:
-        description: "URL of the admin frontend application"
-        required: true
-        type: string
-      environment:
-        description: "Environment to read secrets from GitHub secrets"
-        required: false
-        default: dev
-        type: string
-      timeout-minutes:
-        description: "Timeout minutes"
-        default: 12
-        required: false
-        type: number
   workflow_call:
     secrets:
       ADMIN_E2E_TEST_LOGIN_USER_EMAIL:
