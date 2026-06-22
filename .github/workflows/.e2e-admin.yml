@@ -22,7 +22,7 @@ on:
         type: string
       timeout-minutes:
         description: "Timeout minutes"
-        default: 8
+        default: 12
         required: false
         type: number
   workflow_call:
@@ -73,9 +73,8 @@ jobs:
         run: |
           npm ci
 
-      - name: Update apt packages and install Playwright
+      - name: Install Playwright
         run: |
-          sudo apt-get update
           npx --no-install playwright install --with-deps
 
       - name: Run Tests
