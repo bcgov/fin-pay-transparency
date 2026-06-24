@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+
+  "ignoreDependencies": ["@bcgov/bc-sans", "@vue/tsconfig"],
+  "ignore": [
+    "e2e/auth.setup.ts",
+    "e2e/auth.teardown.ts",
+    "e2e/pages/login.ts",
+    "public/snowplow.js",
+    "src/components/RouterView.vue"
+  ]
+}

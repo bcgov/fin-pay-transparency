@@ -3,7 +3,7 @@ import { PagePaths } from '../utils';
 import { GenerateReportPage } from './generate-report';
 import { PTPage } from './page';
 
-export class BaseReportPage extends PTPage {
+class BaseReportPage extends PTPage {
   public downloadPDFButton: Locator;
   public backButton: Locator;
 

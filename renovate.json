@@ -6,14 +6,7 @@
     "group:allNonMajor",
     "group:definitelyTyped",
     "group:linters",
-    "group:monorepos",
-    "group:vueMonorepo",
-    "group:prismaMonorepo",
-    "group:nodeJs",
-    "group:jestMonorepo",
-    "group:playwrightMonorepo",
-    "group:lodashMonorepo",
-    "group:recommended",
+    "group:vite",
     ":combinePatchMinorReleases",
     ":enableVulnerabilityAlerts",
     ":maintainLockFilesMonthly",
@@ -26,12 +19,13 @@
   "platformAutomerge": true,
   "automergeType": "pr",
   "prConcurrentLimit": 2,
-  "dependencyDashboard": true,
   "packageRules": [
     {
-      "description": "Always update vulnerable npm packages immediately",
+      "description": "Always update vulnerable npm packages in a timely manner",
       "matchDatasources": ["npm"],
-      "vulnerabilityAlerts": true,
+      "vulnerabilityAlerts": {
+        "enabled": true
+      },
       "minimumReleaseAge": "5 days",
       "groupName": null,
       "prPriority": 100,
@@ -41,7 +35,7 @@
       "platformAutomerge": true
     },
     {
-      "description": "One week stability period for npm packages",
+      "description": "5-day stability period for npm packages",
       "matchDatasources": ["npm"],
       "minimumReleaseAge": "5 days"
     },
@@ -53,32 +47,9 @@
       "minimumReleaseAge": "3 days"
     },
     {
-      "description": "JS - group vite",
-      "groupName": "vite",
-      "minimumReleaseAge": "3 days",
-      "matchPackageNames": [
-        "/^vite$/",
-        "/^@vitejs\\//"
-      ]
-    },
-    {
-      "description": "JS - group linters",
-      "groupName": "linters",
-      "matchPackageNames": [
-        "/eslint/",
-        "/^@prettier\\//",
-        "/^prettier-plugin-/"
-      ]
-    },
-    {
-      "description": "JS - puppeteer",
-      "groupName": "puppeteer",
-      "matchPackageNames": ["/puppeteer/"]
-    },
-    {
-      "description": "JS - group microsoft",
-      "groupName": "microsoft",
-      "matchPackageNames": ["/msal-node/"]
+      "description": "js-joda updates",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@js-joda/*"]
     },
     {
       "description": "Automerge npm updates",
@@ -96,11 +67,5 @@
       "labels": ["automerge", "npm-updates"],
       "minimumReleaseAge": "7 days"     
     }
-  ],
-  "lockFileMaintenance": {
-    "enabled": true
-  },
-  "autodiscover": true,
-  "autodiscoverFilter": "bcgov/fin-pay-transparency",
-  "rebaseWhen": "behind-base-branch"
+  ]
 }

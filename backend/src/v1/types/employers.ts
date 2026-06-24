@@ -64,7 +64,7 @@ export type GetEmployerQueryType = z.infer<typeof GetEmployerQuerySchema>;
 
 /* Get Employer - Results*/
 
-export type Employer = {
+type Employer = {
   company_id: string;
   company_name: string;
   create_date: Date;

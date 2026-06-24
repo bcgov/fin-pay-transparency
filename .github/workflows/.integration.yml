@@ -2,22 +2,6 @@ name: .Integration
 env:
   deployment_name: pay-transparency
 on:
-  workflow_dispatch:
-    inputs:
-      backend-external-url:
-        description: "Backend-External URL of the application"
-        required: true
-        type: string
-      environment:
-        description: "Environment to read secrets from GitHub secrets"
-        required: false
-        default: dev
-        type: string
-      timeout-minutes:
-        description: "Timeout minutes"
-        default: 8
-        required: false
-        type: number
   workflow_call:
     secrets:
       EXTERNAL_CONSUMER_API_KEY:
@@ -75,7 +59,6 @@ jobs:
         env:
           BASE_URL: ${{ inputs.backend-external-url }}
           EXTERNAL_CONSUMER_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_API_KEY }}
-          EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY: ${{ secrets.EXTERNAL_CONSUMER_DELETE_REPORTS_API_KEY }}
         run: |
           npm run test:integration
 

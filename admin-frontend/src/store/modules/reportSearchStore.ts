@@ -16,7 +16,7 @@ export const DEFAULT_SEARCH_PARAMS: IReportSearchParams = {
   filter: [{ key: 'report_status', operation: 'eq', value: 'Published' }],
   sort: [{ create_date: 'desc' }],
 };
-export const DEFAULT_DOWNLOAD_CSV_PARAMS: IReportSearchParams = {
+const DEFAULT_DOWNLOAD_CSV_PARAMS: IReportSearchParams = {
   filter: [{ key: 'report_status', operation: 'eq', value: 'Published' }],
   sort: [{ create_date: 'desc' }],
 };

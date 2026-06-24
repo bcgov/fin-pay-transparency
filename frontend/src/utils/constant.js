@@ -41,7 +41,7 @@ export const PAGE_TITLES = Object.freeze({
   TOKEN_EXPIRED: 'Token Expired',
 });
 
-export const MINISTRY_NAME = 'Ministry of Finance';
+const MINISTRY_NAME = 'Ministry of Finance';
 
 export const REPORT_STATUS = Object.freeze({
   DRAFT: 'Draft',

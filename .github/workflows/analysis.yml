@@ -43,7 +43,6 @@ jobs:
     name: Unit Tests
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-24.04
-    environment: unit-test
     env:
       PUBLIC_KEY: |
         ${{ secrets.PUBLIC_KEY }}
@@ -91,6 +90,7 @@ jobs:
             npm run test:cov
           dir: ${{ matrix.dir }}
           node_version: 24.15.0
+          knip_config: "knip.json"
           sonar_args: >
             -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/dist/**,**/ches/**,**/templates/**,**/prisma/**,**/__mocks__/**
             -Dsonar.organization=bcgov-sonarcloud

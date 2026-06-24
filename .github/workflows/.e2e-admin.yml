@@ -2,29 +2,6 @@ name: .E2E-Admin
 env:
   deployment_name: pay-transparency
 on:
-  workflow_dispatch:
-    secrets:
-      ADMIN_E2E_TEST_LOGIN_USER_EMAIL:
-        required: true
-      ADMIN_E2E_TEST_LOGIN_PASSWORD:
-        required: true
-      ADMIN_E2E_TEST_LOGIN_OTP_SECRET:
-        required: true
-    inputs:
-      admin-frontend-url:
-        description: "URL of the admin frontend application"
-        required: true
-        type: string
-      environment:
-        description: "Environment to read secrets from GitHub secrets"
-        required: false
-        default: dev
-        type: string
-      timeout-minutes:
-        description: "Timeout minutes"
-        default: 12
-        required: false
-        type: number
   workflow_call:
     secrets:
       ADMIN_E2E_TEST_LOGIN_USER_EMAIL:
@@ -38,11 +15,6 @@ on:
         description: "URL of the admin frontend application"
         required: true
         type: string
-      environment:
-        description: "Environment to read secrets from GitHub secrets"
-        required: false
-        default: dev
-        type: string
       timeout-minutes:
         description: "Timeout minutes"
         default: 8
@@ -52,7 +24,6 @@ on:
 jobs:
   end-to-end:
     name: Tests
-    environment: ${{ inputs.environment }}
     defaults:
       run:
         working-directory: admin-frontend

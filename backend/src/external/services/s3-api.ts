@@ -46,7 +46,7 @@ const getMostRecentFile = async (s3Client: S3Client, key: string) => {
   }
 };
 
-export const getFile = async (key: string) => {
+const getFile = async (key: string) => {
   const s3Client = new S3Client(S3_OPTIONS);
   const object = await getMostRecentFile(s3Client, key);
   if (!object) {

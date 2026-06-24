@@ -47,11 +47,6 @@ const MAX_HOURS = 8760; //equal to 24 hours/day x 365 days
 const MAX_DOLLARS = 999999999;
 const MAX_LEN_DATA_CONSTRAINTS = 3000;
 
-interface Row {
-  record: any;
-  raw: string;
-}
-
 class ValidationError {
   bodyErrors: string[] | null;
   rowErrors: RowError[] | null;
@@ -506,7 +501,6 @@ export {
   GENDER_CODES,
   MAX_LEN_DATA_CONSTRAINTS,
   NUMERIC_COLUMNS,
-  Row,
   RowError,
   STANDARDIZED_GENDER_CODES,
   SUBMISSION_ROW_COLUMNS,

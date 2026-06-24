@@ -1,7 +1,6 @@
 const baseRoot = '/admin-api';
 const clamavBaseRoot = '/clamav-api';
 const authRoot = baseRoot + '/auth';
-const fileUploadRoot = baseRoot + '/file-upload';
 let object;
 
 object = {
@@ -49,13 +48,6 @@ export const PAGE_TITLES = Object.freeze({
   TOKEN_EXPIRED: 'Token Expired',
   INVITATION_EXPIRED: 'Invitation Expired',
   UNAUTHORIZED: 'Unauthorized',
-});
-
-export const MINISTRY_NAME = 'Ministry of Finance';
-
-export const REPORT_STATUS = Object.freeze({
-  DRAFT: 'Draft',
-  PUBLISHED: 'Published',
 });
 
 export const POWERBI_RESOURCE = Object.freeze({

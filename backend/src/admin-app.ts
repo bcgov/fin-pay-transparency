@@ -37,7 +37,7 @@ import { adminAuth } from './v1/services/admin-auth-service.js';
 import { utils } from './v1/services/utils-service.js';
 import adminUserInvitesRoutes from './v1/routes/admin-user-invites-routes.js';
 
-export const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
+const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
 
 const register = new prom.Registry();
 prom.collectDefaultMetrics({ register });
