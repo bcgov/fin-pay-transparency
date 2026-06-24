@@ -3,12 +3,12 @@
     <v-row align="center" justify="center">
       <v-col sm="4" md="4" lg="4" xl="4">
         <v-alert class="alert-error mb-3">
-          Your BCeID account is missing information required to use this
-          website. Please contact the
+          Your BCeID account is missing the business address or postal code
+          required to use this website. Please contact the
           <a href="https://www.bceid.ca/aboutbceid/contact_us.aspx">
             BCeID HelpDesk
           </a>
-          for support.
+          to update your account's address information.
         </v-alert>
         <v-btn color="primary" to="Login">Home</v-btn>
       </v-col>
