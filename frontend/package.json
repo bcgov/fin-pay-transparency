@@ -21,7 +21,7 @@
     "@js-joda/core": "^5.6.1",
     "@js-joda/locale_en": "^4.8.11",
     "@mdi/font": "^7.1.96",
-    "@vue/tsconfig": "^0.8.0",
+    "@vue/tsconfig": "^0.9.0",
     "axios": "^1.16.0",
     "dotenv": "^17.2.0",
     "file-saver": "^2.0.5",
