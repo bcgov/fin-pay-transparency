@@ -311,14 +311,9 @@ export default {
           responseType: 'blob',
         },
       );
-      const name = headers['content-disposition']
-        .split('filename="')[1]
-        .split('.')[0];
-      const extension = headers['content-disposition']
-        .split('.')[1]
-        .split('"')[0];
-
-      const filename = `${name}.${extension}`;
+      const filename = headers['content-disposition']
+        .split('filename=')[1]
+        .trim('"');
 
       const url = globalThis.URL.createObjectURL(data);
       const link = document.createElement('a');

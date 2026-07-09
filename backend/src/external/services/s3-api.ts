@@ -1,120 +1,85 @@
 import {
   GetObjectCommand,
-  ListObjectsCommand,
   DeleteObjectsCommand,
   S3Client,
-  type ObjectIdentifier,
   type _Object,
+  paginateListObjectsV2,
 } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import prisma from '../../v1/prisma/prisma-client.js';
-import os from 'node:os';
 import fs from 'node:fs';
-import retry from 'async-retry';
 import PATH from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../../logger.js';
-import {
-  APP_ANNOUNCEMENTS_FOLDER,
-  S3_BUCKET,
-  S3_OPTIONS,
-} from '../../constants/admin.js';
+import { S3_BUCKET, S3_OPTIONS } from '../../constants/admin.js';
+import { NodeJsClient } from '@smithy/types';
+import { Upload } from '@aws-sdk/lib-storage';
+import AsyncRetry from 'async-retry';
 
-/*  */
+/* This module provides functions to interact with an S3-compatible object store.
+ * Upload files with a given {folder} and {id} and {extention}.
+ * Replacing a file by uploading with the same {folder} and {id} will not delete the previous file, but will keep it in the object store.
+ * Getting a file will return the most recent file.
+ * Delete files will delete the history of any {id}.
+ */
 
-const getFileList = async (s3Client: S3Client, key: string) => {
-  const response = await s3Client.send(
-    new ListObjectsCommand({
+/* Internal notes:
+ * Keeping multiple files for the same id is accomplished by this module creating its own uuid for every file uploaded.
+ * For example, ${folder}/${id}/${uuidv4()}${ext} is the key for every file uploaded.
+ * The same {id} history could look like this in the object store:
+ * app/1234/qwer.pdf -> metadata: { LastModified: 2024-06-01T12:00:00Z }
+ * app/1234/asdf.pdf -> metadata: { LastModified: 2024-06-02T12:00:00Z }
+ * app/1234/zxcv.pdf -> metadata: { LastModified: 2024-06-03T12:00:00Z }
+ * The {id} is 1234 and the most recent file is determined by the LastModified property of the S3 object.
+ */
+
+const getFileList = async (s3Client: S3Client, folder: string, id: string) => {
+  const paginator = paginateListObjectsV2(
+    { client: s3Client, pageSize: 1000 },
+    {
       Bucket: S3_BUCKET,
-      Prefix: `${APP_ANNOUNCEMENTS_FOLDER}/${key}`,
-    }),
+      Prefix: `${folder}/${id}/`,
+    },
   );
-  return response.Contents ?? [];
-};
 
-const getMostRecentFile = async (s3Client: S3Client, key: string) => {
-  try {
-    const fileList = await getFileList(s3Client, key);
-    const sortedData = fileList.sort((a, b) => {
-      const modifiedDateA: any = new Date(a.LastModified);
-      const modifiedDateB: any = new Date(b.LastModified);
-      return modifiedDateB - modifiedDateA;
-    });
-    return sortedData[0];
-  } catch {
-    return undefined;
+  const files: _Object[] = [];
+  for await (const page of paginator) {
+    files.push(...(page.Contents ?? []));
   }
+
+  return files;
 };
 
-const getFile = async (key: string) => {
-  const s3Client = new S3Client(S3_OPTIONS);
-  const object = await getMostRecentFile(s3Client, key);
-  if (!object) {
+const getMostRecentFile = async (
+  s3Client: S3Client,
+  folder: string,
+  id: string,
+) => {
+  const fileList = await getFileList(s3Client, folder, id);
+  if (fileList.length === 0) return undefined;
+  return fileList.reduce((latest, current) =>
+    current.LastModified > latest.LastModified ? current : latest,
+  );
+};
+
+/**
+ * @returns the file streaming data and extenstion (eg. ".pdf")
+ */
+export const getFile = async (folder: string, id: string) => {
+  const s3Client = new S3Client(S3_OPTIONS) as NodeJsClient<S3Client>; // "as NodeJs..." ensures that TypeScript uses NodeJs types instead of Browser types
+  const s3File = await getMostRecentFile(s3Client, folder, id);
+  if (!s3File || !s3File.Key) {
     throw new Error('File not found');
   }
 
-  const fileName = object.Key;
+  const ext = PATH.extname(s3File.Key);
 
   const result = await s3Client.send(
     new GetObjectCommand({
       Bucket: S3_BUCKET,
-      Key: fileName,
+      Key: s3File.Key,
     }),
   );
 
-  return { data: result, fileName };
-};
-
-export const downloadFile = async (res, fileId: string) => {
-  try {
-    const attachment = await prisma.announcement_resource.findFirstOrThrow({
-      where: {
-        announcement_resource_id: fileId,
-        resource_type: 'ATTACHMENT',
-      },
-    });
-    const { data, fileName } = await getFile(attachment.attachment_file_id);
-    const tempFile = os.tmpdir() + '/' + attachment.attachment_file_id;
-    const writeStream = fs.createWriteStream(tempFile);
-    const x = await data.Body.transformToByteArray();
-    const fileNameTokens = fileName.split('/');
-    const name = fileNameTokens[fileNameTokens.length - 1];
-    const extension = name.split('.')[name.split('.').length - 1];
-    writeStream.write(x, (err) => {
-      /* istanbul ignore next */
-      if (err) {
-        logger.error('Failed to write s3 download', err);
-        return res.status(400).send('Failed to download file');
-      }
-      res.setHeader(
-        'Content-Disposition',
-        `inline; filename=${attachment.display_name}.${extension}`,
-      );
-      res.download(
-        tempFile,
-        `${attachment.display_name}.${extension}`,
-        (err) => {
-          /* istanbul ignore next */
-          if (err) {
-            logger.error('Failed to download file', err);
-            if (!res.headersSent) {
-              return res.status(400).send('Failed to download file');
-            }
-          }
-
-          fs.unlink(tempFile, function (err) {
-            /* istanbul ignore next */
-            if (err) {
-              logger.error(err);
-            }
-          });
-        },
-      );
-    });
-  } catch (error) {
-    logger.error(error);
-    res.status(400).json({ message: 'Invalid request', error });
-  }
+  return { data: result, ext };
 };
 
 /**
@@ -122,61 +87,85 @@ export const downloadFile = async (res, fileId: string) => {
  * @param ids
  * @returns A Set<string> of id's that are no longer in the object store
  */
-export const deleteFiles = async (ids: string[]): Promise<Set<string>> => {
-  const s3Client = new S3Client(S3_OPTIONS);
-  try {
-    // Get all the files stored under each id
-    const filesPerId = await Promise.all(
-      ids.map((id) => getFileList(s3Client, id)),
-    );
-    const idsWithNoFiles = ids.filter(
-      (id, index) => filesPerId[index].length === 0,
-    );
-    const files = filesPerId.flat();
+export const deleteFiles = async (
+  folder: string,
+  ids: string[],
+): Promise<Set<string>> => {
+  const s3Client = new S3Client(S3_OPTIONS) as NodeJsClient<S3Client>;
 
-    // Group into 1000 items because DeleteObjectsCommand can only do 1000 at a time
-    const groupedFiles: _Object[][] = [];
-    for (let i = 0; i < files.length; i += 1000)
-      groupedFiles.push(files.slice(i, i + 1000));
+  const listResults = await Promise.allSettled(
+    ids.map((id) => getFileList(s3Client, folder, id)),
+  );
 
-    // delete all files in object store
-    const responsePerGroup = await Promise.all(
-      groupedFiles.map((group) =>
-        s3Client.send(
-          new DeleteObjectsCommand({
-            Bucket: S3_BUCKET,
-            Delete: { Objects: group as ObjectIdentifier[] },
-          }),
-        ),
+  const idsWithNoFiles = new Set<string>();
+  const idsWithFiles = new Set<string>();
+  const files: _Object[] = [];
+
+  listResults.forEach((result, index) => {
+    const id = ids[index];
+    if (result.status === 'fulfilled') {
+      if (result.value.length === 0) {
+        idsWithNoFiles.add(id);
+      } else {
+        idsWithFiles.add(id);
+        files.push(...result.value);
+      }
+    } else {
+      logger.error(
+        `Failed to list files for id "${id}" in folder "${folder}": ${result.reason}`,
+      );
+    }
+  });
+
+  const groupedFiles: _Object[][] = [];
+  for (let i = 0; i < files.length; i += 1000)
+    groupedFiles.push(files.slice(i, i + 1000));
+
+  const deleteResults = await Promise.allSettled(
+    groupedFiles.map((group) =>
+      s3Client.send(
+        new DeleteObjectsCommand({
+          Bucket: S3_BUCKET,
+          Delete: {
+            Objects: group
+              .filter((o): o is _Object & { Key: string } => !!o.Key)
+              .map((o) => ({ Key: o.Key })),
+          },
+        }),
       ),
-    );
+    ),
+  );
 
-    // report any errors
-    responsePerGroup.forEach((r) =>
-      r.Errors?.forEach((e) => {
-        if (e.Code == 'NoSuchKey') idsWithNoFiles.push(getIdFromKey(e.Key));
-        logger.error(e.Message);
-      }),
-    );
+  const failedIds = new Set<string>();
 
-    // Return the id of all successful deleted
-    const successfulIds = responsePerGroup.flatMap((r) =>
-      r.Deleted?.reduce((acc, x) => {
-        acc.push(getIdFromKey(x.Key));
-        return acc;
-      }, [] as string[]),
-    );
+  deleteResults.forEach((result, index) => {
+    const group = groupedFiles[index];
 
-    return new Set(idsWithNoFiles.concat(successfulIds)); //remove duplicates
-  } catch (error) {
-    logger.error(error);
-    return new Set();
-  }
+    if (result.status === 'fulfilled') {
+      result.value.Errors?.forEach((e) => {
+        if (!e.Key) return;
+        logger.error(`Failed to delete "${e.Key}": ${e.Message}`);
+        if (e.Code === 'NoSuchKey') return; // already gone — treat as success
+        failedIds.add(getIdFromKey(e.Key, folder));
+      });
+    } else {
+      // Promise failed — treat all keys in the group as failed
+      logger.error(
+        `Failed to delete batch ${index} in folder "${folder}": ${result.reason}`,
+      );
+      group.forEach((o) => {
+        if (o.Key) failedIds.add(getIdFromKey(o.Key, folder));
+      });
+    }
+  });
+
+  const successfulIds = [...idsWithFiles].filter((id) => !failedIds.has(id));
+
+  return new Set([...idsWithNoFiles, ...successfulIds]);
 };
 
 /**
  * Uploads a file to S3 with retry logic
- * @param params - Upload parameters
  * @returns Promise that resolves when upload completes
  */
 export const upload = async (
@@ -186,22 +175,22 @@ export const upload = async (
   folder: string,
   attachmentId: string,
 ): Promise<void> => {
-  const ext = PATH.extname(fileName ?? '');
+  const ext = PATH.extname(fileName);
   const s3 = new S3Client(S3_OPTIONS);
-  const stream = fs.createReadStream(filePath);
 
-  const upload = new Upload({
-    client: s3,
-    params: {
-      Bucket: S3_BUCKET,
-      Key: `${folder}/${attachmentId}/${uuidv4()}${ext}`,
-      Body: stream,
-      ContentType: contentType,
-    },
-  });
-
-  await retry(
+  await AsyncRetry(
     async () => {
+      const stream = fs.createReadStream(filePath);
+
+      const upload = new Upload({
+        client: s3,
+        params: {
+          Bucket: S3_BUCKET,
+          Key: `${folder}/${attachmentId}/${uuidv4()}${ext}`,
+          Body: stream,
+          ContentType: contentType,
+        },
+      });
       const results = await upload.done();
       return results;
     },
@@ -211,8 +200,8 @@ export const upload = async (
 
 /**
  * Given a string in this format, return the 'id' portion of the string
- * ${APP_ANNOUNCEMENTS_FOLDER}/${id}/${file}
+ * ANY/PATH/.../${id}/${file}
  */
-function getIdFromKey(key: string): string {
-  return key.replace(`${APP_ANNOUNCEMENTS_FOLDER}/`, '').split('/', 1)[0];
+function getIdFromKey(key: string, folder: string): string {
+  return key.slice(folder.length + 1, key.lastIndexOf('/'));
 }
