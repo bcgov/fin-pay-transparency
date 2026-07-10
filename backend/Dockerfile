@@ -1,4 +1,4 @@
-FROM node:22-bullseye-slim AS build
+FROM node:24-bullseye-slim AS build
 
 # Install packages, build and keep only prod packages
 WORKDIR /app
@@ -9,7 +9,7 @@ RUN npm ci --ignore-scripts && \
 
 RUN mkdir -p /app/sessions
 
-FROM node:22-bullseye-slim AS dependencies
+FROM node:24-bullseye-slim AS dependencies
 
 # Install packages, build and keep only prod packages
 WORKDIR /app
