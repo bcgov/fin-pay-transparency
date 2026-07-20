@@ -229,7 +229,6 @@
                   <v-col>
                     <v-select
                       id="reportYear"
-                      ref="reportYear"
                       v-model="reportYear"
                       label="Year"
                       :items="reportingYearOptions"
@@ -289,11 +288,9 @@
                         <span class="text-grey-darken-1">From</span>
                         <v-select
                           id="startMonth"
-                          ref="startMonth"
                           v-model="startMonth"
                           label="Month"
                           :items="startMonthList"
-                          :return-object="false"
                           :rules="requiredRules"
                         />
                       </v-col>
@@ -301,7 +298,6 @@
                       <v-col>
                         <v-select
                           id="startYear"
-                          ref="startYear"
                           v-model="startYear"
                           label="Year"
                           :items="startYearList"
@@ -326,11 +322,9 @@
                         <span class="text-grey-darken-1"> To </span>
                         <v-select
                           id="endMonth"
-                          ref="endMonth"
                           v-model="endMonth"
                           label="Month"
                           :items="endMonthList"
-                          :return-object="false"
                           :rules="requiredRules"
                         />
                       </v-col>
@@ -338,7 +332,6 @@
                       <v-col>
                         <v-select
                           id="endYear"
-                          ref="endYear"
                           v-model="endYear"
                           label="Year"
                           :items="endYearList"
@@ -727,12 +720,12 @@ import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
 import { CsvService, IParseSuccessResponse } from '../common/csvService';
-import { LocalDate, TemporalAdjusters, DateTimeFormatter } from '@js-joda/core';
+import { LocalDate, DateTimeFormatter } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { IConfigValue, IReport } from '../common/types';
 import axios from 'axios';
 import { VFileInput } from 'vuetify/components';
-import _ from 'lodash';
+import { useReportingDateRange } from './reportingDateRange/ReportingDateRangeComposable.ts';
 
 interface RowError {
   rowNum: number;
@@ -771,6 +764,34 @@ export default {
     );
     next(response);
   },
+  setup() {
+    const {
+      reportYear,
+      startDate,
+      startYear,
+      startMonth,
+      endYear,
+      endMonth,
+      startYearList,
+      startMonthList,
+      endYearList,
+      endMonthList,
+      setStartDate,
+    } = useReportingDateRange();
+    return {
+      reportYear,
+      startDate,
+      startYear,
+      startMonth,
+      endYear,
+      endMonth,
+      startYearList,
+      startMonthList,
+      endYearList,
+      endMonthList,
+      setStartDate,
+    };
+  },
   data: () => ({
     ReportMode,
     requiredRules: [(v: string) => !!v || 'Complete this field.'],
@@ -779,12 +800,6 @@ export default {
     //fields
     naicsCode: null as any,
     employeeCountRange: null as any,
-    startMonth: LocalDate.now().minusYears(1).monthValue() || undefined,
-    startYear: LocalDate.now().minusYears(1).year(),
-    endMonth:
-      LocalDate.now().minusYears(1).minusMonths(1).monthValue() || undefined,
-    endYear: LocalDate.now().minusMonths(1).year(),
-    reportYear: LocalDate.now().year(),
     confirmReportingYear: false,
     dataConstraints: null,
     comments: null,
@@ -793,35 +808,6 @@ export default {
     isSelectingFile: false,
     uploadFileValue: undefined as File | undefined,
     maxFileUploadSize: '',
-    minStartDate: LocalDate.now()
-      .with(TemporalAdjusters.firstDayOfYear())
-      .minusYears(2)
-      .with(TemporalAdjusters.firstDayOfMonth()),
-    maxStartDate: LocalDate.now()
-      .minusYears(1)
-      .with(TemporalAdjusters.lastDayOfMonth()),
-    minEndDate: LocalDate.now()
-      .with(TemporalAdjusters.firstDayOfYear())
-      .minusYears(1)
-      .minusMonths(1)
-      .withDayOfMonth(1),
-    maxEndDate: LocalDate.now()
-      .minusMonths(1)
-      .with(TemporalAdjusters.lastDayOfMonth()),
-    months: [
-      { title: 'Jan.', value: 1 },
-      { title: 'Feb.', value: 2 },
-      { title: 'Mar.', value: 3 },
-      { title: 'Apr.', value: 4 },
-      { title: 'May', value: 5 },
-      { title: 'June', value: 6 },
-      { title: 'July', value: 7 },
-      { title: 'Aug.', value: 8 },
-      { title: 'Sept.', value: 9 },
-      { title: 'Oct.', value: 10 },
-      { title: 'Nov.', value: 11 },
-      { title: 'Dec.', value: 12 },
-    ],
     fileAccept: '.csv',
     fileRules: [],
     fileInputError: [],
@@ -867,40 +853,6 @@ export default {
       if (this.uploadFileValue) return humanFileSize(this.uploadFileValue.size);
       return '';
     },
-    startDate() {
-      if (!this.startMonth) return;
-      return LocalDate.of(this.startYear, this.startMonth, 1).format(
-        dateFormatter,
-      );
-    },
-    endDate() {
-      if (!this.endMonth) return;
-      return LocalDate.of(this.endYear, this.endMonth, 1)
-        .with(TemporalAdjusters.lastDayOfMonth())
-        .format(dateFormatter);
-    },
-    startMonthList() {
-      return this.months.map((month) => {
-        const selected = LocalDate.of(this.startYear, month.value, 1);
-        const disabled =
-          selected.isBefore(this.minStartDate as LocalDate) ||
-          selected.isAfter(this.maxStartDate as LocalDate);
-        return { ...month, props: { disabled } };
-      });
-    },
-    startYearList() {
-      return _.range(this.minStartDate.year(), this.maxStartDate.year() + 1);
-    },
-    endMonthList() {
-      return this.months.map((month) => {
-        const selected = LocalDate.of(this.endYear, month.value, 1);
-        const disabled = selected.isAfter(this.maxEndDate as LocalDate);
-        return { ...month, props: { disabled } };
-      });
-    },
-    endYearList() {
-      return _.range(this.minEndDate.year(), this.maxEndDate.year() + 1);
-    },
     isEditMode() {
       return this.reportId != null;
     },
@@ -918,59 +870,6 @@ export default {
     },
   },
   watch: {
-    reportYear: {
-      handler(reportYear) {
-        // When report year changes, update the allowable start/end dates.
-        const endOfReportingYear = LocalDate.of(reportYear, 12, 31);
-        const minStartDate = LocalDate.of(reportYear, 1, 1)
-          .minusYears(1)
-          .with(TemporalAdjusters.firstDayOfMonth());
-        let maxEndDate = LocalDate.now()
-          .minusMonths(1)
-          .with(TemporalAdjusters.lastDayOfMonth());
-        if (maxEndDate.isAfter(endOfReportingYear)) {
-          maxEndDate = endOfReportingYear;
-        }
-
-        this.minStartDate = minStartDate;
-        this.maxEndDate = maxEndDate;
-        this.minEndDate = minStartDate.plusMonths(11);
-        this.maxStartDate = maxEndDate.minusMonths(11);
-
-        this.checkAndCorrectSelectedTimePeriod();
-      },
-      immediate: true,
-    },
-    startMonth() {
-      //automatically update the endMonth and endYear to be one year later
-      if (!this.startDate) return;
-      const end = LocalDate.parse(this.startDate).plusMonths(11);
-      this.endMonth = end.monthValue();
-      this.endYear = end.year();
-    },
-    startYear() {
-      //automatically update the endMonth and endYear to be one year later
-      if (!this.startDate) return;
-      const end = LocalDate.parse(this.startDate).plusMonths(11);
-      this.endMonth = end.monthValue();
-      this.endYear = end.year();
-      this.removeDisabledMonths();
-    },
-    endMonth() {
-      //automatically update the startMonth and startYear to be one year earlier
-      if (!this.endDate) return;
-      const start = LocalDate.parse(this.endDate).minusMonths(11);
-      this.startMonth = start.monthValue();
-      this.startYear = start.year();
-    },
-    endYear() {
-      //automatically update the startMonth and startYear to be one year earlier
-      if (!this.endDate) return;
-      const start = LocalDate.parse(this.endDate).minusMonths(11);
-      this.startMonth = start.monthValue();
-      this.startYear = start.year();
-      this.removeDisabledMonths();
-    },
     userInfo: {
       // Watch for changes to userInfo (from the authStore).  Copy company name
       // and address from that object into state variables in this component.
@@ -1046,16 +945,7 @@ export default {
         typeof this.reportData.reporting_year === 'number'
           ? this.reportData.reporting_year
           : Number.parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
-      this.startYear = LocalDate.parse(
-        this.reportData.report_start_date,
-      ).year();
-      this.startMonth = LocalDate.parse(
-        this.reportData.report_start_date,
-      ).monthValue();
-      this.endYear = LocalDate.parse(this.reportData.report_end_date).year();
-      this.endMonth = LocalDate.parse(
-        this.reportData.report_end_date,
-      ).monthValue();
+      this.setStartDate(LocalDate.parse(this.reportData.report_start_date));
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
       this.confirmReportingYear = true;
@@ -1065,59 +955,6 @@ export default {
       if (reportYearList?.length) {
         this.reportYear = Math.max(...reportYearList);
       }
-    },
-    checkAndCorrectSelectedTimePeriod() {
-      // Check if the currently-selected start date and end date are in the allowable
-      // range.  If not, adjust them...
-      if (
-        !this.minStartDate ||
-        !this.maxStartDate ||
-        !this.minEndDate ||
-        !this.maxEndDate
-      ) {
-        return;
-      }
-      const selectedStartDate =
-        this.startYear && this.startMonth
-          ? LocalDate.of(this.startYear, this.startMonth, 1)
-          : null;
-      const selectedEndDate =
-        this.endYear && this.endMonth
-          ? LocalDate.of(this.endYear, this.endMonth, 1).with(
-              TemporalAdjusters.lastDayOfMonth(),
-            )
-          : null;
-
-      if (
-        !selectedStartDate ||
-        selectedStartDate.isBefore(this.minStartDate) ||
-        selectedStartDate.isAfter(this.maxStartDate)
-      ) {
-        this.startYear = this.maxStartDate.year();
-        this.startMonth = this.maxStartDate.monthValue();
-      }
-      if (
-        !selectedEndDate ||
-        selectedEndDate.isBefore(this.minEndDate) ||
-        selectedEndDate.isAfter(this.maxEndDate)
-      ) {
-        this.endYear = this.maxEndDate.year();
-        this.endMonth = this.maxEndDate.monthValue();
-      }
-    },
-    removeDisabledMonths() {
-      //if the selected startMonth is disabled, clear the field
-      if (
-        this.startMonthList.find((month) => month.value === this.startMonth)
-          ?.props.disabled
-      )
-        this.startMonth = undefined;
-      //if the selected endMonth is disabled, clear the field
-      if (
-        this.endMonthList.find((month) => month.value === this.endMonth)?.props
-          .disabled
-      )
-        this.endMonth = undefined;
     },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
@@ -1215,8 +1052,8 @@ export default {
             companyAddress: this.companyAddress,
             naicsCode: this.naicsCode,
             employeeCountRangeId: this.employeeCountRange,
-            startDate: this.startDate!,
-            endDate: this.endDate!,
+            startDate: this.startDate.format(dateFormatter),
+            endDate: this.startDate.plusMonths(11).format(dateFormatter),
             reportingYear: this.reportYear,
             dataConstraints: this.dataConstraints,
             comments: this.comments,
