@@ -15,6 +15,7 @@ import { UserInputError } from '../types/errors.js';
 import { announcementService } from './announcements-service.js';
 import { utils } from './utils-service.js';
 import prisma from '../prisma/__mocks__/prisma-client.js';
+import type * as PrismaType from '../prisma/generated/client.js';
 
 const mockFindMany = prisma.announcement.findMany;
 const mockUpdateMany = prisma.announcement.updateMany;
@@ -38,6 +39,9 @@ const mockDeleteManyResourceHistory =
 vi.mock('../prisma/prisma-client');
 
 beforeEach(() => {
+  mockGetFile.mockReset();
+  mockS3ApiDeleteFiles.mockReset();
+
   mockFindMany.mockResolvedValue([
     {
       announcement_id: '1',
@@ -65,8 +69,10 @@ beforeEach(() => {
 });
 
 const mockS3ApiDeleteFiles = vi.fn();
+const mockGetFile = vi.fn();
 vi.mock('../../external/services/s3-api', () => ({
   deleteFiles: (...args) => mockS3ApiDeleteFiles(...args),
+  getFile: (...args) => mockGetFile(...args),
 }));
 
 vi.mock('../../config/config', () => ({
@@ -1087,7 +1093,10 @@ describe('AnnouncementsService', () => {
 
       await announcementService.deleteAnnouncementsSchedule();
 
-      expect(mockS3ApiDeleteFiles).toHaveBeenCalledWith(['file1', 'file2']);
+      expect(mockS3ApiDeleteFiles).toHaveBeenCalledWith('app/announcements', [
+        'file1',
+        'file2',
+      ]);
 
       // Two files, so each of these are called twice
       expect(mockDeleteManyResourceHistory).toHaveBeenCalledTimes(2);
@@ -1146,19 +1155,40 @@ describe('AnnouncementsService', () => {
     it('should log if database failed to delete', async () => {
       //test that if the resources that were found couldn't be deleted from s3, then nothing happens
       mockFindMany.mockResolvedValueOnce([
-        { announcement_id: 1, title: 'Announcement 1' },
-        { announcement_id: 2, title: 'Announcement 2' },
-      ]);
+        { announcement_id: '1', title: 'Announcement 1' },
+        { announcement_id: '2', title: 'Announcement 2' },
+      ] as PrismaType.announcement[]);
       mockFindManyResource.mockResolvedValueOnce([
-        { announcement_id: 1, attachment_file_id: 'file1' },
-        { announcement_id: 2, attachment_file_id: 'file2' },
-      ]);
+        { announcement_id: '1', attachment_file_id: 'file1' },
+        { announcement_id: '2', attachment_file_id: 'file2' },
+      ] as PrismaType.announcement_resource[]);
       mockS3ApiDeleteFiles.mockResolvedValue(new Set(['file1'])); // didn't delete anything
       mockDeleteManyResourceHistory.mockRejectedValue(new Error('err'));
 
       await announcementService.deleteAnnouncementsSchedule();
       expect(mockDeleteManyResourceHistory).toHaveBeenCalledTimes(1);
       expect(mockDeleteManyHistory).toHaveBeenCalledTimes(0); //should error before this function is called
+    });
+  });
+
+  describe('getAnnouncementResource', () => {
+    it('should return correct filename', async () => {
+      prisma.announcement_resource.findFirstOrThrow.mockResolvedValue({
+        announcement_id: '1',
+        attachment_file_id: '2',
+        display_name: 'testDisplayName',
+      } as PrismaType.announcement_resource);
+      mockGetFile.mockResolvedValue({
+        ext: '.txt',
+        data: { ContentLength: 1024, Body: {} },
+      });
+
+      const result = await announcementService.getAnnouncementResource('1');
+      expect(result).toEqual({
+        filename: 'testDisplayName.txt',
+        contentLength: 1024,
+        data: {},
+      });
     });
   });
 });
