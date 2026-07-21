@@ -75,7 +75,7 @@ vi.mock('../util/ConfirmationDialog.vue', () => ({
 }));
 
 describe('InputForm', () => {
-  let wrapper;
+  let wrapper: ReturnType<typeof mount<typeof InputForm>>;
   let pinia;
   const errors: Error[] = [];
 
@@ -469,77 +469,22 @@ describe('InputForm', () => {
     expect(companyAddressComponent.text()).toContain(userInfo.addressLine1);
   });
 
-  it('Setting start date causes end date to default to one year later', async () => {
-    const startMonthComponent = wrapper.findComponent({ ref: 'startMonth' });
-    const startYearComponent = wrapper.findComponent({ ref: 'startYear' });
+  it('ReportingDateRangeComposable is working', async () => {
+    // ReportingDateRangeComposable is fully tested, we just need to
+    // verify that when the form elements are changed, the composable is updated
+    const reportYearComponent = wrapper
+      .findAllComponents(components.VSelect)
+      .find((c) => c.props('id') === 'reportYear');
+    const startYearValue = wrapper.vm.startYear;
+    const endYearValue = wrapper.vm.endYear;
+    const reportYearValue = wrapper.vm.reportYear;
 
-    const testStartDate = wrapper.vm.minStartDate as LocalDate;
-    const expectedStartDate = testStartDate.format(dateFormatter);
-    const expectedEndDate = testStartDate
-      .plusMonths(11)
-      .with(TemporalAdjusters.lastDayOfMonth())
-      .format(dateFormatter);
+    await reportYearComponent?.setValue(wrapper.vm.reportingYearOptions[0]);
+    await nextTick();
 
-    await startMonthComponent.setValue(testStartDate.monthValue());
-    await startYearComponent.setValue(testStartDate.year());
-
-    expect(wrapper.vm.startDate).toBe(expectedStartDate);
-    expect(wrapper.vm.endDate).toBe(expectedEndDate);
-  });
-
-  it('Range of allowable start and end months is correct', async () => {
-    const dateNow = LocalDate.now();
-    const formatter = DateTimeFormatter.ofPattern('YYYY-MM').withLocale(
-      Locale.CANADA,
-    );
-    //Earliest allowable start month is two years before the current month
-    expect((wrapper.vm.minStartDate as LocalDate).format(formatter)).toBe(
-      dateNow
-        .with(TemporalAdjusters.firstDayOfYear())
-        .minusYears(1)
-        .withDayOfMonth(1)
-        .format(formatter),
-    );
-    //Latest allowable end month is the month prior the current month
-    expect((wrapper.vm.maxEndDate as LocalDate).format(formatter)).toBe(
-      dateNow
-        .minusMonths(1)
-        .with(TemporalAdjusters.lastDayOfMonth())
-        .format(formatter),
-    );
-
-    //Latest allowable start month is 11 months before the latest allowable end month
-    expect((wrapper.vm.maxStartDate as LocalDate).format(formatter)).toBe(
-      (wrapper.vm.maxEndDate as LocalDate).minusMonths(11).format(formatter),
-    );
-    //Earliest allowable end month is 11 months after earliest allowable start month
-    expect((wrapper.vm.minEndDate as LocalDate).format(formatter)).toBe(
-      (wrapper.vm.minStartDate as LocalDate).plusMonths(11).format(formatter),
-    );
-  });
-
-  it('Range of allowable start and end dates is adjusted based on reporting year', async () => {
-    const reportYearComponent = wrapper.findComponent({ ref: 'reportYear' });
-    const reportYearOptions: number[] = [
-      LocalDate.now().minusYears(1).year(),
-      LocalDate.now().year(),
-    ];
-    for (const reportYear of reportYearOptions) {
-      reportYearComponent.setValue(reportYear);
-      await nextTick();
-      expect(wrapper.vm.minStartDate as LocalDate).toStrictEqual(
-        LocalDate.of(reportYear - 1, 1, 1),
-      );
-      //maxEndDate should always be in the past
-      expect(
-        (wrapper.vm.maxEndDate as LocalDate).isBefore(LocalDate.now()),
-      ).toBeTruthy();
-      //maxEndDate should never be after the last day of the reporting year
-      const endOfReportingYear = LocalDate.of(reportYear, 12, 31);
-      expect(
-        (wrapper.vm.maxEndDate as LocalDate).isAfter(endOfReportingYear),
-      ).toBeFalsy();
-    }
+    expect(wrapper.vm.reportYear).not.toBe(reportYearValue);
+    expect(wrapper.vm.startYear).not.toBe(startYearValue);
+    expect(wrapper.vm.endYear).not.toBe(endYearValue);
   });
 
   // ===========================================================================
@@ -796,8 +741,7 @@ describe('InputForm Edit Mode', () => {
     expect(wrapper.vm.employeeCountRange).toBe(
       mockReport.employee_count_range_id,
     );
-    expect(wrapper.vm.startDate).toBe(mockReport.report_start_date);
-    expect(wrapper.vm.endDate).toBe(mockReport.report_end_date);
+    expect(wrapper.vm.startDate.toString()).toBe(mockReport.report_start_date);
     expect(wrapper.vm.reportYear).toBe(mockReport.reporting_year);
     expect(wrapper.vm.confirmReportingYear).toBeTruthy();
     expect(wrapper.vm.dataConstraints).toBe(mockReport.data_constraints);
