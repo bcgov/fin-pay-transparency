@@ -941,10 +941,7 @@ export default {
       this.comments = this.reportData.user_comment;
       this.employeeCountRange = this.reportData.employee_count_range_id;
       this.naicsCode = this.reportData.naics_code;
-      this.reportYear =
-        typeof this.reportData.reporting_year === 'number'
-          ? this.reportData.reporting_year
-          : Number.parseInt(this.reportData.reporting_year); //api expects this to be a number, not a string.
+      this.reportYear = Number(this.reportData.reporting_year); //api expects this to be a number, not a string.
       this.setStartDate(LocalDate.parse(this.reportData.report_start_date));
       this.dataConstraints = this.reportData.data_constraints;
       this.reportStatus = this.reportData.report_status;
