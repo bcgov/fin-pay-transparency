@@ -1,10 +1,3 @@
-// reportingDateRange.core.ts
-//
-// Pure, framework-free logic for the 12-month reporting date range.
-// No Vue imports, no reactivity — every function is a plain
-// input -> output mapping, so it can be unit tested directly with
-// plain LocalDate values and no component/composable scaffolding.
-
 import { LocalDate, TemporalAdjusters } from '@js-joda/core';
 
 export interface MonthOption {

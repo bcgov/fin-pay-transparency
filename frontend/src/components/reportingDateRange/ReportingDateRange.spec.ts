@@ -10,7 +10,7 @@ import {
   clampStartDate,
   yearRange,
   monthOptionsForYear,
-} from './ReportingDateRangeService';
+} from './ReportingDateRange';
 
 describe('ReportingDateRangeService', () => {
   const today = LocalDate.of(2026, 7, 17); // fixed "now" — no clock flakiness

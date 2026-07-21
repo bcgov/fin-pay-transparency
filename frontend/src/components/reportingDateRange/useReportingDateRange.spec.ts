@@ -2,13 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { defineComponent, h, nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { convert, LocalDate } from '@js-joda/core';
-import { useReportingDateRange } from './ReportingDateRangeComposable';
+import { useReportingDateRange } from './useReportingDateRange';
 
 /**
  * Mounts the composable inside a tiny host component so its watch()
- * calls run within a proper reactive/component context (avoids
- * "onScopeDispose called when there is no active effect scope" warnings
- * and gives us a real Vue update cycle to flush with nextTick()).
+ * calls run within a proper reactive/component context.
  */
 function setupComposable() {
   let result!: ReturnType<typeof useReportingDateRange>;

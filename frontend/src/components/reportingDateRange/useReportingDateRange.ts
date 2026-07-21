@@ -5,7 +5,7 @@ import {
   clampStartDate,
   yearRange,
   monthOptionsForYear,
-} from './ReportingDateRangeService';
+} from './ReportingDateRange';
 
 export interface UseReportingDateRangeOptions {
   initialReportYear?: number;
