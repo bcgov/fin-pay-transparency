@@ -7,7 +7,7 @@ import { announcementService } from '../v1/services/announcements-service.js';
 import { schedulerService } from '../v1/services/scheduler-service.js';
 import emailService from '../external/services/ches/ches.js';
 import { utils } from '../v1/services/utils-service.js';
-import prismaSingle from '../v1/prisma/prisma-client-single.js';
+import { Pool } from 'pg';
 
 export interface JobConfig {
   name: string;
@@ -50,6 +50,9 @@ export const JOB_CONFIGS: JobConfig[] = [
 
 const timezone = config.get('server:schedulerTimeZone');
 const retryTimeout = config.get('server:retries:minTimeout');
+const databaseUrl = new URL(config.get('server:databaseUrl'));
+databaseUrl.searchParams.delete('schema');
+const pgSingle = new Pool({ connectionString: databaseUrl.toString() });
 
 const createJob = ({ name, cronTime, callback }: JobConfig) => {
   if (!cronTime) {
@@ -59,9 +62,9 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
   return new CronJob(
     cronTime,
     async function () {
-      let advisoryLock = null;
+      let advisoryLock = undefined;
       try {
-        advisoryLock = new AdvisoryLock(prismaSingle, name);
+        advisoryLock = new AdvisoryLock(pgSingle, name);
         if (await advisoryLock.tryAcquire()) {
           log.info(`Starting scheduled job '${name}'.`);
           await retry(
@@ -106,10 +109,10 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
 
 export const runJobs = (jobConfigs: JobConfig[]) => {
   try {
-    jobConfigs.forEach((config) => {
+    for (const config of jobConfigs) {
       const job = createJob(config);
       job?.start();
-    });
+    }
   } catch (error) {
     log.error(error);
   }
