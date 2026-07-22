@@ -69,6 +69,7 @@ vi.mock(import('./config/config.js'), async (importOriginal) => {
             ),
             'server:rateLimit:enabled': true,
             'backendExternal:apiKey': 'api-key',
+            'server:databaseUrl': 'postgresql://localhostasdf',
           })[key],
       ),
     },
