@@ -26,7 +26,7 @@ on:
         type: string
       timeout-minutes:
         description: "Timeout minutes"
-        default: 12
+        default: 15
         required: false
         type: number
       values:
@@ -98,6 +98,30 @@ jobs:
           # If inputs.target starts with 'pr-', uninstall the helm chart first to ensure a clean install
           if [[ "${{ inputs.target }}" == pr-* ]]; then
             helm uninstall ${{ env.deployment_name }}-${{ inputs.target }} || true
+          fi
+
+      - name: Check Pending upgrade or rollback and wait for 2 minutes if found, else perform rollback if still pending
+        id: check-pending-upgrade-rollback
+        shell: bash
+        run: |
+          # Check if there is a pending upgrade or rollback for the helm release
+          release_status=$(helm status ${{ env.deployment_name }}-${{ inputs.target }} -n ${{ vars.oc_namespace }} -o json 2>/dev/null | jq -r '.info.status')
+          if [[ "$release_status" == "pending-upgrade" || "$release_status" == "pending-rollback" ]]; then
+            echo "Found a pending upgrade or rollback for the helm release. Waiting for 2 minutes before checking again."
+            sleep 120
+            release_status=$(helm status ${{ env.deployment_name }}-${{ inputs.target }} -n ${{ vars.oc_namespace }} -o json 2>/dev/null | jq -r '.info.status')
+            if [[ "$release_status" == "pending-upgrade" || "$release_status" == "pending-rollback" ]]; then
+                echo "Still found a pending upgrade or rollback for the helm release. Performing rollback."
+                targetRevision=$(helm history ${{ env.deployment_name }}-${{ inputs.target }} -n ${{ vars.oc_namespace }} -o json | jq '[.[] | select(.status == "deployed" or .status == "superseded")] | max_by(.revision)' | jq -r '.revision')
+                if [[ -z "$targetRevision" ]]; then
+                    echo "No valid revision found to rollback to. Exiting."
+                    exit 1
+                fi
+                echo "Rolling back to revision: $targetRevision"
+                helm rollback ${{ env.deployment_name }}-${{ inputs.target }} $targetRevision --wait || true
+              fi
+          else    
+            echo "No pending upgrade or rollback found for the helm release ${{ env.deployment_name }}-${{ inputs.target }}. Proceeding with deployment."
           fi
 
       - name: Package HELM Chart
