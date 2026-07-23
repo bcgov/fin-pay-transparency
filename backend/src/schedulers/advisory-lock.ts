@@ -1,14 +1,9 @@
-import type { PrismaClient } from '../v1/prisma/generated/client.js';
 import { createHash } from 'node:crypto';
+import type { Pool, PoolClient } from 'pg';
 
 interface AdvisoryLockResult {
-  pg_try_advisory_lock: boolean;
+  acquired: boolean;
 }
-
-interface AdvisoryLockBlockingResult {
-  pg_advisory_lock: null;
-}
-
 interface AdvisoryUnlockResult {
   pg_advisory_unlock: boolean;
 }
@@ -35,7 +30,7 @@ function strToKey(name: string): AdvisoryKey {
  *
  * @example
  * ```typescript
- * const lock = new AdvisoryLock(prisma, 'daily-report-generator');
+ * const lock = new AdvisoryLock(pgPool, 'daily-report-generator');
  *
  * // Non-blocking attempt
  * if (await lock.tryAcquire()) {
@@ -45,35 +40,28 @@ function strToKey(name: string): AdvisoryKey {
  *     await lock.release();
  *   }
  * }
- *
- * // Blocking wait for lock
- * await lock.acquire();
- * try {
- *   // Perform your task
- * } finally {
- *   await lock.release();
- * }
  * ```
  */
 export class AdvisoryLock {
   private readonly lockKey: AdvisoryKey;
   private readonly lockName: string;
-  private readonly prisma: PrismaClient;
+  private readonly pgPool: Pool;
+  private pgClient: PoolClient | undefined;
   private isAcquired: boolean = false;
 
   /**
    * Creates a new AdvisoryLock instance.
    *
-   * @param prisma - Prisma client instance
+   * @param pgPool - Pool to get connections from
    * @param lockName - Unique string identifier for this lock (will be hashed to create numeric lock ID)
    * @throws {Error} If lockName is empty
    */
-  constructor(prisma: PrismaClient, lockName: string) {
+  constructor(pgPool: Pool, lockName: string) {
     if (!lockName || lockName.trim().length === 0) {
       throw new Error('lockName must be a non-empty string');
     }
 
-    this.prisma = prisma;
+    this.pgPool = pgPool;
     this.lockName = lockName.trim();
     this.lockKey = strToKey(this.lockName);
   }
@@ -85,86 +73,64 @@ export class AdvisoryLock {
    * @throws {Error} If the lock is already acquired by this instance or if database query fails
    */
   async tryAcquire(): Promise<boolean> {
-    if (this.isAcquired) {
+    if (this.isAcquired || !!this.pgClient) {
       throw new Error(
         'Lock is already acquired by this instance. Release it before trying to acquire again.',
       );
     }
 
     try {
-      const [key1, key2] = this.lockKey;
-      const result = await this.prisma.$queryRaw<AdvisoryLockResult[]>`
-        SELECT pg_try_advisory_lock(${key1}::int4, ${key2}::int4)
-      `;
+      this.pgClient = await this.pgPool.connect();
 
-      if (result[0]?.pg_try_advisory_lock) {
-        this.isAcquired = true;
-        return true;
+      const result = await this.pgClient.query<AdvisoryLockResult>(
+        `SELECT pg_try_advisory_lock($1::int4, $2::int4) AS acquired`,
+        this.lockKey,
+      );
+
+      this.isAcquired = result.rows[0]?.acquired ?? false;
+
+      if (!this.isAcquired) {
+        this.terminate();
       }
 
-      return false;
+      return this.isAcquired;
     } catch (error) {
+      this.terminate();
       throw new Error(
-        `Failed to acquire advisory lock "${this.lockName}": ${error.message}`,
-      );
-    }
-  }
-
-  /**
-   * Acquires the advisory lock, blocking until it becomes available.
-   * Uses PostgreSQL's pg_advisory_lock which will wait indefinitely until the lock is available.
-   *
-   * @throws {Error} If the lock is already acquired by this instance or if database query fails
-   */
-  async acquire(): Promise<void> {
-    if (this.isAcquired) {
-      throw new Error(
-        'Lock is already acquired by this instance. Release it before trying to acquire again.',
-      );
-    }
-
-    try {
-      const [key1, key2] = this.lockKey;
-      await this.prisma.$queryRaw<AdvisoryLockBlockingResult[]>`
-        SELECT pg_advisory_lock(${key1}::int4, ${key2}::int4)
-      `;
-
-      this.isAcquired = true;
-    } catch (error) {
-      throw new Error(
-        `Failed to acquire advisory lock "${this.lockName}": ${error.message}`,
+        `Failed to acquire advisory lock "${this.lockName}": ${this.getErrorMessage(error)}`,
       );
     }
   }
 
   /**
    * Releases the advisory lock.
-   *
    * @throws {Error} If the lock was not acquired by this instance or if database query fails
    */
   async release(): Promise<void> {
-    if (!this.isAcquired) {
+    if (!this.isAcquired || !this.pgClient) {
       throw new Error(
         'Cannot release a lock that was not acquired by this instance',
       );
     }
 
     try {
-      const [key1, key2] = this.lockKey;
-      const result = await this.prisma.$queryRaw<AdvisoryUnlockResult[]>`
-        SELECT pg_advisory_unlock(${key1}::int4, ${key2}::int4)
-      `;
+      const result = await this.pgClient.query<AdvisoryUnlockResult>(
+        'SELECT pg_advisory_unlock($1::int4, $2::int4)',
+        this.lockKey,
+      );
 
-      this.isAcquired = false;
-
-      if (!result[0]?.pg_advisory_unlock) {
-        throw new Error(`Lock was not held by this session`);
+      if (!result.rows[0]?.pg_advisory_unlock) {
+        throw new Error('Lock was not found in this session');
       }
-    } catch (error) {
-      // Reset state even on error to prevent deadlock
+
       this.isAcquired = false;
+      this.pgClient.release(); // return connection to pool
+      this.pgClient = undefined;
+    } catch (error) {
+      // if error, terminate the connection
+      this.terminate();
       throw new Error(
-        `Failed to release advisory lock "${this.lockName}": ${error.message}`,
+        `Failed to release advisory lock "${this.lockName}": ${this.getErrorMessage(error)}`,
       );
     }
   }
@@ -181,5 +147,23 @@ export class AdvisoryLock {
    */
   get name(): string {
     return this.lockName;
+  }
+
+  /**
+   * If there was an error while managing the lock, it is best to
+   * close the connection instead of returning it to the pool.
+   */
+  private terminate(): void {
+    this.pgClient?.release(true); //`true` will force the connection to close instead of return to the pool.
+    this.pgClient = undefined;
+    this.isAcquired = false;
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return 'Unknown error';
   }
 }
