@@ -2,8 +2,8 @@
   <div class="mb-8 html-report">
     <div
       v-if="reportHtml"
-      class="report-preview"
       v-dompurify-html="reportHtml"
+      class="report-preview"
     ></div>
     <div
       v-if="loadReportError && !reportHtml && !loading"
@@ -37,7 +37,7 @@ import ApiService from '../../common/apiService';
 import { useRouter } from 'vue-router';
 
 const { reportId } = storeToRefs(useReportStepperStore());
-const reportHtml = ref();
+const reportHtml = ref<string>();
 const loading = ref<boolean>(true);
 const loadReportError = ref<boolean>(false);
 const router = useRouter();
@@ -50,7 +50,7 @@ const loadReport = async () => {
     reportHtml.value = await ApiService.getHtmlReport(reportId.value);
     emit('html-report-loaded');
   } catch {
-    reportHtml.value = null;
+    reportHtml.value = undefined;
     loadReportError.value = true;
   } finally {
     loading.value = false;

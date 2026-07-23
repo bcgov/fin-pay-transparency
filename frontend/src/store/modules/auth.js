@@ -52,7 +52,7 @@ export const authStore = defineStore('auth', {
           localStorage.getItem('correlationID'),
         );
         if (response.jwtFrontend) {
-          await this.setJwtToken(response.jwtFrontend);
+          this.setJwtToken(response.jwtFrontend);
           this.setCorrelationID(response.correlationID);
           ApiService.setAuthHeader(response.jwtFrontend);
           ApiService.setCorrelationID(response.correlationID);
@@ -66,7 +66,7 @@ export const authStore = defineStore('auth', {
         const response = await AuthService.getAuthToken();
 
         if (response.jwtFrontend) {
-          await this.setJwtToken(response.jwtFrontend);
+          this.setJwtToken(response.jwtFrontend);
           this.setCorrelationID(response.correlationID);
           ApiService.setAuthHeader(response.jwtFrontend);
           ApiService.setCorrelationID(response.correlationID);
