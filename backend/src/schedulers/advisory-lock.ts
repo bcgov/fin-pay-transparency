@@ -164,6 +164,6 @@ export class AdvisoryLock {
       return error.message;
     }
 
-    return String(error);
+    return 'Unknown error';
   }
 }

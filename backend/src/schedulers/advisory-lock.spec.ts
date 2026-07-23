@@ -190,7 +190,7 @@ describe('error printer', () => {
     mockQuery.mockRejectedValue(new WeirdError('testing error'));
     const lock = new AdvisoryLock(mockPgPool, 'my-lock');
     await expect(lock.tryAcquire()).rejects.toThrow(
-      'Failed to acquire advisory lock "my-lock": [object Object]',
+      'Failed to acquire advisory lock "my-lock": Unknown error',
     );
   });
 });
