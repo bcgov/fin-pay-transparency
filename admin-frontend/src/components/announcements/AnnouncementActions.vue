@@ -111,7 +111,6 @@ async function unpublishAnnouncement(announcementId: string) {
         `Announcement unpublished successfully.`,
         '',
       );
-    } catch (e) {
     } finally {
       isUnpublishing.value = false;
     }

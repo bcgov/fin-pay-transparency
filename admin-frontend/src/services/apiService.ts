@@ -3,6 +3,8 @@ import { saveAs } from 'file-saver';
 import {
   CreateUserInviteInput,
   IConfigValue,
+  IEmployeeCountRange,
+  INaicsCode,
   User,
   UserInvite,
 } from '../types';
@@ -178,7 +180,7 @@ export default {
       throw e;
     }
   },
-  async getEmployeeCountRanges() {
+  async getEmployeeCountRanges(): Promise<IEmployeeCountRange> {
     try {
       const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
       if (resp?.data) {
@@ -226,7 +228,7 @@ export default {
       throw error;
     }
   },
-  async getNaicsCodes() {
+  async getNaicsCodes(): Promise<INaicsCode> {
     try {
       const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
       if (resp?.data) {

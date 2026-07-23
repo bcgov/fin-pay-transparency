@@ -6,13 +6,13 @@
   >
     <div ref="richTextToolbar" class="rich-text-toolbar">
       <span class="ql-formats">
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
+        <button type="button" class="ql-bold"></button>
+        <button type="button" class="ql-italic"></button>
+        <button type="button" class="ql-underline"></button>
       </span>
       <span class="ql-formats">
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
+        <button type="button" class="ql-list" value="ordered"></button>
+        <button type="button" class="ql-list" value="bullet"></button>
       </span>
     </div>
     <div ref="richTextEditor" class="rich-text-editor rich-text"></div>
@@ -46,18 +46,18 @@ import { onMounted, ref, watch } from 'vue';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
 
-const richTextToolbar = ref(null);
-const richTextEditor = ref(null);
+const richTextToolbar = ref<HTMLElement>();
+const richTextEditor = ref<HTMLElement>();
 let quill: Quill | undefined = undefined;
 const plainTextLength = ref<number | undefined>(undefined);
 
 const emit = defineEmits(['update:modelValue', 'plainTextLengthChanged']);
 
 const props = defineProps<{
-  placeholder?: string | undefined;
-  maxLength?: number | undefined;
-  modelValue?: string | undefined | null;
-  errorMessage?: string | undefined;
+  placeholder?: string;
+  maxLength?: number;
+  modelValue?: string | null;
+  errorMessage?: string;
 }>();
 
 watch(
