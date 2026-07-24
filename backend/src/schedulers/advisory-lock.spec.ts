@@ -1,22 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { PrismaClient } from '../v1/prisma/generated/client.js';
 import { AdvisoryLock } from './advisory-lock.js';
+import type { Pool } from 'pg';
 
-let mockPrismaAdvisoryLockValue = true;
+let mockAdvisoryLockValue = true;
 
-const mockQueryRaw = vi.fn(async () => [
-  {
-    pg_try_advisory_lock: mockPrismaAdvisoryLockValue,
-    pg_advisory_unlock: mockPrismaAdvisoryLockValue,
-  },
-]);
-const mockPrisma = {
-  $queryRaw: mockQueryRaw,
-} as unknown as PrismaClient;
+const mockQuery = vi.fn(async () => ({
+  rows: [
+    {
+      acquired: mockAdvisoryLockValue,
+      pg_advisory_unlock: mockAdvisoryLockValue,
+    },
+  ],
+}));
+
+const mockPgPool = {
+  connect: () => ({ query: mockQuery, release: vi.fn() }),
+} as unknown as Pool;
 
 beforeEach(() => {
   vi.resetAllMocks();
-  mockPrismaAdvisoryLockValue = true;
+  mockAdvisoryLockValue = true;
 });
 
 // ---------------------------------------------------------------------------
@@ -24,24 +27,24 @@ beforeEach(() => {
 // ---------------------------------------------------------------------------
 describe('constructor', () => {
   it('should set name from trimmed lockName', () => {
-    const lock = new AdvisoryLock(mockPrisma, '  my-lock  ');
+    const lock = new AdvisoryLock(mockPgPool, '  my-lock  ');
     expect(lock.name).toBe('my-lock');
   });
 
   it('should throw when lockName is empty', () => {
-    expect(() => new AdvisoryLock(mockPrisma, '')).toThrow(
+    expect(() => new AdvisoryLock(mockPgPool, '')).toThrow(
       'lockName must be a non-empty string',
     );
   });
 
   it('should throw when lockName is only whitespace', () => {
-    expect(() => new AdvisoryLock(mockPrisma, '   ')).toThrow(
+    expect(() => new AdvisoryLock(mockPgPool, '   ')).toThrow(
       'lockName must be a non-empty string',
     );
   });
 
   it('should start with acquired = false', () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
     expect(lock.acquired).toBe(false);
   });
 });
@@ -51,7 +54,7 @@ describe('constructor', () => {
 // ---------------------------------------------------------------------------
 describe('tryAcquire', () => {
   it('should return true and set acquired when pg_try_advisory_lock returns true', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
 
     const result = await lock.tryAcquire();
 
@@ -60,8 +63,8 @@ describe('tryAcquire', () => {
   });
 
   it('should return false and not set acquired when pg_try_advisory_lock returns false', async () => {
-    mockPrismaAdvisoryLockValue = false;
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    mockAdvisoryLockValue = false;
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
 
     const result = await lock.tryAcquire();
 
@@ -70,7 +73,7 @@ describe('tryAcquire', () => {
   });
 
   it('should throw if already acquired', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
     await lock.tryAcquire();
 
     await expect(lock.tryAcquire()).rejects.toThrow(
@@ -79,10 +82,10 @@ describe('tryAcquire', () => {
   });
 
   it('should wrap database errors', async () => {
-    mockQueryRaw.mockImplementation(async () => {
+    mockQuery.mockImplementation(async () => {
       throw new Error('connection refused');
     });
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
 
     await expect(lock.tryAcquire()).rejects.toThrow(
       'Failed to acquire advisory lock "my-lock": connection refused',
@@ -90,55 +93,11 @@ describe('tryAcquire', () => {
   });
 
   it('should call required functions', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'test-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'test-lock');
 
     await lock.tryAcquire();
 
-    expect(mockPrisma.$queryRaw).toHaveBeenCalledOnce();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// acquire
-// ---------------------------------------------------------------------------
-describe('acquire', () => {
-  it('should set acquired after blocking lock succeeds', async () => {
-    mockPrismaAdvisoryLockValue = null;
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
-
-    await lock.acquire();
-
-    expect(lock.acquired).toBe(true);
-  });
-
-  it('should throw if already acquired', async () => {
-    mockPrismaAdvisoryLockValue = null;
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
-    await lock.acquire();
-
-    await expect(lock.acquire()).rejects.toThrow(
-      'Lock is already acquired by this instance',
-    );
-  });
-
-  it('should wrap database errors', async () => {
-    mockQueryRaw.mockImplementation(async () => {
-      throw new Error('timeout');
-    });
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
-
-    await expect(lock.acquire()).rejects.toThrow(
-      'Failed to acquire advisory lock "my-lock": timeout',
-    );
-  });
-
-  it('should call required functions', async () => {
-    mockPrismaAdvisoryLockValue = null;
-    const lock = new AdvisoryLock(mockPrisma, 'test-lock');
-
-    await lock.acquire();
-
-    expect(mockPrisma.$queryRaw).toHaveBeenCalledOnce();
+    expect(mockQuery).toHaveBeenCalledOnce();
   });
 });
 
@@ -147,17 +106,17 @@ describe('acquire', () => {
 // ---------------------------------------------------------------------------
 describe('release', () => {
   it('should clear acquired after successful release', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
     await lock.tryAcquire();
 
-    mockPrismaAdvisoryLockValue = true;
+    mockAdvisoryLockValue = true;
     await lock.release();
 
     expect(lock.acquired).toBe(false);
   });
 
   it('should throw if not acquired', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
 
     await expect(lock.release()).rejects.toThrow(
       'Cannot release a lock that was not acquired by this instance',
@@ -165,10 +124,10 @@ describe('release', () => {
   });
 
   it('should throw when pg_advisory_unlock returns false', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
     await lock.tryAcquire();
 
-    mockPrismaAdvisoryLockValue = false;
+    mockAdvisoryLockValue = false;
 
     await expect(lock.release()).rejects.toThrow(
       'Failed to release advisory lock "my-lock"',
@@ -176,10 +135,10 @@ describe('release', () => {
   });
 
   it('should wrap database errors and reset acquired', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
     await lock.tryAcquire();
 
-    mockQueryRaw.mockImplementation(async () => {
+    mockQuery.mockImplementation(async () => {
       throw new Error('db down');
     });
 
@@ -190,13 +149,13 @@ describe('release', () => {
   });
 
   it('should call required functions', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'test-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'test-lock');
     await lock.tryAcquire();
 
-    mockPrismaAdvisoryLockValue = true;
+    mockAdvisoryLockValue = true;
     await lock.release();
 
-    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(mockQuery).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -205,14 +164,33 @@ describe('release', () => {
 // ---------------------------------------------------------------------------
 describe('acquired getter', () => {
   it('should reflect lock state transitions', async () => {
-    const lock = new AdvisoryLock(mockPrisma, 'my-lock');
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
 
     expect(lock.acquired).toBe(false);
     await lock.tryAcquire();
     expect(lock.acquired).toBe(true);
 
-    mockPrismaAdvisoryLockValue = true;
+    mockAdvisoryLockValue = true;
     await lock.release();
     expect(lock.acquired).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// misc
+// ---------------------------------------------------------------------------
+describe('error printer', () => {
+  it('should convert any kind of error into a string', async () => {
+    class WeirdError {
+      text;
+      constructor(text) {
+        this.text = text;
+      }
+    }
+    mockQuery.mockRejectedValue(new WeirdError('testing error'));
+    const lock = new AdvisoryLock(mockPgPool, 'my-lock');
+    await expect(lock.tryAcquire()).rejects.toThrow(
+      'Failed to acquire advisory lock "my-lock": Unknown error',
+    );
   });
 });

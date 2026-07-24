@@ -56,6 +56,7 @@ vi.mock('../config/config.js', () => ({
         'server:openshiftEnv': 'test',
         'server:hostName': 'localhost',
         'ches:emailRecipients': 'test@example.com',
+        'server:databaseUrl': 'postgresql://localhostasdf',
       };
       return values[key] ?? null;
     }),
