@@ -1230,8 +1230,7 @@ const reportService = {
 
       // Only block publishing if the existing report is Published and locked
       if (
-        existing_published_report &&
-        existing_published_report.report_status ===
+        existing_published_report?.report_status ===
           enumReportStatus.Published &&
         !existing_published_report.is_unlocked
       ) {
