@@ -165,51 +165,49 @@ function addLoginPassportUse(
 }
 
 //initialize our authentication strategy
-utils.getOidcDiscovery().then(
-  (oicdDiscoveryDocument) => {
-    //OIDC Strategy is used for authorization
-    addLoginPassportUse(
-      oicdDiscoveryDocument,
-      OIDC_AZUREIDIR_STRATEGY_NAME,
-      OIDC_AZUREIDIR_CALLBACK_URL,
-      OIDC_AZUREIDIR_SCOPE,
-      KEYCLOAK_IDP_HINT_AZUREIDIR,
-    );
-    //JWT strategy is used for authorization
-    passport.use(
-      'jwt_admin',
-      new JWTStrategy(
-        {
-          algorithms: ['RS256'],
-          // Keycloak 7.3.0 no longer automatically supplies matching client_id audience.
-          // If audience checking is needed, check the following SO to update Keycloak first.
-          // Ref: https://stackoverflow.com/a/53627747
-          audience: config.get('server:adminFrontend'),
-          issuer: config.get('tokenGenerate:issuer'),
-          jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-          secretOrKey: config.get('tokenGenerate:publicKey'),
-          ignoreExpiration: true,
-        },
-        (jwtPayload, done) => {
-          if (jwtPayload == null) {
-            return done('No JWT token', null);
-          }
+const oicdDiscoveryDocument = await utils.getOidcDiscovery();
 
-          done(null, {
-            email: jwtPayload.email,
-            familyName: jwtPayload.family_name,
-            givenName: jwtPayload.given_name,
-            jwt: jwtPayload,
-            name: jwtPayload.name,
-            user_guid: jwtPayload.user_guid,
-            realmRole: jwtPayload.realm_role,
-          });
-        },
-      ),
-    );
-  },
-  () => {},
+//OIDC Strategy is used for authorization
+addLoginPassportUse(
+  oicdDiscoveryDocument,
+  OIDC_AZUREIDIR_STRATEGY_NAME,
+  OIDC_AZUREIDIR_CALLBACK_URL,
+  OIDC_AZUREIDIR_SCOPE,
+  KEYCLOAK_IDP_HINT_AZUREIDIR,
 );
+//JWT strategy is used for authorization
+passport.use(
+  'jwt_admin',
+  new JWTStrategy(
+    {
+      algorithms: ['RS256'],
+      // Keycloak 7.3.0 no longer automatically supplies matching client_id audience.
+      // If audience checking is needed, check the following SO to update Keycloak first.
+      // Ref: https://stackoverflow.com/a/53627747
+      audience: config.get('server:adminFrontend'),
+      issuer: config.get('tokenGenerate:issuer'),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: config.get('tokenGenerate:publicKey'),
+      ignoreExpiration: true,
+    },
+    (jwtPayload, done) => {
+      if (jwtPayload == null) {
+        return done('No JWT token', null);
+      }
+
+      done(null, {
+        email: jwtPayload.email,
+        familyName: jwtPayload.family_name,
+        givenName: jwtPayload.given_name,
+        jwt: jwtPayload,
+        name: jwtPayload.name,
+        user_guid: jwtPayload.user_guid,
+        realmRole: jwtPayload.realm_role,
+      });
+    },
+  ),
+);
+
 //functions for serializing/deserializing users
 passport.serializeUser((user, next) => next(null, user));
 passport.deserializeUser((obj, next) => next(null, obj));

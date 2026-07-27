@@ -21,3 +21,13 @@ export type UserInvite = {
   email: string;
   role: string;
 };
+
+export interface INaicsCode {
+  naics_code: string;
+  naics_label: string;
+}
+
+export interface IEmployeeCountRange {
+  employee_count_range_id: string;
+  employee_count_range: string;
+}

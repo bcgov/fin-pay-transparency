@@ -29,6 +29,21 @@ export interface ISubmission {
   rows: any[];
 }
 
+export interface IReport {
+  report_id: string;
+  report_start_date: string;
+  report_end_date: string;
+  reporting_year: number;
+  create_date: string;
+  update_date: string;
+  is_unlocked: boolean;
+  naics_code: string;
+  report_status: string;
+  employee_count_range_id: string;
+  user_comment: string | null;
+  data_constraints: string | null;
+}
+
 // Buffer concurrent requests while refresh token is being acquired
 let failedQueue = [];
 
@@ -195,7 +210,7 @@ export default {
    * @param {string} reportId
    * @returns {report_id, user_comment, employee_count_range_id, naics_code, report_start_date, report_end_date, report_status, revision, data_constraints}
    */
-  async getReport(reportId): Promise<ISubmission> {
+  async getReport(reportId): Promise<IReport> {
     try {
       const resp = await apiAxios.get(ApiRoutes.REPORT + reportId);
       if (resp?.data) {

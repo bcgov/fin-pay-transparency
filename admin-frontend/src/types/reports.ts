@@ -28,7 +28,7 @@ export interface IReportSearchResult {
 export interface IReportSearchUpdateParams {
   page: number;
   itemsPerPage: number;
-  sortBy: IReportSearchSort;
+  sortBy?: IReportSearchSort;
 }
 export interface IReportSearchParams {
   page?: number;
@@ -36,7 +36,7 @@ export interface IReportSearchParams {
   filter?: ReportFilterType;
   sort?: IReportSearchSort;
 }
-export type IReportSearchSort = any[] | undefined;
+export type IReportSearchSort = any[];
 
 export enum ReportKeys {
   CREATE_DATE = 'create_date',

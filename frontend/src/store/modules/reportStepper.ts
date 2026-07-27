@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import ApiService from '../../common/apiService';
-import { IReport } from '../../common/types';
+import type { IReport } from '../../common/types';
 
 export type ReportStage = 'UPLOAD' | 'REVIEW' | 'FINAL';
 export enum ReportMode {
@@ -45,9 +45,9 @@ export const REPORT_STAGES: IStageOption[] = [
 
 export const useReportStepperStore = defineStore('reportStepper', () => {
   const stage = ref<ReportStage>('UPLOAD');
-  const reportId = ref<string | undefined>();
-  const reportInfo = ref<IReport | undefined>();
-  const reportData = ref();
+  const reportId = ref<string>();
+  const reportInfo = ref<IReport>();
+  const reportData = ref<IReport>();
   const mode = ref<ReportMode>();
 
   const setStage = (value: ReportStage) => {

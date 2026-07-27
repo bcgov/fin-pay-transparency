@@ -81,7 +81,7 @@ describe('storeError', () => {
     );
   });
   describe('if error logging is disabled', () => {
-    it('', async () => {
+    it('should not persist the error to the database', async () => {
       vi.spyOn(config, 'get').mockImplementation(mockConfigLoggingDisbled);
       await errorService.storeError(
         mockUserInfo,

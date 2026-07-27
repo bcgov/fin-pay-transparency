@@ -26,9 +26,9 @@
  */
 
 defineProps<{
-  id?: string | undefined;
-  text?: string | undefined;
-  ariaLabel?: string | undefined;
-  maxWidth?: string | undefined;
+  id?: string;
+  text?: string;
+  ariaLabel?: string;
+  maxWidth?: string;
 }>();
 </script>

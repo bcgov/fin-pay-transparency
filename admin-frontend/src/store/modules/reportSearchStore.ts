@@ -163,7 +163,7 @@ export const useReportSearchStore = defineStore('reportSearch', () => {
   */
   const dataTableSortByToBackendSort = (
     sortBy: any[] | undefined,
-  ): IReportSearchSort => {
+  ): IReportSearchSort | undefined => {
     if (!sortBy) {
       return undefined;
     }

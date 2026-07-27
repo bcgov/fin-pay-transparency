@@ -3,7 +3,11 @@
     <v-col>
       <div class="track-root d-flex align-center">
         <div class="track-marks d-flex mb-6">
-          <div class="step-root" v-for="(step, index) in REPORT_STAGES">
+          <div
+            v-for="(step, index) in REPORT_STAGES"
+            :key="step.value"
+            class="step-root"
+          >
             <div
               :data-testid="'report-step-mark-' + step.value"
               :class="getMarkClassName(step)"
@@ -16,7 +20,11 @@
           <div :class="getProgressClassName()"></div>
         </div>
         <div class="steps d-flex justify-content-center">
-          <div class="step-root" v-for="(item, index) in REPORT_STAGES">
+          <div
+            v-for="(item, index) in REPORT_STAGES"
+            :key="item.value"
+            class="step-root"
+          >
             <Step
               :value="item.value"
               :label="item.label"
@@ -28,7 +36,11 @@
           </div>
         </div>
         <div class="track-labels d-flex mt-5">
-          <div class="step-root" v-for="item in REPORT_STAGES">
+          <div
+            v-for="item in REPORT_STAGES"
+            :key="item.value"
+            class="step-root"
+          >
             <div :class="getLabelClassName(item)">
               {{ item.label }}
             </div>
