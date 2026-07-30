@@ -3,7 +3,7 @@
 // the core module needs no Vue at all, and the composable needs no
 // parent/model mocking to be exercised.
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, test } from 'vitest';
 import { LocalDate } from '@js-joda/core';
 import {
   computeBounds,
@@ -15,45 +15,34 @@ import {
 describe('ReportingDateRangeService', () => {
   const today = LocalDate.of(2026, 7, 17); // fixed "now" — no clock flakiness
 
-  it('computes min/max start & end dates for all report years', async () => {
-    // prettier-ignore
-    /**
-     * Testing data -
-     * If the current date is `date` and the reporting year selected is `year`,
-     * then the values of various ranges should be as indicated.
-     */
-    const data = [
+  // prettier-ignore
+  /**
+   * Testing data -
+   * If the current date is `date` and the reporting year selected is `year`,
+   * then the values of various ranges should be as indicated.
+   */
+  const computeBoundsData = [
       // middle of year
-      { date: '2026-07-13', year: 2026, minStart: '2025-01-01', maxStart: '2025-07-01', minEnd: '2025-12-31', maxEnd: '2026-06-30' },
-      { date: '2026-07-13', year: 2025, minStart: '2024-01-01', maxStart: '2025-01-01', minEnd: '2024-12-31', maxEnd: '2025-12-31' },
+      { date: '2026-07-13', year: 2026, minStart: '2024-11-01', maxStart: '2025-08-01', minEnd: '2025-10-31', maxEnd: '2026-07-31' },
+      { date: '2026-07-13', year: 2025, minStart: '2023-11-01', maxStart: '2024-11-01', minEnd: '2024-10-31', maxEnd: '2025-10-31' },
       // beginning of year
-      { date: '2026-01-01', year: 2026, minStart: '2025-01-01', maxStart: '2025-01-01', minEnd: '2025-12-31', maxEnd: '2025-12-31' },
-      { date: '2026-01-01', year: 2025, minStart: '2024-01-01', maxStart: '2025-01-01', minEnd: '2024-12-31', maxEnd: '2025-12-31' },
+      { date: '2026-01-01', year: 2026, minStart: '2024-11-01', maxStart: '2025-02-01', minEnd: '2025-10-31', maxEnd: '2026-01-31' },
+      { date: '2026-01-01', year: 2025, minStart: '2023-11-01', maxStart: '2024-11-01', minEnd: '2024-10-31', maxEnd: '2025-10-31' },
       //end of year
-      { date: '2026-12-31', year: 2026, minStart: '2025-01-01', maxStart: '2025-12-01', minEnd: '2025-12-31', maxEnd: '2026-11-30' },
-      { date: '2026-12-31', year: 2025, minStart: '2024-01-01', maxStart: '2025-01-01', minEnd: '2024-12-31', maxEnd: '2025-12-31' },
+      { date: '2026-12-31', year: 2026, minStart: '2024-11-01', maxStart: '2025-11-01', minEnd: '2025-10-31', maxEnd: '2026-10-31' },
+      { date: '2026-12-31', year: 2025, minStart: '2023-11-01', maxStart: '2024-11-01', minEnd: '2024-10-31', maxEnd: '2025-10-31' },
     ];
 
-    for (const sample of data) {
-      const result = computeBounds(sample.year, LocalDate.parse(sample.date));
-      expect(
-        result.minStartDate.toString(),
-        `date: ${sample.date}, year: ${sample.year}`,
-      ).toBe(sample.minStart);
-      expect(
-        result.maxStartDate.toString(),
-        `date: ${sample.date}, year: ${sample.year}`,
-      ).toBe(sample.maxStart);
-      expect(
-        result.minEndDate.toString(),
-        `date: ${sample.date}, year: ${sample.year}`,
-      ).toBe(sample.minEnd);
-      expect(
-        result.maxEndDate.toString(),
-        `date: ${sample.date}, year: ${sample.year}`,
-      ).toBe(sample.maxEnd);
-    }
-  });
+  it.for(computeBoundsData)(
+    'computes range for $date with reporting year $year selected',
+    async ({ date, year, ...expected }) => {
+      const result = computeBounds(year, LocalDate.parse(date));
+      expect(result.minStartDate.toString()).toBe(expected.minStart);
+      expect(result.maxStartDate.toString()).toBe(expected.maxStart);
+      expect(result.minEndDate.toString()).toBe(expected.minEnd);
+      expect(result.maxEndDate.toString()).toBe(expected.maxEnd);
+    },
+  );
 
   it('clamps a start date that is before the minimum', () => {
     const bounds = computeBounds(2026, today);

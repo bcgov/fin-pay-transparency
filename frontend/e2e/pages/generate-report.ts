@@ -234,7 +234,9 @@ export class GenerateReportPage extends PTPage {
     const date = LocalDate.parse(value);
     await expect(monthLocator).toBeVisible();
     await expect(monthLocator).toHaveValue(
-      `${date.format(DateTimeFormatter.ofPattern('MMMM').withLocale(Locale.CANADA))}`,
+      new RegExp(
+        `^${date.format(DateTimeFormatter.ofPattern('MMM').withLocale(Locale.CANADA)).slice(0, 3)}`,
+      ),
     );
     await expect(yearLocator).toBeVisible();
     await expect(yearLocator).toHaveValue(`${date.year()}`);

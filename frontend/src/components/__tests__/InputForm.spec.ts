@@ -342,7 +342,7 @@ describe('InputForm', () => {
         employee_count_range_id: 1,
         report_start_date: '2022-01-01',
         report_end_date: '2022-12-31',
-        reporting_year: 2022,
+        reporting_year: 2023,
         data_constraints: '<p>test constraints</p>',
         user_comment: '<p>test comment</p>',
       };

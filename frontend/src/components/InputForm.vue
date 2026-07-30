@@ -720,7 +720,7 @@ import { humanFileSize } from '../utils/file';
 import { useConfigStore } from '../store/modules/config';
 import { NotificationService } from '../common/notificationService';
 import { CsvService, IParseSuccessResponse } from '../common/csvService';
-import { LocalDate, DateTimeFormatter } from '@js-joda/core';
+import { LocalDate, DateTimeFormatter, TemporalAdjusters } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { IConfigValue, IReport } from '../common/types';
 import axios from 'axios';
@@ -1050,7 +1050,10 @@ export default {
             naicsCode: this.naicsCode,
             employeeCountRangeId: this.employeeCountRange,
             startDate: this.startDate.format(dateFormatter),
-            endDate: this.startDate.plusMonths(11).format(dateFormatter),
+            endDate: this.startDate
+              .plusMonths(11)
+              .with(TemporalAdjusters.lastDayOfMonth())
+              .format(dateFormatter),
             reportingYear: this.reportYear,
             dataConstraints: this.dataConstraints,
             comments: this.comments,
