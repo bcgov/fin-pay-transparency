@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { LocalDate, convert } from '@js-joda/core';
+import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
 import { config } from '../../config/config.js';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants/constants.js';
 import {
@@ -179,7 +179,7 @@ const mockValidSubmission = {
   employeeCountRangeId: '',
   startDate: '2022-01-01',
   endDate: '2022-12-31',
-  reportingYear: 2022,
+  reportingYear: 2023,
   dataConstraints: null,
   comments: null,
   rows: [Object.keys(mockRecord), Object.values(mockRecord)],
@@ -290,12 +290,31 @@ describe('validate-service', () => {
       naicsCode: '11',
       employeeCountRangeId: 'enmployeeRangeCountId',
       startDate: '2022-12-01',
-      endDate: '2023-11-01',
+      endDate: '2023-11-30',
       reportingYear: 2023,
       dataConstraints: 'data constraints',
       comments: 'other comments',
       rows: [] as any[],
     };
+
+    describe(`given valid fields`, () => {
+      it('returns no error messages at all', () => {
+        const submission = Object.assign({}, validSubmission, {
+          startDate: LocalDate.now()
+            .minusYears(1)
+            .with(TemporalAdjusters.firstDayOfYear())
+            .toString(),
+          endDate: LocalDate.now()
+            .minusYears(1)
+            .with(TemporalAdjusters.lastDayOfYear())
+            .toString(),
+          reportingYear: LocalDate.now().year(),
+        });
+        const result: ValidationError | null =
+          validateService.validateSubmissionBody(submission);
+        expect(result).toBeNull();
+      });
+    });
 
     describe(`given valid data constraints`, () => {
       it('returns no error messages related to data constraints', () => {
