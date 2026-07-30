@@ -44,18 +44,18 @@ export function computeBounds(
   const minStartDate = lastDateAllowed
     .withYear(reportYear)
     .minusYears(1)
-    .with(TemporalAdjusters.firstDayOfYear());
+    .with(TemporalAdjusters.firstDayOfYear())
+    .minusMonths(2);
 
   const minEndDate = minStartDate
     .plusMonths(11)
     .with(TemporalAdjusters.lastDayOfMonth());
 
-  const lastPossible = LocalDate.of(reportYear, 12, 31);
+  const lastPossible = LocalDate.of(reportYear, 10, 31);
   const maxEndDate = lastPossible.isBefore(lastDateAllowed)
     ? lastPossible
     : lastDateAllowed
         .withYear(reportYear)
-        .minusMonths(1)
         .with(TemporalAdjusters.lastDayOfMonth());
 
   const maxStartDate = maxEndDate

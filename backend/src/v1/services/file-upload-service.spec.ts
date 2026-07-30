@@ -6,13 +6,31 @@ import { CalculatedAmount } from './report-calc-service.js';
 import { enumReportStatus } from './report-service.js';
 import { utils } from './utils-service.js';
 import { SUBMISSION_ROW_COLUMNS } from './validate-service.js';
-import { createSampleRecord } from './validate-service.spec.js';
 import {
   type pay_transparency_company,
   type pay_transparency_report,
   type pay_transparency_user,
   Prisma,
 } from '../prisma/generated/client.js';
+
+/**
+ * Creates a sample record object populated by default with valid values in all columns.
+ * Include a object with key-value pairs to override any of the defaults
+ */
+const createSampleRecord = (override: any = {}): object => {
+  const defaults = {};
+  defaults[SUBMISSION_ROW_COLUMNS.GENDER_CODE] = 'F';
+  defaults[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = '';
+  defaults[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = '';
+  defaults[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = '';
+  defaults[SUBMISSION_ROW_COLUMNS.OVERTIME_HOURS] = '5';
+  defaults[SUBMISSION_ROW_COLUMNS.OVERTIME_PAY] = '100.00';
+  defaults[SUBMISSION_ROW_COLUMNS.BONUS_PAY] = '';
+
+  const record = Object.assign({}, defaults, override);
+
+  return record;
+};
 
 const MOCK_CALCULATION_CODES = {
   mock_calculation_code_1: 'calculation_id_1',

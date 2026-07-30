@@ -4,6 +4,13 @@ import { config } from '../../config/config.js';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants/constants.js';
 import { ISubmission } from './file-upload-service.js';
 
+export interface DateRangeBounds {
+  minStartDate: LocalDate;
+  minEndDate: LocalDate;
+  maxStartDate: LocalDate;
+  maxEndDate: LocalDate;
+}
+
 const FIELD_DATA_CONSTRAINTS = 'Data Constraints';
 const SUBMISSION_ROW_COLUMNS = {
   GENDER_CODE: 'Gender Code',
@@ -78,34 +85,37 @@ const validateService = {
    */
   validateSubmissionBody(submission: ISubmission): ValidationError | null {
     const bodyErrors = [];
-    const minStartTime = LocalDate.now()
-      .with(TemporalAdjusters.firstDayOfYear())
-      .minusYears(2)
-      .with(TemporalAdjusters.firstDayOfMonth());
-    if (minStartTime.isAfter(LocalDate.parse(submission.startDate))) {
-      bodyErrors.push(
-        `Minimum allowed start date is ${minStartTime.format(JSON_REPORT_DATE_FORMAT)}`,
-      );
+
+    //validate reporting year
+    const validReportingYears = this.getValidReportingYears();
+    if (!validReportingYears.includes(submission.reportingYear)) {
+      const text = validReportingYears.join(' or ');
+      bodyErrors.push(`Reporting year must be ${text}.`);
     }
 
-    const maxEndTime = LocalDate.now()
-      .minusMonths(1)
-      .with(TemporalAdjusters.lastDayOfMonth());
-    if (maxEndTime.isBefore(LocalDate.parse(submission.endDate))) {
+    //validate start/end date
+    const bounds = this.computeBounds(submission.reportingYear);
+    if (bounds.minStartDate.isAfter(LocalDate.parse(submission.startDate))) {
       bodyErrors.push(
-        `Maximum allowed end date is ${maxEndTime.format(JSON_REPORT_DATE_FORMAT)}`,
+        `Minimum allowed start date is ${bounds.minStartDate.format(JSON_REPORT_DATE_FORMAT)}`,
       );
     }
-
+    if (bounds.maxEndDate.isBefore(LocalDate.parse(submission.endDate))) {
+      bodyErrors.push(
+        `Maximum allowed end date is ${bounds.maxEndDate.format(JSON_REPORT_DATE_FORMAT)}`,
+      );
+    }
     if (
-      LocalDate.parse(submission.endDate)
-        .minusMonths(11)
-        .isBefore(LocalDate.parse(submission.startDate))
+      !LocalDate.parse(submission.startDate)
+        .plusMonths(11)
+        .with(TemporalAdjusters.lastDayOfMonth())
+        .isEqual(LocalDate.parse(submission.endDate))
     ) {
       bodyErrors.push(
         `Start date and end date must always be 12 months apart.`,
       );
     }
+
     const employerStatementErrors = validateServicePrivate.validateRichText(
       submission.comments,
       'Employer Statement',
@@ -121,16 +131,44 @@ const validateService = {
       bodyErrors.push(...dataConstraintsErrors);
     }
 
-    const validReportingYears = this.getValidReportingYears();
-    if (!validReportingYears.includes(submission.reportingYear)) {
-      const text = validReportingYears.join(' or ');
-      bodyErrors.push(`Reporting year must be ${text}.`);
-    }
-
     if (bodyErrors?.length) {
       return new ValidationError(bodyErrors, null, null);
     }
     return null;
+  },
+
+  /**
+   * Computes the allowable start/end bounds for a given reporting year.
+   * @param reportYear
+   * @param lastDateAllowed Last selectable date (Default: 'today')
+   * @returns
+   */
+  computeBounds(
+    reportYear: number,
+    lastDateAllowed: LocalDate = LocalDate.now(),
+  ): DateRangeBounds {
+    const minStartDate = lastDateAllowed
+      .withYear(reportYear)
+      .minusYears(1)
+      .with(TemporalAdjusters.firstDayOfYear())
+      .minusMonths(2);
+
+    const minEndDate = minStartDate
+      .plusMonths(11)
+      .with(TemporalAdjusters.lastDayOfMonth());
+
+    const lastPossible = LocalDate.of(reportYear, 10, 31);
+    const maxEndDate = lastPossible.isBefore(lastDateAllowed)
+      ? lastPossible
+      : lastDateAllowed
+          .withYear(reportYear)
+          .with(TemporalAdjusters.lastDayOfMonth());
+
+    const maxStartDate = maxEndDate
+      .minusMonths(11)
+      .with(TemporalAdjusters.firstDayOfMonth());
+
+    return { minStartDate, minEndDate, maxStartDate, maxEndDate };
   },
 
   /**

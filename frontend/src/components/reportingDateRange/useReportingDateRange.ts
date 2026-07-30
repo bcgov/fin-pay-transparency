@@ -27,7 +27,11 @@ export function useReportingDateRange(
 
   // The single source of truth for the whole date range
   const startDate = shallowRef<LocalDate>(
-    options.initialStartDate ?? LocalDate.now().minusYears(1).withDayOfMonth(1),
+    options.initialStartDate ??
+      LocalDate.now()
+        .withYear(reportYear.value)
+        .minusMonths(11)
+        .withDayOfMonth(1),
   );
 
   // Allowed ranges are derived from reportYear

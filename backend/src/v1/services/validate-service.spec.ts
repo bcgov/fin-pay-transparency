@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { LocalDate, TemporalAdjusters, convert } from '@js-joda/core';
+import { LocalDate, convert } from '@js-joda/core';
 import { config } from '../../config/config.js';
 import { JSON_REPORT_DATE_FORMAT } from '../../constants/constants.js';
 import {
@@ -317,6 +317,7 @@ describe('validate-service', () => {
     describe('given a startDate before minimum start date', () => {
       it('should return error', () => {
         const startDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
           .minusYears(3)
           .format(JSON_REPORT_DATE_FORMAT);
         const errors = validateService.validateSubmissionBody({
@@ -324,23 +325,19 @@ describe('validate-service', () => {
           startDate,
         });
 
-        const minStartTime = LocalDate.now()
-          .with(TemporalAdjusters.firstDayOfYear())
-          .minusYears(2)
-          .with(TemporalAdjusters.firstDayOfMonth())
-          .format(JSON_REPORT_DATE_FORMAT);
-
         expect(errors.bodyErrors).toContain(
-          `Minimum allowed start date is ${minStartTime}`,
+          'Minimum allowed start date is 2021-11-01',
         );
       });
     });
     describe('given an endDate is after maximum end date', () => {
       it('should return error', () => {
         const startDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
           .minusYears(1)
           .format(JSON_REPORT_DATE_FORMAT);
         const endDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
           .plusYears(1)
           .format(JSON_REPORT_DATE_FORMAT);
         const errors = validateService.validateSubmissionBody({
@@ -349,13 +346,42 @@ describe('validate-service', () => {
           endDate,
         });
 
-        const maxEndTime = LocalDate.now()
-          .minusMonths(1)
-          .with(TemporalAdjusters.lastDayOfMonth())
+        expect(errors.bodyErrors).toContain(
+          'Maximum allowed end date is 2023-10-31',
+        );
+      });
+    });
+    describe('given lastDateAllowed is before Oct 31', () => {
+      it('should use lastDateAllowed adjusted to report year and last day of month', () => {
+        const reportYear = 2024;
+        const lastDateAllowed = LocalDate.of(2024, 7, 15);
+
+        const result = validateService.computeBounds(
+          reportYear,
+          lastDateAllowed,
+        );
+
+        expect(result.maxEndDate).toEqual(LocalDate.of(2024, 7, 31));
+      });
+    });
+    describe('if the range is not 12 months', () => {
+      it('should return error', () => {
+        const startDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
+          .minusYears(1)
           .format(JSON_REPORT_DATE_FORMAT);
+        const endDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
+          .plusYears(1)
+          .format(JSON_REPORT_DATE_FORMAT);
+        const errors = validateService.validateSubmissionBody({
+          ...(validSubmission as any),
+          startDate,
+          endDate,
+        });
 
         expect(errors.bodyErrors).toContain(
-          `Maximum allowed end date is ${maxEndTime}`,
+          'Start date and end date must always be 12 months apart.',
         );
       });
     });
