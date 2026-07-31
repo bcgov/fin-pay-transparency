@@ -33,7 +33,7 @@
         "cwd": "${workspaceFolder}/backend"
       },
       "dependsOn": [
-        "Launch and migrate database"
+        "Launch and migrate database in container"
       ],
       "problemMatcher": []
     },

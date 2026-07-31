@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.4.2
- * Query Engine version: 94a226be1cf2967af2541cca5529f0f7ba866919
+ * Prisma Client JS version: 7.7.0
+ * Query Engine version: 75cbdc1eb7150937890ad5465d861175c6624711
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.4.2",
-  engine: "94a226be1cf2967af2541cca5529f0f7ba866919"
+  client: "7.7.0",
+  engine: "75cbdc1eb7150937890ad5465d861175c6624711"
 }
 
 /**
@@ -395,7 +395,6 @@ export const ModelName = {
   report_history: 'report_history',
   calculation_code: 'calculation_code',
   calculated_data_history: 'calculated_data_history',
-  user_error: 'user_error',
   admin_user: 'admin_user',
   admin_user_history: 'admin_user_history',
   admin_user_onboarding: 'admin_user_onboarding',
@@ -403,8 +402,11 @@ export const ModelName = {
   announcement_history: 'announcement_history',
   announcement_resource: 'announcement_resource',
   announcement_resource_history: 'announcement_resource_history',
-  announcement_status: 'announcement_status',
   announcement_resource_type: 'announcement_resource_type',
+  announcement_status: 'announcement_status',
+  user_error: 'user_error',
+  pay_transparency_report_url: 'pay_transparency_report_url',
+  report_url_history: 'report_url_history',
   reports_calculated_data_view: 'reports_calculated_data_view'
 } as const
 
@@ -421,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company_history" | "employee_count_range" | "flyway_schema_history" | "naics_code" | "pay_transparency_calculated_data" | "pay_transparency_company" | "pay_transparency_report" | "pay_transparency_user" | "report_history" | "calculation_code" | "calculated_data_history" | "user_error" | "admin_user" | "admin_user_history" | "admin_user_onboarding" | "announcement" | "announcement_history" | "announcement_resource" | "announcement_resource_history" | "announcement_status" | "announcement_resource_type" | "reports_calculated_data_view"
+    modelProps: "company_history" | "employee_count_range" | "flyway_schema_history" | "naics_code" | "pay_transparency_calculated_data" | "pay_transparency_company" | "pay_transparency_report" | "pay_transparency_user" | "report_history" | "calculation_code" | "calculated_data_history" | "admin_user" | "admin_user_history" | "admin_user_onboarding" | "announcement" | "announcement_history" | "announcement_resource" | "announcement_resource_history" | "announcement_resource_type" | "announcement_status" | "user_error" | "pay_transparency_report_url" | "report_url_history" | "reports_calculated_data_view"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1239,80 +1241,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    user_error: {
-      payload: Prisma.$user_errorPayload<ExtArgs>
-      fields: Prisma.user_errorFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.user_errorFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.user_errorFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
-        }
-        findFirst: {
-          args: Prisma.user_errorFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.user_errorFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
-        }
-        findMany: {
-          args: Prisma.user_errorFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>[]
-        }
-        create: {
-          args: Prisma.user_errorCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
-        }
-        createMany: {
-          args: Prisma.user_errorCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.user_errorCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>[]
-        }
-        delete: {
-          args: Prisma.user_errorDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
-        }
-        update: {
-          args: Prisma.user_errorUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
-        }
-        deleteMany: {
-          args: Prisma.user_errorDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.user_errorUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.user_errorUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>[]
-        }
-        upsert: {
-          args: Prisma.user_errorUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
-        }
-        aggregate: {
-          args: Prisma.User_errorAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateUser_error>
-        }
-        groupBy: {
-          args: Prisma.user_errorGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.User_errorGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.user_errorCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.User_errorCountAggregateOutputType> | number
-        }
-      }
-    }
     admin_user: {
       payload: Prisma.$admin_userPayload<ExtArgs>
       fields: Prisma.admin_userFieldRefs
@@ -1831,6 +1759,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    announcement_resource_type: {
+      payload: Prisma.$announcement_resource_typePayload<ExtArgs>
+      fields: Prisma.announcement_resource_typeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.announcement_resource_typeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.announcement_resource_typeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+        }
+        findFirst: {
+          args: Prisma.announcement_resource_typeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.announcement_resource_typeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+        }
+        findMany: {
+          args: Prisma.announcement_resource_typeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>[]
+        }
+        create: {
+          args: Prisma.announcement_resource_typeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+        }
+        createMany: {
+          args: Prisma.announcement_resource_typeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.announcement_resource_typeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>[]
+        }
+        delete: {
+          args: Prisma.announcement_resource_typeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+        }
+        update: {
+          args: Prisma.announcement_resource_typeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+        }
+        deleteMany: {
+          args: Prisma.announcement_resource_typeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.announcement_resource_typeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.announcement_resource_typeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>[]
+        }
+        upsert: {
+          args: Prisma.announcement_resource_typeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+        }
+        aggregate: {
+          args: Prisma.Announcement_resource_typeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnnouncement_resource_type>
+        }
+        groupBy: {
+          args: Prisma.announcement_resource_typeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Announcement_resource_typeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.announcement_resource_typeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Announcement_resource_typeCountAggregateOutputType> | number
+        }
+      }
+    }
     announcement_status: {
       payload: Prisma.$announcement_statusPayload<ExtArgs>
       fields: Prisma.announcement_statusFieldRefs
@@ -1905,77 +1907,225 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    announcement_resource_type: {
-      payload: Prisma.$announcement_resource_typePayload<ExtArgs>
-      fields: Prisma.announcement_resource_typeFieldRefs
+    user_error: {
+      payload: Prisma.$user_errorPayload<ExtArgs>
+      fields: Prisma.user_errorFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.announcement_resource_typeFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload> | null
+          args: Prisma.user_errorFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.announcement_resource_typeFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+          args: Prisma.user_errorFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
         }
         findFirst: {
-          args: Prisma.announcement_resource_typeFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload> | null
+          args: Prisma.user_errorFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.announcement_resource_typeFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+          args: Prisma.user_errorFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
         }
         findMany: {
-          args: Prisma.announcement_resource_typeFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>[]
+          args: Prisma.user_errorFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>[]
         }
         create: {
-          args: Prisma.announcement_resource_typeCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+          args: Prisma.user_errorCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
         }
         createMany: {
-          args: Prisma.announcement_resource_typeCreateManyArgs<ExtArgs>
+          args: Prisma.user_errorCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.announcement_resource_typeCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>[]
+          args: Prisma.user_errorCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>[]
         }
         delete: {
-          args: Prisma.announcement_resource_typeDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+          args: Prisma.user_errorDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
         }
         update: {
-          args: Prisma.announcement_resource_typeUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+          args: Prisma.user_errorUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
         }
         deleteMany: {
-          args: Prisma.announcement_resource_typeDeleteManyArgs<ExtArgs>
+          args: Prisma.user_errorDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.announcement_resource_typeUpdateManyArgs<ExtArgs>
+          args: Prisma.user_errorUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.announcement_resource_typeUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>[]
+          args: Prisma.user_errorUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>[]
         }
         upsert: {
-          args: Prisma.announcement_resource_typeUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$announcement_resource_typePayload>
+          args: Prisma.user_errorUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$user_errorPayload>
         }
         aggregate: {
-          args: Prisma.Announcement_resource_typeAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAnnouncement_resource_type>
+          args: Prisma.User_errorAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUser_error>
         }
         groupBy: {
-          args: Prisma.announcement_resource_typeGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.Announcement_resource_typeGroupByOutputType>[]
+          args: Prisma.user_errorGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.User_errorGroupByOutputType>[]
         }
         count: {
-          args: Prisma.announcement_resource_typeCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.Announcement_resource_typeCountAggregateOutputType> | number
+          args: Prisma.user_errorCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.User_errorCountAggregateOutputType> | number
+        }
+      }
+    }
+    pay_transparency_report_url: {
+      payload: Prisma.$pay_transparency_report_urlPayload<ExtArgs>
+      fields: Prisma.pay_transparency_report_urlFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.pay_transparency_report_urlFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.pay_transparency_report_urlFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>
+        }
+        findFirst: {
+          args: Prisma.pay_transparency_report_urlFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.pay_transparency_report_urlFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>
+        }
+        findMany: {
+          args: Prisma.pay_transparency_report_urlFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>[]
+        }
+        create: {
+          args: Prisma.pay_transparency_report_urlCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>
+        }
+        createMany: {
+          args: Prisma.pay_transparency_report_urlCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.pay_transparency_report_urlCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>[]
+        }
+        delete: {
+          args: Prisma.pay_transparency_report_urlDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>
+        }
+        update: {
+          args: Prisma.pay_transparency_report_urlUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>
+        }
+        deleteMany: {
+          args: Prisma.pay_transparency_report_urlDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.pay_transparency_report_urlUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.pay_transparency_report_urlUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>[]
+        }
+        upsert: {
+          args: Prisma.pay_transparency_report_urlUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$pay_transparency_report_urlPayload>
+        }
+        aggregate: {
+          args: Prisma.Pay_transparency_report_urlAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePay_transparency_report_url>
+        }
+        groupBy: {
+          args: Prisma.pay_transparency_report_urlGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Pay_transparency_report_urlGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.pay_transparency_report_urlCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Pay_transparency_report_urlCountAggregateOutputType> | number
+        }
+      }
+    }
+    report_url_history: {
+      payload: Prisma.$report_url_historyPayload<ExtArgs>
+      fields: Prisma.report_url_historyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.report_url_historyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.report_url_historyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>
+        }
+        findFirst: {
+          args: Prisma.report_url_historyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.report_url_historyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>
+        }
+        findMany: {
+          args: Prisma.report_url_historyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>[]
+        }
+        create: {
+          args: Prisma.report_url_historyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>
+        }
+        createMany: {
+          args: Prisma.report_url_historyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.report_url_historyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>[]
+        }
+        delete: {
+          args: Prisma.report_url_historyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>
+        }
+        update: {
+          args: Prisma.report_url_historyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>
+        }
+        deleteMany: {
+          args: Prisma.report_url_historyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.report_url_historyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.report_url_historyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>[]
+        }
+        upsert: {
+          args: Prisma.report_url_historyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$report_url_historyPayload>
+        }
+        aggregate: {
+          args: Prisma.Report_url_historyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReport_url_history>
+        }
+        groupBy: {
+          args: Prisma.report_url_historyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Report_url_historyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.report_url_historyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Report_url_historyCountAggregateOutputType> | number
         }
       }
     }
@@ -2238,17 +2388,6 @@ export const Calculated_data_historyScalarFieldEnum = {
 export type Calculated_data_historyScalarFieldEnum = (typeof Calculated_data_historyScalarFieldEnum)[keyof typeof Calculated_data_historyScalarFieldEnum]
 
 
-export const User_errorScalarFieldEnum = {
-  user_error_id: 'user_error_id',
-  user_id: 'user_id',
-  company_id: 'company_id',
-  error: 'error',
-  create_date: 'create_date'
-} as const
-
-export type User_errorScalarFieldEnum = (typeof User_errorScalarFieldEnum)[keyof typeof User_errorScalarFieldEnum]
-
-
 export const Admin_userScalarFieldEnum = {
   admin_user_id: 'admin_user_id',
   idir_user_guid: 'idir_user_guid',
@@ -2367,6 +2506,16 @@ export const Announcement_resource_historyScalarFieldEnum = {
 export type Announcement_resource_historyScalarFieldEnum = (typeof Announcement_resource_historyScalarFieldEnum)[keyof typeof Announcement_resource_historyScalarFieldEnum]
 
 
+export const Announcement_resource_typeScalarFieldEnum = {
+  code: 'code',
+  description: 'description',
+  created_date: 'created_date',
+  updated_date: 'updated_date'
+} as const
+
+export type Announcement_resource_typeScalarFieldEnum = (typeof Announcement_resource_typeScalarFieldEnum)[keyof typeof Announcement_resource_typeScalarFieldEnum]
+
+
 export const Announcement_statusScalarFieldEnum = {
   code: 'code',
   description: 'description',
@@ -2377,14 +2526,42 @@ export const Announcement_statusScalarFieldEnum = {
 export type Announcement_statusScalarFieldEnum = (typeof Announcement_statusScalarFieldEnum)[keyof typeof Announcement_statusScalarFieldEnum]
 
 
-export const Announcement_resource_typeScalarFieldEnum = {
-  code: 'code',
-  description: 'description',
-  created_date: 'created_date',
-  updated_date: 'updated_date'
+export const User_errorScalarFieldEnum = {
+  user_error_id: 'user_error_id',
+  user_id: 'user_id',
+  company_id: 'company_id',
+  error: 'error',
+  create_date: 'create_date'
 } as const
 
-export type Announcement_resource_typeScalarFieldEnum = (typeof Announcement_resource_typeScalarFieldEnum)[keyof typeof Announcement_resource_typeScalarFieldEnum]
+export type User_errorScalarFieldEnum = (typeof User_errorScalarFieldEnum)[keyof typeof User_errorScalarFieldEnum]
+
+
+export const Pay_transparency_report_urlScalarFieldEnum = {
+  url_id: 'url_id',
+  create_date: 'create_date',
+  update_date: 'update_date',
+  create_user_id: 'create_user_id',
+  update_user_id: 'update_user_id',
+  report_id: 'report_id',
+  report_url: 'report_url'
+} as const
+
+export type Pay_transparency_report_urlScalarFieldEnum = (typeof Pay_transparency_report_urlScalarFieldEnum)[keyof typeof Pay_transparency_report_urlScalarFieldEnum]
+
+
+export const Report_url_historyScalarFieldEnum = {
+  url_history_id: 'url_history_id',
+  url_id: 'url_id',
+  create_date: 'create_date',
+  update_date: 'update_date',
+  create_user_id: 'create_user_id',
+  update_user_id: 'update_user_id',
+  report_id: 'report_id',
+  report_url: 'report_url'
+} as const
+
+export type Report_url_historyScalarFieldEnum = (typeof Report_url_historyScalarFieldEnum)[keyof typeof Report_url_historyScalarFieldEnum]
 
 
 export const Reports_calculated_data_viewScalarFieldEnum = {
@@ -2661,7 +2838,6 @@ export type GlobalOmitConfig = {
   report_history?: Prisma.report_historyOmit
   calculation_code?: Prisma.calculation_codeOmit
   calculated_data_history?: Prisma.calculated_data_historyOmit
-  user_error?: Prisma.user_errorOmit
   admin_user?: Prisma.admin_userOmit
   admin_user_history?: Prisma.admin_user_historyOmit
   admin_user_onboarding?: Prisma.admin_user_onboardingOmit
@@ -2669,8 +2845,11 @@ export type GlobalOmitConfig = {
   announcement_history?: Prisma.announcement_historyOmit
   announcement_resource?: Prisma.announcement_resourceOmit
   announcement_resource_history?: Prisma.announcement_resource_historyOmit
-  announcement_status?: Prisma.announcement_statusOmit
   announcement_resource_type?: Prisma.announcement_resource_typeOmit
+  announcement_status?: Prisma.announcement_statusOmit
+  user_error?: Prisma.user_errorOmit
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlOmit
+  report_url_history?: Prisma.report_url_historyOmit
   reports_calculated_data_view?: Prisma.reports_calculated_data_viewOmit
 }
 

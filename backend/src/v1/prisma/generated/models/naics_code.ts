@@ -186,7 +186,7 @@ export type Naics_codeGroupByOutputType = {
   _max: Naics_codeMaxAggregateOutputType | null
 }
 
-type GetNaics_codeGroupByPayload<T extends naics_codeGroupByArgs> = Prisma.PrismaPromise<
+export type GetNaics_codeGroupByPayload<T extends naics_codeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Naics_codeGroupByOutputType, T['by']> &
       {
@@ -1322,6 +1322,11 @@ export type naics_codeFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` naics_codes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of naics_codes.
+   */
   distinct?: Prisma.Naics_codeScalarFieldEnum | Prisma.Naics_codeScalarFieldEnum[]
 }
 

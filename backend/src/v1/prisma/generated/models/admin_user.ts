@@ -207,7 +207,7 @@ export type Admin_userGroupByOutputType = {
   _max: Admin_userMaxAggregateOutputType | null
 }
 
-type GetAdmin_userGroupByPayload<T extends admin_userGroupByArgs> = Prisma.PrismaPromise<
+export type GetAdmin_userGroupByPayload<T extends admin_userGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Admin_userGroupByOutputType, T['by']> &
       {
@@ -2877,6 +2877,11 @@ export type admin_userFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` admin_users.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of admin_users.
+   */
   distinct?: Prisma.Admin_userScalarFieldEnum | Prisma.Admin_userScalarFieldEnum[]
 }
 
