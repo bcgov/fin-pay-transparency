@@ -100,29 +100,65 @@ jobs:
             helm uninstall ${{ env.deployment_name }}-${{ inputs.target }} || true
           fi
 
-      - name: Check Pending upgrade or rollback and wait for 2 minutes if found, else perform rollback if still pending
-        id: check-pending-upgrade-rollback
+      - name: Check Pending install/upgrade/rollback and wait for upto 2 minutes if found, else perform rollback if still pending
+        id: check-pending-install-upgrade-rollback
         shell: bash
         run: |
-          # Check if there is a pending upgrade or rollback for the helm release
-          release_status=$(helm status ${{ env.deployment_name }}-${{ inputs.target }} -n ${{ vars.oc_namespace }} -o json 2>/dev/null | jq -r '.info.status')
-          if [[ "$release_status" == "pending-upgrade" || "$release_status" == "pending-rollback" ]]; then
-            echo "Found a pending upgrade or rollback for the helm release. Waiting for 2 minutes before checking again."
-            sleep 120
-            release_status=$(helm status ${{ env.deployment_name }}-${{ inputs.target }} -n ${{ vars.oc_namespace }} -o json 2>/dev/null | jq -r '.info.status')
-            if [[ "$release_status" == "pending-upgrade" || "$release_status" == "pending-rollback" ]]; then
-                echo "Still found a pending upgrade or rollback for the helm release. Performing rollback."
-                targetRevision=$(helm history ${{ env.deployment_name }}-${{ inputs.target }} -n ${{ vars.oc_namespace }} -o json | jq '[.[] | select(.status == "deployed" or .status == "superseded")] | max_by(.revision)' | jq -r '.revision')
-                if [[ -z "$targetRevision" ]]; then
-                    echo "No valid revision found to rollback to. Exiting."
-                    exit 1
-                fi
-                echo "Rolling back to revision: $targetRevision"
-                helm rollback ${{ env.deployment_name }}-${{ inputs.target }} $targetRevision --wait || true
-              fi
-          else    
-            echo "No pending upgrade or rollback found for the helm release ${{ env.deployment_name }}-${{ inputs.target }}. Proceeding with deployment."
+          release="${{ env.deployment_name }}-${{ inputs.target }}"
+          namespace="${{ vars.oc_namespace }}"
+
+          # If the release doesn't exist, allow a fresh install.
+          if ! release_json=$(helm status "$release" -n "$namespace" -o json 2>/dev/null); then
+              echo "Release not installed. Proceeding with installation."
+              exit 0
           fi
+
+          status=$(jq -r '.info.status' <<<"$release_json")
+
+          case "$status" in
+              pending-install|pending-upgrade|pending-rollback)
+                  echo "Release is in '$status'. Polling for up to 2 minutes..."
+
+                  max_attempts=12
+                  interval=10
+
+                  for ((i=1; i<=max_attempts; i++)); do
+                      sleep "$interval"
+
+                      status=$(helm status "$release" -n "$namespace" -o json \
+                          | jq -r '.info.status')
+
+                      if [[ "$status" != pending-* ]]; then
+                          echo "Release is now in '$status'. Proceeding with deployment."
+                          exit 0
+                      fi
+
+                      echo "Attempt $i/$max_attempts: release still in '$status'."
+                  done
+
+                  echo "Release remained in a pending state after 2 minutes."
+
+                  targetRevision=$(
+                      helm history "$release" -n "$namespace" -o json |
+                      jq -r '[.[] | select(.status=="deployed" or .status=="superseded")] | max_by(.revision) | .revision'
+                  )
+
+                  if [[ -z "$targetRevision" || "$targetRevision" == "null" ]]; then
+                      echo "No valid revision found for rollback."
+                      exit 1
+                  fi
+
+                  echo "Rolling back to revision $targetRevision..."
+
+                  helm rollback "$release" "$targetRevision" \
+                      -n "$namespace" \
+                      --wait
+                  ;;
+
+              *)
+                  echo "Release status is '$status'. Proceeding with deployment."
+                  ;;
+          esac
 
       - name: Package HELM Chart
         shell: bash
