@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 // Validations
 
+<<<<<<< HEAD
 // Validate TLD: must have at least 2 characters after the last period
 const hasTLD = (url) => {
   try {
@@ -25,6 +26,18 @@ export const reportUrlSchema = z.object({
     z.string().trim().url().max(4000).startsWith('https://').refine(hasTLD),
     z.string().trim().length(0),
   ]),
+=======
+export const reportUrlSchema = z.object({
+  reportUrl: z
+    .string()
+    .trim()
+    .min(1)
+    .max(4000)
+    .url()
+    .refine((url) => url.startsWith('https://') && URL.canParse(url), {
+      message: 'reportUrl must be a valid HTTPS URL',
+    }),
+>>>>>>> cea1154e (add url create/update/history api)
 });
 export type ReportUrlType = z.infer<typeof reportUrlSchema>;
 
