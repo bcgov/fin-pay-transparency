@@ -111,7 +111,7 @@ describe('report-url-service', () => {
     expect(prisma.report_url_history.create).toHaveBeenCalledWith({
       data: {
         url_id: currentUrl.url_id,
-        created_date: currentUrl.create_date,
+        create_date: currentUrl.create_date,
         update_date: currentUrl.update_date,
         create_user_id: currentUrl.create_user_id,
         update_user_id: currentUrl.update_user_id,
