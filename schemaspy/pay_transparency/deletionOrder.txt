@@ -1,6 +1,7 @@
 flyway_schema_history
 admin_user_onboarding
 announcement_resource_history
+report_url_history
 calculated_data_history
 user_error
 company_history
@@ -8,6 +9,7 @@ admin_user_history
 report_history
 announcement_resource
 announcement_history
+pay_transparency_report_url
 pay_transparency_calculated_data
 announcement
 pay_transparency_report
@@ -16,6 +18,6 @@ announcement_status
 announcement_resource_type
 naics_code
 employee_count_range
-pay_transparency_user
 pay_transparency_company
+pay_transparency_user
 admin_user

@@ -136,8 +136,28 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="pay_transparency_report_url.create_user_id references pay_transparency_user.user_id via pay_transparency_report_url_create_user_id_fk"><a href='pay_transparency_report_url.html'>pay_transparency_report_url</a><span class='relatedKey'>.create_user_id</span></td>
+                                                <td class="constraint detail">pay_transparency_report_url_create_user_id_fk</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="pay_transparency_report_url.update_user_id references pay_transparency_user.user_id via pay_transparency_report_url_update_user_id_fk"><a href='pay_transparency_report_url.html'>pay_transparency_report_url</a><span class='relatedKey'>.update_user_id</span></td>
+                                                <td class="constraint detail">pay_transparency_report_url_update_user_id_fk</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="report_history.user_id references pay_transparency_user.user_id via report_history_user_id_fk"><a href='report_history.html'>report_history</a><span class='relatedKey'>.user_id</span></td>
                                                 <td class="constraint detail">report_history_user_id_fk</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="report_url_history.create_user_id references pay_transparency_user.user_id via report_url_history_create_user_id_fk"><a href='report_url_history.html'>report_url_history</a><span class='relatedKey'>.create_user_id</span></td>
+                                                <td class="constraint detail">report_url_history_create_user_id_fk</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="report_url_history.update_user_id references pay_transparency_user.user_id via report_url_history_update_user_id_fk"><a href='report_url_history.html'>report_url_history</a><span class='relatedKey'>.update_user_id</span></td>
+                                                <td class="constraint detail">report_url_history_update_user_id_fk</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
@@ -310,51 +330,59 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,5,695,416">
-<area shape="rect" id="node2" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,391,372,636">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="739,141,992,435">
-<area shape="rect" id="node4" href="user_error.html" target="_top" title="user_error" alt="" coords="474,469,637,675">
+<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,300,695,711">
+<area shape="rect" id="node2" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,221,372,467">
+<area shape="rect" id="node3" href="pay_transparency_report_url.html" target="_top" title="pay_transparency_report_url" alt="" coords="739,5,1047,211">
+<area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="766,488,1019,781">
+<area shape="rect" id="node5" href="report_url_history.html" target="_top" title="report_url_history" alt="" coords="1091,133,1313,368">
+<area shape="rect" id="node6" href="user_error.html" target="_top" title="user_error" alt="" coords="474,764,637,969">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/pay_transparency_user.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1136,233,1404,321">
-<area shape="rect" id="node2" href="report_history.html" target="_top" title="report_history" alt="" coords="819,236,1012,324">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,165,695,253">
-<area shape="rect" id="node5" href="admin_user.html" target="_top" title="admin_user" alt="" coords="103,111,275,199">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1136,109,1404,197">
+<area shape="rect" id="node2" href="report_history.html" target="_top" title="report_history" alt="" coords="819,112,1012,200">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,219,695,307">
+<area shape="rect" id="node5" href="admin_user.html" target="_top" title="admin_user" alt="" coords="103,5,275,93">
 <area shape="rect" id="node6" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="38,321,339,409">
-<area shape="rect" id="node7" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="57,216,320,304">
-<area shape="rect" id="node8" href="naics_code.html" target="_top" title="naics_code" alt="" coords="106,5,271,93">
-<area shape="rect" id="node9" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,427,372,672">
-<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="739,131,1092,219">
-<area shape="rect" id="node10" href="user_error.html" target="_top" title="user_error" alt="" coords="474,343,637,548">
+<area shape="rect" id="node7" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="57,111,320,199">
+<area shape="rect" id="node8" href="naics_code.html" target="_top" title="naics_code" alt="" coords="106,216,271,304">
+<area shape="rect" id="node9" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,548,372,793">
+<area shape="rect" id="node3" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="739,217,1092,305">
+<area shape="rect" id="node10" href="pay_transparency_report_url.html" target="_top" title="pay_transparency_report_url" alt="" coords="761,635,1069,723">
+<area shape="rect" id="node11" href="report_url_history.html" target="_top" title="report_url_history" alt="" coords="1159,556,1381,644">
+<area shape="rect" id="node12" href="user_error.html" target="_top" title="user_error" alt="" coords="474,324,637,529">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/pay_transparency_user.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,101,695,512">
-<area shape="rect" id="node2" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,323,372,568">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="767,5,1021,299">
-<area shape="rect" id="node4" href="reports_calculated_data_view.html" target="_top" title="reports_calculated_data_view" alt="" coords="739,340,1049,551">
-<area shape="rect" id="node5" href="user_error.html" target="_top" title="user_error" alt="" coords="474,565,637,771">
+<area shape="rect" id="node1" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,300,695,711">
+<area shape="rect" id="node2" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,289,372,535">
+<area shape="rect" id="node3" href="pay_transparency_report_url.html" target="_top" title="pay_transparency_report_url" alt="" coords="740,5,1048,211">
+<area shape="rect" id="node4" href="report_history.html" target="_top" title="report_history" alt="" coords="767,343,1021,636">
+<area shape="rect" id="node5" href="report_url_history.html" target="_top" title="report_url_history" alt="" coords="1093,133,1316,368">
+<area shape="rect" id="node6" href="reports_calculated_data_view.html" target="_top" title="reports_calculated_data_view" alt="" coords="739,663,1049,873">
+<area shape="rect" id="node7" href="user_error.html" target="_top" title="user_error" alt="" coords="474,800,637,1005">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/pay_transparency_user.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1136,184,1404,272">
-<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="739,184,1092,272">
-<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="819,79,1012,167">
-<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,187,695,275">
+<area shape="rect" id="node1" href="calculated_data_history.html" target="_top" title="calculated_data_history" alt="" coords="1136,143,1404,231">
+<area shape="rect" id="node2" href="pay_transparency_calculated_data.html" target="_top" title="pay_transparency_calculated_data" alt="" coords="739,216,1092,304">
+<area shape="rect" id="node3" href="report_history.html" target="_top" title="report_history" alt="" coords="819,75,1012,163">
+<area shape="rect" id="node4" href="pay_transparency_report.html" target="_top" title="pay_transparency_report" alt="" coords="416,217,695,305">
 <area shape="rect" id="node5" href="admin_user.html" target="_top" title="admin_user" alt="" coords="103,5,275,93">
-<area shape="rect" id="node6" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="38,584,339,672">
-<area shape="rect" id="node7" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="57,216,320,304">
-<area shape="rect" id="node8" href="naics_code.html" target="_top" title="naics_code" alt="" coords="106,111,271,199">
-<area shape="rect" id="node9" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,321,372,567">
-<area shape="rect" id="node10" href="reports_calculated_data_view.html" target="_top" title="reports_calculated_data_view" alt="" coords="760,325,1071,389">
-<area shape="rect" id="node11" href="user_error.html" target="_top" title="user_error" alt="" coords="474,400,637,605">
+<area shape="rect" id="node6" href="pay_transparency_company.html" target="_top" title="pay_transparency_company" alt="" coords="38,352,339,440">
+<area shape="rect" id="node7" href="employee_count_range.html" target="_top" title="employee_count_range" alt="" coords="57,236,320,324">
+<area shape="rect" id="node8" href="naics_code.html" target="_top" title="naics_code" alt="" coords="106,131,271,219">
+<area shape="rect" id="node9" href="pay_transparency_user.html" target="_top" title="pay_transparency_user" alt="" coords="5,632,372,877">
+<area shape="rect" id="node10" href="pay_transparency_report_url.html" target="_top" title="pay_transparency_report_url" alt="" coords="761,636,1069,724">
+<area shape="rect" id="node11" href="report_url_history.html" target="_top" title="report_url_history" alt="" coords="1159,675,1381,763">
+<area shape="rect" id="node12" href="reports_calculated_data_view.html" target="_top" title="reports_calculated_data_view" alt="" coords="760,357,1071,421">
+<area shape="rect" id="node13" href="user_error.html" target="_top" title="user_error" alt="" coords="474,431,637,636">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/pay_transparency_user.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

@@ -1,6 +1,6 @@
 admin_user
-pay_transparency_company
 pay_transparency_user
+pay_transparency_company
 employee_count_range
 naics_code
 announcement_resource_type
@@ -9,6 +9,7 @@ calculation_code
 pay_transparency_report
 announcement
 pay_transparency_calculated_data
+pay_transparency_report_url
 announcement_history
 announcement_resource
 report_history
@@ -16,6 +17,7 @@ admin_user_history
 company_history
 user_error
 calculated_data_history
+report_url_history
 announcement_resource_history
 admin_user_onboarding
 flyway_schema_history
