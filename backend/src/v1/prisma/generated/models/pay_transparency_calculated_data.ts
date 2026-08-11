@@ -186,7 +186,7 @@ export type Pay_transparency_calculated_dataGroupByOutputType = {
   _max: Pay_transparency_calculated_dataMaxAggregateOutputType | null
 }
 
-type GetPay_transparency_calculated_dataGroupByPayload<T extends pay_transparency_calculated_dataGroupByArgs> = Prisma.PrismaPromise<
+export type GetPay_transparency_calculated_dataGroupByPayload<T extends pay_transparency_calculated_dataGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Pay_transparency_calculated_dataGroupByOutputType, T['by']> &
       {
@@ -1412,6 +1412,11 @@ export type pay_transparency_calculated_dataFindManyArgs<ExtArgs extends runtime
    * Skip the first `n` pay_transparency_calculated_data.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of pay_transparency_calculated_data.
+   */
   distinct?: Prisma.Pay_transparency_calculated_dataScalarFieldEnum | Prisma.Pay_transparency_calculated_dataScalarFieldEnum[]
 }
 

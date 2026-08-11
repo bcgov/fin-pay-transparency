@@ -36,6 +36,7 @@ import resourcesRoutes from './v1/routes/resources-routes.js';
 import { adminAuth } from './v1/services/admin-auth-service.js';
 import { utils } from './v1/services/utils-service.js';
 import adminUserInvitesRoutes from './v1/routes/admin-user-invites-routes.js';
+import urlRouter from './v1/routes/report-url-routes.js';
 
 const OIDC_AZUREIDIR_CALLBACK_URL = `${config.get('server:adminFrontend')}/admin-api/auth/${OIDC_AZUREIDIR_CALLBACK_NAME}`;
 
@@ -280,6 +281,7 @@ apiRouter.use('/v1/analytics', analyticRoutes);
 apiRouter.use('/v1/resources', resourcesRoutes);
 apiRouter.use('/v1/employers', employerRoutes);
 apiRouter.use('/v1/dashboard', dashboardMetricsRouter);
+apiRouter.use('/v1/report-url', urlRouter);
 adminApp.use(function (req: Request, res: Response, _next: NextFunction) {
   res.status(404).send({ message: 'Route' + req.url + ' Not found.' });
 });

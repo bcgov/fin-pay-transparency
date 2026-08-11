@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model user_error
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type user_errorModel = runtime.Types.Result.DefaultSelection<Prisma.$user_errorPayload>
 
@@ -158,7 +158,7 @@ export type User_errorGroupByOutputType = {
   _max: User_errorMaxAggregateOutputType | null
 }
 
-type GetUser_errorGroupByPayload<T extends user_errorGroupByArgs> = Prisma.PrismaPromise<
+export type GetUser_errorGroupByPayload<T extends user_errorGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<User_errorGroupByOutputType, T['by']> &
       {
@@ -1242,6 +1242,11 @@ export type user_errorFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` user_errors.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of user_errors.
+   */
   distinct?: Prisma.User_errorScalarFieldEnum | Prisma.User_errorScalarFieldEnum[]
 }
 

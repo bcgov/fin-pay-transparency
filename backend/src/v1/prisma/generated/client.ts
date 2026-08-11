@@ -97,11 +97,6 @@ export type calculation_code = Prisma.calculation_codeModel
  */
 export type calculated_data_history = Prisma.calculated_data_historyModel
 /**
- * Model user_error
- * 
- */
-export type user_error = Prisma.user_errorModel
-/**
  * Model admin_user
  * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
@@ -118,36 +113,51 @@ export type admin_user_history = Prisma.admin_user_historyModel
 export type admin_user_onboarding = Prisma.admin_user_onboardingModel
 /**
  * Model announcement
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement = Prisma.announcementModel
 /**
  * Model announcement_history
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement_history = Prisma.announcement_historyModel
 /**
  * Model announcement_resource
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement_resource = Prisma.announcement_resourceModel
 /**
  * Model announcement_resource_history
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement_resource_history = Prisma.announcement_resource_historyModel
-/**
- * Model announcement_status
- * 
- */
-export type announcement_status = Prisma.announcement_statusModel
 /**
  * Model announcement_resource_type
  * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement_resource_type = Prisma.announcement_resource_typeModel
 /**
- * Model reports_calculated_data_view
+ * Model announcement_status
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+ */
+export type announcement_status = Prisma.announcement_statusModel
+/**
+ * Model user_error
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+ */
+export type user_error = Prisma.user_errorModel
+/**
+ * Model pay_transparency_report_url
  * 
+ */
+export type pay_transparency_report_url = Prisma.pay_transparency_report_urlModel
+/**
+ * Model report_url_history
+ * 
+ */
+export type report_url_history = Prisma.report_url_historyModel
+/**
+ * Model reports_calculated_data_view
+ * This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type reports_calculated_data_view = Prisma.reports_calculated_data_viewModel

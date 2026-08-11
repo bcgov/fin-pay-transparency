@@ -24,6 +24,7 @@ import authRouter from './v1/routes/public-auth-routes.js';
 import { reportRouter } from './v1/routes/report-routes.js';
 import resourcesRoutes from './v1/routes/resources-routes.js';
 import userRouter from './v1/routes/user-info-routes.js';
+import urlRouter from './v1/routes/report-url-routes.js';
 
 import { publicAuth } from './v1/services/public-auth-service.js';
 import { utils } from './v1/services/utils-service.js';
@@ -292,6 +293,7 @@ apiRouter.use('/v1/codes', codeRouter);
 apiRouter.use('/v1/report', reportRouter);
 apiRouter.use('/v1/announcements', announcementRouter);
 apiRouter.use('/v1/resources', resourcesRoutes);
+apiRouter.use('/v1/report-url', urlRouter);
 
 app.use(function (req: Request, res: Response, _next: NextFunction) {
   res.status(404).send({ message: 'Route' + req.url + ' Not found.' });

@@ -1172,6 +1172,11 @@ const reportService = {
             is_unlocked: true,
             create_date: true,
             update_date: true,
+            pay_transparency_report_url: {
+              select: {
+                report_url: true,
+              },
+            },
           },
           where: filters,
           orderBy: [
@@ -1189,15 +1194,17 @@ const reportService = {
     // Convert the data type for report_start_date and report_end_date from
     // a Date object into a date string formatted with REPORT_DATE_FORMAT
     const reportsAdjusted = reports?.pay_transparency_report.map((r) => {
+      const { pay_transparency_report_url, ...rest } = r;
       const report = {
-        ...r,
-      } as any;
-      report.report_start_date = LocalDate.from(
-        nativeJs(r.report_start_date, ZoneId.UTC),
-      ).format(JSON_REPORT_DATE_FORMAT);
-      report.report_end_date = LocalDate.from(
-        nativeJs(r.report_end_date, ZoneId.UTC),
-      ).format(JSON_REPORT_DATE_FORMAT);
+        ...rest,
+        report_start_date: LocalDate.from(
+          nativeJs(r.report_start_date, ZoneId.UTC),
+        ).format(JSON_REPORT_DATE_FORMAT),
+        report_end_date: LocalDate.from(
+          nativeJs(r.report_end_date, ZoneId.UTC),
+        ).format(JSON_REPORT_DATE_FORMAT),
+        report_url: pay_transparency_report_url?.report_url,
+      };
       return report;
     });
 

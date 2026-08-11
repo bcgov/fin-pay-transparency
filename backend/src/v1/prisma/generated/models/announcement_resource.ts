@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model announcement_resource
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement_resourceModel = runtime.Types.Result.DefaultSelection<Prisma.$announcement_resourcePayload>
 
@@ -193,7 +193,7 @@ export type Announcement_resourceGroupByOutputType = {
   _max: Announcement_resourceMaxAggregateOutputType | null
 }
 
-type GetAnnouncement_resourceGroupByPayload<T extends announcement_resourceGroupByArgs> = Prisma.PrismaPromise<
+export type GetAnnouncement_resourceGroupByPayload<T extends announcement_resourceGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Announcement_resourceGroupByOutputType, T['by']> &
       {
@@ -1747,6 +1747,11 @@ export type announcement_resourceFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` announcement_resources.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of announcement_resources.
+   */
   distinct?: Prisma.Announcement_resourceScalarFieldEnum | Prisma.Announcement_resourceScalarFieldEnum[]
 }
 

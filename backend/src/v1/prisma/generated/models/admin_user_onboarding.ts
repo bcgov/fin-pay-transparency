@@ -179,7 +179,7 @@ export type Admin_user_onboardingGroupByOutputType = {
   _max: Admin_user_onboardingMaxAggregateOutputType | null
 }
 
-type GetAdmin_user_onboardingGroupByPayload<T extends admin_user_onboardingGroupByArgs> = Prisma.PrismaPromise<
+export type GetAdmin_user_onboardingGroupByPayload<T extends admin_user_onboardingGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Admin_user_onboardingGroupByOutputType, T['by']> &
       {
@@ -1038,6 +1038,11 @@ export type admin_user_onboardingFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` admin_user_onboardings.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of admin_user_onboardings.
+   */
   distinct?: Prisma.Admin_user_onboardingScalarFieldEnum | Prisma.Admin_user_onboardingScalarFieldEnum[]
 }
 

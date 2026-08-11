@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model reports_calculated_data_view
- * 
+ * This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type reports_calculated_data_viewModel = runtime.Types.Result.DefaultSelection<Prisma.$reports_calculated_data_viewPayload>
 
@@ -382,7 +382,7 @@ export type Reports_calculated_data_viewGroupByOutputType = {
   _max: Reports_calculated_data_viewMaxAggregateOutputType | null
 }
 
-type GetReports_calculated_data_viewGroupByPayload<T extends reports_calculated_data_viewGroupByArgs> = Prisma.PrismaPromise<
+export type GetReports_calculated_data_viewGroupByPayload<T extends reports_calculated_data_viewGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Reports_calculated_data_viewGroupByOutputType, T['by']> &
       {
@@ -1181,6 +1181,11 @@ export type reports_calculated_data_viewFindManyArgs<ExtArgs extends runtime.Typ
    * Skip the first `n` reports_calculated_data_views.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of reports_calculated_data_views.
+   */
   distinct?: Prisma.Reports_calculated_data_viewScalarFieldEnum | Prisma.Reports_calculated_data_viewScalarFieldEnum[]
 }
 
