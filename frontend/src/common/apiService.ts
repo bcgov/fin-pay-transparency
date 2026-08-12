@@ -342,6 +342,27 @@ export default {
       throw error;
     }
   },
+
+  async addOrUpdateReportUrl(reportId: string, reportUrl: string) {
+    if (!reportUrl || reportUrl.trim() === '') {
+      throw new Error('reportUrl is required');
+    }
+
+    try {
+      const resp = await apiAxios.post(ApiRoutes.REPORT_URL + reportId, {
+        reportUrl, // Fixed: Passes the variable directly (ES6 object shorthand)
+      });
+
+      if (resp?.data) {
+        return resp.data;
+      }
+
+      throw new Error('Unexpected response from addOrUpdateReportUrl API');
+    } catch (e) {
+      console.log(`Failed to save or update report URL from API - ${e}`);
+      throw e;
+    }
+  },
 };
 
 export const ApiServicePrivate = {

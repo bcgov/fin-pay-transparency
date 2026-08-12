@@ -996,7 +996,9 @@ async function generateReport(
     await puppeteerPage.addScriptTag({
       path: docGenServicePrivate.REPORT_TEMPLATE_SCRIPT,
     });
-    await puppeteerPage.setContent(workingHtml, { waitUntil: 'networkidle0' });
+    await puppeteerPage.setContent(workingHtml, {
+      waitUntil: 'domcontentloaded',
+    });
 
     // Generate charts as SVG, and inject the charts into the DOM of the
     // current puppeteerPage
