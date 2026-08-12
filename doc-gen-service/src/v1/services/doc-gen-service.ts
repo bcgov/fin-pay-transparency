@@ -997,7 +997,7 @@ async function generateReport(
       path: docGenServicePrivate.REPORT_TEMPLATE_SCRIPT,
     });
     await puppeteerPage.setContent(workingHtml, {
-      waitUntil: 'domcontentloaded',
+      waitUntil: 'networkidle0',
     });
 
     // Generate charts as SVG, and inject the charts into the DOM of the
