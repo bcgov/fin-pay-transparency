@@ -111,11 +111,7 @@ describe('report-url-service', () => {
     expect(prisma.report_url_history.create).toHaveBeenCalledWith({
       data: {
         url_id: currentUrl.url_id,
-<<<<<<< HEAD
         create_date: currentUrl.create_date,
-=======
-        created_date: currentUrl.create_date,
->>>>>>> cea1154e (add url create/update/history api)
         update_date: currentUrl.update_date,
         create_user_id: currentUrl.create_user_id,
         update_user_id: currentUrl.update_user_id,
@@ -145,10 +141,6 @@ describe('report-url-service', () => {
       ),
     ).rejects.toThrow('Report not found or user not authorized to update it');
   });
-<<<<<<< HEAD
-
-=======
->>>>>>> cea1154e (add url create/update/history api)
   it('throws when the user is not found', async () => {
     prisma.pay_transparency_report.findFirst.mockResolvedValueOnce({
       report_id: '33333333-3333-3333-3333-333333333333',
@@ -231,6 +223,14 @@ describe('report-url-service', () => {
           reportUrl: url,
         });
         expect(result.reportUrl).toBe(url.trim());
+      });
+
+      it('allows empty string', () => {
+        const result = reportUrlSchema.parse({
+          reportUrl: '',
+        });
+
+        expect(result.reportUrl).toBe('');
       });
     });
 
