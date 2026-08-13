@@ -12,8 +12,7 @@ const ResizeObserverMock = vi.fn(function ResizeObserver() {
   };
 });
 
-// Stub the global ResizeObserver
+// Stubs
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-
-// Stub the global visualViewport
 vi.stubGlobal('visualViewport', new EventTarget());
+vi.stubGlobal('scrollTo', vi.fn());

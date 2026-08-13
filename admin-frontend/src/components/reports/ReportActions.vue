@@ -19,6 +19,25 @@
     </template>
   </v-tooltip>
 
+  <!-- Report Url -->
+  <v-tooltip
+    v-if="props.actions.includes(ReportAdminActions.ReportUrl) && props.report.pay_transparency_report_url"
+    text="External Url"
+    location="bottom"
+  >
+    <template #activator="{ props: tooltipProps }">
+      <v-btn
+        v-bind="tooltipProps"
+        aria-label="External Url"
+        density="compact"
+        variant="plain"
+        icon="mdi-open-in-new"
+        :href="props.report.pay_transparency_report_url.report_url"
+        target="_blank"
+      ></v-btn>
+    </template>
+  </v-tooltip>
+
   <!-- Lock/Unlock Report -->
   <v-tooltip
     v-if="props.actions.includes(ReportAdminActions.LockUnlock)"
@@ -99,7 +118,7 @@
         :loading="isLoadingAdminActionHistory"
         @click="openAdminActionHistory(props.report.report_id)"
       >
-        <v-icon size="large"></v-icon>
+        <v-icon></v-icon>
         <v-menu activator="parent">
           <v-card class="">
             <v-card-text>
@@ -113,6 +132,46 @@
               </div>
               <v-skeleton-loader
                 v-if="isLoadingAdminActionHistory"
+                type="paragraph"
+                class="mt-0"
+              ></v-skeleton-loader>
+            </v-card-text>
+          </v-card>
+        </v-menu>
+      </v-btn>
+    </template>
+  </v-tooltip>
+
+  <!-- Report Url History -->
+  <v-tooltip
+    v-if="actions.includes(ReportAdminActions.ReportUrlHistory)"
+    text="Report URL history"
+    location="bottom"
+  >
+    <template #activator="{ props: tooltipProps }">
+      <v-btn
+        v-bind="tooltipProps"
+        aria-label="Report URL history"
+        density="compact"
+        variant="plain"
+        icon="mdi-bookmark-multiple"
+        :loading="isLoadingReportUrlHistory"
+        @click="openReportUrlHistory(props.report.report_id)"
+      >
+        <v-icon></v-icon>
+        <v-menu activator="parent">
+          <v-card class="">
+            <v-card-text>
+              <div class="history-panel h-100">
+                <ReportUrlHistoryView
+                  v-if="
+                    !isLoadingReportUrlHistory && reportUrlHistory
+                  "
+                  :report-url-history="reportUrlHistory"
+                ></ReportUrlHistoryView>
+              </div>
+              <v-skeleton-loader
+                v-if="isLoadingReportUrlHistory"
                 type="paragraph"
                 class="mt-0"
               ></v-skeleton-loader>
@@ -187,7 +246,8 @@ import ApiService from '../../services/apiService';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { NotificationService } from '../../services/notificationService';
 import ReportAdminActionHistoryView from './ReportAdminActionHistoryPanel.vue';
-import { Report, ReportAdminActionHistory } from '../../types/reports';
+import ReportUrlHistoryView from './ReportUrlHistoryPanel.vue';
+import { Report, ReportAdminActionHistory, ReportUrlHistory } from '../../types/reports';
 import {
   ReportChangeService,
   ReportChangedEventPayload,
@@ -232,6 +292,7 @@ function onAnyReportChanged(payload: ReportChangedEventPayload) {
 
 function reset() {
   reportAdminActionHistory.value = undefined;
+  reportUrlHistory.value = undefined;
   hadErrorLoadingAdminActionHistory.value = false;
 }
 
@@ -291,9 +352,7 @@ async function viewReportInNewTab(reportId: string) {
 
 const isLoadingAdminActionHistory = ref<boolean>(false);
 const hadErrorLoadingAdminActionHistory = ref<boolean>(false);
-const reportAdminActionHistory = ref<ReportAdminActionHistory[] | undefined>(
-  undefined,
-);
+const reportAdminActionHistory = ref<ReportAdminActionHistory[]>();
 
 async function openAdminActionHistory(reportId: string) {
   //fetch the "admin action history" from the backend, then cache it
@@ -314,6 +373,35 @@ async function fetchAdminActionHistory(reportId: string) {
     hadErrorLoadingAdminActionHistory.value = true;
   } finally {
     isLoadingAdminActionHistory.value = false;
+  }
+}
+
+// #endregion
+// #region Report URL History
+
+const isLoadingReportUrlHistory = ref<boolean>(false);
+const hadErrorLoadingReportUrlHistory = ref<boolean>(false);
+const reportUrlHistory = ref<ReportUrlHistory[]>();
+
+async function openReportUrlHistory(reportId: string) {
+  //fetch the "report URL history" from the backend, then cache it
+  //so we don't need to look it up again
+  if (!isLoadingReportUrlHistory.value && !reportUrlHistory.value) {
+    await fetchReportUrlHistory(reportId);
+  }
+}
+
+async function fetchReportUrlHistory(reportId: string) {
+  console.log('fetchingReportUrlHistory');
+  isLoadingReportUrlHistory.value = true;
+  hadErrorLoadingReportUrlHistory.value = false;
+  try {
+    reportUrlHistory.value =
+      await ApiService.getReportUrlHistory(reportId);
+  } catch {
+    hadErrorLoadingReportUrlHistory.value = true;
+  } finally {
+    isLoadingReportUrlHistory.value = false;
   }
 }
 

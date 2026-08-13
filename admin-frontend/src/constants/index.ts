@@ -25,4 +25,6 @@ export enum ReportAdminActions {
   EditReportingYear = 'editReportingYear',
   WithdrawReport = 'withdrawReport',
   AdminActionHistory = 'adminActionHistory',
+  ReportUrl = 'reportUrl',
+  ReportUrlHistory = 'reportUrlHistory',
 }

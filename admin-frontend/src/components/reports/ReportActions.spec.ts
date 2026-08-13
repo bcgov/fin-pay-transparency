@@ -37,6 +37,8 @@ const buttons = {
   editYear: () => screen.getByLabelText('Edit reporting year'),
   withdraw: () => screen.getByLabelText('Withdraw report'),
   adminHistory: () => screen.getByLabelText('Admin action history'),
+  urlHistory: () => screen.getByLabelText('Report URL history'),
+  urlReport: () => screen.getByLabelText('External Url'),
   //buttons will be null if they do not exist
   tryOpenReport: () => screen.queryByLabelText('Open Report'),
   tryLockReport: () => screen.queryByLabelText('Lock report'),
@@ -44,6 +46,8 @@ const buttons = {
   tryEditYear: () => screen.queryByLabelText('Edit reporting year'),
   tryWithdraw: () => screen.queryByLabelText('Withdraw report'),
   tryAdminHistory: () => screen.queryByLabelText('Admin action history'),
+  tryUrlHistory: () => screen.queryByLabelText('Report URL history'),
+  tryUrlReport: () => screen.queryByLabelText('External Url'),
 };
 
 const dialogButtons = {
@@ -71,6 +75,9 @@ describe('ReportActions', () => {
     pay_transparency_company: {
       company_name: 'Test Company Inc.',
     },
+    pay_transparency_report_url: {
+      report_url: 'https://example.com/report',
+    },
   } as Report;
 
   beforeEach(() => {
@@ -83,7 +90,16 @@ describe('ReportActions', () => {
       { action: 'Test Action', timestamp: '2024-01-01' },
     ]);
 
-    global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    vi.mocked(ApiService).getReportUrlHistory.mockResolvedValue([
+      {
+        url_id: 'test-url-123',
+        url_history_id: 'test-url-123',
+        report_url: 'Test Action',
+        update_date: '2024-01-01',
+      },
+    ]);
+
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
     vi.spyOn(window, 'open').mockImplementation(() => null);
   });
 
@@ -117,6 +133,9 @@ describe('ReportActions', () => {
           // Only stub the child component that we're not testing
           ReportAdminActionHistoryView: {
             template: '<div>Action History</div>',
+          },
+          ReportUrlHistoryView: {
+            template: '<div>External URL</div>',
           },
         },
       },
@@ -195,6 +214,24 @@ describe('ReportActions', () => {
       expect(buttons.adminHistory()).toBeInTheDocument();
     });
 
+    it('should show External Url button when ReportUrl action is included', () => {
+      renderWithVuetify({
+        report: mockReport,
+        actions: [ReportAdminActions.ReportUrl],
+      });
+
+      expect(buttons.urlReport()).toBeInTheDocument();
+    });
+
+    it('should show Report URL History button when ReportUrlHistory action is included', () => {
+      renderWithVuetify({
+        report: mockReport,
+        actions: [ReportAdminActions.ReportUrlHistory],
+      });
+
+      expect(buttons.urlHistory()).toBeInTheDocument();
+    });
+
     it('should show multiple buttons when multiple actions are provided', () => {
       authStore().doesUserHaveRole.mockReturnValue(true);
 
@@ -224,6 +261,8 @@ describe('ReportActions', () => {
       expect(buttons.editYear()).toBeInTheDocument();
       expect(buttons.withdraw()).toBeInTheDocument();
       expect(buttons.adminHistory()).toBeInTheDocument();
+      expect(buttons.urlReport()).toBeInTheDocument();
+      expect(buttons.urlHistory()).toBeInTheDocument();
     });
   });
 
@@ -698,6 +737,64 @@ describe('ReportActions', () => {
       // The option for the report's year should be disabled
       const option2024 = screen.getByText('(Current reporting year)');
       expect(option2024).toBeInTheDocument();
+    });
+  });
+
+  describe('External Report URL', () => {
+    it('should open the report URL in a new tab when clicked', async () => {
+      renderWithVuetify({
+        report: mockReport,
+        actions: [ReportAdminActions.ReportUrl],
+      });
+
+      const button = buttons.urlReport();
+
+      expect(button).toHaveAttribute(
+        'href',
+        mockReport.pay_transparency_report_url.report_url,
+      );
+      expect(button).toHaveAttribute('target', '_blank');
+    });
+  });
+
+  describe('Report URL History', () => {
+    it('should call ApiService.getReportUrlHistory when clicked', async () => {
+      const user = userEvent.setup();
+
+      renderWithVuetify({
+        report: mockReport,
+        actions: [ReportAdminActions.ReportUrlHistory],
+      });
+
+      await user.click(buttons.urlHistory());
+
+      await waitFor(() => {
+        expect(ApiService.getReportUrlHistory).toHaveBeenCalledWith(
+          'test-report-123',
+        );
+      });
+    });
+
+    it('should only fetch history once and cache the result', async () => {
+      const user = userEvent.setup();
+
+      renderWithVuetify({
+        report: mockReport,
+        actions: [ReportAdminActions.ReportUrlHistory],
+      });
+
+      // Click twice
+      await user.click(buttons.urlHistory());
+
+      await waitFor(() => {
+        expect(ApiService.getReportUrlHistory).toHaveBeenCalledTimes(1);
+      });
+
+      // Click again (menu should already be open)
+      await user.click(buttons.urlHistory());
+
+      // Should still only be called once
+      expect(ApiService.getReportUrlHistory).toHaveBeenCalledTimes(1);
     });
   });
 });

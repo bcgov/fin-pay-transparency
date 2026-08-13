@@ -209,6 +209,23 @@ describe('ApiService', () => {
     });
   });
 
+  describe('getReportUrlHistory', () => {
+    it('returns report URL history', async () => {
+      const mockResp = { data: [{ action: 'edit' }] };
+      vi.spyOn(ApiService.apiAxios, 'get').mockResolvedValueOnce(mockResp);
+      const resp = await ApiService.getReportUrlHistory('1');
+      expect(resp).toEqual([{ action: 'edit' }]);
+    });
+    it('throws error when API fails', async () => {
+      vi.spyOn(ApiService.apiAxios, 'get').mockRejectedValueOnce(
+        mockAxiosError,
+      );
+      await expect(ApiService.getReportUrlHistory('1')).rejects.toEqual(
+        mockAxiosError,
+      );
+    });
+  });
+
   describe('getAnnouncements', () => {
     it('returns announcement search results', async () => {
       const mockResp = { data: { announcements: [], total: 1 } };

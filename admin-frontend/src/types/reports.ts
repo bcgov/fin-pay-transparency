@@ -19,6 +19,10 @@ export type Report = {
     company_id: string;
     company_name: string;
   };
+  pay_transparency_report_url: {
+    url_id: string;
+    report_url: string;
+  };
 };
 
 export interface IReportSearchResult {
@@ -157,4 +161,11 @@ export type ReportAdminActionHistory = {
   action: AdminModifiedReason;
   admin_modified_date: string;
   admin_user_display_name: string;
+};
+
+export type ReportUrlHistory = {
+  url_id: string;
+  url_history_id: string;
+  update_date: string;
+  report_url: string;
 };

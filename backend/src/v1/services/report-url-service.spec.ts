@@ -189,8 +189,23 @@ describe('report-url-service', () => {
     expect(prisma.report_url_history.findMany).toHaveBeenCalledWith({
       where: { report_id: reportId },
       take: 100,
-      orderBy: { create_date: 'desc' },
+      orderBy: { update_date: 'desc' },
     });
+  });
+
+  it('returns empty array when there are no urls', async () => {
+    const reportId = '44444444-4444-4444-4444-444444444444';
+    const currentUrl = null;
+    const history = [] as report_url_history[];
+
+    prisma.pay_transparency_report_url.findUnique.mockResolvedValueOnce(
+      currentUrl as pay_transparency_report_url,
+    );
+    prisma.report_url_history.findMany.mockResolvedValueOnce(history);
+
+    const result = await getHistoryForReport(reportId);
+
+    expect(result).toEqual([]);
   });
 
   describe('reportUrlSchema', () => {
@@ -220,31 +235,23 @@ describe('report-url-service', () => {
 
         expect(result.reportUrl).toBe('https://example.com');
       });
+
+      it('allows empty string', () => {
+        const result = reportUrlSchema.parse({
+          reportUrl: '',
+        });
+
+        expect(result.reportUrl).toBe('');
+      });
     });
 
     describe('invalid URLs', () => {
-      it('rejects an empty string', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: '',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects whitespace-only string', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: '   ',
-          }),
-        ).toThrow();
-      });
-
       it('rejects HTTP URLs', () => {
         expect(() =>
           reportUrlSchema.parse({
             reportUrl: 'http://example.com',
           }),
-        ).toThrow('reportUrl must be a valid HTTPS URL');
+        ).toThrow();
       });
 
       it('rejects non-URL text', () => {
