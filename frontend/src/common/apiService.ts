@@ -343,14 +343,19 @@ export default {
     }
   },
 
-  async addOrUpdateReportUrl(reportId: string, reportUrl: string) {
-    if (!reportUrl || reportUrl.trim() === '') {
+  async addOrUpdateReportUrl(
+    reportId: string,
+    reportUrl: string,
+    hasPreviousValue: boolean = false,
+  ) {
+    // If there's no previous value and the URL is empty or whitespace only, reject
+    if (!hasPreviousValue && (!reportUrl || reportUrl.trim() === '')) {
       throw new Error('reportUrl is required');
     }
 
     try {
       const resp = await apiAxios.post(ApiRoutes.REPORT_URL + reportId, {
-        reportUrl, // Fixed: Passes the variable directly (ES6 object shorthand)
+        reportUrl,
       });
 
       if (resp?.data) {

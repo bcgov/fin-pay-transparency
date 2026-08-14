@@ -119,6 +119,7 @@
       </tr>
     </template>
   </v-data-table>
+  <ConfirmationDialog ref="confirmClearUrlDialog" />
 </template>
 
 <script setup lang="ts">
@@ -135,6 +136,7 @@ import { useConfigStore } from '../../store/modules/config';
 import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { useRouter } from 'vue-router';
+import ConfirmationDialog from './ConfirmationDialog.vue';
 
 const { setReportInfo, setMode, reset } = useReportStepperStore();
 const { loadConfig } = useConfigStore();
@@ -161,6 +163,9 @@ const isLoading = ref(true);
 const editingReportId = ref('');
 const reportUrl = ref('');
 const errorMessage = ref('');
+const confirmClearUrlDialog = ref<InstanceType<
+  typeof ConfirmationDialog
+> | null>(null);
 
 onBeforeMount(async () => {
   await reset();
@@ -213,19 +218,41 @@ const saveReportUrl = async (report: IReport) => {
 
   const formattedUrl = reportUrl.value.trim();
 
-  if (!formattedUrl) {
+  // Check if trying to save empty URL without a previous value
+  if (!formattedUrl && !report.report_url) {
     errorMessage.value = 'Please enter a URL.';
     return;
   }
 
+  if (!formattedUrl && report.report_url) {
+    const confirmed = await confirmClearUrlDialog.value?.open(
+      'Remove report link?',
+      'Are you sure you want to remove the published report link? This action will remove the current link from this report.',
+      {
+        titleBold: true,
+        resolveText: 'Remove Link',
+        rejectText: 'Cancel',
+      },
+    );
+
+    if (!confirmed) {
+      cancelEditingReportUrl();
+      return;
+    }
+  }
+
   let normalizedUrl: string;
 
-  if (formattedUrl.startsWith('https://')) {
-    normalizedUrl = formattedUrl;
-  } else if (formattedUrl.startsWith('http://')) {
-    normalizedUrl = `https://${formattedUrl.substring('http://'.length)}`;
+  if (formattedUrl) {
+    if (formattedUrl.startsWith('https://')) {
+      normalizedUrl = formattedUrl;
+    } else if (formattedUrl.startsWith('http://')) {
+      normalizedUrl = `https://${formattedUrl.substring('http://'.length)}`;
+    } else {
+      normalizedUrl = `https://${formattedUrl}`;
+    }
   } else {
-    normalizedUrl = `https://${formattedUrl}`;
+    normalizedUrl = '';
   }
 
   const validationError = validateReportUrl(normalizedUrl);
@@ -236,12 +263,33 @@ const saveReportUrl = async (report: IReport) => {
   }
 
   try {
-    await ApiService.addOrUpdateReportUrl(report.report_id, normalizedUrl);
+    if (!normalizedUrl) {
+      await confirmClearUrl(report);
+      return;
+    }
+
+    await ApiService.addOrUpdateReportUrl(
+      report.report_id,
+      normalizedUrl,
+      !!report.report_url,
+    );
     report.report_url = normalizedUrl;
     cancelEditingReportUrl();
   } catch (error) {
     errorMessage.value = 'Failed to save URL. Please try again.';
     console.error('Error saving link:', error);
+  }
+};
+
+const confirmClearUrl = async (report: IReport) => {
+  try {
+    await ApiService.addOrUpdateReportUrl(report.report_id, '', true);
+
+    report.report_url = '';
+    cancelEditingReportUrl();
+  } catch (error) {
+    errorMessage.value = 'Failed to remove URL. Please try again.';
+    console.error('Error removing report link:', error);
   }
 };
 
@@ -296,5 +344,23 @@ const validateReportUrl = (url: string): string | null => {
   text-transform: none;
   line-height: 1.4;
   display: block;
+}
+
+.link-editor {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.link-editor-container {
+  width: 100%;
+}
+
+.link-editor :deep(.v-text-field) {
+  flex: 1;
+}
+
+.link-editor :deep(.v-btn) {
+  flex-shrink: 0;
 }
 </style>

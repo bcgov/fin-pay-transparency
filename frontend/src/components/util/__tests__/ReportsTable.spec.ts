@@ -34,6 +34,18 @@ const wrappedRender = async () => {
 const mockGetReports = vi.fn();
 const mockGetReport = vi.fn();
 const mockAddOrUpdateReportUrl = vi.fn();
+const mockConfirmationOpen = vi.fn();
+
+vi.mock('../ConfirmationDialog.vue', () => ({
+  default: {
+    name: 'ConfirmationDialog',
+    methods: {
+      open: (...args: unknown[]) => mockConfirmationOpen(...args),
+    },
+    template: '<div data-testid="confirmation-dialog" />',
+  },
+}));
+
 vi.mock('../../../common/apiService', () => ({
   default: {
     getReports: async () => {
@@ -109,6 +121,7 @@ describe('ReportsTable', () => {
       expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith(
         'id1',
         'https://example.gov.bc.ca/reports',
+        false,
       );
     });
   });
@@ -181,6 +194,7 @@ describe('ReportsTable', () => {
     expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith(
       'id1',
       'https://example.gov.bc.ca/reports',
+      false,
     );
   });
   it('should populate the editor with the existing report URL', async () => {
@@ -208,6 +222,90 @@ describe('ReportsTable', () => {
     expect(
       getByPlaceholderText('https://example.gov.bc.ca/reports'),
     ).toHaveValue(existingUrl);
+  });
+
+  it('should confirm before removing an existing report URL', async () => {
+    mockGetReports.mockReturnValue([
+      {
+        report_id: 'id1',
+        report_start_date: '2023-01-01',
+        report_end_date: '2023-02-01',
+        create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
+        report_url: 'https://example.gov.bc.ca/reports/current',
+      },
+    ]);
+    mockAddOrUpdateReportUrl.mockResolvedValue(undefined);
+    mockConfirmationOpen.mockResolvedValue(true);
+
+    const { getByPlaceholderText, getByRole } = await wrappedRender();
+
+    await waitFor(() => {
+      expect(mockGetReports).toHaveBeenCalled();
+    });
+
+    await fireEvent.click(getByRole('button', { name: /edit link/i }));
+    await fireEvent.update(
+      getByPlaceholderText('https://example.gov.bc.ca/reports'),
+      '',
+    );
+    await fireEvent.click(getByRole('button', { name: /^Save$/i }));
+
+    await waitFor(() => {
+      expect(mockConfirmationOpen).toHaveBeenCalledWith(
+        'Remove report link?',
+        expect.stringContaining(
+          'Are you sure you want to remove the published report link?',
+        ),
+        expect.objectContaining({
+          resolveText: 'Remove Link',
+          rejectText: 'Cancel',
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith('id1', '', true);
+    });
+  });
+
+  it('should cancel URL removal without clearing the current value', async () => {
+    mockGetReports.mockReturnValue([
+      {
+        report_id: 'id1',
+        report_start_date: '2023-01-01',
+        report_end_date: '2023-02-01',
+        create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
+        report_url: 'https://example.gov.bc.ca/reports/current',
+      },
+    ]);
+    mockConfirmationOpen.mockResolvedValue(false);
+
+    const { getByPlaceholderText, getByRole } = await wrappedRender();
+
+    await waitFor(() => {
+      expect(mockGetReports).toHaveBeenCalled();
+    });
+
+    await fireEvent.click(getByRole('button', { name: /edit link/i }));
+    await fireEvent.update(
+      getByPlaceholderText('https://example.gov.bc.ca/reports'),
+      '',
+    );
+    await fireEvent.click(getByRole('button', { name: /^Save$/i }));
+
+    await waitFor(() => {
+      expect(mockConfirmationOpen).toHaveBeenCalled();
+    });
+
+    expect(mockAddOrUpdateReportUrl).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('https://example.gov.bc.ca/reports/current'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByPlaceholderText('https://example.gov.bc.ca/reports'),
+    ).not.toBeInTheDocument();
   });
   it('should reject an empty report URL', async () => {
     mockGetReports.mockReturnValue([
@@ -321,6 +419,7 @@ describe('ReportsTable', () => {
         expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith(
           'id1',
           expectedUrl,
+          false,
         );
       });
     },
