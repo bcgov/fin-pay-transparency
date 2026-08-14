@@ -210,101 +210,37 @@ describe('report-url-service', () => {
 
   describe('reportUrlSchema', () => {
     describe('valid URLs', () => {
-      it('accepts a valid HTTPS URL', () => {
+      // prettier-ignore
+      const dataValid = [
+        { title: 'accepts a valid HTTPS URL', url: 'https://example.com' },
+        { title: 'accepts a URL with 2 character TLD', url: 'https://example.ca', },
+        { title: 'accepts HTTPS URL with path, query, and fragment', url: 'https://example.com/reports?id=123#summary', },
+        { title: 'trims surrounding whitespace', url: '   https://example.com   ', },
+        { title: 'accepts empty string', url: '' },
+      ];
+      it.for(dataValid)('$title', ({ url }) => {
         const result = reportUrlSchema.parse({
-          reportUrl: 'https://example.com',
+          reportUrl: url,
         });
-
-        expect(result.reportUrl).toBe('https://example.com');
-      });
-      it('accepts a URL with 2 character TLD', () => {
-        const result = reportUrlSchema.parse({
-          reportUrl: 'https://example.ca',
-        });
-
-        expect(result.reportUrl).toBe('https://example.ca');
-      });
-
-      it('accepts HTTPS URL with path, query, and fragment', () => {
-        const result = reportUrlSchema.parse({
-          reportUrl: 'https://example.com/reports?id=123#summary',
-        });
-
-        expect(result.reportUrl).toBe(
-          'https://example.com/reports?id=123#summary',
-        );
-      });
-
-      it('trims surrounding whitespace', () => {
-        const result = reportUrlSchema.parse({
-          reportUrl: '   https://example.com   ',
-        });
-
-        expect(result.reportUrl).toBe('https://example.com');
-      });
-
-      it('allows empty string', () => {
-        const result = reportUrlSchema.parse({
-          reportUrl: '',
-        });
-
-        expect(result.reportUrl).toBe('');
+        expect(result.reportUrl).toBe(url);
       });
     });
 
     describe('invalid URLs', () => {
-      it('rejects HTTP URLs', () => {
+      // prettier-ignore
+      const dataInvalid = [
+        { title: 'rejects HTTP URLs', url: 'http://example.com' },
+        { title: 'rejects non-URL text', url: 'not-a-url' },
+        { title: 'rejects malformed HTTPS URLs', url: 'https://' },
+        { title: 'rejects URLs with unsupported protocol', url: 'ftp://example.com' },
+        { title: 'rejects javascript URLs', url: 'javascript:alert(1)' },
+        { title: 'rejects bad TLDs', url: 'https://example.c' },
+        { title: 'rejects missing TLDs', url: 'https://example' },
+      ];
+      it.for(dataInvalid)('$title', ({ url }) => {
         expect(() =>
           reportUrlSchema.parse({
-            reportUrl: 'http://example.com',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects non-URL text', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'not-a-url',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects malformed HTTPS URLs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'https://',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects URLs with unsupported protocol', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'ftp://example.com',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects javascript URLs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'javascript:alert(1)',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects bad TLDs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'https://example.c',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects missing TLDs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'https://example',
+            reportUrl: url,
           }),
         ).toThrow();
       });
