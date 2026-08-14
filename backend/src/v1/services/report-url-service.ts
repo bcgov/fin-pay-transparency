@@ -7,9 +7,22 @@ import { z } from 'zod';
 
 // Validations
 
+// Validate TLD: must have at least 2 characters after the last period
+const hasTLD = (url) => {
+  try {
+    const hostname = new URL(url).hostname;
+    const lastPeriodIndex = hostname.lastIndexOf('.');
+    if (lastPeriodIndex === -1) return false; // No period found
+    const tldLength = hostname.length - lastPeriodIndex - 1;
+    return tldLength > 2;
+  } catch {
+    return false;
+  }
+};
+
 export const reportUrlSchema = z.object({
   reportUrl: z.union([
-    z.string().trim().url().max(4000).startsWith('https://'),
+    z.string().trim().url().max(4000).startsWith('https://').refine(hasTLD),
     z.string().trim().length(0),
   ]),
 });

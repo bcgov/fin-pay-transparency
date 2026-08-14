@@ -285,6 +285,22 @@ describe('report-url-service', () => {
           }),
         ).toThrow();
       });
+
+      it('rejects bad TLDs', () => {
+        expect(() =>
+          reportUrlSchema.parse({
+            reportUrl: 'https://example.c',
+          }),
+        ).toThrow();
+      });
+
+      it('rejects missing TLDs', () => {
+        expect(() =>
+          reportUrlSchema.parse({
+            reportUrl: 'https://example',
+          }),
+        ).toThrow();
+      });
     });
 
     describe('length validation', () => {
