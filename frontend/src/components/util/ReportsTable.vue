@@ -12,16 +12,18 @@
     <template #headers="{ columns }">
       <tr>
         <template v-for="column in columns" :key="column.key">
-          <th v-if="column.key === 'report_url'" class="report-url-header">
-            <div class="column-header-with-subtitle">
+          <th v-if="column.key === 'report_url'" class="text-left pa-4">
+            <div class="d-flex flex-column align-start">
               <span>{{ column.title }}</span>
-              <span class="column-header-subtitle">
+              <span
+                class="text-caption font-weight-regular text-none d-block opacity-80"
+              >
                 We invite you to share your most recent report link with our
                 office for compliance tracking
               </span>
             </div>
           </th>
-          <th v-else>
+          <th v-else class="text-left pa-4">
             {{ column.title }}
           </th>
         </template>
@@ -30,48 +32,71 @@
 
     <template #item="{ item }">
       <tr>
-        <td :data-testid="`reporting_year-${item.report_id}`">
+        <td
+          :data-testid="`reporting_year-${item.report_id}`"
+          class="text-left pa-4"
+        >
           {{ item.reporting_year }}
         </td>
-        <td :data-testid="`report_published_date-${item.report_id}`">
+        <td
+          :data-testid="`report_published_date-${item.report_id}`"
+          class="text-left pa-4"
+        >
           {{ formatDateTime(item.create_date) }}
         </td>
-        <td class="actions">
-          <v-btn
-            :data-testid="`view-report-${item.report_id}`"
-            prepend-icon="mdi-eye-outline"
-            variant="text"
-            color="link"
-            @click="viewReport(item)"
-          >
-            View
-          </v-btn>
-          <v-btn
-            v-if="item.is_unlocked"
-            :data-testid="`edit-report-${item.report_id}`"
-            prepend-icon="mdi-eye-outline"
-            variant="text"
-            color="link"
-            @click="editReport(item)"
-          >
-            Edit
-          </v-btn>
+        <td class="pa-4 text-end">
+          <div class="d-flex justify-end align-center">
+            <v-btn
+              :data-testid="`view-report-${item.report_id}`"
+              prepend-icon="mdi-eye-outline"
+              variant="text"
+              color="link"
+              class="px-2"
+              @click="viewReport(item)"
+            >
+              View
+            </v-btn>
+            <v-btn
+              v-if="item.is_unlocked"
+              :data-testid="`edit-report-${item.report_id}`"
+              prepend-icon="mdi-eye-outline"
+              variant="text"
+              color="link"
+              class="px-2"
+              @click="editReport(item)"
+            >
+              Edit
+            </v-btn>
+          </div>
         </td>
-        <td>
+        <td class="text-left pa-4">
           <template v-if="editingReportId === item.report_id">
-            <div class="link-editor-container">
-              <div class="link-editor">
+            <div class="d-flex align-start w-100 ga-2">
+              <div class="flex-grow-1">
                 <v-text-field
                   v-model="reportUrl"
                   density="compact"
-                  hide-details="auto"
-                  counter
+                  variant="outlined"
+                  hide-details
+                  class="w-100"
                   :error="!!errorMessage"
-                  :error-messages="errorMessage"
                   placeholder="https://example.gov.bc.ca/reports"
                 />
 
-                <v-btn color="link" size="small" @click="saveReportUrl(item)">
+                <div
+                  v-if="errorMessage"
+                  class="text-error text-caption px-3 pt-0"
+                >
+                  {{ errorMessage }}
+                </div>
+              </div>
+
+              <div class="d-flex align-center ga-1 flex-shrink-0">
+                <v-btn
+                  color="primary"
+                  size="small"
+                  @click="saveReportUrl(item)"
+                >
                   Save
                 </v-btn>
 
@@ -84,11 +109,14 @@
               </div>
             </div>
           </template>
-
           <template v-else>
-            <div class="link-display">
+            <div class="d-flex align-center ga-2 flex-wrap">
               <template v-if="item.report_url">
-                <a :href="item.report_url" target="_blank">
+                <a
+                  :href="item.report_url"
+                  target="_blank"
+                  class="text-decoration-underline"
+                >
                   {{ item.report_url }}
                 </a>
 
@@ -154,7 +182,7 @@ const headers: any = [
     title: 'Link to published report (optional)',
     sortable: false,
     key: 'report_url',
-    align: 'end',
+    align: 'start',
   },
 ];
 
@@ -255,6 +283,11 @@ const saveReportUrl = async (report: IReport) => {
     normalizedUrl = '';
   }
 
+  if (!normalizedUrl) {
+    await confirmClearUrl(report);
+    return;
+  }
+
   const validationError = validateReportUrl(normalizedUrl);
 
   if (validationError) {
@@ -263,11 +296,6 @@ const saveReportUrl = async (report: IReport) => {
   }
 
   try {
-    if (!normalizedUrl) {
-      await confirmClearUrl(report);
-      return;
-    }
-
     await ApiService.addOrUpdateReportUrl(
       report.report_id,
       normalizedUrl,
@@ -300,7 +328,25 @@ const validateReportUrl = (url: string): string | null => {
     return `URL cannot exceed ${MAX_REPORT_URL_LEN} characters.`;
   }
 
+  if (!hasTLD(trimmedUrl)) {
+    return 'Please enter a valid URL with a domain.';
+  }
+
   return null;
+};
+
+const hasTLD = (url: string): boolean => {
+  try {
+    const hostname = new URL(url).hostname;
+    const lastPeriodIndex = hostname.lastIndexOf('.');
+    if (lastPeriodIndex === -1) {
+      return false;
+    }
+    const tldLength = hostname.length - lastPeriodIndex - 1;
+    return tldLength >= 2;
+  } catch {
+    return false;
+  }
 };
 </script>
 
@@ -316,51 +362,5 @@ const validateReportUrl = (url: string): string | null => {
 
 .v-data-table-footer__items-per-page {
   display: none !important;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.report-url-header {
-  text-align: left;
-}
-
-.column-header-with-subtitle {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  line-height: 1.3;
-  width: 100%;
-}
-
-.column-header-subtitle {
-  font-size: 0.75rem;
-  font-weight: 400;
-  opacity: 0.8;
-  text-transform: none;
-  line-height: 1.4;
-  display: block;
-}
-
-.link-editor {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.link-editor-container {
-  width: 100%;
-}
-
-.link-editor :deep(.v-text-field) {
-  flex: 1;
-}
-
-.link-editor :deep(.v-btn) {
-  flex-shrink: 0;
 }
 </style>
