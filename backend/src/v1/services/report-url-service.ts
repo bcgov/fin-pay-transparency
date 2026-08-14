@@ -14,7 +14,7 @@ const hasTLD = (url) => {
     const lastPeriodIndex = hostname.lastIndexOf('.');
     if (lastPeriodIndex === -1) return false; // No period found
     const tldLength = hostname.length - lastPeriodIndex - 1;
-    return tldLength > 2;
+    return tldLength >= 2;
   } catch {
     return false;
   }

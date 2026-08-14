@@ -217,6 +217,13 @@ describe('report-url-service', () => {
 
         expect(result.reportUrl).toBe('https://example.com');
       });
+      it('accepts a URL with 2 character TLD', () => {
+        const result = reportUrlSchema.parse({
+          reportUrl: 'https://example.ca',
+        });
+
+        expect(result.reportUrl).toBe('https://example.ca');
+      });
 
       it('accepts HTTPS URL with path, query, and fragment', () => {
         const result = reportUrlSchema.parse({
