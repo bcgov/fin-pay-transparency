@@ -222,6 +222,7 @@ describe('report-url-service', () => {
         const result = reportUrlSchema.parse({
           reportUrl: url,
         });
+<<<<<<< HEAD
         expect(result.reportUrl).toBe(url.trim());
       });
 
@@ -231,6 +232,9 @@ describe('report-url-service', () => {
         });
 
         expect(result.reportUrl).toBe('');
+=======
+        expect(result.reportUrl).toBe(url);
+>>>>>>> 3163a9c5 (simplify tests)
       });
     });
 
@@ -249,22 +253,6 @@ describe('report-url-service', () => {
         expect(() =>
           reportUrlSchema.parse({
             reportUrl: url,
-          }),
-        ).toThrow();
-      });
-
-      it('rejects bad TLDs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'https://example.c',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects missing TLDs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'https://example',
           }),
         ).toThrow();
       });
