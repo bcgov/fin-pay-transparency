@@ -141,6 +141,7 @@ describe('report-url-service', () => {
       ),
     ).rejects.toThrow('Report not found or user not authorized to update it');
   });
+
   it('throws when the user is not found', async () => {
     prisma.pay_transparency_report.findFirst.mockResolvedValueOnce({
       report_id: '33333333-3333-3333-3333-333333333333',
@@ -222,19 +223,7 @@ describe('report-url-service', () => {
         const result = reportUrlSchema.parse({
           reportUrl: url,
         });
-<<<<<<< HEAD
         expect(result.reportUrl).toBe(url.trim());
-      });
-
-      it('allows empty string', () => {
-        const result = reportUrlSchema.parse({
-          reportUrl: '',
-        });
-
-        expect(result.reportUrl).toBe('');
-=======
-        expect(result.reportUrl).toBe(url);
->>>>>>> 3163a9c5 (simplify tests)
       });
     });
 
