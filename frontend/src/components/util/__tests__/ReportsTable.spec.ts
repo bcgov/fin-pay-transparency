@@ -158,6 +158,90 @@ describe('ReportsTable', () => {
     ).toBeInTheDocument();
     expect(mockAddOrUpdateReportUrl).not.toHaveBeenCalled();
   });
+
+  describe('Report URL TLD validation', () => {
+    it.each([
+      ['URL without a TLD', 'https://example/reports'],
+      ['URL with a one-character TLD', 'https://example.c/reports'],
+    ])('should reject %s', async (_description, invalidUrl) => {
+      mockGetReports.mockReturnValue([
+        {
+          report_id: 'id1',
+          report_start_date: '2023-01-01',
+          report_end_date: '2023-02-01',
+          create_date: new Date().toISOString(),
+          update_date: new Date().toISOString(),
+        },
+      ]);
+
+      const { getByPlaceholderText, getByRole, findByText } =
+        await wrappedRender();
+
+      await waitFor(() => {
+        expect(mockGetReports).toHaveBeenCalled();
+      });
+
+      await fireEvent.click(getByRole('button', { name: /Add Link/i }));
+
+      await fireEvent.update(
+        getByPlaceholderText('https://example.gov.bc.ca/reports'),
+        invalidUrl,
+      );
+
+      await fireEvent.click(getByRole('button', { name: /^Save$/i }));
+
+      expect(
+        await findByText('Please enter a URL with a valid domain.'),
+      ).toBeInTheDocument();
+
+      expect(mockAddOrUpdateReportUrl).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['.ca', 'https://example.ca/reports'],
+      ['.gov.bc.ca', 'https://example.gov.bc.ca/reports'],
+      ['a subdomain with a valid TLD', 'https://reports.example.org/reports'],
+    ])(
+      'should accept a URL with a valid TLD: %s',
+      async (_description, validUrl) => {
+        mockGetReports.mockReturnValue([
+          {
+            report_id: 'id1',
+            report_start_date: '2023-01-01',
+            report_end_date: '2023-02-01',
+            create_date: new Date().toISOString(),
+            update_date: new Date().toISOString(),
+          },
+        ]);
+
+        mockAddOrUpdateReportUrl.mockResolvedValue(undefined);
+
+        const { getByPlaceholderText, getByRole } = await wrappedRender();
+
+        await waitFor(() => {
+          expect(mockGetReports).toHaveBeenCalled();
+        });
+
+        await fireEvent.click(getByRole('button', { name: /Add Link/i }));
+
+        await fireEvent.update(
+          getByPlaceholderText('https://example.gov.bc.ca/reports'),
+          validUrl,
+        );
+
+        await fireEvent.click(getByRole('button', { name: /^Save$/i }));
+
+        await waitFor(() => {
+          expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith(
+            'id1',
+            validUrl,
+            false,
+          );
+        });
+      },
+    );
+  });
+
   it('should display an error when saving a report URL fails', async () => {
     mockGetReports.mockReturnValue([
       {
@@ -369,61 +453,78 @@ describe('ReportsTable', () => {
 
     expect(mockAddOrUpdateReportUrl).not.toHaveBeenCalled();
   });
-  it.each([
-    [
-      'URL without protocol',
-      'example.gov.bc.ca/reports',
-      'https://example.gov.bc.ca/reports',
-    ],
-    [
-      'URL with http protocol',
-      'http://example.gov.bc.ca/reports',
-      'https://example.gov.bc.ca/reports',
-    ],
-    [
-      'URL with https protocol',
-      'https://example.gov.bc.ca/reports',
-      'https://example.gov.bc.ca/reports',
-    ],
-  ])(
-    'should normalize %s before saving',
-    async (_description, inputUrl, expectedUrl) => {
-      mockGetReports.mockReturnValue([
-        {
-          report_id: 'id1',
-          report_start_date: '2023-01-01',
-          report_end_date: '2023-02-01',
-          create_date: new Date().toISOString(),
-          update_date: new Date().toISOString(),
-        },
-      ]);
+  describe('Report URL normalization', () => {
+    it.each([
+      [
+        'URL without protocol',
+        'example.gov.bc.ca/reports',
+        'https://example.gov.bc.ca/reports',
+      ],
+      [
+        'URL with http protocol',
+        'http://example.gov.bc.ca/reports',
+        'https://example.gov.bc.ca/reports',
+      ],
+      [
+        'URL with https protocol',
+        'https://example.gov.bc.ca/reports',
+        'https://example.gov.bc.ca/reports',
+      ],
+      [
+        'URL with ftp protocol',
+        'ftp://example.gov.bc.ca/reports',
+        'https://example.gov.bc.ca/reports',
+      ],
+      [
+        'URL with mailto protocol',
+        'mailto://example.gov.bc.ca/reports',
+        'https://example.gov.bc.ca/reports',
+      ],
+      [
+        'URL with custom protocol',
+        'custom+protocol://example.gov.bc.ca/reports',
+        'https://example.gov.bc.ca/reports',
+      ],
+    ])(
+      'should normalize %s before saving',
+      async (_description, inputUrl, expectedUrl) => {
+        mockGetReports.mockReturnValue([
+          {
+            report_id: 'id1',
+            report_start_date: '2023-01-01',
+            report_end_date: '2023-02-01',
+            create_date: new Date().toISOString(),
+            update_date: new Date().toISOString(),
+          },
+        ]);
 
-      mockAddOrUpdateReportUrl.mockResolvedValue(undefined);
+        mockAddOrUpdateReportUrl.mockResolvedValue(undefined);
 
-      const { getByPlaceholderText, getByRole } = await wrappedRender();
+        const { getByPlaceholderText, getByRole } = await wrappedRender();
 
-      await waitFor(() => {
-        expect(mockGetReports).toHaveBeenCalled();
-      });
+        await waitFor(() => {
+          expect(mockGetReports).toHaveBeenCalled();
+        });
 
-      await fireEvent.click(getByRole('button', { name: /Add Link/i }));
+        await fireEvent.click(getByRole('button', { name: /Add Link/i }));
 
-      await fireEvent.update(
-        getByPlaceholderText('https://example.gov.bc.ca/reports'),
-        inputUrl,
-      );
-
-      await fireEvent.click(getByRole('button', { name: /^Save$/i }));
-
-      await waitFor(() => {
-        expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith(
-          'id1',
-          expectedUrl,
-          false,
+        await fireEvent.update(
+          getByPlaceholderText('https://example.gov.bc.ca/reports'),
+          inputUrl,
         );
-      });
-    },
-  );
+
+        await fireEvent.click(getByRole('button', { name: /^Save$/i }));
+
+        await waitFor(() => {
+          expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith(
+            'id1',
+            expectedUrl,
+            false,
+          );
+        });
+      },
+    );
+  });
   it('should open report details', async () => {
     mockGetReports.mockReturnValue([
       {

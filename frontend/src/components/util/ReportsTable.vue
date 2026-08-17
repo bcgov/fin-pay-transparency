@@ -23,6 +23,9 @@
               </span>
             </div>
           </th>
+          <th v-else-if="column.key === 'actions'" class="text-center pa-4">
+            {{ column.title }}
+          </th>
           <th v-else class="text-left pa-4">
             {{ column.title }}
           </th>
@@ -34,18 +37,18 @@
       <tr>
         <td
           :data-testid="`reporting_year-${item.report_id}`"
-          class="text-left pa-4"
+          class="text-start pa-4"
         >
           {{ item.reporting_year }}
         </td>
         <td
           :data-testid="`report_published_date-${item.report_id}`"
-          class="text-left pa-4"
+          class="text-start pa-4"
         >
           {{ formatDateTime(item.create_date) }}
         </td>
-        <td class="pa-4 text-end">
-          <div class="d-flex justify-end align-center">
+        <td class="pa-4 text-center">
+          <div class="d-flex justify-center align-center">
             <v-btn
               :data-testid="`view-report-${item.report_id}`"
               prepend-icon="mdi-eye-outline"
@@ -171,13 +174,19 @@ const { loadConfig } = useConfigStore();
 const router = useRouter();
 
 const headers: any = [
-  { title: 'Reporting Year', key: 'reporting_year', sortable: false },
+  {
+    title: 'Reporting Year',
+    key: 'reporting_year',
+    sortable: false,
+    align: 'start',
+  },
   {
     title: 'Submission Date',
     key: 'update_date',
     sortable: false,
+    align: 'start',
   },
-  { title: 'Action', sortable: false, key: 'actions', align: 'end' },
+  { title: 'Action', sortable: false, key: 'actions', align: 'center' },
   {
     title: 'Link to published report (optional)',
     sortable: false,
@@ -272,13 +281,12 @@ const saveReportUrl = async (report: IReport) => {
   let normalizedUrl: string;
 
   if (formattedUrl) {
-    if (formattedUrl.startsWith('https://')) {
-      normalizedUrl = formattedUrl;
-    } else if (formattedUrl.startsWith('http://')) {
-      normalizedUrl = `https://${formattedUrl.substring('http://'.length)}`;
-    } else {
-      normalizedUrl = `https://${formattedUrl}`;
-    }
+    const strippedUrl = formattedUrl.replace(
+      /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//,
+      '',
+    );
+
+    normalizedUrl = `https://${strippedUrl}`;
   } else {
     normalizedUrl = '';
   }
@@ -329,7 +337,7 @@ const validateReportUrl = (url: string): string | null => {
   }
 
   if (!hasTLD(trimmedUrl)) {
-    return 'Please enter a valid URL with a domain.';
+    return 'Please enter a URL with a valid domain.';
   }
 
   return null;
@@ -353,7 +361,6 @@ const hasTLD = (url: string): boolean => {
 <style>
 .v-data-table-header__content {
   font-weight: 700 !important;
-  margin-right: 15px;
 }
 
 .v-data-table-headers--mobile {
