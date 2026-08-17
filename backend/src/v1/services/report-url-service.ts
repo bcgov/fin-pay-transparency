@@ -7,16 +7,24 @@ import { z } from 'zod';
 
 // Validations
 
+// Validate TLD: must have at least 2 characters after the last period
+const hasTLD = (url) => {
+  try {
+    const hostname = new URL(url).hostname;
+    const lastPeriodIndex = hostname.lastIndexOf('.');
+    if (lastPeriodIndex === -1) return false; // No period found
+    const tldLength = hostname.length - lastPeriodIndex - 1;
+    return tldLength >= 2;
+  } catch {
+    return false;
+  }
+};
+
 export const reportUrlSchema = z.object({
-  reportUrl: z
-    .string()
-    .trim()
-    .min(1)
-    .max(4000)
-    .url()
-    .refine((url) => url.startsWith('https://') && URL.canParse(url), {
-      message: 'reportUrl must be a valid HTTPS URL',
-    }),
+  reportUrl: z.union([
+    z.string().trim().url().max(4000).startsWith('https://').refine(hasTLD),
+    z.string().trim().length(0),
+  ]),
 });
 export type ReportUrlType = z.infer<typeof reportUrlSchema>;
 
@@ -52,6 +60,7 @@ export const createOrUpdateReportUrlSafe = async (
   businessGuid: string,
   userGuid: string,
 ) => {
+  const reportUrlNormalized = reportUrl == null ? '' : reportUrl.trim();
   return prisma.$transaction(async (tx) => {
     // Safe - The report must exist, and the user must be authorized to update it.
     const report = await tx.pay_transparency_report.findFirst({
@@ -95,7 +104,7 @@ export const createOrUpdateReportUrlSafe = async (
         data: {
           update_date: new Date(),
           update_user_id: user.user_id,
-          report_url: reportUrl,
+          report_url: reportUrlNormalized,
         },
       });
     } else
@@ -105,7 +114,7 @@ export const createOrUpdateReportUrlSafe = async (
           create_user_id: user.user_id,
           update_user_id: user.user_id,
           report_id: reportId,
-          report_url: reportUrl,
+          report_url: reportUrlNormalized,
         },
       });
 
@@ -123,7 +132,7 @@ export const getHistoryForReport = async (reportId: string) => {
   const history = await prisma.report_url_history.findMany({
     where: { report_id: reportId },
     take: 100,
-    orderBy: { create_date: 'desc' },
+    orderBy: { update_date: 'desc' },
   });
-  return [recent, ...history];
+  return recent ? [recent, ...history] : history;
 };

@@ -141,6 +141,7 @@ describe('report-url-service', () => {
       ),
     ).rejects.toThrow('Report not found or user not authorized to update it');
   });
+
   it('throws when the user is not found', async () => {
     prisma.pay_transparency_report.findFirst.mockResolvedValueOnce({
       report_id: '33333333-3333-3333-3333-333333333333',
@@ -189,92 +190,58 @@ describe('report-url-service', () => {
     expect(prisma.report_url_history.findMany).toHaveBeenCalledWith({
       where: { report_id: reportId },
       take: 100,
-      orderBy: { create_date: 'desc' },
+      orderBy: { update_date: 'desc' },
     });
+  });
+
+  it('returns empty array when there are no urls', async () => {
+    const reportId = '44444444-4444-4444-4444-444444444444';
+    const currentUrl = null;
+    const history = [] as report_url_history[];
+
+    prisma.pay_transparency_report_url.findUnique.mockResolvedValueOnce(
+      currentUrl as pay_transparency_report_url,
+    );
+    prisma.report_url_history.findMany.mockResolvedValueOnce(history);
+
+    const result = await getHistoryForReport(reportId);
+
+    expect(result).toEqual([]);
   });
 
   describe('reportUrlSchema', () => {
     describe('valid URLs', () => {
-      it('accepts a valid HTTPS URL', () => {
+      // prettier-ignore
+      const dataValid = [
+        { title: 'accepts a valid HTTPS URL', url: 'https://example.com' },
+        { title: 'accepts a URL with 2 character TLD', url: 'https://example.ca', },
+        { title: 'accepts HTTPS URL with path, query, and fragment', url: 'https://example.com/reports?id=123#summary', },
+        { title: 'trims surrounding whitespace', url: '   https://example.com   ', },
+        { title: 'accepts empty string', url: '' },
+      ];
+      it.for(dataValid)('$title', ({ url }) => {
         const result = reportUrlSchema.parse({
-          reportUrl: 'https://example.com',
+          reportUrl: url,
         });
-
-        expect(result.reportUrl).toBe('https://example.com');
-      });
-
-      it('accepts HTTPS URL with path, query, and fragment', () => {
-        const result = reportUrlSchema.parse({
-          reportUrl: 'https://example.com/reports?id=123#summary',
-        });
-
-        expect(result.reportUrl).toBe(
-          'https://example.com/reports?id=123#summary',
-        );
-      });
-
-      it('trims surrounding whitespace', () => {
-        const result = reportUrlSchema.parse({
-          reportUrl: '   https://example.com   ',
-        });
-
-        expect(result.reportUrl).toBe('https://example.com');
+        expect(result.reportUrl).toBe(url.trim());
       });
     });
 
     describe('invalid URLs', () => {
-      it('rejects an empty string', () => {
+      // prettier-ignore
+      const dataInvalid = [
+        { title: 'rejects HTTP URLs', url: 'http://example.com' },
+        { title: 'rejects non-URL text', url: 'not-a-url' },
+        { title: 'rejects malformed HTTPS URLs', url: 'https://' },
+        { title: 'rejects URLs with unsupported protocol', url: 'ftp://example.com' },
+        { title: 'rejects javascript URLs', url: 'javascript:alert(1)' },
+        { title: 'rejects bad TLDs', url: 'https://example.c' },
+        { title: 'rejects missing TLDs', url: 'https://example' },
+      ];
+      it.for(dataInvalid)('$title', ({ url }) => {
         expect(() =>
           reportUrlSchema.parse({
-            reportUrl: '',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects whitespace-only string', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: '   ',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects HTTP URLs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'http://example.com',
-          }),
-        ).toThrow('reportUrl must be a valid HTTPS URL');
-      });
-
-      it('rejects non-URL text', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'not-a-url',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects malformed HTTPS URLs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'https://',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects URLs with unsupported protocol', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'ftp://example.com',
-          }),
-        ).toThrow();
-      });
-
-      it('rejects javascript URLs', () => {
-        expect(() =>
-          reportUrlSchema.parse({
-            reportUrl: 'javascript:alert(1)',
+            reportUrl: url,
           }),
         ).toThrow();
       });
