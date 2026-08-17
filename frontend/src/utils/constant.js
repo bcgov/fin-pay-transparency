@@ -29,6 +29,7 @@ export const ApiRoutes = Object.freeze({
   REPORT: baseRoot + '/v1/report/',
   ANNOUNCEMENTS: baseRoot + '/v1/announcements/',
   RESOURCES: `${baseRoot}/v1/resources`,
+  REPORT_URL: baseRoot + '/v1/report-url/',
 });
 
 export const PAGE_TITLES = Object.freeze({
@@ -42,6 +43,8 @@ export const PAGE_TITLES = Object.freeze({
 });
 
 const MINISTRY_NAME = 'Ministry of Finance';
+
+export const MAX_REPORT_URL_LEN = 4000;
 
 export const REPORT_STATUS = Object.freeze({
   DRAFT: 'Draft',

@@ -268,7 +268,9 @@ describe('moveElementInto', () => {
     </body></html>`;
       const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
-      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'domcontentloaded',
+      });
 
       // Move id3 from a child of id1 to be a child of id2
       const elemToMove = await puppeteerPage.$(`#${id3}`);
@@ -304,7 +306,9 @@ describe('addReportPage', () => {
     </body></html>`;
       const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
-      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'domcontentloaded',
+      });
       const elemToBeParent = await puppeteerPage.$(`#${parent}`);
 
       await docGenServicePrivate.addReportPage(elemToBeParent, isDraft);
@@ -334,7 +338,9 @@ describe('addReportPage', () => {
     </body></html>`;
       const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
-      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'domcontentloaded',
+      });
       const elemToBeParent = await puppeteerPage.$(`#${parent}`);
 
       await docGenServicePrivate.addReportPage(elemToBeParent, isDraft);
@@ -365,7 +371,7 @@ describe('getContentHeight', () => {
     </body></html>`;
     const browser: Browser = await getBrowser('corID1234');
     const puppeteerPage = await browser.newPage();
-    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+    await puppeteerPage.setContent(mockHtml, { waitUntil: 'domcontentloaded' });
     const elemToTest = await puppeteerPage.$(`#${id1}`);
 
     const heightPx = await docGenServicePrivate.getContentHeight(
@@ -409,7 +415,7 @@ describe('clearEmptyNotes', () => {
     </body></html>`;
     const browser: Browser = await getBrowser('corID1234');
     const puppeteerPage = await browser.newPage();
-    await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+    await puppeteerPage.setContent(mockHtml, { waitUntil: 'domcontentloaded' });
     const payTransparencyReport = await puppeteerPage.$(
       `.${docGenServicePrivate.STYLE_CLASSES.REPORT}`,
     );
@@ -486,7 +492,9 @@ describe('attemptToPlaceElementOnPage', () => {
       const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
 
-      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'domcontentloaded',
+      });
 
       const blockOutsidePage = await puppeteerPage.$(
         `.${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
@@ -538,7 +546,9 @@ describe('attemptToPlaceElementOnPage', () => {
       const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
 
-      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'domcontentloaded',
+      });
 
       const blockOutsidePage = await puppeteerPage.$(
         `.${docGenServicePrivate.STYLE_CLASSES.BLOCK}`,
@@ -595,7 +605,9 @@ describe('splitBlock', () => {
         </body></html>`;
       const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
-      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'domcontentloaded',
+      });
       const blockToSplit = await puppeteerPage.$(`#block-to-split`);
       await expect(
         docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit),
@@ -620,7 +632,9 @@ describe('splitBlock', () => {
         </body></html>`;
       const browser: Browser = await getBrowser('corID1234');
       const puppeteerPage = await browser.newPage();
-      await puppeteerPage.setContent(mockHtml, { waitUntil: 'networkidle0' });
+      await puppeteerPage.setContent(mockHtml, {
+        waitUntil: 'domcontentloaded',
+      });
       const blockToSplit = await puppeteerPage.$(`#block-to-split`);
 
       await docGenServicePrivate.splitBlock(puppeteerPage, blockToSplit);
@@ -699,7 +713,7 @@ describe('placeFootnotes', () => {
       const puppeteerPage = await browser.newPage();
 
       await puppeteerPage.setContent(mockHtml, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'domcontentloaded',
       });
 
       const payTransparencyReport = await puppeteerPage.$(
@@ -756,7 +770,7 @@ describe('placeFootnotes', () => {
       const puppeteerPage = await browser.newPage();
 
       await puppeteerPage.setContent(mockHtml, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'domcontentloaded',
       });
 
       const payTransparencyReport = await puppeteerPage.$(
