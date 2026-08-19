@@ -3,7 +3,8 @@
 
   <!-- Desktop / Tablet -->
   <v-data-table
-    v-if="!$vuetify.display.xs"
+    v-if="!isMobile"
+    class="reports-table-desktop"
     :headers="headers"
     :items="reports"
     :items-per-page="3"
@@ -165,7 +166,7 @@
   </v-data-table>
 
   <!-- Mobile -->
-  <v-container v-else fluid class="pa-0">
+  <v-container v-else fluid class="reports-table-mobile pa-0">
     <v-card v-if="isLoading" variant="outlined" class="report-mobile-card">
       <v-card-text class="d-flex justify-center py-6">
         <v-progress-circular indeterminate color="primary" />
@@ -369,13 +370,21 @@ import { useConfigStore } from '../../store/modules/config';
 import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
 import { Locale } from '@js-joda/locale_en';
 import { useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import ConfirmationDialog from './ConfirmationDialog.vue';
 
 const { setReportInfo, setMode, reset } = useReportStepperStore();
 const { loadConfig } = useConfigStore();
 const router = useRouter();
+let isMobile = ref(false);
 
-const headers: any = [
+try {
+  isMobile = useDisplay().xs;
+} catch {
+  isMobile = ref(false);
+}
+
+const headers = [
   {
     title: 'Reporting Year',
     key: 'reporting_year',
@@ -561,6 +570,10 @@ const hasTLD = (url: string): boolean => {
 </script>
 
 <style>
+.reports-table-mobile {
+  display: none;
+}
+
 .v-data-table-header__content {
   font-weight: 700 !important;
 }
@@ -571,5 +584,15 @@ const hasTLD = (url: string): boolean => {
 
 .v-data-table-footer__items-per-page {
   display: none !important;
+}
+
+@media (max-width: 599px) {
+  .reports-table-desktop {
+    display: none;
+  }
+
+  .reports-table-mobile {
+    display: block;
+  }
 }
 </style>
