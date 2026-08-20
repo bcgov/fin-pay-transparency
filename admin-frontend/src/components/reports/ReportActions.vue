@@ -21,7 +21,7 @@
 
   <!-- Report Url -->
   <v-tooltip
-    v-if="props.actions.includes(ReportAdminActions.ReportUrl) && props.report.pay_transparency_report_url"
+    v-if="props.actions.includes(ReportAdminActions.ReportUrl) && props.report.pay_transparency_report_url?.report_url"
     text="External Url"
     location="bottom"
   >
@@ -144,7 +144,7 @@
 
   <!-- Report Url History -->
   <v-tooltip
-    v-if="actions.includes(ReportAdminActions.ReportUrlHistory)"
+    v-if="actions.includes(ReportAdminActions.ReportUrlHistory) && (props.report.pay_transparency_report_url?.report_url || props.report.pay_transparency_report_url?._count?.report_url_history)"
     text="Report URL history"
     location="bottom"
   >

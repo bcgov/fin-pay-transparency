@@ -19,7 +19,8 @@ export type Report = {
     company_id: string;
     company_name: string;
   };
-  pay_transparency_report_url: {
+  pay_transparency_report_url?: {
+    _count?: { report_url_history: number };
     url_id: string;
     report_url: string;
   };
