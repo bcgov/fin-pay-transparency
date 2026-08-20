@@ -87,8 +87,8 @@
 
         <td class="text-left pa-4">
           <template v-if="editingReportId === item.report_id">
-            <div class="d-flex align-start w-100 ga-2">
-              <div class="flex-grow-1 min-width-0">
+            <div class="report-url-editor d-flex align-start w-100 ga-2">
+              <div class="report-url-input flex-grow-1 min-width-0">
                 <v-text-field
                   v-model="reportUrl"
                   density="compact"
@@ -107,7 +107,9 @@
                 </div>
               </div>
 
-              <div class="d-flex align-center ga-1 flex-shrink-0">
+              <div
+                class="report-url-actions d-flex align-center ga-1 flex-shrink-0"
+              >
                 <v-btn
                   color="primary"
                   size="small"
@@ -593,6 +595,21 @@ const hasTLD = (url: string): boolean => {
 
   .reports-table-mobile {
     display: block;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1145px) {
+  .report-url-editor {
+    flex-direction: column;
+  }
+
+  .report-url-input,
+  .report-url-actions {
+    width: 100%;
+  }
+
+  .report-url-actions {
+    justify-content: flex-end;
   }
 }
 </style>
