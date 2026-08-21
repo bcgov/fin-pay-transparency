@@ -83,6 +83,98 @@ describe('ReportsTable', () => {
       ),
     );
   });
+  it('should display the empty state when there are no reports', async () => {
+    mockGetReports.mockReturnValue([]);
+
+    const { findByText } = await wrappedRender();
+
+    expect(await findByText('No generated reports yet.')).toBeInTheDocument();
+  });
+
+  it('should render the mobile loading state', async () => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 500,
+    });
+    window.dispatchEvent(new Event('resize'));
+    mockGetReports.mockReturnValue(new Promise(() => {}));
+
+    const { container } = await wrappedRender();
+
+    expect(container.querySelector('.reports-table-mobile')).toBeVisible();
+    expect(container.querySelector('.v-progress-circular')).toBeVisible();
+
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1024,
+    });
+    window.dispatchEvent(new Event('resize'));
+  });
+
+  it('should render the mobile empty state', async () => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 500,
+    });
+    window.dispatchEvent(new Event('resize'));
+    mockGetReports.mockReturnValue([]);
+
+    const { container, findByText } = await wrappedRender();
+
+    expect(container.querySelector('.reports-table-mobile')).toBeVisible();
+    expect(await findByText('No generated reports yet.')).toBeInTheDocument();
+
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1024,
+    });
+    window.dispatchEvent(new Event('resize'));
+  });
+
+  it('should render mobile report cards with and without published links', async () => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 500,
+    });
+    window.dispatchEvent(new Event('resize'));
+    mockGetReports.mockReturnValue([
+      {
+        report_id: 'linked',
+        reporting_year: 2023,
+        create_date: new Date().toISOString(),
+        report_url: 'https://example.gov.bc.ca/reports/current',
+        is_unlocked: true,
+      },
+      {
+        report_id: 'unlinked',
+        reporting_year: 2022,
+        create_date: new Date().toISOString(),
+        is_unlocked: false,
+      },
+    ]);
+
+    const { container, getByText, getByTestId } = await wrappedRender();
+
+    await waitFor(() => {
+      expect(mockGetReports).toHaveBeenCalled();
+    });
+
+    expect(container.querySelectorAll('.report-mobile-card')).toHaveLength(2);
+    expect(getByTestId('reporting_year-linked')).toHaveTextContent('2023');
+    expect(
+      getByText('https://example.gov.bc.ca/reports/current'),
+    ).toBeInTheDocument();
+    expect(getByText('+Add link to published report')).toBeInTheDocument();
+    expect(getByTestId('edit-report-linked')).toBeInTheDocument();
+    expect(() => getByTestId('edit-report-unlinked')).toThrow();
+
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1024,
+    });
+    window.dispatchEvent(new Event('resize'));
+  });
+
   it('should render the published report URL column and prepend https when saving a link', async () => {
     mockGetReports.mockReturnValue([
       {
@@ -307,6 +399,36 @@ describe('ReportsTable', () => {
       getByPlaceholderText('https://example.gov.bc.ca/reports'),
     ).toHaveValue(existingUrl);
   });
+  it('should cancel editing an existing report URL', async () => {
+    mockGetReports.mockReturnValue([
+      {
+        report_id: 'id1',
+        report_start_date: '2023-01-01',
+        report_end_date: '2023-02-01',
+        create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
+        report_url: 'https://example.gov.bc.ca/reports/current',
+      },
+    ]);
+
+    const { container, getByRole } = await wrappedRender();
+
+    await waitFor(() => {
+      expect(mockGetReports).toHaveBeenCalled();
+    });
+
+    await fireEvent.click(getByRole('button', { name: /edit link/i }));
+    await fireEvent.click(
+      container.querySelector('.report-url-editor button:last-child'),
+    );
+
+    expect(
+      screen.queryByPlaceholderText('https://example.gov.bc.ca/reports'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('https://example.gov.bc.ca/reports/current'),
+    ).toBeInTheDocument();
+  });
 
   it('should confirm before removing an existing report URL', async () => {
     mockGetReports.mockReturnValue([
@@ -390,6 +512,39 @@ describe('ReportsTable', () => {
     expect(
       screen.queryByPlaceholderText('https://example.gov.bc.ca/reports'),
     ).not.toBeInTheDocument();
+  });
+  it('should display an error when removing a report URL fails', async () => {
+    mockGetReports.mockReturnValue([
+      {
+        report_id: 'id1',
+        report_start_date: '2023-01-01',
+        report_end_date: '2023-02-01',
+        create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
+        report_url: 'https://example.gov.bc.ca/reports/current',
+      },
+    ]);
+    mockConfirmationOpen.mockResolvedValue(true);
+    mockAddOrUpdateReportUrl.mockRejectedValue(new Error('API failure'));
+
+    const { getByPlaceholderText, getByRole, findByText } =
+      await wrappedRender();
+
+    await waitFor(() => {
+      expect(mockGetReports).toHaveBeenCalled();
+    });
+
+    await fireEvent.click(getByRole('button', { name: /edit link/i }));
+    await fireEvent.update(
+      getByPlaceholderText('https://example.gov.bc.ca/reports'),
+      '',
+    );
+    await fireEvent.click(getByRole('button', { name: /^Save$/i }));
+
+    expect(
+      await findByText('Failed to remove URL. Please try again.'),
+    ).toBeInTheDocument();
+    expect(mockAddOrUpdateReportUrl).toHaveBeenCalledWith('id1', '', true);
   });
   it('should reject an empty report URL', async () => {
     mockGetReports.mockReturnValue([
