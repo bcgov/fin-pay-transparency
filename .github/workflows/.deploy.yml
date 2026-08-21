@@ -26,7 +26,7 @@ on:
         type: string
       timeout-minutes:
         description: "Timeout minutes"
-        default: 12
+        default: 15
         required: false
         type: number
       values:
@@ -99,6 +99,85 @@ jobs:
           if [[ "${{ inputs.target }}" == pr-* ]]; then
             helm uninstall ${{ env.deployment_name }}-${{ inputs.target }} || true
           fi
+
+      - name: Check Pending install/upgrade/rollback and wait for upto 2 minutes if found, else perform rollback if still pending
+        id: check-pending-install-upgrade-rollback
+        shell: bash
+        run: |
+          release="${{ env.deployment_name }}-${{ inputs.target }}"
+          namespace="${{ vars.oc_namespace }}"
+
+          max_attempts=12
+          interval=10
+
+          # If the release doesn't exist, allow a fresh install.
+          if ! release_json=$(helm status "$release" -n "$namespace" -o json 2>/dev/null); then
+              echo "Helm Release '$release' not installed. Proceeding with installation."
+              exit 0
+          fi
+
+          status=$(jq -r '.info.status' <<<"$release_json")
+
+          case "$status" in
+              pending-install|pending-upgrade|pending-rollback)
+                  echo "::warning::Helm release '$release' is stuck in '$status'. Waiting up to 2 minutes for the operation to complete."                  
+
+                  for ((i=1; i<=max_attempts; i++)); do
+                      sleep "$interval"
+
+                      if ! release_json=$(helm status "$release" -n "$namespace" -o json 2>/dev/null); then
+                        echo "::warning::Unable to check Helm release '$release'. Will retry."
+                        continue
+                      fi
+
+                      status=$(helm status "$release" -n "$namespace" -o json \
+                          | jq -r '.info.status')
+
+                      if [[ "$status" != pending-* ]]; then
+                          echo "Helm release is now in '$status'. Proceeding with deployment."
+                          exit 0
+                      fi
+
+                      echo "Attempt $i/$max_attempts: release still in '$status'."
+                  done
+
+                  echo "::error::Helm release '$release' remained in '$status' for 2 minutes."
+                  echo "The previous Helm operation appears to be stuck. Attempting rollback to the last usable revision."
+
+                  targetRevision=$(
+                      helm history "$release" -n "$namespace" -o json |
+                      jq -r '[.[] | select(.status=="deployed" or .status=="superseded")] | max_by(.revision) | .revision'
+                  )
+
+                  if [[ -z "$targetRevision" || "$targetRevision" == "null" ]]; then
+                      echo "::error::Unable to find a previous usable Helm revision for '$release'."
+                      echo "Next step: inspect the Helm history and the failed deployment before retrying."
+                      echo "Helm history for '$release':"
+                      helm history "$release" -n "$namespace"
+                      exit 1
+                  fi
+
+                  echo "Rolling back '$release' to revision $targetRevision..."
+
+                  if ! helm rollback "$release" "$targetRevision" \
+                      -n "$namespace" \
+                      --wait; then
+                       echo "::error::Rollback of '$release' to revision $targetRevision failed."
+                       echo "Next step: inspect the Helm release history for the cause of the failed deployment."
+                       echo "Run: helm status $release -n $namespace"
+                       echo "Run: helm history $release -n $namespace"
+                       exit 1
+                  fi
+
+                  echo "Rollback successful. '$release' is deployed at revision $targetRevision."
+                  echo "Continuing with the deployment"
+
+                  ;;
+
+              *)
+                  echo "Release status is '$status'. Proceeding with deployment."
+                  ;;
+          esac
 
       - name: Package HELM Chart
         shell: bash
