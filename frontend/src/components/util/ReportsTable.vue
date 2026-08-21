@@ -94,9 +94,11 @@
                   density="compact"
                   variant="outlined"
                   hide-details
+                  :single-line="true"
                   class="w-100"
                   :error="!!errorMessage"
                   placeholder="https://example.gov.bc.ca/reports"
+                  label="Report URL"
                 />
 
                 <div
@@ -122,6 +124,7 @@
                   icon="mdi-close"
                   variant="text"
                   size="small"
+                  aria-label="Cancel"
                   @click="cancelEditingReportUrl"
                 />
               </div>
@@ -283,9 +286,11 @@
                   density="compact"
                   variant="outlined"
                   hide-details
+                  :single-line="true"
                   class="w-100"
                   :error="!!errorMessage"
                   placeholder="https://example.gov.bc.ca/reports"
+                  label="Report URL"
                 />
 
                 <div v-if="errorMessage" class="text-error text-caption">
@@ -305,6 +310,7 @@
                     icon="mdi-close"
                     variant="text"
                     size="small"
+                    aria-label="Cancel"
                     @click="cancelEditingReportUrl"
                   />
                 </div>
