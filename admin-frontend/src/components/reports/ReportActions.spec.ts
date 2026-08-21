@@ -232,6 +232,31 @@ describe('ReportActions', () => {
       expect(buttons.urlHistory()).toBeInTheDocument();
     });
 
+    it('should show Report URL History button when even if report URL is empty', () => {
+      renderWithVuetify({
+        report: {
+          ...mockReport,
+          pay_transparency_report_url: {
+            url_id: 'test-url-123',
+            report_url: '',
+            _count: { report_url_history: 1 },
+          },
+        },
+        actions: [ReportAdminActions.ReportUrlHistory],
+      });
+
+      expect(buttons.urlHistory()).toBeInTheDocument();
+    });
+
+    it('should NOT show Report URL History button when report has no URL history', () => {
+      renderWithVuetify({
+        report: { ...mockReport, pay_transparency_report_url: undefined },
+        actions: [ReportAdminActions.ReportUrlHistory],
+      });
+
+      expect(buttons.tryUrlHistory()).not.toBeInTheDocument();
+    });
+
     it('should show multiple buttons when multiple actions are provided', () => {
       authStore().doesUserHaveRole.mockReturnValue(true);
 
@@ -751,7 +776,7 @@ describe('ReportActions', () => {
 
       expect(button).toHaveAttribute(
         'href',
-        mockReport.pay_transparency_report_url.report_url,
+        mockReport.pay_transparency_report_url?.report_url,
       );
       expect(button).toHaveAttribute('target', '_blank');
     });

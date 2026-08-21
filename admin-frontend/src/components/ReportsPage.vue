@@ -35,6 +35,14 @@
         </v-btn>
       </v-col>
     </v-row>
+    <v-row no-gutters>
+      <v-col>
+        <div class="v-alert alert-warning v-alert--density-compact">
+          Links open an external website in a new tab. Make sure you trust the
+          website before sharing any personal information.
+        </div>
+      </v-col>
+    </v-row>
 
     <v-data-table-server
       v-model:items-per-page="pageSize"

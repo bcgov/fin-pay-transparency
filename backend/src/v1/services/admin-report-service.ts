@@ -77,6 +77,11 @@ const adminReportService = {
         pay_transparency_report_url: {
           select: {
             report_url: true,
+            _count: {
+              select: {
+                report_url_history: true,
+              },
+            },
           },
         },
       },
