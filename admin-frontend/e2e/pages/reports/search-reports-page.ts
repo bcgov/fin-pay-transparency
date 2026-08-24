@@ -9,6 +9,7 @@ type DisplayedReportRow = {
   employeeCount: string;
   year: string;
   isLocked: boolean; // true if "unlock report" button is present, false if "lock report" button is present
+  hasUrl: boolean;
 };
 
 export class SearchReportsPage extends AdminPortalPage {
@@ -104,6 +105,9 @@ export class SearchReportsPage extends AdminPortalPage {
         // Determine lock status by checking which button is present in the row
         const unlockButton = row.getByRole('button', { name: 'Unlock report' });
         const isLocked = await unlockButton.isVisible();
+        const hasUrl = await row
+          .getByRole('link', { name: 'External Url' })
+          .isVisible();
 
         // Create a report row object from the displayed data
         const reportRow: DisplayedReportRow = {
@@ -113,6 +117,7 @@ export class SearchReportsPage extends AdminPortalPage {
           employeeCount: employeeCount?.trim() || '',
           year: year?.trim() || '',
           isLocked: isLocked,
+          hasUrl: hasUrl,
         };
 
         reports.push(reportRow);
@@ -259,6 +264,12 @@ export class SearchReportsPage extends AdminPortalPage {
     for (const report of actualReports) {
       expect(report.isLocked).toBe(isLocked);
     }
+  }
+
+  async verifyAtLeastOneReportHasUrl() {
+    const actualReports = await this.getDisplayedReports();
+    expect(actualReports.length).toBeGreaterThan(0);
+    expect(actualReports.some((report) => report.hasUrl)).toBe(true);
   }
 
   async verifySearchResultsMatch(expectedReports: DisplayedReportRow[]) {
