@@ -53,7 +53,9 @@
           <ReportsTable />
         </v-card>
       </v-col>
-      <v-col lg="4" cols="12" class="d-flex flex-column right-column">
+    </v-row>
+    <v-row class="mb-4">
+      <v-col cols="12" class="d-flex flex-column">
         <AnnouncementPager
           :announcements="announcements"
           :pageSize="2"

@@ -132,7 +132,7 @@
           </template>
 
           <template v-else>
-            <div class="report-url-display d-flex align-center ga-2 flex-wrap">
+            <div class="report-url-display d-flex align-center ga-2">
               <template v-if="item.report_url">
                 <a
                   :href="item.report_url"
@@ -365,7 +365,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { IReport } from '../../common/types';
 import ReportSelectionManager from './DasboardReportManager.vue';
 import { REPORT_STATUS, MAX_REPORT_URL_LEN } from '../../utils/constant';
@@ -387,7 +387,8 @@ const router = useRouter();
 let isMobile = ref(false);
 
 try {
-  isMobile = useDisplay().xs;
+  const { width } = useDisplay();
+  isMobile = computed(() => width.value < 1145);
 } catch {
   isMobile = ref(false);
 }
@@ -594,38 +595,44 @@ const hasTLD = (url: string): boolean => {
   display: none !important;
 }
 
+.reports-table-desktop table {
+  table-layout: fixed;
+  width: 100%;
+}
+
 .report-url-display {
   min-width: 0;
 }
 
 .report-url-link {
+  display: block;
   min-width: 0;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
 }
 
-@media (max-width: 599px) {
+.report-url-editor {
+  flex-direction: column;
+}
+
+.report-url-input,
+.report-url-actions {
+  width: 100%;
+}
+
+.report-url-actions {
+  justify-content: flex-end;
+}
+
+@media (max-width: 1144px) {
   .reports-table-desktop {
     display: none;
   }
 
   .reports-table-mobile {
     display: block;
-  }
-}
-
-@media (min-width: 600px) and (max-width: 1145px) {
-  .report-url-editor {
-    flex-direction: column;
-  }
-
-  .report-url-input,
-  .report-url-actions {
-    width: 100%;
-  }
-
-  .report-url-actions {
-    justify-content: flex-end;
   }
 }
 </style>
