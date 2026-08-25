@@ -132,12 +132,12 @@
           </template>
 
           <template v-else>
-            <div class="d-flex align-center ga-2 flex-wrap">
+            <div class="report-url-display d-flex align-center ga-2 flex-wrap">
               <template v-if="item.report_url">
                 <a
                   :href="item.report_url"
                   target="_blank"
-                  class="text-decoration-underline"
+                  class="report-url-link text-decoration-underline"
                 >
                   {{ item.report_url }}
                 </a>
@@ -320,12 +320,12 @@
             <!-- Existing URL -->
             <template v-else>
               <template v-if="item.report_url">
-                <div class="d-flex align-start ga-2">
+                <div class="report-url-display d-flex align-start ga-2">
                   <a
                     :href="item.report_url"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-body-2 text-decoration-underline flex-grow-1"
+                    class="report-url-link text-body-2 text-decoration-underline flex-grow-1"
                   >
                     {{ item.report_url }}
                   </a>
@@ -592,6 +592,16 @@ const hasTLD = (url: string): boolean => {
 
 .v-data-table-footer__items-per-page {
   display: none !important;
+}
+
+.report-url-display {
+  min-width: 0;
+}
+
+.report-url-link {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 599px) {
