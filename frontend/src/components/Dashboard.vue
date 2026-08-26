@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="dashboard-content">
     <v-row class="mt-3">
       <v-col>
         <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
@@ -7,7 +7,7 @@
       </v-col>
     </v-row>
     <v-row class="mb-4">
-      <v-col class="d-flex flex-column">
+      <v-col lg="8" cols="12" class="d-flex flex-column">
         <div class="mb-12">
           <p class="mt-4 mb-4">
             This tool will help you generate a Pay Transparency report in
@@ -53,6 +53,7 @@
           <ReportsTable />
         </v-card>
       </v-col>
+
       <v-col lg="4" cols="12" class="d-flex flex-column right-column">
         <AnnouncementPager
           :announcements="announcements"
@@ -143,6 +144,11 @@ export default {
 </script>
 
 <style>
+.dashboard-content {
+  width: 100%;
+  min-width: 0;
+}
+
 .v-card-text.generate-report {
   display: flex;
   justify-content: center;
@@ -155,5 +161,11 @@ export default {
 }
 .right-column {
   height: 535px;
+}
+
+@media (max-width: 1279px) {
+  .right-column {
+    height: auto;
+  }
 }
 </style>
