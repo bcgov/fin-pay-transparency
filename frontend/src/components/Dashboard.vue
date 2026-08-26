@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="dashboard-content">
     <v-row class="mt-3">
       <v-col>
         <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
@@ -145,6 +145,11 @@ export default {
 </script>
 
 <style>
+.dashboard-content {
+  width: 100%;
+  min-width: 0;
+}
+
 .v-card-text.generate-report {
   display: flex;
   justify-content: center;

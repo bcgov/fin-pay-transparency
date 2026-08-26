@@ -614,16 +614,27 @@ const hasTLD = (url: string): boolean => {
 }
 
 .report-url-editor {
-  flex-direction: column;
+  flex-wrap: nowrap;
 }
 
-.report-url-input,
-.report-url-actions {
-  width: 100%;
+.report-url-input {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .report-url-actions {
-  justify-content: flex-end;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+@media (max-width: 1300px) {
+  .report-url-editor {
+    flex-wrap: wrap;
+  }
+
+  .report-url-input {
+    flex-basis: 240px;
+  }
 }
 
 @media (max-width: 1144px) {
