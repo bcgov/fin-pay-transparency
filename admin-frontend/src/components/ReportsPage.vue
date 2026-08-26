@@ -76,7 +76,7 @@ import { ReportKeys } from '../types/reports';
 import { formatDate } from '../utils/date';
 import ReportActions from './reports/ReportActions.vue';
 import { ReportChangeService } from '../services/reportChangeService';
-import type { VDataTableServer } from 'vuetify/components';
+import type { DataTableHeader } from 'vuetify';
 
 const reportSearchStore = useReportSearchStore();
 const {
@@ -106,7 +106,7 @@ function onAnyReportChanged() {
   repeatSearch();
 }
 
-const headers = ref<VDataTableServer['headers']>([
+const headers = ref<DataTableHeader[]>([
   {
     title: 'Submission Date',
     align: 'start',
