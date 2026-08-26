@@ -24,7 +24,6 @@
             :report="item"
             :actions="[
               ReportAdminActions.OpenReport,
-              ReportAdminActions.ReportUrl,
               ReportAdminActions.LockUnlock,
               ReportAdminActions.AdminActionHistory,
             ]"
