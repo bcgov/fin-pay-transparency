@@ -388,7 +388,7 @@ let isMobile = ref(false);
 
 try {
   const { width } = useDisplay();
-  isMobile = computed(() => width.value < 1145);
+  isMobile = computed(() => width.value < 1280);
 } catch {
   isMobile = ref(false);
 }
@@ -596,12 +596,30 @@ const hasTLD = (url: string): boolean => {
 }
 
 .reports-table-desktop table {
-  table-layout: fixed;
+  table-layout: auto;
   width: 100%;
 }
 
+.reports-table-desktop .v-table__wrapper {
+  overflow-x: hidden;
+}
+
+.reports-table-desktop th:nth-child(-n + 3),
+.reports-table-desktop td:nth-child(-n + 3) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.reports-table-desktop th:last-child,
+.reports-table-desktop td:last-child {
+  width: 100%;
+  max-width: 0;
+}
+
 .report-url-display {
+  width: 100%;
   min-width: 0;
+  overflow: hidden;
 }
 
 .report-url-link {
@@ -610,11 +628,7 @@ const hasTLD = (url: string): boolean => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1 1 auto;
-}
-
-.report-url-editor {
-  flex-wrap: nowrap;
+  flex: 1 1 0;
 }
 
 .report-url-input {
@@ -622,22 +636,24 @@ const hasTLD = (url: string): boolean => {
   min-width: 0;
 }
 
+.report-url-input .v-field__input {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.report-url-input input {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+  white-space: nowrap;
+}
+
 .report-url-actions {
-  flex: 0 0 auto;
   margin-left: auto;
 }
 
-@media (max-width: 1300px) {
-  .report-url-editor {
-    flex-wrap: wrap;
-  }
-
-  .report-url-input {
-    flex-basis: 240px;
-  }
-}
-
-@media (max-width: 1144px) {
+@media (max-width: 1279px) {
   .reports-table-desktop {
     display: none;
   }
