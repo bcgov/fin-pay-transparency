@@ -103,6 +103,7 @@
         :no-data-text="
           hasSearched ? 'No reports matched the search criteria' : ''
         "
+        @update:options="search"
       >
         <template #[`item.create_date`]="{ item }">
           {{ formatDate(item.create_date) }}
@@ -121,13 +122,12 @@ import {
   EmployerSortType,
   EmployerKeyEnum,
 } from '../types/employers';
-import { useDisplay } from 'vuetify';
+import { DataTableHeader, useDisplay } from 'vuetify';
 import { NotificationService } from '../services/notificationService';
 import ToolTip from './ToolTip.vue';
 import DateRangeFilter from './DateRangeFilter.vue';
 import ApiService from '../services/apiService';
 import { DateTimeFormatter, nativeJs, ZonedDateTime } from '@js-joda/core';
-import { VDataTable } from 'vuetify/components';
 
 const displayBreakpoint = useDisplay();
 const firstSearchableYear = 2024;
@@ -158,8 +158,7 @@ const isDirty = computed(() => {
   );
 });
 
-type ReadonlyHeaders = VDataTable['$props']['headers'];
-const headers = ref<ReadonlyHeaders>([
+const headers = ref<DataTableHeader[]>([
   {
     title: 'Employer Name',
     align: 'start',
