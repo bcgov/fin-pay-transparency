@@ -132,12 +132,12 @@
           </template>
 
           <template v-else>
-            <div class="d-flex align-center ga-2 flex-wrap">
+            <div class="report-url-display d-flex align-center ga-2">
               <template v-if="item.report_url">
                 <a
                   :href="item.report_url"
                   target="_blank"
-                  class="text-decoration-underline"
+                  class="report-url-link text-decoration-underline"
                 >
                   {{ item.report_url }}
                 </a>
@@ -320,12 +320,12 @@
             <!-- Existing URL -->
             <template v-else>
               <template v-if="item.report_url">
-                <div class="d-flex align-start ga-2">
+                <div class="report-url-display d-flex align-start ga-2">
                   <a
                     :href="item.report_url"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-body-2 text-decoration-underline flex-grow-1"
+                    class="report-url-link text-body-2 text-decoration-underline flex-grow-1"
                   >
                     {{ item.report_url }}
                   </a>
@@ -365,7 +365,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { IReport } from '../../common/types';
 import ReportSelectionManager from './DasboardReportManager.vue';
 import { REPORT_STATUS, MAX_REPORT_URL_LEN } from '../../utils/constant';
@@ -387,7 +387,8 @@ const router = useRouter();
 let isMobile = ref(false);
 
 try {
-  isMobile = useDisplay().xs;
+  const { width } = useDisplay();
+  isMobile = computed(() => width.value < 1280);
 } catch {
   isMobile = ref(false);
 }
@@ -594,28 +595,71 @@ const hasTLD = (url: string): boolean => {
   display: none !important;
 }
 
-@media (max-width: 599px) {
+.reports-table-desktop table {
+  table-layout: auto;
+  width: 100%;
+}
+
+.reports-table-desktop .v-table__wrapper {
+  overflow-x: hidden;
+}
+
+.reports-table-desktop th:nth-child(-n + 3),
+.reports-table-desktop td:nth-child(-n + 3) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.reports-table-desktop th:last-child,
+.reports-table-desktop td:last-child {
+  width: 100%;
+  max-width: 0;
+}
+
+.report-url-display {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.report-url-link {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 0;
+}
+
+.report-url-input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.report-url-input .v-field__input {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.report-url-input input {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+  white-space: nowrap;
+}
+
+.report-url-actions {
+  margin-left: auto;
+}
+
+@media (max-width: 1279px) {
   .reports-table-desktop {
     display: none;
   }
 
   .reports-table-mobile {
     display: block;
-  }
-}
-
-@media (min-width: 600px) and (max-width: 1145px) {
-  .report-url-editor {
-    flex-direction: column;
-  }
-
-  .report-url-input,
-  .report-url-actions {
-    width: 100%;
-  }
-
-  .report-url-actions {
-    justify-content: flex-end;
   }
 }
 </style>
