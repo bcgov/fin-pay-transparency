@@ -67,6 +67,87 @@ export class DashboardPage extends PTPage {
     return editReportButton;
   }
 
+  async addOrUpdateReportUrl(reportId: string, url: string) {
+    const row = this.instance
+      .locator('tr')
+      .filter({ has: this.instance.getByTestId(`reporting_year-${reportId}`) })
+      .first();
+    await expect(row).toBeVisible();
+
+    const addLinkButton = row.getByRole('button', {
+      name: '+Add Link',
+    });
+    const editLinkButton = row.getByRole('button', { name: /Edit Link/i });
+
+    const trigger = (await addLinkButton.count())
+      ? addLinkButton.first()
+      : editLinkButton.first();
+
+    await expect(trigger).toBeVisible();
+    await trigger.click();
+
+    const urlInput = row.getByLabel('Report URL').first();
+    await expect(urlInput).toBeVisible();
+    await urlInput.fill(url);
+
+    const saveButton = row.getByRole('button', { name: 'Save' }).first();
+    const saveResponse = this.instance.waitForResponse(
+      (res) =>
+        res.url().includes('/api/v1/report-url/') &&
+        res.request().method() === 'POST',
+    );
+    await saveButton.click();
+    await saveResponse;
+    await expect(row.getByRole('link', { name: url })).toBeVisible();
+  }
+
+  async removeReportUrl(reportId: string) {
+    const row = this.instance
+      .locator('tr')
+      .filter({ has: this.instance.getByTestId(`reporting_year-${reportId}`) })
+      .first();
+    const existingLink = row.getByRole('link').first();
+    await expect(existingLink).toBeVisible();
+    const editLinkButton = row
+      .getByRole('button', { name: /Edit Link/i })
+      .first();
+    await editLinkButton.click();
+
+    const urlInput = row.getByLabel('Report URL').first();
+    await expect(urlInput).toBeVisible();
+    await urlInput.fill('');
+
+    const saveButton = row.getByRole('button', { name: 'Save' }).first();
+    const confirmDialog = this.instance.getByRole('button', {
+      name: 'Remove Link',
+    });
+    const saveResponse = this.instance.waitForResponse(
+      (res) =>
+        res.url().includes('/api/v1/report-url/') &&
+        res.request().method() === 'POST',
+    );
+
+    await saveButton.click();
+    await expect(confirmDialog).toBeVisible();
+    await confirmDialog.click();
+    await saveResponse;
+    await expect(
+      row.getByRole('button', {
+        name: /\+Add link to published report|\+Add Link/i,
+      }),
+    ).toBeVisible();
+  }
+
+  async manageReportUrlSequence(
+    reportId: string,
+    firstUrl: string,
+    secondUrl: string,
+  ) {
+    await this.addOrUpdateReportUrl(reportId, firstUrl);
+    await this.removeReportUrl(reportId);
+    await this.addOrUpdateReportUrl(reportId, secondUrl);
+  }
+
   async gotoEditReport(reportId: string, button: Locator) {
     const getReportDetailsRequest = this.instance.waitForResponse(
       (res) =>

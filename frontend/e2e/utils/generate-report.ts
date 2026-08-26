@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 import { DashboardPage } from '../pages/dashboard';
 import { GenerateReportPage } from '../pages/generate-report';
 import { DraftReportPage, PublishedReportPage } from '../pages/report';
+import { PagePaths } from '.';
 import { waitForApiResponses } from './report';
 
 export const generateReport = async (page: Page) => {
@@ -34,4 +35,13 @@ export const generateReport = async (page: Page) => {
   const publishedReportPage = new PublishedReportPage(page, user);
   await publishedReportPage.setup();
   await publishedReportPage.verifyEmployeerDetails(user, report);
+
+  const reportsDashboard = new DashboardPage(page);
+  await reportsDashboard.instance.goto(PagePaths.DASHBOARD);
+  await reportsDashboard.setup();
+  await reportsDashboard.manageReportUrlSequence(
+    report.report_id,
+    'https://example.gov.bc.ca/reports/first-link',
+    'https://example.gov.bc.ca/reports/second-link',
+  );
 };
