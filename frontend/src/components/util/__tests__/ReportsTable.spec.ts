@@ -59,6 +59,11 @@ vi.mock('../../../common/apiService', () => ({
 describe('ReportsTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1280,
+    });
+    window.dispatchEvent(new Event('resize'));
   });
   it('should display correct records', async () => {
     mockGetReports.mockReturnValue([
@@ -109,6 +114,20 @@ describe('ReportsTable', () => {
       value: 1024,
     });
     window.dispatchEvent(new Event('resize'));
+  });
+
+  it('should render the mobile layout at laptop width', async () => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1024,
+    });
+    window.dispatchEvent(new Event('resize'));
+    mockGetReports.mockReturnValue([]);
+
+    const { container } = await wrappedRender();
+
+    expect(container.querySelector('.reports-table-mobile')).toBeVisible();
+    expect(container.querySelector('.reports-table-desktop')).toBeNull();
   });
 
   it('should render the mobile empty state', async () => {
