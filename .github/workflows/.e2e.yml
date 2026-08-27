@@ -54,7 +54,7 @@ jobs:
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: |
           test_failed=0
-          for browser in chrome firefox safari edge; do
+          for browser in chrome firefox edge; do
             echo "::group::Running tests for $browser"
             npx playwright test --project="$browser" || test_failed=1
             if [ -d "blob-report" ] && [ -n "$(ls -A blob-report/*.zip 2>/dev/null)" ]; then

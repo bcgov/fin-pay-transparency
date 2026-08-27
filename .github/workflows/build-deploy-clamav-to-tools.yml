@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: bcgov/action-builder-ghcr@v4.2.1
+      - uses: bcgov/action-builder-ghcr@v4.4.1
         with:
           package: ${{ matrix.package }}
           tags: latest
@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         name: checkout
-      - uses: bcgov/action-oc-runner@d2fc921aaa9d70684c186dbb7754e6985d44d86f # v1.4.1
+      - uses: bcgov/action-oc-runner@111868d1fc50db0a40417ba321d865ef5c931bbd # v1.7.0
         name: Login to OpenShift
         with:
           oc_namespace: ${{ vars.oc_namespace }}
