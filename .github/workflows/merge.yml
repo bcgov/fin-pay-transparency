@@ -38,7 +38,7 @@ jobs:
       - name: PR Number
         if: (github.event_name != 'workflow_dispatch')
         id: pr
-        uses: bcgov/action-get-pr@v0.1.1
+        uses: bcgov/action-get-pr@v0.3.1
   codeql:
     name: Semantic Code Analysis
     runs-on: ubuntu-24.04
@@ -159,7 +159,7 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
       
-      - uses: bcgov/action-oc-runner@d2fc921aaa9d70684c186dbb7754e6985d44d86f # v1.4.1
+      - uses: bcgov/action-oc-runner@111868d1fc50db0a40417ba321d865ef5c931bbd # v1.7.0
         name: Login to OpenShift
         with:
           oc_namespace: db4642-prod

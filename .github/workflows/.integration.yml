@@ -43,7 +43,8 @@ jobs:
     defaults:
       run:
         working-directory: backend-external
-    runs-on: ubuntu-24.04
+    runs-on:
+      group: Larger Runners - OpenShift Static-IP
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       - uses: actions/checkout@v6
