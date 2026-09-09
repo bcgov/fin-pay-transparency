@@ -63,7 +63,8 @@ jobs:
   deploys:
     name: Helm
     environment: ${{ inputs.environment }}
-    runs-on: ubuntu-24.04
+    runs-on:
+      group: Larger Runners - OpenShift Static-IP
     timeout-minutes: ${{ inputs.timeout-minutes }}
     env:
       UI_PUBLIC_KEY: |

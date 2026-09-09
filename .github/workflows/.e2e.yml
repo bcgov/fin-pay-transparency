@@ -25,7 +25,8 @@ jobs:
     defaults:
       run:
         working-directory: frontend
-    runs-on: ubuntu-24.04
+    runs-on:
+      group: Larger Runners - OpenShift Static-IP
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     steps:
       - uses: actions/checkout@v6
