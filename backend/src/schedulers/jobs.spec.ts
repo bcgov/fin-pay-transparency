@@ -8,15 +8,14 @@ import { utils } from '../v1/services/utils-service.js';
 import { AdvisoryLock } from './advisory-lock.js';
 import { runJobs, type JobConfig } from './jobs.js';
 
-const mockAcquired = vi.fn(() => true);
+const mockWithLock = vi.fn(async (callback: () => Promise<void>) => {
+  await callback();
+  return true;
+});
 vi.mock('./advisory-lock.js', () => ({
   AdvisoryLock: vi.fn(function () {
     return {
-      tryAcquire: vi.fn(async () => true),
-      release: vi.fn(),
-      get acquired() {
-        return mockAcquired();
-      },
+      withLock: mockWithLock,
     };
   }),
 }));
@@ -92,7 +91,9 @@ vi.mock('../v1/services/utils-service.js', () => ({
   },
 }));
 
-vi.mock('../v1/prisma/prisma-client-single.js');
+vi.mock('../v1/prisma/prisma-client.js', () => ({
+  default: {},
+}));
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -147,7 +148,7 @@ describe('createJob', () => {
   });
 
   describe('onTick', () => {
-    it('should try to acquire the advisory lock', async () => {
+    it('should run the job through the advisory lock', async () => {
       const jobConfig = makeJobConfig();
       runJobs([jobConfig]);
       const { onTick } = lastCronJob();
@@ -159,7 +160,7 @@ describe('createJob', () => {
         jobConfig.name,
       );
       const lockInstance = vi.mocked(AdvisoryLock).mock.results[0].value;
-      expect(lockInstance.tryAcquire).toHaveBeenCalledOnce();
+      expect(lockInstance.withLock).toHaveBeenCalledOnce();
     });
 
     it('should call retry with the callback when lock is acquired', async () => {
@@ -178,8 +179,7 @@ describe('createJob', () => {
       const callback = vi.fn(async () => undefined);
       vi.mocked(AdvisoryLock).mockImplementationOnce(function () {
         return {
-          tryAcquire: vi.fn(async () => false),
-          release: vi.fn(async () => undefined),
+          withLock: vi.fn(async () => false),
         };
       });
       runJobs([makeJobConfig({ callback })]);
@@ -198,7 +198,7 @@ describe('createJob', () => {
 
       expect(utils.delay).toHaveBeenCalledWith(10000);
       const lockInstance = vi.mocked(AdvisoryLock).mock.results[0].value;
-      expect(lockInstance.release).toHaveBeenCalledOnce();
+      expect(lockInstance.withLock).toHaveBeenCalledOnce();
     });
 
     it('should call delay and release even when callback throws', async () => {
@@ -216,22 +216,21 @@ describe('createJob', () => {
 
       expect(utils.delay).toHaveBeenCalledWith(10000);
       const lockInstance = vi.mocked(AdvisoryLock).mock.results[0].value;
-      expect(lockInstance.release).toHaveBeenCalledOnce();
+      expect(lockInstance.withLock).toHaveBeenCalledOnce();
     });
 
-    it('should not call delay and release when failed to acquire lock', async () => {
+    it('should not call delay when failed to acquire lock', async () => {
       const callback = vi.fn(async () => {
         throw new Error('callback error');
       });
-      mockAcquired.mockReturnValue(false);
+      mockWithLock.mockImplementationOnce(async () => false);
       runJobs([makeJobConfig({ callback })]);
       const { onTick } = lastCronJob();
 
       await onTick();
 
       const lockInstance = vi.mocked(AdvisoryLock).mock.results[0].value;
-      expect(mockAcquired).toHaveBeenCalled();
-      expect(lockInstance.release).not.toHaveBeenCalled();
+      expect(lockInstance.withLock).toHaveBeenCalledOnce();
       expect(utils.delay).not.toHaveBeenCalled();
     });
 
