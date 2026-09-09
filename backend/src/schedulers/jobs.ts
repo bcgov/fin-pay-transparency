@@ -7,7 +7,7 @@ import { announcementService } from '../v1/services/announcements-service.js';
 import { schedulerService } from '../v1/services/scheduler-service.js';
 import emailService from '../external/services/ches/ches.js';
 import { utils } from '../v1/services/utils-service.js';
-import { Pool } from 'pg';
+import prisma from '../v1/prisma/prisma-client.js';
 
 export interface JobConfig {
   name: string;
@@ -50,9 +50,6 @@ export const JOB_CONFIGS: JobConfig[] = [
 
 const timezone = config.get('server:schedulerTimeZone');
 const retryTimeout = config.get('server:retries:minTimeout');
-const databaseUrl = new URL(config.get('server:databaseUrl'));
-databaseUrl.searchParams.delete('schema');
-const pgSingle = new Pool({ connectionString: databaseUrl.toString() });
 
 const createJob = ({ name, cronTime, callback }: JobConfig) => {
   if (!cronTime) {
@@ -62,22 +59,25 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
   return new CronJob(
     cronTime,
     async function () {
-      let advisoryLock = undefined;
       try {
-        advisoryLock = new AdvisoryLock(pgSingle, name);
-        if (await advisoryLock.tryAcquire()) {
+        const advisoryLock = new AdvisoryLock(prisma, name);
+        await advisoryLock.withLock(async () => {
           log.info(`Starting scheduled job '${name}'.`);
-          await retry(
-            async () => {
-              await callback();
-            },
-            {
-              retries: 5,
-              minTimeout: retryTimeout,
-            },
-          );
-          log.info(`Completed scheduled job '${name}'.`);
-        }
+          try {
+            await retry(
+              async () => {
+                await callback();
+              },
+              {
+                retries: 5,
+                minTimeout: retryTimeout,
+              },
+            );
+            log.info(`Completed scheduled job '${name}'.`);
+          } finally {
+            await utils.delay(10000);
+          }
+        });
       } catch (e) {
         log.error(`${name} failed.`);
         log.error(e);
@@ -93,11 +93,6 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
             e.stack,
           );
           await emailService.sendEmailWithRetry(email);
-        }
-      } finally {
-        if (advisoryLock?.acquired) {
-          await utils.delay(10000);
-          await advisoryLock.release();
         }
       }
     }, // onTick

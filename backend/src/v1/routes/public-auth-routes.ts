@@ -170,7 +170,8 @@ router.get(
 router.get(
   '/login',
   passport.authenticate('oidcBusinessBceid', {
-    failureRedirect: 'error',
+    //failureRedirect: '/error',
+    failureRedirect: config.get('server:frontend') + '/api/error',
   }),
 );
 export default router;
