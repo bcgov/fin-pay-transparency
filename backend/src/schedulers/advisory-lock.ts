@@ -58,18 +58,21 @@ export class AdvisoryLock {
    */
   async withLock(callback: () => Promise<void>): Promise<boolean> {
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        const result = await tx.$queryRaw<AdvisoryLockResult[]>`
+      return await this.prisma.$transaction(
+        async (tx) => {
+          const result = await tx.$queryRaw<AdvisoryLockResult[]>`
           SELECT pg_try_advisory_xact_lock(${this.lockKey[0]}::int4, ${this.lockKey[1]}::int4)
         `;
 
-        if (!result[0]?.pg_try_advisory_xact_lock) {
-          return false;
-        }
+          if (!result[0]?.pg_try_advisory_xact_lock) {
+            return false;
+          }
 
-        await callback();
-        return true;
-      });
+          await callback();
+          return true;
+        },
+        { timeout: 30_000 },
+      );
     } catch (error) {
       throw new Error(
         `Failed to run advisory lock "${this.lockName}": ${this.getErrorMessage(error)}`,
