@@ -43,6 +43,9 @@ describe('withLock', () => {
 
     expect(result).toBe(true);
     expect(mockPrisma.$transaction).toHaveBeenCalledOnce();
+    expect(mockPrisma.$transaction).toHaveBeenCalledWith(expect.any(Function), {
+      timeout: 30_000,
+    });
     expect(mockQueryRaw).toHaveBeenCalledOnce();
     expect(mockQueryRaw.mock.calls[0][0].join('')).toContain(
       'pg_try_advisory_xact_lock',
