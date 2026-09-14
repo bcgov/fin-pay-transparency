@@ -30,10 +30,6 @@ export default {
   min-width: 30%;
 }
 
-.gov-header {
-  color: #003366;
-}
-
 .blue-back {
   background-color: aliceblue;
   height: 100%;
