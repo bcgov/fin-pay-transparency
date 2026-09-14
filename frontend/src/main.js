@@ -35,6 +35,8 @@ const myCustomLightTheme = {
     'border-opacity': 0.24, //default 0.12
     'medium-emphasis-opacity': 0.8, //default 0.6
     'theme-error': '#ce3e39',
+    'theme-on-background': '#2D2D2D',
+    'high-emphasis-opacity': 1,
   },
 };
 
