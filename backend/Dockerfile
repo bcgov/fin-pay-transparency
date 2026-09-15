@@ -18,7 +18,7 @@ RUN npm ci --omit=dev --ignore-scripts
 
 
 # Deployment container
-FROM gcr.io/distroless/nodejs24-debian12:nonroot
+FROM gcr.io/distroless/nodejs24-debian13:nonroot@sha256:7781e8b4fccf59240bd539af6738cccf8dad4be303165c3a1fa065c48699b937
 ENV NODE_ENV=production
 # Copy over app.ts
 WORKDIR /app
