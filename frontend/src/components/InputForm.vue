@@ -108,7 +108,6 @@
                         icon="fa:fas fa-circle-info"
                         size="small"
                         color="primary"
-                        class="ml-1"
                         aria-label="More Information"
                       />
                     </template>
@@ -157,7 +156,6 @@
                         icon="fa:fas fa-circle-info"
                         size="small"
                         color="primary"
-                        class="ml-1"
                         aria-label="More Information"
                       />
                     </template>
@@ -214,7 +212,6 @@
                             icon="fa:fas fa-circle-info"
                             size="small"
                             color="primary"
-                            class="ml-1"
                             aria-label="More Information"
                           />
                         </template>
@@ -268,7 +265,6 @@
                             icon="fa:fas fa-circle-info"
                             size="small"
                             color="primary"
-                            class="ml-1"
                             aria-label="More Information"
                           />
                         </template>
@@ -396,7 +392,6 @@
                         icon="fa:fas fa-circle-info"
                         size="small"
                         color="primary"
-                        class="ml-1"
                         aria-label="More Information"
                       />
                     </template>
@@ -455,7 +450,6 @@
                         icon="fa:fas fa-circle-info"
                         size="small"
                         color="primary"
-                        class="ml-1"
                         aria-label="More Information"
                       />
                     </template>
