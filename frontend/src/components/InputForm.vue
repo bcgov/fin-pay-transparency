@@ -102,16 +102,14 @@
                     "
                   >
                     <template #activator="{ props }">
-                      <v-icon
+                      <v-icon-btn
                         v-bind="props"
+                        variant="text"
                         icon="fa:fas fa-circle-info"
-                        size="x-small"
+                        size="small"
                         color="primary"
                         class="ml-1"
-                        tabindex="0"
-                        aria-hidden="false"
-                        role="tooltip"
-                        aria-labeledby="naics-tooltip"
+                        aria-label="More Information"
                       />
                     </template>
                   </v-tooltip>
@@ -153,16 +151,14 @@
                     "
                   >
                     <template #activator="{ props }">
-                      <v-icon
+                      <v-icon-btn
                         v-bind="props"
+                        variant="text"
                         icon="fa:fas fa-circle-info"
-                        size="x-small"
+                        size="small"
                         color="primary"
                         class="ml-1"
-                        tabindex="0"
-                        aria-hidden="false"
-                        role="tooltip"
-                        aria-labeledby="employee-count-tooltip"
+                        aria-label="More Information"
                       />
                     </template>
                   </v-tooltip>
@@ -212,16 +208,14 @@
                         "
                       >
                         <template #activator="{ props }">
-                          <v-icon
+                          <v-icon-btn
                             v-bind="props"
+                            variant="text"
                             icon="fa:fas fa-circle-info"
-                            size="x-small"
+                            size="small"
                             color="primary"
                             class="ml-1"
-                            tabindex="0"
-                            aria-hidden="false"
-                            role="tooltip"
-                            aria-labeledby="reporting-year-tooltip"
+                            aria-label="More Information"
                           />
                         </template>
                       </v-tooltip>
@@ -268,16 +262,14 @@
                         "
                       >
                         <template #activator="{ props }">
-                          <v-icon
+                          <v-icon-btn
                             v-bind="props"
+                            variant="text"
                             icon="fa:fas fa-circle-info"
-                            size="x-small"
+                            size="small"
                             color="primary"
                             class="ml-1"
-                            tabindex="0"
-                            aria-hidden="false"
-                            role="tooltip"
-                            aria-labeledby="time-period-tooltip"
+                            aria-label="More Information"
                           />
                         </template>
                       </v-tooltip>
@@ -398,16 +390,14 @@
                     text="Please share any general information about your employer."
                   >
                     <template #activator="{ props }">
-                      <v-icon
+                      <v-icon-btn
                         v-bind="props"
+                        variant="text"
                         icon="fa:fas fa-circle-info"
-                        size="x-small"
+                        size="small"
                         color="primary"
-                        class="mr-1"
-                        tabindex="0"
-                        aria-hidden="false"
-                        role="tooltip"
-                        aria-labeledby="employer-statement-tooltip"
+                        class="ml-1"
+                        aria-label="More Information"
                       />
                     </template>
                   </v-tooltip>
@@ -459,16 +449,14 @@
                     "
                   >
                     <template #activator="{ props }">
-                      <v-icon
+                      <v-icon-btn
                         v-bind="props"
+                        variant="text"
                         icon="fa:fas fa-circle-info"
-                        size="x-small"
+                        size="small"
                         color="primary"
-                        class="mr-1"
-                        tabindex="0"
-                        aria-hidden="false"
-                        role="tooltip"
-                        aria-labeledby="data-constraints-tooltip"
+                        class="ml-1"
+                        aria-label="More Information"
                       />
                     </template>
                   </v-tooltip>
