@@ -6,13 +6,23 @@
   >
     <div ref="richTextToolbar" class="rich-text-toolbar">
       <span class="ql-formats">
-        <button type="button" class="ql-bold"></button>
-        <button type="button" class="ql-italic"></button>
-        <button type="button" class="ql-underline"></button>
+        <button type="button" class="ql-bold" title="Bold"></button>
+        <button type="button" class="ql-italic" title="Italic"></button>
+        <button type="button" class="ql-underline" title="Underline"></button>
       </span>
       <span class="ql-formats">
-        <button type="button" class="ql-list" value="ordered"></button>
-        <button type="button" class="ql-list" value="bullet"></button>
+        <button
+          type="button"
+          class="ql-list"
+          value="ordered"
+          title="Ordered List"
+        ></button>
+        <button
+          type="button"
+          class="ql-list"
+          value="bullet"
+          title="Bullet List"
+        ></button>
       </span>
     </div>
     <div ref="richTextEditor" class="rich-text-editor rich-text"></div>
@@ -73,6 +83,18 @@ onMounted(() => {
       placeholder: props.placeholder,
       modules: {
         toolbar: richTextToolbar.value,
+        keyboard: {
+          bindings: {
+            // Tab should move to next form element for accessibility reasons.  Quill's default behavior is to insert a tab character into the editor.
+            tab: {
+              key: 'Tab',
+              handler: function (range, context) {
+                // Returning true propagates the event to the browser's default behavior
+                return true;
+              },
+            },
+          },
+        },
       },
     });
     quill.on('text-change', onTextChanged);

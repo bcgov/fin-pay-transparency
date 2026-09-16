@@ -104,17 +104,9 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.gov-header .v-icon {
-  padding-left: 10px;
-}
-
+<style scoped lang="scss">
 .mainTitle {
   font-size: 1.2rem;
-}
-
-.display-name {
-  color: white;
 }
 
 a {
@@ -125,41 +117,6 @@ a {
   padding-right: 30px;
 }
 
-.gov-header .title {
-  color: #fff;
-  text-decoration: none;
-}
-
-.sysBar {
-  border-bottom: 2px solid rgb(252, 186, 25) !important;
-}
-
-.gov-header .v-btn,
-.v-btn--active.title:before,
-.v-btn.title:focus:before,
-.v-btn.title:hover:before {
-  color: #fff;
-  background: none;
-}
-
-.v-input__slot {
-  padding-top: 10px;
-}
-
-.top-down {
-  padding-top: 20px;
-  height: 80%;
-}
-
-.v-list-item-title.styles-override {
-  font-weight: 600;
-  padding-bottom: 5px;
-}
-
-.v-list-item-subtitle.styles-override {
-  line-height: 1.2rem;
-}
-
 @media screen and (max-width: 801px) {
   .logo {
     width: 100px;
@@ -167,10 +124,6 @@ a {
 
   .mainTitle {
     font-size: 1rem;
-  }
-
-  .display-name {
-    display: none;
   }
 }
 </style>
