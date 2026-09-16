@@ -109,6 +109,7 @@
                         color="primary"
                         class="ml-1"
                         tabindex="0"
+                        aria-hidden="false"
                         role="tooltip"
                         aria-labeledby="naics-tooltip"
                       />
@@ -159,6 +160,7 @@
                         color="primary"
                         class="ml-1"
                         tabindex="0"
+                        aria-hidden="false"
                         role="tooltip"
                         aria-labeledby="employee-count-tooltip"
                       />
@@ -217,6 +219,7 @@
                             color="primary"
                             class="ml-1"
                             tabindex="0"
+                            aria-hidden="false"
                             role="tooltip"
                             aria-labeledby="reporting-year-tooltip"
                           />
@@ -272,6 +275,7 @@
                             color="primary"
                             class="ml-1"
                             tabindex="0"
+                            aria-hidden="false"
                             role="tooltip"
                             aria-labeledby="time-period-tooltip"
                           />
@@ -401,17 +405,18 @@
                         color="primary"
                         class="mr-1"
                         tabindex="0"
+                        aria-hidden="false"
                         role="tooltip"
                         aria-labeledby="employer-statement-tooltip"
                       />
                     </template>
                   </v-tooltip>
-                  <span class="text-subtitle-2 text-grey">
+                  <span class="text-subtitle-2 text-grey-darken-1">
                     (Optional: you can return to this page to complete it after
                     viewing your draft report.)
                   </span>
                 </div>
-                <div class="text-subtitle-2 text-grey-darken-1">
+                <div class="text-subtitle-2 text-dark-gray">
                   This will appear at the top of your pay transparency report.
                 </div>
               </v-col>
@@ -461,17 +466,18 @@
                         color="primary"
                         class="mr-1"
                         tabindex="0"
+                        aria-hidden="false"
                         role="tooltip"
                         aria-labeledby="data-constraints-tooltip"
                       />
                     </template>
                   </v-tooltip>
-                  <span class="text-subtitle-2 text-grey">
+                  <span class="text-subtitle-2 text-grey-darken-1">
                     (Optional: you can return to this page to complete it after
                     viewing your draft report.)
                   </span>
                 </div>
-                <div class="text-subtitle-2 text-grey-darken-1">
+                <div class="text-subtitle-2 text-dark-gray">
                   This will appear at the bottom of your pay transparency
                   report.
                 </div>
@@ -506,7 +512,7 @@
                     File Upload
                   </label>
                   <span class="text-error font-weight-bold text-h6">*</span>
-                  <div class="text-subtitle-2 text-grey-darken-1">
+                  <div class="text-subtitle-2 text-dark-gray">
                     To proceed, upload your employee data in comma-separated
                     value (CSV) format. Ensure the CSV file follows the provided
                     <a href="SampleCsv.csv" download>CSV Sample</a>
