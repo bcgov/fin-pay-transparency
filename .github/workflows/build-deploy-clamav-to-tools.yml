@@ -26,7 +26,7 @@ jobs:
             build_context: ./clamav-service
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: bcgov/action-builder-ghcr@v4.4.1
         with:
           package: ${{ matrix.package }}
@@ -41,7 +41,7 @@ jobs:
     environment: tools
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: checkout
       - uses: bcgov/action-oc-runner@111868d1fc50db0a40417ba321d865ef5c931bbd # v1.7.0
         name: Login to OpenShift

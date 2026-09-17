@@ -48,7 +48,7 @@ jobs:
             build_context: ./maintenance
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: bcgov/action-builder-ghcr@v4.4.1
         with:
           package: ${{ matrix.package }}
