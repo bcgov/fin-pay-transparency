@@ -80,7 +80,7 @@ jobs:
           semver=$(echo ${{ inputs.semver }} | cut -d'_' -f1)
           echo "Semver: $semver"
           echo "semver=${semver}" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: checkout
       - uses: bcgov/action-oc-runner@111868d1fc50db0a40417ba321d865ef5c931bbd # v1.7.0
         name: Login to OpenShift

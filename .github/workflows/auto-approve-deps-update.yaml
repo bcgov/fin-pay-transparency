@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Get list of changed files
         id: file-check
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -59,7 +59,7 @@ jobs:
 
       - name: Auto approve PR
         if: steps.file-check.outputs.approved == 'true'
-        uses: hmarr/auto-approve-action@v3
+        uses: hmarr/auto-approve-action@v4.0.0
         with:
           pull-request-number: ${{ steps.file-check.outputs.prNumber }}  
           github-token: ${{ secrets.GITHUB_TOKEN }}
