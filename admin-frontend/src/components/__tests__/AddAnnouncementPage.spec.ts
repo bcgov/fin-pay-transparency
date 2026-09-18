@@ -1,5 +1,6 @@
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
 import { userEvent } from '@testing-library/user-event';
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
