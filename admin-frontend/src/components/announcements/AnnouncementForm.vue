@@ -393,7 +393,8 @@ import {
   LocalDateTime,
   nativeJs,
 } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import ConfirmationDialog from '../util/ConfirmationDialog.vue';
 import { useRouter } from 'vue-router';
 import AnnouncementPager from './AnnouncementPager.vue';
