@@ -376,7 +376,8 @@ import {
 } from '../../store/modules/reportStepper';
 import { useConfigStore } from '../../store/modules/config';
 import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import ConfirmationDialog from './ConfirmationDialog.vue';

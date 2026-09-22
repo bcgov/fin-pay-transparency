@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import { createTestingPinia } from '@pinia/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
 import { createVuetify } from 'vuetify';
