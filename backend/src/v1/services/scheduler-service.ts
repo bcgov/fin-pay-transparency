@@ -15,7 +15,8 @@ import { SSO } from './sso-service.js';
 import emailService from '../../external/services/ches/ches.js';
 import { config } from '../../config/config.js';
 import '@js-joda/timezone';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import { EMAIL_TEMPLATES } from '../templates/email.js';
 import { errorService } from './error-service.js';
 
