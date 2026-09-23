@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import { expect } from 'playwright/test';
 import { AnnouncementStatus } from '../../types';
 import { PagePaths } from '../../utils';
