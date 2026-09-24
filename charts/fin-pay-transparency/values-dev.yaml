@@ -50,7 +50,7 @@ global:
     delete_announcements_cron_crontime: "0 0 1 * *" # 1st day of every month
     email_expiring_announcements_cron_crontime: "0 7 * * *" # 7:00 AM PST/PDT
     enable_email_expiring_announcements: "false"
-    reports_scheduler_cron_timezone: "America/Vancouver"
+    reports_scheduler_cron_timezone: "America/Whitehorse"
     first_year_with_prev_reporting_year_option: "2025"
     admin_invitation_duration_in_hours: "72"
     delete_announcements_duration_in_days: "90"
