@@ -1,4 +1,4 @@
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import { employerService } from '../services/employer-service.js';
 import { EmployerKeyEnum, EmployerMetrics } from '../types/employers.js';
 import prismaReadOnly from '../prisma/__mocks__/prisma-client-readonly-replica.js';
@@ -11,6 +11,10 @@ const mockFindManyPayTransparencyCompanies =
 vi.mock('../prisma/prisma-client-readonly-replica');
 
 describe('employer-service', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   describe('getEmployerMetrics', () => {
     it('returns the number of employers logged on', async () => {
       const numCompaniesLoggedOnToDate = 16;
@@ -23,6 +27,27 @@ describe('employer-service', () => {
       expect(employerMetrics.num_employers_logged_on_this_year).toBe(
         numCompaniesLoggedOnThisYear,
       );
+    });
+    it('uses BCs new time zone', async () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-11-02T12:00:00.000Z'));
+
+      const numCompaniesLoggedOnToDate = 16;
+      const numCompaniesLoggedOnThisYear = 5;
+      mockCountPayTransparencyCompanies
+        .mockResolvedValueOnce(numCompaniesLoggedOnToDate)
+        .mockResolvedValueOnce(numCompaniesLoggedOnThisYear);
+
+      await employerService.getEmployerMetrics();
+
+      expect(mockCountPayTransparencyCompanies).toHaveBeenNthCalledWith(2, {
+        where: {
+          create_date: {
+            gte: new Date('2026-01-01T07:00:00.000Z'),
+            lt: new Date('2027-01-01T07:00:00.000Z'),
+          },
+        },
+      });
     });
   });
   describe('getEmployer', () => {
