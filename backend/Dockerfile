@@ -18,7 +18,7 @@ RUN npm ci --omit=dev --ignore-scripts
 
 
 # Deployment container
-FROM gcr.io/distroless/nodejs24-debian13:nonroot@sha256:bb6b03d81066993293a10feda7250e8e1cc034035fe9b61cfceededa7c8bf04d
+FROM node:24-bullseye-slim AS runtime
 ENV NODE_ENV=production
 # Copy over app.ts
 WORKDIR /app
@@ -58,7 +58,7 @@ ENV CLINIC_INTERVAL=10
 ENV NO_INSIGHT=true
 
 # Non-privileged user
-USER app
+USER node
 
 # Use entrypoint script to handle different startup modes
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
