@@ -1,5 +1,6 @@
 import { DateTimeFormatter } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 
 export const MISSING_COMPANY_DETAILS_ERROR = 'Missing company details';
 export const MISSING_TOKENS_ERROR = 'Token or refresh token cannot be found';

@@ -176,7 +176,8 @@ import {
   AnnouncementStatus,
 } from '../../types/announcements';
 import { nativeJs, DateTimeFormatter, ZoneId, LocalDate } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 

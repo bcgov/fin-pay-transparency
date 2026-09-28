@@ -2,7 +2,8 @@ import { Locator, Page, expect } from '@playwright/test';
 import { User } from '../auth.setup';
 import { PagePaths } from '../utils';
 import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 
 export class AdminPortalPage {
   userManagementNav: Locator;

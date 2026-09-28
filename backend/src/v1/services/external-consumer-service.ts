@@ -6,7 +6,8 @@ import {
   ZonedDateTime,
   convert,
 } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import { PayTransparencyUserError } from './file-upload-service.js';
 import { Prisma } from '../prisma/generated/client.js';
 

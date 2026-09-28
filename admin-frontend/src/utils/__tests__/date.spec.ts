@@ -1,5 +1,6 @@
 import { DateTimeFormatter, ZonedDateTime, ZoneId } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import { describe, expect, it } from 'vitest';
 import {
   formatDate,

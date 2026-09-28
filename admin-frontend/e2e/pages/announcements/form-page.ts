@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
+import { Locale } from '@js-joda/locale';
+import '@js-joda/locale_en';
 import path from 'node:path';
 import { expect, Locator } from 'playwright/test';
 import { AnnouncementStatus } from '../../types';
