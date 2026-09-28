@@ -90,7 +90,7 @@ function onAdminListening() {
   const addr = adminServer.address();
   printToConsole(addr);
 }
-
+/*
 process.on('SIGINT', () => {
   prisma
     .$disconnect()
@@ -136,7 +136,7 @@ process.on('SIGTERM', () => {
       logger.error('Error while disconnecting from Prisma:', error);
       process.exit(1); // Handle the error and exit with a non-zero status code
     });
-});
+});*/
 // Prevent unhandled promise errors from crashing application
 process.on('unhandledRejection', (err: Error) => {
   if (err?.stack) {

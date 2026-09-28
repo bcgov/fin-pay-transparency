@@ -1,0 +1,45 @@
+global:
+  seedData: false
+  crunchyEnabled: false
+  isEnabled: false
+  domain: ~
+  secrets:
+    databaseName: ~
+    databaseUser: ~
+  serverAdminFrontend: ~
+  serverFrontend: ~
+
+enabled: true
+replicaCount: 1
+deploymentStrategy: RollingUpdate
+
+image:
+  pullPolicy: IfNotPresent
+  tag: ~
+
+service:
+  targetPort: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+initResources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+podSecurityContext: {}
+securityContext: {}
+nodeSelector: {}
+tolerations: []
+
+autoscaling:
+  enabled: false
+
+app:
+  env:
+    logLevel: info
+    siteminderLogoutEndpoint: ~
+    openshiftEnv: ~
