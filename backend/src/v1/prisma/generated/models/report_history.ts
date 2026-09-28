@@ -322,7 +322,7 @@ export type Report_historyGroupByOutputType = {
   _max: Report_historyMaxAggregateOutputType | null
 }
 
-type GetReport_historyGroupByPayload<T extends report_historyGroupByArgs> = Prisma.PrismaPromise<
+export type GetReport_historyGroupByPayload<T extends report_historyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Report_historyGroupByOutputType, T['by']> &
       {
@@ -3147,6 +3147,11 @@ export type report_historyFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` report_histories.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of report_histories.
+   */
   distinct?: Prisma.Report_historyScalarFieldEnum | Prisma.Report_historyScalarFieldEnum[]
 }
 

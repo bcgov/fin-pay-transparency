@@ -1,23 +1,13 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { faker } from '@faker-js/faker';
-import { downloadFile, deleteFiles, upload } from './s3-api.js';
-import {
-  GetObjectCommand,
-  ListObjectsCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin.js';
+import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import path from 'node:path';
 import os from 'node:os';
-import prisma from '../../v1/prisma/__mocks__/prisma-client.js';
-import { type announcement_resource } from '../../v1/prisma/generated/client.js';
-
-vi.mock('../../v1/prisma/prisma-client');
-const mockFindFirstOrThrow = prisma.announcement_resource.findFirstOrThrow;
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin.js';
+import { getFile, deleteFiles, upload } from './s3-api.js';
+import { Upload } from '@aws-sdk/lib-storage';
 
 vi.mock('../../constants/admin', () => ({
-  APP_ANNOUNCEMENTS_FOLDER: 'announcements',
+  APP_ANNOUNCEMENTS_FOLDER: 'path/to/announcements',
   S3_BUCKET: 'test-bucket',
   S3_OPTIONS: {
     region: 'us-east-1',
@@ -28,27 +18,9 @@ vi.mock('../../constants/admin', () => ({
   },
 }));
 
-const mockStreamWrite = vi.fn();
 const mockCreateReadStream = vi.fn();
-vi.mock('node:fs', () => ({
-  default: {
-    createWriteStream: vi.fn(() => ({
-      write: (...args) => mockStreamWrite(...args),
-    })),
-    createReadStream: vi.fn((...args) => mockCreateReadStream(...args)),
-    unlink: vi.fn(),
-  },
-}));
-
 const mockSend = vi.fn();
-vi.mock('@aws-sdk/client-s3', async () => ({
-  S3Client: vi.fn(function () {
-    return { send: mockSend };
-  }),
-  GetObjectCommand: vi.fn(),
-  ListObjectsCommand: vi.fn(),
-  DeleteObjectsCommand: vi.fn(),
-}));
+const mockPaginateListObjectsV2 = vi.fn();
 
 const mockUploadDone = vi.fn();
 vi.mock('@aws-sdk/lib-storage', async () => ({
@@ -57,162 +29,289 @@ vi.mock('@aws-sdk/lib-storage', async () => ({
   }),
 }));
 
-const mockAsyncRetry = vi.fn((fn, options) => fn());
+const mockAsyncRetry = vi.fn((fn, options) => fn(options));
 vi.mock('async-retry', () => ({
   default: (fn, options) => mockAsyncRetry(fn, options),
 }));
 
+vi.mock('node:fs', () => ({
+  default: {
+    createReadStream: vi.fn((...args) => mockCreateReadStream(...args)),
+  },
+}));
+
+vi.mock('@aws-sdk/client-s3', async () => ({
+  S3Client: vi.fn(function () {
+    return { send: mockSend };
+  }),
+  GetObjectCommand: vi.fn(function (input) {
+    this.input = input;
+  }),
+  DeleteObjectsCommand: vi.fn(function (input) {
+    this.input = input;
+  }),
+  PutObjectCommand: vi.fn(function (input) {
+    this.input = input;
+  }),
+  paginateListObjectsV2: (...args) => mockPaginateListObjectsV2(...args),
+}));
+
 describe('S3Api', () => {
-  describe('downloadFile', () => {
-    it('should download a file', async () => {
-      mockFindFirstOrThrow.mockResolvedValue({
-        attachment_file_id: faker.string.uuid(),
-        display_name: faker.lorem.word(),
-      } as announcement_resource);
+  const folder = APP_ANNOUNCEMENTS_FOLDER;
+  const mockStream = { pipe: vi.fn(), on: vi.fn() };
 
-      mockSend.mockImplementation(function (...args) {
-        const [command] = args;
-        if (command instanceof GetObjectCommand) {
-          return {
-            Body: {
-              transformToByteArray: vi
-                .fn()
-                .mockResolvedValue(faker.lorem.words(10)),
-            },
-          };
-        }
+  beforeEach(() => {
+    mockCreateReadStream.mockReturnValue(mockStream);
+  });
 
-        if (command instanceof ListObjectsCommand) {
-          return {
+  describe('getFile', () => {
+    it('paginates through all object pages and returns the most recent file extension', async () => {
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield {
             Contents: [
               {
-                Key: faker.system.filePath(),
-                LastModified: faker.date.recent(),
-              },
-              {
-                Key: faker.system.filePath(),
-                LastModified: faker.date.recent(),
+                Key: `${folder}/file-id/page-1.docx`,
+                LastModified: new Date('2024-01-01T00:00:00.000Z'),
               },
             ],
           };
-        }
+          yield {
+            Contents: [
+              {
+                Key: `${folder}/file-id/page-2.pdf`,
+                LastModified: new Date('2024-03-01T00:00:00.000Z'),
+              },
+            ],
+          };
+          yield {
+            Contents: [
+              {
+                Key: `${folder}/file-id/page-3.txt`,
+                LastModified: new Date('2024-02-01T00:00:00.000Z'),
+              },
+            ],
+          };
+          yield {
+            Contents: undefined,
+          };
+        },
       });
+      mockSend.mockResolvedValue({ Body: {} });
 
-      mockStreamWrite.mockImplementation((data, cb) => {
-        cb();
-      });
+      const result = await getFile(folder, 'file-id');
 
-      const res = {
-        setHeader: vi.fn(),
-        write: vi.fn(),
-        end: vi.fn(),
-        download: vi.fn().mockImplementation((...args) => {
-          const [tempFile, fileName, cb] = args;
-          cb();
-        }),
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      };
-
-      const fileId = 'fileId';
-
-      try {
-        await downloadFile(res, fileId);
-      } catch (error) {
-        console.error(error);
-      }
-
-      expect(res.download).toHaveBeenCalled();
+      expect(result.ext).toBe('.pdf');
+      expect(mockPaginateListObjectsV2).toHaveBeenCalledWith(
+        { client: expect.any(Object), pageSize: 1000 },
+        expect.objectContaining({ Prefix: `${folder}/file-id/` }),
+      );
     });
 
-    describe('file not found', () => {
-      it('should return 400', async () => {
-        mockFindFirstOrThrow.mockResolvedValue({
-          attachment_file_id: faker.string.uuid(),
-          display_name: faker.lorem.word(),
-        } as announcement_resource);
-        const res = {
-          status: vi.fn().mockReturnThis(),
-          json: vi.fn(),
-        };
-
-        mockSend.mockResolvedValue({
-          Contents: [],
-        });
-
-        const fileId = 'fileId';
-        await downloadFile(res, fileId);
-        expect(res.status).toHaveBeenCalledWith(400);
+    it('throws when no matching object is found', async () => {
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield { Contents: [] };
+        },
       });
+
+      await expect(getFile(folder, 'missing-id')).rejects.toThrow(
+        'File not found',
+      );
     });
 
-    describe('get most recent file fails', () => {
-      it('should return 400', async () => {
-        mockFindFirstOrThrow.mockResolvedValue({
-          attachment_file_id: faker.string.uuid(),
-          display_name: faker.lorem.word(),
-        } as announcement_resource);
-        const res = {
-          status: vi.fn().mockReturnThis(),
-          json: vi.fn(),
-        };
-
-        mockSend.mockRejectedValue(new Error('error'));
-
-        const fileId = 'fileId';
-        await downloadFile(res, fileId);
-        expect(res.status).toHaveBeenCalledWith(400);
+    it('propagates the error when fetching the object body fails', async () => {
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield {
+            Contents: [
+              {
+                Key: `${folder}/file-id/page-1.pdf`,
+                LastModified: new Date('2024-01-01T00:00:00.000Z'),
+              },
+            ],
+          };
+        },
       });
+      mockSend.mockRejectedValue(new Error('network error'));
+
+      await expect(getFile(folder, 'file-id')).rejects.toThrow('network error');
     });
 
-    it('should return 400', async () => {
-      mockFindFirstOrThrow.mockRejectedValue(new Error('error'));
+    it('keeps the earlier file when two entries share the same LastModified', async () => {
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield {
+            Contents: [
+              {
+                Key: `${folder}/file-id/first.pdf`,
+                LastModified: new Date('2024-01-01T00:00:00.000Z'),
+              },
+              {
+                Key: `${folder}/file-id/second.docx`,
+                LastModified: new Date('2024-01-01T00:00:00.000Z'),
+              },
+            ],
+          };
+        },
+      });
+      mockSend.mockResolvedValue({ Body: {} });
 
-      const res = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      };
+      const result = await getFile(folder, 'file-id');
 
-      const fileId = 'fileId';
-      await downloadFile(res, fileId);
-      expect(res.status).toHaveBeenCalledWith(400);
+      // reduce() only replaces on strict `>`, so a tie keeps the first-seen entry
+      expect(result.ext).toBe('.pdf');
     });
   });
 
   describe('deleteFiles', () => {
-    it('should handle multiple ids, ids that dont exist, and ids that have already been deleted', async () => {
+    it('removes deleted ids from the result set and preserves failures', async () => {
       const ids = ['id1', 'id2', 'id3', 'id4'];
-      const fileId1a = { Key: `${APP_ANNOUNCEMENTS_FOLDER}/id1/file1a` };
-      const fileId1b = { Key: `${APP_ANNOUNCEMENTS_FOLDER}/id1/file1b` };
-      const fileId1c = { Key: `${APP_ANNOUNCEMENTS_FOLDER}/id1/file1c` };
+      const fileId1a = { Key: `${folder}/id1/file1a` };
+      const fileId1b = { Key: `${folder}/id1/file1b` };
+      const fileId1c = { Key: `${folder}/id1/file1c` };
       const fileId2 = {
-        Key: `${APP_ANNOUNCEMENTS_FOLDER}/id2/file2`,
+        Key: `${folder}/id2/file2`,
         Code: 'NoSuchKey',
       };
       const fileId3 = {
-        Key: `${APP_ANNOUNCEMENTS_FOLDER}/id3/file3`,
+        Key: `${folder}/id3/file3`,
         Code: 'OtherError',
       };
-      //mock the results of getlis for each id
-      mockSend.mockReturnValueOnce({
-        Contents: [fileId1a, fileId1b, fileId1c],
-      });
-      mockSend.mockReturnValueOnce({ Contents: [fileId2] });
-      mockSend.mockReturnValueOnce({ Contents: [fileId3] });
-      mockSend.mockReturnValueOnce({});
-      //mock the result of delete
-      mockSend.mockReturnValueOnce({
+
+      mockPaginateListObjectsV2.mockImplementation((_config, input) => ({
+        async *[Symbol.asyncIterator]() {
+          if (input.Prefix.includes('/id1/')) {
+            yield { Contents: [fileId1a, fileId1b, fileId1c] };
+          } else if (input.Prefix.includes('/id2/')) {
+            yield { Contents: [fileId2] };
+          } else if (input.Prefix.includes('/id3/')) {
+            yield { Contents: [fileId3] };
+          } else {
+            yield { Contents: [] };
+          }
+        },
+      }));
+      mockSend.mockResolvedValueOnce({
         Deleted: [fileId1a, fileId1b, fileId1c],
         Errors: [fileId2, fileId3],
       });
 
-      const result = await deleteFiles(ids);
+      const result = await deleteFiles(folder, ids);
 
-      //id3 had a file that failed to delete, so it shouldn't say that id3 was deleted
       expect(result).toEqual(new Set(['id1', 'id2', 'id4']));
     });
-  });
 
+    it('returns an empty set when there is an error', async () => {
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield { Contents: [{ Key: `${folder}/id1/file1a` }] };
+        },
+      });
+      mockSend.mockRejectedValue(new Error('boom'));
+
+      const result = await deleteFiles(folder, ['id1']);
+
+      expect(result).toEqual(new Set());
+    });
+
+    it('returns only ids with no files when a list lookup rejects', async () => {
+      const ids = ['id1', 'id2'];
+
+      mockPaginateListObjectsV2.mockImplementation((_config, input) => ({
+        async *[Symbol.asyncIterator]() {
+          if (input.Prefix.includes('/id1/')) {
+            yield { Contents: [] };
+          } else if (input.Prefix.includes('/id2/')) {
+            throw new Error('list failed');
+          }
+        },
+      }));
+      mockSend.mockResolvedValue({ Deleted: [], Errors: [] });
+
+      const result = await deleteFiles(folder, ids);
+
+      expect(result).toEqual(new Set(['id1']));
+    });
+
+    it('ignores delete errors with undefined Key and still returns successful ids', async () => {
+      const ids = ['id1'];
+      const file1 = { Key: `${folder}/id1/file1` };
+
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield { Contents: [file1] };
+        },
+      });
+      mockSend.mockResolvedValue({
+        Deleted: [file1],
+        Errors: [{ Key: undefined, Code: 'OtherError', Message: 'ignored' }],
+      });
+
+      const result = await deleteFiles(folder, ids);
+
+      expect(result).toEqual(new Set(['id1']));
+    });
+
+    it('splits deletions into batches of 1000 objects', async () => {
+      mockSend.mockClear();
+      (
+        DeleteObjectsCommand as unknown as { mockClear: () => void }
+      ).mockClear();
+
+      const files = Array.from({ length: 1500 }, (_, i) => ({
+        Key: `${folder}/id1/file-${i}`,
+      }));
+
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield { Contents: files };
+        },
+      });
+      mockSend.mockResolvedValue({ Deleted: [], Errors: [] });
+
+      const result = await deleteFiles(folder, ['id1']);
+
+      expect(DeleteObjectsCommand).toHaveBeenCalledTimes(2);
+      expect(mockSend).toHaveBeenCalledTimes(2);
+      const calls = (
+        DeleteObjectsCommand as unknown as { mock: { calls: any[][] } }
+      ).mock.calls;
+      expect(calls[0][0].Delete.Objects).toHaveLength(1000);
+      expect(calls[1][0].Delete.Objects).toHaveLength(500);
+      expect(result).toEqual(new Set(['id1']));
+    });
+
+    it('does not issue any delete call when no ids have files', async () => {
+      mockSend.mockClear();
+      (
+        DeleteObjectsCommand as unknown as { mockClear: () => void }
+      ).mockClear();
+
+      mockPaginateListObjectsV2.mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          yield { Contents: [] };
+        },
+      });
+
+      const result = await deleteFiles(folder, ['id1', 'id2']);
+
+      expect(DeleteObjectsCommand).not.toHaveBeenCalled();
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(result).toEqual(new Set(['id1', 'id2']));
+    });
+
+    it('returns an empty set immediately for an empty ids array', async () => {
+      mockSend.mockClear();
+      mockPaginateListObjectsV2.mockClear();
+
+      const result = await deleteFiles(folder, []);
+
+      expect(mockPaginateListObjectsV2).not.toHaveBeenCalled();
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(result).toEqual(new Set());
+    });
+  });
   describe('upload', () => {
     const mockStream = { pipe: vi.fn(), on: vi.fn() };
 

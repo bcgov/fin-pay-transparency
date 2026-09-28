@@ -64,7 +64,6 @@
 import ApiService from '../../services/apiService';
 import { ref, onMounted } from 'vue';
 import { EmployerMetrics } from '../../types/employers';
-import ToolTip from '../ToolTip.vue';
 
 onMounted(() => {
   refresh();

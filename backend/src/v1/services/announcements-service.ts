@@ -12,7 +12,7 @@ import {
 } from '../prisma/generated/client.js';
 import isEmpty from 'lodash/isEmpty.js';
 import { config } from '../../config/config.js';
-import { deleteFiles } from '../../external/services/s3-api.js';
+import { deleteFiles, getFile } from '../../external/services/s3-api.js';
 import { logger } from '../../logger.js';
 import prisma from '../prisma/prisma-client.js';
 import { PaginatedResult } from '../types/request.js';
@@ -24,6 +24,7 @@ import {
 } from '../types/announcements.js';
 import { UserInputError } from '../types/errors.js';
 import { utils } from './utils-service.js';
+import { APP_ANNOUNCEMENTS_FOLDER } from '../../constants/admin.js';
 
 const saveHistory = async (
   tx: Prisma.TransactionClient,
@@ -599,6 +600,7 @@ are found, marks them as expired */
 
     // Delete files in announcements
     const successfulDeletions = await deleteFiles(
+      APP_ANNOUNCEMENTS_FOLDER,
       Object.values(lookupFileIdFromId),
     );
 
@@ -651,5 +653,25 @@ are found, marks them as expired */
         }
       }),
     );
+  },
+
+  async getAnnouncementResource(id: string) {
+    const attachment = await prisma.announcement_resource.findFirstOrThrow({
+      where: {
+        announcement_resource_id: id,
+        resource_type: 'ATTACHMENT',
+      },
+    });
+
+    const { data, ext = '' } = await getFile(
+      APP_ANNOUNCEMENTS_FOLDER,
+      attachment.attachment_file_id,
+    );
+
+    return {
+      filename: attachment.display_name + ext,
+      contentLength: data.ContentLength,
+      data: data.Body,
+    };
   },
 };

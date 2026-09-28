@@ -179,7 +179,7 @@ export type Employee_count_rangeGroupByOutputType = {
   _max: Employee_count_rangeMaxAggregateOutputType | null
 }
 
-type GetEmployee_count_rangeGroupByPayload<T extends employee_count_rangeGroupByArgs> = Prisma.PrismaPromise<
+export type GetEmployee_count_rangeGroupByPayload<T extends employee_count_rangeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Employee_count_rangeGroupByOutputType, T['by']> &
       {
@@ -1290,6 +1290,11 @@ export type employee_count_rangeFindManyArgs<ExtArgs extends runtime.Types.Exten
    * Skip the first `n` employee_count_ranges.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of employee_count_ranges.
+   */
   distinct?: Prisma.Employee_count_rangeScalarFieldEnum | Prisma.Employee_count_rangeScalarFieldEnum[]
 }
 

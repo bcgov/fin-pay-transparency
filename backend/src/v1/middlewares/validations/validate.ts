@@ -3,7 +3,7 @@ import { ZodSchema } from 'zod';
 import { logger } from '../../../logger.js';
 
 export type UseValidateOptions = {
-  mode: 'body' | 'query';
+  mode: 'body' | 'query' | 'params';
   schema: ZodSchema;
 };
 

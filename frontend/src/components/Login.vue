@@ -79,6 +79,7 @@
             <v-row>
               <v-col class="d-flex justify-center align-center">
                 <button
+                  type="button"
                   aria-label="Upload"
                   class="circle"
                   :class="{
@@ -92,6 +93,7 @@
               </v-col>
               <v-col class="d-flex justify-center align-center">
                 <button
+                  type="button"
                   aria-label="Review"
                   class="circle"
                   :class="{
@@ -105,6 +107,7 @@
               </v-col>
               <v-col class="d-flex justify-center align-center">
                 <button
+                  type="button"
                   aria-label="Generate"
                   class="circle"
                   :class="{

@@ -5,9 +5,9 @@
         <span class="d-flex align-center">
           Updates
           <v-chip
+            v-if="announcements && !isLoading"
             size="x-small"
             class="bg-white text-primary ml-2"
-            v-if="announcements && !isLoading"
             ><b>{{ announcements.length }}</b></v-chip
           >
         </span>
@@ -15,8 +15,11 @@
     </v-toolbar>
     <v-card-text class="flex-grow-1 v-scroll">
       <div class="d-flex flex-column">
-        <div class="flex-grow-1" v-if="!isLoading">
-          <template v-for="(announcement, index) in page">
+        <div v-if="!isLoading" class="flex-grow-1">
+          <template
+            v-for="(announcement, index) in page"
+            :key="announcement.announcement_id"
+          >
             <AnnouncementItem :announcement="announcement"> </AnnouncementItem>
             <v-divider v-if="index < page.length - 1" class="my-4"></v-divider>
           </template>
@@ -24,6 +27,7 @@
         <div v-if="isLoading">
           <v-skeleton-loader
             v-for="i in pageSize"
+            :key="i"
             loading-text="loading announcements"
             type="article"
             class="h-100 mb-4"
@@ -33,8 +37,8 @@
     </v-card-text>
 
     <v-pagination
-      v-model="pageNum"
       v-if="numPages > 1 && !isLoading"
+      v-model="pageNum"
       :length="numPages"
       size="28"
       class="mt-2 flex-shrink-1"
@@ -54,7 +58,7 @@ import { ref, computed } from 'vue';
 
 const props = withDefaults(
   defineProps<{
-    announcements?: Announcement[] | undefined;
+    announcements?: Announcement[];
     pageSize?: number;
     isLoading?: boolean;
   }>(),

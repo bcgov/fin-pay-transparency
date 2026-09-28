@@ -207,7 +207,7 @@ export type Company_historyGroupByOutputType = {
   _max: Company_historyMaxAggregateOutputType | null
 }
 
-type GetCompany_historyGroupByPayload<T extends company_historyGroupByArgs> = Prisma.PrismaPromise<
+export type GetCompany_historyGroupByPayload<T extends company_historyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Company_historyGroupByOutputType, T['by']> &
       {
@@ -1379,6 +1379,11 @@ export type company_historyFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` company_histories.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of company_histories.
+   */
   distinct?: Prisma.Company_historyScalarFieldEnum | Prisma.Company_historyScalarFieldEnum[]
 }
 

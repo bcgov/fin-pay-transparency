@@ -1,8 +1,6 @@
 export const ADMIN_ROLE_NAME = 'PTRT-ADMIN';
 export const USER_ROLE_NAME = 'PTRT-USER';
 
-export type RoleType = 'PTRT-ADMIN' | 'PTRT-USER' | undefined;
-
 export const RoleLabels = {
   'PTRT-ADMIN': 'Manager',
   'PTRT-USER': 'User',
@@ -27,4 +25,6 @@ export enum ReportAdminActions {
   EditReportingYear = 'editReportingYear',
   WithdrawReport = 'withdrawReport',
   AdminActionHistory = 'adminActionHistory',
+  ReportUrl = 'reportUrl',
+  ReportUrlHistory = 'reportUrlHistory',
 }

@@ -10,19 +10,23 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { useReportStepperStore } from '../../../store/modules/reportStepper';
+import {
+  ReportStage,
+  useReportStepperStore,
+} from '../../../store/modules/reportStepper';
 
 const { stage } = storeToRefs(useReportStepperStore());
 
 const router = useRouter();
-const props = defineProps([
-  'value',
-  'label',
-  'url',
-  'index',
-  'disabled',
-  'completed',
-]);
+
+const props = defineProps<{
+  value: ReportStage;
+  label: string;
+  url: string;
+  index: number;
+  disabled: boolean;
+  completed: boolean;
+}>();
 
 const getThumbClassName = () => {
   let thumbClass = 'step-thumb' + `${props.disabled ? ' disabled' : ''}`;

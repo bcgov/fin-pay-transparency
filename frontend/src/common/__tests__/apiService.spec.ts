@@ -497,6 +497,160 @@ describe('ApiService', () => {
       });
     });
   });
+
+  describe('addOrUpdateReportUrl', () => {
+    describe('when the operation is successful', () => {
+      it('returns the expected response data from the API', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const mockReportUrl = 'https://example.com/report';
+        const mockBackendResponse = {
+          report_url_id: '12345',
+          report_id: mockReportId,
+          report_url: mockReportUrl,
+        };
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.addOrUpdateReportUrl(
+          mockReportId,
+          mockReportUrl,
+          false,
+        );
+
+        expect(resp).toEqual(mockBackendResponse);
+      });
+    });
+
+    describe('when reportUrl is empty string and no previous value exists', () => {
+      it('throws an error with message "reportUrl is required"', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const emptyUrl = '';
+
+        await expect(
+          ApiService.addOrUpdateReportUrl(mockReportId, emptyUrl, false),
+        ).rejects.toThrow('reportUrl is required');
+      });
+    });
+
+    describe('when reportUrl is whitespace only and no previous value exists', () => {
+      it('throws an error with message "reportUrl is required"', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const whitespaceUrl = '   ';
+
+        await expect(
+          ApiService.addOrUpdateReportUrl(mockReportId, whitespaceUrl, false),
+        ).rejects.toThrow('reportUrl is required');
+      });
+    });
+
+    describe('when reportUrl is empty string and a previous value exists', () => {
+      it('allows the empty string to clear the previous value', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const emptyUrl = '';
+        const mockBackendResponse = { success: true };
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.addOrUpdateReportUrl(
+          mockReportId,
+          emptyUrl,
+          true,
+        );
+
+        expect(resp).toEqual(mockBackendResponse);
+      });
+    });
+
+    describe('when reportUrl is whitespace only and a previous value exists', () => {
+      it('allows clearing the previous value with whitespace', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const whitespaceUrl = '   ';
+        const mockBackendResponse = { success: true };
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        const resp = await ApiService.addOrUpdateReportUrl(
+          mockReportId,
+          whitespaceUrl,
+          true,
+        );
+
+        expect(resp).toEqual(mockBackendResponse);
+      });
+    });
+
+    describe('when the API returns a response without data', () => {
+      it('throws an error with message "Unexpected response from addOrUpdateReportUrl API"', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const mockReportUrl = 'https://example.com/report';
+        const mockAxiosResponse = {
+          data: null,
+        };
+        vi.spyOn(ApiService.apiAxios, 'post').mockResolvedValueOnce(
+          mockAxiosResponse,
+        );
+
+        await expect(
+          ApiService.addOrUpdateReportUrl(mockReportId, mockReportUrl, false),
+        ).rejects.toThrow('Unexpected response from addOrUpdateReportUrl API');
+      });
+    });
+
+    describe('when the API call fails', () => {
+      it('returns a rejected promise with the error from the API', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const mockReportUrl = 'https://example.com/report';
+        const mockAxiosError = new AxiosError('Network error');
+        vi.spyOn(ApiService.apiAxios, 'post').mockRejectedValueOnce(
+          mockAxiosError,
+        );
+
+        await expect(
+          ApiService.addOrUpdateReportUrl(mockReportId, mockReportUrl, false),
+        ).rejects.toEqual(mockAxiosError);
+      });
+    });
+
+    describe('when making the POST request', () => {
+      it('sends the correct reportId and reportUrl to the API', async () => {
+        const mockReportId = '32655fd3-22b7-4b9a-86de-2bfc0fcf9102';
+        const mockReportUrl = 'https://example.com/report';
+        const mockBackendResponse = { success: true };
+        const mockAxiosResponse = {
+          data: mockBackendResponse,
+        };
+        const postSpy = vi
+          .spyOn(ApiService.apiAxios, 'post')
+          .mockResolvedValueOnce(mockAxiosResponse);
+
+        await ApiService.addOrUpdateReportUrl(
+          mockReportId,
+          mockReportUrl,
+          false,
+        );
+
+        // Verify the post method was called with the correct parameters
+        expect(postSpy).toHaveBeenCalledWith(
+          expect.stringContaining(mockReportId),
+          {
+            reportUrl: mockReportUrl,
+          },
+        );
+      });
+    });
+  });
 });
 
 describe('ApiServicePrivate', () => {

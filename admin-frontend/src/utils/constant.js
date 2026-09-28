@@ -1,7 +1,6 @@
 const baseRoot = '/admin-api';
 const clamavBaseRoot = '/clamav-api';
 const authRoot = baseRoot + '/auth';
-const fileUploadRoot = baseRoot + '/file-upload';
 let object;
 
 object = {
@@ -34,6 +33,7 @@ export const ApiRoutes = Object.freeze({
   REPORT_METRICS: `${baseRoot}/v1/dashboard/reports-metrics`,
   EMPLOYER_METRICS: `${baseRoot}/v1/dashboard/employer-metrics`,
   EMPLOYER: `${baseRoot}/v1/employers`,
+  REPORT_URLS: `${baseRoot}/v1/report-url`,
 });
 
 export const PAGE_TITLES = Object.freeze({
@@ -49,13 +49,6 @@ export const PAGE_TITLES = Object.freeze({
   TOKEN_EXPIRED: 'Token Expired',
   INVITATION_EXPIRED: 'Invitation Expired',
   UNAUTHORIZED: 'Unauthorized',
-});
-
-export const MINISTRY_NAME = 'Ministry of Finance';
-
-export const REPORT_STATUS = Object.freeze({
-  DRAFT: 'Draft',
-  PUBLISHED: 'Published',
 });
 
 export const POWERBI_RESOURCE = Object.freeze({

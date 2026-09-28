@@ -13,7 +13,7 @@ import { Prisma } from '../prisma/generated/client.js';
 
 axios.interceptors.response.use((response) => {
   const headers = response.headers;
-  if (headers && headers['x-correlation-id']) {
+  if (headers?.['x-correlation-id']) {
     const correlationId = headers['x-correlation-id'];
     logger.info(
       `${response.config.method.toUpperCase()} | ${response.config.url} | ${

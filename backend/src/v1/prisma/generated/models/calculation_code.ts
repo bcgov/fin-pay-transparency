@@ -144,7 +144,7 @@ export type Calculation_codeGroupByOutputType = {
   _max: Calculation_codeMaxAggregateOutputType | null
 }
 
-type GetCalculation_codeGroupByPayload<T extends calculation_codeGroupByArgs> = Prisma.PrismaPromise<
+export type GetCalculation_codeGroupByPayload<T extends calculation_codeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Calculation_codeGroupByOutputType, T['by']> &
       {
@@ -1106,6 +1106,11 @@ export type calculation_codeFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` calculation_codes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of calculation_codes.
+   */
   distinct?: Prisma.Calculation_codeScalarFieldEnum | Prisma.Calculation_codeScalarFieldEnum[]
 }
 

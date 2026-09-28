@@ -1,0 +1,5 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+
+  "ignore": ["src/v1/prisma/**"]
+}

@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model announcement_status
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement_statusModel = runtime.Types.Result.DefaultSelection<Prisma.$announcement_statusPayload>
 
@@ -151,7 +151,7 @@ export type Announcement_statusGroupByOutputType = {
   _max: Announcement_statusMaxAggregateOutputType | null
 }
 
-type GetAnnouncement_statusGroupByPayload<T extends announcement_statusGroupByArgs> = Prisma.PrismaPromise<
+export type GetAnnouncement_statusGroupByPayload<T extends announcement_statusGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Announcement_statusGroupByOutputType, T['by']> &
       {
@@ -1146,6 +1146,11 @@ export type announcement_statusFindManyArgs<ExtArgs extends runtime.Types.Extens
    * Skip the first `n` announcement_statuses.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of announcement_statuses.
+   */
   distinct?: Prisma.Announcement_statusScalarFieldEnum | Prisma.Announcement_statusScalarFieldEnum[]
 }
 

@@ -12,11 +12,12 @@
     </div>
     <v-row class="users-grid" no-gutters>
       <v-col
+        v-for="user of users"
+        :key="user.id"
         class="user-card-wrapper"
         cols="12"
         sm="12"
         md="3"
-        v-for="user of users"
       >
         <UserCard :key="user.id" :user="user" />
       </v-col>

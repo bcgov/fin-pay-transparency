@@ -315,7 +315,7 @@ export type Pay_transparency_reportGroupByOutputType = {
   _max: Pay_transparency_reportMaxAggregateOutputType | null
 }
 
-type GetPay_transparency_reportGroupByPayload<T extends pay_transparency_reportGroupByArgs> = Prisma.PrismaPromise<
+export type GetPay_transparency_reportGroupByPayload<T extends pay_transparency_reportGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Pay_transparency_reportGroupByOutputType, T['by']> &
       {
@@ -362,7 +362,9 @@ export type pay_transparency_reportWhereInput = {
   employee_count_range?: Prisma.XOR<Prisma.Employee_count_rangeScalarRelationFilter, Prisma.employee_count_rangeWhereInput>
   pay_transparency_company?: Prisma.XOR<Prisma.Pay_transparency_companyScalarRelationFilter, Prisma.pay_transparency_companyWhereInput>
   pay_transparency_user?: Prisma.XOR<Prisma.Pay_transparency_userScalarRelationFilter, Prisma.pay_transparency_userWhereInput>
+  pay_transparency_report_url?: Prisma.XOR<Prisma.Pay_transparency_report_urlNullableScalarRelationFilter, Prisma.pay_transparency_report_urlWhereInput> | null
   report_history?: Prisma.Report_historyListRelationFilter
+  report_url_history?: Prisma.Report_url_historyListRelationFilter
 }
 
 export type pay_transparency_reportOrderByWithRelationInput = {
@@ -394,7 +396,9 @@ export type pay_transparency_reportOrderByWithRelationInput = {
   employee_count_range?: Prisma.employee_count_rangeOrderByWithRelationInput
   pay_transparency_company?: Prisma.pay_transparency_companyOrderByWithRelationInput
   pay_transparency_user?: Prisma.pay_transparency_userOrderByWithRelationInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlOrderByWithRelationInput
   report_history?: Prisma.report_historyOrderByRelationAggregateInput
+  report_url_history?: Prisma.report_url_historyOrderByRelationAggregateInput
 }
 
 export type pay_transparency_reportWhereUniqueInput = Prisma.AtLeast<{
@@ -430,7 +434,9 @@ export type pay_transparency_reportWhereUniqueInput = Prisma.AtLeast<{
   employee_count_range?: Prisma.XOR<Prisma.Employee_count_rangeScalarRelationFilter, Prisma.employee_count_rangeWhereInput>
   pay_transparency_company?: Prisma.XOR<Prisma.Pay_transparency_companyScalarRelationFilter, Prisma.pay_transparency_companyWhereInput>
   pay_transparency_user?: Prisma.XOR<Prisma.Pay_transparency_userScalarRelationFilter, Prisma.pay_transparency_userWhereInput>
+  pay_transparency_report_url?: Prisma.XOR<Prisma.Pay_transparency_report_urlNullableScalarRelationFilter, Prisma.pay_transparency_report_urlWhereInput> | null
   report_history?: Prisma.Report_historyListRelationFilter
+  report_url_history?: Prisma.Report_url_historyListRelationFilter
 }, "report_id" | "company_id_user_id_reporting_year_report_status">
 
 export type pay_transparency_reportOrderByWithAggregationInput = {
@@ -515,7 +521,9 @@ export type pay_transparency_reportCreateInput = {
   employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateInput = {
@@ -542,7 +550,9 @@ export type pay_transparency_reportUncheckedCreateInput = {
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUpdateInput = {
@@ -569,7 +579,9 @@ export type pay_transparency_reportUpdateInput = {
   employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateInput = {
@@ -596,7 +608,9 @@ export type pay_transparency_reportUncheckedUpdateInput = {
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportCreateManyInput = {
@@ -1022,6 +1036,34 @@ export type pay_transparency_reportUncheckedUpdateManyWithoutAdmin_userNestedInp
   deleteMany?: Prisma.pay_transparency_reportScalarWhereInput | Prisma.pay_transparency_reportScalarWhereInput[]
 }
 
+export type pay_transparency_reportCreateNestedOneWithoutPay_transparency_report_urlInput = {
+  create?: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutPay_transparency_report_urlInput, Prisma.pay_transparency_reportUncheckedCreateWithoutPay_transparency_report_urlInput>
+  connectOrCreate?: Prisma.pay_transparency_reportCreateOrConnectWithoutPay_transparency_report_urlInput
+  connect?: Prisma.pay_transparency_reportWhereUniqueInput
+}
+
+export type pay_transparency_reportUpdateOneRequiredWithoutPay_transparency_report_urlNestedInput = {
+  create?: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutPay_transparency_report_urlInput, Prisma.pay_transparency_reportUncheckedCreateWithoutPay_transparency_report_urlInput>
+  connectOrCreate?: Prisma.pay_transparency_reportCreateOrConnectWithoutPay_transparency_report_urlInput
+  upsert?: Prisma.pay_transparency_reportUpsertWithoutPay_transparency_report_urlInput
+  connect?: Prisma.pay_transparency_reportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.pay_transparency_reportUpdateToOneWithWhereWithoutPay_transparency_report_urlInput, Prisma.pay_transparency_reportUpdateWithoutPay_transparency_report_urlInput>, Prisma.pay_transparency_reportUncheckedUpdateWithoutPay_transparency_report_urlInput>
+}
+
+export type pay_transparency_reportCreateNestedOneWithoutReport_url_historyInput = {
+  create?: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutReport_url_historyInput, Prisma.pay_transparency_reportUncheckedCreateWithoutReport_url_historyInput>
+  connectOrCreate?: Prisma.pay_transparency_reportCreateOrConnectWithoutReport_url_historyInput
+  connect?: Prisma.pay_transparency_reportWhereUniqueInput
+}
+
+export type pay_transparency_reportUpdateOneRequiredWithoutReport_url_historyNestedInput = {
+  create?: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutReport_url_historyInput, Prisma.pay_transparency_reportUncheckedCreateWithoutReport_url_historyInput>
+  connectOrCreate?: Prisma.pay_transparency_reportCreateOrConnectWithoutReport_url_historyInput
+  upsert?: Prisma.pay_transparency_reportUpsertWithoutReport_url_historyInput
+  connect?: Prisma.pay_transparency_reportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.pay_transparency_reportUpdateToOneWithWhereWithoutReport_url_historyInput, Prisma.pay_transparency_reportUpdateWithoutReport_url_historyInput>, Prisma.pay_transparency_reportUncheckedUpdateWithoutReport_url_historyInput>
+}
+
 export type pay_transparency_reportCreateWithoutEmployee_count_rangeInput = {
   report_id?: string
   user_comment?: string | null
@@ -1045,7 +1087,9 @@ export type pay_transparency_reportCreateWithoutEmployee_count_rangeInput = {
   naics_code_pay_transparency_report_naics_codeTonaics_code: Prisma.naics_codeCreateNestedOneWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeInput
   pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateWithoutEmployee_count_rangeInput = {
@@ -1071,7 +1115,9 @@ export type pay_transparency_reportUncheckedCreateWithoutEmployee_count_rangeInp
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportCreateOrConnectWithoutEmployee_count_rangeInput = {
@@ -1151,7 +1197,9 @@ export type pay_transparency_reportCreateWithoutNaics_code_pay_transparency_repo
   employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateWithoutNaics_code_pay_transparency_report_naics_codeTonaics_codeInput = {
@@ -1177,7 +1225,9 @@ export type pay_transparency_reportUncheckedCreateWithoutNaics_code_pay_transpar
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportCreateOrConnectWithoutNaics_code_pay_transparency_report_naics_codeTonaics_codeInput = {
@@ -1229,7 +1279,9 @@ export type pay_transparency_reportCreateWithoutPay_transparency_calculated_data
   employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateWithoutPay_transparency_calculated_dataInput = {
@@ -1255,7 +1307,9 @@ export type pay_transparency_reportUncheckedCreateWithoutPay_transparency_calcul
   admin_modified_date?: Date | string | null
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportCreateOrConnectWithoutPay_transparency_calculated_dataInput = {
@@ -1297,7 +1351,9 @@ export type pay_transparency_reportUpdateWithoutPay_transparency_calculated_data
   employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateWithoutPay_transparency_calculated_dataInput = {
@@ -1323,7 +1379,9 @@ export type pay_transparency_reportUncheckedUpdateWithoutPay_transparency_calcul
   admin_modified_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportCreateWithoutPay_transparency_companyInput = {
@@ -1349,7 +1407,9 @@ export type pay_transparency_reportCreateWithoutPay_transparency_companyInput = 
   naics_code_pay_transparency_report_naics_codeTonaics_code: Prisma.naics_codeCreateNestedOneWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeInput
   employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateWithoutPay_transparency_companyInput = {
@@ -1375,7 +1435,9 @@ export type pay_transparency_reportUncheckedCreateWithoutPay_transparency_compan
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportCreateOrConnectWithoutPay_transparency_companyInput = {
@@ -1427,7 +1489,9 @@ export type pay_transparency_reportCreateWithoutPay_transparency_userInput = {
   naics_code_pay_transparency_report_naics_codeTonaics_code: Prisma.naics_codeCreateNestedOneWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeInput
   employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateWithoutPay_transparency_userInput = {
@@ -1453,7 +1517,9 @@ export type pay_transparency_reportUncheckedCreateWithoutPay_transparency_userIn
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportCreateOrConnectWithoutPay_transparency_userInput = {
@@ -1506,6 +1572,8 @@ export type pay_transparency_reportCreateWithoutReport_historyInput = {
   employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateWithoutReport_historyInput = {
@@ -1532,6 +1600,8 @@ export type pay_transparency_reportUncheckedCreateWithoutReport_historyInput = {
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportCreateOrConnectWithoutReport_historyInput = {
@@ -1574,6 +1644,8 @@ export type pay_transparency_reportUpdateWithoutReport_historyInput = {
   employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateWithoutReport_historyInput = {
@@ -1600,6 +1672,8 @@ export type pay_transparency_reportUncheckedUpdateWithoutReport_historyInput = {
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportCreateWithoutAdmin_userInput = {
@@ -1625,7 +1699,9 @@ export type pay_transparency_reportCreateWithoutAdmin_userInput = {
   employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
   pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportUncheckedCreateWithoutAdmin_userInput = {
@@ -1651,7 +1727,9 @@ export type pay_transparency_reportUncheckedCreateWithoutAdmin_userInput = {
   admin_last_access_date?: Date | string | null
   admin_modified_reason?: string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
   report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
 }
 
 export type pay_transparency_reportCreateOrConnectWithoutAdmin_userInput = {
@@ -1678,6 +1756,262 @@ export type pay_transparency_reportUpdateWithWhereUniqueWithoutAdmin_userInput =
 export type pay_transparency_reportUpdateManyWithWhereWithoutAdmin_userInput = {
   where: Prisma.pay_transparency_reportScalarWhereInput
   data: Prisma.XOR<Prisma.pay_transparency_reportUpdateManyMutationInput, Prisma.pay_transparency_reportUncheckedUpdateManyWithoutAdmin_userInput>
+}
+
+export type pay_transparency_reportCreateWithoutPay_transparency_report_urlInput = {
+  report_id?: string
+  user_comment?: string | null
+  report_start_date?: Date | string
+  report_end_date?: Date | string
+  create_date?: Date | string
+  update_date?: Date | string
+  create_user?: string
+  update_user?: string
+  report_status?: string | null
+  revision: runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: string | null
+  is_unlocked?: boolean
+  reporting_year: runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Date | string | null
+  admin_modified_date?: Date | string | null
+  admin_last_access_date?: Date | string | null
+  admin_modified_reason?: string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataCreateNestedManyWithoutPay_transparency_reportInput
+  admin_user?: Prisma.admin_userCreateNestedOneWithoutPay_transparency_reportInput
+  naics_code_pay_transparency_report_naics_codeTonaics_code: Prisma.naics_codeCreateNestedOneWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeInput
+  employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyCreateNestedManyWithoutPay_transparency_reportInput
+}
+
+export type pay_transparency_reportUncheckedCreateWithoutPay_transparency_report_urlInput = {
+  report_id?: string
+  company_id: string
+  user_id: string
+  user_comment?: string | null
+  employee_count_range_id: string
+  naics_code: string
+  report_start_date?: Date | string
+  report_end_date?: Date | string
+  create_date?: Date | string
+  update_date?: Date | string
+  create_user?: string
+  update_user?: string
+  report_status?: string | null
+  revision: runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: string | null
+  is_unlocked?: boolean
+  reporting_year: runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Date | string | null
+  admin_user_id?: string | null
+  admin_modified_date?: Date | string | null
+  admin_last_access_date?: Date | string | null
+  admin_modified_reason?: string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  report_url_history?: Prisma.report_url_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+}
+
+export type pay_transparency_reportCreateOrConnectWithoutPay_transparency_report_urlInput = {
+  where: Prisma.pay_transparency_reportWhereUniqueInput
+  create: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutPay_transparency_report_urlInput, Prisma.pay_transparency_reportUncheckedCreateWithoutPay_transparency_report_urlInput>
+}
+
+export type pay_transparency_reportUpsertWithoutPay_transparency_report_urlInput = {
+  update: Prisma.XOR<Prisma.pay_transparency_reportUpdateWithoutPay_transparency_report_urlInput, Prisma.pay_transparency_reportUncheckedUpdateWithoutPay_transparency_report_urlInput>
+  create: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutPay_transparency_report_urlInput, Prisma.pay_transparency_reportUncheckedCreateWithoutPay_transparency_report_urlInput>
+  where?: Prisma.pay_transparency_reportWhereInput
+}
+
+export type pay_transparency_reportUpdateToOneWithWhereWithoutPay_transparency_report_urlInput = {
+  where?: Prisma.pay_transparency_reportWhereInput
+  data: Prisma.XOR<Prisma.pay_transparency_reportUpdateWithoutPay_transparency_report_urlInput, Prisma.pay_transparency_reportUncheckedUpdateWithoutPay_transparency_report_urlInput>
+}
+
+export type pay_transparency_reportUpdateWithoutPay_transparency_report_urlInput = {
+  report_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  report_start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  report_end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  update_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_user?: Prisma.StringFieldUpdateOperationsInput | string
+  update_user?: Prisma.StringFieldUpdateOperationsInput | string
+  report_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_unlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reporting_year?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_modified_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUpdateManyWithoutPay_transparency_reportNestedInput
+  admin_user?: Prisma.admin_userUpdateOneWithoutPay_transparency_reportNestedInput
+  naics_code_pay_transparency_report_naics_codeTonaics_code?: Prisma.naics_codeUpdateOneRequiredWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeNestedInput
+  employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
+}
+
+export type pay_transparency_reportUncheckedUpdateWithoutPay_transparency_report_urlInput = {
+  report_id?: Prisma.StringFieldUpdateOperationsInput | string
+  company_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employee_count_range_id?: Prisma.StringFieldUpdateOperationsInput | string
+  naics_code?: Prisma.StringFieldUpdateOperationsInput | string
+  report_start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  report_end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  update_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_user?: Prisma.StringFieldUpdateOperationsInput | string
+  update_user?: Prisma.StringFieldUpdateOperationsInput | string
+  report_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_unlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reporting_year?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_modified_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+}
+
+export type pay_transparency_reportCreateWithoutReport_url_historyInput = {
+  report_id?: string
+  user_comment?: string | null
+  report_start_date?: Date | string
+  report_end_date?: Date | string
+  create_date?: Date | string
+  update_date?: Date | string
+  create_user?: string
+  update_user?: string
+  report_status?: string | null
+  revision: runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: string | null
+  is_unlocked?: boolean
+  reporting_year: runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Date | string | null
+  admin_modified_date?: Date | string | null
+  admin_last_access_date?: Date | string | null
+  admin_modified_reason?: string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataCreateNestedManyWithoutPay_transparency_reportInput
+  admin_user?: Prisma.admin_userCreateNestedOneWithoutPay_transparency_reportInput
+  naics_code_pay_transparency_report_naics_codeTonaics_code: Prisma.naics_codeCreateNestedOneWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeInput
+  employee_count_range: Prisma.employee_count_rangeCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_company: Prisma.pay_transparency_companyCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_user: Prisma.pay_transparency_userCreateNestedOneWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlCreateNestedOneWithoutPay_transparency_reportInput
+  report_history?: Prisma.report_historyCreateNestedManyWithoutPay_transparency_reportInput
+}
+
+export type pay_transparency_reportUncheckedCreateWithoutReport_url_historyInput = {
+  report_id?: string
+  company_id: string
+  user_id: string
+  user_comment?: string | null
+  employee_count_range_id: string
+  naics_code: string
+  report_start_date?: Date | string
+  report_end_date?: Date | string
+  create_date?: Date | string
+  update_date?: Date | string
+  create_user?: string
+  update_user?: string
+  report_status?: string | null
+  revision: runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: string | null
+  is_unlocked?: boolean
+  reporting_year: runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Date | string | null
+  admin_user_id?: string | null
+  admin_modified_date?: Date | string | null
+  admin_last_access_date?: Date | string | null
+  admin_modified_reason?: string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedCreateNestedOneWithoutPay_transparency_reportInput
+  report_history?: Prisma.report_historyUncheckedCreateNestedManyWithoutPay_transparency_reportInput
+}
+
+export type pay_transparency_reportCreateOrConnectWithoutReport_url_historyInput = {
+  where: Prisma.pay_transparency_reportWhereUniqueInput
+  create: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutReport_url_historyInput, Prisma.pay_transparency_reportUncheckedCreateWithoutReport_url_historyInput>
+}
+
+export type pay_transparency_reportUpsertWithoutReport_url_historyInput = {
+  update: Prisma.XOR<Prisma.pay_transparency_reportUpdateWithoutReport_url_historyInput, Prisma.pay_transparency_reportUncheckedUpdateWithoutReport_url_historyInput>
+  create: Prisma.XOR<Prisma.pay_transparency_reportCreateWithoutReport_url_historyInput, Prisma.pay_transparency_reportUncheckedCreateWithoutReport_url_historyInput>
+  where?: Prisma.pay_transparency_reportWhereInput
+}
+
+export type pay_transparency_reportUpdateToOneWithWhereWithoutReport_url_historyInput = {
+  where?: Prisma.pay_transparency_reportWhereInput
+  data: Prisma.XOR<Prisma.pay_transparency_reportUpdateWithoutReport_url_historyInput, Prisma.pay_transparency_reportUncheckedUpdateWithoutReport_url_historyInput>
+}
+
+export type pay_transparency_reportUpdateWithoutReport_url_historyInput = {
+  report_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  report_start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  report_end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  update_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_user?: Prisma.StringFieldUpdateOperationsInput | string
+  update_user?: Prisma.StringFieldUpdateOperationsInput | string
+  report_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_unlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reporting_year?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_modified_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUpdateManyWithoutPay_transparency_reportNestedInput
+  admin_user?: Prisma.admin_userUpdateOneWithoutPay_transparency_reportNestedInput
+  naics_code_pay_transparency_report_naics_codeTonaics_code?: Prisma.naics_codeUpdateOneRequiredWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeNestedInput
+  employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
+  report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+}
+
+export type pay_transparency_reportUncheckedUpdateWithoutReport_url_historyInput = {
+  report_id?: Prisma.StringFieldUpdateOperationsInput | string
+  company_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employee_count_range_id?: Prisma.StringFieldUpdateOperationsInput | string
+  naics_code?: Prisma.StringFieldUpdateOperationsInput | string
+  report_start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  report_end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  update_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  create_user?: Prisma.StringFieldUpdateOperationsInput | string
+  update_user?: Prisma.StringFieldUpdateOperationsInput | string
+  report_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revision?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  data_constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_unlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reporting_year?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  report_unlock_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_modified_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
+  report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportCreateManyEmployee_count_rangeInput = {
@@ -1727,7 +2061,9 @@ export type pay_transparency_reportUpdateWithoutEmployee_count_rangeInput = {
   naics_code_pay_transparency_report_naics_codeTonaics_code?: Prisma.naics_codeUpdateOneRequiredWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeNestedInput
   pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateWithoutEmployee_count_rangeInput = {
@@ -1753,7 +2089,9 @@ export type pay_transparency_reportUncheckedUpdateWithoutEmployee_count_rangeInp
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateManyWithoutEmployee_count_rangeInput = {
@@ -1827,7 +2165,9 @@ export type pay_transparency_reportUpdateWithoutNaics_code_pay_transparency_repo
   employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateWithoutNaics_code_pay_transparency_report_naics_codeTonaics_codeInput = {
@@ -1853,7 +2193,9 @@ export type pay_transparency_reportUncheckedUpdateWithoutNaics_code_pay_transpar
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateManyWithoutNaics_code_pay_transparency_report_naics_codeTonaics_codeInput = {
@@ -1927,7 +2269,9 @@ export type pay_transparency_reportUpdateWithoutPay_transparency_companyInput = 
   naics_code_pay_transparency_report_naics_codeTonaics_code?: Prisma.naics_codeUpdateOneRequiredWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeNestedInput
   employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateWithoutPay_transparency_companyInput = {
@@ -1953,7 +2297,9 @@ export type pay_transparency_reportUncheckedUpdateWithoutPay_transparency_compan
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateManyWithoutPay_transparency_companyInput = {
@@ -2027,7 +2373,9 @@ export type pay_transparency_reportUpdateWithoutPay_transparency_userInput = {
   naics_code_pay_transparency_report_naics_codeTonaics_code?: Prisma.naics_codeUpdateOneRequiredWithoutPay_transparency_report_pay_transparency_report_naics_codeTonaics_codeNestedInput
   employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateWithoutPay_transparency_userInput = {
@@ -2053,7 +2401,9 @@ export type pay_transparency_reportUncheckedUpdateWithoutPay_transparency_userIn
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateManyWithoutPay_transparency_userInput = {
@@ -2127,7 +2477,9 @@ export type pay_transparency_reportUpdateWithoutAdmin_userInput = {
   employee_count_range?: Prisma.employee_count_rangeUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_company?: Prisma.pay_transparency_companyUpdateOneRequiredWithoutPay_transparency_reportNestedInput
   pay_transparency_user?: Prisma.pay_transparency_userUpdateOneRequiredWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateWithoutAdmin_userInput = {
@@ -2153,7 +2505,9 @@ export type pay_transparency_reportUncheckedUpdateWithoutAdmin_userInput = {
   admin_last_access_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admin_modified_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pay_transparency_calculated_data?: Prisma.pay_transparency_calculated_dataUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  pay_transparency_report_url?: Prisma.pay_transparency_report_urlUncheckedUpdateOneWithoutPay_transparency_reportNestedInput
   report_history?: Prisma.report_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
+  report_url_history?: Prisma.report_url_historyUncheckedUpdateManyWithoutPay_transparency_reportNestedInput
 }
 
 export type pay_transparency_reportUncheckedUpdateManyWithoutAdmin_userInput = {
@@ -2188,11 +2542,13 @@ export type pay_transparency_reportUncheckedUpdateManyWithoutAdmin_userInput = {
 export type Pay_transparency_reportCountOutputType = {
   pay_transparency_calculated_data: number
   report_history: number
+  report_url_history: number
 }
 
 export type Pay_transparency_reportCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pay_transparency_calculated_data?: boolean | Pay_transparency_reportCountOutputTypeCountPay_transparency_calculated_dataArgs
   report_history?: boolean | Pay_transparency_reportCountOutputTypeCountReport_historyArgs
+  report_url_history?: boolean | Pay_transparency_reportCountOutputTypeCountReport_url_historyArgs
 }
 
 /**
@@ -2217,6 +2573,13 @@ export type Pay_transparency_reportCountOutputTypeCountPay_transparency_calculat
  */
 export type Pay_transparency_reportCountOutputTypeCountReport_historyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.report_historyWhereInput
+}
+
+/**
+ * Pay_transparency_reportCountOutputType without action
+ */
+export type Pay_transparency_reportCountOutputTypeCountReport_url_historyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.report_url_historyWhereInput
 }
 
 
@@ -2249,7 +2612,9 @@ export type pay_transparency_reportSelect<ExtArgs extends runtime.Types.Extensio
   employee_count_range?: boolean | Prisma.employee_count_rangeDefaultArgs<ExtArgs>
   pay_transparency_company?: boolean | Prisma.pay_transparency_companyDefaultArgs<ExtArgs>
   pay_transparency_user?: boolean | Prisma.pay_transparency_userDefaultArgs<ExtArgs>
+  pay_transparency_report_url?: boolean | Prisma.pay_transparency_report$pay_transparency_report_urlArgs<ExtArgs>
   report_history?: boolean | Prisma.pay_transparency_report$report_historyArgs<ExtArgs>
+  report_url_history?: boolean | Prisma.pay_transparency_report$report_url_historyArgs<ExtArgs>
   _count?: boolean | Prisma.Pay_transparency_reportCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pay_transparency_report"]>
 
@@ -2346,7 +2711,9 @@ export type pay_transparency_reportInclude<ExtArgs extends runtime.Types.Extensi
   employee_count_range?: boolean | Prisma.employee_count_rangeDefaultArgs<ExtArgs>
   pay_transparency_company?: boolean | Prisma.pay_transparency_companyDefaultArgs<ExtArgs>
   pay_transparency_user?: boolean | Prisma.pay_transparency_userDefaultArgs<ExtArgs>
+  pay_transparency_report_url?: boolean | Prisma.pay_transparency_report$pay_transparency_report_urlArgs<ExtArgs>
   report_history?: boolean | Prisma.pay_transparency_report$report_historyArgs<ExtArgs>
+  report_url_history?: boolean | Prisma.pay_transparency_report$report_url_historyArgs<ExtArgs>
   _count?: boolean | Prisma.Pay_transparency_reportCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type pay_transparency_reportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2373,7 +2740,9 @@ export type $pay_transparency_reportPayload<ExtArgs extends runtime.Types.Extens
     employee_count_range: Prisma.$employee_count_rangePayload<ExtArgs>
     pay_transparency_company: Prisma.$pay_transparency_companyPayload<ExtArgs>
     pay_transparency_user: Prisma.$pay_transparency_userPayload<ExtArgs>
+    pay_transparency_report_url: Prisma.$pay_transparency_report_urlPayload<ExtArgs> | null
     report_history: Prisma.$report_historyPayload<ExtArgs>[]
+    report_url_history: Prisma.$report_url_historyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     report_id: string
@@ -2798,7 +3167,9 @@ export interface Prisma__pay_transparency_reportClient<T, Null = never, ExtArgs 
   employee_count_range<T extends Prisma.employee_count_rangeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.employee_count_rangeDefaultArgs<ExtArgs>>): Prisma.Prisma__employee_count_rangeClient<runtime.Types.Result.GetResult<Prisma.$employee_count_rangePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   pay_transparency_company<T extends Prisma.pay_transparency_companyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.pay_transparency_companyDefaultArgs<ExtArgs>>): Prisma.Prisma__pay_transparency_companyClient<runtime.Types.Result.GetResult<Prisma.$pay_transparency_companyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   pay_transparency_user<T extends Prisma.pay_transparency_userDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.pay_transparency_userDefaultArgs<ExtArgs>>): Prisma.Prisma__pay_transparency_userClient<runtime.Types.Result.GetResult<Prisma.$pay_transparency_userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  pay_transparency_report_url<T extends Prisma.pay_transparency_report$pay_transparency_report_urlArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.pay_transparency_report$pay_transparency_report_urlArgs<ExtArgs>>): Prisma.Prisma__pay_transparency_report_urlClient<runtime.Types.Result.GetResult<Prisma.$pay_transparency_report_urlPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   report_history<T extends Prisma.pay_transparency_report$report_historyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.pay_transparency_report$report_historyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$report_historyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  report_url_history<T extends Prisma.pay_transparency_report$report_url_historyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.pay_transparency_report$report_url_historyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$report_url_historyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3046,6 +3417,11 @@ export type pay_transparency_reportFindManyArgs<ExtArgs extends runtime.Types.Ex
    * Skip the first `n` pay_transparency_reports.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of pay_transparency_reports.
+   */
   distinct?: Prisma.Pay_transparency_reportScalarFieldEnum | Prisma.Pay_transparency_reportScalarFieldEnum[]
 }
 
@@ -3289,6 +3665,25 @@ export type pay_transparency_report$admin_userArgs<ExtArgs extends runtime.Types
 }
 
 /**
+ * pay_transparency_report.pay_transparency_report_url
+ */
+export type pay_transparency_report$pay_transparency_report_urlArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the pay_transparency_report_url
+   */
+  select?: Prisma.pay_transparency_report_urlSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the pay_transparency_report_url
+   */
+  omit?: Prisma.pay_transparency_report_urlOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.pay_transparency_report_urlInclude<ExtArgs> | null
+  where?: Prisma.pay_transparency_report_urlWhereInput
+}
+
+/**
  * pay_transparency_report.report_history
  */
 export type pay_transparency_report$report_historyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3310,6 +3705,30 @@ export type pay_transparency_report$report_historyArgs<ExtArgs extends runtime.T
   take?: number
   skip?: number
   distinct?: Prisma.Report_historyScalarFieldEnum | Prisma.Report_historyScalarFieldEnum[]
+}
+
+/**
+ * pay_transparency_report.report_url_history
+ */
+export type pay_transparency_report$report_url_historyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the report_url_history
+   */
+  select?: Prisma.report_url_historySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the report_url_history
+   */
+  omit?: Prisma.report_url_historyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.report_url_historyInclude<ExtArgs> | null
+  where?: Prisma.report_url_historyWhereInput
+  orderBy?: Prisma.report_url_historyOrderByWithRelationInput | Prisma.report_url_historyOrderByWithRelationInput[]
+  cursor?: Prisma.report_url_historyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Report_url_historyScalarFieldEnum | Prisma.Report_url_historyScalarFieldEnum[]
 }
 
 /**

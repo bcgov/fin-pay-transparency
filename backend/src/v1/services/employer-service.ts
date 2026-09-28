@@ -19,7 +19,7 @@ export const employerService = {
     const numEmployers =
       await prismaReadOnlyReplica.pay_transparency_company.count();
     // Get start and end of current year in PST, then convert to UTC
-    const yearStartPst = ZonedDateTime.now(ZoneId.of('America/Vancouver'))
+    const yearStartPst = ZonedDateTime.now(ZoneId.of('America/Whitehorse'))
       .withDayOfYear(1)
       .truncatedTo(ChronoUnit.DAYS);
     const yearEndPst = yearStartPst.plusYears(1);

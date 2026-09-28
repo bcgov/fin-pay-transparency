@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+
+  "ignoreDependencies": [
+    "@bcgov/bc-sans",
+    "d3",
+    "@types/d3",
+    "prettier",
+    "ts-node"
+  ],
+  "ignore": ["src/templates/report.script.js"]
+}

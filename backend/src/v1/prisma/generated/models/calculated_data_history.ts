@@ -200,7 +200,7 @@ export type Calculated_data_historyGroupByOutputType = {
   _max: Calculated_data_historyMaxAggregateOutputType | null
 }
 
-type GetCalculated_data_historyGroupByPayload<T extends calculated_data_historyGroupByArgs> = Prisma.PrismaPromise<
+export type GetCalculated_data_historyGroupByPayload<T extends calculated_data_historyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Calculated_data_historyGroupByOutputType, T['by']> &
       {
@@ -1494,6 +1494,11 @@ export type calculated_data_historyFindManyArgs<ExtArgs extends runtime.Types.Ex
    * Skip the first `n` calculated_data_histories.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of calculated_data_histories.
+   */
   distinct?: Prisma.Calculated_data_historyScalarFieldEnum | Prisma.Calculated_data_historyScalarFieldEnum[]
 }
 

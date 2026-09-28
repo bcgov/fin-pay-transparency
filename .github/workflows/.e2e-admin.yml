@@ -2,29 +2,6 @@ name: .E2E-Admin
 env:
   deployment_name: pay-transparency
 on:
-  workflow_dispatch:
-    secrets:
-      ADMIN_E2E_TEST_LOGIN_USER_EMAIL:
-        required: true
-      ADMIN_E2E_TEST_LOGIN_PASSWORD:
-        required: true
-      ADMIN_E2E_TEST_LOGIN_OTP_SECRET:
-        required: true
-    inputs:
-      admin-frontend-url:
-        description: "URL of the admin frontend application"
-        required: true
-        type: string
-      environment:
-        description: "Environment to read secrets from GitHub secrets"
-        required: false
-        default: dev
-        type: string
-      timeout-minutes:
-        description: "Timeout minutes"
-        default: 8
-        required: false
-        type: number
   workflow_call:
     secrets:
       ADMIN_E2E_TEST_LOGIN_USER_EMAIL:
@@ -38,11 +15,6 @@ on:
         description: "URL of the admin frontend application"
         required: true
         type: string
-      environment:
-        description: "Environment to read secrets from GitHub secrets"
-        required: false
-        default: dev
-        type: string
       timeout-minutes:
         description: "Timeout minutes"
         default: 8
@@ -52,27 +24,31 @@ on:
 jobs:
   end-to-end:
     name: Tests
-    environment: ${{ inputs.environment }}
     defaults:
       run:
         working-directory: admin-frontend
-    runs-on: ubuntu-24.04
+    runs-on:
+      group: Larger Runners - OpenShift Static-IP
     timeout-minutes: ${{ inputs.timeout-minutes }}
     strategy:
       max-parallel: 1
       matrix:
         project: [Google Chrome] # [chromium, Google Chrome, firefox, safari, Microsoft Edge]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: Checkout
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         name: Setup Node
         with:
           node-version: 24
       - name: Install dependencies
         run: |
           npm ci
-          npx playwright install --with-deps
+
+      - name: Install Playwright
+        run: |
+          npx --no-install playwright install --with-deps
+
       - name: Run Tests
         env:
           E2E_ADMIN_BASE_URL: ${{ inputs.admin-frontend-url }}
@@ -82,7 +58,7 @@ jobs:
         run: |
           npx playwright test --project="${{ matrix.project }}" --reporter=html
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         name: upload results
         env:

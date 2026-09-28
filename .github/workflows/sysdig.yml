@@ -11,8 +11,8 @@ jobs:
       runs-on: ubuntu-24.04
       environment: tools
       steps:
-      - uses: actions/checkout@v6
-      - uses: bcgov/action-oc-runner@d2fc921aaa9d70684c186dbb7754e6985d44d86f # v1.4.1
+      - uses: actions/checkout@v7
+      - uses: bcgov/action-oc-runner@111868d1fc50db0a40417ba321d865ef5c931bbd # v1.7.0
         name: Login to OpenShift
         with:
           oc_namespace: db4642-tools

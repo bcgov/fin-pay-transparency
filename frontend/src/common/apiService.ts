@@ -9,7 +9,7 @@ import { ApiRoutes } from '../utils/constant';
 import { authStore } from '../store/modules/auth';
 import { IConfigValue, IReport } from './types';
 
-export enum REPORT_FORMATS {
+enum REPORT_FORMATS {
   HTML = 'html',
   PDF = 'pdf',
   JSON = 'json',
@@ -27,6 +27,21 @@ export interface ISubmission {
   dataConstraints: string | null;
   comments: string | null;
   rows: any[];
+}
+
+export interface IReport {
+  report_id: string;
+  report_start_date: string;
+  report_end_date: string;
+  reporting_year: number;
+  create_date: string;
+  update_date: string;
+  is_unlocked: boolean;
+  naics_code: string;
+  report_status: string;
+  employee_count_range_id: string;
+  user_comment: string | null;
+  data_constraints: string | null;
 }
 
 // Buffer concurrent requests while refresh token is being acquired
@@ -195,7 +210,7 @@ export default {
    * @param {string} reportId
    * @returns {report_id, user_comment, employee_count_range_id, naics_code, report_start_date, report_end_date, report_status, revision, data_constraints}
    */
-  async getReport(reportId): Promise<ISubmission> {
+  async getReport(reportId): Promise<IReport> {
     try {
       const resp = await apiAxios.get(ApiRoutes.REPORT + reportId);
       if (resp?.data) {
@@ -311,14 +326,9 @@ export default {
           responseType: 'blob',
         },
       );
-      const name = headers['content-disposition']
-        .split('filename="')[1]
-        .split('.')[0];
-      const extension = headers['content-disposition']
-        .split('.')[1]
-        .split('"')[0];
-
-      const filename = `${name}.${extension}`;
+      const filename = headers['content-disposition']
+        .split('filename=')[1]
+        .trim('"');
 
       const url = globalThis.URL.createObjectURL(data);
       const link = document.createElement('a');
@@ -330,6 +340,32 @@ export default {
     } catch (error) {
       console.log(`Failed to get from Nodejs downloadFile API - ${error}`);
       throw error;
+    }
+  },
+
+  async addOrUpdateReportUrl(
+    reportId: string,
+    reportUrl: string,
+    hasPreviousValue: boolean = false,
+  ) {
+    // If there's no previous value and the URL is empty or whitespace only, reject
+    if (!hasPreviousValue && (!reportUrl || reportUrl.trim() === '')) {
+      throw new Error('reportUrl is required');
+    }
+
+    try {
+      const resp = await apiAxios.post(ApiRoutes.REPORT_URL + reportId, {
+        reportUrl,
+      });
+
+      if (resp?.data) {
+        return resp.data;
+      }
+
+      throw new Error('Unexpected response from addOrUpdateReportUrl API');
+    } catch (e) {
+      console.log(`Failed to save or update report URL from API - ${e}`);
+      throw e;
     }
   },
 };

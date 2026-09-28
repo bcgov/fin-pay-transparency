@@ -1,8 +1,8 @@
 import * as z from 'zod';
 
-export type FilterValueType = string[] | null | undefined | boolean;
+type FilterValueType = string[] | null | undefined | boolean;
 
-export type FilterKeyType =
+type FilterKeyType =
   | 'create_date'
   | 'update_date'
   | 'naics_code'
@@ -14,63 +14,63 @@ export type FilterKeyType =
   | 'admin_last_access_date'
   | 'admin_modified_reason';
 
-export type SubmissonDateFilter = {
+type SubmissonDateFilter = {
   key: 'create_date';
   operation: 'between';
   value: string[];
 };
 
-export type UpdateDateFilter = {
+type UpdateDateFilter = {
   key: 'update_date';
   operation: 'between';
   value: string[];
 };
 
-export type ArrayFilter = {
+type ArrayFilter = {
   key: string;
   operation: 'in' | 'notin';
   value: string[];
 };
 
-export type NaicsCodeFilter = ArrayFilter & {
+type NaicsCodeFilter = ArrayFilter & {
   key: 'naics_code';
 };
 
-export type EmployeeCountRangeFilter = ArrayFilter & {
+type EmployeeCountRangeFilter = ArrayFilter & {
   key: 'employee_count_range_id';
 };
 
-export type ReportingYearFilter = {
+type ReportingYearFilter = {
   key: 'reporting_year';
   operation: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte';
   value: number;
 };
 
-export type IsUnlockedFilter = {
+type IsUnlockedFilter = {
   key: 'is_unlocked';
   operation: 'eq';
   value: boolean;
 };
 
-export type ReportStatusFilter = {
+type ReportStatusFilter = {
   key: 'report_status';
   operation: 'eq';
   value: string;
 };
 
-export type CompanyFilter = {
+type CompanyFilter = {
   key: 'company_name';
   operation: 'like';
   value: string;
 };
 
-export type AdminLastAccessDateFilter = {
+type AdminLastAccessDateFilter = {
   key: 'admin_last_access_date';
   operation: 'not';
   value: null;
 };
 
-export type AdminModifiedReasonFilter = {
+type AdminModifiedReasonFilter = {
   key: 'admin_modified_reason';
   operation: 'eq';
   value: string;
@@ -99,23 +99,23 @@ export type SortFieldType =
 
 type SortDirection = 'asc' | 'desc';
 
-export type SubmissionDateSort = {
+type SubmissionDateSort = {
   create_date: SortDirection;
 };
-export type UpdateDateSort = {
+type UpdateDateSort = {
   update_date: SortDirection;
 };
-export type NaicsCodeSort = {
+type NaicsCodeSort = {
   naics_code: SortDirection;
 };
-export type EmployeeCountRangeSort = {
+type EmployeeCountRangeSort = {
   employee_count_range_id: SortDirection;
 };
-export type AdminLastAccessDateSort = {
+type AdminLastAccessDateSort = {
   admin_last_access_date: SortDirection;
 };
 
-export type CompanySort = {
+type CompanySort = {
   company_name: SortDirection;
 };
 
@@ -227,7 +227,7 @@ export const FilterValidationSchema = z.array(
     ),
 );
 
-export const AdminModifiedReasonSchema = z.enum([
+const AdminModifiedReasonSchema = z.enum([
   'LOCK',
   'UNLOCK',
   'WITHDRAW',

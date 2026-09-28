@@ -179,7 +179,7 @@ const mockValidSubmission = {
   employeeCountRangeId: '',
   startDate: '2022-01-01',
   endDate: '2022-12-31',
-  reportingYear: 2022,
+  reportingYear: 2023,
   dataConstraints: null,
   comments: null,
   rows: [Object.keys(mockRecord), Object.values(mockRecord)],
@@ -290,12 +290,31 @@ describe('validate-service', () => {
       naicsCode: '11',
       employeeCountRangeId: 'enmployeeRangeCountId',
       startDate: '2022-12-01',
-      endDate: '2023-11-01',
+      endDate: '2023-11-30',
       reportingYear: 2023,
       dataConstraints: 'data constraints',
       comments: 'other comments',
       rows: [] as any[],
     };
+
+    describe(`given valid fields`, () => {
+      it('returns no error messages at all', () => {
+        const submission = Object.assign({}, validSubmission, {
+          startDate: LocalDate.now()
+            .minusYears(1)
+            .with(TemporalAdjusters.firstDayOfYear())
+            .toString(),
+          endDate: LocalDate.now()
+            .minusYears(1)
+            .with(TemporalAdjusters.lastDayOfYear())
+            .toString(),
+          reportingYear: LocalDate.now().year(),
+        });
+        const result: ValidationError | null =
+          validateService.validateSubmissionBody(submission);
+        expect(result).toBeNull();
+      });
+    });
 
     describe(`given valid data constraints`, () => {
       it('returns no error messages related to data constraints', () => {
@@ -317,6 +336,7 @@ describe('validate-service', () => {
     describe('given a startDate before minimum start date', () => {
       it('should return error', () => {
         const startDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
           .minusYears(3)
           .format(JSON_REPORT_DATE_FORMAT);
         const errors = validateService.validateSubmissionBody({
@@ -324,23 +344,19 @@ describe('validate-service', () => {
           startDate,
         });
 
-        const minStartTime = LocalDate.now()
-          .with(TemporalAdjusters.firstDayOfYear())
-          .minusYears(2)
-          .with(TemporalAdjusters.firstDayOfMonth())
-          .format(JSON_REPORT_DATE_FORMAT);
-
         expect(errors.bodyErrors).toContain(
-          `Minimum allowed start date is ${minStartTime}`,
+          'Minimum allowed start date is 2021-11-01',
         );
       });
     });
     describe('given an endDate is after maximum end date', () => {
       it('should return error', () => {
         const startDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
           .minusYears(1)
           .format(JSON_REPORT_DATE_FORMAT);
         const endDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
           .plusYears(1)
           .format(JSON_REPORT_DATE_FORMAT);
         const errors = validateService.validateSubmissionBody({
@@ -349,13 +365,42 @@ describe('validate-service', () => {
           endDate,
         });
 
-        const maxEndTime = LocalDate.now()
-          .minusMonths(1)
-          .with(TemporalAdjusters.lastDayOfMonth())
+        expect(errors.bodyErrors).toContain(
+          'Maximum allowed end date is 2023-10-31',
+        );
+      });
+    });
+    describe('given lastDateAllowed is before Oct 31', () => {
+      it('should use lastDateAllowed adjusted to report year and last day of month', () => {
+        const reportYear = 2024;
+        const lastDateAllowed = LocalDate.of(2024, 7, 15);
+
+        const result = validateService.computeBounds(
+          reportYear,
+          lastDateAllowed,
+        );
+
+        expect(result.maxEndDate).toEqual(LocalDate.of(2024, 7, 31));
+      });
+    });
+    describe('if the range is not 12 months', () => {
+      it('should return error', () => {
+        const startDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
+          .minusYears(1)
           .format(JSON_REPORT_DATE_FORMAT);
+        const endDate = LocalDate.now()
+          .withYear(validSubmission.reportingYear)
+          .plusYears(1)
+          .format(JSON_REPORT_DATE_FORMAT);
+        const errors = validateService.validateSubmissionBody({
+          ...(validSubmission as any),
+          startDate,
+          endDate,
+        });
 
         expect(errors.bodyErrors).toContain(
-          `Maximum allowed end date is ${maxEndTime}`,
+          'Start date and end date must always be 12 months apart.',
         );
       });
     });
@@ -505,6 +550,59 @@ describe('validate-service', () => {
       });
     });
 
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = VALID_HOUR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        expect(result).not.toBeNull();
+        console.log(result);
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies both ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.ORDINARY_PAY and SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY
+        expect(result).not.toBeNull();
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
     describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY}`, () => {
       it('returns a RowError', () => {
         const overrides = {};
@@ -533,8 +631,86 @@ describe('validate-service', () => {
       it('returns a RowError', () => {
         const overrides = {};
         overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
-        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = 35;
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] =
+          VALID_DOLLAR_AMOUNTS[0];
         overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.HOURS_WORKED and SUBMISSION_ROW_COLUMNS.ORDINARY_PAY
+        expect(result).not.toBeNull();
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY} but not ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = NO_DATA_VALUES[0];
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = 35;
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        expect(result).not.toBeNull();
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED} but not ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = 20;
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] = NO_DATA_VALUES[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] = NO_DATA_VALUES[0];
+        const invalidRecord = createSampleRecord(overrides);
+
+        const recordNum = 1;
+        const result: RowError | null = validateService.validateRecord(
+          recordNum,
+          invalidRecord,
+        );
+
+        //expect one line error that mentions both SUBMISSION_ROW_COLUMNS.HOURS_WORKED and SUBMISSION_ROW_COLUMNS.ORDINARY_PAY
+        expect(
+          doesAnyRowErrorContainAll(result, [
+            SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
+            SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
+          ]),
+        ).toBeTruthy();
+      });
+    });
+
+    describe(`given an record that specifies ${SUBMISSION_ROW_COLUMNS.HOURS_WORKED}, ${SUBMISSION_ROW_COLUMNS.ORDINARY_PAY} and ${SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY}`, () => {
+      it('returns a RowError', () => {
+        const overrides = {};
+        overrides[SUBMISSION_ROW_COLUMNS.HOURS_WORKED] = 20;
+        overrides[SUBMISSION_ROW_COLUMNS.ORDINARY_PAY] =
+          VALID_DOLLAR_AMOUNTS[0];
+        overrides[SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY] =
+          VALID_DOLLAR_AMOUNTS[0];
         const invalidRecord = createSampleRecord(overrides);
 
         const recordNum = 1;
@@ -574,7 +750,6 @@ describe('validate-service', () => {
           doesAnyRowErrorContainAll(result, [
             SUBMISSION_ROW_COLUMNS.HOURS_WORKED,
             SUBMISSION_ROW_COLUMNS.ORDINARY_PAY,
-            SUBMISSION_ROW_COLUMNS.SPECIAL_SALARY,
           ]),
         ).toBeTruthy();
       });

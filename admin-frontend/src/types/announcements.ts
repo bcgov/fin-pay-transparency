@@ -63,7 +63,7 @@ export enum AnnouncementKeys {
 type PublishedOnField = 'active_on';
 type ExpiresOnField = 'expires_on';
 
-export type DateFilter<T> = {
+type DateFilter<T> = {
   key: T;
   operation: 'between';
   value: string[];

@@ -99,7 +99,7 @@ import { NotificationService } from '../../services/notificationService';
 
 const { addInvite } = useInvitesStore();
 const open = ref(false);
-const confirmDialog = ref();
+const confirmDialog = ref<typeof ConfirmDialog>();
 const emailSuffix = '@gov.bc.ca';
 const {
   meta,

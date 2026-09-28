@@ -1835,7 +1835,7 @@ const reportCalcServicePrivate = {
     */
   cleanCsvRecord(csvRecord: any): any {
     Object.keys(csvRecord).forEach((col) => {
-      if (NUMERIC_COLUMNS.indexOf(col) >= 0) {
+      if (NUMERIC_COLUMNS.includes(col)) {
         if (validateService.isZeroSynonym(csvRecord[col])) {
           csvRecord[col] = 0;
         } else {

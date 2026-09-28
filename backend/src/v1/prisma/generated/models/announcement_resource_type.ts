@@ -151,7 +151,7 @@ export type Announcement_resource_typeGroupByOutputType = {
   _max: Announcement_resource_typeMaxAggregateOutputType | null
 }
 
-type GetAnnouncement_resource_typeGroupByPayload<T extends announcement_resource_typeGroupByArgs> = Prisma.PrismaPromise<
+export type GetAnnouncement_resource_typeGroupByPayload<T extends announcement_resource_typeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Announcement_resource_typeGroupByOutputType, T['by']> &
       {
@@ -1142,6 +1142,11 @@ export type announcement_resource_typeFindManyArgs<ExtArgs extends runtime.Types
    * Skip the first `n` announcement_resource_types.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of announcement_resource_types.
+   */
   distinct?: Prisma.Announcement_resource_typeScalarFieldEnum | Prisma.Announcement_resource_typeScalarFieldEnum[]
 }
 

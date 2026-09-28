@@ -14,13 +14,10 @@
     {{ status }}
   </v-chip>
 </template>
-<script lang="ts">
-export default {
-  name: 'AnnouncementStatusChip',
-  props: ['status'],
-};
-</script>
 
 <script setup lang="ts">
 import { AnnouncementStatus } from '../../types/announcements';
+defineProps<{
+  status: AnnouncementStatus;
+}>();
 </script>

@@ -770,6 +770,9 @@ describe('admin-report-service', () => {
             company_id: '515c7526-7d56-4509-a713-cad45fb10a3d',
             company_name: 'BC Crown Corp',
           },
+          pay_transparency_report_url: {
+            report_url: 'https://example.com/report.pdf',
+          },
         };
 
         const result = adminReportService.toHumanFriendlyReport(mockReport);
@@ -785,7 +788,10 @@ describe('admin-report-service', () => {
         expect(result['Is Unlocked']).toBe(
           mockReport.is_unlocked ? 'Yes' : 'No',
         );
-        expect(Object.keys(result)).toHaveLength(6);
+        expect(result['Report URL']).toBe(
+          mockReport.pay_transparency_report_url.report_url,
+        );
+        expect(Object.keys(result)).toHaveLength(7);
       });
     });
   });

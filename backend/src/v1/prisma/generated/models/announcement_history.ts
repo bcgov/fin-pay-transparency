@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model announcement_history
- * 
+ * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type announcement_historyModel = runtime.Types.Result.DefaultSelection<Prisma.$announcement_historyPayload>
 
@@ -200,7 +200,7 @@ export type Announcement_historyGroupByOutputType = {
   _max: Announcement_historyMaxAggregateOutputType | null
 }
 
-type GetAnnouncement_historyGroupByPayload<T extends announcement_historyGroupByArgs> = Prisma.PrismaPromise<
+export type GetAnnouncement_historyGroupByPayload<T extends announcement_historyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Announcement_historyGroupByOutputType, T['by']> &
       {
@@ -1789,6 +1789,11 @@ export type announcement_historyFindManyArgs<ExtArgs extends runtime.Types.Exten
    * Skip the first `n` announcement_histories.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of announcement_histories.
+   */
   distinct?: Prisma.Announcement_historyScalarFieldEnum | Prisma.Announcement_historyScalarFieldEnum[]
 }
 

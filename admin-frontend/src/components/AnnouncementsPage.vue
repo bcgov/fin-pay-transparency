@@ -153,6 +153,7 @@ import ApiService from '../services/apiService';
 import ConfirmationDialog from './util/ConfirmationDialog.vue';
 import { NotificationService } from '../services/notificationService';
 import { useConfigStore } from '../store/modules/config';
+import { DataTableHeader } from 'vuetify';
 
 const announcementSearchStore = useAnnouncementSearchStore();
 const { searchResults, isSearching, hasSearched, totalNum, pageSize } =
@@ -190,7 +191,7 @@ const itemsPerPageOptions = ref([
   { value: 150, title: '150' },
 ]);
 
-const headers = ref<any>([
+const headers = ref<DataTableHeader[]>([
   {
     title: '',
     key: 'selection',

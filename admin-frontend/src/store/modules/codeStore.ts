@@ -2,6 +2,7 @@ import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import ApiService from '../../services/apiService';
 import { authStore } from './auth.js';
+import { IEmployeeCountRange, INaicsCode } from '../../types/index.js';
 
 /*
 The CodeStore houses static data that is ultimately to be used to populate 
@@ -12,8 +13,8 @@ export const useCodeStore = defineStore('code', () => {
   const auth = authStore();
   const { isAuthenticated } = storeToRefs(auth);
 
-  const employeeCountRanges = ref([]);
-  const naicsCodes = ref([]);
+  const employeeCountRanges = ref<IEmployeeCountRange[]>([]);
+  const naicsCodes = ref<INaicsCode[]>([]);
 
   const setEmployeeCountRanges = (val) => {
     employeeCountRanges.value = val;

@@ -3,6 +3,8 @@ import { saveAs } from 'file-saver';
 import {
   CreateUserInviteInput,
   IConfigValue,
+  IEmployeeCountRange,
+  INaicsCode,
   User,
   UserInvite,
 } from '../types';
@@ -20,7 +22,11 @@ import {
   EmployerSortType,
   IEmployerSearchResult,
 } from '../types/employers';
-import { IReportSearchResult, ReportMetrics } from '../types/reports';
+import {
+  IReportSearchResult,
+  ReportMetrics,
+  ReportUrlHistory,
+} from '../types/reports';
 import { ApiRoutes, POWERBI_RESOURCE } from '../utils/constant';
 import AuthService from './authService';
 
@@ -178,7 +184,7 @@ export default {
       throw e;
     }
   },
-  async getEmployeeCountRanges() {
+  async getEmployeeCountRanges(): Promise<IEmployeeCountRange> {
     try {
       const resp = await apiAxios.get(ApiRoutes.EMPLOYEE_COUNT_RANGES);
       if (resp?.data) {
@@ -226,7 +232,7 @@ export default {
       throw error;
     }
   },
-  async getNaicsCodes() {
+  async getNaicsCodes(): Promise<INaicsCode> {
     try {
       const resp = await apiAxios.get(ApiRoutes.NAICS_CODES);
       if (resp?.data) {
@@ -280,6 +286,24 @@ export default {
       );
     } catch (e) {
       console.log(`Failed to get admin action history for report - ${e}`);
+      throw e;
+    }
+  },
+
+  async getReportUrlHistory(reportId: string): Promise<ReportUrlHistory[]> {
+    try {
+      const resp = await apiAxios.get(
+        `${ApiRoutes.REPORT_URLS}/${reportId}/history`,
+      );
+      console.log('getReportUrlHistory resp:', JSON.stringify(resp?.data));
+      if (resp?.data) {
+        return resp.data;
+      }
+      throw new Error(
+        `Unable to fetch report URL history for report ${reportId}`,
+      );
+    } catch (e) {
+      console.log(`Failed to get report URL history for report - ${e}`);
       throw e;
     }
   },

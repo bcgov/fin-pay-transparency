@@ -1,16 +1,8 @@
-import type { PrismaClient } from '../v1/prisma/generated/client.js';
 import { createHash } from 'node:crypto';
+import type { PrismaClient } from '../v1/prisma/generated/client.js';
 
 interface AdvisoryLockResult {
-  pg_try_advisory_lock: boolean;
-}
-
-interface AdvisoryLockBlockingResult {
-  pg_advisory_lock: null;
-}
-
-interface AdvisoryUnlockResult {
-  pg_advisory_unlock: boolean;
+  pg_try_advisory_xact_lock: boolean;
 }
 
 type AdvisoryKey = [number, number];
@@ -33,38 +25,18 @@ function strToKey(name: string): AdvisoryKey {
  * Uses PostgreSQL's advisory locks to ensure only one process/pod can acquire
  * a lock at a time. Useful for running scheduled tasks in distributed environments.
  *
- * @example
- * ```typescript
- * const lock = new AdvisoryLock(prisma, 'daily-report-generator');
- *
- * // Non-blocking attempt
- * if (await lock.tryAcquire()) {
- *   try {
- *     // Perform your task
- *   } finally {
- *     await lock.release();
- *   }
- * }
- *
- * // Blocking wait for lock
- * await lock.acquire();
- * try {
- *   // Perform your task
- * } finally {
- *   await lock.release();
- * }
- * ```
+ * The callback runs inside the transaction that owns the lock. The lock is
+ * released automatically when the callback completes or throws.
  */
 export class AdvisoryLock {
   private readonly lockKey: AdvisoryKey;
   private readonly lockName: string;
   private readonly prisma: PrismaClient;
-  private isAcquired: boolean = false;
 
   /**
    * Creates a new AdvisoryLock instance.
    *
-   * @param prisma - Prisma client instance
+   * @param prisma - Prisma client to use for the transaction
    * @param lockName - Unique string identifier for this lock (will be hashed to create numeric lock ID)
    * @throws {Error} If lockName is empty
    */
@@ -79,101 +51,33 @@ export class AdvisoryLock {
   }
 
   /**
-   * Attempts to acquire the advisory lock and returns false if it couldn't do it.
+   * Attempts to acquire the transaction-scoped advisory lock.
    *
-   * @returns Promise that resolves to true if lock was acquired, false if another process holds it
-   * @throws {Error} If the lock is already acquired by this instance or if database query fails
+   * @returns Promise that resolves to true if the callback ran, false if another process holds the lock
+   * @throws {Error} If the database query or callback fails
    */
-  async tryAcquire(): Promise<boolean> {
-    if (this.isAcquired) {
-      throw new Error(
-        'Lock is already acquired by this instance. Release it before trying to acquire again.',
-      );
-    }
-
+  async withLock(callback: () => Promise<void>): Promise<boolean> {
     try {
-      const [key1, key2] = this.lockKey;
-      const result = await this.prisma.$queryRaw<AdvisoryLockResult[]>`
-        SELECT pg_try_advisory_lock(${key1}::int4, ${key2}::int4)
-      `;
+      return await this.prisma.$transaction(
+        async (tx) => {
+          const result = await tx.$queryRaw<AdvisoryLockResult[]>`
+          SELECT pg_try_advisory_xact_lock(${this.lockKey[0]}::int4, ${this.lockKey[1]}::int4)
+        `;
 
-      if (result[0]?.pg_try_advisory_lock) {
-        this.isAcquired = true;
-        return true;
-      }
+          if (!result[0]?.pg_try_advisory_xact_lock) {
+            return false;
+          }
 
-      return false;
+          await callback();
+          return true;
+        },
+        { timeout: 30_000 },
+      );
     } catch (error) {
       throw new Error(
-        `Failed to acquire advisory lock "${this.lockName}": ${error.message}`,
+        `Failed to run advisory lock "${this.lockName}": ${this.getErrorMessage(error)}`,
       );
     }
-  }
-
-  /**
-   * Acquires the advisory lock, blocking until it becomes available.
-   * Uses PostgreSQL's pg_advisory_lock which will wait indefinitely until the lock is available.
-   *
-   * @throws {Error} If the lock is already acquired by this instance or if database query fails
-   */
-  async acquire(): Promise<void> {
-    if (this.isAcquired) {
-      throw new Error(
-        'Lock is already acquired by this instance. Release it before trying to acquire again.',
-      );
-    }
-
-    try {
-      const [key1, key2] = this.lockKey;
-      await this.prisma.$queryRaw<AdvisoryLockBlockingResult[]>`
-        SELECT pg_advisory_lock(${key1}::int4, ${key2}::int4)
-      `;
-
-      this.isAcquired = true;
-    } catch (error) {
-      throw new Error(
-        `Failed to acquire advisory lock "${this.lockName}": ${error.message}`,
-      );
-    }
-  }
-
-  /**
-   * Releases the advisory lock.
-   *
-   * @throws {Error} If the lock was not acquired by this instance or if database query fails
-   */
-  async release(): Promise<void> {
-    if (!this.isAcquired) {
-      throw new Error(
-        'Cannot release a lock that was not acquired by this instance',
-      );
-    }
-
-    try {
-      const [key1, key2] = this.lockKey;
-      const result = await this.prisma.$queryRaw<AdvisoryUnlockResult[]>`
-        SELECT pg_advisory_unlock(${key1}::int4, ${key2}::int4)
-      `;
-
-      this.isAcquired = false;
-
-      if (!result[0]?.pg_advisory_unlock) {
-        throw new Error(`Lock was not held by this session`);
-      }
-    } catch (error) {
-      // Reset state even on error to prevent deadlock
-      this.isAcquired = false;
-      throw new Error(
-        `Failed to release advisory lock "${this.lockName}": ${error.message}`,
-      );
-    }
-  }
-
-  /**
-   * Checks if this instance currently holds the lock.
-   */
-  get acquired(): boolean {
-    return this.isAcquired;
   }
 
   /**
@@ -181,5 +85,13 @@ export class AdvisoryLock {
    */
   get name(): string {
     return this.lockName;
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return 'Unknown error';
   }
 }

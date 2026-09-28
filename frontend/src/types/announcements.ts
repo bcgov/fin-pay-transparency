@@ -22,25 +22,25 @@ export type AnnouncementResource = {
   update_date: string;
   updated_by: string;
 };
-export type AnnouncementResourceType = 'LINK' | 'ATTACHMENT';
+type AnnouncementResourceType = 'LINK' | 'ATTACHMENT';
 
 export interface IAnnouncementSearchResult {
   items: Announcement[];
   total: number;
 }
-export interface IAnnouncementSearchUpdateParams {
+interface IAnnouncementSearchUpdateParams {
   page: number;
   itemsPerPage: number;
   sortBy: AnnouncementSortType;
 }
-export interface IAnnouncementSearchParams {
+interface IAnnouncementSearchParams {
   page?: number;
   itemsPerPage?: number;
   filter?: AnnouncementFilterType;
   sort?: AnnouncementSortType;
 }
 
-export enum AnnouncementKeys {
+enum AnnouncementKeys {
   TITLE = 'title',
   PUBLISH_DATE = 'active_on',
   EXPIRY_DATE = 'expires_on',
@@ -52,32 +52,32 @@ export enum AnnouncementKeys {
 type PublishedOnField = 'active_on';
 type ExpiresOnField = 'expires_on';
 
-export type DateFilter<T> = {
+type DateFilter<T> = {
   key: T;
   operation: 'between' | 'lte' | 'gt';
   value: string | string[];
 };
 
-export enum AnnouncementStatus {
+enum AnnouncementStatus {
   Published = 'PUBLISHED',
   Draft = 'DRAFT',
   Expired = 'EXPIRED',
   Archived = 'ARCHIVED',
 }
 
-export type StatusFilter = {
+type StatusFilter = {
   key: string;
   operation: 'in' | 'notin';
   value: AnnouncementStatus[];
 };
 
-export type AnnouncementFilterType = (
+type AnnouncementFilterType = (
   | DateFilter<PublishedOnField>
   | DateFilter<ExpiresOnField>
   | StatusFilter
 )[];
 
-export type AnnouncementSortType = {
+type AnnouncementSortType = {
   field: 'active_on' | 'expires_on' | 'title' | 'status' | 'updated_date';
   order: 'asc' | 'desc';
 }[];

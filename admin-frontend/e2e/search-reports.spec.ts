@@ -2,6 +2,13 @@ import { expect, test } from '@playwright/test';
 import { SearchReportsPage } from './pages/reports/search-reports-page';
 
 test.describe.serial('Reports', () => {
+  test('should show at least one report with a URL', async ({ page }) => {
+    const reportsPage = new SearchReportsPage(page);
+    await reportsPage.visit();
+    await reportsPage.validatePage();
+    await reportsPage.verifyAtLeastOneReportHasUrl();
+  });
+
   test('should toggle filter visibility and reset page layout', async ({
     page,
   }) => {

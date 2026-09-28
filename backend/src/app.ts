@@ -24,6 +24,7 @@ import authRouter from './v1/routes/public-auth-routes.js';
 import { reportRouter } from './v1/routes/report-routes.js';
 import resourcesRoutes from './v1/routes/resources-routes.js';
 import userRouter from './v1/routes/user-info-routes.js';
+import urlRouter from './v1/routes/report-url-routes.js';
 
 import { publicAuth } from './v1/services/public-auth-service.js';
 import { utils } from './v1/services/utils-service.js';
@@ -183,47 +184,47 @@ function addLoginPassportUse(
 }
 
 //initialize our authentication strategy
-void utils.getOidcDiscovery().then((discovery) => {
-  //OIDC Strategy is used for authorization
-  addLoginPassportUse(
-    discovery,
-    'oidcBusinessBceid',
-    config.get('server:frontend') + '/api/auth/callback_business_bceid',
-    'bceidbusiness',
-  );
-  //JWT strategy is used for authorization
-  passport.use(
-    'jwt',
-    new JWTStrategy(
-      {
-        algorithms: ['RS256'],
-        // Keycloak 7.3.0 no longer automatically supplies matching client_id audience.
-        // If audience checking is needed, check the following SO to update Keycloak first.
-        // Ref: https://stackoverflow.com/a/53627747
-        audience: config.get('server:frontend'),
-        issuer: config.get('tokenGenerate:issuer'),
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: config.get('tokenGenerate:publicKey'),
-        ignoreExpiration: true,
-      },
-      (jwtPayload, done) => {
-        if (jwtPayload == null) {
-          return done('No JWT token', null);
-        }
+const oidcDiscovery = await utils.getOidcDiscovery();
+//OIDC Strategy is used for authorization
+addLoginPassportUse(
+  oidcDiscovery,
+  'oidcBusinessBceid',
+  config.get('server:frontend') + '/api/auth/callback_business_bceid',
+  'bceidbusiness',
+);
+//JWT strategy is used for authorization
+passport.use(
+  'jwt',
+  new JWTStrategy(
+    {
+      algorithms: ['RS256'],
+      // Keycloak 7.3.0 no longer automatically supplies matching client_id audience.
+      // If audience checking is needed, check the following SO to update Keycloak first.
+      // Ref: https://stackoverflow.com/a/53627747
+      audience: config.get('server:frontend'),
+      issuer: config.get('tokenGenerate:issuer'),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: config.get('tokenGenerate:publicKey'),
+      ignoreExpiration: true,
+    },
+    (jwtPayload, done) => {
+      if (jwtPayload == null) {
+        return done('No JWT token', null);
+      }
 
-        done(null, {
-          email: jwtPayload.email,
-          familyName: jwtPayload.family_name,
-          givenName: jwtPayload.given_name,
-          jwt: jwtPayload,
-          name: jwtPayload.name,
-          user_guid: jwtPayload.user_guid,
-          realmRole: jwtPayload.realm_role,
-        });
-      },
-    ),
-  );
-});
+      done(null, {
+        email: jwtPayload.email,
+        familyName: jwtPayload.family_name,
+        givenName: jwtPayload.given_name,
+        jwt: jwtPayload,
+        name: jwtPayload.name,
+        user_guid: jwtPayload.user_guid,
+        realmRole: jwtPayload.realm_role,
+      });
+    },
+  ),
+);
+
 //functions for serializing/deserializing users
 passport.serializeUser((user, next) => next(null, user));
 passport.deserializeUser((obj, next) => next(null, obj));
@@ -292,6 +293,7 @@ apiRouter.use('/v1/codes', codeRouter);
 apiRouter.use('/v1/report', reportRouter);
 apiRouter.use('/v1/announcements', announcementRouter);
 apiRouter.use('/v1/resources', resourcesRoutes);
+apiRouter.use('/v1/report-url', urlRouter);
 
 app.use(function (req: Request, res: Response, _next: NextFunction) {
   res.status(404).send({ message: 'Route' + req.url + ' Not found.' });

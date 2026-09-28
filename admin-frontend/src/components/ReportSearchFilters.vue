@@ -255,20 +255,21 @@ import { useReportSearchStore } from '../store/modules/reportSearchStore';
 import { ReportFilterType } from '../types/reports';
 import { ZonedDateTime, nativeJs, DateTimeFormatter } from '@js-joda/core';
 import DateRangeFilter from './DateRangeFilter.vue';
+import { IEmployeeCountRange, INaicsCode } from '../types/index.ts';
 
 const reportSearchStore = useReportSearchStore();
 const codeStore = useCodeStore();
 
-const searchText = ref<string | undefined>(undefined);
-const submissionDateRange = ref<any[] | undefined>(undefined);
+const searchText = ref<string>();
+const submissionDateRange = ref<Date[]>();
 const areSecondaryFiltersVisible = ref<boolean>(false);
 const maxSelectedNaicsCodesShown = ref(3);
-const selectedNaicsCodes = ref([]);
-const selectedReportYear = ref(undefined);
-const selectedLockedValues = ref(undefined);
-const selectedEmployeeCount = ref([]);
-const selectedStatusValues = ref('Published');
-const selectedAdminActions = ref(undefined);
+const selectedNaicsCodes = ref<INaicsCode[]>([]);
+const selectedReportYear = ref<number>();
+const selectedLockedValues = ref<string>();
+const selectedEmployeeCount = ref<IEmployeeCountRange[]>([]);
+const selectedStatusValues = ref<string | null>('Published');
+const selectedAdminActions = ref<string>();
 
 const { employeeCountRanges, naicsCodes } = storeToRefs(codeStore);
 const startYear = 2024;
@@ -320,7 +321,7 @@ function getReportSearchFilters(): ReportFilterType {
     filters.push({
       key: 'naics_code',
       operation: 'in',
-      value: selectedNaicsCodes.value?.map((d: any) => d.naics_code),
+      value: selectedNaicsCodes.value?.map((d) => d.naics_code),
     });
   }
   if (selectedReportYear.value) {
@@ -334,9 +335,7 @@ function getReportSearchFilters(): ReportFilterType {
     filters.push({
       key: 'employee_count_range_id',
       operation: 'in',
-      value: selectedEmployeeCount.value?.map(
-        (d: any) => d.employee_count_range_id,
-      ),
+      value: selectedEmployeeCount.value?.map((d) => d.employee_count_range_id),
     });
   }
   if (selectedLockedValues.value) {

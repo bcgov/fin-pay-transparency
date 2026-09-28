@@ -214,7 +214,7 @@ export type Admin_user_historyGroupByOutputType = {
   _max: Admin_user_historyMaxAggregateOutputType | null
 }
 
-type GetAdmin_user_historyGroupByPayload<T extends admin_user_historyGroupByArgs> = Prisma.PrismaPromise<
+export type GetAdmin_user_historyGroupByPayload<T extends admin_user_historyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Admin_user_historyGroupByOutputType, T['by']> &
       {
@@ -1402,6 +1402,11 @@ export type admin_user_historyFindManyArgs<ExtArgs extends runtime.Types.Extensi
    * Skip the first `n` admin_user_histories.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of admin_user_histories.
+   */
   distinct?: Prisma.Admin_user_historyScalarFieldEnum | Prisma.Admin_user_historyScalarFieldEnum[]
 }
 

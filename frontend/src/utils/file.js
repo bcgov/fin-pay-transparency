@@ -24,16 +24,16 @@ export function humanFileSize(bytes, decimals = 2) {
  * "name.with.many.dots.myext"   -->   "myext"
  * @param {*} fileName
  */
-export function getFileExtension(fileName) {
+function getFileExtension(fileName) {
   return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
 }
 
-export function getFileExtensionWithDot(fileName) {
+function getFileExtensionWithDot(fileName) {
   const extension = getFileExtension(fileName);
   return extension.length > 0 ? '.' + extension : '';
 }
 
-export function getFileNameWithMaxNameLength(
+function getFileNameWithMaxNameLength(
   fileName,
   nameLength = 30,
   extensionLength = 10,

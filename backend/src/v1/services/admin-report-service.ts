@@ -74,6 +74,16 @@ const adminReportService = {
             company_name: true,
           },
         },
+        pay_transparency_report_url: {
+          select: {
+            report_url: true,
+            _count: {
+              select: {
+                report_url_history: true,
+              },
+            },
+          },
+        },
       },
     };
     if (limit) {
@@ -108,6 +118,7 @@ const adminReportService = {
     flattened.employee_count_range =
       report?.employee_count_range?.employee_count_range;
     flattened.company_name = report?.pay_transparency_company?.company_name;
+    flattened.report_url = report?.pay_transparency_report_url?.report_url;
 
     // Convert the boolean "true" and "false" values into "Yes" and "No"
     flattened['is_unlocked'] = flattened['is_unlocked'] ? 'Yes' : 'No';
@@ -118,6 +129,7 @@ const adminReportService = {
       employee_count_range: 'Employee Count',
       reporting_year: 'Reporting Year',
       is_unlocked: 'Is Unlocked',
+      report_url: 'Report URL',
     };
     const simplified = {};
 

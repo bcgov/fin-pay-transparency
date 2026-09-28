@@ -1,10 +1,5 @@
 import { agent } from 'supertest';
 import { config } from '../../src/config';
-import {
-  DateTimeFormatter,
-  LocalDate,
-} from '@js-joda/core';
-import { Locale } from '@js-joda/locale_en';
 
 const request = agent(config.get('server:baseURL'));
 
@@ -41,11 +36,11 @@ describe('/v1/pay-transparency/ GET', () => {
       .expect(({ body }) => {
         expect(body).toHaveProperty('records');
       });
-    });
-    it('should parse dates', () => {
-      return request
+  });
+  it('should parse dates', () => {
+    return request
       .get('/v1/pay-transparency/reports?pageSize=1')
-      .query({startDate: '2015-01-01 10:01', endDate: '2017-01-01 10:10'})
+      .query({ startDate: '2015-01-01 10:01', endDate: '2017-01-01 10:10' })
       .set('x-api-key', config.get('server:apiKey'))
       .retry(3)
       .expect(200);

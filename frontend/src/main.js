@@ -29,12 +29,14 @@ const myCustomLightTheme = {
     link: '#255A90',
     tab: '#1E5189',
     white: '#ffffff',
-    'dark-gray': '424242',
+    'dark-gray': '#474543',
   },
   variables: {
     'border-opacity': 0.24, //default 0.12
     'medium-emphasis-opacity': 0.8, //default 0.6
     'theme-error': '#ce3e39',
+    'theme-on-background': '#2D2D2D',
+    'high-emphasis-opacity': 1,
   },
 };
 

@@ -7,7 +7,7 @@ import { announcementService } from '../v1/services/announcements-service.js';
 import { schedulerService } from '../v1/services/scheduler-service.js';
 import emailService from '../external/services/ches/ches.js';
 import { utils } from '../v1/services/utils-service.js';
-import prismaSingle from '../v1/prisma/prisma-client-single.js';
+import prisma from '../v1/prisma/prisma-client.js';
 
 export interface JobConfig {
   name: string;
@@ -59,22 +59,25 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
   return new CronJob(
     cronTime,
     async function () {
-      let advisoryLock = null;
       try {
-        advisoryLock = new AdvisoryLock(prismaSingle, name);
-        if (await advisoryLock.tryAcquire()) {
+        const advisoryLock = new AdvisoryLock(prisma, name);
+        await advisoryLock.withLock(async () => {
           log.info(`Starting scheduled job '${name}'.`);
-          await retry(
-            async () => {
-              await callback();
-            },
-            {
-              retries: 5,
-              minTimeout: retryTimeout,
-            },
-          );
-          log.info(`Completed scheduled job '${name}'.`);
-        }
+          try {
+            await retry(
+              async () => {
+                await callback();
+              },
+              {
+                retries: 5,
+                minTimeout: retryTimeout,
+              },
+            );
+            log.info(`Completed scheduled job '${name}'.`);
+          } finally {
+            await utils.delay(10000);
+          }
+        });
       } catch (e) {
         log.error(`${name} failed.`);
         log.error(e);
@@ -91,11 +94,6 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
           );
           await emailService.sendEmailWithRetry(email);
         }
-      } finally {
-        if (advisoryLock?.acquired) {
-          await utils.delay(10000);
-          await advisoryLock.release();
-        }
       }
     }, // onTick
     null, // onComplete
@@ -106,10 +104,10 @@ const createJob = ({ name, cronTime, callback }: JobConfig) => {
 
 export const runJobs = (jobConfigs: JobConfig[]) => {
   try {
-    jobConfigs.forEach((config) => {
+    for (const config of jobConfigs) {
       const job = createJob(config);
       job?.start();
-    });
+    }
   } catch (error) {
     log.error(error);
   }

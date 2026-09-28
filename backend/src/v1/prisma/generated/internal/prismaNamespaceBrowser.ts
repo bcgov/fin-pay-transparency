@@ -62,7 +62,6 @@ export const ModelName = {
   report_history: 'report_history',
   calculation_code: 'calculation_code',
   calculated_data_history: 'calculated_data_history',
-  user_error: 'user_error',
   admin_user: 'admin_user',
   admin_user_history: 'admin_user_history',
   admin_user_onboarding: 'admin_user_onboarding',
@@ -70,8 +69,11 @@ export const ModelName = {
   announcement_history: 'announcement_history',
   announcement_resource: 'announcement_resource',
   announcement_resource_history: 'announcement_resource_history',
-  announcement_status: 'announcement_status',
   announcement_resource_type: 'announcement_resource_type',
+  announcement_status: 'announcement_status',
+  user_error: 'user_error',
+  pay_transparency_report_url: 'pay_transparency_report_url',
+  report_url_history: 'report_url_history',
   reports_calculated_data_view: 'reports_calculated_data_view'
 } as const
 
@@ -281,17 +283,6 @@ export const Calculated_data_historyScalarFieldEnum = {
 export type Calculated_data_historyScalarFieldEnum = (typeof Calculated_data_historyScalarFieldEnum)[keyof typeof Calculated_data_historyScalarFieldEnum]
 
 
-export const User_errorScalarFieldEnum = {
-  user_error_id: 'user_error_id',
-  user_id: 'user_id',
-  company_id: 'company_id',
-  error: 'error',
-  create_date: 'create_date'
-} as const
-
-export type User_errorScalarFieldEnum = (typeof User_errorScalarFieldEnum)[keyof typeof User_errorScalarFieldEnum]
-
-
 export const Admin_userScalarFieldEnum = {
   admin_user_id: 'admin_user_id',
   idir_user_guid: 'idir_user_guid',
@@ -410,6 +401,16 @@ export const Announcement_resource_historyScalarFieldEnum = {
 export type Announcement_resource_historyScalarFieldEnum = (typeof Announcement_resource_historyScalarFieldEnum)[keyof typeof Announcement_resource_historyScalarFieldEnum]
 
 
+export const Announcement_resource_typeScalarFieldEnum = {
+  code: 'code',
+  description: 'description',
+  created_date: 'created_date',
+  updated_date: 'updated_date'
+} as const
+
+export type Announcement_resource_typeScalarFieldEnum = (typeof Announcement_resource_typeScalarFieldEnum)[keyof typeof Announcement_resource_typeScalarFieldEnum]
+
+
 export const Announcement_statusScalarFieldEnum = {
   code: 'code',
   description: 'description',
@@ -420,14 +421,42 @@ export const Announcement_statusScalarFieldEnum = {
 export type Announcement_statusScalarFieldEnum = (typeof Announcement_statusScalarFieldEnum)[keyof typeof Announcement_statusScalarFieldEnum]
 
 
-export const Announcement_resource_typeScalarFieldEnum = {
-  code: 'code',
-  description: 'description',
-  created_date: 'created_date',
-  updated_date: 'updated_date'
+export const User_errorScalarFieldEnum = {
+  user_error_id: 'user_error_id',
+  user_id: 'user_id',
+  company_id: 'company_id',
+  error: 'error',
+  create_date: 'create_date'
 } as const
 
-export type Announcement_resource_typeScalarFieldEnum = (typeof Announcement_resource_typeScalarFieldEnum)[keyof typeof Announcement_resource_typeScalarFieldEnum]
+export type User_errorScalarFieldEnum = (typeof User_errorScalarFieldEnum)[keyof typeof User_errorScalarFieldEnum]
+
+
+export const Pay_transparency_report_urlScalarFieldEnum = {
+  url_id: 'url_id',
+  create_date: 'create_date',
+  update_date: 'update_date',
+  create_user_id: 'create_user_id',
+  update_user_id: 'update_user_id',
+  report_id: 'report_id',
+  report_url: 'report_url'
+} as const
+
+export type Pay_transparency_report_urlScalarFieldEnum = (typeof Pay_transparency_report_urlScalarFieldEnum)[keyof typeof Pay_transparency_report_urlScalarFieldEnum]
+
+
+export const Report_url_historyScalarFieldEnum = {
+  url_history_id: 'url_history_id',
+  url_id: 'url_id',
+  create_date: 'create_date',
+  update_date: 'update_date',
+  create_user_id: 'create_user_id',
+  update_user_id: 'update_user_id',
+  report_id: 'report_id',
+  report_url: 'report_url'
+} as const
+
+export type Report_url_historyScalarFieldEnum = (typeof Report_url_historyScalarFieldEnum)[keyof typeof Report_url_historyScalarFieldEnum]
 
 
 export const Reports_calculated_data_viewScalarFieldEnum = {

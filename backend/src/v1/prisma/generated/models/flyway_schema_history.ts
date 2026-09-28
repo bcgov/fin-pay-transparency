@@ -235,7 +235,7 @@ export type Flyway_schema_historyGroupByOutputType = {
   _max: Flyway_schema_historyMaxAggregateOutputType | null
 }
 
-type GetFlyway_schema_historyGroupByPayload<T extends flyway_schema_historyGroupByArgs> = Prisma.PrismaPromise<
+export type GetFlyway_schema_historyGroupByPayload<T extends flyway_schema_historyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<Flyway_schema_historyGroupByOutputType, T['by']> &
       {
@@ -1170,6 +1170,11 @@ export type flyway_schema_historyFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` flyway_schema_histories.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of flyway_schema_histories.
+   */
   distinct?: Prisma.Flyway_schema_historyScalarFieldEnum | Prisma.Flyway_schema_historyScalarFieldEnum[]
 }
 

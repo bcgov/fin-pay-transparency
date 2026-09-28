@@ -55,7 +55,7 @@ describe('HtmlReport', () => {
     it('An error is shown', async () => {
       vi.spyOn(ApiService, 'getHtmlReport').mockRejectedValue(new Error());
       await wrapper.vm.loadReport();
-      expect(wrapper.vm.reportHtml).toBeNull();
+      expect(wrapper.vm.reportHtml).toBeUndefined();
       expect(wrapper.vm.loadReportError).toBeTruthy();
       expect(wrapper.findAll('.report-preview').length).toBe(0);
       expect(wrapper.findAll('.load-report-error').length).toBe(1);

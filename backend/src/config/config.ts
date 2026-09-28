@@ -3,7 +3,7 @@ import nconf from 'nconf';
 
 dotenv.config();
 const env = process.env.NODE_ENV || 'local';
-const DB_HOST = process.env.POSTGRESQL_HOST || 'localhost';
+const DB_HOST = process.env.POSTGRESQL_HOST || '127.0.0.1';
 const DB_USER = process.env.POSTGRESQL_USER || 'postgres';
 const DB_PWD = encodeURIComponent(
   process.env.POSTGRESQL_PASSWORD || 'postgres',
@@ -78,7 +78,7 @@ nconf.defaults({
     },
     rateLimit: {
       enabled: process.env.IS_RATE_LIMIT_ENABLED || false, // Disable if rate limiting is not required
-      windowMs:  Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000, // 1 minute
+      windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000, // 1 minute
       limit: Number.parseInt(process.env.RATE_LIMIT_LIMIT) || 100, // Limit each IP to 100 requests per `window` (here, per 1 minute)
     },
     retries: {
