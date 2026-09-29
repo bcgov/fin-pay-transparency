@@ -2,7 +2,7 @@
   <AuthLayout>
     <template #content>
       <h1 class="title mb-2">Login Error</h1>
-      <v-alert dense variant="outlined" class="alert-error mb-3">
+      <v-alert density="compact" variant="outlined" class="alert-error mb-3">
         Something went wrong during the login process.
       </v-alert>
       <div>

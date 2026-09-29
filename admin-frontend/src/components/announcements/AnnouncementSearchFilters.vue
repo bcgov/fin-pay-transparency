@@ -49,7 +49,7 @@
   </div>
 
   <div v-if="areSecondaryFiltersVisible" class="secondary-filters py-4">
-    <v-row dense>
+    <v-row density="compact">
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
         <h5>
           Active On Date Range
@@ -105,15 +105,15 @@
           variant="solo"
           density="compact"
         >
-          <template #item="{ props, item }">
-            <v-list-item v-bind="props" :title="item.raw">
+          <template #item="{ props, internalItem }">
+            <v-list-item v-bind="props" :title="internalItem.raw">
               <template #title="{ title }">
-                <span v-if="item.raw">
+                <span v-if="internalItem.raw">
                   <AnnouncementStatusChip
                     :status="title"
                   ></AnnouncementStatusChip>
                 </span>
-                <span v-if="!item.raw">{{ title }}</span>
+                <span v-if="!internalItem.raw">{{ title }}</span>
               </template>
               <template #append="{ isActive }">
                 <v-icon v-if="isActive" icon="mdi-check"></v-icon>
@@ -129,7 +129,7 @@
               ></AnnouncementStatusChip>
               <span
                 v-if="index === maxSelectedStatusesVisible"
-                class="text-grey text-caption align-self-center"
+                class="text-grey text-body-small align-self-center"
               >
                 (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
                 more)

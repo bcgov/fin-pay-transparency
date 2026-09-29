@@ -1,7 +1,7 @@
 <template>
   <h4>Search Reports</h4>
 
-  <v-row dense class="mt-0 w-100 mb-4">
+  <v-row density="compact" class="mt-0 w-100 mb-4">
     <v-col class="py-0 pr-3">
       <ReportSearchFilters />
     </v-col>

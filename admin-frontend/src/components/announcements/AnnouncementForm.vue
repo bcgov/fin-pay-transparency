@@ -51,7 +51,7 @@
       <!-- FORM -->
       <v-col sm="6" md="7" lg="7" xl="8" class="px-0">
         <div class="form-content pr-5">
-          <v-row dense class="mt-2">
+          <v-row density="compact" class="mt-2">
             <v-col cols="12" md="12" sm="12">
               <h5
                 :class="{
@@ -92,7 +92,7 @@
             </v-col>
             <v-col cols="12" md="12" sm="12">
               <h5 class="mb-2">Time Settings</h5>
-              <v-row dense>
+              <v-row density="compact">
                 <v-col cols="12">
                   <span
                     class="datetime-picker-label"
@@ -131,12 +131,12 @@
                   </v-input>
                 </v-col>
               </v-row>
-              <v-row dense class="mt-0">
+              <v-row density="compact" class="mt-0">
                 <v-col offset="2" cols="10" class="pa-0 ml-3">
                   <span class="field-error">{{ errors.active_on }}</span>
                 </v-col>
               </v-row>
-              <v-row dense class="mt-2">
+              <v-row density="compact" class="mt-2">
                 <v-col cols="12">
                   <span
                     class="datetime-picker-label"
@@ -169,7 +169,7 @@
                   </VueDatePicker>
                 </v-col>
               </v-row>
-              <v-row dense class="mt-0">
+              <v-row density="compact" class="mt-0">
                 <v-col cols="12" class="pa-0 ml-3">
                   <span class="field-error">{{ errors.expires_on }}</span>
                 </v-col>
@@ -186,7 +186,7 @@
             </v-col>
             <v-col cols="12">
               <h5 class="mb-2">Link</h5>
-              <v-row v-if="!linkDisplayOnly" dense class="mt-2">
+              <v-row v-if="!linkDisplayOnly" density="compact" class="mt-2">
                 <v-col cols="12">
                   <span
                     class="attachment-label"
@@ -238,7 +238,7 @@
                   ></v-text-field>
                 </v-col>
               </v-row>
-              <v-row v-else dense class="ml-3 mt-2">
+              <v-row v-else density="compact" class="ml-3 mt-2">
                 <v-col cols="12">
                   <LinkResource
                     :url="linkUrl"
@@ -266,7 +266,7 @@
                   >Cancel edit file</v-btn
                 >
               </div>
-              <v-row v-if="!fileDisplayOnly" dense class="mt-2">
+              <v-row v-if="!fileDisplayOnly" density="compact" class="mt-2">
                 <v-col cols="12">
                   <span
                     class="attachment-label"
@@ -311,7 +311,7 @@
                   </v-file-input>
                 </v-col>
               </v-row>
-              <v-row v-else dense class="ml-3 mt-2">
+              <v-row v-else density="compact" class="ml-3 mt-2">
                 <v-col cols="12">
                   <AttachmentResource
                     :id="announcement?.file_resource_id!"
@@ -335,13 +335,13 @@
         class="px-0 py-0 d-flex justify-end extend-to-bottom"
       >
         <div class="previewPanel bg-previewPanel w-100 h-100 px-3 py-6">
-          <v-row dense>
+          <v-row density="compact">
             <v-col>
               <h3>Preview Announcement</h3>
             </v-col>
           </v-row>
 
-          <v-row dense class="mb-2">
+          <v-row density="compact" class="mb-2">
             <v-col>
               <v-icon icon="mdi-information"></v-icon>
               This is how the announcement will appear to the public.
