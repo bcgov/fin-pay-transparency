@@ -1,12 +1,12 @@
 import { createApp } from 'vue';
-import { createVuetify } from 'vuetify/dist/vuetify';
+import { createVuetify } from 'vuetify';
+import 'vuetify/styles';
 import { createMetaManager } from 'vue-meta';
 import App from './App.vue';
 import router from './router';
 import 'regenerator-runtime/runtime';
 import { createPinia } from 'pinia';
 import * as colors from 'vuetify/util/colors';
-import 'vuetify/styles';
 import * as labs from 'vuetify/labs/components';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';

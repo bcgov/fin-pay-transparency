@@ -9,9 +9,9 @@
     <v-card>
       <slot name="title" :cancel="cancel">
         <v-toolbar
-          :dark="options.dark"
+          :theme="options.dark ? 'dark' : undefined"
           :color="options.color"
-          :dense="options.dense"
+          :density="options.density"
           flat
         >
           <v-toolbar-title
@@ -75,7 +75,7 @@ export default {
       width: 290,
       zIndex: 200,
       dark: true,
-      dense: true,
+      density: 'compact',
       closeIcon: false,
       messagePadding: 'pa-4',
       titleBold: false,

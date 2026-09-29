@@ -1,10 +1,10 @@
 <template>
   <v-container>
-    <v-row align="center" justify="center">
+    <v-row class="align-center justify-center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
         <v-alert
           data-testid="not-found-message"
-          dense
+          density="compact"
           variant="outlined"
           class="alert-error mb-3"
         >
