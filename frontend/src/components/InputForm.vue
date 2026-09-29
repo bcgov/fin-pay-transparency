@@ -25,7 +25,7 @@
         <v-btn class="btn-secondary" to="/">Back</v-btn>
       </v-banner>
 
-      <v-row no-gutters justify="center" class="w-100">
+      <v-row no-gutters class="justify-center w-100">
         <v-col cols="12" sm="11" md="11" lg="8" xl="6">
           <v-row class="mb-4 d-flex justify-center w-100">
             <v-col cols="12" class="w-100">
@@ -42,13 +42,13 @@
                 </v-banner>
               </v-col>
             </v-row>
-            <v-row class="mt-6" dense>
-              <v-col class="text-body-1 font-weight-bold"> Employer </v-col>
+            <v-row class="mt-6" density="compact">
+              <v-col class="text-body-large font-weight-bold"> Employer </v-col>
             </v-row>
-            <v-row dense>
+            <v-row density="compact">
               <v-col
                 id="companyName"
-                class="font-weight-bold text-h5 d-flex align-center"
+                class="font-weight-bold text-headline-small d-flex align-center"
               >
                 <v-icon
                   icon="fa:fas fa-user"
@@ -59,8 +59,11 @@
                 {{ companyName }}
               </v-col>
             </v-row>
-            <v-row dense>
-              <v-col id="companyAddress" class="text-h5 d-flex align-center">
+            <v-row density="compact">
+              <v-col
+                id="companyAddress"
+                class="text-headline-small d-flex align-center"
+              >
                 <v-icon
                   icon="fa:fas fa-location-dot"
                   color="primary"
@@ -76,16 +79,18 @@
               </v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col class="text-subtitle-2">
+              <v-col class="text-title-small">
                 Fields marked
-                <span class="text-error font-weight-bold text-h6">*</span>
+                <span class="text-error font-weight-bold text-title-large"
+                  >*</span
+                >
                 are required.
               </v-col>
             </v-row>
             <!-- NAICS Code -->
             <v-row>
               <v-col>
-                <div class="text-body-1 font-weight-bold">
+                <div class="text-body-large font-weight-bold">
                   <label
                     for="naicsCode"
                     color="error"
@@ -93,7 +98,9 @@
                   >
                     NAICS Code
                   </label>
-                  <span class="text-error font-weight-bold text-h6">*</span>
+                  <span class="text-error font-weight-bold text-title-large"
+                    >*</span
+                  >
                   <v-tooltip
                     id="naics-tooltip"
                     text="The North American Industry Classification System (NAICS) code represents a sector; select the one that best represents your employer. If your employer is composed of multiple sectors, select the code that covers the majority of employees."
@@ -115,7 +122,7 @@
                 </div>
               </v-col>
             </v-row>
-            <v-row dense>
+            <v-row density="compact">
               <v-col>
                 <v-autocomplete
                   id="naicsCode"
@@ -134,14 +141,16 @@
             <!-- Employee Count Range -->
             <v-row>
               <v-col>
-                <div class="text-body-1 font-weight-bold">
+                <div class="text-body-large font-weight-bold">
                   <span
                     id="employeeCountRange-label"
                     :class="{ 'text-error': isSubmit && !employeeCountRange }"
                   >
                     Employee Count Range
                   </span>
-                  <span class="text-error font-weight-bold text-h6">*</span>
+                  <span class="text-error font-weight-bold text-title-large"
+                    >*</span
+                  >
                   <v-tooltip
                     id="employee-count-tooltip"
                     text="Select the range closest to the number of employees employed as of January 1st of the year for which your report is being prepared."
@@ -163,7 +172,7 @@
                 </div>
               </v-col>
             </v-row>
-            <v-row dense>
+            <v-row density="compact">
               <v-col>
                 <v-radio-group
                   id="employeeCountRange"
@@ -188,14 +197,14 @@
               <v-col cols="12" sm="4" md="3">
                 <v-row>
                   <v-col>
-                    <div class="text-body-1 font-weight-bold text-no-wrap">
+                    <div class="text-body-large font-weight-bold text-no-wrap">
                       <label
                         for="reportYear"
                         :class="{ 'text-disabled': mode == ReportMode.Edit }"
                       >
                         Reporting Year:
                       </label>
-                      <span class="text-error font-weight-bold text-h6"
+                      <span class="text-error font-weight-bold text-title-large"
                         >**</span
                       >
                       <v-tooltip
@@ -236,7 +245,7 @@
                 <!-- Time Period -->
                 <v-row>
                   <v-col class="pb-0">
-                    <div class="text-body-1 font-weight-bold">
+                    <div class="text-body-large font-weight-bold">
                       <span
                         :class="{
                           'text-error':
@@ -250,7 +259,9 @@
                       >
                         Time Period
                       </span>
-                      <span class="text-error font-weight-bold text-h6">*</span>
+                      <span class="text-error font-weight-bold text-title-large"
+                        >*</span
+                      >
                       <v-tooltip
                         id="time-period-tooltip"
                         text="The 12-month reporting period can be either the preceding calendar year, or the most recently completed financial year."
@@ -274,7 +285,7 @@
                 </v-row>
                 <v-row>
                   <v-col sm="6" cols="12" class="pt-0 pe-sm-0">
-                    <v-row dense align="end">
+                    <v-row density="compact" class="align-end">
                       <!-- startMonth -->
                       <v-col>
                         <span class="text-grey-darken-1">From</span>
@@ -300,12 +311,11 @@
                   </v-col>
                   <!-- endMonth, endYear -->
                   <v-col sm="6" cols="12" class="pt-0">
-                    <v-row dense align="end">
+                    <v-row density="compact" class="align-end">
                       <v-col
                         v-if="!$vuetify.display.xs"
                         cols="1"
-                        class="d-flex justify-center text-h3 text-grey-darken-1"
-                        align-self="center"
+                        class="d-flex justify-center text-display-medium text-grey-darken-1 align-self-center"
                       >
                         -
                       </v-col>
@@ -349,7 +359,7 @@
                   <template #label>
                     <div class="d-flex">
                       <div
-                        class="text-error font-weight-bold text-h6 mr-2 text-no-wrap"
+                        class="text-error font-weight-bold text-title-large mr-2 text-no-wrap"
                       >
                         **
                       </div>
@@ -372,7 +382,7 @@
             <!-- Employer Statement -->
             <v-row>
               <v-col>
-                <div class="text-body-1 font-weight-bold">
+                <div class="text-body-large font-weight-bold">
                   <label
                     for="comments"
                     :class="{
@@ -396,17 +406,17 @@
                       />
                     </template>
                   </v-tooltip>
-                  <span class="text-subtitle-2 text-grey-darken-1">
+                  <span class="text-title-small text-grey-darken-1">
                     (Optional: you can return to this page to complete it after
                     viewing your draft report.)
                   </span>
                 </div>
-                <div class="text-subtitle-2 text-dark-gray">
+                <div class="text-title-small text-dark-gray">
                   This will appear at the top of your pay transparency report.
                 </div>
               </v-col>
             </v-row>
-            <v-row dense>
+            <v-row density="compact">
               <v-col>
                 <RichTextArea
                   id="employerStatement"
@@ -427,7 +437,7 @@
             <!-- Data Constraints -->
             <v-row>
               <v-col>
-                <div class="text-body-1 font-weight-bold">
+                <div class="text-body-large font-weight-bold">
                   <label
                     for="dataConstraints"
                     :class="{
@@ -454,18 +464,18 @@
                       />
                     </template>
                   </v-tooltip>
-                  <span class="text-subtitle-2 text-grey-darken-1">
+                  <span class="text-title-small text-grey-darken-1">
                     (Optional: you can return to this page to complete it after
                     viewing your draft report.)
                   </span>
                 </div>
-                <div class="text-subtitle-2 text-dark-gray">
+                <div class="text-title-small text-dark-gray">
                   This will appear at the bottom of your pay transparency
                   report.
                 </div>
               </v-col>
             </v-row>
-            <v-row dense>
+            <v-row density="compact">
               <v-col>
                 <RichTextArea
                   id="dataConstraints"
@@ -486,15 +496,17 @@
             <!-- File Upload -->
             <v-row>
               <v-col>
-                <div class="text-body-1 font-weight-bold">
+                <div class="text-body-large font-weight-bold">
                   <label
                     for="csvFile"
                     :class="{ 'text-error': isSubmit && !uploadFileValue }"
                   >
                     File Upload
                   </label>
-                  <span class="text-error font-weight-bold text-h6">*</span>
-                  <div class="text-subtitle-2 text-dark-gray">
+                  <span class="text-error font-weight-bold text-title-large"
+                    >*</span
+                  >
+                  <div class="text-title-small text-dark-gray">
                     To proceed, upload your employee data in comma-separated
                     value (CSV) format. Ensure the CSV file follows the provided
                     <a href="SampleCsv.csv" download>CSV Sample</a>
@@ -585,7 +597,7 @@
             </v-row>
 
             <v-row
-              dense
+              density="compact"
               class="pa-5 d-flex align-center"
               style="
                 border: 3px dashed #666666;
@@ -599,7 +611,7 @@
                   v-if="!uploadFileValue"
                   class="d-flex justify-center align-center"
                 >
-                  <p class="text-subtitle-2 text-grey-darken-1 mr-2">
+                  <p class="text-title-small text-grey-darken-1 mr-2">
                     Supported format: CSV. Maximum file size:
                     {{ maxFileUploadSize }}.
                   </p>
@@ -645,13 +657,13 @@
                 </v-btn>
               </v-col>
             </v-row>
-            <v-row v-if="isSubmit && !formReady" dense class="mt-4">
+            <v-row v-if="isSubmit && !formReady" density="compact" class="mt-4">
               <v-col class="text-error d-flex justify-center">
                 Please check the form and correct all errors before submitting.
               </v-col>
             </v-row>
 
-            <v-row dense class="mt-4">
+            <v-row density="compact" class="mt-4">
               <v-col class="text-dark-gray d-flex justify-center">
                 Your CSV file and draft report will not be shared with the B.C.
                 Government.

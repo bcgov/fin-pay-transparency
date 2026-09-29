@@ -91,10 +91,6 @@ h1 {
   font-size: 1rem;
 }
 
-.v-btn {
-  text-transform: none !important;
-}
-
 .v-btn.btn-primary {
   background-color: #053662 !important;
   color: #ffffff !important;

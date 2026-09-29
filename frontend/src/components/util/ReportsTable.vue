@@ -20,7 +20,7 @@
             <div class="d-flex flex-column align-start font-weight-bold">
               <span>{{ column.title }}</span>
               <span
-                class="text-caption font-weight-regular text-none d-block opacity-80"
+                class="text-body-small font-weight-regular text-none d-block opacity-80"
               >
                 We invite you to share your most recent report link with our
                 office for compliance tracking
@@ -103,7 +103,7 @@
 
                 <div
                   v-if="errorMessage"
-                  class="text-error text-caption px-3 pt-0"
+                  class="text-error text-body-small px-3 pt-0"
                 >
                   {{ errorMessage }}
                 </div>
@@ -199,19 +199,19 @@
           <!-- Column headings -->
           <v-row no-gutters class="report-mobile-header px-3 py-2">
             <v-col cols="4">
-              <span class="text-caption font-weight-bold">
+              <span class="text-body-small font-weight-bold">
                 Reporting Year
               </span>
             </v-col>
 
             <v-col cols="4">
-              <span class="text-caption font-weight-bold">
+              <span class="text-body-small font-weight-bold">
                 Submission Date
               </span>
             </v-col>
 
             <v-col cols="4" class="text-center">
-              <span class="text-caption font-weight-bold"> Action </span>
+              <span class="text-body-small font-weight-bold"> Action </span>
             </v-col>
           </v-row>
 
@@ -220,7 +220,7 @@
             <v-col cols="4">
               <div
                 :data-testid="`reporting_year-${item.report_id}`"
-                class="text-body-2"
+                class="text-body-medium"
               >
                 {{ item.reporting_year }}
               </div>
@@ -229,7 +229,7 @@
             <v-col cols="4">
               <div
                 :data-testid="`report_published_date-${item.report_id}`"
-                class="text-body-2"
+                class="text-body-medium"
               >
                 {{ formatDateTime(item.create_date) }}
               </div>
@@ -269,11 +269,11 @@
           <v-divider class="mt-2" />
 
           <div class="px-3 py-3">
-            <div class="text-caption font-weight-bold mb-2">
+            <div class="text-body-small font-weight-bold mb-2">
               Link to published report
             </div>
 
-            <div class="text-caption text-medium-emphasis mb-3">
+            <div class="text-body-small text-medium-emphasis mb-3">
               We invite you to share your most recent report link with our
               office for compliance tracking
             </div>
@@ -293,7 +293,7 @@
                   label="Report URL"
                 />
 
-                <div v-if="errorMessage" class="text-error text-caption">
+                <div v-if="errorMessage" class="text-error text-body-small">
                   {{ errorMessage }}
                 </div>
 
@@ -325,7 +325,7 @@
                     :href="item.report_url"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="report-url-link text-body-2 text-decoration-underline flex-grow-1"
+                    class="report-url-link text-body-medium text-decoration-underline flex-grow-1"
                   >
                     {{ item.report_url }}
                   </a>
