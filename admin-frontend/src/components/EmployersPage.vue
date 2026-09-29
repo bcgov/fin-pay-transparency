@@ -1,5 +1,5 @@
 <template>
-  <v-row dense class="mt-0 w-100 mb-4 align-end">
+  <v-row density="compact" class="mt-0 w-100 mb-4 align-end">
     <div
       class="d-flex flex-column flex-grow-1 flex-shrink-1 ma-2 ml-0 flex-basis-200"
     >
@@ -39,8 +39,8 @@
         variant="solo"
         density="compact"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="`${item.raw}`">
+        <template #item="{ props, internalItem }">
+          <v-list-item v-bind="props" :title="`${internalItem.raw}`">
             <template #append="{ isActive }">
               <v-list-item-action start>
                 <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
@@ -54,7 +54,7 @@
           </v-chip>
           <span
             v-if="index === maxSelectedYearShown"
-            class="text-grey text-caption align-self-center"
+            class="text-grey text-body-small align-self-center"
           >
             (+{{ selectedYears.length - maxSelectedYearShown }}
             more)
@@ -90,7 +90,7 @@
     </div>
   </v-row>
 
-  <v-row v-if="hasSearched" dense class="w-100">
+  <v-row v-if="hasSearched" density="compact" class="w-100">
     <v-col>
       <v-data-table-server
         v-model:items-per-page="pageSize"

@@ -3,7 +3,11 @@
     <template #content>
       <v-container fluid class="root">
         <h1 class="title">Invitation Expired</h1>
-        <v-alert dense variant="outlined" class="alert-error mt-2 mb-2">
+        <v-alert
+          density="compact"
+          variant="outlined"
+          class="alert-error mt-2 mb-2"
+        >
           <p>
             You are seeing this error page because the invitation link expires
             72 hours after creation. <br />Please contact an Admin Portal

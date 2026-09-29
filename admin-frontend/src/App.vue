@@ -135,7 +135,6 @@ h1 {
 }
 
 .v-btn {
-  text-transform: none !important;
   font-weight: 600 !important;
 }
 

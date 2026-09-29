@@ -1,7 +1,7 @@
 <template>
   <h4>Search Announcements</h4>
 
-  <v-row dense class="mt-0 w-100 mb-4">
+  <v-row density="compact" class="mt-0 w-100 mb-4">
     <v-col class="py-0">
       <AnnouncementSearchFilters />
     </v-col>

@@ -5,17 +5,20 @@
     </v-container>
   </v-app-bar>
   <v-row class="fill-height container">
-    <v-col xs="12" class="d-flex flex-column justify-center align-center action">
+    <v-col
+      cols="12"
+      class="d-flex flex-column justify-center align-center action"
+    >
       <div class="d-flex flex-column">
         <slot name="content"></slot>
       </div>
     </v-col>
-    <v-col xs="12" class="justify-center cover d-none d-xs-none d-sm-none d-md-flex"> </v-col>
+    <v-col cols="12" class="justify-center cover d-none d-sm-none d-md-flex">
+    </v-col>
   </v-row>
 </template>
 
-<script>
-</script>
+<script></script>
 
 <style scoped lang="scss">
 .page-title {
@@ -29,7 +32,7 @@
 
 .title {
   font-weight: 700;
-  margin-bottom: 20px
+  margin-bottom: 20px;
 }
 
 .action {

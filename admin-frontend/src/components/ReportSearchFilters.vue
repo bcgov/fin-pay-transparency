@@ -58,10 +58,10 @@
         density="compact"
         aria-label="NAICS Code"
       >
-        <template #item="{ props, item }">
+        <template #item="{ props, internalItem }">
           <v-list-item
             v-bind="props"
-            :title="`${item.raw.naics_code} - ${item.raw.naics_label}`"
+            :title="`${internalItem.raw.naics_code} - ${internalItem.raw.naics_label}`"
           >
             <template #append="{ isActive }">
               <v-list-item-action start>
@@ -76,7 +76,7 @@
           </v-chip>
           <span
             v-if="index === maxSelectedNaicsCodesShown"
-            class="text-grey text-caption align-self-center"
+            class="text-grey text-body-small align-self-center"
           >
             (+{{ selectedNaicsCodes.length - maxSelectedNaicsCodesShown }}
             more)
@@ -95,11 +95,11 @@
         density="compact"
         aria-label="Report Year"
       >
-        <template #item="{ props, item }">
+        <template #item="{ props, internalItem }">
           <v-list-item
-            :aria-label="'Year: ' + item.raw"
+            :aria-label="'Year: ' + internalItem.raw"
             v-bind="props"
-            :title="item.raw ? item.raw : 'All'"
+            :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
@@ -123,8 +123,11 @@
         density="compact"
         aria-label="Locked/Unlocked"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+        <template #item="{ props, internalItem }">
+          <v-list-item
+            v-bind="props"
+            :title="internalItem.raw ? internalItem.raw : 'All'"
+          >
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
             </template>
@@ -153,8 +156,11 @@
         density="compact"
         aria-label="Employee Count"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw.employee_count_range">
+        <template #item="{ props, internalItem }">
+          <v-list-item
+            v-bind="props"
+            :title="internalItem.raw.employee_count_range"
+          >
             <template #append="{ isActive }">
               <v-list-item-action start>
                 <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
@@ -183,8 +189,11 @@
         density="compact"
         aria-label="Status"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+        <template #item="{ props, internalItem }">
+          <v-list-item
+            v-bind="props"
+            :title="internalItem.raw ? internalItem.raw : 'All'"
+          >
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
             </template>
@@ -210,8 +219,8 @@
         density="compact"
         aria-label="Admin Actions"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw.title">
+        <template #item="{ props, internalItem }">
+          <v-list-item v-bind="props" :title="internalItem.raw.title">
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
             </template>
