@@ -51,11 +51,11 @@
   <div v-if="areSecondaryFiltersVisible" class="secondary-filters py-4">
     <v-row density="compact">
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>
+        <label>
           Active On Date Range
 
           <FilterDateRangeTooltip id="active-on-tooltip" />
-        </h5>
+        </label>
         <VueDatePicker
           v-model="publishDateRange"
           range
@@ -74,9 +74,9 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>
+        <label>
           Expiry Date Range <FilterDateRangeTooltip id="expires-on-tooltip" />
-        </h5>
+        </label>
         <VueDatePicker
           v-model="expiryDateRange"
           range
@@ -95,7 +95,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Status</h5>
+        <label>Status</label>
         <v-select
           v-model="selectedStatuses"
           :items="statusOptions"
@@ -140,7 +140,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="12" xl="3" class="align-stretch">
-        <h5>&nbsp;</h5>
+        <label>&nbsp;</label>
         <div class="d-flex justify-end align-center filter-buttons">
           <v-btn class="btn-primary mr-0" @click="searchAnnouncements()">
             Apply

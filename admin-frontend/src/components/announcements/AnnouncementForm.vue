@@ -53,14 +53,14 @@
         <div class="form-content pr-5">
           <v-row density="compact" class="mt-2">
             <v-col cols="12" md="12" sm="12">
-              <h5
+              <label
                 :class="{
                   'text-error':
                     announcementTitleRef && !announcementTitleRef?.isValid,
                 }"
               >
                 Title *
-              </h5>
+              </label>
               <v-text-field
                 ref="announcementTitleRef"
                 v-model="announcementTitle"
@@ -74,13 +74,13 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="12" sm="12">
-              <h5
+              <label
                 :class="{
                   'text-error': errors.description,
                 }"
               >
                 Description *
-              </h5>
+              </label>
               <RichTextArea
                 id="announcementDescription"
                 v-model="announcementDescription"
@@ -91,7 +91,7 @@
               ></RichTextArea>
             </v-col>
             <v-col cols="12" md="12" sm="12">
-              <h5 class="mb-2">Time Settings</h5>
+              <label class="mb-2">Time Settings</label>
               <v-row density="compact">
                 <v-col cols="12">
                   <span
@@ -185,7 +185,7 @@
               </v-row>
             </v-col>
             <v-col cols="12">
-              <h5 class="mb-2">Link</h5>
+              <label class="mb-2">Link</label>
               <v-row v-if="!linkDisplayOnly" density="compact" class="mt-2">
                 <v-col cols="12">
                   <span
@@ -251,7 +251,7 @@
             </v-col>
             <v-col cols="12">
               <div class="section-title">
-                <h5 class="mb-2">File</h5>
+                <label class="mb-2">File</label>
                 <span class="fill-remaining-space" />
                 <v-btn
                   v-if="

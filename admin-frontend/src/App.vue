@@ -1,7 +1,7 @@
 <template>
   <v-app id="app">
     <MsieBanner v-if="isIE" />
-    <div v-if="!isIE">
+    <template v-if="!isIE">
       <SnackBar />
       <SideBar v-if="areHeaderAndSidebarVisible" />
       <Header v-if="areHeaderAndSidebarVisible" />
@@ -17,7 +17,7 @@
 
         <router-view />
       </v-main>
-    </div>
+    </template>
   </v-app>
 </template>
 
@@ -88,18 +88,8 @@ $link-color: #255a90;
   margin: 24px !important;
 }
 
-a {
+a:not(.v-list-item) {
   color: $link-color;
-}
-
-.v-main {
-  padding: 0;
-}
-
-.v-container {
-  width: 85%;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 a:hover {
