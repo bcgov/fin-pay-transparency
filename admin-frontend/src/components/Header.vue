@@ -1,9 +1,5 @@
 <template>
-  <v-app-bar
-    absolute
-    style="z-index: 1002"
-    class="d-flex justify-center ps-6 pe-6"
-  >
+  <v-app-bar class="d-flex justify-center ps-6 pe-6">
     <h2 v-if="isTitleVisible">
       {{
         activeRoute.meta.sectionTitle

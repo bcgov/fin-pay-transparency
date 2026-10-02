@@ -124,6 +124,20 @@ describe('ReportSearchFilters', () => {
   // ---------------------------------------------------------------------------
 
   describe('toggleSecondaryFiltersVisible', () => {
+    it('shows and hides secondary filters when the Filter button is clicked', async () => {
+      const filterButton = wrapper
+        .findAll('button')
+        .find((button) => button.text().includes('Filter'));
+
+      await filterButton?.trigger('click');
+      await flushPromises();
+      expect(wrapper.find('.secondary-filters').exists()).toBe(true);
+
+      await filterButton?.trigger('click');
+      await flushPromises();
+      expect(wrapper.find('.secondary-filters').exists()).toBe(false);
+    });
+
     it('shows secondary filters after one toggle', async () => {
       wrapper.vm.toggleSecondaryFiltersVisible();
       await flushPromises();

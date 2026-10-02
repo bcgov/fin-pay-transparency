@@ -46,7 +46,7 @@
     />
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 307px">
-      <h5>NAICS Code</h5>
+      <label>NAICS Code</label>
       <v-select
         v-model="selectedNaicsCodes"
         :items="naicsCodes"
@@ -72,7 +72,7 @@
         </template>
         <template #selection="{ item, index }">
           <v-chip v-if="index < maxSelectedNaicsCodesShown">
-            <span>{{ item.raw.naics_code }}</span>
+            <span>{{ item.naics_code }}</span>
           </v-chip>
           <span
             v-if="index === maxSelectedNaicsCodesShown"
@@ -86,7 +86,7 @@
     </div>
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 102px">
-      <h5>Year</h5>
+      <label>Year</label>
       <v-select
         id="report-year"
         v-model="selectedReportYear"
@@ -107,14 +107,14 @@
           </v-list-item>
         </template>
         <template #selection="{ item, index }">
-          <span v-if="!item.raw">All</span>
-          <span v-if="item.raw">{{ item.raw }}</span>
+          <span v-if="!item">All</span>
+          <span v-if="item">{{ item }}</span>
         </template>
       </v-select>
     </div>
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 136px">
-      <h5>Locked/Unlocked</h5>
+      <label>Locked/Unlocked</label>
       <v-select
         id="unlocked-status"
         v-model="selectedLockedValues"
@@ -134,8 +134,8 @@
           </v-list-item>
         </template>
         <template #selection="{ item, index }">
-          <span v-if="!item.raw">All</span>
-          <span v-if="item.raw">{{ item.raw }}</span>
+          <span v-if="!item">All</span>
+          <span v-if="item">{{ item }}</span>
         </template>
       </v-select>
     </div>
@@ -144,7 +144,7 @@
       class="d-flex flex-column flex-grow-1 ma-2 ml-0"
       style="width: 320px; max-width: 300px"
     >
-      <h5>Employee Count</h5>
+      <label>Employee Count</label>
       <v-select
         v-model="selectedEmployeeCount"
         :items="employeeCountRanges"
@@ -170,7 +170,7 @@
         </template>
         <template #selection="{ item, index }">
           <v-chip>
-            <span>{{ item.raw.employee_count_range }}</span>
+            <span>{{ item.employee_count_range }}</span>
           </v-chip>
         </template>
       </v-select>
@@ -180,7 +180,7 @@
       class="d-flex flex-column flex-grow-1 ma-2 ml-0"
       style="width: 148px; max-width: 300px"
     >
-      <h5>Status</h5>
+      <label>Status</label>
       <v-select
         id="status-filter"
         v-model="selectedStatusValues"
@@ -200,8 +200,8 @@
           </v-list-item>
         </template>
         <template #selection="{ item }">
-          <span v-if="!item.raw">All</span>
-          <span v-if="item.raw">{{ item.raw }}</span>
+          <span v-if="!item">All</span>
+          <span v-if="item">{{ item }}</span>
         </template>
       </v-select>
     </div>
@@ -210,7 +210,7 @@
       class="d-flex flex-column flex-grow-1 ma-2 ml-0"
       style="width: 200px; max-width: 300px; min-width: 250px"
     >
-      <h5>Admin Actions</h5>
+      <label>Admin Actions</label>
       <v-select
         id="admin-actions-filter"
         v-model="selectedAdminActions"
@@ -230,11 +230,11 @@
     </div>
 
     <div class="d-flex flex-column my-2">
-      <h5>&nbsp;</h5>
+      <label>&nbsp;</label>
     </div>
 
     <div class="d-flex flex-column ml-auto ma-2">
-      <h5>&nbsp;</h5>
+      <label>&nbsp;</label>
       <div class="d-flex justify-end align-center filter-buttons">
         <v-btn class="btn-primary mr-0" @click="searchReports()"> Apply </v-btn>
         <v-btn

@@ -1,5 +1,5 @@
 <template>
-  <v-row density="compact" class="mt-0 w-100 mb-4 align-end">
+  <v-row density="compact" class="mt-0 w-100 mb-4 align-end flex-grow-0">
     <div
       class="d-flex flex-column flex-grow-1 flex-shrink-1 ma-2 ml-0 flex-basis-200"
     >
@@ -19,13 +19,13 @@
     </div>
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0">
-      <h5>
+      <label>
         Calendar Year(s)
         <ToolTip
           :text="'Select a calendar year to view employers by the first date they logged in.'"
           max-width="300px"
         ></ToolTip>
-      </h5>
+      </label>
       <v-select
         v-model="selectedYears"
         :items="yearOptions"
@@ -64,7 +64,7 @@
     </div>
     <DateRangeFilter v-model="dateRange" label="First Log In Date Range" />
     <div class="d-flex flex-column ma-2 mr-0">
-      <h5>&nbsp;</h5>
+      <label>&nbsp;</label>
     </div>
     <div class="d-flex flex-column ml-auto ma-2 mr-0">
       <div
