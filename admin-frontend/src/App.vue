@@ -12,7 +12,7 @@
       >
         <BreadcrumbTrail
           v-if="isBreadcrumbTrailVisible"
-          class="pt-0 pb-0 mb-3"
+          class="pa-0 ma-0 mb-3"
         ></BreadcrumbTrail>
 
         <router-view />
@@ -98,6 +98,11 @@ a:hover {
 
 .envBanner {
   font-size: 0.8rem;
+}
+
+h4,
+h3 {
+  margin: 0px;
 }
 
 .v-application {

@@ -25,6 +25,7 @@
       <div
         v-if="isExpanded"
         class="d-flex justify-center mb-8 text-title-large"
+        style="text-wrap: balance"
       >
         Pay Transparency Admin Portal
       </div>

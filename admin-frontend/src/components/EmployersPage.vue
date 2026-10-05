@@ -3,7 +3,7 @@
     <div
       class="d-flex flex-column flex-grow-1 flex-shrink-1 ma-2 ml-0 flex-basis-200"
     >
-      <h3 class="mb-2">Search Employer</h3>
+      <h4 class="mb-2">Search Employer</h4>
       <v-text-field
         v-model="searchText"
         prepend-inner-icon="mdi-magnify"
