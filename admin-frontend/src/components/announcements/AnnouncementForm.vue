@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="pa-0">
-    <div class="toolbar mr-4">
+    <div class="d-flex flex-wrap justify-end align-center w-100 mb-1 mr-4">
       <h1>{{ title }}</h1>
       <div class="flex-fill"></div>
       <div>
@@ -33,7 +33,7 @@
         </v-radio-group>
       </div>
 
-      <div class="ml-0">
+      <div class="ml-3">
         <v-btn
           v-if="!isConfirmDialogVisible"
           variant="outlined"
@@ -921,18 +921,9 @@ const handleSave = handleSubmit(async (values) => {
 </script>
 
 <style scoped lang="scss">
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 1rem;
-  width: 100%;
-}
 .form-content {
   width: 100%;
   max-width: 800px;
-  padding-right: 5px;
 }
 .previewPanel {
   max-width: 500px !important;
