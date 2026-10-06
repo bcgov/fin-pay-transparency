@@ -193,7 +193,7 @@ jobs:
           DEPLOY_TIMEOUT=$((${{ inputs.timeout-minutes }}-1)) 
 
           # Perform atomic upgrade/installation of helm chart
-          helm upgrade --debug --install --wait --atomic ${{ env.deployment_name }}-${{ inputs.target }} \
+          helm upgrade --install --wait --atomic ${{ env.deployment_name }}-${{ inputs.target }} \
           --values ${{ inputs.directory }}/${{ inputs.values }} \
           --set-string backend.image.tag="${{ inputs.tag }}" \
           --set-string admin-frontend.image.tag="${{ inputs.tag }}" \
