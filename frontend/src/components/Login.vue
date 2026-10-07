@@ -76,7 +76,7 @@
         </v-row>
         <v-row class="mb-4 d-flex justify-center w-100">
           <v-col class="w-100">
-            <v-row>
+            <v-row no-gutters>
               <v-col class="d-flex justify-center align-center">
                 <button
                   type="button"
@@ -121,7 +121,7 @@
               </v-col>
             </v-row>
 
-            <v-row>
+            <v-row :gap="[0, 16]">
               <v-col class="d-flex justify-center align-center">
                 <h5>Upload</h5>
               </v-col>
@@ -133,7 +133,7 @@
               </v-col>
             </v-row>
 
-            <v-row>
+            <v-row :gap="[0, 16]">
               <v-col class="d-flex no-padding">
                 <div
                   class="progress-dash"
@@ -154,7 +154,7 @@
               </v-col>
             </v-row>
 
-            <v-row>
+            <v-row no-gutters>
               <v-col class="d-flex justify-center align-center no-padding">
                 <div
                   class="triangle-down"
@@ -176,7 +176,7 @@
             </v-row>
 
             <v-row class="mt-8 mb-2">
-              <v-col class="d-flex justify-center pt-10">
+              <v-col class="d-flex justify-center">
                 <div v-show="stage == 'UPLOAD'">
                   <h3 class="mb-4">Upload your company's data</h3>
                   <p class="mb-8">
@@ -338,6 +338,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  border-style: none;
 
   &.available {
     background-color: #00336633;
