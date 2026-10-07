@@ -100,9 +100,17 @@ a:hover {
   font-size: 0.8rem;
 }
 
-h4,
-h3 {
-  margin: 0px;
+/* in Vuetify v3, headers had no margins. This puts all headers back to the expected margins in v4 */
+@layer vuetify-core.reset {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    margin: 0;
+  }
 }
 
 .v-application {

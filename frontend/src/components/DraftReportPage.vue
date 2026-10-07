@@ -1,5 +1,5 @@
 <template>
-  <v-container class="d-flex justify-center h-100">
+  <v-container class="d-flex justify-center h-100" width="800" max-width="800">
     <v-form ref="inputForm" class="w-100 h-100">
       <v-banner
         sticky
@@ -11,87 +11,83 @@
       >
         <v-btn class="btn-secondary" to="/generate-report-form">Back</v-btn>
       </v-banner>
-      <v-row no-gutters class="justify-center w-100">
-        <v-col cols="12" sm="11" md="11" lg="9" xl="6">
-          <v-row class="mb-4 d-flex justify-center w-100">
-            <v-col cols="12" class="w-100">
-              <ReportStepper />
-            </v-col>
-          </v-row>
-
-          <div class="mb-8">
-            <HtmlReport @html-report-loaded="htmlReportLoaded = true" />
-
-            <div v-if="htmlReportLoaded">
-              <hr class="mt-8 mb-8" />
-
-              <div class="final-report-confirmation">
-                <p class="mb-4">
-                  <strong>Ready to finalize your report?</strong>
-                </p>
-
-                <p class="mb-1">Generating your Final Report will:</p>
-
-                <ul class="mt-0 mb-4 ml-6">
-                  <li>Remove the DRAFT watermark for publishing</li>
-                  <li>
-                    Let our office know that you've completed the report
-                    preparation step
-                  </li>
-                </ul>
-
-                <p class="mb-4">
-                  <strong>Your CSV data stays private.</strong>
-                  The government does not retain your CSV or the underlying data
-                  used to generate the report. Only the final report is filed in
-                  this reporting tool.
-                </p>
-
-                <p class="mb-4">
-                  Please note that you must publish the report on your own
-                  website (if applicable) to fulfill the posting requirement
-                  under section 7 of the Act.
-                </p>
-
-                <v-checkbox
-                  v-model="isReadyToGenerate"
-                  class="mt-4"
-                  label="I'm ready to create my final report."
-                ></v-checkbox>
-              </div>
-
-              <div class="d-flex justify-center w-100 mt-4">
-                <v-btn
-                  id="backButton"
-                  class="btn-secondary mr-2"
-                  to="./generate-report-form"
-                >
-                  Back
-                </v-btn>
-
-                <v-btn
-                  id="downloadDraftPdfButton"
-                  class="btn-primary mr-2"
-                  :loading="isDownloadingPdf"
-                  :disabled="isDownloadingPdf"
-                  @click="downloadPdf(ReportStepperStore.reportId)"
-                >
-                  Download PDF
-                </v-btn>
-
-                <v-btn
-                  id="generateReportButton"
-                  class="btn-primary mr-2"
-                  :disabled="!isReadyToGenerate"
-                  @click="tryGenerateReport()"
-                >
-                  Generate Final Report
-                </v-btn>
-              </div>
-            </div>
-          </div>
+      <v-row class="mb-4 d-flex justify-center w-100">
+        <v-col cols="12" class="w-100">
+          <ReportStepper />
         </v-col>
       </v-row>
+
+      <div class="mb-8">
+        <HtmlReport @html-report-loaded="htmlReportLoaded = true" />
+
+        <div v-if="htmlReportLoaded">
+          <hr class="mt-8 mb-8" />
+
+          <div class="final-report-confirmation">
+            <p class="mb-4">
+              <strong>Ready to finalize your report?</strong>
+            </p>
+
+            <p class="mb-1">Generating your Final Report will:</p>
+
+            <ul class="mt-0 mb-4 ml-6">
+              <li>Remove the DRAFT watermark for publishing</li>
+              <li>
+                Let our office know that you've completed the report preparation
+                step
+              </li>
+            </ul>
+
+            <p class="mb-4">
+              <strong>Your CSV data stays private.</strong>
+              The government does not retain your CSV or the underlying data
+              used to generate the report. Only the final report is filed in
+              this reporting tool.
+            </p>
+
+            <p class="mb-4">
+              Please note that you must publish the report on your own website
+              (if applicable) to fulfill the posting requirement under section 7
+              of the Act.
+            </p>
+
+            <v-checkbox
+              v-model="isReadyToGenerate"
+              class="mt-4"
+              label="I'm ready to create my final report."
+            ></v-checkbox>
+          </div>
+
+          <div class="d-flex justify-center w-100 mt-4">
+            <v-btn
+              id="backButton"
+              class="btn-secondary mr-2"
+              to="./generate-report-form"
+            >
+              Back
+            </v-btn>
+
+            <v-btn
+              id="downloadDraftPdfButton"
+              class="btn-primary mr-2"
+              :loading="isDownloadingPdf"
+              :disabled="isDownloadingPdf"
+              @click="downloadPdf(ReportStepperStore.reportId)"
+            >
+              Download PDF
+            </v-btn>
+
+            <v-btn
+              id="generateReportButton"
+              class="btn-primary mr-2"
+              :disabled="!isReadyToGenerate"
+              @click="tryGenerateReport()"
+            >
+              Generate Final Report
+            </v-btn>
+          </div>
+        </div>
+      </div>
       <v-overlay
         :persistent="true"
         :model-value="isProcessing"

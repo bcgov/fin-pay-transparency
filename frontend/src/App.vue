@@ -57,6 +57,23 @@ a {
   color: #255a90;
 }
 
+html {
+  overflow-x: auto;
+}
+
+/* in Vuetify v3, headers had no margins. This puts all headers back to the expected margins in v4 */
+@layer vuetify-core.reset {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    margin: 0;
+  }
+}
+
 .v-container {
   width: 85%;
   margin-left: auto;
