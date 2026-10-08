@@ -2,7 +2,7 @@
   <AuthLayout>
     <template #content>
       <v-container fluid class="root">
-        <h1 class="text-h6 mb-2">Session Expired</h1>
+        <h1 class="text-title-large mb-2">Session Expired</h1>
         <v-alert density="compact" variant="outlined" class="alert-error mb-3">
           Your session has expired.
         </v-alert>

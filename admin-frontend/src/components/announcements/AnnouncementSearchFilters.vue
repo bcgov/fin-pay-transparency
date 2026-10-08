@@ -49,13 +49,13 @@
   </div>
 
   <div v-if="areSecondaryFiltersVisible" class="secondary-filters py-4">
-    <v-row dense>
+    <v-row density="compact">
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>
+        <label>
           Active On Date Range
 
           <FilterDateRangeTooltip id="active-on-tooltip" />
-        </h5>
+        </label>
         <VueDatePicker
           v-model="publishDateRange"
           range
@@ -74,9 +74,9 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>
+        <label>
           Expiry Date Range <FilterDateRangeTooltip id="expires-on-tooltip" />
-        </h5>
+        </label>
         <VueDatePicker
           v-model="expiryDateRange"
           range
@@ -95,7 +95,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="4" xl="3" class="d-flex flex-column">
-        <h5>Status</h5>
+        <label>Status</label>
         <v-select
           v-model="selectedStatuses"
           :items="statusOptions"
@@ -105,15 +105,15 @@
           variant="solo"
           density="compact"
         >
-          <template #item="{ props, item }">
-            <v-list-item v-bind="props" :title="item.raw">
+          <template #item="{ props, internalItem }">
+            <v-list-item v-bind="props" :title="internalItem.raw">
               <template #title="{ title }">
-                <span v-if="item.raw">
+                <span v-if="internalItem.raw">
                   <AnnouncementStatusChip
                     :status="title"
                   ></AnnouncementStatusChip>
                 </span>
-                <span v-if="!item.raw">{{ title }}</span>
+                <span v-if="!internalItem.raw">{{ title }}</span>
               </template>
               <template #append="{ isActive }">
                 <v-icon v-if="isActive" icon="mdi-check"></v-icon>
@@ -129,7 +129,7 @@
               ></AnnouncementStatusChip>
               <span
                 v-if="index === maxSelectedStatusesVisible"
-                class="text-grey text-caption align-self-center"
+                class="text-grey text-body-small align-self-center"
               >
                 (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
                 more)
@@ -140,7 +140,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="6" lg="12" xl="3" class="align-stretch">
-        <h5>&nbsp;</h5>
+        <label>&nbsp;</label>
         <div class="d-flex justify-end align-center filter-buttons">
           <v-btn class="btn-primary mr-0" @click="searchAnnouncements()">
             Apply

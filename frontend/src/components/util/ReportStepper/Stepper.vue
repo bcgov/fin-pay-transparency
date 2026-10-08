@@ -78,11 +78,26 @@ const getLabelClassName = (step: IStageOption) => {
 
 const getMarkClassName = (step: IStageOption) => {
   const completeClassName = step?.isComplete(stage.value) ? 'completed' : '';
-  return `mark d-flex justify-center flex-column ${completeClassName}`;
+  return `mark d-flex justify-start flex-column ${completeClassName}`;
 };
 </script>
 
 <style scoped lang="scss">
+.inverted-house {
+  height: 20px;
+  width: 20px;
+  background-color: #34495e; /* Square Base */
+  /* The 5 points mapping out the shape */
+  clip-path: polygon(
+    0% 0%,
+    /* 1. Top-Left corner */ 100% 0%,
+    /* 2. Top-Right corner */ 100% 60%,
+    /* 3. Bottom-Right of the square section (150px / 250px = 60%) */ 50% 100%,
+    /* 4. Bottom-Center tip pointing down */ 0% 60%
+      /* 5. Bottom-Left of the square section */
+  );
+}
+
 .track-root {
   position: relative;
   width: 100%;
@@ -98,7 +113,7 @@ const getMarkClassName = (step: IStageOption) => {
     justify-content: space-between;
 
     .mark {
-      height: 20px;
+      height: 30px;
       width: 20px;
       line-height: 20px;
       font-size: small;
@@ -110,24 +125,19 @@ const getMarkClassName = (step: IStageOption) => {
       font-weight: bold;
       text-align: center;
 
+      //prettier-ignore
+      clip-path: polygon(
+        0% 0%,    /* Top-Left corner */
+        100% 0%,  /* Top-Right corner */ 
+        100% 55%, /* Bottom-Right of the square section */ 
+        95% 65%,  /* Slightly rounded corner */
+        50% 100%, /* Bottom-Center tip pointing down */
+        5% 65%,   /* Slightly rounded corner */
+        0% 55%    /* Bottom-Left of the square section */
+      );
+
       &.completed {
         background: rgb(252, 186, 25);
-        &:before {
-          border-color: transparent rgb(252, 186, 25) transparent transparent;
-        }
-      }
-
-      &:before {
-        content: '';
-        position: absolute;
-        bottom: -15px;
-        left: 5px;
-        width: 0;
-        height: 0;
-        border-color: transparent #767676 transparent transparent;
-        border-style: solid;
-        border-width: 10px 10px 10px 0;
-        transform: rotate(-90deg);
       }
     }
   }

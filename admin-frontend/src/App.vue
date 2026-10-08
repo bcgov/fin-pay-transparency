@@ -1,7 +1,7 @@
 <template>
   <v-app id="app">
     <MsieBanner v-if="isIE" />
-    <div v-if="!isIE">
+    <template v-if="!isIE">
       <SnackBar />
       <SideBar v-if="areHeaderAndSidebarVisible" />
       <Header v-if="areHeaderAndSidebarVisible" />
@@ -12,12 +12,12 @@
       >
         <BreadcrumbTrail
           v-if="isBreadcrumbTrailVisible"
-          class="pt-0 pb-0 mb-3"
+          class="pa-0 ma-0 mb-3"
         ></BreadcrumbTrail>
 
         <router-view />
       </v-main>
-    </div>
+    </template>
   </v-app>
 </template>
 
@@ -88,18 +88,8 @@ $link-color: #255a90;
   margin: 24px !important;
 }
 
-a {
+a:not(.v-list-item) {
   color: $link-color;
-}
-
-.v-main {
-  padding: 0;
-}
-
-.v-container {
-  width: 85%;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 a:hover {
@@ -108,6 +98,19 @@ a:hover {
 
 .envBanner {
   font-size: 0.8rem;
+}
+
+/* in Vuetify v3, headers had no margins. This puts all headers back to the expected margins in v4 */
+@layer vuetify-core.reset {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    margin: 0;
+  }
 }
 
 .v-application {
@@ -135,7 +138,6 @@ h1 {
 }
 
 .v-btn {
-  text-transform: none !important;
   font-weight: 600 !important;
 }
 

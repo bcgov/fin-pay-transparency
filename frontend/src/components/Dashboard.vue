@@ -40,7 +40,7 @@
           <v-btn class="mb-4 btn-primary" to="generate-report-form">
             Upload your CSV here
           </v-btn>
-          <p class="text-caption">
+          <p class="text-body-small">
             This application does not collect, record or publish personal
             information.
           </p>

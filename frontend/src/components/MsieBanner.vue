@@ -3,9 +3,9 @@
     id="banner"
     variant="outlined"
     class="alert-error"
-    dense
+    density="compact"
     type="error"
-    dismissible
+    closable
   >
     Your current web browser, Microsoft Internet Explorer, is not supported for
     this service. Use one of these web browsers: Microsoft Edge, Mozilla

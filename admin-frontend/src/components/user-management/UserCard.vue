@@ -2,7 +2,7 @@
   <v-card class="pa-4 ma-2 user-card">
     <div class="actions d-flex">
       <v-avatar color="primary">
-        <span class="text-h6">{{ getUserInitials(user) }}</span>
+        <span class="text-title-large">{{ getUserInitials(user) }}</span>
       </v-avatar>
       <span style="flex: 1 1 auto" />
 

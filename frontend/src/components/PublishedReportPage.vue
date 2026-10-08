@@ -1,5 +1,5 @@
 <template>
-  <v-container class="d-flex justify-center h-100">
+  <v-container class="d-flex justify-center h-100" width="800" max-width="800">
     <v-form ref="inputForm" class="w-100 h-100">
       <v-banner
         sticky
@@ -10,24 +10,18 @@
       >
         <v-btn class="btn-secondary" to="/">Back</v-btn>
       </v-banner>
-      <v-row no-gutters justify="center" class="w-100">
-        <v-col cols="12" sm="11" md="11" lg="9" xl="6">
-          <v-row
-            v-if="mode != ReportMode.View"
-            class="mb-4 d-flex justify-center w-100"
-          >
-            <v-col cols="12" class="w-100">
-              <ReportStepper />
-            </v-col>
-          </v-row>
-
-          <HtmlReport @html-report-loaded="htmlReportLoaded = true" />
+      <v-row
+        v-if="mode != ReportMode.View"
+        class="mb-4 d-flex justify-center w-100"
+      >
+        <v-col cols="12" class="w-100">
+          <ReportStepper />
         </v-col>
       </v-row>
+
+      <HtmlReport @html-report-loaded="htmlReportLoaded = true" />
       <v-banner
         v-if="htmlReportLoaded"
-        sticky
-        width="fit-content"
         border="none"
         bg-color="rgba(255, 255, 255, 0.9)"
         class="d-flex justify-center w-100 sticky-bottom"
@@ -116,8 +110,11 @@ const editReport = async () => {
 }
 
 .sticky-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 191;
-  bottom: 0px !important;
-  top: none !important;
+  bottom: 0;
 }
 </style>
