@@ -517,6 +517,73 @@ describe('getWageGapTextSummary', () => {
           '% less',
       );
     });
+    it('returns an object for Unknown when the data is only M and U', () => {
+      const referenceGenderCode = GENDERS.MALE.code;
+
+      const mockCalcs = {};
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M] = {
+        value: 0,
+        isSuppressed: false,
+      };
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W] = {
+        value: 10.2,
+        isSuppressed: true,
+      };
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X] = {
+        value: -5,
+        isSuppressed: true,
+      };
+      mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U] = {
+        value: -2,
+        isSuppressed: false,
+      };
+
+      const mockChartData = [
+        {
+          genderCode: GENDERS.MALE.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_M,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.FEMALE.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_W,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.NON_BINARY.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_X,
+        } as CalcCodeGenderCode,
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U,
+        } as CalcCodeGenderCode,
+      ]
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(
+            mockCalcs,
+            d,
+            reportServicePrivate.payGapPercentToDollar,
+          ),
+        )
+        .filter((d) => d);
+
+      const text: string = reportServicePrivate.getWageGapTextSummary(
+        referenceGenderCode,
+        mockChartData,
+        'median',
+        'bonus pay',
+        false,
+      );
+
+      expect(text).not.toBeNull();
+      expect(text).toContain('median');
+      expect(text).toContain('bonus pay');
+      expect(text).toContain(
+        Math.abs(
+          Math.round(
+            mockCalcs[CALCULATION_CODES.MEDIAN_BONUS_PAY_DIFF_U].value,
+          ),
+        ) + '% more',
+      );
+    });
   });
 });
 
@@ -673,6 +740,36 @@ describe('getHoursGapTextSummary', () => {
       expect(text).toContain('median');
       expect(text).toContain('overtime hours');
     });
+    it('returns a non-null summary sentence even when U is the only other category', () => {
+      const referenceGenderCode = GENDERS.MALE.code;
+
+      const mockCalcs = {};
+      mockCalcs[CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U] = {
+        value: -5,
+        isSuppressed: false,
+      };
+      const mockTableData = [
+        {
+          genderCode: GENDERS.UNKNOWN.code,
+          calculationCode: CALCULATION_CODES.MEDIAN_OT_HOURS_DIFF_U,
+        } as CalcCodeGenderCode,
+      ]
+        .filter((d) => d.genderCode != referenceGenderCode)
+        .map((d) =>
+          reportServicePrivate.toChartDataRecord(mockCalcs, d, Math.round),
+        )
+        .filter((d) => d);
+
+      const text: string = reportServicePrivate.getHoursGapTextSummary(
+        referenceGenderCode,
+        mockTableData,
+        'median',
+        'overtime hours',
+      );
+      expect(text).not.toBeNull();
+      expect(text).toContain('median');
+      expect(text).toContain('overtime hours');
+    });
   });
 });
 
@@ -702,6 +799,29 @@ describe('getHourlyPayQuartilesTextSummary', () => {
       );
       expect(text.toLowerCase()).toContain(
         `${GENDERS.NON_BINARY.extendedLabel} occupy 1% of the highest paid jobs.`.toLowerCase(),
+      );
+    });
+    it('returns a text summary even when U is the only other', () => {
+      const referenceGenderCode = GENDERS.MALE.code;
+      const mockHourlyPayQuartile4 = [
+        { genderChartInfo: GENDERS.MALE, value: 45 },
+        { genderChartInfo: GENDERS.FEMALE, value: 45 },
+      ];
+      const mockHourlyPayQuartile1 = [
+        { genderChartInfo: GENDERS.MALE, value: 90 },
+        { genderChartInfo: GENDERS.UNKNOWN, value: 10 },
+      ];
+      const text: string =
+        reportServicePrivate.getHourlyPayQuartilesTextSummary(
+          referenceGenderCode,
+          mockHourlyPayQuartile4,
+          mockHourlyPayQuartile1,
+        );
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.FEMALE.extendedLabel} occupy 45% of the highest paid jobs.`.toLowerCase(),
+      );
+      expect(text.toLowerCase()).toContain(
+        `${GENDERS.UNKNOWN.extendedLabel} occupy 10% of the lowest paid jobs.`.toLowerCase(),
       );
     });
   });

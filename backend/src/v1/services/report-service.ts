@@ -202,12 +202,22 @@ const reportServicePrivate = {
 
     const isOrAre = measureNameIsPlural ? 'are' : 'is';
 
+    // Normally, the U category is not included in the text summary.
+    // However, there is a special case where no text is generated when the data only contains M and U.
+    // In this case, allow the U category to be included in the text summary.
+    const allowUnknown =
+      chartDataRecords.length == 2 &&
+      chartDataRecords.some(
+        (d) => d.genderChartInfo.code == GENDERS.UNKNOWN.code,
+      ) &&
+      chartDataRecords.some((d) => d.genderChartInfo.code == GENDERS.MALE.code);
+
     const typeASummaries: string[] = [];
     const typeBSummaries: string[] = [];
     chartDataRecords.forEach((d: ChartDataRecord) => {
       if (
         d.genderChartInfo.code != referenceGenderCode &&
-        d.genderChartInfo.code != GENDERS.UNKNOWN.code
+        (d.genderChartInfo.code != GENDERS.UNKNOWN.code || allowUnknown)
       ) {
         const diffFromReference = d.value - refChartDataRecord.value;
         const moreOrLess = diffFromReference > 0 ? 'more' : 'less';
@@ -289,11 +299,19 @@ const reportServicePrivate = {
       return null;
     }
 
+    // Normally, the U category is not included in the text summary.
+    // However, there is a special case where no text is generated when the data only contains M and U.
+    // In this case, allow the U category to be included in the text summary.
+    const allowUnknown =
+      chartDataRecords.length == 1 &&
+      refGenderChartInfo.code == GENDERS.MALE.code &&
+      chartDataRecords[0].genderChartInfo.code == GENDERS.UNKNOWN.code;
+
     const summaries: string[] = [];
     chartDataRecords.forEach((d: ChartDataRecord) => {
       if (
         d.genderChartInfo.code != referenceGenderCode &&
-        d.genderChartInfo.code != GENDERS.UNKNOWN.code
+        (d.genderChartInfo.code != GENDERS.UNKNOWN.code || allowUnknown)
       ) {
         const diffFromReference = d.value;
         const moreOrLess = diffFromReference > 0 ? 'more' : 'less';
@@ -324,6 +342,25 @@ const reportServicePrivate = {
       referenceGenderCode,
       GENDERS.UNKNOWN.code,
     ]);
+
+    // Normally we skip the U category in the text summary.
+    // However, if the U category is the only other category besides the reference gender,
+    // we include it in the summary.
+    const noref4 = hourlyPayQuartile4.filter(
+      (d) => d.genderChartInfo.code != referenceGenderCode,
+    );
+    const noref1 = hourlyPayQuartile1.filter(
+      (d) => d.genderChartInfo.code != referenceGenderCode,
+    );
+    if (
+      referenceGenderCode == GENDERS.MALE.code &&
+      ((noref4.length == 1 &&
+        noref4[0].genderChartInfo.code == GENDERS.UNKNOWN.code) ||
+        (noref1.length == 1 &&
+          noref1[0].genderChartInfo.code == GENDERS.UNKNOWN.code))
+    )
+      genderCodesToSkip.delete(GENDERS.UNKNOWN.code);
+
     const genderCodesToSummarize = Object.values(GENDERS).filter(
       (d) => !genderCodesToSkip.has(d.code),
     );
