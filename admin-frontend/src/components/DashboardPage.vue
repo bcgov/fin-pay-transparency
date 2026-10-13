@@ -1,6 +1,6 @@
 <template>
   <v-row density="compact" class="w-100">
-    <v-col sm="12" lg="7" class="mb-4">
+    <v-col sm="12" lg="7" class="mb-4 d-flex flex-column">
       <h4 class="mb-4">
         <v-icon icon="mdi-clipboard-text-outline"></v-icon>
         Recently Submitted Reports
@@ -18,7 +18,10 @@
           max-width="300px"
         ></ToolTip>
       </h4>
-      <RecentlySubmittedReports ref="recentlySubmittedReports" />
+      <RecentlySubmittedReports
+        ref="recentlySubmittedReports"
+        class="flex-grow-1"
+      />
     </v-col>
     <v-col sm="12" lg="5" class="mb-4">
       <h4 class="mb-4">

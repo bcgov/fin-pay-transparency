@@ -70,7 +70,16 @@ onMounted(async () => {
 }
 .users-grid {
   flex: none;
+  align-items: stretch;
+
   .user-card-wrapper {
+    display: flex;
+    flex-direction: column;
+
+    :deep(.user-card) {
+      flex: 1;
+    }
+
     .user-card {
       .actions {
         width: 100%;
