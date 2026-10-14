@@ -92,7 +92,7 @@ backend:
     targetCPUUtilizationPercentage: 60 # this percentage from request cpu
   storage:
     enabled: true
-    size: 120Mi
+    size: 130Mi
     accessMode: ReadWriteMany
   app:
     env:
