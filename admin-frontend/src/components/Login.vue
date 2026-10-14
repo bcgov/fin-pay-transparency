@@ -1,7 +1,7 @@
 <template>
   <AuthLayout>
     <template #content>
-      <p class="title text-h4">Log in</p>
+      <p class="title text-headline-large">Log in</p>
       <v-btn
         id="login-button"
         class="btn-primary login-button"
@@ -13,7 +13,6 @@
       </v-btn>
     </template>
   </AuthLayout>
-  
 </template>
 
 <script setup lang="ts">
@@ -27,7 +26,6 @@ const clearStorageAndRedirectToLogin = () => {
   authStore().setJwtToken();
   globalThis.location.href = authRoutesLogin;
 };
-
 </script>
 
 <style scoped lang="scss">
@@ -42,7 +40,7 @@ const clearStorageAndRedirectToLogin = () => {
 
 .title {
   font-weight: 700;
-  margin-bottom: 20px
+  margin-bottom: 20px;
 }
 
 .login-button {

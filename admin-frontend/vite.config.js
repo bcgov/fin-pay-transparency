@@ -4,6 +4,15 @@ import vue from '@vitejs/plugin-vue';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    include: [
+      'vuetify/components/VOverlay',
+      'vuetify/components/VDialog',
+      'vuetify/components/VMenu',
+      'vuetify/components/VSelect',
+      'vuetify/components/VTooltip',
+    ],
+  },
   plugins: [vue()],
   test: {
     environment: 'jsdom',

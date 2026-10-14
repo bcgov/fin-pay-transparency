@@ -1,21 +1,25 @@
 <template>
-  <v-app-bar absolute style="z-index: 1002" class="d-flex justify-center">
+  <v-app-bar class="d-flex justify-center">
     <v-container>
       <span class="text-primary page-title">Gender Equity Office</span>
     </v-container>
   </v-app-bar>
   <v-row class="fill-height container">
-    <v-col xs="12" class="d-flex flex-column justify-center align-center action">
+    <v-col
+      cols="12"
+      md="6"
+      class="d-flex flex-column justify-center align-center action"
+    >
       <div class="d-flex flex-column">
         <slot name="content"></slot>
       </div>
     </v-col>
-    <v-col xs="12" class="justify-center cover d-none d-xs-none d-sm-none d-md-flex"> </v-col>
+    <v-col cols="12" md="6" class="justify-center cover d-none d-md-flex">
+    </v-col>
   </v-row>
 </template>
 
-<script>
-</script>
+<script></script>
 
 <style scoped lang="scss">
 .page-title {
@@ -29,7 +33,7 @@
 
 .title {
   font-weight: 700;
-  margin-bottom: 20px
+  margin-bottom: 20px;
 }
 
 .action {

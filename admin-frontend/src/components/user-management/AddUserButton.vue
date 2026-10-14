@@ -18,7 +18,7 @@
         <v-divider></v-divider>
 
         <v-card-text>
-          <v-row dense>
+          <v-row density="compact">
             <v-col cols="12" md="12" sm="12">
               <h5>Name *</h5>
 

@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <v-row align="center" justify="center">
+    <v-row class="align-center justify-center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
-        <v-alert dense outlined class="alert-error mb-3" v-if="errorMessage">
+        <v-alert density="compact" variant="outlined" class="alert-error mb-3" v-if="errorMessage">
           {{ errorMessage }}
         </v-alert>
       </v-col>
