@@ -1,5 +1,7 @@
 name: Pull Request Closed
 
+permissions: {}
+
 on:
   pull_request:
     paths-ignore:
@@ -46,4 +48,3 @@ jobs:
         run: |
           helm status ${{ env.release }} && helm uninstall --no-hooks ${{ env.release }} || \
             echo "Not found: ${{ env.release }}"
-

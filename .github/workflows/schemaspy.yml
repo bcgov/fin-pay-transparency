@@ -1,5 +1,8 @@
 name: Generate SchemaSpy DB schema Documentation
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:   
@@ -16,6 +19,8 @@ jobs:
   generate-schema-spy:
     name: Generate SchemaSpy Documentation
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     services:
       postgres:
         image: postgres

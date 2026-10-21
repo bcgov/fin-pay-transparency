@@ -1,5 +1,8 @@
 name: Hotfix Pull Request Closed
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths-ignore:
@@ -51,6 +54,8 @@ jobs:
     if: startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
     name: Create Hotfix Tag
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -68,6 +73,9 @@ jobs:
   create-hotfix-docker-tag:
     if: startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         package: [ backend,

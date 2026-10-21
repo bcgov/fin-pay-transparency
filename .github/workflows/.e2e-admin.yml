@@ -1,6 +1,8 @@
 name: .E2E-Admin
 env:
   deployment_name: pay-transparency
+permissions:
+  contents: read
 on:
   workflow_call:
     secrets:

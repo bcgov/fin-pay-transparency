@@ -14,8 +14,8 @@ jobs:
        vars.PR_AUTO_APPROVAL_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
       contents: read
+      pull-requests: write
 
     steps:
       - name: Get list of changed files

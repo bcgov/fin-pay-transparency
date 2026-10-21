@@ -1,6 +1,9 @@
 # https://docs.developer.gov.bc.ca/sysdig-monitor-setup-team/
 name: Add Sysdig Team on a Schedule or Manually
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   schedule:

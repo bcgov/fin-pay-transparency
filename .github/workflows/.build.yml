@@ -8,6 +8,7 @@ jobs:
     runs-on:
       group: Larger Runners - OpenShift Static-IP
     permissions:
+      contents: read
       packages: write
     strategy:
       matrix:

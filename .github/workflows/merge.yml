@@ -1,6 +1,8 @@
 name: Merge to Main
 env:
   deployment_name: pay-transparency
+permissions:
+  contents: read
 on:
   push:
     branches: [main]
@@ -34,6 +36,9 @@ jobs:
       pr: ${{ steps.pr.outputs.pr || inputs.pr_no}}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
+    permissions:
+      contents: read
+      pull-requests: read
     steps: # Get PR number for squash merges to main
       - name: PR Number
         if: (github.event_name != 'workflow_dispatch')
@@ -69,6 +74,8 @@ jobs:
       clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
       - name: Conventional Changelog Update
@@ -93,6 +100,8 @@ jobs:
   retag-images:
     needs: [vars, semantic-version]
     runs-on: ubuntu-24.04
+    permissions:
+      packages: write
     strategy:
       matrix:
         package:
@@ -144,7 +153,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: prod
     permissions:
-      actions: read
+      contents: read
     outputs:
       latest_deployed_version: ${{ steps.get.outputs.latest_deployed_version }}
       human_changes_exist: ${{ steps.check.outputs.human_changes }}
@@ -171,7 +180,6 @@ jobs:
       - name: Fetch last deployed version for PROD environment
         id: get
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ENV_NAME: prod          
         run: |         
           LATEST_DEPLOYED_VERSION=$(oc get deployments pay-transparency-${ENV_NAME}-backend -L app.kubernetes.io/image-version --no-headers | awk '{print $NF}')
@@ -227,6 +235,9 @@ jobs:
       ( vars.PR_AUTO_APPROVAL_ENABLED == 'true' )
     needs: [deploys,test-integration,semantic-version,get-last-deployed-and-check-human]
     uses: ./.github/workflows/cd-to-test-on-workflow-dispatch.yml
+    permissions:
+      contents: read
+      packages: write
     secrets: inherit
     with:
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}
@@ -239,6 +250,9 @@ jobs:
       ( vars.PR_AUTO_APPROVAL_ENABLED == 'true' )
     needs: [deploys,test-integration,semantic-version,trigger-test-deployment,get-last-deployed-and-check-human]
     uses: ./.github/workflows/cd-to-prod-on-workflow-dispatch.yml
+    permissions:
+      contents: read
+      packages: write
     secrets: inherit
     with:
       tag: ${{ needs.semantic-version.outputs.semanticVersion }}      

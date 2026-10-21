@@ -1,4 +1,6 @@
 name: Build And Deploy to Sandbox in Dev namespace
+permissions:
+  contents: read
 on:
   pull_request:
     paths-ignore:
@@ -25,6 +27,9 @@ jobs:
   builds:
     if: (!github.event.pull_request.head.repo.fork)
     uses: ./.github/workflows/.build.yml
+    permissions:
+      contents: read
+      packages: write
 
   deploys:
     name: Deploys
