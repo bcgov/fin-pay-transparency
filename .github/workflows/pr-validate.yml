@@ -1,5 +1,7 @@
 name: PR Validate
 
+permissions: {}
+
 on:
   pull_request:
     types: [edited, opened, synchronize, reopened, ready_for_review]
@@ -13,6 +15,8 @@ jobs:
     name: Validate PR
     if: (! github.event.pull_request.draft)
     uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v1.2.1
+    permissions:
+      pull-requests: write
     with:
       markdown_links: |
         - [Frontend](https://pay-transparency-pr-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca)

@@ -1,6 +1,8 @@
 name: .Deploy
 env:
   deployment_name: pay-transparency
+permissions:
+  contents: read
 on:
   workflow_call:
     inputs:

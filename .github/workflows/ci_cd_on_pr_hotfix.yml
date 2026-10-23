@@ -1,4 +1,6 @@
 name: Build And Deploy Hotfix PR in Dev namespace
+permissions:
+  contents: read
 on:
   pull_request:
     paths-ignore:
@@ -45,6 +47,9 @@ jobs:
     if:  startsWith(github.head_ref, 'hotfix/') && (!github.event.pull_request.head.repo.fork)
     needs: [validate]
     uses: ./.github/workflows/.build.yml
+    permissions:
+      contents: read
+      packages: write
 
   deploys:
     name: Deploys

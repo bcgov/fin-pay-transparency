@@ -1,6 +1,8 @@
 name: .E2E Visual
 env:
   deployment_name: pay-transparency
+permissions:
+  contents: read
 on:
   workflow_call:
     secrets:
