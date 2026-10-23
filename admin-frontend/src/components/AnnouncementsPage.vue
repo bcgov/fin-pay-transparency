@@ -1,11 +1,13 @@
 <template>
   <h4>Search Announcements</h4>
 
-  <v-row dense class="mt-0 w-100 mb-4">
-    <v-col class="py-0">
-      <AnnouncementSearchFilters />
-    </v-col>
-  </v-row>
+  <div class="w-100">
+    <v-row density="compact" class="mt-0 w-100 mb-4">
+      <v-col class="py-0">
+        <AnnouncementSearchFilters />
+      </v-col>
+    </v-row>
+  </div>
 
   <div class="search-results w-100">
     <div class="d-flex flex-wrap mb-4 align-center">

@@ -46,7 +46,7 @@
     />
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 307px">
-      <h5>NAICS Code</h5>
+      <label>NAICS Code</label>
       <v-select
         v-model="selectedNaicsCodes"
         :items="naicsCodes"
@@ -58,10 +58,10 @@
         density="compact"
         aria-label="NAICS Code"
       >
-        <template #item="{ props, item }">
+        <template #item="{ props, internalItem }">
           <v-list-item
             v-bind="props"
-            :title="`${item.raw.naics_code} - ${item.raw.naics_label}`"
+            :title="`${internalItem.raw.naics_code} - ${internalItem.raw.naics_label}`"
           >
             <template #append="{ isActive }">
               <v-list-item-action start>
@@ -72,11 +72,11 @@
         </template>
         <template #selection="{ item, index }">
           <v-chip v-if="index < maxSelectedNaicsCodesShown">
-            <span>{{ item.raw.naics_code }}</span>
+            <span>{{ item.naics_code }}</span>
           </v-chip>
           <span
             v-if="index === maxSelectedNaicsCodesShown"
-            class="text-grey text-caption align-self-center"
+            class="text-grey text-body-small align-self-center"
           >
             (+{{ selectedNaicsCodes.length - maxSelectedNaicsCodesShown }}
             more)
@@ -86,7 +86,7 @@
     </div>
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 102px">
-      <h5>Year</h5>
+      <label>Year</label>
       <v-select
         id="report-year"
         v-model="selectedReportYear"
@@ -95,11 +95,11 @@
         density="compact"
         aria-label="Report Year"
       >
-        <template #item="{ props, item }">
+        <template #item="{ props, internalItem }">
           <v-list-item
-            :aria-label="'Year: ' + item.raw"
+            :aria-label="'Year: ' + internalItem.raw"
             v-bind="props"
-            :title="item.raw ? item.raw : 'All'"
+            :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
@@ -107,14 +107,14 @@
           </v-list-item>
         </template>
         <template #selection="{ item, index }">
-          <span v-if="!item.raw">All</span>
-          <span v-if="item.raw">{{ item.raw }}</span>
+          <span v-if="!item">All</span>
+          <span v-if="item">{{ item }}</span>
         </template>
       </v-select>
     </div>
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0" style="width: 136px">
-      <h5>Locked/Unlocked</h5>
+      <label>Locked/Unlocked</label>
       <v-select
         id="unlocked-status"
         v-model="selectedLockedValues"
@@ -123,16 +123,19 @@
         density="compact"
         aria-label="Locked/Unlocked"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+        <template #item="{ props, internalItem }">
+          <v-list-item
+            v-bind="props"
+            :title="internalItem.raw ? internalItem.raw : 'All'"
+          >
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
             </template>
           </v-list-item>
         </template>
         <template #selection="{ item, index }">
-          <span v-if="!item.raw">All</span>
-          <span v-if="item.raw">{{ item.raw }}</span>
+          <span v-if="!item">All</span>
+          <span v-if="item">{{ item }}</span>
         </template>
       </v-select>
     </div>
@@ -141,7 +144,7 @@
       class="d-flex flex-column flex-grow-1 ma-2 ml-0"
       style="width: 320px; max-width: 300px"
     >
-      <h5>Employee Count</h5>
+      <label>Employee Count</label>
       <v-select
         v-model="selectedEmployeeCount"
         :items="employeeCountRanges"
@@ -153,8 +156,11 @@
         density="compact"
         aria-label="Employee Count"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw.employee_count_range">
+        <template #item="{ props, internalItem }">
+          <v-list-item
+            v-bind="props"
+            :title="internalItem.raw.employee_count_range"
+          >
             <template #append="{ isActive }">
               <v-list-item-action start>
                 <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
@@ -164,7 +170,7 @@
         </template>
         <template #selection="{ item, index }">
           <v-chip>
-            <span>{{ item.raw.employee_count_range }}</span>
+            <span>{{ item.employee_count_range }}</span>
           </v-chip>
         </template>
       </v-select>
@@ -174,7 +180,7 @@
       class="d-flex flex-column flex-grow-1 ma-2 ml-0"
       style="width: 148px; max-width: 300px"
     >
-      <h5>Status</h5>
+      <label>Status</label>
       <v-select
         id="status-filter"
         v-model="selectedStatusValues"
@@ -183,16 +189,19 @@
         density="compact"
         aria-label="Status"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw ? item.raw : 'All'">
+        <template #item="{ props, internalItem }">
+          <v-list-item
+            v-bind="props"
+            :title="internalItem.raw ? internalItem.raw : 'All'"
+          >
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
             </template>
           </v-list-item>
         </template>
         <template #selection="{ item }">
-          <span v-if="!item.raw">All</span>
-          <span v-if="item.raw">{{ item.raw }}</span>
+          <span v-if="!item">All</span>
+          <span v-if="item">{{ item }}</span>
         </template>
       </v-select>
     </div>
@@ -201,7 +210,7 @@
       class="d-flex flex-column flex-grow-1 ma-2 ml-0"
       style="width: 200px; max-width: 300px; min-width: 250px"
     >
-      <h5>Admin Actions</h5>
+      <label>Admin Actions</label>
       <v-select
         id="admin-actions-filter"
         v-model="selectedAdminActions"
@@ -210,8 +219,8 @@
         density="compact"
         aria-label="Admin Actions"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="item.raw.title">
+        <template #item="{ props, internalItem }">
+          <v-list-item v-bind="props" :title="internalItem.raw.title">
             <template #append="{ isActive }">
               <v-icon v-if="isActive" icon="mdi-check"></v-icon>
             </template>
@@ -221,11 +230,11 @@
     </div>
 
     <div class="d-flex flex-column my-2">
-      <h5>&nbsp;</h5>
+      <label>&nbsp;</label>
     </div>
 
     <div class="d-flex flex-column ml-auto ma-2">
-      <h5>&nbsp;</h5>
+      <label>&nbsp;</label>
       <div class="d-flex justify-end align-center filter-buttons">
         <v-btn class="btn-primary mr-0" @click="searchReports()"> Apply </v-btn>
         <v-btn
