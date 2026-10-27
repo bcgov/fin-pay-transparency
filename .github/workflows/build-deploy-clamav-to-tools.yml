@@ -1,4 +1,5 @@
 name: Build And Deploy ClamAV To Tools
+permissions: {}
 on:
   workflow_dispatch:
   schedule:
@@ -9,6 +10,7 @@ jobs:
     name: Builds
     runs-on: ubuntu-24.04
     permissions:
+      contents: read
       packages: write
     strategy:
       matrix:

@@ -1,4 +1,5 @@
 name: Maintenance Page
+permissions: {}
 on:
   workflow_dispatch:
     inputs:

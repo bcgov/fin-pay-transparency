@@ -1,6 +1,8 @@
 name: Deploy to PROD On Workflow Dispatch.
 env:
   deployment_name: pay-transparency
+permissions:
+  contents: read
 on:
   workflow_dispatch:
     inputs:
@@ -28,6 +30,7 @@ jobs:
     name: Image Promotions to PROD
     runs-on: ubuntu-24.04
     permissions:
+      contents: read
       packages: write
     strategy:
       matrix:

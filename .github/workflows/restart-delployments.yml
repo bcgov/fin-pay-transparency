@@ -1,4 +1,5 @@
 name: Restart Backend and Doc-Gen Deployments
+permissions: {}
 on:
   schedule:    
     - cron: '30 8 * * *'
