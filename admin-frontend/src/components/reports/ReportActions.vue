@@ -228,11 +228,11 @@
         variant="outlined"
         density="compact"
       >
-        <template #item="{ props: itemProps, item }">
+        <template #item="{ props: itemProps, internalItem }">
           <v-list-item
             v-bind="itemProps"
-            :disabled="item.raw.disabled"
-            :subtitle="item.raw.subtitle"
+            :disabled="internalItem.raw.disabled"
+            :subtitle="internalItem.raw.subtitle"
           ></v-list-item>
         </template>
       </v-select>

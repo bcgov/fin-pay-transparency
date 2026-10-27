@@ -11,7 +11,7 @@
         <v-toolbar
           :dark="options.dark"
           :color="options.color"
-          :dense="options.dense"
+          :density="options.density"
           flat
         >
           <v-spacer />
@@ -68,7 +68,7 @@ export default {
       width: 390,
       zIndex: 200,
       dark: true,
-      dense: true,
+      density: 'compact',
       closeIcon: false,
       messagePadding: 'pa-8',
       titleBold: false,

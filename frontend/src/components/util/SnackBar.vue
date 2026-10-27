@@ -5,7 +5,7 @@
       v-model="isVisible"
       :key="notificationKey"
       :timeout="timeout"
-      elevation="24"
+      elevation="5"
       location="top"
       centered
       :content-class="styleClass"

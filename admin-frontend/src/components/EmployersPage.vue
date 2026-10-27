@@ -1,9 +1,9 @@
 <template>
-  <v-row dense class="mt-0 w-100 mb-4 align-end">
+  <v-row density="compact" class="mt-0 w-100 mb-4 align-end flex-grow-0">
     <div
       class="d-flex flex-column flex-grow-1 flex-shrink-1 ma-2 ml-0 flex-basis-200"
     >
-      <h3 class="mb-2">Search Employer</h3>
+      <h4 class="mb-2">Search Employer</h4>
       <v-text-field
         v-model="searchText"
         prepend-inner-icon="mdi-magnify"
@@ -19,13 +19,13 @@
     </div>
 
     <div class="d-flex flex-column flex-grow-1 ma-2 ml-0">
-      <h5>
+      <label>
         Calendar Year(s)
         <ToolTip
           :text="'Select a calendar year to view employers by the first date they logged in.'"
           max-width="300px"
         ></ToolTip>
-      </h5>
+      </label>
       <v-select
         v-model="selectedYears"
         :items="yearOptions"
@@ -39,8 +39,8 @@
         variant="solo"
         density="compact"
       >
-        <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="`${item.raw}`">
+        <template #item="{ props, internalItem }">
+          <v-list-item v-bind="props" :title="`${internalItem.raw}`">
             <template #append="{ isActive }">
               <v-list-item-action start>
                 <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
@@ -54,7 +54,7 @@
           </v-chip>
           <span
             v-if="index === maxSelectedYearShown"
-            class="text-grey text-caption align-self-center"
+            class="text-grey text-body-small align-self-center"
           >
             (+{{ selectedYears.length - maxSelectedYearShown }}
             more)
@@ -64,7 +64,7 @@
     </div>
     <DateRangeFilter v-model="dateRange" label="First Log In Date Range" />
     <div class="d-flex flex-column ma-2 mr-0">
-      <h5>&nbsp;</h5>
+      <label>&nbsp;</label>
     </div>
     <div class="d-flex flex-column ml-auto ma-2 mr-0">
       <div
@@ -90,7 +90,7 @@
     </div>
   </v-row>
 
-  <v-row v-if="hasSearched" dense class="w-100">
+  <v-row v-if="hasSearched" density="compact" class="w-100">
     <v-col>
       <v-data-table-server
         v-model:items-per-page="pageSize"

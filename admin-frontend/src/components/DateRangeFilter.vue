@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-column flex-grow-1 ma-2 ml-0">
-    <h5>
+    <label>
       {{ label }}
       <ToolTip
         id="date-range-tooltip"
@@ -8,7 +8,7 @@
         width="300px"
         aria-label="date-range-tooltip"
       ></ToolTip>
-    </h5>
+    </label>
 
     <VueDatePicker
       v-model="model"

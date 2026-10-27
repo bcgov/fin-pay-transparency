@@ -22,7 +22,11 @@
         alt="B.C. Government Logo"
         class="mb-8"
       />
-      <div v-if="isExpanded" class="d-flex justify-center mb-8 text-h6">
+      <div
+        v-if="isExpanded"
+        class="d-flex justify-center mb-8 text-title-large"
+        style="text-wrap: balance"
+      >
         Pay Transparency Admin Portal
       </div>
     </div>
