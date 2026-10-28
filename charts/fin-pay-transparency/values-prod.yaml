@@ -183,7 +183,7 @@ crunchy:
         prometheus.io/port: "9187"
     replicas: 3
     dataVolumeClaimSpec:
-      storage: 1500Mi
+      storage: 3072Mi
       storageClassName: netapp-block-standard
     requests:
       cpu: 150m
@@ -216,7 +216,7 @@ crunchy:
       incrementalBackupSchedule: 0 0,4,12,16,20 * * *
       volume:
         accessModes: "ReadWriteOnce"
-        storage: 1750Mi
+        storage: 5120Mi
         storageClassName: netapp-file-backup
 
     config:
