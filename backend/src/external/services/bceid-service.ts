@@ -45,9 +45,8 @@ const getCompanyDetails = async (
     authorization: `Basic ${base64BasicAuth}`,
   };
 
-  logger.silly(xml);
-  logger.silly(serviceURL);
-  logger.silly(defaultHeaders);
+  logger.debug(xml);
+  logger.debug(serviceURL);
   const { response }: any = await soapRequest({
     url: serviceURL,
     headers: defaultHeaders,
@@ -89,7 +88,7 @@ const getCompanyDetails = async (
     country,
     postal,
   };
-  logger.silly(companyDetails);
+  logger.debug(companyDetails);
   return companyDetails;
 };
 export { getCompanyDetails };
