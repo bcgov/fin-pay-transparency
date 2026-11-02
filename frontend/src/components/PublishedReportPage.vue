@@ -28,7 +28,9 @@
       >
         <v-btn
           id="downloadPdfButton"
-          class="mr-2 btn-primary"
+          class="mr-2"
+          color="primary"
+          variant="flat"
           :loading="isDownloadingPdf"
           :disabled="isDownloadingPdf"
           @click="downloadPdf(reportId)"
@@ -38,7 +40,8 @@
         <v-btn
           v-if="!!reportData && reportData.is_unlocked"
           id="editButton"
-          class="btn-primary"
+          color="primary"
+          variant="flat"
           data-testid="published-report-edit-button"
           @click="editReport()"
         >

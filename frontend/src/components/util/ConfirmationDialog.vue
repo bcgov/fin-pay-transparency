@@ -44,7 +44,8 @@
         }}</v-btn>
         <v-btn
           id="resolveBtn"
-          class="btn-primary"
+          color="primary"
+          variant="flat"
           :disabled="options.resolveDisabled"
           @click="agree"
           >{{ options.resolveText || 'Yes' }}</v-btn

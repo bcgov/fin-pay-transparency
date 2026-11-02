@@ -69,7 +69,9 @@
 
             <v-btn
               id="downloadDraftPdfButton"
-              class="btn-primary mr-2"
+              class="mr-2"
+              color="primary"
+              variant="flat"
               :loading="isDownloadingPdf"
               :disabled="isDownloadingPdf"
               @click="downloadPdf(ReportStepperStore.reportId)"
@@ -79,7 +81,9 @@
 
             <v-btn
               id="generateReportButton"
-              class="btn-primary mr-2"
+              class="mr-2"
+              color="primary"
+              variant="flat"
               :disabled="!isReadyToGenerate"
               @click="tryGenerateReport()"
             >

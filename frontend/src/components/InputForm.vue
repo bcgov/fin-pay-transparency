@@ -637,7 +637,12 @@
 
         <v-row class="mt-6">
           <v-col class="d-flex justify-center">
-            <v-btn id="submitButton" class="btn-primary" type="submit">
+            <v-btn
+              id="submitButton"
+              color="primary"
+              variant="flat"
+              type="submit"
+            >
               Generate Draft Report
             </v-btn>
           </v-col>

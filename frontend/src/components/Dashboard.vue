@@ -37,7 +37,12 @@
             Need an example? Click <a href="SampleCsv.csv" download>here</a> to
             view a sample CSV file.
           </p>
-          <v-btn class="mb-4 btn-primary" to="generate-report-form">
+          <v-btn
+            class="mb-4"
+            color="primary"
+            variant="flat"
+            to="generate-report-form"
+          >
             Upload your CSV here
           </v-btn>
           <p class="text-body-small">

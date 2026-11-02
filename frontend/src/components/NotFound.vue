@@ -12,7 +12,8 @@
         </v-alert>
         <v-btn
           data-testid="dashboard-button"
-          class="btn-primary"
+          color="primary"
+          variant="flat"
           to="/dashboard"
           >Return to dashboard</v-btn
         >

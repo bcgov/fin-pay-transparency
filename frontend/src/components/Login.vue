@@ -50,12 +50,14 @@
             </p>
             <v-btn
               id="login-button"
-              class="btn-primary"
+              color="primary"
+              variant="flat"
+              append-icon="fas fa-sign-in"
               data-testid="login-button"
               title="Login"
               @click="clearStorageAndRedirectToLogin"
             >
-              Log In with Business BCeID<v-icon>mdi-login</v-icon>
+              Log In with Business BCeID
             </v-btn>
             <p class="text-body-small mt-2 mb-8">
               This tool does not collect, record or publish personal
