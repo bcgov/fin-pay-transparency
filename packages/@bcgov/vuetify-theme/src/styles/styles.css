@@ -1,0 +1,14 @@
+
+.callout .v-alert__border {
+  opacity: 1;
+  border-width: 0 0 0 4px;
+}
+
+h1, .text-h1 { font: var(--bcds-typography-bold-h1); }
+h2, .text-h2 { font: var(--bcds-typography-bold-h2); }
+h3, .text-h3 { font: var(--bcds-typography-bold-h3); }
+h4, .text-h4 { font: var(--bcds-typography-bold-h4); }
+h5, .text-h5 { font: var(--bcds-typography-bold-h5); }
+h6, .text-h6 { font: var(--bcds-typography-bold-h6); }
+
+a { color: var(--bcds-typography-color-link) }

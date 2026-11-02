@@ -1,0 +1,33 @@
+{
+  "name": "@bcgov/vuetify-theme",
+  "version": "0.1.0",
+  "description": "B.C. Design System blueprint, layers and styles for Vuetify 4",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./*"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@bcgov/design-tokens": "^5.0.0",
+    "@bcgov/bc-sans": "^2.1.2",
+    "@fortawesome/fontawesome-free": "^7.3.1"
+  },
+  "peerDependencies": {
+    "vuetify": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0",
+    "vuetify": "^4.0.0",
+    "@types/node": "^22.0.0"
+  }
+}

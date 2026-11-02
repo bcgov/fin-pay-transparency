@@ -1,0 +1,91 @@
+/*
+ * cust colours and interaction states that must beat Vuetify's colour utility
+ * classes (bg-primary, text-primary, ...), which live in the vuetify-utilities
+ * layer. Layer: cust-states (above utilities, below vuetify-final).
+ *
+ * Buttons. Vuetify derives hover/pressed from an opacity overlay; cust defines
+ * explicit colours, so the overlay is replaced by the tokens.
+ *
+ *   cust secondary   <v-btn variant="outlined">
+ *   cust tertiary    <v-btn variant="text">
+ *   cust link        <v-btn variant="plain">
+ *   cust primary     <v-btn>                      (flat, color primary)
+ *   cust danger      color="error" on flat / outlined / text
+ *
+ * Each button type declares three variables (hover, pressed, disabled); one
+ * shared rule set applies them. To support another type, add a block of
+ * variables and list its selector in the :is() groups.
+ */
+
+/* ---------------------- per-type variables ---------------------- */
+.v-btn.bg-primary {
+  --bcds-cust-btn-hover: var(--bcds-surface-color-primary-button-hover);
+  --bcds-cust-btn-pressed: var(--bcds-surface-color-primary-pressed);
+  --bcds-cust-btn-disabled: var(--bcds-surface-color-primary-button-disabled);
+}
+.v-btn.bg-error {
+  --bcds-cust-btn-hover: var(--bcds-surface-color-primary-danger-button-hover);
+  --bcds-cust-btn-pressed: var(--bcds-support-surface-color-danger);
+  --bcds-cust-btn-disabled: var(--bcds-surface-color-primary-danger-button-disabled);
+}
+.v-btn--variant-outlined {
+  --bcds-cust-btn-hover: var(--bcds-surface-color-secondary-button-hover);
+  --bcds-cust-btn-pressed: var(--bcds-surface-color-secondary-pressed);
+  --bcds-cust-btn-disabled: var(--bcds-surface-color-secondary-button-disabled);
+}
+.v-btn--variant-outlined.text-error {
+  --bcds-cust-btn-hover: var(--bcds-support-surface-color-danger);
+  --bcds-cust-btn-pressed: var(--bcds-surface-color-primary-danger-button-default);
+  --bcds-cust-btn-disabled: var(--bcds-surface-color-secondary-button-disabled);
+}
+.v-btn--variant-text {
+  --bcds-cust-btn-hover: var(--bcds-surface-color-tertiary-button-hover);
+  --bcds-cust-btn-pressed: var(--bcds-surface-color-tertiary-pressed);
+  --bcds-cust-btn-disabled: var(--bcds-surface-color-tertiary-button-disabled);
+}
+.v-btn--variant-text.text-error {
+  --bcds-cust-btn-hover: var(--bcds-support-surface-color-danger);
+  --bcds-cust-btn-pressed: var(--bcds-surface-color-tertiary-pressed);
+  --bcds-cust-btn-disabled: var(--bcds-surface-color-tertiary-button-disabled);
+}
+
+/* ---------------------- resting colours ------------------------- */
+
+/* link */
+.v-btn--variant-plain {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+.v-btn--variant-plain.v-btn--disabled {
+  color: var(--bcds-typography-color-disabled);
+}
+
+/* ---------------------- shared state rules ---------------------- */
+.v-btn:hover {
+  background-color: var(--bcds-cust-btn-hover);
+  /* --v-theme-overlay-multiplier: 0; */
+}
+.v-btn:active {
+  background-color: var(--bcds-cust-btn-pressed);
+}
+/* pressed text colours that differ from resting */
+.v-btn.bg-error:active {
+  color: var(--bcds-surface-color-primary-danger-button-default);
+}
+.v-btn--variant-outlined.text-error:active {
+  color: var(--bcds-typography-color-primary-invert);
+}
+.v-btn--disabled {
+  background-color: var(--bcds-cust-btn-disabled);
+  color: var(--bcds-typography-color-disabled);
+  opacity: 1;
+}
+.v-btn--variant-outlined.v-btn--disabled {
+  border-color: var(--bcds-surface-color-border-default);
+}
+
+
+/* ----------------- checkbox / radio: selected hover ---------------- */
+.v-selection-control--dirty:not(.v-selection-control--disabled):hover .v-selection-control__wrapper.text-primary {
+  color: var(--bcds-surface-color-primary-hover);
+}

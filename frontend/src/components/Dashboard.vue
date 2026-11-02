@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-content">
+  <div>
     <v-row class="mt-3">
       <v-col>
         <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
@@ -47,7 +47,7 @@
         </div>
 
         <v-card class="rounded-lg flex-grow-1" min-height="230px">
-          <v-toolbar color="tab">
+          <v-toolbar>
             <v-toolbar-title>Submitted Reports</v-toolbar-title>
           </v-toolbar>
           <ReportsTable />
@@ -144,21 +144,6 @@ export default {
 </script>
 
 <style>
-.dashboard-content {
-  width: 100%;
-  min-width: 0;
-}
-
-.v-card-text.generate-report {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: aliceblue;
-}
-
-.v-card--variant-elevated.no-box-shadow {
-  box-shadow: none;
-}
 .right-column {
   height: 535px;
 }
