@@ -15,7 +15,7 @@
         administrator
       </v-alert>
       <p class="mt-2 mb-2"></p>
-      <v-btn color="secondary" @click="loadReport">Try again</v-btn>
+      <v-btn-secondary @click="loadReport">Try again</v-btn-secondary>
     </div>
   </div>
   <v-overlay

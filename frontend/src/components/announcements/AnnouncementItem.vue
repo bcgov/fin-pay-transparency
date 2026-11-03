@@ -21,7 +21,7 @@
             <v-icon
               icon="fa:fas fa-arrow-up-right-from-square"
               size=".85em"
-              color="primary icon-align"
+              color="primary"
               class="icon-align"
             />
           </a>

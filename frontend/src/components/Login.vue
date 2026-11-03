@@ -48,17 +48,15 @@
                 >Pay Transparency in B.C.</a
               >
             </p>
-            <v-btn
+            <v-btn-primary
               id="login-button"
-              color="primary"
-              variant="flat"
               append-icon="fas fa-sign-in"
               data-testid="login-button"
               title="Login"
               @click="clearStorageAndRedirectToLogin"
             >
               Log In with Business BCeID
-            </v-btn>
+            </v-btn-primary>
             <p class="text-body-small mt-2 mb-8">
               This tool does not collect, record or publish personal
               information.
@@ -200,9 +198,9 @@
                     permitted). When you are ready, upload a file of your
                     employee data in comma-separated value (CSV) format.
                   </p>
-                  <v-btn class="btn-secondary" href="SampleCsv.csv" download>
+                  <v-btn-secondary href="SampleCsv.csv" download>
                     Download sample CSV
-                  </v-btn>
+                  </v-btn-secondary>
                 </div>
                 <div v-show="stage == 'REVIEW'">
                   <h3 class="mb-4">Review and validate</h3>
@@ -232,9 +230,9 @@
                     system in your employer profile for retrieval and
                     distribution.
                   </p>
-                  <v-btn class="btn-secondary" href="SampleReport.pdf" download>
+                  <v-btn-secondary href="SampleReport.pdf" download>
                     View sample report
-                  </v-btn>
+                  </v-btn-secondary>
                 </div>
               </v-col>
               <v-col class="d-flex justify-center aligned-right no-padding">

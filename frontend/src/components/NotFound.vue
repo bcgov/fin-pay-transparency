@@ -10,12 +10,8 @@
         >
           This page cannot be found.
         </v-alert>
-        <v-btn
-          data-testid="dashboard-button"
-          color="primary"
-          variant="flat"
-          to="/dashboard"
-          >Return to dashboard</v-btn
+        <v-btn-primary data-testid="dashboard-button" to="/dashboard"
+          >Return to dashboard</v-btn-primary
         >
       </v-col>
     </v-row>

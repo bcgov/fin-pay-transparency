@@ -112,13 +112,9 @@
               <div
                 class="report-url-actions d-flex align-center ga-1 flex-shrink-0"
               >
-                <v-btn
-                  color="primary"
-                  size="small"
-                  @click="saveReportUrl(item)"
-                >
+                <v-btn-primary size="small" @click="saveReportUrl(item)">
                   Save
-                </v-btn>
+                </v-btn-primary>
 
                 <v-btn
                   icon="mdi-close"
@@ -298,13 +294,9 @@
                 </div>
 
                 <div class="d-flex justify-end align-center ga-1">
-                  <v-btn
-                    color="primary"
-                    size="small"
-                    @click="saveReportUrl(item)"
-                  >
+                  <v-btn-primary size="small" @click="saveReportUrl(item)">
                     Save
-                  </v-btn>
+                  </v-btn-primary>
 
                   <v-btn
                     icon="mdi-close"

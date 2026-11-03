@@ -22,7 +22,7 @@
         density="compact"
         class="back-button-banner"
       >
-        <v-btn class="btn-secondary" to="/">Back</v-btn>
+        <v-btn-secondary to="/">Back</v-btn-secondary>
       </v-banner>
 
       <v-row class="mb-4 d-flex justify-center w-100">
@@ -600,15 +600,14 @@
                 Supported format: CSV. Maximum file size:
                 {{ maxFileUploadSize }}.
               </p>
-              <v-btn
+              <v-btn-secondary
                 id="uploadFileButton"
-                class="btn-secondary"
                 type="button"
                 :loading="isSelectingFile"
                 @click="selectFile"
               >
                 Upload file
-              </v-btn>
+              </v-btn-secondary>
               <v-file-input
                 v-show="false"
                 id="csvFile"
@@ -637,14 +636,9 @@
 
         <v-row class="mt-6">
           <v-col class="d-flex justify-center">
-            <v-btn
-              id="submitButton"
-              color="primary"
-              variant="flat"
-              type="submit"
-            >
+            <v-btn-primary id="submitButton" type="submit">
               Generate Draft Report
-            </v-btn>
+            </v-btn-primary>
           </v-col>
         </v-row>
         <v-row v-if="isSubmit && !formReady" density="compact" class="mt-4">

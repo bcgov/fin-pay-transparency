@@ -5,9 +5,7 @@
         <v-alert density="compact" variant="outlined" class="alert-error mb-3">
           Your session has expired.
         </v-alert>
-        <v-btn color="primary" variant="flat" @click="redirectToLogin"
-          >Login Again</v-btn
-        >
+        <v-btn-primary @click="redirectToLogin">Login Again</v-btn-primary>
       </v-col>
     </v-row>
   </v-container>

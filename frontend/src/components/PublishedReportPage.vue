@@ -8,7 +8,7 @@
         bg-color="rgba(255, 255, 255, 0)"
         class="sticky-top"
       >
-        <v-btn class="btn-secondary" to="/">Back</v-btn>
+        <v-btn-secondary to="/">Back</v-btn-secondary>
       </v-banner>
       <v-row
         v-if="mode != ReportMode.View"
@@ -26,27 +26,23 @@
         bg-color="rgba(255, 255, 255, 0.9)"
         class="d-flex justify-center w-100 sticky-bottom"
       >
-        <v-btn
+        <v-btn-primary
           id="downloadPdfButton"
           class="mr-2"
-          color="primary"
-          variant="flat"
           :loading="isDownloadingPdf"
           :disabled="isDownloadingPdf"
           @click="downloadPdf(reportId)"
         >
           Download PDF
-        </v-btn>
-        <v-btn
+        </v-btn-primary>
+        <v-btn-primary
           v-if="!!reportData && reportData.is_unlocked"
           id="editButton"
-          color="primary"
-          variant="flat"
           data-testid="published-report-edit-button"
           @click="editReport()"
         >
           Edit this Report
-        </v-btn>
+        </v-btn-primary>
       </v-banner>
       <v-overlay
         :persistent="true"

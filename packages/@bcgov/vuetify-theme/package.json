@@ -6,7 +6,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./*"
+    "./blueprint": "./src/blueprint.ts",
+    "./styles": "./src/styles/index.css",
+    "./styles/basic": "./src/styles/index.basic.css"
   },
   "files": [
     "src",

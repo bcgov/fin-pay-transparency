@@ -10,7 +10,7 @@
           </a>
           to update your account's address information.
         </v-alert>
-        <v-btn color="primary" to="Login">Home</v-btn>
+        <v-btn-primary to="Login">Home</v-btn-primary>
       </v-col>
     </v-row>
   </v-container>
