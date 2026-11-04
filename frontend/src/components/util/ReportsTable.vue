@@ -186,11 +186,12 @@
 
     <div v-else class="d-flex flex-column ga-3 ma-1">
       <v-card
-        v-for="item in reports"
+        v-for="(item, index) in reports"
         :key="item.report_id"
         variant="text"
         class="report-mobile-card"
-        border="b"
+        :border="index < reports.length - 1 ? 'b' : false"
+        tile
       >
         <v-card-text class="pa-0">
           <!-- Column headings -->
@@ -232,8 +233,8 @@
               </div>
             </v-col>
 
-            <v-col cols="4" class="d-flex justify-content align-start">
-              <div class="d-flex align-center">
+            <v-col cols="4" class="d-flex justify-center">
+              <div class="d-flex ga-1">
                 <v-btn
                   :data-testid="`view-report-${item.report_id}`"
                   prepend-icon="far fa-eye"
@@ -263,8 +264,6 @@
           </v-row>
 
           <!-- Published report URL -->
-          <v-divider class="mt-2" />
-
           <div class="px-3 py-3">
             <div class="text-body-small font-weight-bold mb-2">
               Link to published report
