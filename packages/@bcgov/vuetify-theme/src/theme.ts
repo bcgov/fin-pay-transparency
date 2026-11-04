@@ -50,11 +50,47 @@ export const bcdsTheme = {
     'on-info': t.typographyColorPrimaryInvert,
     'on-warning': t.typographyColorPrimary, // dark
 
-    //// --- Custom colours -------------------------------------------------
-    //// Vuetify exposes each as `--v-theme-<name>`, `bg-<name>`, `text-<name>`.
+    // --- Custom colours -------------------------------------------------
+    // These colours can be used in 'color' and 'bgColor' props. Also,
+    // Vuetify exposes each as `--v-theme-<name>`, `bg-<name>`, `text-<name>` css classes.
     link: t.typographyColorLink,
     'border-default': t.surfaceColorBorderDefault, // progress track, <hr>
-    
+
+    'bcds-gold-10': t.themeGold10, // Gold scale — lightest
+    'bcds-gold-20': t.themeGold20, // Gold scale
+    'bcds-gold-30': t.themeGold30, // Gold scale
+    'bcds-gold-40': t.themeGold40, // Gold scale
+    'bcds-gold-50': t.themeGold50, // Gold scale
+    'bcds-gold-60': t.themeGold60, // Gold scale
+    'bcds-gold-70': t.themeGold70, // Gold scale
+    'bcds-gold-80': t.themeGold80, // Gold scale
+    'bcds-gold-90': t.themeGold90, // Gold scale
+    'bcds-gold-100': t.themeGold100, // Gold scale — darkest
+    'bcds-blue-10': t.themeBlue10, // Blue scale — lightest
+    'bcds-blue-20': t.themeBlue20, // Blue scale
+    'bcds-blue-30': t.themeBlue30, // Blue scale
+    'bcds-blue-40': t.themeBlue40, // Blue scale
+    'bcds-blue-50': t.themeBlue50, // Blue scale
+    'bcds-blue-60': t.themeBlue60, // Blue scale
+    'bcds-blue-70': t.themeBlue70, // Blue scale
+    'bcds-blue-80': t.themeBlue80, // Blue scale
+    'bcds-blue-90': t.themeBlue90, // Blue scale
+    'bcds-blue-100': t.themeBlue100, // Blue scale — darkest
+    'bcds-gray-10': t.themeGray10, // Greyscale — lightest
+    'bcds-gray-20': t.themeGray20, // Greyscale
+    'bcds-gray-30': t.themeGray30, // Greyscale
+    'bcds-gray-40': t.themeGray40, // Greyscale
+    'bcds-gray-50': t.themeGray50, // Greyscale
+    'bcds-gray-60': t.themeGray60, // Greyscale
+    'bcds-gray-70': t.themeGray70, // Greyscale
+    'bcds-gray-80': t.themeGray80, // Greyscale
+    'bcds-gray-90': t.themeGray90, // Greyscale
+    'bcds-gray-100': t.themeGray100, // Greyscale
+    'bcds-gray-110': t.themeGray110, // Greyscale — darkest
+    'bcds-white': t.themeGrayWhite, // White
+    'bcds-blue': t.themePrimaryBlue, // Primary Blue (Blue 100)
+    'bcds-gold': t.themePrimaryGold, // Primary Gold (Gold 100)
+
     //// Keep custom colours here only when the component styles use them.
     //// State styles currently use design-token CSS variables directly.
     // 'primary-hover': t.surfaceColorPrimaryHover,

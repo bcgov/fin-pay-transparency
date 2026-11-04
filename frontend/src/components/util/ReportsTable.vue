@@ -62,7 +62,7 @@
           <div class="d-flex justify-center align-center">
             <v-btn
               :data-testid="`view-report-${item.report_id}`"
-              prepend-icon="mdi-eye-outline"
+              prepend-icon="far fa-eye"
               variant="text"
               color="link"
               class="px-2"
@@ -74,7 +74,7 @@
             <v-btn
               v-if="item.is_unlocked"
               :data-testid="`edit-report-${item.report_id}`"
-              prepend-icon="mdi-pencil-outline"
+              prepend-icon="fa fa-pencil"
               variant="text"
               color="link"
               class="px-2"
@@ -142,7 +142,7 @@
                   color="link"
                   variant="text"
                   size="small"
-                  prepend-icon="mdi-pencil"
+                  prepend-icon="fa fa-pencil"
                   @click="startEditingReportUrl(item)"
                 >
                   Edit Link
@@ -154,7 +154,7 @@
                 color="link"
                 variant="text"
                 size="small"
-                prepend-icon="mdi-link-variant"
+                prepend-icon="fa fa-link"
                 @click="startEditingReportUrl(item)"
               >
                 +Add Link
@@ -168,7 +168,7 @@
 
   <!-- Mobile -->
   <v-container v-else fluid class="reports-table-mobile pa-0">
-    <v-card v-if="isLoading" variant="outlined" class="report-mobile-card">
+    <v-card v-if="isLoading" variant="text" class="report-mobile-card">
       <v-card-text class="d-flex justify-center py-6">
         <v-progress-circular indeterminate color="primary" />
       </v-card-text>
@@ -176,7 +176,7 @@
 
     <v-card
       v-else-if="reports.length === 0"
-      variant="outlined"
+      variant="text"
       class="report-mobile-card"
     >
       <v-card-text class="text-center text-medium-emphasis">
@@ -188,7 +188,7 @@
       <v-card
         v-for="item in reports"
         :key="item.report_id"
-        variant="outlined"
+        variant="text"
         class="report-mobile-card"
       >
         <v-card-text class="pa-0">
@@ -235,7 +235,7 @@
               <div class="d-flex align-center">
                 <v-btn
                   :data-testid="`view-report-${item.report_id}`"
-                  prepend-icon="mdi-eye-outline"
+                  prepend-icon="far fa-eye"
                   variant="text"
                   color="link"
                   size="small"
@@ -248,7 +248,7 @@
                 <v-btn
                   v-if="item.is_unlocked"
                   :data-testid="`edit-report-${item.report_id}`"
-                  prepend-icon="mdi-pencil-outline"
+                  prepend-icon="fa fa-pencil"
                   variant="text"
                   color="link"
                   size="small"
@@ -326,7 +326,7 @@
                     color="link"
                     variant="text"
                     size="small"
-                    prepend-icon="mdi-pencil"
+                    prepend-icon="fa fa-pencil"
                     class="flex-shrink-0 px-1"
                     @click="startEditingReportUrl(item)"
                   >
@@ -340,8 +340,8 @@
                 color="link"
                 variant="text"
                 size="small"
-                prepend-icon="mdi-link-variant"
-                class="px-0"
+                prepend-icon="fa fa-link"
+                class="px-1"
                 @click="startEditingReportUrl(item)"
               >
                 +Add link to published report

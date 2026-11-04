@@ -133,3 +133,10 @@ The repository includes two demos:
 Run the Vuetify demo from its directory with `npm run dev` for the standard
 demo, or `npm run dev:basic` for the basic demo. Run the React demo from its
 directory with `npm run dev`.
+
+## TODO
+
+- Add header and footer (like React design-system components)
+- Consider adding custom component aliases for commonly used BCDS patterns. (VBtnPrimary, etc)
+- Consider exposing all BCDS color tokens as custom Vuetify theme colors. This would allow BCSD colours to be used in component's props.
+- Expand the demos to cover more component states and compare them with the React design-system components.

@@ -1,4 +1,4 @@
-import '@bcgov/vuetify-theme/styles/index.css';
+import '@bcgov/vuetify-theme/styles';
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
 import { bcdsBlueprint } from '@bcgov/vuetify-theme';
@@ -23,10 +23,12 @@ const vuetify = createVuetify({
     VBtnPrimary: {
       color: 'primary',
       variant: 'flat',
+      ripple: false,
     },
     VBtnSecondary: {
       variant: 'outlined',
       class: 'bg-background',
+      ripple: false,
     },
   },
 });
