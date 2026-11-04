@@ -13,26 +13,6 @@
  */
  
 /* ============================ Buttons ============================ */
-.v-btn--size-large:not(.v-btn--icon) {
-  font: var(--bcds-typography-regular-body);
-  height: 48px;
-  /* padding: var(--bcds-layout-padding-none) var(--bcds-layout-padding-large); */
-}
-.v-btn--size-default:not(.v-btn--icon, .v-date-picker) {
-  font: var(--bcds-typography-regular-body);
-  height: 40px;
-  /* padding: var(--bcds-layout-padding-none) var(--bcds-layout-padding-large); */ /* breaks datePicker */
-}
-.v-btn--size-small:not(.v-btn--icon) {
-  font: var(--bcds-typography-regular-small-body);
-  height: 32px;
-  /* padding: var(--bcds-layout-padding-none) 0.75rem; /* to be replaced with new token later ;*/
-}
-.v-btn--size-x-small:not(.v-btn--icon) {
-  font: var(--bcds-typography-regular-label);
-  /* padding: var(--bcds-layout-padding-hair) var(--bcds-layout-padding-small); */
-  height: 24px;
-}
 .v-btn:focus-visible > .v-btn__overlay {
   opacity: 0;
 }
@@ -95,7 +75,6 @@
 
 /* ======================= Selection controls ====================== */
 .v-selection-control .v-label {
-  font: var(--bcds-typography-regular-small-body);
   color: var(--bcds-typography-color-secondary);
   opacity: var(--bcds-surface-opacity-100);
 }
@@ -128,15 +107,10 @@
 .v-alert--variant-outlined.text-error { background-color: var(--bcds-support-surface-color-danger); }
 .v-alert--variant-outlined .v-alert__content {
   color: var(--bcds-typography-color-primary);
-  font: var(--bcds-typography-regular-body);
-}
-.v-alert--variant-outlined .v-alert-title {
-  font: var(--bcds-typography-bold-body);
 }
 
 /* ============================== Tags ============================= */
 .v-chip {
-  font: var(--bcds-typography-regular-label);
   border-radius: var(--bcds-layout-border-radius-small);
 }
 
@@ -155,7 +129,6 @@
 .v-expansion-panel-title {
   background-color: var(--bcds-surface-color-background-light-gray);
   color: var(--bcds-typography-color-primary);
-  font: var(--bcds-typography-bold-body);
 }
 .v-expansion-panel-title:hover {
   background-color: var(--bcds-surface-color-menus-hover);
@@ -163,16 +136,12 @@
 .v-expansion-panel-title:hover > .v-expansion-panel-title__overlay {
   opacity: 0;
 }
-.v-expansion-panel-text {
-  font: var(--bcds-typography-regular-body);
-}
 
 /* ============================ Tooltip ============================ */
 /* Colours come from the theme (surface-variant / on-surface-variant). */
 .v-tooltip > .v-overlay__content {
   border-radius: var(--bcds-layout-border-radius-medium);
   box-shadow: var(--bcds-surface-shadow-small);
-  font: var(--bcds-typography-regular-small-body);
 }
 
 /* ======================== Dialog / modal ========================= */
@@ -181,14 +150,6 @@
   border: var(--bcds-layout-border-width-small) solid var(--bcds-surface-color-border-default);
   border-radius: var(--bcds-layout-border-radius-medium);
   box-shadow: var(--bcds-surface-shadow-large);
-}
-.v-dialog .v-card-title {
-  font: var(--bcds-typography-bold-h5);
-  color: var(--bcds-typography-color-primary);
-}
-.v-dialog .v-card-text {
-  font: var(--bcds-typography-regular-body);
-  color: var(--bcds-typography-color-primary);
 }
 
 /* ======================== Date / time pickers ==================== */
