@@ -190,6 +190,7 @@
         :key="item.report_id"
         variant="text"
         class="report-mobile-card"
+        border="b"
       >
         <v-card-text class="pa-0">
           <!-- Column headings -->

@@ -48,7 +48,6 @@
           @click="agree"
           >{{ options.resolveText || 'Yes' }}</v-btn-primary
         >
-        >
       </v-card-actions>
     </v-card>
   </v-dialog>
