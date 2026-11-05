@@ -7,8 +7,8 @@
             v-if="mode == ReportMode.Edit"
             closable
             text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
-            class="alert-info"
-            variant="tonal"
+            color="info"
+            variant="outlined"
           >
           </v-alert>
         </v-col>
@@ -509,7 +509,7 @@
               :key="bodyError"
               color="error"
               icon="fa:fas fa-triangle-exclamation"
-              class="alert-error font-weight-bold mb-3"
+              class="font-weight-bold mb-3"
               variant="outlined"
             >
               {{ bodyError }}
@@ -525,7 +525,7 @@
               :key="generalError"
               color="error"
               icon="fa:fas fa-triangle-exclamation"
-              class="alert-error font-weight-bold mb-3"
+              class="font-weight-bold mb-3"
               variant="outlined"
             >
               {{ generalError }}
@@ -536,7 +536,7 @@
         <!-- File Submission Errors -->
         <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
           <v-col>
-            <v-alert class="pa-0 alert-error" variant="outlined">
+            <v-alert class="pa-0" color="error" variant="outlined">
               <!-- errors related to the content of specific lines in the file -->
               <div class="d-flex font-weight-bold">
                 <v-icon
@@ -656,7 +656,7 @@
 
         <v-row class="mt-4">
           <v-col>
-            <v-alert v-if="alertMessage" :class="alertType" class="mb-3">
+            <v-alert v-if="alertMessage" :color="alertType" class="mb-3">
               {{ alertMessage }}
             </v-alert>
           </v-col>
@@ -795,7 +795,7 @@ export default {
     fileRules: [],
     fileInputError: [],
     alertMessage: null as string | null,
-    alertType: null as string | null,
+    alertType: null as string | undefined,
     submissionErrors: null as ISubmissionError | null,
     approvedRoute: null as string | null,
     reportStatus: null,
@@ -938,7 +938,7 @@ export default {
     },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
-      this.alertType = 'alert-success';
+      this.alertType = 'success';
     },
     setErrorAlert(submissionErrors: ISubmissionError | null) {
       this.submissionErrors = submissionErrors;

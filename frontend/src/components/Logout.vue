@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="align-center justify-center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
-        <v-alert density="compact" variant="outlined" class="mb-3 alert-info">
+        <v-alert density="compact" variant="outlined" color="info" class="mb-3">
           You have logged out.
         </v-alert>
         <v-btn-primary @click="redirectToLogin">Login Again</v-btn-primary>
