@@ -1,9 +1,6 @@
 import type { ThemeDefinition } from 'vuetify'
 import * as t from '@bcgov/design-tokens/js'
 
-/** Name the theme is registered under in `createVuetify`. */
-export const BCDS_THEME_NAME = 'bcds'
-
 /**
  * B.C. Design System (light) theme for Vuetify.
  *

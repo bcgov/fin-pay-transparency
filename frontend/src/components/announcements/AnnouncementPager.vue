@@ -1,6 +1,6 @@
 <template>
   <v-card class="rounded-lg d-flex flex-column">
-    <v-toolbar color="bcds-blue-90" class="flex-shrink-1">
+    <v-toolbar color="tab" class="flex-shrink-1">
       <v-toolbar-title>
         <span class="d-flex align-center">
           Updates

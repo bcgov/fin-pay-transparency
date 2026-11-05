@@ -1,4 +1,5 @@
 import '@bcgov/vuetify-theme/styles';
+import * as t from '@bcgov/design-tokens/js';
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
 import { bcdsBlueprint } from '@bcgov/vuetify-theme';
@@ -15,6 +16,15 @@ import { VBtn } from 'vuetify/components';
 
 const vuetify = createVuetify({
   blueprint: bcdsBlueprint,
+  theme: {
+    themes: {
+      light: {
+        colors: {
+          tab: t.themeBlue90, //color of headers for dialogs and cards
+        },
+      },
+    },
+  },
   aliases: {
     VBtnPrimary: VBtn,
     VBtnSecondary: VBtn,
@@ -27,7 +37,7 @@ const vuetify = createVuetify({
     },
     VBtnSecondary: {
       variant: 'outlined',
-      class: 'bg-background',
+      class: 'bg-surface',
       ripple: false,
     },
   },

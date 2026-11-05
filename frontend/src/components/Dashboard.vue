@@ -47,7 +47,7 @@
         </div>
 
         <v-card class="rounded-lg flex-grow-1" min-height="230px">
-          <v-toolbar color="bcds-blue-90">
+          <v-toolbar color="tab">
             <v-toolbar-title>Submitted Reports</v-toolbar-title>
           </v-toolbar>
           <ReportsTable />

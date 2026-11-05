@@ -144,14 +144,6 @@
   box-shadow: var(--bcds-surface-shadow-small);
 }
 
-/* ======================== Dialog / modal ========================= */
-.v-dialog > .v-overlay__content > .v-card {
-  background-color: var(--bcds-surface-color-forms-default);
-  border: var(--bcds-layout-border-width-small) solid var(--bcds-surface-color-border-default);
-  border-radius: var(--bcds-layout-border-radius-medium);
-  box-shadow: var(--bcds-surface-shadow-large);
-}
-
 /* ======================== Date / time pickers ==================== */
 .v-picker {
   background-color: var(--bcds-surface-color-forms-default);
