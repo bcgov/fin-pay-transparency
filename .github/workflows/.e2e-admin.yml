@@ -49,7 +49,7 @@ jobs:
 
       - name: Install Playwright
         run: |
-          npx --no-install playwright install --with-deps
+          npx --no-install playwright install chrome
 
       - name: Run Tests
         env:
