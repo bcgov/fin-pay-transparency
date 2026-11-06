@@ -58,11 +58,11 @@ export default defineConfig({
       },
     },
     {
-      name: 'chrome',
+      name: 'chromium',
       testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
-        channel: 'chrome',
+        channel: 'chromium',
         baseURL: baseURL,
         storageState: 'user.json',
       },
@@ -81,7 +81,7 @@ export default defineConfig({
       teardown: 'teardown',
     },
     {
-      name: 'safari',
+      name: 'webkit',
       testIgnore: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Safari'],
@@ -109,7 +109,7 @@ export default defineConfig({
       testMatch: /visual-regression\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
-        channel: 'chrome',
+        channel: 'chromium',
         baseURL: baseURL,
         storageState: 'user.json',
       },
