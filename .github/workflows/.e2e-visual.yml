@@ -29,6 +29,15 @@ jobs:
         working-directory: frontend
     runs-on:
       group: Larger Runners - OpenShift Static-IP
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+      env:
+          E2E_BASE_URL: ${{ inputs.frontend-url }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
+          PLAYWRIGHT_HTML_OPEN: never
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     steps:
       - uses: actions/checkout@v7
@@ -40,11 +49,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          npm ci
-
-      - name: Install Playwright
-        run: |
-          npx --no-install playwright install --with-deps          
+          npm ci       
 
       - name: Create blob reports directory
         run: mkdir -p all-blob-reports
