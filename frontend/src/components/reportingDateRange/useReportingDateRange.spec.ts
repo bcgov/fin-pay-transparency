@@ -42,9 +42,15 @@ describe('useReportingDateRange', () => {
 
     it('defaults startDate to the 1st of the month, one year ago', () => {
       const { result } = setupComposable();
-      expect(result.startDate.value.equals(LocalDate.of(2023, 7, 1))).toBe(
-        true,
-      );
+      expect(result.startDate.value).toEqual(LocalDate.of(2023, 7, 1));
+    });
+
+    it('defaults startDate within the allowed bounds', () => {
+      // system time is in november, because simply subtacting 11 months
+      // would put the range outside the allowed bounds
+      vi.setSystemTime(convert(LocalDate.of(2024, 11, 15)).toDate());
+      const { result } = setupComposable();
+      expect(result.startDate.value).toEqual(LocalDate.of(2023, 11, 1));
     });
 
     it('derives startYear/startMonth/endYear/endMonth from startDate', () => {
