@@ -15,6 +15,7 @@ describe('bcds blueprint', () => {
   it('applies component defaults', () => {
     const vuetify = createVuetify({ blueprint: bcdsBlueprint })
     expect(vuetify.defaults.value?.VBtn).toMatchObject({ color: 'primary', variant: 'flat' })
+    expect(vuetify.defaults.value?.VIcon).toMatchObject({ size: 'small' })
   })
 
   it('lets app options override the blueprint', () => {
@@ -70,4 +71,3 @@ describe('icons (Font Awesome)', () => {
     expect(missing).toEqual([])
   })
 })
-

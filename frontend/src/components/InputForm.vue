@@ -124,6 +124,7 @@
               :rules="requiredRules"
               :items="naicsCodes"
               :item-title="(n: any) => `${n.naics_code} - ${n.naics_label}`"
+              single-line
               item-value="naics_code"
               label="Select"
               required
@@ -226,6 +227,7 @@
                   id="reportYear"
                   v-model="reportYear"
                   label="Year"
+                  variant="filled"
                   :items="reportingYearOptions"
                   :rules="requiredRules"
                   :disabled="mode == ReportMode.Edit"
@@ -285,6 +287,7 @@
                       id="startMonth"
                       v-model="startMonth"
                       label="Month"
+                      variant="filled"
                       :items="startMonthList"
                       :rules="requiredRules"
                     />
@@ -295,6 +298,7 @@
                       id="startYear"
                       v-model="startYear"
                       label="Year"
+                      variant="filled"
                       :items="startYearList"
                       :rules="requiredRules"
                     />
@@ -318,6 +322,7 @@
                       id="endMonth"
                       v-model="endMonth"
                       label="Month"
+                      variant="filled"
                       :items="endMonthList"
                       :rules="requiredRules"
                     />
@@ -328,6 +333,7 @@
                       id="endYear"
                       v-model="endYear"
                       label="Year"
+                      variant="filled"
                       :items="endYearList"
                       :rules="requiredRules"
                     />
