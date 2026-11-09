@@ -184,7 +184,7 @@
       </v-card-text>
     </v-card>
 
-    <div v-else class="d-flex flex-column ga-3 ma-1">
+    <div v-else class="d-flex flex-column ga-3">
       <v-card
         v-for="(item, index) in reports"
         :key="item.report_id"

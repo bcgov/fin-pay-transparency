@@ -125,7 +125,7 @@ export const bcdsTheme = {
     // 'on-neutral': t.typographyColorPrimary,
   },
   variables: {
-    //'font-body': `${t.typographyFontFamiliesBcSans}, Calibri, Arial, "sans serif";`,
+    'font-body': `${t.typographyFontFamiliesBcSans}, Calibri, Arial, "sans serif";`,
     // BCDS borders are solid, not Vuetify's 12%-opacity tint of on-surface.
     // Affects outlined fields and dividers; review visually.
     'border-color': t.surfaceColorBorderDefault,

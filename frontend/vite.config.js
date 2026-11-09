@@ -12,10 +12,6 @@ export default defineConfig({
     vue({ template: { transformAssetUrls } }),
     Vuetify({
       autoImport: true,
-      styles: {
-        configFile:
-          'node_modules/@bcgov/vuetify-theme/src/styles/settings.scss',
-      },
     }),
   ],
   optimizeDeps: {
