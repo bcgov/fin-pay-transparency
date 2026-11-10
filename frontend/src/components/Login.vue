@@ -66,7 +66,7 @@
       </v-container>
     </v-col>
   </v-row>
-  <v-row no-gutters class="grey-div">
+  <v-row no-gutters class="bg-bcds-bg-lightGray">
     <v-col>
       <v-container class="justify-center">
         <v-row no-gutters>
@@ -333,7 +333,7 @@ export default {
 .circle {
   height: 60px;
   width: 60px;
-  color: #ffffff;
+  color: var(--bcds-typography-color-primary-invert);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -341,37 +341,25 @@ export default {
   border-style: none;
 
   &.available {
-    background-color: #00336633;
+    background-color: #00336655;
     cursor: pointer;
   }
 
   &.active {
-    background-color: #003366;
+    background-color: var(--bcds-theme-blue-80);
     cursor: pointer;
   }
 
   &.disabled {
-    background-color: #aaaaaa;
+    background-color: var(--bcds-icons-color-disabled);
     cursor: not-allowed;
-  }
-}
-
-.dash {
-  height: 1px;
-  width: 100%;
-  background-color: #003366;
-  padding-left: 5px;
-  padding-right: 5px;
-
-  &.disabled {
-    background-color: #aaaaaa;
   }
 }
 
 .progress-dash {
   height: 3px;
   width: 100%;
-  background-color: #003366;
+  background-color: var(--bcds-theme-primary-blue);
 }
 
 .triangle-down {
@@ -379,11 +367,11 @@ export default {
   height: 0;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
-  border-top: 15px solid #003366;
+  border-top: 15px solid var(--bcds-theme-primary-blue);
 }
 
 .progress-dash.disabled {
-  background-color: #aaaaaa;
+  background-color: var(--bcds-icons-color-disabled);
 }
 
 .triangle-down.disabled {
@@ -397,10 +385,5 @@ export default {
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   font-weight: 600;
-}
-
-.grey-div {
-  background: #8080801c;
-  height: 100%;
 }
 </style>

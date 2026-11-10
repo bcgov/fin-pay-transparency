@@ -64,7 +64,7 @@
               :data-testid="`view-report-${item.report_id}`"
               prepend-icon="far fa-eye"
               variant="text"
-              color="link"
+              color="bcds-text-Link"
               class="px-2"
               @click="viewReport(item)"
             >
@@ -76,7 +76,7 @@
               :data-testid="`edit-report-${item.report_id}`"
               prepend-icon="fa fa-pencil"
               variant="text"
-              color="link"
+              color="bcds-text-Link"
               class="px-2"
               @click="editReport(item)"
             >
@@ -139,7 +139,7 @@
                 </a>
 
                 <v-btn
-                  color="link"
+                  color="bcds-text-Link"
                   variant="text"
                   size="small"
                   prepend-icon="fa fa-pencil"
@@ -151,7 +151,7 @@
 
               <v-btn
                 v-else
-                color="link"
+                color="bcds-text-Link"
                 variant="text"
                 size="small"
                 prepend-icon="fa fa-link"
@@ -239,7 +239,7 @@
                   :data-testid="`view-report-${item.report_id}`"
                   prepend-icon="far fa-eye"
                   variant="text"
-                  color="link"
+                  color="bcds-text-Link"
                   size="small"
                   class="px-1"
                   @click="viewReport(item)"
@@ -252,7 +252,7 @@
                   :data-testid="`edit-report-${item.report_id}`"
                   prepend-icon="fa fa-pencil"
                   variant="text"
-                  color="link"
+                  color="bcds-text-Link"
                   size="small"
                   class="px-1"
                   @click="editReport(item)"
@@ -323,7 +323,7 @@
                   </a>
 
                   <v-btn
-                    color="link"
+                    color="bcds-text-Link"
                     variant="text"
                     size="small"
                     prepend-icon="fa fa-pencil"
@@ -337,7 +337,7 @@
 
               <v-btn
                 v-else
-                color="link"
+                color="bcds-text-Link"
                 variant="text"
                 size="small"
                 prepend-icon="fa fa-link"

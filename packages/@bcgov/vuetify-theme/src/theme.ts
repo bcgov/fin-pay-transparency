@@ -37,22 +37,49 @@ export const bcdsTheme = {
     info: t.supportBorderColorInfo,
 
     // --- "on" colours (text/icons drawn on top of the colours above) -----
-    'on-primary': t.typographyColorPrimaryInvert,
-    'on-secondary': t.typographyColorPrimary, // dark
-    'on-background': t.typographyColorPrimary, // dark
-    'on-surface': t.typographyColorPrimary, // dark
-    'on-surface-variant': t.typographyColorPrimaryInvert,
-    'on-error': t.typographyColorPrimaryInvert,
-    'on-success': t.typographyColorPrimaryInvert,
-    'on-info': t.typographyColorPrimaryInvert,
-    'on-warning': t.typographyColorPrimary, // dark
+    'on-primary': t.typographyColorPrimaryInvert, // = "#ffffff";
+    'on-secondary': t.typographyColorPrimary, // = "#2d2d2d";
+    'on-background': t.typographyColorPrimary, // = "#2d2d2d";
+    'on-surface': t.typographyColorPrimary, // = "#2d2d2d";
+    'on-surface-variant': t.typographyColorPrimaryInvert, // = "#ffffff";
+    'on-error': t.typographyColorPrimaryInvert, // = "#ffffff";
+    'on-success': t.typographyColorPrimaryInvert, // = "#ffffff";
+    'on-info': t.typographyColorPrimaryInvert, // = "#ffffff";
+    'on-warning': t.typographyColorPrimary, // = "#2d2d2d";
 
     // --- Custom colours -------------------------------------------------
     // These colours can be used in 'color' and 'bgColor' props. Also,
-    // Vuetify exposes each as `--v-theme-<name>`, `bg-<name>`, `text-<name>` css classes.
-    link: t.typographyColorLink,
+    // Vuetify exposes each as `--v-theme-<name>` in a variable, and as css classes like `bg-<name>`, `text-<name>`.
+
+    // misc
     'border-default': t.surfaceColorBorderDefault, // progress track, <hr>
 
+    // typography
+    //'bcds-text-primary': t.typographyColorPrimary, // (USE "primary") // = "#2d2d2d"; // Default colour for all body text and headings
+    //'bcds-text-secondary': t.typographyColorSecondary, // USE "on-surface") // "#474543"; // Alternative colour for secondary/miscellaneous text
+    'bcds-text-placeholder': t.typographyColorPlaceholder, // "#9f9d9c"; // Use for placeholder text in forms
+    'bcds-text-disabled': t.typographyColorDisabled, // "#9f9d9c"; // Use only for text in inactive user interface elements
+    'bcds-text-link': t.typographyColorLink, // "#255a90"; // Use for hyperlinks in body text and headings
+    //'bcds-text-danger': t.typographyColorDanger, // (USE "error") // "#ce3e39"; // Use for error, failure or danger message text
+    //'bcds-text-primary-invert': t.typographyColorPrimaryInvert, // (USE "on-primary") // "#ffffff"; // Default colour for text on dark backgrounds
+    'bcds-text-secondary-invert': t.typographyColorSecondaryInvert, // "#eceae8"; // Secondary colour for text on dark backgrounds
+
+    // surfaces
+    //'bcds-bg-white': t.surfaceColorBackgroundWhite, // (USE "surface") // = "#ffffff"; // White background
+    'bcds-bg-lightGray': t.surfaceColorBackgroundLightGray, // = "#faf9f8"; // Default background colour for layout
+    'bcds-bg-lightBlue': t.surfaceColorBackgroundLightBlue, // = "#f1f8fe"; // Light blue background
+    'bcds-bg-darkBlue': t.surfaceColorBackgroundDarkBlue, // = "#053662"; // Dark blue background
+
+    // on-[label] colours are automatically applied
+    //'on-bcds-bg-white': t.typographyColorPrimary, // (USE "on-surface") // = "#2d2d2d";
+    'on-bcds-bg-lightGray': t.typographyColorPrimary, // = "#2d2d2d";
+    'on-bcds-bg-lightBlue': t.typographyColorPrimary, // = "#2d2d2d"; 
+    'on-bcds-bg-darkBlue': t.typographyColorPrimaryInvert, // = "#ffffff";
+
+    // colour scales
+    'bcds-blue': t.themePrimaryBlue, // Primary Blue (Blue 100)
+    'bcds-gold': t.themePrimaryGold, // Primary Gold (Gold 100)
+    'bcds-white': t.themeGrayWhite, // White
     'bcds-gold-10': t.themeGold10, // Gold scale — lightest
     'bcds-gold-20': t.themeGold20, // Gold scale
     'bcds-gold-30': t.themeGold30, // Gold scale
@@ -84,9 +111,6 @@ export const bcdsTheme = {
     'bcds-gray-90': t.themeGray90, // Greyscale
     'bcds-gray-100': t.themeGray100, // Greyscale
     'bcds-gray-110': t.themeGray110, // Greyscale — darkest
-    'bcds-white': t.themeGrayWhite, // White
-    'bcds-blue': t.themePrimaryBlue, // Primary Blue (Blue 100)
-    'bcds-gold': t.themePrimaryGold, // Primary Gold (Gold 100)
 
     //// Keep custom colours here only when the component styles use them.
     //// State styles currently use design-token CSS variables directly.

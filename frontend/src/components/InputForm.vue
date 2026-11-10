@@ -591,7 +591,7 @@
           density="compact"
           class="pa-5 d-flex align-center"
           style="
-            border: 3px dashed #666666;
+            border: 3px dashed var(--bcds-theme-gray-80);
             border-radius: 10px;
             min-height: 7em;
           "
@@ -1124,11 +1124,7 @@ textarea::placeholder {
 }
 
 .file-success {
-  background-color: #f6fff8;
-}
-
-.fa-circle-info {
-  color: #255a90 !important;
+  background-color: var(--bcds-support-surface-color-success);
 }
 </style>
 
