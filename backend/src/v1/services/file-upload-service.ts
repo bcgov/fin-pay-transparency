@@ -10,6 +10,7 @@ import { codeService } from './code-service.js';
 import { enumReportStatus, Report, reportService } from './report-service.js';
 import { utils } from './utils-service.js';
 import { ValidationError, validateService } from './validate-service.js';
+import { Prisma } from '../prisma/generated/client.js';
 
 export enum SubmissionStatus {
   Success = 'success',
@@ -94,7 +95,7 @@ const fileUploadService = {
   async saveSubmissionAsReport(
     submission: ISubmission,
     userInfo: any,
-    tx,
+    tx: Prisma.TransactionClient,
   ): Promise<string> {
     // Use UTC so js-doja doesn't offset the timezone based on locale
     const startDate = LocalDate.parse(submission.startDate).withDayOfMonth(1);
@@ -139,13 +140,16 @@ const fileUploadService = {
     };
 
     if (existingDraftReport) {
+      const now = new Date();
       await tx.pay_transparency_report.update({
         where: {
           report_id: existingDraftReport.report_id,
         },
         data: {
           ...reportData,
-          revision: Number.parseInt(existingDraftReport.revision) + 1,
+          revision: existingDraftReport.revision.plus(1),
+          create_date: now,
+          update_date: now,
         },
       });
       return existingDraftReport.report_id;
@@ -164,7 +168,7 @@ const fileUploadService = {
   async saveReportCalculations(
     calculatedAmounts: CalculatedAmount[],
     reportId: string,
-    tx,
+    tx: Prisma.TransactionClient,
   ) {
     if (!reportId) {
       throw new Error(
