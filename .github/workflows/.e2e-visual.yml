@@ -38,6 +38,7 @@ jobs:
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
           PLAYWRIGHT_HTML_OPEN: never
+          HOME: /root
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     steps:
       - uses: actions/checkout@v7
@@ -77,6 +78,7 @@ jobs:
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
           PLAYWRIGHT_HTML_OPEN: never
+          HOME: /root
         run: |
           echo "Merging blob reports..."
           npx playwright merge-reports --reporter json ./all-blob-reports
@@ -103,6 +105,8 @@ jobs:
 
       - name: Generate updated screenshots
         if: always() && steps.check-visual-regression.outputs.has_visual_issues == 'true'
+        env:
+          HOME: /root
         run: |
           echo "::notice::Generating updated screenshots for all browsers..."
           npx playwright test --update-snapshots --project="chrome-visual"
