@@ -5,7 +5,7 @@
         <v-alert density="compact" variant="outlined" class="mb-3 alert-info">
           You have logged out.
         </v-alert>
-        <v-btn class="btn-primary" @click="redirectToLogin">Login Again</v-btn>
+        <v-btn-primary @click="redirectToLogin">Login Again</v-btn-primary>
       </v-col>
     </v-row>
   </v-container>

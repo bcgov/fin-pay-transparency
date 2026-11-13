@@ -59,7 +59,7 @@
                   :data-testid="`resend-${item.admin_user_onboarding_id}`"
                   prepend-icon="far fa-envelope"
                   variant="text"
-                  color="link"
+                  color="bcds-text-link"
                   @click="resendEmail(item)"
                 >
                   Resend email
@@ -68,7 +68,7 @@
                   :data-testid="`delete-${item.admin_user_onboarding_id}`"
                   prepend-icon="far fa-trash-can"
                   variant="text"
-                  color="link"
+                  color="bcds-text-link"
                   @click="deleteInvite(item)"
                 >
                   Delete invite

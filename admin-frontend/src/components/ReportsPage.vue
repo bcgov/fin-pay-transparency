@@ -26,15 +26,14 @@
         xl="8"
         class="d-flex justify-end align-center"
       >
-        <v-btn
-          class="btn-primary"
+        <v-btn-primary
           prepend-icon="fa fa-file-export"
           :disabled="!searchResults?.length || isDownloadingCsv"
           :loading="isDownloadingCsv"
           @click="exportResults()"
         >
           Export Results (CSV)
-        </v-btn>
+        </v-btn-primary>
       </v-col>
     </v-row>
     <v-row no-gutters>

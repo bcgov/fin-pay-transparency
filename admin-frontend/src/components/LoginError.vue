@@ -6,7 +6,7 @@
         Something went wrong during the login process.
       </v-alert>
       <div>
-        <v-btn class="btn-primary" to="Login">Try logging in again</v-btn>
+        <v-btn-primary to="Login">Try logging in again</v-btn-primary>
       </div>
     </template>
   </AuthLayout>

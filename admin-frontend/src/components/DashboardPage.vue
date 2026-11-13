@@ -65,9 +65,9 @@
         Public Announcements
         <span class="flex-fill"></span>
         <v-btn
-          variant="plain"
+          variant="text"
           to="/announcements"
-          class="btn-link d-flex align-center text-body-large"
+          class="d-flex align-center text-body-large"
           size="x-small"
           append-icon="fa fa-chevron-right"
           >Go to edit

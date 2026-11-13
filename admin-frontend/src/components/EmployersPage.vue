@@ -7,11 +7,9 @@
       <v-text-field
         v-model="searchText"
         prepend-inner-icon="fa fa-magnifying-glass"
-        density="compact"
         label="Search by employer name"
-        variant="solo"
         hide-details
-        :single-line="true"
+        single-line
         class="flex-shrink-1 flex-grow-0"
         @keyup.enter="search()"
       >
@@ -75,17 +73,17 @@
             : 'justify-start'
         "
       >
-        <v-btn
-          class="btn-primary me-2"
+        <v-btn-primary
+          class="me-2"
           :loading="isSearching"
           :disabled="isSearching"
           @click="search()"
         >
           Search
-        </v-btn>
-        <v-btn class="btn-secondary" :disabled="!isDirty" @click="reset()">
+        </v-btn-primary>
+        <v-btn-secondary :disabled="!isDirty" @click="reset()">
           Reset
-        </v-btn>
+        </v-btn-secondary>
       </div>
     </div>
   </v-row>

@@ -50,11 +50,11 @@ const buttonColors = [undefined, "primary", "secondary", "error"];
         <section class="mb-8">
           <h3 class="mb-3">Toolbar (Subheader)</h3>
           <v-toolbar  >
-            <v-btn color="link" variant="plain">Overview</v-btn>
+            <v-btn color="bcds-text-link" variant="plain">Overview</v-btn>
             <v-divider  vertical />
-            <v-btn color="link" variant="plain">Details</v-btn>
+            <v-btn color="bcds-text-link" variant="plain">Details</v-btn>
             <v-divider  vertical />
-            <v-btn color="link" variant="plain">Contact</v-btn>
+            <v-btn color="bcds-text-link" variant="plain">Contact</v-btn>
           </v-toolbar>
         </section>
 
@@ -87,7 +87,7 @@ const buttonColors = [undefined, "primary", "secondary", "error"];
             <v-btn color="primary" variant="flat">Primary</v-btn>
             <v-btn variant="outlined">Secondary</v-btn>
             <v-btn variant="text">Tertiary</v-btn>
-            <v-btn color="link" variant="plain">Link</v-btn>
+            <v-btn color="bcds-text-link" variant="plain">Link</v-btn>
             <v-btn color="error" variant="flat">Danger</v-btn>
           </div>
           <v-table>

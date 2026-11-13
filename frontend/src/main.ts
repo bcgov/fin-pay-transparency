@@ -12,7 +12,6 @@ import { createPinia } from 'pinia';
 import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
-import { VBtn } from 'vuetify/components';
 
 const vuetify = createVuetify({
   blueprint: bcdsBlueprint,
@@ -23,22 +22,6 @@ const vuetify = createVuetify({
           tab: t.themeBlue90, //color of headers for dialogs and cards
         },
       },
-    },
-  },
-  aliases: {
-    VBtnPrimary: VBtn,
-    VBtnSecondary: VBtn,
-  },
-  defaults: {
-    VBtnPrimary: {
-      color: 'primary',
-      variant: 'flat',
-      ripple: false,
-    },
-    VBtnSecondary: {
-      variant: 'outlined',
-      class: 'bg-surface',
-      ripple: false,
     },
   },
 });

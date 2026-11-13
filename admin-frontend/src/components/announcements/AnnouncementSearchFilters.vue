@@ -16,9 +16,7 @@
         >
           <template #append> </template>
         </v-text-field>
-        <v-btn class="btn-primary" @click="searchAnnouncements()">
-          Search
-        </v-btn>
+        <v-btn-primary @click="searchAnnouncements()"> Search </v-btn-primary>
       </v-col>
       <v-col
         cols="12"
@@ -27,15 +25,10 @@
         xl="8"
         class="d-flex justify-end align-center pe-1"
       >
-        <v-btn
-          class="btn-secondary me-2"
-          :disabled="!isDirty()"
-          @click="reset()"
-        >
+        <v-btn-secondary class="me-2" :disabled="!isDirty()" @click="reset()">
           Reset
-        </v-btn>
-        <v-btn
-          class="btn-secondary"
+        </v-btn-secondary>
+        <v-btn-secondary
           prepend-icon="fa fa-filter"
           :append-icon="
             areSecondaryFiltersVisible ? 'fa fa-arrow-up' : 'fa fa-arrow-down'
@@ -43,7 +36,7 @@
           @click="toggleSecondaryFiltersVisible()"
         >
           Filter
-        </v-btn>
+        </v-btn-secondary>
       </v-col>
     </v-row>
   </div>
@@ -142,16 +135,16 @@
       <v-col cols="12" sm="6" md="6" lg="12" xl="3" class="align-stretch">
         <label>&nbsp;</label>
         <div class="d-flex justify-end align-center filter-buttons">
-          <v-btn class="btn-primary mr-0" @click="searchAnnouncements()">
+          <v-btn-primary class="mr-0" @click="searchAnnouncements()">
             Apply
-          </v-btn>
-          <v-btn
-            class="btn-link ms-2"
+          </v-btn-primary>
+          <v-btn-link
+            class="ms-2"
             :disabled="!areSecondaryFiltersDirty()"
             @click="clear()"
           >
             Clear
-          </v-btn>
+          </v-btn-link>
         </div>
       </v-col>
     </v-row>
@@ -333,9 +326,5 @@ input::placeholder {
 }
 .filter-buttons {
   height: $inputHeight;
-}
-
-input::-ms-input-placeholder {
-  color: black !important;
 }
 </style>

@@ -200,10 +200,6 @@ const submit = async () => {
   font-weight: 700 !important;
 }
 
-input::-ms-input-placeholder {
-  color: black !important;
-}
-
 .v-field__input {
   height: 40px;
 }

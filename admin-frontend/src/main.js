@@ -1,5 +1,5 @@
 import '@bcgov/vuetify-theme/styles';
-import { bcdsBlueprint } from '@bcgov/vuetify-theme/blueprint';
+import { bcdsBlueprint } from '@bcgov/vuetify-theme';
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify/dist/vuetify';
 import { createMetaManager } from 'vue-meta';

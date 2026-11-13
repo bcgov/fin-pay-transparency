@@ -7,7 +7,7 @@ import type { Blueprint } from 'vuetify'
  *
  * Every entry here is a DECISION. Only things the design system always wants
  * belong here, so apps aren't surprised by hidden behaviour. Anything Vuetify
- * has no prop for is done in styles/ (CSS layers `org` and `org-states`).
+ * has no prop for is done in styles.
  */
 
 // BCDS form fields: outlined on white. Focus uses the BCDS "active" blue

@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     mobile-breakpoint="0"
-    color="sidebar"
+    color="bcds-blue-90"
     :rail="!isExpanded"
     rail-width="75"
     permanent
@@ -38,7 +38,7 @@
       :class="{ active: activeRoute == 'dashboard' }"
     >
       <template #prepend>
-        <v-icon icon="far fa-house"></v-icon>
+        <v-icon icon="fa fa-house"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -60,7 +60,7 @@
       :class="{ active: activeRoute == 'analytics' }"
     >
       <template #prepend>
-        <v-icon icon="fa fa-chart-line"></v-icon>
+        <v-icon icon="fa fa-chart-simple"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -93,7 +93,7 @@
       :class="{ active: activeRoute == 'employers' }"
     >
       <template #prepend>
-        <v-icon icon="far fa-building"></v-icon>
+        <v-icon icon="fa fa-building"></v-icon>
       </template>
     </v-list-item>
   </v-navigation-drawer>

@@ -32,15 +32,14 @@
       </v-card-text>
       <v-card-actions class="px-8 pb-8 pt-4">
         <v-spacer />
-        <v-btn id="rejectBtn" class="btn-secondary" @click="cancel">{{
+        <v-btn-secondary id="rejectBtn" @click="cancel">{{
           options.rejectText || 'Cancel'
-        }}</v-btn>
-        <v-btn
+        }}</v-btn-secondary>
+        <v-btn-primary
           id="resolveBtn"
-          class="btn-primary"
           :disabled="options.resolveDisabled"
           @click="agree"
-          >{{ options.resolveText || 'Yes' }}</v-btn
+          >{{ options.resolveText || 'Yes' }}</v-btn-primary
         >
       </v-card-actions>
     </v-card>

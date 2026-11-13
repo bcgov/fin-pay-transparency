@@ -13,14 +13,14 @@
       {{ userInfo?.displayName }}
     </div>
 
-    <v-btn
-      class="btn-link ms-2"
+    <v-btn-link
       v-if="isAuthenticated"
-      @click="redirectToLogout()"
+      class="ms-2"
       data-testid="logout-btn"
+      @click="redirectToLogout()"
     >
       Logout
-    </v-btn>
+    </v-btn-link>
 
     <!-- Navbar content -->
   </v-app-bar>

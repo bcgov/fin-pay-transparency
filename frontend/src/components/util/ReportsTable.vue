@@ -60,28 +60,26 @@
 
         <td class="pa-4 text-center">
           <div class="d-flex justify-center align-center">
-            <v-btn
+            <v-btn-tertiary
               :data-testid="`view-report-${item.report_id}`"
               prepend-icon="far fa-eye"
-              variant="text"
-              color="bcds-text-Link"
+              color="bcds-text-link"
               class="px-2"
               @click="viewReport(item)"
             >
               View
-            </v-btn>
+            </v-btn-tertiary>
 
-            <v-btn
+            <v-btn-tertiary
               v-if="item.is_unlocked"
               :data-testid="`edit-report-${item.report_id}`"
               prepend-icon="fa fa-pencil"
-              variant="text"
-              color="bcds-text-Link"
+              color="bcds-text-link"
               class="px-2"
               @click="editReport(item)"
             >
               Edit
-            </v-btn>
+            </v-btn-tertiary>
           </div>
         </td>
 
@@ -138,27 +136,25 @@
                   {{ item.report_url }}
                 </a>
 
-                <v-btn
-                  color="bcds-text-Link"
-                  variant="text"
+                <v-btn-tertiary
+                  color="bcds-text-link"
                   size="small"
                   prepend-icon="fa fa-pencil"
                   @click="startEditingReportUrl(item)"
                 >
                   Edit Link
-                </v-btn>
+                </v-btn-tertiary>
               </template>
 
-              <v-btn
+              <v-btn-tertiary
                 v-else
-                color="bcds-text-Link"
-                variant="text"
+                color="bcds-text-link"
                 size="small"
                 prepend-icon="fa fa-link"
                 @click="startEditingReportUrl(item)"
               >
                 +Add Link
-              </v-btn>
+              </v-btn-tertiary>
             </div>
           </template>
         </td>
@@ -239,7 +235,7 @@
                   :data-testid="`view-report-${item.report_id}`"
                   prepend-icon="far fa-eye"
                   variant="text"
-                  color="bcds-text-Link"
+                  color="bcds-text-link"
                   size="small"
                   class="px-1"
                   @click="viewReport(item)"
@@ -252,7 +248,7 @@
                   :data-testid="`edit-report-${item.report_id}`"
                   prepend-icon="fa fa-pencil"
                   variant="text"
-                  color="bcds-text-Link"
+                  color="bcds-text-link"
                   size="small"
                   class="px-1"
                   @click="editReport(item)"
@@ -323,7 +319,7 @@
                   </a>
 
                   <v-btn
-                    color="bcds-text-Link"
+                    color="bcds-text-link"
                     variant="text"
                     size="small"
                     prepend-icon="fa fa-pencil"
@@ -337,7 +333,7 @@
 
               <v-btn
                 v-else
-                color="bcds-text-Link"
+                color="bcds-text-link"
                 variant="text"
                 size="small"
                 prepend-icon="fa fa-link"
