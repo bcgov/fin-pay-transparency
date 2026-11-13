@@ -140,7 +140,7 @@ export default {
 
 <style>
 .v-snackbar__wrapper {
-  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
+  font-family: 'BC Sans', 'Noto Sans', Verdana, Arial, sans-serif !important;
   border: 1px solid;
 }
 .v-snackbar .snackbar-title {
