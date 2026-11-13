@@ -1,6 +1,7 @@
 name: .E2E Visual
 env:
   deployment_name: pay-transparency
+  HOME: /root
 permissions:
   contents: read
 on:
@@ -48,6 +49,11 @@ jobs:
         with:
           node-version: 24
       
+      - name: Install jq
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends jq
+
       - name: Install dependencies
         run: |
           npm ci
@@ -61,6 +67,13 @@ jobs:
 
       - name: Run Visual Tests - All Browsers
         id: visual-tests
+        env:
+          E2E_BASE_URL: ${{ inputs.frontend-url }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
+          PLAYWRIGHT_HTML_OPEN: never
+          HOME: /root
         run: |
           for browser in chrome-visual firefox-visual edge-visual; do
             echo "::group::Running tests for $browser"
