@@ -25,6 +25,13 @@ export function useReportingDateRange(
 
   const reportYear = ref<number>(options.initialReportYear ?? currentYear);
 
+  // Allowed ranges are derived from reportYear
+  const bounds = computed(() => computeBounds(reportYear.value));
+  const minStartDate = computed(() => bounds.value.minStartDate);
+  const minEndDate = computed(() => bounds.value.minEndDate);
+  const maxStartDate = computed(() => bounds.value.maxStartDate);
+  const maxEndDate = computed(() => bounds.value.maxEndDate);
+
   // The single source of truth for the whole date range
   const startDate = shallowRef<LocalDate>(
     options.initialStartDate ??
@@ -33,20 +40,13 @@ export function useReportingDateRange(
         .minusMonths(11)
         .withDayOfMonth(1),
   );
-
-  // Allowed ranges are derived from reportYear
-  const bounds = computed(() => computeBounds(reportYear.value));
-  const minStartDate = computed(() => bounds.value.minStartDate);
-  const minEndDate = computed(() => bounds.value.minEndDate);
-  const maxStartDate = computed(() => bounds.value.maxStartDate);
-  const maxEndDate = computed(() => bounds.value.maxEndDate);
+  startDate.value = clampStartDate(startDate.value, bounds.value);
 
   /**
    * Safely set the startDate. If `date` is outside the allowable range,
    * it is moved inside it.
    */
-  function setStartDate(date: LocalDate | undefined) {
-    if (!date || date.equals(startDate.value)) return;
+  function setStartDate(date: LocalDate) {
     startDate.value = clampStartDate(date, bounds.value);
   }
 

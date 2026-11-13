@@ -933,9 +933,15 @@ describe('publishReport', () => {
       // Expect only one column to be updated (the report status_column)
       expect(updateStatement.data).toStrictEqual({
         report_status: enumReportStatus.Published,
-        create_date: mockDraftReportInApi.create_date,
+        update_date: updateStatement.data.create_date, //dates should be equal
+        create_date: updateStatement.data.update_date, //dates should be equal
         revision: 1,
       });
+
+      // Expect the update date to be approximately equal to the current date
+      expect(
+        Date.now() - (updateStatement.data.create_date as Date).getTime(),
+      ).toBeLessThan(1000); // 1 seconds
     });
   });
   describe('if the given report has status=Draft, and there is an existing Published report', () => {

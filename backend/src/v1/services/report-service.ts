@@ -1350,6 +1350,7 @@ const reportService = {
         });
         reportId = existing_published_report.report_id;
       } else {
+        const now = convert(ZonedDateTime.now(ZoneId.UTC)).toDate();
         // Change report's status to Published
         await tx.pay_transparency_report.update({
           where: {
@@ -1357,9 +1358,8 @@ const reportService = {
           },
           data: {
             report_status: enumReportStatus.Published,
-            create_date:
-              existing_published_report?.create_date ||
-              report_to_publish.create_date,
+            update_date: now,
+            create_date: now,
             revision: 1,
           },
         });
