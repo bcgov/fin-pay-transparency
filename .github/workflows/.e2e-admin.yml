@@ -31,6 +31,14 @@ jobs:
         working-directory: admin-frontend
     runs-on:
       group: Larger Runners - OpenShift Static-IP
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+      env:
+        E2E_ADMIN_BASE_URL: ${{ inputs.admin-frontend-url }}
+        E2E_ADMIN_USERNAME: ${{ secrets.ADMIN_E2E_TEST_LOGIN_USER_EMAIL }}
+        E2E_ADMIN_PASSWORD: ${{ secrets.ADMIN_E2E_TEST_LOGIN_PASSWORD }}
+        E2E_ADMIN_TOTP_SECRET: ${{ secrets.ADMIN_E2E_TEST_LOGIN_OTP_SECRET }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     strategy:
       max-parallel: 1
@@ -47,7 +55,7 @@ jobs:
         run: |
           npm ci
 
-      - name: Install Playwright
+      - name: Install browsers not included in the image
         run: |
           npx --no-install playwright install chrome
 
