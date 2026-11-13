@@ -15,13 +15,13 @@
  *                        utilities on purpose: bg-primary would otherwise win
  *   vuetify-final        Vuetify's last-resort layer
  */
-@layer base, vuetify-core, bcds-core, vuetify-components, vuetify-overrides, bcds-components, vuetify-utilities, bcds-states, vuetify-final;
+@layer vuetify-core, bcds-core, vuetify-components, vuetify-overrides, bcds-components, vuetify-utilities, bcds-states, font, vuetify-final;
 
-@import '@bcgov/design-tokens/css-prefixed/variables.css' layer(base);
-@import '@bcgov/bc-sans/css/BC_Sans.css' layer(base);
-@import '@fortawesome/fontawesome-free/css/fontawesome.css' layer(base);
-@import '@fortawesome/fontawesome-free/css/solid.css' layer(base);
-@import '@fortawesome/fontawesome-free/css/regular.css' layer(base);
+@import '@bcgov/design-tokens/css-prefixed/variables.css' layer(font);
+@import '@bcgov/bc-sans/css/BC_Sans.css' layer(font);
+@import '@fortawesome/fontawesome-free/css/fontawesome.css' layer(font);
+@import '@fortawesome/fontawesome-free/css/solid.css' layer(font);
+@import '@fortawesome/fontawesome-free/css/regular.css' layer(font);
 @import './components.css' layer(bcds-components);
 @import './states.css' layer(bcds-states);
 @import './core.css' layer(bcds-core);

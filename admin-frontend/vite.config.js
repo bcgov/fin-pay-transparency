@@ -1,9 +1,19 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    preserveSymlinks: true,
+  },
+  plugins: [
+    vue({ template: { transformAssetUrls } }),
+    Vuetify({
+      autoImport: true,
+    }),
+  ],
   optimizeDeps: {
     include: [
       'vuetify/components/VOverlay',
@@ -13,7 +23,6 @@ export default defineConfig({
       'vuetify/components/VTooltip',
     ],
   },
-  plugins: [vue()],
   test: {
     environment: 'jsdom',
     server: {
