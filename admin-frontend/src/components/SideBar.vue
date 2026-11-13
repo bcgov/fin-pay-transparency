@@ -143,6 +143,6 @@ watch(
   width: 16px !important;
 }
 .active {
-  background-color: #ffffff11 !important;
+  background-color: var(--bcsd-theme-blue-80);
 }
 </style>

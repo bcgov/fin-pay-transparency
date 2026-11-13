@@ -156,20 +156,3 @@
 .v-app-bar-title {
   font: var(--bcds-typography-bold-h4);
 } 
-
-/* ===================== Menus, lists, popovers ==================== */
-.v-menu > .v-overlay__content {
-  background-color: var(--bcds-surface-color-forms-default);
-  border: var(--bcds-layout-border-width-small) solid var(--bcds-surface-color-border-default);
-  box-shadow: var(--bcds-surface-shadow-medium);
-}
-.v-menu > .v-overlay__content > .v-list {
-  background-color: transparent;
-  box-shadow: none;
-}
-.v-list-item:hover {
-  background-color: var(--bcds-surface-color-menus-hover);
-}
-.v-list-item:hover > .v-list-item__overlay {
-  opacity: 0; /* disable vuetify hover color */
-}
