@@ -1,6 +1,7 @@
 name: .E2E Visual
 env:
   deployment_name: pay-transparency
+  HOME: /root
 permissions:
   contents: read
 on:
@@ -29,6 +30,16 @@ jobs:
         working-directory: frontend
     runs-on:
       group: Larger Runners - OpenShift Static-IP
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+      env:
+          E2E_BASE_URL: ${{ inputs.frontend-url }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
+          PLAYWRIGHT_HTML_OPEN: never
+          HOME: /root
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     steps:
       - uses: actions/checkout@v7
@@ -38,13 +49,18 @@ jobs:
         with:
           node-version: 24
       
+      - name: Install jq
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends jq
+
       - name: Install dependencies
         run: |
           npm ci
 
-      - name: Install Playwright
+      - name: Install browsers not included in the image
         run: |
-          npx --no-install playwright install --with-deps          
+          npx --no-install playwright install chrome msedge
 
       - name: Create blob reports directory
         run: mkdir -p all-blob-reports
@@ -55,10 +71,13 @@ jobs:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
+          PLAYWRIGHT_HTML_OPEN: never
+          HOME: /root
         run: |
           for browser in chrome-visual firefox-visual edge-visual; do
             echo "::group::Running tests for $browser"
-            npx playwright test --project="$browser" || true
+            npx playwright test --project="$browser" || echo "::warning::Tests failed for $browser"
             if [ -d "blob-report" ] && [ -n "$(ls -A blob-report/*.zip 2>/dev/null)" ]; then
               cp blob-report/*.zip all-blob-reports/
               rm -rf blob-report
@@ -72,6 +91,7 @@ jobs:
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results.json
           PLAYWRIGHT_HTML_OPEN: never
+          HOME: /root
         run: |
           echo "Merging blob reports..."
           npx playwright merge-reports --reporter json ./all-blob-reports
@@ -99,9 +119,7 @@ jobs:
       - name: Generate updated screenshots
         if: always() && steps.check-visual-regression.outputs.has_visual_issues == 'true'
         env:
-          E2E_BASE_URL: ${{ inputs.frontend-url }}
-          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          HOME: /root
         run: |
           echo "::notice::Generating updated screenshots for all browsers..."
           npx playwright test --update-snapshots --project="chrome-visual"

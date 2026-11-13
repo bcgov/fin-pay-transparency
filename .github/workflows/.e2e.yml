@@ -29,6 +29,14 @@ jobs:
         working-directory: frontend
     runs-on:
       group: Larger Runners - OpenShift Static-IP
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+      env:
+        E2E_BASE_URL: ${{ inputs.frontend-url }}
+        E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+        E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+        HOME: /root
     timeout-minutes: ${{ fromJson(inputs.timeout-minutes) }}
     steps:
       - uses: actions/checkout@v7
@@ -42,9 +50,9 @@ jobs:
         run: |
           npm ci
 
-      - name: Install Playwright
+      - name: Install browsers not included in the image
         run: |
-          npx --no-install playwright install --with-deps
+          npx --no-install playwright install chrome msedge
 
       - name: Create blob reports directory
         run: mkdir -p all-blob-reports
@@ -55,6 +63,7 @@ jobs:
           E2E_BASE_URL: ${{ inputs.frontend-url }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          HOME: /root
         run: |
           test_failed=0
           for browser in chrome firefox edge; do

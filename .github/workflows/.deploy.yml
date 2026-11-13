@@ -254,9 +254,3 @@ jobs:
           --set-string global.secrets.snowplowUrl="${{ secrets.SNOWPLOW_URL }}" \
           ${{ inputs.params }} \
           --timeout "$DEPLOY_TIMEOUT"m ./${{ github.event.repository.name }}-${{ steps.vars.outputs.semver }}.tgz
-
-      - name: Print HELM Chart History
-        shell: bash
-        run: |
-          # print history 
-          helm history ${{ env.deployment_name }}-${{ inputs.target }}
