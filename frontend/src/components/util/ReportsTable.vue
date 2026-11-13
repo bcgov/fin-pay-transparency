@@ -117,7 +117,7 @@
                 </v-btn-primary>
 
                 <v-btn
-                  icon="mdi-close"
+                  icon="fa fa-xmark"
                   variant="text"
                   size="small"
                   aria-label="Cancel"
@@ -299,7 +299,7 @@
                   </v-btn-primary>
 
                   <v-btn
-                    icon="mdi-close"
+                    icon="fa fa-xmark"
                     variant="text"
                     size="small"
                     aria-label="Cancel"

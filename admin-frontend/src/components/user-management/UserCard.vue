@@ -10,7 +10,7 @@
         density="compact"
         variant="text"
         color="error"
-        icon="mdi-trash-can-outline"
+        icon="far fa-trash-can"
         aria-label="Delete user"
         :disabled="currentUser?.id === user.id"
         @click="removeUser"
@@ -20,13 +20,13 @@
       {{ user.displayName }}
     </div>
     <v-menu location="bottom">
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-btn
+          v-if="currentUser?.id !== user.id"
           color="primary"
           variant="text"
-          append-icon="mdi-chevron-down"
+          append-icon="fa fa-chevron-down"
           class="role-menu-button"
-          v-if="currentUser?.id !== user.id"
           :aria-label="`Role ${RoleLabels[user.effectiveRole]}`"
           v-bind="props"
         >
@@ -42,20 +42,20 @@
 
       <v-list>
         <v-list-item
-          :variant="user.effectiveRole === item.value ? 'tonal' : 'plain'"
           v-for="(item, index) in RoleOptions"
           :key="index"
+          :variant="user.effectiveRole === item.value ? 'tonal' : 'plain'"
           :class="
             user.effectiveRole === item.value ? 'selected-role' : undefined
           "
-          @click="assignRole(item)"
           :disabled="user.effectiveRole === item.value"
           role="menuitem"
           :aria-label="item.label"
+          @click="assignRole(item)"
         >
           <v-list-item-title v-text="item.label"></v-list-item-title>
-          <template v-slot:append v-if="user.effectiveRole === item.value">
-            <v-icon size="x-small" icon="mdi-check" />
+          <template v-if="user.effectiveRole === item.value" #append>
+            <v-icon size="x-small" icon="fa fa-check" />
           </template>
         </v-list-item>
       </v-list>
@@ -69,7 +69,7 @@
     <spinner />
   </v-overlay>
   <ConfirmationDialog ref="confirmDialog">
-    <template v-slot:message>
+    <template #message>
       <p>Name: {{ user.displayName }}</p>
       <p>Current Role: {{ RoleLabels[user.effectiveRole] }}</p>
       <p>
@@ -79,7 +79,7 @@
     </template>
   </ConfirmationDialog>
   <ConfirmationDialog ref="deleteConfirmDialog">
-    <template v-slot:message>
+    <template #message>
       <p>
         Please confirm the deletion of
         <span class="delete-displayname">{{ user.displayName }}</span>

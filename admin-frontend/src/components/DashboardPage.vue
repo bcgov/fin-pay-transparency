@@ -2,7 +2,7 @@
   <v-row density="compact" class="w-100">
     <v-col sm="12" lg="7" class="mb-4 d-flex flex-column">
       <h4 class="mb-4">
-        <v-icon icon="mdi-clipboard-text-outline"></v-icon>
+        <v-icon icon="fa fa-clipboard-list"></v-icon>
         Recently Submitted Reports
         <ToolTip
           :text="
@@ -25,7 +25,7 @@
     </v-col>
     <v-col sm="12" lg="5" class="mb-4">
       <h4 class="mb-4">
-        <v-icon icon="mdi-chart-box-outline"></v-icon>
+        <v-icon icon="fa fa-chart-line"></v-icon>
         Analytics Overview
       </h4>
       <v-row density="compact">
@@ -41,7 +41,7 @@
     </v-col>
     <v-col sm="12" lg="7" class="mb-4">
       <h4 class="mb-4">
-        <v-icon icon="mdi-eye-outline"></v-icon>
+        <v-icon icon="far fa-eye"></v-icon>
         Recently Viewed Reports
         <ToolTip
           :text="
@@ -61,7 +61,7 @@
     </v-col>
     <v-col sm="12" lg="5" class="mb-4">
       <h4 class="mb-4 d-flex align-center">
-        <v-icon icon="mdi-bullhorn"></v-icon>
+        <v-icon icon="fa fa-bullhorn"></v-icon>
         Public Announcements
         <span class="flex-fill"></span>
         <v-btn
@@ -69,7 +69,7 @@
           to="/announcements"
           class="btn-link d-flex align-center text-body-large"
           size="x-small"
-          append-icon="mdi-chevron-right"
+          append-icon="fa fa-chevron-right"
           >Go to edit
         </v-btn>
       </h4>

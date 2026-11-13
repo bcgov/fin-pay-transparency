@@ -17,7 +17,7 @@
       <template v-slot:append>
         <v-btn
           variant="text"
-          icon="mdi-close"
+          icon="fa fa-xmark"
           @click="onClose"
           aria-label="Close"
         ></v-btn>
@@ -57,7 +57,7 @@
               <td class="actions">
                 <v-btn
                   :data-testid="`resend-${item.admin_user_onboarding_id}`"
-                  prepend-icon="mdi-email-outline"
+                  prepend-icon="far fa-envelope"
                   variant="text"
                   color="link"
                   @click="resendEmail(item)"
@@ -66,7 +66,7 @@
                 </v-btn>
                 <v-btn
                   :data-testid="`delete-${item.admin_user_onboarding_id}`"
-                  prepend-icon="mdi-delete-outline"
+                  prepend-icon="far fa-trash-can"
                   variant="text"
                   color="link"
                   @click="deleteInvite(item)"

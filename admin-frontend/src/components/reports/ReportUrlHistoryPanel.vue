@@ -13,7 +13,11 @@
     >
       <v-row no-gutters>
         <v-col class="text-success url-link">
-          <v-icon icon="mdi-open-in-new" color="success" class="mr-1" />
+          <v-icon
+            icon="fa fa-arrow-up-right-from-square"
+            color="success"
+            class="mr-1"
+          />
           <a
             :href="item.report_url"
             target="_blank"

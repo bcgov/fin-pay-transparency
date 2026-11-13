@@ -16,7 +16,7 @@
         >
           <v-spacer />
           <v-btn v-if="options.closeIcon" id="closeBtn" icon @click="cancel">
-            <v-icon color="#38598A"> mdi-close </v-icon>
+            <v-icon color="#38598A"> fa fa-xmark </v-icon>
           </v-btn>
         </v-toolbar>
       </slot>

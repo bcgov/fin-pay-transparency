@@ -11,7 +11,7 @@
         aria-label="Open Report"
         density="compact"
         variant="plain"
-        icon="mdi-file-pdf-box"
+        icon="fa fa-file-pdf"
         :loading="isLoadingPdf"
         :disabled="isLoadingPdf"
         @click="viewReportInNewTab(props.report.report_id)"
@@ -31,7 +31,7 @@
         aria-label="External Url"
         density="compact"
         variant="plain"
-        icon="mdi-open-in-new"
+        icon="fa fa-arrow-up-right-from-square"
         :href="props.report.pay_transparency_report_url.report_url"
         target="_blank"
       ></v-btn>
@@ -50,7 +50,7 @@
         :aria-label="props.report.is_unlocked ? 'Lock report' : 'Unlock report'"
         density="compact"
         variant="plain"
-        :icon="props.report.is_unlocked ? 'mdi-lock-open' : 'mdi-lock'"
+        :icon="props.report.is_unlocked ? 'fa fa-lock-open' : 'fa fa-lock'"
         :color="props.report.is_unlocked ? 'success' : 'error'"
         @click="
           lockUnlockReport(props.report.report_id, !props.report.is_unlocked)
@@ -74,7 +74,7 @@
         aria-label="Edit reporting year"
         density="compact"
         variant="plain"
-        icon="mdi-pencil"
+        icon="fa fa-pencil"
         @click="changeReportingYear(props.report.report_id)"
       ></v-btn>
     </template>
@@ -95,7 +95,7 @@
         aria-label="Withdraw report"
         density="compact"
         variant="plain"
-        icon="mdi-delete"
+        icon="fa fa-trash"
         color="error"
         @click="withdrawReport(props.report.report_id)"
       ></v-btn>
@@ -114,7 +114,7 @@
         aria-label="Admin action history"
         density="compact"
         variant="plain"
-        icon="mdi-clock-time-four"
+        icon="fa fa-clock"
         :loading="isLoadingAdminActionHistory"
         @click="openAdminActionHistory(props.report.report_id)"
       >
@@ -154,7 +154,7 @@
         aria-label="Report URL history"
         density="compact"
         variant="plain"
-        icon="mdi-bookmark-multiple"
+        icon="fa fa-book-bookmark"
         :loading="isLoadingReportUrlHistory"
         @click="openReportUrlHistory(props.report.report_id)"
       >

@@ -28,7 +28,7 @@
       >
         <v-btn
           class="btn-primary"
-          prepend-icon="mdi-export"
+          prepend-icon="fa fa-file-export"
           :disabled="!searchResults?.length || isDownloadingCsv"
           :loading="isDownloadingCsv"
           @click="exportResults()"

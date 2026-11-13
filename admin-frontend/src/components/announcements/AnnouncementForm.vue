@@ -343,7 +343,7 @@
 
           <v-row density="compact" class="mb-2">
             <v-col>
-              <v-icon icon="mdi-information"></v-icon>
+              <v-icon icon="fa fa-circle-info"></v-icon>
               This is how the announcement will appear to the public.
             </v-col>
           </v-row>

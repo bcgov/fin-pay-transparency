@@ -6,7 +6,7 @@
     >
       <v-text-field
         v-model="searchText"
-        prepend-inner-icon="mdi-magnify"
+        prepend-inner-icon="fa fa-magnifying-glass"
         density="compact"
         label="Search by employer name"
         variant="solo"
@@ -25,9 +25,9 @@
       </v-btn>
       <v-btn
         class="btn-secondary"
-        prepend-icon="mdi-filter"
+        prepend-icon="fa fa-filter"
         :append-icon="
-          areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
+          areSecondaryFiltersVisible ? 'fa fa-arrow-up' : 'fa fa-arrow-down'
         "
         @click="toggleSecondaryFiltersVisible()"
       >
@@ -102,7 +102,7 @@
             :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>
@@ -129,7 +129,7 @@
             :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>
@@ -195,7 +195,7 @@
             :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>
@@ -222,7 +222,7 @@
         <template #item="{ props, internalItem }">
           <v-list-item v-bind="props" :title="internalItem.raw.title">
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>

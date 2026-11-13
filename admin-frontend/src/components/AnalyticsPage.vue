@@ -1,7 +1,7 @@
 <template>
   <v-btn
     v-tooltip:bottom-end="'Only authorized users can access this data'"
-    append-icon="mdi-open-in-new"
+    append-icon="fa fa-arrow-up-right-from-square"
     class="ml-auto btn-primary"
     style="margin-top: -40px"
     rel="noopener"

@@ -4,7 +4,7 @@
       <v-col cols="12" md="8" lg="6" xl="4" class="d-flex align-center">
         <v-text-field
           v-model="searchText"
-          prepend-inner-icon="mdi-magnify"
+          prepend-inner-icon="fa fa-magnifying-glass"
           density="compact"
           label="Search by title"
           variant="solo"
@@ -36,9 +36,9 @@
         </v-btn>
         <v-btn
           class="btn-secondary"
-          prepend-icon="mdi-filter"
+          prepend-icon="fa fa-filter"
           :append-icon="
-            areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
+            areSecondaryFiltersVisible ? 'fa fa-arrow-up' : 'fa fa-arrow-down'
           "
           @click="toggleSecondaryFiltersVisible()"
         >
@@ -116,7 +116,7 @@
                 <span v-if="!internalItem.raw">{{ title }}</span>
               </template>
               <template #append="{ isActive }">
-                <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+                <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
               </template>
             </v-list-item>
           </template>

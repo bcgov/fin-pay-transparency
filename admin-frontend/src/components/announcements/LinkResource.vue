@@ -10,14 +10,14 @@
     </a>
     <v-btn
       density="compact"
-      icon="mdi-pencil"
+      icon="fa fa-pencil"
       class="mr-2"
       aria-label="Edit link"
       @click="emits('onEdit')"
     />
     <v-btn
       density="compact"
-      icon="mdi-delete-outline"
+      icon="far fa-trash-can"
       aria-label="Delete link"
       @click="emits('onDelete')"
     />

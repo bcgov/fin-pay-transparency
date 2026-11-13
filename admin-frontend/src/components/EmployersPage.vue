@@ -6,7 +6,7 @@
       <h4 class="mb-2">Search Employer</h4>
       <v-text-field
         v-model="searchText"
-        prepend-inner-icon="mdi-magnify"
+        prepend-inner-icon="fa fa-magnifying-glass"
         density="compact"
         label="Search by employer name"
         variant="solo"

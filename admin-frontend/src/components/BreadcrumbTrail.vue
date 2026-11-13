@@ -1,16 +1,14 @@
 <template>
   <v-breadcrumbs :items="breadcrumbItems" class="px-0">
     <template v-slot:divider>
-      <v-icon icon="mdi-chevron-right" size="x-small" class="px-0"></v-icon>
+      <v-icon
+        icon="fa fa-chevron-right fa-xs"
+        size="x-small"
+        class="px-0"
+      ></v-icon>
     </template>
   </v-breadcrumbs>
 </template>
-
-<script>
-export default {
-  name: 'BreadcrumbTrail',
-};
-</script>
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
@@ -59,7 +57,7 @@ watch(
 
 <style>
 .v-breadcrumbs-item {
-  margin-top: 2px;
+  margin-top: -1px;
   padding-left: 0px !important;
   padding-right: 0px !important;
   font-size: 0.8em;

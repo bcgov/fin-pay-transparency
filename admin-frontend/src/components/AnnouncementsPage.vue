@@ -95,7 +95,7 @@
                 class="btn-secondary"
                 :disabled="!selectedAnnouncementIds.length || isArchiving"
                 :loading="isArchiving"
-                prepend-icon="mdi-archive"
+                prepend-icon="fa fa-box-archive"
                 @click="archiveAnnouncements(selectedAnnouncementIds)"
                 >Archive</v-btn
               >

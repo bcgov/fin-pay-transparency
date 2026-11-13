@@ -16,12 +16,12 @@
           <v-icon
             :icon="
               item.action === AdminModifiedReason.UNLOCK
-                ? 'mdi-lock-open'
+                ? 'fa fa-lock-open'
                 : item.action === AdminModifiedReason.LOCK
-                  ? 'mdi-lock'
+                  ? 'fa fa-lock'
                   : item.action === AdminModifiedReason.YEAR
-                    ? 'mdi-calendar'
-                    : 'mdi-delete'
+                    ? 'fa fa-calendar'
+                    : 'fa fa-trash'
             "
             :color="
               item.action === AdminModifiedReason.UNLOCK ||

@@ -5,14 +5,14 @@
     </a>
     <v-btn
       density="compact"
-      icon="mdi-pencil"
+      icon="fa fa-pencil"
       class="mr-2"
       aria-label="Edit file"
       @click="emits('onEdit')"
     ></v-btn>
     <v-btn
       density="compact"
-      icon="mdi-delete-outline"
+      icon="far fa-trash-can"
       aria-label="Delete file"
       @click="emits('onDelete')"
     ></v-btn>

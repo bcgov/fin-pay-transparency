@@ -9,7 +9,7 @@
     </h2>
     <v-spacer />
     <div v-if="isAuthenticated" data-testid="account-info">
-      <v-icon icon="mdi-account" size="small" />
+      <v-icon icon="fa fa-user" size="small" />
       {{ userInfo?.displayName }}
     </div>
 

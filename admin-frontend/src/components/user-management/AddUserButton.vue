@@ -3,7 +3,7 @@
     <v-dialog v-model="open" max-width="600">
       <template #activator="{ props: activatorProps }">
         <v-btn
-          prepend-icon="mdi-account-plus"
+          prepend-icon="fa fa-user-plus"
           variant="elevated"
           color="primary"
           v-bind="activatorProps"
