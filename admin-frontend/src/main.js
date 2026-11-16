@@ -1,4 +1,5 @@
 import '@bcgov/vuetify-theme/styles';
+import * as t from '@bcgov/design-tokens/js';
 import { bcdsBlueprint } from '@bcgov/vuetify-theme';
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify/dist/vuetify';
@@ -12,7 +13,18 @@ import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 
-const vuetify = createVuetify({ blueprint: bcdsBlueprint });
+const vuetify = createVuetify({
+  blueprint: bcdsBlueprint,
+  theme: {
+    themes: {
+      light: {
+        colors: {
+          tab: t.themeBlue90, //color of headers for dialogs and cards
+        },
+      },
+    },
+  },
+});
 
 const pinia = createPinia();
 

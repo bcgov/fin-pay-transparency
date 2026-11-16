@@ -26,7 +26,7 @@ Import the package stylesheet once in your entry point, and pass the blueprint t
 
 ```ts
 // src/main.ts
-import '@bcgov/vuetify-theme/styles/index.css'
+import '@bcgov/vuetify-theme/styles'
 import { createApp } from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
@@ -38,7 +38,7 @@ createApp(App).use(vuetify).mount('#app')
 // src/plugins/vuetify.ts
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
-import { bcdsBlueprint } from '@bcgov/vuetify-theme/blueprint'
+import { bcdsBlueprint } from '@bcgov/vuetify-theme'
 
 export default createVuetify({ blueprint: bcdsBlueprint })
 ```
@@ -56,7 +56,7 @@ import '@bcgov/vuetify-theme/styles/index.basic.css'
 
 ```ts
 // src/plugins/vuetify.ts
-import { bcdsBasicBlueprint } from '@bcgov/vuetify-theme/blueprint'
+import { bcdsBasicBlueprint } from '@bcgov/vuetify-theme'
 
 export default createVuetify({ blueprint: bcdsBasicBlueprint })
 ```
@@ -70,8 +70,17 @@ You can override or extend blueprint values by passing Vuetify options alongside
 ```ts
 export default createVuetify({
   blueprint: bcdsBlueprint,
+  theme: {
+    themes: {
+      light: {
+        colors: {
+          tab: t.themeBlue90, //add a custom color
+        },
+      },
+    },
+  },
   defaults: {
-    VBtn: { rounded: '0' },
+    VBtn: { rounded: '0' }, //override blueprint defaults
   },
 })
 ```
