@@ -38,10 +38,10 @@
     </v-row>
     <v-row no-gutters>
       <v-col>
-        <div class="v-alert alert-warning v-alert--density-compact">
+        <v-alert color="warning" density="compact">
           Links open an external website in a new tab. Make sure you trust the
           website before sharing any personal information.
-        </div>
+        </v-alert>
       </v-col>
     </v-row>
 

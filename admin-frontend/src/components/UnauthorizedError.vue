@@ -3,7 +3,7 @@
     <template #content>
       <v-container fluid class="root">
         <h1 class="title">Unauthorized</h1>
-        <v-alert variant="outlined" class="alert-error mt-2 mb-2">
+        <v-alert variant="outlined" color="error" class="mt-2 mb-2">
           You do not have authorization to access the Admin Portal. If you
           require access please contact the
           <a class="contact-email" href="mailto:paytransparency@gov.bc.ca">
