@@ -51,7 +51,7 @@ If you only want the BCDS colours and icons, without the component defaults or c
 
 ```ts
 // src/main.ts
-import '@bcgov/vuetify-theme/styles/index.basic.css'
+import '@bcgov/vuetify-theme/styles/basic'
 ```
 
 ```ts
