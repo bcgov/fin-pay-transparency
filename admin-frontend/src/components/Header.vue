@@ -1,12 +1,12 @@
 <template>
   <v-app-bar class="d-flex justify-center ps-6 pe-6">
-    <h2 v-if="isTitleVisible">
+    <h4 v-if="isTitleVisible">
       {{
         activeRoute.meta.sectionTitle
           ? activeRoute.meta.sectionTitle
           : activeRoute.meta.pageTitle
       }}
-    </h2>
+    </h4>
     <v-spacer />
     <div v-if="isAuthenticated" data-testid="account-info">
       <v-icon icon="fa fa-user" size="small" />

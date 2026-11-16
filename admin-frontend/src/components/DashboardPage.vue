@@ -1,7 +1,7 @@
 <template>
   <v-row density="compact" class="w-100">
     <v-col sm="12" lg="7" class="mb-4 d-flex flex-column">
-      <h4 class="mb-4">
+      <h6 class="mb-4">
         <v-icon icon="fa fa-clipboard-list"></v-icon>
         Recently Submitted Reports
         <ToolTip
@@ -17,17 +17,17 @@
           "
           max-width="300px"
         ></ToolTip>
-      </h4>
+      </h6>
       <RecentlySubmittedReports
         ref="recentlySubmittedReports"
         class="flex-grow-1"
       />
     </v-col>
     <v-col sm="12" lg="5" class="mb-4">
-      <h4 class="mb-4">
+      <h6 class="mb-4">
         <v-icon icon="fa fa-chart-line"></v-icon>
         Analytics Overview
-      </h4>
+      </h6>
       <v-row density="compact">
         <v-col class="d-flex">
           <NumSubmissionsInYear
@@ -40,7 +40,7 @@
       </v-row>
     </v-col>
     <v-col sm="12" lg="7" class="mb-4">
-      <h4 class="mb-4">
+      <h6 class="mb-4">
         <v-icon icon="far fa-eye"></v-icon>
         Recently Viewed Reports
         <ToolTip
@@ -56,23 +56,22 @@
           "
           max-width="300px"
         ></ToolTip>
-      </h4>
+      </h6>
       <RecentlyViewedReports ref="recentlyViewedReports" />
     </v-col>
     <v-col sm="12" lg="5" class="mb-4">
-      <h4 class="mb-4 d-flex align-center">
+      <h6 class="mb-4 d-flex align-center">
         <v-icon icon="fa fa-bullhorn"></v-icon>
         Public Announcements
         <span class="flex-fill"></span>
-        <v-btn
-          variant="text"
+        <v-btn-link
           to="/announcements"
-          class="d-flex align-center text-body-large"
-          size="x-small"
+          class="d-flex align-center text-body-medium"
+          size="small"
           append-icon="fa fa-chevron-right"
           >Go to edit
-        </v-btn>
-      </h4>
+        </v-btn-link>
+      </h6>
       <PublicAnnouncements ref="publicAnnouncements"></PublicAnnouncements>
     </v-col>
   </v-row>

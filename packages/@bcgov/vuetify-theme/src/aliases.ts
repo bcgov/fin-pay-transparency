@@ -34,11 +34,9 @@ export const bcdsAliasDefaults = {
     ripple: false,
   },
   VBtnLink: {
-    variant: 'text',
+    variant: 'plain',
     color: 'bcds-text-link',
     ripple: false,
-    class: 'text-decoration-underline',
-    style: 'text-underline-offset: 0.3em',
   },
 } satisfies Blueprint['defaults']
 

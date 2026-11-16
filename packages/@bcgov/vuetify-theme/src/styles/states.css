@@ -52,7 +52,7 @@
 /* ---------------------- resting colours ------------------------- */
 
 /* link */
-.v-btn--variant-plain:not(.v-btn--icon) {
+.v-btn--variant-plain:not(.v-btn--icon) .v-btn__content {
   text-decoration: underline;
   text-underline-offset: 0.3em;
 }

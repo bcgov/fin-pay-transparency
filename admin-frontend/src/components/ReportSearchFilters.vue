@@ -236,13 +236,13 @@
         <v-btn-primary class="mr-0" @click="searchReports()">
           Apply
         </v-btn-primary>
-        <v-btn-link
+        <v-btn-tertiary
           class="ms-2"
           :disabled="!areSecondaryFiltersDirty()"
           @click="clear()"
         >
           Clear
-        </v-btn-link>
+        </v-btn-tertiary>
       </div>
     </div>
   </div>
