@@ -103,7 +103,7 @@
               <template #title="{ title }">
                 <span v-if="internalItem.raw">
                   <AnnouncementStatusChip
-                    :status="title"
+                    :status="title as AnnouncementStatus"
                   ></AnnouncementStatusChip>
                 </span>
                 <span v-if="!internalItem.raw">{{ title }}</span>
@@ -113,20 +113,17 @@
               </template>
             </v-list-item>
           </template>
-          <template #selection="{ item, index }">
-            <span v-if="!item.raw">All</span>
-            <span v-if="item.raw">
-              <AnnouncementStatusChip
-                v-if="index < maxSelectedStatusesVisible"
-                :status="item.title"
-              ></AnnouncementStatusChip>
-              <span
-                v-if="index === maxSelectedStatusesVisible"
-                class="text-grey text-body-small align-self-center"
-              >
-                (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
-                more)
-              </span>
+          <template #selection="{ internalItem, index }">
+            <AnnouncementStatusChip
+              v-if="index < maxSelectedStatusesVisible"
+              :status="internalItem.title as AnnouncementStatus"
+            ></AnnouncementStatusChip>
+            <span
+              v-if="index === maxSelectedStatusesVisible"
+              class="text-grey text-body-small align-self-center"
+            >
+              (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
+              more)
             </span>
           </template>
         </v-select>
@@ -138,13 +135,13 @@
           <v-btn-primary class="mr-0" @click="searchAnnouncements()">
             Apply
           </v-btn-primary>
-          <v-btn-link
+          <v-btn-tertiary
             class="ms-2"
             :disabled="!areSecondaryFiltersDirty()"
             @click="clear()"
           >
             Clear
-          </v-btn-link>
+          </v-btn-tertiary>
         </div>
       </v-col>
     </v-row>

@@ -109,9 +109,14 @@
   color: var(--bcds-typography-color-primary);
 }
 
-/* ============================== Tags ============================= */
-.v-chip {
-  border-radius: var(--bcds-layout-border-radius-small);
+/* ============================ chip ============================ */
+/* Inline alert = outlined v-alert: border + icon already use the status colour. */
+.v-chip--variant-outlined.text-info { background-color: var(--bcds-support-surface-color-info); }
+.v-chip--variant-outlined.text-success { background-color: var(--bcds-support-surface-color-success); }
+.v-chip--variant-outlined.text-warning { background-color: var(--bcds-support-surface-color-warning); }
+.v-chip--variant-outlined.text-error { background-color: var(--bcds-support-surface-color-danger); }
+.v-chip--variant-outlined .v-chip__content {
+  color: var(--bcds-typography-color-primary);
 }
 
 /* ========================= Accordion ============================= */

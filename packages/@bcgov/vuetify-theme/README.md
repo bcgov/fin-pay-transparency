@@ -92,6 +92,8 @@ Run the Vuetify demo from its directory with `npm run dev` for the standard demo
 ## Development
 This instance is a preliminary release. Built specifically for this project with the intention of becoming a library that could be used in many projects. While this version can be used in more projects, I think it would benefit from a review of the goals and decisions of this project; what is and isn't required to be compliant.
 
+> **Tip:** While developing, vite doesn't automatically pickup changes to packages. Add --force to vite npm command to force vite to recompile. If using vscode, you can restart the admin-frontend debugger to quickly reload changes (only if --force is used).
+
 ### TODO
 - Add BC themed header and footer (like React design-system components)
 - Consider exposing all BCDS colour tokens as custom Vuetify theme colours. This would allow BCDS colours to be used in components' props.
@@ -107,6 +109,7 @@ This instance is a preliminary release. Built specifically for this project with
 
 ### Challenges
 - Vuetify is Material Design, which is not compatible with BCDS's token for every colour. Modifying underlying Vuetify CSS carries some risk as future versions of Vuetify may not use the same HTML/CSS structure.
+- Modifying CSS and Defaults can have side effects that cause other components, or even the same component with different varients to look off.
 - Attempted to use `settings.scss` to modify underlying styles. This caused a longer build time which impacted the development experience. The only real value of this file was setting the fonts, but it was easy enough to set the fonts in CSS. Although the file is unused, it is still included in the source code as there are some examples of values that could be modified. Perhaps a future review could find some value for this file.
 
 ### Ideas
