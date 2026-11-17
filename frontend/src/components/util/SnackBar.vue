@@ -18,7 +18,11 @@
         activeNotification?.message
       }}</span>
       <template #actions>
-        <a :class="`on-${styleClass}`" @click="processNextNotification()">
+        <a
+          href="#"
+          :class="`on-${styleClass}`"
+          @click="processNextNotification()"
+        >
           {{
             notificationQueue.length > 0
               ? 'Next (' + notificationQueue.length + ')'
