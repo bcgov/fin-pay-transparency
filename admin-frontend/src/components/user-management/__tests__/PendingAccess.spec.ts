@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../../test-utils/vuetify';
 import PendingAccess from '../PendingAccess.vue';
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import { screen, fireEvent, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import { useInvitesStore } from '../../../store/modules/userInvitesStore';
 import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -26,11 +25,11 @@ vi.mock('../../../services/notificationService', () => ({
   },
 }));
 
-const vuetify = createVuetify({ components, directives });
+const vuetify = createTestVuetify();
 const pinia = createTestingPinia();
 const wrappedRender = async () => {
   setActivePinia(pinia);
-  return render(PendingAccess, {
+  return renderWithPlugins(PendingAccess, {
     global: {
       plugins: [pinia, vuetify],
     },

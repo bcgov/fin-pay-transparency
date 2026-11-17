@@ -1,8 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { screen } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import ReportUrlHistoryPanel from './ReportUrlHistoryPanel.vue';
 import { ReportUrlHistory } from '../../types/reports';
 
@@ -15,11 +13,8 @@ vi.mock('../../utils/date', () => ({
 
 // --- Helpers ---
 
-const vuetify = createVuetify({ components, directives });
-
 function renderComponent(reportUrlHistory: ReportUrlHistory[]) {
-  return render(ReportUrlHistoryPanel, {
-    global: { plugins: [vuetify] },
+  return renderWithPlugins(ReportUrlHistoryPanel, {
     props: { reportUrlHistory: reportUrlHistory },
   });
 }

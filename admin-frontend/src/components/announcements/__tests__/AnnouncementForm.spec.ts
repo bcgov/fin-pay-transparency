@@ -1,9 +1,7 @@
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../../test-utils/vuetify';
 import {
   AnnouncementFormMode,
   AnnouncementStatus,
@@ -29,10 +27,7 @@ describe('AnnouncementForm - Vue Test Utils tests', () => {
   let pinia;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
+    const vuetify = createTestVuetify();
 
     pinia = createTestingPinia({
       initialState: {},

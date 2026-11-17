@@ -1,17 +1,11 @@
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale';
 import '@js-joda/locale_en';
-import { createTestingPinia } from '@pinia/testing';
 import { userEvent } from '@testing-library/user-event';
-import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
+import { fireEvent, screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import AddAnnouncementPage from '../AddAnnouncementPage.vue';
-
-const pinia = createTestingPinia();
-const vuetify = createVuetify({ components, directives });
 
 /**
  * Gets the dom element within the rich text editor which contains the
@@ -34,11 +28,7 @@ const setRichTextValue = (container, id, value = '') => {
 };
 
 const wrappedRender = async () => {
-  return render(AddAnnouncementPage, {
-    global: {
-      plugins: [pinia, vuetify],
-    },
-  });
+  return renderWithPlugins(AddAnnouncementPage);
 };
 
 const mockAddAnnouncement = vi.fn();

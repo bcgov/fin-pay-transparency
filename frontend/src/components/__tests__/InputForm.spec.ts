@@ -5,9 +5,8 @@ import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { createVuetify } from 'vuetify';
+import { createTestVuetify } from '../../test-utils/vuetify';
 import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
 import { ReportMode } from '../../store/modules/reportStepper';
@@ -84,10 +83,7 @@ describe('InputForm', () => {
     //create an instances of vuetify and pinia so we can inject them
     //into the mounted component, allowing it to behave as it would
     //in a browser
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
+    const vuetify = createTestVuetify();
 
     pinia = createTestingPinia({
       initialState: {
@@ -558,7 +554,7 @@ describe('InputForm', () => {
         .mockImplementation(() => {});
 
       // Mount with a pinia that lets us override loadConfig action
-      const vuetify = createVuetify({ components, directives });
+      const vuetify = createTestVuetify();
       const pinia = createTestingPinia({
         initialState: { code: {}, config: { config: mockConfig } },
         stubActions: false,
@@ -587,7 +583,7 @@ describe('InputForm', () => {
         .spyOn(NotificationService, 'pushNotificationError')
         .mockImplementation(() => {});
 
-      const vuetify = createVuetify({ components, directives });
+      const vuetify = createTestVuetify();
       const pinia = createTestingPinia({
         initialState: { code: {}, config: { config: mockConfig } },
         stubActions: false,
@@ -701,10 +697,7 @@ describe('InputForm Edit Mode', () => {
     //create an instances of vuetify and pinia so we can inject them
     //into the mounted component, allowing it to behave as it would
     //in a browser
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
+    const vuetify = createTestVuetify();
 
     pinia = createTestingPinia({
       initialState: {

@@ -1,10 +1,9 @@
 import { vi, describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { screen } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
 import { createTestingPinia } from '@pinia/testing';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../test-utils/vuetify';
 import Login from '../Login.vue';
 import { authStore } from '../../store/modules/auth';
 
@@ -26,7 +25,7 @@ Object.defineProperty(window, 'config', {
 
 async function renderComponent() {
   const user = userEvent.setup();
-  const vuetify = createVuetify({ components, directives });
+  const vuetify = createTestVuetify();
 
   const pinia = createTestingPinia({
     createSpy: vi.fn,
@@ -37,7 +36,7 @@ async function renderComponent() {
     },
   });
 
-  const result = render(Login, {
+  const result = renderWithPlugins(Login, {
     global: {
       plugins: [pinia, vuetify],
     },

@@ -1,10 +1,8 @@
-import { render } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PublicAnnouncements from '../PublicAnnouncements.vue';
 import { createTestingPinia } from '@pinia/testing';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../../test-utils/vuetify';
 import dashboardMetricsStore from '../../../store/modules/dashboardMetricsStore';
 
 const getAnnouncementsMetricsMock = vi.fn();
@@ -17,10 +15,10 @@ vi.mock('../../../services/apiService', () => ({
 }));
 
 const pinia = createTestingPinia();
-const vuetify = createVuetify({ components, directives });
+const vuetify = createTestVuetify();
 
 const wrappedRender = () => {
-  return render(PublicAnnouncements, {
+  return renderWithPlugins(PublicAnnouncements, {
     global: {
       plugins: [pinia, vuetify],
     },

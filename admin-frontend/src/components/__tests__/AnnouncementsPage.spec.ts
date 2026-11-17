@@ -3,9 +3,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../test-utils/vuetify';
 import { useAnnouncementSearchStore } from '../../store/modules/announcementSearchStore';
 import { default as AnnouncementsPage } from '../AnnouncementsPage.vue';
 
@@ -56,10 +54,7 @@ describe('AnnouncementsPage', () => {
   let announcementSearchStore;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
+    const vuetify = createTestVuetify();
 
     pinia = createTestingPinia({
       initialState: {},

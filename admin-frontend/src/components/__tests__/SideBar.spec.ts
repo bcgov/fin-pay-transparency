@@ -1,8 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../test-utils/vuetify';
 import SideBar from '../SideBar.vue';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -11,10 +9,7 @@ describe('SideBar', () => {
   let sidebar;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
+    const vuetify = createTestVuetify();
     const pinia = createTestingPinia({
       initialState: {},
     });

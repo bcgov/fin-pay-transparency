@@ -1,8 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { screen } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import ReportAdminActionHistoryPanel from './ReportAdminActionHistoryPanel.vue';
 import {
   AdminModifiedReason,
@@ -18,11 +16,8 @@ vi.mock('../../utils/date', () => ({
 
 // --- Helpers ---
 
-const vuetify = createVuetify({ components, directives });
-
 function renderComponent(reportAdminActionHistory: any[]) {
-  return render(ReportAdminActionHistoryPanel, {
-    global: { plugins: [vuetify] },
+  return renderWithPlugins(ReportAdminActionHistoryPanel, {
     props: { reportAdminActionHistory },
   });
 }

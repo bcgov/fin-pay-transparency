@@ -4,9 +4,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { getActivePinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRouter, createWebHistory } from 'vue-router';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../test-utils/vuetify';
 import App from '../App.vue';
 import router from '../router';
 import { authStore } from '../store/modules/auth';
@@ -14,10 +12,7 @@ import { authStore } from '../store/modules/auth';
 vi.mock('../services/apiService');
 const mockDoesUserHaveRole = vi.fn();
 const setupComponentEnvironment = async () => {
-  const vuetify = createVuetify({
-    components,
-    directives,
-  });
+  const vuetify = createTestVuetify();
 
   const pinia = getActivePinia();
 

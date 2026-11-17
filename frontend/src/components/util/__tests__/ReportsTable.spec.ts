@@ -3,20 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DateTimeFormatter, LocalDate } from '@js-joda/core';
 import { Locale } from '@js-joda/locale';
 import '@js-joda/locale_en';
-import { createTestingPinia } from '@pinia/testing';
-import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { fireEvent, screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import ReportsTable from '../ReportsTable.vue';
 import { MAX_REPORT_URL_LEN } from '../../../utils/constant';
 
-const vuetify = createVuetify({
-  components,
-  directives,
-});
-
-const pinia = createTestingPinia();
 const mockRouterPush = vi.fn();
 vi.mock('vue-router', () => ({
   useRouter: () => ({
@@ -25,11 +16,7 @@ vi.mock('vue-router', () => ({
 }));
 
 const wrappedRender = async () => {
-  return render(ReportsTable, {
-    global: {
-      plugins: [pinia, vuetify],
-    },
-  });
+  return renderWithPlugins(ReportsTable);
 };
 
 const mockGetReports = vi.fn();

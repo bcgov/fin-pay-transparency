@@ -1,9 +1,7 @@
 import { describe, vi, it, beforeEach, expect } from 'vitest';
 import UserCard from '../UserCard.vue';
-import { fireEvent, render } from '@testing-library/vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { fireEvent } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import { User } from '../../../types';
 import { faker } from '@faker-js/faker';
 import {
@@ -13,12 +11,13 @@ import {
 } from '../../../constants';
 import { authStore } from '../../../store/modules/auth';
 import { createTestingPinia } from '@pinia/testing';
+import { createTestVuetify } from '../../../test-utils/vuetify';
 
 const pinia = createTestingPinia();
-const vuetify = createVuetify({ components, directives });
+const vuetify = createTestVuetify();
 
 const wrappedRender = (props: { user: User }) => {
-  return render(UserCard, {
+  return renderWithPlugins(UserCard, {
     props,
     global: {
       plugins: [pinia, vuetify],

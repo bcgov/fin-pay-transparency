@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/vue';
+import { screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../test-utils/vuetify';
 import ReportActions from './ReportActions.vue';
 import ApiService from '../../services/apiService';
 import { NotificationService } from '../../services/notificationService';
@@ -23,10 +22,7 @@ vi.mock('../../services/reportChangeService');
 vi.mock('../../store/modules/auth');
 
 // Create Vuetify instance
-const vuetify = createVuetify({
-  components,
-  directives,
-});
+const vuetify = createTestVuetify();
 
 // Element getters - called at runtime to query DOM
 const buttons = {
@@ -125,7 +121,7 @@ describe('ReportActions', () => {
       },
     });
 
-    return render(ReportActions, {
+    return renderWithPlugins(ReportActions, {
       props,
       global: {
         plugins: [vuetify, pinia],

@@ -1,11 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/vue';
+import { screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../test-utils/vuetify';
 import ReportSearchFilters from '../ReportSearchFilters.vue';
 import { useReportSearchStore } from '../../store/modules/reportSearchStore';
 
@@ -37,7 +36,7 @@ const mockEmployeeCountRanges = [
 ];
 
 async function renderComponent() {
-  const vuetify = createVuetify({ components, directives });
+  const vuetify = createTestVuetify();
   const pinia = createTestingPinia({
     initialState: {
       code: {
@@ -49,7 +48,7 @@ async function renderComponent() {
 
   const user = userEvent.setup();
 
-  const result = render(ReportSearchFilters, {
+  const result = renderWithPlugins(ReportSearchFilters, {
     global: { plugins: [vuetify, pinia] },
   });
 
@@ -78,7 +77,7 @@ describe('ReportSearchFilters', () => {
   let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createVuetify({ components, directives });
+    const vuetify = createTestVuetify();
     pinia = createTestingPinia({ initialState: {} });
     wrapper = mount(ReportSearchFilters, {
       global: { plugins: [vuetify, pinia] },

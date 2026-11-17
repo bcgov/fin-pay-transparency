@@ -1,14 +1,15 @@
-import { render, screen, waitFor } from '@testing-library/vue';
+import { screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import Header from '../Header.vue';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createTestingPinia } from '@pinia/testing';
 import { authStore } from '../../store/modules/auth';
-import { createVuetify } from 'vuetify';
+import { createTestVuetify } from '../../test-utils/vuetify';
 
 const pinia = createTestingPinia();
-const vuetify = createVuetify();
+const vuetify = createTestVuetify();
 const wrappedRender = async () => {
-  return render(Header, {
+  return renderWithPlugins(Header, {
     global: {
       plugins: [pinia, vuetify],
     },
@@ -32,7 +33,7 @@ describe('Header', () => {
 
     it('should render correctly', async () => {
       await wrappedRender();
-      screen.debug()
+      screen.debug();
       expect(screen.getByTestId('header-title')).toHaveTextContent(
         'Pay Transparency Reporting',
       );

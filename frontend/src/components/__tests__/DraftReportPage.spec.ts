@@ -1,12 +1,11 @@
 import { vi, describe, it, expect } from 'vitest';
 import { flushPromises } from '@vue/test-utils';
-import { render, fireEvent, screen, waitFor } from '@testing-library/vue';
+import { fireEvent, screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
 import { createTestingPinia } from '@pinia/testing';
 import { createRouter, createWebHistory } from 'vue-router';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestVuetify } from '../../test-utils/vuetify';
 import DraftReportPage from '../DraftReportPage.vue';
 import ApiService from '../../common/apiService';
 import { NotificationService } from '../../common/notificationService';
@@ -87,7 +86,7 @@ async function renderComponent({
   const user = userEvent.setup();
   const router = buildRouter();
 
-  const vuetify = createVuetify({ components, directives });
+  const vuetify = createTestVuetify();
 
   const pinia = createTestingPinia({
     createSpy: vi.fn,
@@ -98,7 +97,7 @@ async function renderComponent({
 
   // Render a root <router-view> so the router owns the component lifecycle.
   // This is required for onBeforeRouteLeave to fire when the route changes.
-  const result = render(
+  const result = renderWithPlugins(
     { template: '<router-view />' },
     {
       global: {
