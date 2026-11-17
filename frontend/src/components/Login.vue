@@ -310,16 +310,8 @@ export default {
   margin-left: auto;
 }
 
-.full-height {
-  height: 100%;
-}
-
 .centered-text {
   text-align: center;
-}
-
-.top-text {
-  vertical-align: top;
 }
 
 .no-padding {

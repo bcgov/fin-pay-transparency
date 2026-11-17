@@ -6,7 +6,8 @@
           data-testid="not-found-message"
           density="compact"
           variant="outlined"
-          class="alert-error mb-3"
+          color="error"
+          class="mb-3"
         >
           This page cannot be found.
         </v-alert>

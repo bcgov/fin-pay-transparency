@@ -80,9 +80,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@bcgov/bc-sans/css/BC_Sans.css';
 $inputHeight: 40px;
-$link-color: #255a90;
 
 .ptap-panel {
   margin: 24px !important;

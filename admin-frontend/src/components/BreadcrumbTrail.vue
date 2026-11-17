@@ -73,6 +73,6 @@ watch(
   opacity: 1 !important;
 }
 .v-breadcrumbs-item--disabled a {
-  color: #111111 !important;
+  color: var(--bcds-typography-color-disabled) !important;
 }
 </style>

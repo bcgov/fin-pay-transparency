@@ -103,6 +103,7 @@ const auth = authStore();
 const { userInfo: currentUser, x } = storeToRefs(auth);
 const { assignUserRole, deleteUser } = useUsersStore();
 const confirmDialog = ref<typeof ConfirmationDialog>();
+const deleteConfirmDialog = ref<typeof ConfirmationDialog>();
 const isProcessing = ref<boolean>(false);
 
 const getUserInitials = (user) => {
@@ -140,7 +141,7 @@ const assignRole = async (role: (typeof RoleOptions)[0]) => {
 };
 
 const removeUser = async () => {
-  const result = await confirmDialog.value?.open(
+  const result = await deleteConfirmDialog.value?.open(
     `Confirm User Deletion`,
     undefined,
     {
@@ -175,7 +176,6 @@ const removeUser = async () => {
     }
     .display-name {
       font-weight: 700;
-      color: #000;
     }
   }
 }
@@ -187,17 +187,17 @@ const removeUser = async () => {
 
 .role-display {
   font-weight: 600;
-  color: #003366;
+  color: var(--bcds-theme-primary-blue);
 }
 
 .selected-role {
-  color: #003366;
+  color: var(--bcds-theme-primary-blue);
   font-weight: 600;
 }
 
 .delete-displayname {
   font-weight: 600;
-  color: #003366;
+  color: var(--bcds-theme-primary-blue);
 }
 
 .new-role {

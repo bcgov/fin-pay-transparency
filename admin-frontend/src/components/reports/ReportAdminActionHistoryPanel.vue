@@ -96,7 +96,7 @@ defineProps<{
 }
 .vertical-bar {
   width: 3px;
-  background-color: #dddddd;
+  background-color: var(--bcds-surface-color-border-default);
   height: 100%;
 }
 </style>

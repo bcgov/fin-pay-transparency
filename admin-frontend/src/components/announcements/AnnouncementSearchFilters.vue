@@ -306,7 +306,7 @@ $inputHeight: 40px;
   margin-right: -48px !important;
   padding-left: 24px !important;
   padding-right: 40px !important;
-  background-color: #eeeeee;
+  background-color: var(--bcds-theme-gray-30);
 }
 input::placeholder {
   color: black !important;
