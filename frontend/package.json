@@ -4,7 +4,7 @@
   "private": true,
   "description": "pay transparency",
   "workspaces": [
-    "../packages/@bcgov/*"
+    "../packages/*"
   ],
   "scripts": {
     "test": "vitest run",
