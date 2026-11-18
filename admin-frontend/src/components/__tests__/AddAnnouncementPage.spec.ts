@@ -59,12 +59,16 @@ vi.mock('../../services/notificationService', () => ({
 
 const mockRouterPush = vi.fn();
 const mockRouterBack = vi.fn();
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: (...args) => mockRouterPush(...args),
-    back: () => mockRouterBack(),
-  }),
-}));
+vi.mock('vue-router', async (importOriginal) => {
+  const actual: any = await importOriginal();
+  return {
+    ...actual,
+    useRouter: () => ({
+      push: (...args) => mockRouterPush(...args),
+      back: () => mockRouterBack(),
+    }),
+  };
+});
 
 const formatDate = (date: LocalDate) => {
   return date.format(

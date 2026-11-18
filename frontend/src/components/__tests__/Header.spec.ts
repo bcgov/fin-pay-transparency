@@ -1,17 +1,15 @@
 import { screen, waitFor } from '@testing-library/vue';
-import { renderWithPlugins } from '../../test-utils/vuetify';
+import { renderInVAppWithPlugins } from '../../test-utils/vuetify';
 import Header from '../Header.vue';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createTestingPinia } from '@pinia/testing';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import { authStore } from '../../store/modules/auth';
-import { createTestVuetify } from '../../test-utils/vuetify';
-
-const pinia = createTestingPinia();
-const vuetify = createTestVuetify();
+const plugins = createTestPlugins();
+const pinia = plugins.pinia;
 const wrappedRender = async () => {
-  return renderWithPlugins(Header, {
+  return renderInVAppWithPlugins(Header, {
     global: {
-      plugins: [pinia, vuetify],
+      plugins: plugins.plugins,
     },
   });
 };

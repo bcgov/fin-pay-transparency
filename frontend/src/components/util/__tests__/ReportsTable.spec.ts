@@ -9,11 +9,15 @@ import ReportsTable from '../ReportsTable.vue';
 import { MAX_REPORT_URL_LEN } from '../../../utils/constant';
 
 const mockRouterPush = vi.fn();
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockRouterPush,
-  }),
-}));
+vi.mock('vue-router', async (importOriginal) => {
+  const actual: any = await importOriginal();
+  return {
+    ...actual,
+    useRouter: () => ({
+      push: mockRouterPush,
+    }),
+  };
+});
 
 const wrappedRender = async () => {
   return renderWithPlugins(ReportsTable);

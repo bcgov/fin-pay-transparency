@@ -1,23 +1,18 @@
-import { createTestingPinia } from '@pinia/testing';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestVuetify } from '../../test-utils/vuetify';
 import RichTextArea from '../RichTextArea.vue';
 
 const mockPlaintext = '123';
 const mockHtml = `<p><strong>${mockPlaintext}</strong></p>`;
 const maxLength = 100;
 
-
 describe('RichTextArea', () => {
   let wrapper;
-  let pinia;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createTestVuetify();
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
     wrapper = mount(RichTextArea, {
       props: {
@@ -25,7 +20,7 @@ describe('RichTextArea', () => {
         maxLength: maxLength,
       },
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
 

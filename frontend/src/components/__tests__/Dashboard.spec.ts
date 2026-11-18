@@ -1,15 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestingPinia } from '@pinia/testing';
+import {
+  createTestPlugins,
+  renderWithPlugins,
+} from '../../test-utils/vuetify.ts';
 import { authStore } from '../../store/modules/auth';
 import Dashboard from '../Dashboard.vue';
-import { renderWithPlugins } from '../../test-utils/vuetify.ts';
 
 //mock window.config
 Object.defineProperty(window, 'config', {
   value: {},
 });
 
-const pinia = createTestingPinia();
+const plugins = createTestPlugins();
+const pinia = plugins.pinia;
 const mockRouterPush = vi.fn();
 const mockRouter = {
   push: (...args) => mockRouterPush(...args),
@@ -29,7 +32,7 @@ vi.mock('../../common/apiService', () => ({
 const wrappedRender = async () => {
   return renderWithPlugins(Dashboard, {
     global: {
-      plugins: [pinia],
+      plugins: plugins.plugins,
       mocks: {
         $router: mockRouter,
       },

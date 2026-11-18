@@ -2,9 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/vue';
 import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
-import { createTestVuetify } from '../../test-utils/vuetify';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import ReportSearchFilters from '../ReportSearchFilters.vue';
 import { useReportSearchStore } from '../../store/modules/reportSearchStore';
 
@@ -36,12 +35,13 @@ const mockEmployeeCountRanges = [
 ];
 
 async function renderComponent() {
-  const vuetify = createTestVuetify();
-  const pinia = createTestingPinia({
-    initialState: {
-      code: {
-        naicsCodes: mockNaicsCodes,
-        employeeCountRanges: mockEmployeeCountRanges,
+  const testPlugins = createTestPlugins({
+    piniaOptions: {
+      initialState: {
+        code: {
+          naicsCodes: mockNaicsCodes,
+          employeeCountRanges: mockEmployeeCountRanges,
+        },
       },
     },
   });
@@ -49,7 +49,7 @@ async function renderComponent() {
   const user = userEvent.setup();
 
   const result = renderWithPlugins(ReportSearchFilters, {
-    global: { plugins: [vuetify, pinia] },
+    global: { plugins: testPlugins.plugins },
   });
 
   await flushPromises();
@@ -61,26 +61,17 @@ async function renderComponent() {
   return { ...result, user };
 }
 
-async function openSelect(
-  user: ReturnType<typeof userEvent.setup>,
-  selector: string,
-) {
-  const input = document.querySelector(
-    `${selector} .v-field__input`,
-  ) as HTMLElement;
-  await user.click(input);
-  await flushPromises();
-}
-
 describe('ReportSearchFilters', () => {
   let wrapper;
   let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createTestVuetify();
-    pinia = createTestingPinia({ initialState: {} });
+    const testPlugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
+    });
+    pinia = testPlugins.pinia;
     wrapper = mount(ReportSearchFilters, {
-      global: { plugins: [vuetify, pinia] },
+      global: { plugins: testPlugins.plugins },
     });
     await flushPromises();
   };

@@ -1,7 +1,6 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestVuetify } from '../../test-utils/vuetify';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import { useReportSearchStore } from '../../store/modules/reportSearchStore';
 import ReportsPage from '../ReportsPage.vue';
 
@@ -11,14 +10,13 @@ describe('ReportsPage', () => {
   let reportSearchStore;
 
   const initWrapper = async () => {
-    const vuetify = createTestVuetify();
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
+    pinia = plugins.pinia;
     wrapper = mount(ReportsPage, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
     reportSearchStore = useReportSearchStore();

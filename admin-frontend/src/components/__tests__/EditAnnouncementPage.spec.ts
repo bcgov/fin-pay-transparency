@@ -2,9 +2,8 @@ import { faker } from '@faker-js/faker';
 import { convert, LocalDate } from '@js-joda/core';
 import { fireEvent, waitFor } from '@testing-library/vue';
 import { renderWithPlugins } from '../../test-utils/vuetify';
-import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestVuetify } from '../../test-utils/vuetify';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import { useAnnouncementSelectionStore } from '../../store/modules/announcementSelectionStore';
 import { AnnouncementResourceType } from '../../types/announcements';
 import EditAnnouncementPage from '../EditAnnouncementPage.vue';
@@ -21,14 +20,12 @@ vi.mock('vue-router', async (importOriginal) => {
   };
 });
 
-const vuetify = createTestVuetify();
-
-const pinia = createPinia();
+const plugins = createTestPlugins({ piniaOptions: { stubActions: false } });
 
 const wrappedRender = () => {
   return renderWithPlugins(EditAnnouncementPage, {
     global: {
-      plugins: [vuetify, pinia],
+      plugins: plugins.plugins,
     },
   });
 };
@@ -57,7 +54,6 @@ let store: ReturnType<typeof useAnnouncementSelectionStore>;
 describe('EditAnnouncementPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    setActivePinia(pinia);
     store = useAnnouncementSelectionStore();
     store.reset();
   });

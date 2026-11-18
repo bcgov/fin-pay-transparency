@@ -1,7 +1,6 @@
 import { vi, beforeEach, describe, it, expect } from 'vitest';
 import UserManagementPage from '../UserManagementPage.vue';
-import { createTestVuetify } from '../../test-utils/vuetify';
-import { createTestingPinia } from '@pinia/testing';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import { useUsersStore } from '../../store/modules/usersStore';
 import { authStore } from '../../store/modules/auth';
 import { waitFor } from '@testing-library/vue';
@@ -14,16 +13,15 @@ vi.mock('../../../services/apiService', () => ({
   },
 }));
 
-const vuetify = createTestVuetify();
-
-const pinia = createTestingPinia({
-  initialState: {},
+const plugins = createTestPlugins({
+  piniaOptions: { initialState: {} },
 });
+const pinia = plugins.pinia;
 
 const wrappedRender = () => {
   return renderWithPlugins(UserManagementPage, {
     global: {
-      plugins: [pinia, vuetify],
+      plugins: plugins.plugins,
     },
   });
 };

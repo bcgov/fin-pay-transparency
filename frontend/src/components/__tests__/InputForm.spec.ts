@@ -1,11 +1,10 @@
 import { DateTimeFormatter, LocalDate, TemporalAdjusters } from '@js-joda/core';
 import { Locale } from '@js-joda/locale';
 import '@js-joda/locale_en';
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { createTestVuetify } from '../../test-utils/vuetify';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import * as components from 'vuetify/components';
 import { authStore } from '../../store/modules/auth';
 import { useCodeStore } from '../../store/modules/codeStore';
@@ -83,23 +82,24 @@ describe('InputForm', () => {
     //create an instances of vuetify and pinia so we can inject them
     //into the mounted component, allowing it to behave as it would
     //in a browser
-    const vuetify = createTestVuetify();
-
-    pinia = createTestingPinia({
-      initialState: {
-        code: {},
-        config: { config: mockConfig },
-      },
-      stubActions: false,
-    });
-
     const mockRouter = {
       push: vi.fn(),
     };
+    const plugins = createTestPlugins({
+      router: mockRouter as any,
+      piniaOptions: {
+        initialState: {
+          code: {},
+          config: { config: mockConfig },
+        },
+        stubActions: false,
+      },
+    });
+    pinia = plugins.pinia;
 
     wrapper = mount(InputForm, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
         mocks: { $router: mockRouter },
         config: {
           // Vue does not propagate thrown errors from methods DOM elements after activation.
@@ -554,11 +554,13 @@ describe('InputForm', () => {
         .mockImplementation(() => {});
 
       // Mount with a pinia that lets us override loadConfig action
-      const vuetify = createTestVuetify();
-      const pinia = createTestingPinia({
-        initialState: { code: {}, config: { config: mockConfig } },
-        stubActions: false,
+      const plugins = createTestPlugins({
+        piniaOptions: {
+          initialState: { code: {}, config: { config: mockConfig } },
+          stubActions: false,
+        },
       });
+      const pinia = plugins.pinia;
 
       // Patch loadConfig on the config store to return a rejecting promise
       const configStore = useConfigStore(pinia);
@@ -567,7 +569,7 @@ describe('InputForm', () => {
       );
 
       const wrapper = mount(InputForm, {
-        global: { plugins: [vuetify, pinia] },
+        global: { plugins: plugins.plugins },
       });
       await flushPromises();
 
@@ -583,11 +585,13 @@ describe('InputForm', () => {
         .spyOn(NotificationService, 'pushNotificationError')
         .mockImplementation(() => {});
 
-      const vuetify = createTestVuetify();
-      const pinia = createTestingPinia({
-        initialState: { code: {}, config: { config: mockConfig } },
-        stubActions: false,
+      const plugins = createTestPlugins({
+        piniaOptions: {
+          initialState: { code: {}, config: { config: mockConfig } },
+          stubActions: false,
+        },
       });
+      const pinia = plugins.pinia;
 
       const configStore = useConfigStore(pinia);
       vi.spyOn(configStore, 'loadConfig').mockReturnValue(
@@ -595,7 +599,7 @@ describe('InputForm', () => {
       );
 
       const wrapper = mount(InputForm, {
-        global: { plugins: [vuetify, pinia] },
+        global: { plugins: plugins.plugins },
       });
       await flushPromises();
 
@@ -697,28 +701,27 @@ describe('InputForm Edit Mode', () => {
     //create an instances of vuetify and pinia so we can inject them
     //into the mounted component, allowing it to behave as it would
     //in a browser
-    const vuetify = createTestVuetify();
-
-    pinia = createTestingPinia({
-      initialState: {
-        code: {
-          naicsCodes: mockNaicsCodes,
-          employeeCountRanges: mockEmployeeCountRanges,
+    const plugins = createTestPlugins({
+      piniaOptions: {
+        initialState: {
+          code: {
+            naicsCodes: mockNaicsCodes,
+            employeeCountRanges: mockEmployeeCountRanges,
+          },
+          reportStepper: {
+            mode: ReportMode.Edit,
+            reportData: mockReport,
+            reportId: mockReport.report_id,
+          },
+          config: { config: mockConfig },
         },
-
-        reportStepper: {
-          mode: ReportMode.Edit,
-          reportData: mockReport,
-          reportId: mockReport.report_id,
-        },
-
-        config: { config: mockConfig },
       },
     });
+    pinia = plugins.pinia;
 
     wrapper = mount(InputForm, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
     await flushPromises();

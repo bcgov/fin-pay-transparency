@@ -3,9 +3,8 @@ import { flushPromises } from '@vue/test-utils';
 import { fireEvent, screen, waitFor } from '@testing-library/vue';
 import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
-import { createTestingPinia } from '@pinia/testing';
 import { createRouter, createWebHistory } from 'vue-router';
-import { createTestVuetify } from '../../test-utils/vuetify';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import DraftReportPage from '../DraftReportPage.vue';
 import ApiService from '../../common/apiService';
 import { NotificationService } from '../../common/notificationService';
@@ -86,12 +85,13 @@ async function renderComponent({
   const user = userEvent.setup();
   const router = buildRouter();
 
-  const vuetify = createTestVuetify();
-
-  const pinia = createTestingPinia({
-    createSpy: vi.fn,
-    initialState: {
-      reportStepper: { reportId, reportData },
+  const plugins = createTestPlugins({
+    router,
+    piniaOptions: {
+      createSpy: vi.fn,
+      initialState: {
+        reportStepper: { reportId, reportData },
+      },
     },
   });
 
@@ -101,7 +101,7 @@ async function renderComponent({
     { template: '<router-view />' },
     {
       global: {
-        plugins: [pinia, router, vuetify],
+        plugins: plugins.plugins,
       },
     },
   );

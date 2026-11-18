@@ -1,13 +1,10 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestVuetify } from '../../../test-utils/vuetify';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 import ApiService from '../../../services/apiService';
 import { NotificationService } from '../../../services/notificationService';
 import { Announcement } from '../../../types/announcements';
 import AnnouncementActions from '../AnnouncementActions.vue';
-
-
 
 const mockDraftAnnouncement: Announcement = {
   announcement_id: '24b9455e-154b-46ce-91c7-5ec4474ad6fd',
@@ -25,20 +22,17 @@ const mockDraftAnnouncement: Announcement = {
 
 describe('AnnouncementActions', () => {
   let wrapper;
-  let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createTestVuetify();
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
     wrapper = mount(AnnouncementActions, {
       props: {
         announcement: mockDraftAnnouncement,
       },
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
       stubs: {
         transition: true,

@@ -1,18 +1,17 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestVuetify } from '../../test-utils/vuetify';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import SideBar from '../SideBar.vue';
-import { createTestingPinia } from '@pinia/testing';
 
 describe('SideBar', () => {
   let wrapper;
   let sidebar;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createTestVuetify();
-    const pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
+    const pinia = plugins.pinia;
 
     wrapper = mount(
       {
@@ -30,7 +29,7 @@ describe('SideBar', () => {
           components: {
             SideBar,
           },
-          plugins: [vuetify, pinia],
+          plugins: plugins.plugins,
         },
       },
     );

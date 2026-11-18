@@ -1,27 +1,21 @@
-import { createTestingPinia } from '@pinia/testing';
 import { screen } from '@testing-library/vue';
-import { renderWithPlugins } from '../../test-utils/vuetify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { createRouter, createWebHistory } from 'vue-router';
-import { createTestVuetify } from '../../test-utils/vuetify';
-import router from '../../router';
+import {
+  createTestPlugins,
+  renderInVAppWithPlugins,
+} from '../../test-utils/vuetify';
 import { authStore } from '../../store/modules/auth';
 import Header from '../Header.vue';
 
-const pinia = createTestingPinia();
-const vuetify = createTestVuetify();
-
-const routes = router.getRoutes();
-const mockRouter = createRouter({
-  history: createWebHistory(),
-  routes: routes,
-});
+const plugins = createTestPlugins();
+const routes = plugins.router.getRoutes();
+const mockRouter = plugins.router;
 
 const wrappedRender = async () => {
-  return renderWithPlugins(Header, {
+  return renderInVAppWithPlugins(Header, {
     global: {
-      plugins: [pinia, vuetify, mockRouter],
+      plugins: plugins.plugins,
     },
   });
 };

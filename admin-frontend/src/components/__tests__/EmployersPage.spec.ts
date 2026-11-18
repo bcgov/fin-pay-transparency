@@ -1,7 +1,6 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestVuetify } from '../../test-utils/vuetify';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import EmployersPage from '../EmployersPage.vue';
 import ApiService from '../../services/apiService';
 import { NotificationService } from '../../services/notificationService';
@@ -18,14 +17,13 @@ describe('EmployersPage', () => {
   let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createTestVuetify();
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
+    pinia = plugins.pinia;
     wrapper = mount(EmployersPage, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
         stubs: {
           transition: true,
         },

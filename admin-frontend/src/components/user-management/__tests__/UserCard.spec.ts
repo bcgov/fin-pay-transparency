@@ -10,17 +10,16 @@ import {
   USER_ROLE_NAME,
 } from '../../../constants';
 import { authStore } from '../../../store/modules/auth';
-import { createTestingPinia } from '@pinia/testing';
-import { createTestVuetify } from '../../../test-utils/vuetify';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 
-const pinia = createTestingPinia();
-const vuetify = createTestVuetify();
+const plugins = createTestPlugins();
+const pinia = plugins.pinia;
 
 const wrappedRender = (props: { user: User }) => {
   return renderWithPlugins(UserCard, {
     props,
     global: {
-      plugins: [pinia, vuetify],
+      plugins: plugins.plugins,
     },
   });
 };
