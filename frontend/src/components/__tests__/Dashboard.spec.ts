@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { createTestingPinia } from '@pinia/testing';
-import { render } from '@testing-library/vue';
 import { authStore } from '../../store/modules/auth';
 import Dashboard from '../Dashboard.vue';
+import { renderWithPlugins } from '../../test-utils/vuetify.ts';
 
 //mock window.config
 Object.defineProperty(window, 'config', {
@@ -28,7 +27,7 @@ vi.mock('../../common/apiService', () => ({
 }));
 
 const wrappedRender = async () => {
-  return render(Dashboard, {
+  return renderWithPlugins(Dashboard, {
     global: {
       plugins: [pinia],
       mocks: {

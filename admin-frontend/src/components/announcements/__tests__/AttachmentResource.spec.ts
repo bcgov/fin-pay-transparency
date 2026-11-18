@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/vue';
+import { fireEvent } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import AttachmentResource from '../AttachmentResource.vue';
 import { describe, it, expect, vi } from 'vitest';
 import { FILE_DOWNLOAD_ERROR } from '../../../constants';
@@ -21,25 +22,25 @@ vi.mock('../../../services/notificationService', () => ({
 describe('AttachmentResource', () => {
   it('should download file', async () => {
     const attachment = {
-      id: 1,
+      id: '1',
       name: 'Test file',
     };
-    const { getByLabelText } = await render(AttachmentResource, {
+    const { getByLabelText } = await renderWithPlugins(AttachmentResource, {
       props: { ...attachment },
     });
     const link = await getByLabelText('Test file');
     expect(link).toBeInTheDocument();
     await fireEvent.click(link);
-    await expect(mockDownloadFile).toHaveBeenCalledWith(1);
+    await expect(mockDownloadFile).toHaveBeenCalledWith('1');
   });
 
   it('should display error message when download fails', async () => {
     mockDownloadFile.mockRejectedValue(new Error('Download failed'));
     const attachment = {
-      id: 1,
+      id: '1',
       name: 'Test file',
     };
-    const { getByLabelText } = await render(AttachmentResource, {
+    const { getByLabelText } = await renderWithPlugins(AttachmentResource, {
       props: { ...attachment },
     });
     const link = await getByLabelText('Test file');

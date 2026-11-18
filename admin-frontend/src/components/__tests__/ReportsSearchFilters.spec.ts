@@ -99,7 +99,7 @@ describe('ReportSearchFilters', () => {
 
   describe('initial render', () => {
     it('renders the Search button', () => {
-      expect(wrapper.find('.btn-primary').text()).toBe('Search');
+      expect(wrapper.find('.v-btn').text()).toBe('Search');
     });
 
     it('renders the Filter button', () => {
