@@ -1,11 +1,21 @@
 {
   auto_https off
   admin 0.0.0.0:3003
+  order coraza_waf first
   servers {
     metrics
   }
 }
 :3000 {
+  coraza_waf {
+    load_owasp_crs
+    directives `
+      Include @coraza.conf-recommended
+      Include @crs-setup.conf.example
+      Include @owasp_crs/*.conf
+      SecRuleEngine DetectionOnly
+    `
+  }
   log {
     output stdout
     format console {
