@@ -1,7 +1,8 @@
 # Build static files
 FROM node:24-alpine AS build
 WORKDIR /app
-COPY . .
+COPY frontend .
+COPY packages ../packages
 RUN npm ci --ignore-scripts && \
     npm run build
 
