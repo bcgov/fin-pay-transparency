@@ -13,7 +13,7 @@
     "e2e:ui": "playwright test --ui",
     "test:cov": "vitest run --mode test --coverage",
     "serve": "vite --host --port 8084",
-    "build": "vite build",
+    "build": "vite build --force",
     "lint:fix": "eslint --ext vue,js,ts,tsx src --fix",
     "prettier:write": "prettier src --write"
   },

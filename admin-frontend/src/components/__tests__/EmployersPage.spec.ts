@@ -76,6 +76,13 @@ describe('EmployersPage', () => {
       expect(wrapper.vm.yearOptions).toEqual(expectedYears);
     });
 
+    it('displays selected years in chips', async () => {
+      wrapper.vm.selectedYears = [2024];
+      await flushPromises();
+
+      expect(wrapper.find('.calendar-year .v-chip').text()).toBe('2024');
+    });
+
     it('has correct page size options', async () => {
       expect(wrapper.vm.pageSizeOptions).toEqual([10, 25, 50]);
     });

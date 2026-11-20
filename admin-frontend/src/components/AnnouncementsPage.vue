@@ -1,5 +1,5 @@
 <template>
-  <h4>Search Announcements</h4>
+  <h6>Search Announcements</h6>
 
   <div class="w-100">
     <v-row density="compact" class="mt-0 w-100 mb-4">
@@ -11,12 +11,12 @@
 
   <div class="search-results w-100">
     <div class="d-flex flex-wrap mb-4 align-center">
-      <h4 v-if="searchResults?.length" class="">
+      <h6 v-if="searchResults?.length" class="">
         Displaying {{ searchResults.length }} announcement<span
           v-if="searchResults.length != 1"
           >s</span
         >
-      </h4>
+      </h6>
       <v-btn-primary class="ml-auto add-button" to="/add-announcement">
         Add Announcement
       </v-btn-primary>

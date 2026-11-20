@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
     <div class="d-flex flex-wrap justify-end align-center w-100 mb-1 mr-4">
-      <h1>{{ title }}</h1>
+      <h6>{{ title }}</h6>
       <div class="flex-fill"></div>
       <div>
         <v-radio-group v-model="status" inline class="d-flex">
@@ -334,10 +334,10 @@
         xl="4"
         class="px-0 py-0 d-flex justify-end extend-to-bottom"
       >
-        <div class="previewPanel bg-previewPanel w-100 h-100 px-3 py-6">
+        <div class="previewPanel bg-bcds-blue-20 w-100 h-100 px-3 py-6">
           <v-row density="compact">
             <v-col>
-              <h3>Preview Announcement</h3>
+              <h5>Preview Announcement</h5>
             </v-col>
           </v-row>
 

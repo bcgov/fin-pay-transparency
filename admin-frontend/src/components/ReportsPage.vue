@@ -1,5 +1,5 @@
 <template>
-  <h4>Search Reports</h4>
+  <h6>Search Reports</h6>
 
   <div class="w-100">
     <v-row density="compact" class="mt-0 w-100 mb-4">
@@ -12,12 +12,12 @@
   <div class="search-results w-100">
     <v-row class="mt-0 w-100 mb-3" no-gutters>
       <v-col sm="8" md="8" lg="6" xl="4" class="d-flex align-center">
-        <h4 v-if="searchResults?.length">
+        <h6 v-if="searchResults?.length">
           Displaying {{ searchResults.length }} report<span
             v-if="searchResults.length != 1"
             >s</span
           >
-        </h4>
+        </h6>
       </v-col>
       <v-col
         sm="4"
@@ -27,7 +27,7 @@
         class="d-flex justify-end align-center"
       >
         <v-btn-primary
-          prepend-icon="fa fa-file-export"
+          prepend-icon="fa fa-download"
           :disabled="!searchResults?.length || isDownloadingCsv"
           :loading="isDownloadingCsv"
           @click="exportResults()"

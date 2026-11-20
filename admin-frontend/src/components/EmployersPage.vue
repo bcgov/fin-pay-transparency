@@ -3,7 +3,7 @@
     <div
       class="d-flex flex-column flex-grow-1 flex-shrink-1 ma-2 ml-0 flex-basis-200"
     >
-      <h4 class="mb-2">Search Employer</h4>
+      <h6 class="mb-2">Search Employer</h6>
       <v-text-field
         v-model="searchText"
         prepend-inner-icon="fa fa-magnifying-glass"
@@ -36,6 +36,7 @@
         class="calendar-year flex-shrink-1 flex-grow-0"
         variant="solo"
         density="compact"
+        min-width="270"
       >
         <template #item="{ props, internalItem }">
           <v-list-item v-bind="props" :title="`${internalItem.raw}`">
@@ -47,8 +48,8 @@
           </v-list-item>
         </template>
         <template #selection="{ item, index }">
-          <v-chip v-if="index < maxSelectedYearShown">
-            <span>{{ item.raw }}</span>
+          <v-chip v-if="index < maxSelectedYearShown" density="compact">
+            <span>{{ item }}</span>
           </v-chip>
           <span
             v-if="index === maxSelectedYearShown"

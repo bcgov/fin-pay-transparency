@@ -1,6 +1,6 @@
 <template>
   <v-app-bar absolute style="z-index: 1002">
-    <v-container class="d-flex">
+    <v-container class="d-flex align-center">
       <a tabindex="-1" href="/" class="d-flex align-center">
         <img
           tabindex="-1"

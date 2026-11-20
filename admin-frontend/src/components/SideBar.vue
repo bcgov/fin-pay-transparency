@@ -11,7 +11,7 @@
         id="sidebar-rail-toggle-btn"
         :aria-label="isExpanded ? 'Collapse menu' : 'Expand menu'"
         :icon="isExpanded ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"
-        variant="text"
+        variant="plain"
         @click.stop="toggleIsExpanded()"
       ></v-btn>
     </div>
