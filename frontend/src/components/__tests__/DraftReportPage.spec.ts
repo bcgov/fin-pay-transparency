@@ -324,7 +324,9 @@ describe('DraftReportPage', () => {
     it('navigates to /published-report after a successful publish', async () => {
       const { router } = await renderThenGenerateFinalReport();
 
-      expect(router.currentRoute.value.path).toBe('/published-report');
+      await waitFor(() => {
+        expect(router.currentRoute.value.path).toBe('/published-report');
+      });
     });
   });
 
