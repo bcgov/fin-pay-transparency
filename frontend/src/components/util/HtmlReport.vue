@@ -9,13 +9,13 @@
       v-if="loadReportError && !reportHtml && !loading"
       class="load-report-error"
     >
-      <v-alert density="compact" variant="outlined" class="alert-error mb-3">
+      <v-alert density="compact" variant="outlined" color="error" class="mb-3">
         Unable to load the report. This may be a temporary problem. Please
         re-try. If the problem persists, please report it to a system
         administrator
       </v-alert>
       <p class="mt-2 mb-2"></p>
-      <v-btn color="secondary" @click="loadReport">Try again</v-btn>
+      <v-btn-secondary @click="loadReport">Try again</v-btn-secondary>
     </div>
   </div>
   <v-overlay

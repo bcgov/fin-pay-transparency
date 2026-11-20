@@ -1,6 +1,6 @@
 <template>
   <v-app-bar absolute style="z-index: 1002">
-    <v-container class="d-flex">
+    <v-container class="d-flex align-center">
       <a tabindex="-1" href="/" class="d-flex align-center">
         <img
           tabindex="-1"
@@ -34,7 +34,7 @@
             color="rgb(32, 31, 30)"
             v-bind="props"
             arial-label="User profile"
-            icon="mdi-account"
+            icon="fa fa-user"
             data-testid="header-account-button"
             title="User profile"
           ></v-btn>
@@ -59,7 +59,7 @@
                 <v-spacer />
                 <v-btn
                   v-bind="props"
-                  icon="mdi-logout"
+                  icon="fa fa-arrow-right-from-bracket"
                   data-testid="header-logout-button"
                   title="Logout"
                   aria-label="Logout"

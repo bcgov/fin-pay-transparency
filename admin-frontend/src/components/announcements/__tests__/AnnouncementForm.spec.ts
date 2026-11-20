@@ -1,9 +1,6 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 import {
   AnnouncementFormMode,
   AnnouncementStatus,
@@ -26,21 +23,15 @@ vi.mock('../../../services/apiService', () => ({
 
 describe('AnnouncementForm - Vue Test Utils tests', () => {
   let wrapper;
-  let pinia;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
     wrapper = mount(AnnouncementForm, {
       ...options,
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
 

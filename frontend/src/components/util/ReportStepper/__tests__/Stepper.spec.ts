@@ -1,17 +1,17 @@
 import ReportStepper from '../Stepper.vue';
 import { describe, it, beforeEach, expect } from 'vitest';
 import { render, waitFor, fireEvent } from '@testing-library/vue';
-import { createTestingPinia } from '@pinia/testing';
+import { createTestPlugins } from '../../../../test-utils/vuetify';
 import {
   ReportStage,
   useReportStepperStore,
 } from '../../../../store/modules/reportStepper';
 
-const pinia = createTestingPinia();
+const plugins = createTestPlugins();
 const wrappedRender = () => {
   return render(ReportStepper, {
     global: {
-      plugins: [pinia],
+      plugins: plugins.plugins,
     },
   });
 };

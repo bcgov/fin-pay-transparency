@@ -157,7 +157,7 @@ const getPlainTextLength = () => {
 }
 .rich-text-area .ql-container {
   background-color: #00000008;
-  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
+  font-family: 'BC Sans', 'Noto Sans', Verdana, Arial, sans-serif !important;
   height: 150px;
   border: none;
   border-top: none;

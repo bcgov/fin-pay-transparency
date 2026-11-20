@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     mobile-breakpoint="0"
-    color="sidebar"
+    color="bcds-blue-90"
     :rail="!isExpanded"
     rail-width="75"
     permanent
@@ -10,8 +10,8 @@
       <v-btn
         id="sidebar-rail-toggle-btn"
         :aria-label="isExpanded ? 'Collapse menu' : 'Expand menu'"
-        :icon="isExpanded ? 'mdi-chevron-left' : 'mdi-chevron-right'"
-        variant="text"
+        :icon="isExpanded ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"
+        variant="plain"
         @click.stop="toggleIsExpanded()"
       ></v-btn>
     </div>
@@ -38,7 +38,7 @@
       :class="{ active: activeRoute == 'dashboard' }"
     >
       <template #prepend>
-        <v-icon icon="mdi-home"></v-icon>
+        <v-icon icon="fa fa-house"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -49,7 +49,7 @@
       :class="{ active: activeRoute == 'reports' }"
     >
       <template #prepend>
-        <v-icon icon="mdi-magnify"></v-icon>
+        <v-icon icon="fa fa-magnifying-glass"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -60,7 +60,7 @@
       :class="{ active: activeRoute == 'analytics' }"
     >
       <template #prepend>
-        <v-icon icon="mdi-chart-bar"></v-icon>
+        <v-icon icon="fa fa-chart-simple"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -71,7 +71,7 @@
       :class="{ active: activeRoute == 'user-management' }"
     >
       <template #prepend>
-        <v-icon icon="mdi-account-multiple"></v-icon>
+        <v-icon icon="fa fa-users"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -82,7 +82,7 @@
       :class="{ active: activeRoute == 'announcements' }"
     >
       <template #prepend>
-        <v-icon icon="mdi-bullhorn"></v-icon>
+        <v-icon icon="fa fa-bullhorn"></v-icon>
       </template>
     </v-list-item>
     <v-list-item
@@ -93,7 +93,7 @@
       :class="{ active: activeRoute == 'employers' }"
     >
       <template #prepend>
-        <v-icon icon="mdi-office-building"></v-icon>
+        <v-icon icon="fa fa-building"></v-icon>
       </template>
     </v-list-item>
   </v-navigation-drawer>
@@ -143,6 +143,6 @@ watch(
   width: 16px !important;
 }
 .active {
-  background-color: #ffffff11 !important;
+  background-color: var(--bcsd-theme-blue-80);
 }
 </style>

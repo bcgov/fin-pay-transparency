@@ -1,14 +1,14 @@
 <template>
-  <v-btn
+  <v-btn-primary
     v-tooltip:bottom-end="'Only authorized users can access this data'"
-    append-icon="mdi-open-in-new"
-    class="ml-auto btn-primary"
+    append-icon="fa fa-arrow-up-right-from-square"
+    class="ml-auto"
     style="margin-top: -40px"
     rel="noopener"
     target="_blank"
     :href="sanitizeUrl(snowplowUrl)"
     aria-label="Web Traffic Analytics"
-    >Web Traffic Analytics</v-btn
+    >Web Traffic Analytics</v-btn-primary
   >
 
   <div class="w-100 overflow-x-auto">

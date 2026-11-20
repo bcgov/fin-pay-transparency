@@ -1,11 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { flushPromises } from '@vue/test-utils';
-import { render, screen } from '@testing-library/vue';
+import { screen } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
 import { ref } from 'vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import ConfirmationDialog from '../ConfirmationDialog.vue';
 
 // ---------------------------------------------------------------------------
@@ -31,7 +29,6 @@ async function renderAndOpen({
   contentClass = '',
 }: OpenOptions = {}) {
   const user = userEvent.setup();
-  const vuetify = createVuetify({ components, directives });
 
   // The wrapper calls open() imperatively and stores the promise so each test
   // can await the resolved value independently.
@@ -59,7 +56,7 @@ async function renderAndOpen({
     `,
   };
 
-  render(Wrapper, { global: { plugins: [vuetify] } });
+  renderWithPlugins(Wrapper);
 
   await user.click(screen.getByTestId('open-dialog'));
   await flushPromises();

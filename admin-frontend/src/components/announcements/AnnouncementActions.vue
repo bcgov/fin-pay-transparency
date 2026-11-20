@@ -3,7 +3,7 @@
     aria-label="Actions"
     density="compact"
     variant="plain"
-    icon="mdi-dots-vertical"
+    icon="fa fa-ellipsis-vertical"
     color="black"
     class="btn-actions"
   >
@@ -13,7 +13,7 @@
         <v-list-item>
           <v-btn
             variant="text"
-            prepend-icon="mdi-pencil"
+            prepend-icon="fa fa-pencil"
             @click="editAnnouncement"
             >Edit</v-btn
           >
@@ -21,7 +21,7 @@
         <v-list-item v-if="announcement.status == AnnouncementStatus.Published">
           <v-btn
             variant="text"
-            prepend-icon="mdi-cancel"
+            prepend-icon="fa fa-ban"
             @click="unpublishAnnouncement(announcement.announcement_id)"
             >Unpublish</v-btn
           >
@@ -30,7 +30,7 @@
           <v-btn
             class="text-red"
             variant="text"
-            prepend-icon="mdi-archive"
+            prepend-icon="fa fa-box-archive"
             :loading="isArchiving"
             :disabled="isArchiving"
             @click="archiveAnnouncement(announcement.announcement_id)"

@@ -1,5 +1,5 @@
 <template>
-  <h4>Search Announcements</h4>
+  <h6>Search Announcements</h6>
 
   <div class="w-100">
     <v-row density="compact" class="mt-0 w-100 mb-4">
@@ -11,15 +11,15 @@
 
   <div class="search-results w-100">
     <div class="d-flex flex-wrap mb-4 align-center">
-      <h4 v-if="searchResults?.length" class="">
+      <h6 v-if="searchResults?.length" class="">
         Displaying {{ searchResults.length }} announcement<span
           v-if="searchResults.length != 1"
           >s</span
         >
-      </h4>
-      <v-btn class="btn-primary ml-auto add-button" to="/add-announcement">
+      </h6>
+      <v-btn-primary class="ml-auto add-button" to="/add-announcement">
         Add Announcement
-      </v-btn>
+      </v-btn-primary>
     </div>
 
     <v-data-table-server
@@ -54,14 +54,9 @@
         </v-checkbox>
       </template>
       <template #item.title="{ item }">
-        <v-btn
-          variant="text"
-          class="btn-link no-min-width"
-          color="link"
-          @click="showAnnouncement(item)"
-        >
+        <v-btn-link class="no-min-width" @click="showAnnouncement(item)">
           {{ item.title }}
-        </v-btn>
+        </v-btn-link>
       </template>
       <template #item.active_on="{ item }">
         <div v-if="item.active_on">
@@ -91,13 +86,12 @@
         <v-row class="d-flex justify-start">
           <v-col class="d-flex justify-start">
             <div class="mt-3 d-flex flex-column align-center">
-              <v-btn
-                class="btn-secondary"
+              <v-btn-secondary
                 :disabled="!selectedAnnouncementIds.length || isArchiving"
                 :loading="isArchiving"
-                prepend-icon="mdi-archive"
+                prepend-icon="fa fa-box-archive"
                 @click="archiveAnnouncements(selectedAnnouncementIds)"
-                >Archive</v-btn
+                >Archive</v-btn-secondary
               >
               <small v-if="selectedAnnouncementIds.length">
                 {{ selectedAnnouncementIds.length }} selected
@@ -131,9 +125,9 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn class="btn-secondary" @click="showAnnouncement(undefined)">
+        <v-btn-secondary @click="showAnnouncement(undefined)">
           Close
-        </v-btn>
+        </v-btn-secondary>
       </v-card-actions>
     </v-card>
   </v-dialog>

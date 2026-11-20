@@ -86,7 +86,7 @@ const getMarkClassName = (step: IStageOption) => {
 .inverted-house {
   height: 20px;
   width: 20px;
-  background-color: #34495e; /* Square Base */
+  background-color: var(--bcds-theme-gray-80); /* Square Base */
   /* The 5 points mapping out the shape */
   clip-path: polygon(
     0% 0%,
@@ -118,10 +118,10 @@ const getMarkClassName = (step: IStageOption) => {
       line-height: 20px;
       font-size: small;
       position: relative;
-      background: #767676;
+      background: var(--bcds-theme-gray-80);
       border-top-left-radius: 3px;
       border-top-right-radius: 3px;
-      color: #fff;
+      color: var(--bcds-typography-color-primary-invert);
       font-weight: bold;
       text-align: center;
 
@@ -137,7 +137,7 @@ const getMarkClassName = (step: IStageOption) => {
       );
 
       &.completed {
-        background: rgb(252, 186, 25);
+        background: var(--bcds-theme-primary-gold);
       }
     }
   }
@@ -150,9 +150,9 @@ const getMarkClassName = (step: IStageOption) => {
       .label {
         font-size: small;
         font-weight: 500;
-        color: #767676;
+        color: var(--bcds-typography-color-primary);
         &.completed {
-          color: #003366;
+          color: var(--bcds-theme-primary-blue);
         }
       }
     }
@@ -171,13 +171,13 @@ const getMarkClassName = (step: IStageOption) => {
   .track {
     width: calc(100% - 170px);
     height: 8px;
-    background-color: lightgrey;
+    background-color: var(--bcds-theme-gray-50);
     border-radius: 5px;
     position: relative;
 
     .slide {
       height: 8px;
-      background-color: #003366;
+      background-color: var(--bcds-theme-primary-blue);
       border-radius: 5px;
       position: relative;
 

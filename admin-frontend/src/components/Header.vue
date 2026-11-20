@@ -1,26 +1,26 @@
 <template>
   <v-app-bar class="d-flex justify-center ps-6 pe-6">
-    <h2 v-if="isTitleVisible">
+    <h4 v-if="isTitleVisible">
       {{
         activeRoute.meta.sectionTitle
           ? activeRoute.meta.sectionTitle
           : activeRoute.meta.pageTitle
       }}
-    </h2>
+    </h4>
     <v-spacer />
     <div v-if="isAuthenticated" data-testid="account-info">
-      <v-icon icon="mdi-account" size="small" />
+      <v-icon icon="fa fa-user" size="small" />
       {{ userInfo?.displayName }}
     </div>
 
-    <v-btn
-      class="btn-link ms-2"
+    <v-btn-link
       v-if="isAuthenticated"
-      @click="redirectToLogout()"
+      class="ms-2"
       data-testid="logout-btn"
+      @click="redirectToLogout()"
     >
       Logout
-    </v-btn>
+    </v-btn-link>
 
     <!-- Navbar content -->
   </v-app-bar>

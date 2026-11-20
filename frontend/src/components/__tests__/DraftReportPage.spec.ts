@@ -1,12 +1,10 @@
 import { vi, describe, it, expect } from 'vitest';
 import { flushPromises } from '@vue/test-utils';
-import { render, fireEvent, screen, waitFor } from '@testing-library/vue';
+import { fireEvent, screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
-import { createTestingPinia } from '@pinia/testing';
 import { createRouter, createWebHistory } from 'vue-router';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import DraftReportPage from '../DraftReportPage.vue';
 import ApiService from '../../common/apiService';
 import { NotificationService } from '../../common/notificationService';
@@ -87,22 +85,23 @@ async function renderComponent({
   const user = userEvent.setup();
   const router = buildRouter();
 
-  const vuetify = createVuetify({ components, directives });
-
-  const pinia = createTestingPinia({
-    createSpy: vi.fn,
-    initialState: {
-      reportStepper: { reportId, reportData },
+  const plugins = createTestPlugins({
+    router,
+    piniaOptions: {
+      createSpy: vi.fn,
+      initialState: {
+        reportStepper: { reportId, reportData },
+      },
     },
   });
 
   // Render a root <router-view> so the router owns the component lifecycle.
   // This is required for onBeforeRouteLeave to fire when the route changes.
-  const result = render(
+  const result = renderWithPlugins(
     { template: '<router-view />' },
     {
       global: {
-        plugins: [pinia, router, vuetify],
+        plugins: plugins.plugins,
       },
     },
   );
@@ -325,7 +324,9 @@ describe('DraftReportPage', () => {
     it('navigates to /published-report after a successful publish', async () => {
       const { router } = await renderThenGenerateFinalReport();
 
-      expect(router.currentRoute.value.path).toBe('/published-report');
+      await waitFor(() => {
+        expect(router.currentRoute.value.path).toBe('/published-report');
+      });
     });
   });
 

@@ -16,7 +16,7 @@
             <v-tooltip text="Unable to load the data">
               <template #activator="{ props }">
                 <v-icon
-                  icon="mdi-alert"
+                  icon="fa fa-triangle-exclamation"
                   size="x-large"
                   color="grey"
                   v-bind="props"
@@ -45,7 +45,7 @@
             <v-tooltip text="Unable to load the data">
               <template #activator="{ props }">
                 <v-icon
-                  icon="mdi-alert"
+                  icon="fa fa-triangle-exclamation"
                   size="x-large"
                   color="grey"
                   v-bind="props"

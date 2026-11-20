@@ -1,35 +1,28 @@
-import { createTestingPinia } from '@pinia/testing';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import ApiService from '../../../common/apiService';
 import HtmlReport from '../HtmlReport.vue';
 
 describe('HtmlReport', () => {
   let wrapper;
-  let pinia;
 
   beforeEach(() => {
     //create an instance of vuetify so we can inject it
     //into the mounted component, allowing it to behave as it would
     //in a browser
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
-
-    pinia = createTestingPinia({
-      initialState: {
-        //mock the values in the reportStepper store
-        reportStepper: { reportId: 'mock-report-id' },
+    const plugins = createTestPlugins({
+      piniaOptions: {
+        initialState: {
+          //mock the values in the reportStepper store
+          reportStepper: { reportId: 'mock-report-id' },
+        },
       },
     });
 
     wrapper = mount(HtmlReport, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
   });

@@ -1,32 +1,21 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import ToolTip from '../ToolTip.vue';
-
-
 
 describe('ToolTip', () => {
   let wrapper;
-  let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
     wrapper = mount(ToolTip, {
       props: {
         text: 'Mock text',
       },
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
       stubs: {
         transition: true,

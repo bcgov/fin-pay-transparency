@@ -3,15 +3,13 @@
     <div
       class="d-flex flex-column flex-grow-1 flex-shrink-1 ma-2 ml-0 flex-basis-200"
     >
-      <h4 class="mb-2">Search Employer</h4>
+      <h6 class="mb-2">Search Employer</h6>
       <v-text-field
         v-model="searchText"
-        prepend-inner-icon="mdi-magnify"
-        density="compact"
+        prepend-inner-icon="fa fa-magnifying-glass"
         label="Search by employer name"
-        variant="solo"
         hide-details
-        :single-line="true"
+        single-line
         class="flex-shrink-1 flex-grow-0"
         @keyup.enter="search()"
       >
@@ -38,6 +36,7 @@
         class="calendar-year flex-shrink-1 flex-grow-0"
         variant="solo"
         density="compact"
+        min-width="270"
       >
         <template #item="{ props, internalItem }">
           <v-list-item v-bind="props" :title="`${internalItem.raw}`">
@@ -49,8 +48,8 @@
           </v-list-item>
         </template>
         <template #selection="{ item, index }">
-          <v-chip v-if="index < maxSelectedYearShown">
-            <span>{{ item.raw }}</span>
+          <v-chip v-if="index < maxSelectedYearShown" density="compact">
+            <span>{{ item }}</span>
           </v-chip>
           <span
             v-if="index === maxSelectedYearShown"
@@ -75,17 +74,17 @@
             : 'justify-start'
         "
       >
-        <v-btn
-          class="btn-primary me-2"
+        <v-btn-primary
+          class="me-2"
           :loading="isSearching"
           :disabled="isSearching"
           @click="search()"
         >
           Search
-        </v-btn>
-        <v-btn class="btn-secondary" :disabled="!isDirty" @click="reset()">
+        </v-btn-primary>
+        <v-btn-secondary :disabled="!isDirty" @click="reset()">
           Reset
-        </v-btn>
+        </v-btn-secondary>
       </div>
     </div>
   </v-row>

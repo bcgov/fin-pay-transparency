@@ -2,13 +2,13 @@
   <div @mouseover="pause = true" @mouseleave="pause = false">
     <v-snackbar
       id="mainSnackBar"
-      v-model="isVisible"
       :key="notificationKey"
+      v-model="isVisible"
       :timeout="timeout"
+      :color="styleClass"
       elevation="5"
       location="top"
       centered
-      :content-class="styleClass"
       transition="slide-y-transition"
     >
       <span :if="activeNotification?.title" class="snackbar-title mr-1">{{
@@ -18,7 +18,11 @@
         activeNotification?.message
       }}</span>
       <template #actions>
-        <a @click="processNextNotification()" :class="styleClass">
+        <a
+          href="#"
+          :class="`on-${styleClass}`"
+          @click="processNextNotification()"
+        >
           {{
             notificationQueue.length > 0
               ? 'Next (' + notificationQueue.length + ')'
@@ -89,9 +93,7 @@ export default {
     },
     setSeverity(severity: NotificationSeverity | null) {
       //set the notification style class that corresponds to the given severity
-      this.styleClass = severity
-        ? `v-alert alert-${severity.valueOf()}`
-        : undefined;
+      this.styleClass = severity ? severity.valueOf() : undefined;
     },
     setTimeoutMs(timeoutMs: number) {
       this.timeout = timeoutMs;
@@ -139,10 +141,6 @@ export default {
 </script>
 
 <style>
-.v-snackbar__wrapper {
-  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
-  border: 1px solid;
-}
 .v-snackbar .snackbar-title {
   font-weight: bold;
   font-size: 1rem;

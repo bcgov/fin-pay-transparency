@@ -7,8 +7,8 @@
             v-if="mode == ReportMode.Edit"
             closable
             text="You are now in edit mode. Please note that the reporting year is not editable in this mode."
-            class="alert-info"
-            variant="tonal"
+            color="info"
+            variant="outlined"
           >
           </v-alert>
         </v-col>
@@ -22,7 +22,7 @@
         density="compact"
         class="back-button-banner"
       >
-        <v-btn class="btn-secondary" to="/">Back</v-btn>
+        <v-btn-secondary to="/">Back</v-btn-secondary>
       </v-banner>
 
       <v-row class="mb-4 d-flex justify-center w-100">
@@ -124,6 +124,7 @@
               :rules="requiredRules"
               :items="naicsCodes"
               :item-title="(n: any) => `${n.naics_code} - ${n.naics_label}`"
+              single-line
               item-value="naics_code"
               label="Select"
               required
@@ -226,6 +227,7 @@
                   id="reportYear"
                   v-model="reportYear"
                   label="Year"
+                  variant="filled"
                   :items="reportingYearOptions"
                   :rules="requiredRules"
                   :disabled="mode == ReportMode.Edit"
@@ -285,6 +287,7 @@
                       id="startMonth"
                       v-model="startMonth"
                       label="Month"
+                      variant="filled"
                       :items="startMonthList"
                       :rules="requiredRules"
                     />
@@ -295,6 +298,7 @@
                       id="startYear"
                       v-model="startYear"
                       label="Year"
+                      variant="filled"
                       :items="startYearList"
                       :rules="requiredRules"
                     />
@@ -318,6 +322,7 @@
                       id="endMonth"
                       v-model="endMonth"
                       label="Month"
+                      variant="filled"
                       :items="endMonthList"
                       :rules="requiredRules"
                     />
@@ -328,6 +333,7 @@
                       id="endYear"
                       v-model="endYear"
                       label="Year"
+                      variant="filled"
                       :items="endYearList"
                       :rules="requiredRules"
                     />
@@ -509,7 +515,7 @@
               :key="bodyError"
               color="error"
               icon="fa:fas fa-triangle-exclamation"
-              class="alert-error font-weight-bold mb-3"
+              class="font-weight-bold mb-3"
               variant="outlined"
             >
               {{ bodyError }}
@@ -525,7 +531,7 @@
               :key="generalError"
               color="error"
               icon="fa:fas fa-triangle-exclamation"
-              class="alert-error font-weight-bold mb-3"
+              class="font-weight-bold mb-3"
               variant="outlined"
             >
               {{ generalError }}
@@ -536,7 +542,7 @@
         <!-- File Submission Errors -->
         <v-row v-if="submissionErrors?.rowErrors" class="mb-3">
           <v-col>
-            <v-alert class="pa-0 alert-error" variant="outlined">
+            <v-alert class="pa-0" color="error" variant="outlined">
               <!-- errors related to the content of specific lines in the file -->
               <div class="d-flex font-weight-bold">
                 <v-icon
@@ -585,7 +591,7 @@
           density="compact"
           class="pa-5 d-flex align-center"
           style="
-            border: 3px dashed #666666;
+            border: 3px dashed var(--bcds-theme-gray-80);
             border-radius: 10px;
             min-height: 7em;
           "
@@ -600,15 +606,14 @@
                 Supported format: CSV. Maximum file size:
                 {{ maxFileUploadSize }}.
               </p>
-              <v-btn
+              <v-btn-secondary
                 id="uploadFileButton"
-                class="btn-secondary"
                 type="button"
                 :loading="isSelectingFile"
                 @click="selectFile"
               >
                 Upload file
-              </v-btn>
+              </v-btn-secondary>
               <v-file-input
                 v-show="false"
                 id="csvFile"
@@ -637,9 +642,9 @@
 
         <v-row class="mt-6">
           <v-col class="d-flex justify-center">
-            <v-btn id="submitButton" class="btn-primary" type="submit">
+            <v-btn-primary id="submitButton" type="submit">
               Generate Draft Report
-            </v-btn>
+            </v-btn-primary>
           </v-col>
         </v-row>
         <v-row v-if="isSubmit && !formReady" density="compact" class="mt-4">
@@ -657,7 +662,7 @@
 
         <v-row class="mt-4">
           <v-col>
-            <v-alert v-if="alertMessage" :class="alertType" class="mb-3">
+            <v-alert v-if="alertMessage" :color="alertType" class="mb-3">
               {{ alertMessage }}
             </v-alert>
           </v-col>
@@ -796,7 +801,7 @@ export default {
     fileRules: [],
     fileInputError: [],
     alertMessage: null as string | null,
-    alertType: null as string | null,
+    alertType: null as string | undefined,
     submissionErrors: null as ISubmissionError | null,
     approvedRoute: null as string | null,
     reportStatus: null,
@@ -939,7 +944,7 @@ export default {
     },
     setSuccessAlert(alertMessage) {
       this.alertMessage = alertMessage;
-      this.alertType = 'alert-success';
+      this.alertType = 'success';
     },
     setErrorAlert(submissionErrors: ISubmissionError | null) {
       this.submissionErrors = submissionErrors;
@@ -1119,11 +1124,7 @@ textarea::placeholder {
 }
 
 .file-success {
-  background-color: #f6fff8;
-}
-
-.fa-circle-info {
-  color: #255a90 !important;
+  background-color: var(--bcds-support-surface-color-success);
 }
 </style>
 

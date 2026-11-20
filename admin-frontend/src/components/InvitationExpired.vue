@@ -6,7 +6,8 @@
         <v-alert
           density="compact"
           variant="outlined"
-          class="alert-error mt-2 mb-2"
+          color="error"
+          class="mt-2 mb-2"
         >
           <p>
             You are seeing this error page because the invitation link expires

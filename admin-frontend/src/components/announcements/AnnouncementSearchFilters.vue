@@ -4,7 +4,7 @@
       <v-col cols="12" md="8" lg="6" xl="4" class="d-flex align-center">
         <v-text-field
           v-model="searchText"
-          prepend-inner-icon="mdi-magnify"
+          prepend-inner-icon="fa fa-magnifying-glass"
           density="compact"
           label="Search by title"
           variant="solo"
@@ -16,9 +16,7 @@
         >
           <template #append> </template>
         </v-text-field>
-        <v-btn class="btn-primary" @click="searchAnnouncements()">
-          Search
-        </v-btn>
+        <v-btn-primary @click="searchAnnouncements()"> Search </v-btn-primary>
       </v-col>
       <v-col
         cols="12"
@@ -27,23 +25,18 @@
         xl="8"
         class="d-flex justify-end align-center pe-1"
       >
-        <v-btn
-          class="btn-secondary me-2"
-          :disabled="!isDirty()"
-          @click="reset()"
-        >
+        <v-btn-secondary class="me-2" :disabled="!isDirty()" @click="reset()">
           Reset
-        </v-btn>
-        <v-btn
-          class="btn-secondary"
-          prepend-icon="mdi-filter"
+        </v-btn-secondary>
+        <v-btn-secondary
+          prepend-icon="fa fa-filter"
           :append-icon="
-            areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
+            areSecondaryFiltersVisible ? 'fa fa-arrow-up' : 'fa fa-arrow-down'
           "
           @click="toggleSecondaryFiltersVisible()"
         >
           Filter
-        </v-btn>
+        </v-btn-secondary>
       </v-col>
     </v-row>
   </div>
@@ -110,30 +103,27 @@
               <template #title="{ title }">
                 <span v-if="internalItem.raw">
                   <AnnouncementStatusChip
-                    :status="title"
+                    :status="title as AnnouncementStatus"
                   ></AnnouncementStatusChip>
                 </span>
                 <span v-if="!internalItem.raw">{{ title }}</span>
               </template>
               <template #append="{ isActive }">
-                <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+                <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
               </template>
             </v-list-item>
           </template>
-          <template #selection="{ item, index }">
-            <span v-if="!item.raw">All</span>
-            <span v-if="item.raw">
-              <AnnouncementStatusChip
-                v-if="index < maxSelectedStatusesVisible"
-                :status="item.title"
-              ></AnnouncementStatusChip>
-              <span
-                v-if="index === maxSelectedStatusesVisible"
-                class="text-grey text-body-small align-self-center"
-              >
-                (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
-                more)
-              </span>
+          <template #selection="{ internalItem, index }">
+            <AnnouncementStatusChip
+              v-if="index < maxSelectedStatusesVisible"
+              :status="internalItem.title as AnnouncementStatus"
+            ></AnnouncementStatusChip>
+            <span
+              v-if="index === maxSelectedStatusesVisible"
+              class="text-grey text-body-small align-self-center"
+            >
+              (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
+              more)
             </span>
           </template>
         </v-select>
@@ -142,16 +132,16 @@
       <v-col cols="12" sm="6" md="6" lg="12" xl="3" class="align-stretch">
         <label>&nbsp;</label>
         <div class="d-flex justify-end align-center filter-buttons">
-          <v-btn class="btn-primary mr-0" @click="searchAnnouncements()">
+          <v-btn-primary class="mr-0" @click="searchAnnouncements()">
             Apply
-          </v-btn>
-          <v-btn
-            class="btn-link ms-2"
+          </v-btn-primary>
+          <v-btn-tertiary
+            class="ms-2"
             :disabled="!areSecondaryFiltersDirty()"
             @click="clear()"
           >
             Clear
-          </v-btn>
+          </v-btn-tertiary>
         </div>
       </v-col>
     </v-row>
@@ -316,7 +306,7 @@ $inputHeight: 40px;
   margin-right: -48px !important;
   padding-left: 24px !important;
   padding-right: 40px !important;
-  background-color: #eeeeee;
+  background-color: var(--bcds-theme-gray-30);
 }
 input::placeholder {
   color: black !important;
@@ -333,9 +323,5 @@ input::placeholder {
 }
 .filter-buttons {
   height: $inputHeight;
-}
-
-input::-ms-input-placeholder {
-  color: black !important;
 }
 </style>

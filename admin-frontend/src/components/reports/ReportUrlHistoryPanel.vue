@@ -13,7 +13,11 @@
     >
       <v-row no-gutters>
         <v-col class="text-success url-link">
-          <v-icon icon="mdi-open-in-new" color="success" class="mr-1" />
+          <v-icon
+            icon="fa fa-arrow-up-right-from-square"
+            color="success"
+            class="mr-1"
+          />
           <a
             :href="item.report_url"
             target="_blank"
@@ -65,7 +69,7 @@ defineProps<{
 }
 .vertical-bar {
   width: 3px;
-  background-color: #dddddd;
+  background-color: var(--bcds-surface-color-border-default);
   height: 100%;
 }
 .url-link {

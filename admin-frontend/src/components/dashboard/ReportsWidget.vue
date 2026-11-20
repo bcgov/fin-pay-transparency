@@ -111,7 +111,7 @@ defineExpose({
 
 <style>
 .ptap-widget thead {
-  background-color: #eeeeee;
+  background-color: var(--bcds-theme-gray-30);
 }
 </style>
 

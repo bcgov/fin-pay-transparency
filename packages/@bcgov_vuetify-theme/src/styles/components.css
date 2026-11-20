@@ -1,0 +1,163 @@
+/*
+ * BCDS component skins for Vuetify. Layer: bcds.
+ *
+ * Rules of this file:
+ *  - Only token variables (var(--bcds-...)); no hard-coded colours, sizes or fonts.
+ *    Where BCDS has no token for something, Vuetify's own value is kept.
+ *  - Theme colours and component props are preferred (see theme.ts, defaults.ts);
+ *    this file only covers what those cannot express.
+ *  - Rules that must beat a colour utility class (bg-primary, text-primary, ...)
+ *    live in states.css (layer bcds-states), not here.
+ *  - `font:` shorthands are followed by font-family: var(--bcds-v-font-body) so the
+ *    Vuetify font stack (BC Sans + fallbacks, see base.css) is kept.
+ */
+ 
+/* ============================ Buttons ============================ */
+.v-btn:focus-visible > .v-btn__overlay {
+  opacity: 0;
+}
+.v-btn--variant-plain {
+  opacity: 1;
+}
+
+/* ========================= Form fields ========================== */
+/* Outline colour is currentColor at --v-field-border-opacity; make it a solid token colour. */
+.v-field-label {
+  color: var(--bcds-typography-color-primary);
+}
+.v-field__outline {
+  --v-field-border-opacity: var(--bcds-surface-opacity-100);
+  color: var(--bcds-surface-color-border-default);
+}
+.v-field:hover .v-field__outline {
+  color: var(--bcds-surface-color-border-dark);
+}
+.v-field.v-field--focused .v-field__outline {
+  color: var(--bcds-surface-color-border-active);
+}
+.v-field.v-field--error:not(.v-field--disabled) .v-field__outline {
+  color: var(--bcds-support-border-color-danger);
+}
+.v-field__input,
+.v-field__input input,
+.v-field__input textarea {
+  color: var(--bcds-typography-color-primary);
+}
+/* Colour only: Vuetify hides placeholders until the field is active. */
+.v-field__input::placeholder,
+.v-field input::placeholder,
+.v-field textarea::placeholder {
+  color: var(--bcds-typography-color-placeholder);
+}
+.v-field--active input::placeholder,
+.v-field--active textarea::placeholder {
+  opacity: var(--bcds-surface-opacity-100);
+}
+.v-field.v-field--disabled {
+  opacity: var(--bcds-surface-opacity-100);
+  background-color: var(--bcds-surface-color-forms-disabled);
+  color: var(--bcds-typography-color-placeholder);
+}
+.v-field.v-field--disabled .v-field__input,
+.v-field.v-field--disabled input,
+.v-field.v-field--disabled textarea {
+  color: var(--bcds-typography-color-placeholder);
+}
+/* Hints / descriptions and errors */
+.v-messages {
+  font: var(--bcds-typography-regular-small-body);
+  color: var(--bcds-typography-color-secondary);
+  opacity: var(--bcds-surface-opacity-100);
+}
+.v-input--error:not(.v-input--disabled) .v-messages {
+  color: var(--bcds-typography-color-danger);
+}
+
+/* ======================= Selection controls ====================== */
+.v-selection-control .v-label {
+  color: var(--bcds-typography-color-secondary);
+  opacity: var(--bcds-surface-opacity-100);
+}
+.v-selection-control--disabled .v-label {
+  color: var(--bcds-typography-color-disabled);
+}
+.v-selection-control--disabled {
+  opacity: var(--bcds-surface-opacity-100);
+}
+.v-selection-control--disabled .v-selection-control__input .v-icon {
+  color: var(--bcds-icons-color-disabled);
+}
+/* Unchecked checkbox / radio icon: BCDS border colours */
+.v-selection-control:not(.v-selection-control--dirty):not(.v-selection-control--disabled) .v-selection-control__input .v-icon {
+  color: var(--bcds-surface-color-border-medium);
+  opacity: var(--bcds-surface-opacity-100);
+}
+.v-selection-control:not(.v-selection-control--dirty):not(.v-selection-control--disabled):hover .v-selection-control__input .v-icon {
+  color: var(--bcds-surface-color-border-dark);
+}
+.v-input--error:not(.v-input--disabled) .v-selection-control:not(.v-selection-control--dirty) .v-selection-control__input .v-icon {
+  color: var(--bcds-support-border-color-danger);
+}
+
+/* ============================ Alerts ============================ */
+/* Inline alert = outlined v-alert: border + icon already use the status colour. */
+.v-alert--variant-outlined.text-info { background-color: var(--bcds-support-surface-color-info); }
+.v-alert--variant-outlined.text-success { background-color: var(--bcds-support-surface-color-success); }
+.v-alert--variant-outlined.text-warning { background-color: var(--bcds-support-surface-color-warning); }
+.v-alert--variant-outlined.text-error { background-color: var(--bcds-support-surface-color-danger); }
+.v-alert--variant-outlined .v-alert__content {
+  color: var(--bcds-typography-color-primary);
+}
+
+/* ============================ chip ============================ */
+/* Inline alert = outlined v-alert: border + icon already use the status colour. */
+.v-chip--variant-outlined.text-info { background-color: var(--bcds-support-surface-color-info); }
+.v-chip--variant-outlined.text-success { background-color: var(--bcds-support-surface-color-success); }
+.v-chip--variant-outlined.text-warning { background-color: var(--bcds-support-surface-color-warning); }
+.v-chip--variant-outlined.text-error { background-color: var(--bcds-support-surface-color-danger); }
+.v-chip--variant-outlined .v-chip__content {
+  color: var(--bcds-typography-color-primary);
+}
+
+/* ========================= Accordion ============================= */
+.v-expansion-panels {
+  border: var(--bcds-layout-border-width-small) solid var(--bcds-surface-color-border-default);
+  border-radius: var(--bcds-layout-border-radius-medium);
+  overflow: hidden;
+}
+.v-expansion-panel {
+  background-color: var(--bcds-surface-color-forms-default);
+}
+.v-expansion-panel + .v-expansion-panel {
+  border-top: var(--bcds-layout-border-width-small) solid var(--bcds-surface-color-border-default);
+}
+.v-expansion-panel-title {
+  background-color: var(--bcds-surface-color-background-light-gray);
+  color: var(--bcds-typography-color-primary);
+}
+.v-expansion-panel-title:hover {
+  background-color: var(--bcds-surface-color-menus-hover);
+}
+.v-expansion-panel-title:hover > .v-expansion-panel-title__overlay {
+  opacity: 0;
+}
+
+/* ============================ Tooltip ============================ */
+/* Colours come from the theme (surface-variant / on-surface-variant). */
+.v-tooltip > .v-overlay__content {
+  border-radius: var(--bcds-layout-border-radius-medium);
+  box-shadow: var(--bcds-surface-shadow-small);
+}
+
+/* ======================== Date / time pickers ==================== */
+.v-picker {
+  background-color: var(--bcds-surface-color-forms-default);
+  border: var(--bcds-layout-border-width-small) solid var(--bcds-surface-color-border-default);
+  border-radius: var(--bcds-layout-border-radius-medium);
+}
+
+/* ====================================================================== */
+/* ======================== Navigation and Structure ==================== */
+.v-app-bar-title {
+  font: var(--bcds-typography-bold-h4);
+} 

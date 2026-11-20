@@ -1,9 +1,6 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import DashboardPage from '../DashboardPage.vue';
 import NumEmployerLogins from '../dashboard/NumEmployerLogons.vue';
 
@@ -18,17 +15,13 @@ describe('DashboardPage', () => {
   let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createVuetify({
-      components,
-      directives,
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
-
-    pinia = createTestingPinia({
-      initialState: {},
-    });
+    pinia = plugins.pinia;
     wrapper = mount(DashboardPage, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
 

@@ -86,7 +86,6 @@ onMounted(async () => {
       }
       .display-name {
         font-weight: 700;
-        color: #000;
       }
     }
   }
@@ -94,10 +93,5 @@ onMounted(async () => {
 .role-menu-button {
   padding: 5px;
   padding-right: 5px;
-}
-
-.selected-role {
-  color: #003366;
-  font-weight: 600;
 }
 </style>

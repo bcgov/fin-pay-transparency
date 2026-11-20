@@ -26,7 +26,7 @@
           </v-toolbar-title>
           <v-spacer />
           <v-btn v-if="options.closeIcon" id="closeBtn" icon @click="cancel">
-            <v-icon color="#38598A"> mdi-close </v-icon>
+            <v-icon> fa fa-xmark </v-icon>
           </v-btn>
         </v-toolbar>
       </slot>
@@ -39,15 +39,14 @@
       </v-card-text>
       <v-card-actions class="pt-0">
         <v-spacer />
-        <v-btn id="rejectBtn" class="btn-secondary" @click="cancel">{{
+        <v-btn-secondary id="rejectBtn" @click="cancel">{{
           options.rejectText || 'Cancel'
-        }}</v-btn>
-        <v-btn
+        }}</v-btn-secondary>
+        <v-btn-primary
           id="resolveBtn"
-          class="btn-primary"
           :disabled="options.resolveDisabled"
           @click="agree"
-          >{{ options.resolveText || 'Yes' }}</v-btn
+          >{{ options.resolveText || 'Yes' }}</v-btn-primary
         >
       </v-card-actions>
     </v-card>

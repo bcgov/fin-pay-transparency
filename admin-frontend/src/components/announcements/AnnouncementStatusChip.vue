@@ -1,14 +1,14 @@
 <template>
   <v-chip
-    :class="{
-      success: status == AnnouncementStatus.Published,
-      warning: status == AnnouncementStatus.Expired,
-      info: ![
-        AnnouncementStatus.Published,
-        AnnouncementStatus.Expired,
-      ].includes(status),
-      error: status == AnnouncementStatus.Archived,
-    }"
+    :color="
+      status === AnnouncementStatus.Published
+        ? 'success'
+        : status === AnnouncementStatus.Expired
+          ? 'warning'
+          : status === AnnouncementStatus.Archived
+            ? 'error'
+            : 'info'
+    "
     size="small"
   >
     {{ status }}

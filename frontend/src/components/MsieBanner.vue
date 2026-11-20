@@ -2,7 +2,7 @@
   <v-alert
     id="banner"
     variant="outlined"
-    class="alert-error"
+    color="error"
     density="compact"
     type="error"
     closable

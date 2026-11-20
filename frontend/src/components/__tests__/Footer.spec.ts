@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/vue';
+import { screen } from '@testing-library/vue';
+import { renderInVAppWithPlugins } from '../../test-utils/vuetify';
 import Footer from '../Footer.vue';
 import { describe, it, expect } from 'vitest';
 
 const wrappedRender = async () => {
-  return render(Footer);
+  return renderInVAppWithPlugins(Footer);
 };
 
 const links = [

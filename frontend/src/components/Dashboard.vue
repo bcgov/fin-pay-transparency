@@ -1,8 +1,10 @@
 <template>
-  <div class="dashboard-content">
+  <div>
     <v-row class="mt-3">
       <v-col>
-        <h2 data-testid="legal-name">Welcome, {{ userInfo?.legalName }}.</h2>
+        <h2 class="ma-0 text-h4" data-testid="legal-name">
+          Welcome, {{ userInfo?.legalName }}.
+        </h2>
         <v-divider class="mt-2"></v-divider>
       </v-col>
     </v-row>
@@ -37,9 +39,9 @@
             Need an example? Click <a href="SampleCsv.csv" download>here</a> to
             view a sample CSV file.
           </p>
-          <v-btn class="mb-4 btn-primary" to="generate-report-form">
+          <v-btn-primary class="ma-0" to="generate-report-form">
             Upload your CSV here
-          </v-btn>
+          </v-btn-primary>
           <p class="text-body-small">
             This application does not collect, record or publish personal
             information.
@@ -144,21 +146,6 @@ export default {
 </script>
 
 <style>
-.dashboard-content {
-  width: 100%;
-  min-width: 0;
-}
-
-.v-card-text.generate-report {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: aliceblue;
-}
-
-.v-card--variant-elevated.no-box-shadow {
-  box-shadow: none;
-}
 .right-column {
   height: 535px;
 }

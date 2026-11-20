@@ -1,29 +1,19 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 import { AnnouncementStatus } from '../../../types/announcements';
 import AnnouncementSearchFilters from '../AnnouncementSearchFilters.vue';
 
-
 describe('AnnouncementSearchFilters', () => {
   let wrapper;
-  let pinia;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
     wrapper = mount(AnnouncementSearchFilters, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
 
@@ -57,9 +47,7 @@ describe('AnnouncementSearchFilters', () => {
         const dateRange = [new Date(d1), new Date(d2)];
         wrapper.vm.publishDateRange = dateRange;
         const filters = wrapper.vm.getAnnouncementSearchFilters();
-        const publishDateFilters = filters.filter(
-          (d) => d.key == 'active_on',
-        );
+        const publishDateFilters = filters.filter((d) => d.key == 'active_on');
         expect(publishDateFilters.length).toBe(1);
         expect(publishDateFilters[0].operation).toBe('between');
         expect(publishDateFilters[0].value.length).toBe(2);

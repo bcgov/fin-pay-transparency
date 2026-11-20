@@ -6,33 +6,30 @@
     >
       <v-text-field
         v-model="searchText"
-        prepend-inner-icon="mdi-magnify"
-        density="compact"
+        prepend-inner-icon="fa fa-magnifying-glass"
         label="Search by employer name"
-        variant="solo"
         hide-details
-        :single-line="true"
+        single-line
         @keyup.enter="searchReports()"
       >
         <template #append> </template>
       </v-text-field>
-      <v-btn class="btn-primary" @click="searchReports()"> Search </v-btn>
+      <v-btn-primary @click="searchReports()"> Search </v-btn-primary>
     </div>
 
     <div class="d-flex ml-auto my-2 mr-2 mr-4">
-      <v-btn class="btn-secondary me-2" :disabled="!isDirty()" @click="reset()">
+      <v-btn-secondary class="me-2" :disabled="!isDirty()" @click="reset()">
         Reset
-      </v-btn>
-      <v-btn
-        class="btn-secondary"
-        prepend-icon="mdi-filter"
+      </v-btn-secondary>
+      <v-btn-secondary
+        prepend-icon="fa fa-filter"
         :append-icon="
-          areSecondaryFiltersVisible ? 'mdi-arrow-up' : 'mdi-arrow-down'
+          areSecondaryFiltersVisible ? 'fa fa-arrow-up' : 'fa fa-arrow-down'
         "
         @click="toggleSecondaryFiltersVisible()"
       >
         Filter
-      </v-btn>
+      </v-btn-secondary>
     </div>
   </div>
 
@@ -102,7 +99,7 @@
             :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>
@@ -129,7 +126,7 @@
             :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>
@@ -195,7 +192,7 @@
             :title="internalItem.raw ? internalItem.raw : 'All'"
           >
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>
@@ -222,7 +219,7 @@
         <template #item="{ props, internalItem }">
           <v-list-item v-bind="props" :title="internalItem.raw.title">
             <template #append="{ isActive }">
-              <v-icon v-if="isActive" icon="mdi-check"></v-icon>
+              <v-icon v-if="isActive" icon="fa fa-check"></v-icon>
             </template>
           </v-list-item>
         </template>
@@ -236,14 +233,16 @@
     <div class="d-flex flex-column ml-auto ma-2">
       <label>&nbsp;</label>
       <div class="d-flex justify-end align-center filter-buttons">
-        <v-btn class="btn-primary mr-0" @click="searchReports()"> Apply </v-btn>
-        <v-btn
-          class="btn-link ms-2"
+        <v-btn-primary class="mr-0" @click="searchReports()">
+          Apply
+        </v-btn-primary>
+        <v-btn-tertiary
+          class="ms-2"
           :disabled="!areSecondaryFiltersDirty()"
           @click="clear()"
         >
           Clear
-        </v-btn>
+        </v-btn-tertiary>
       </div>
     </div>
   </div>
@@ -440,7 +439,7 @@ $inputHeight: 40px;
   margin-right: -48px !important;
   padding-left: 24px !important;
   padding-right: 32px !important;
-  background-color: #eeeeee;
+  background-color: var(--bcds-theme-gray-30);
 }
 input::placeholder {
   color: black !important;
@@ -457,9 +456,5 @@ input::placeholder {
 }
 .filter-buttons {
   height: $inputHeight;
-}
-
-input::-ms-input-placeholder {
-  color: black !important;
 }
 </style>

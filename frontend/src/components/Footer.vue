@@ -1,5 +1,5 @@
 <template>
-  <v-footer color="#fff" dark absolute class="margin-top" app>
+  <v-footer absolute class="margin-top" app>
     <div class="first-nation-acknowledgement">
       <v-container>
         <v-row>
@@ -38,7 +38,7 @@
               <li
                 v-for="link in settings.links"
                 :key="link.id"
-                class="footer-btn pl-1 pr-1"
+                class="footer-btn"
               >
                 <a :href="sanitizeUrl(link.to)" :data-testid="link.id">
                   {{ link.label }}
@@ -104,11 +104,9 @@ const settings: FooterSettings = {
 
 <style scoped lang="scss">
 $font-size: 14px;
-$text-color: rgb(70, 67, 65);
-$border-color: rgb(252, 186, 25);
 
 a {
-  color: rgb(32, 31, 30);
+  color: var(--bcds-typography-color-primary);
   text-decoration: underline !important;
 }
 
@@ -120,20 +118,20 @@ a {
   padding: 0 !important;
 
   .first-nation-acknowledgement {
-    background-color: rgb(41, 41, 41);
+    background-color: var(--bcds-theme-gray-110);
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     padding: 16px 0;
-    color: #fff;
+    color: var(--bcds-typography-color-primary-invert);
     font-size: 14px;
     line-height: 21px;
     transition: none !important;
     width: 100%;
     margin-bottom: 16px;
-    border-top: 4px solid $border-color !important;
-    border-bottom: 4px solid $border-color !important;
+    border-top: 4px solid var(--bcds-theme-primary-gold) !important;
+    border-bottom: 4px solid var(--bcds-theme-primary-gold) !important;
     overflow: hidden;
   }
 }
@@ -143,8 +141,8 @@ a {
   ul {
     list-style-type: none;
     columns: 2;
-    margin: 0px 0px 16px;
     gap: 48px;
+    padding-inline-start: 0px;
     li {
       margin-bottom: 16px;
       width: 160px;

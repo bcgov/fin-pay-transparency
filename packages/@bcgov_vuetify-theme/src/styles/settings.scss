@@ -1,0 +1,23 @@
+@use 'sass:map';
+@use "@bcgov/design-tokens/scss/variables" as bcds;
+
+@use 'vuetify/settings' as vuetify with (
+  //font
+  $body-font-family: bcds.$typography-font-families-bc-sans,
+  $heading-font-family: bcds.$typography-font-families-bc-sans,
+  //border
+  $border-color-root: bcds.$surface-color-border-default,
+  $border-radius-root: bcds.$layout-border-radius-medium,
+  $rounded:
+  (
+    0: bcds.$layout-border-radius-none,
+    'sm': bcds.$layout-border-radius-small,
+    //null: $border-radius-root,
+    //'md': $border-radius-root,
+    'lg': bcds.$layout-border-radius-large,
+    'xl': bcds.$layout-border-radius-large,
+    'pill': bcds.$layout-border-radius-circular,
+    //'circle': 50%,
+    //'shaped': $border-radius-root * 6 0
+  ),
+);

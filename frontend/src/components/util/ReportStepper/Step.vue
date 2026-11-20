@@ -52,19 +52,19 @@ const handleClick = () => {
   .step-thumb {
     width: 25px;
     height: 25px;
-    background-color: #fff;
+    background-color: var(--bcds-surface-color-background-white);
     border-radius: 15px;
-    border: lightgrey 8px solid;
+    border: var(--bcds-theme-gray-50) 8px solid;
     cursor: pointer;
 
     &.disabled {
-      background-color: #767676;
+      background-color: var(--bcds-theme-gray-70);
       cursor: not-allowed;
     }
 
     &.completed {
-      background-color: #fff;
-      border: #003366 8px solid;
+      background-color: var(--bcds-surface-color-background-white);
+      border: var(--bcds-theme-primary-blue) 8px solid;
     }
   }
 }

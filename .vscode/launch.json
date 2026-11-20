@@ -97,7 +97,7 @@
     },
     {
       "name": "Open Frontend URL to Debug",
-      "type": "msedge",
+      "type": "chrome",
       "request": "launch",
       "url": "http://localhost:8081",
       "webRoot": "${workspaceFolder}/frontend",
@@ -109,7 +109,7 @@
     },
     {
       "name": "Open Admin-Frontend URL to Debug",
-      "type": "msedge",
+      "type": "chrome",
       "request": "launch",
       "url": "http://localhost:8084",
       "webRoot": "${workspaceFolder}/admin-frontend",
@@ -125,7 +125,7 @@
     },
     {
       "name": "Open Backend-External URL to Debug",
-      "type": "msedge",
+      "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3002/api/V1/docs",
       "webRoot": "${workspaceFolder}/backend-external",
@@ -137,7 +137,7 @@
     },
     {
       "name": "Open All URLs (No Debugging)",
-      "type": "msedge",
+      "type": "chrome",
       "request": "launch",
       "runtimeArgs": [
         "--new-window",

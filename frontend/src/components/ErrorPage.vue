@@ -2,7 +2,13 @@
   <v-container>
     <v-row class="align-center justify-center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
-        <v-alert density="compact" variant="outlined" class="alert-error mb-3" v-if="errorMessage">
+        <v-alert
+          v-if="errorMessage"
+          density="compact"
+          variant="outlined"
+          color="error"
+          class="mb-3"
+        >
           {{ errorMessage }}
         </v-alert>
       </v-col>

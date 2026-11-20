@@ -1,14 +1,8 @@
-import { createTestingPinia } from '@pinia/testing';
-import { render, screen, waitFor } from '@testing-library/vue';
+import { screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import { EmployerMetrics } from '../../../types/employers';
 import NumEmployerLogons from '../NumEmployerLogons.vue';
-
-const pinia = createTestingPinia();
-const vuetify = createVuetify({ components, directives });
 
 const mockEmployerMetrics: EmployerMetrics = {
   num_employers_logged_on_to_date: 6,
@@ -25,11 +19,7 @@ vi.mock('../../../services/apiService', () => ({
 }));
 
 const wrappedRender = () => {
-  return render(NumEmployerLogons, {
-    global: {
-      plugins: [pinia, vuetify],
-    },
-  });
+  return renderWithPlugins(NumEmployerLogons);
 };
 
 describe('NumEmployerLogons', () => {
