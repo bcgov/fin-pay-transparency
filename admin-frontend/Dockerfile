@@ -1,8 +1,7 @@
 # Build static files
 FROM node:24-alpine AS build
-WORKDIR /packages
-COPY packages .
 WORKDIR /app
+COPY packages ../packages
 COPY admin-frontend .
 RUN npm ci --ignore-scripts && \
     npm run build
@@ -12,7 +11,7 @@ FROM caddy:2.11-alpine
 
 # Copy static files and config
 COPY --from=build /app/dist /app/dist
-COPY Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/Caddyfile /etc/caddy/Caddyfile
 
 # Packages and caddy format
 RUN apk add --no-cache ca-certificates && \
