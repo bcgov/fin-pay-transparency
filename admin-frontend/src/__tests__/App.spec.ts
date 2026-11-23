@@ -1,34 +1,20 @@
-import { createTestingPinia } from '@pinia/testing';
 import { waitFor } from '@testing-library/vue';
 import { flushPromises, mount } from '@vue/test-utils';
-import { getActivePinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRouter, createWebHistory } from 'vue-router';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../test-utils/vuetify';
 import App from '../App.vue';
-import router from '../router';
 import { authStore } from '../store/modules/auth';
 
 vi.mock('../services/apiService');
 const mockDoesUserHaveRole = vi.fn();
+let pinia;
+let mockRouter;
+let plugins;
+
 const setupComponentEnvironment = async () => {
-  const vuetify = createVuetify({
-    components,
-    directives,
-  });
-
-  const pinia = getActivePinia();
-
   const auth = authStore();
   auth.getJwtToken = vi.fn().mockResolvedValue(null);
   auth.doesUserHaveRole = () => mockDoesUserHaveRole();
-
-  const mockRouter = createRouter({
-    history: createWebHistory(),
-    routes: router.getRoutes(),
-  });
 
   const wrapper = mount(
     {
@@ -46,7 +32,7 @@ const setupComponentEnvironment = async () => {
         components: {
           App,
         },
-        plugins: [vuetify, pinia!, mockRouter],
+        plugins: plugins.plugins,
       },
     },
   );
@@ -68,13 +54,16 @@ const setupComponentEnvironment = async () => {
 describe('App', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
-    const pinia = createTestingPinia({
-      initialState: {
-        code: {},
-        config: {},
+    plugins = createTestPlugins({
+      piniaOptions: {
+        initialState: {
+          code: {},
+          config: {},
+        },
       },
     });
-    setActivePinia(pinia);
+    pinia = plugins.pinia;
+    mockRouter = plugins.router;
   });
 
   afterEach(() => {

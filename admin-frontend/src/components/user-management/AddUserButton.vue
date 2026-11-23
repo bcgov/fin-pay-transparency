@@ -3,7 +3,7 @@
     <v-dialog v-model="open" max-width="600">
       <template #activator="{ props: activatorProps }">
         <v-btn
-          prepend-icon="mdi-account-plus"
+          prepend-icon="fa fa-user-plus"
           variant="elevated"
           color="primary"
           v-bind="activatorProps"
@@ -198,10 +198,6 @@ const submit = async () => {
 <style scoped lang="scss">
 .card-title {
   font-weight: 700 !important;
-}
-
-input::-ms-input-placeholder {
-  color: black !important;
 }
 
 .v-field__input {

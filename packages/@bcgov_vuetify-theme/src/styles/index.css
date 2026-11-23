@@ -1,0 +1,27 @@
+/*
+ * BCDS styles entry. Import this FIRST in main.ts, before App.vue and before
+ * anything that pulls in Vuetify CSS (see README).
+ *
+ * The @layer statement must be the first thing the browser sees: the first
+ * declaration of a layer fixes its position, and Vuetify's own CSS declares
+ * its layers too.
+ *
+ *   vuetify-components   Vuetify component CSS
+ *   vuetify-overrides    Vuetify's own overrides
+ *   org                  YOUR baseline overrides. Beat Vuetify components,
+ *                        but Vuetify utilities (w-100, mt-4, ...) still beat YOU
+ *   vuetify-utilities    utility classes and theme colour classes (bg-primary, ...)
+ *   org-states           interaction states (hover/pressed/disabled). Sits ABOVE
+ *                        utilities on purpose: bg-primary would otherwise win
+ *   vuetify-final        Vuetify's last-resort layer
+ */
+@layer vuetify-core, bcds-core, vuetify-components, vuetify-overrides, bcds-components, vuetify-utilities, bcds-states, font, vuetify-final;
+
+@import '@bcgov/design-tokens/css-prefixed/variables.css' layer(font);
+@import '@bcgov/bc-sans/css/BC_Sans.css' layer(font);
+@import '@fortawesome/fontawesome-free/css/fontawesome.css' layer(font);
+@import '@fortawesome/fontawesome-free/css/solid.css' layer(font);
+@import '@fortawesome/fontawesome-free/css/regular.css' layer(font);
+@import './components.css' layer(bcds-components);
+@import './states.css' layer(bcds-states);
+@import './core.css' layer(bcds-core);

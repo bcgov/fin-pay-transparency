@@ -1,10 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { h } from 'vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 import { VApp } from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import {
   INotification,
   NotificationSeverity,
@@ -19,10 +17,7 @@ describe('SnackBar', () => {
     //create an instance of vuetify so we can inject it
     //into the mounted component, allowing it to behave as it would
     //in a browser
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
+    const plugins = createTestPlugins();
 
     //mount the SnackBar within a VApp wrapper
     wrapper = mount(VApp, {
@@ -30,7 +25,7 @@ describe('SnackBar', () => {
         default: h(SnackBar),
       },
       global: {
-        plugins: [vuetify],
+        plugins: plugins.plugins,
       },
     });
     snackbar = wrapper.findComponent(SnackBar);

@@ -2,15 +2,14 @@
   <AuthLayout>
     <template #content>
       <p class="title text-headline-large">Log in</p>
-      <v-btn
+      <v-btn-primary
         id="login-button"
-        class="btn-primary login-button"
         data-testid="login-button"
-        @click="clearStorageAndRedirectToLogin"
         title="Login"
+        @click="clearStorageAndRedirectToLogin"
       >
         Log in with IDIR MFA
-      </v-btn>
+      </v-btn-primary>
     </template>
   </AuthLayout>
 </template>
@@ -41,10 +40,6 @@ const clearStorageAndRedirectToLogin = () => {
 .title {
   font-weight: 700;
   margin-bottom: 20px;
-}
-
-.login-button {
-  font-weight: 600;
 }
 
 .action {

@@ -13,7 +13,11 @@
     >
       <v-row no-gutters>
         <v-col class="text-success url-link">
-          <v-icon icon="mdi-open-in-new" color="success" class="mr-1" />
+          <v-icon
+            icon="fa fa-arrow-up-right-from-square"
+            color="success"
+            class="mr-1"
+          />
           <a
             :href="item.report_url"
             target="_blank"
@@ -33,7 +37,7 @@
             <div>
               {{ formatIsoDateTimeAsLocalDate(item.update_date) }}
             </div>
-            <small class="text-grey-darken-3 ms-2">
+            <small class="text-bcds-text-secondary ms-2">
               {{ formatIsoDateTimeAsLocalTime(item.update_date) }}</small
             >
           </div>
@@ -65,7 +69,7 @@ defineProps<{
 }
 .vertical-bar {
   width: 3px;
-  background-color: #dddddd;
+  background-color: var(--bcds-surface-color-border-default);
   height: 100%;
 }
 .url-link {

@@ -1,9 +1,6 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 import { Announcement } from '../../../types/announcements';
 import { default as AnnouncementItem } from '../AnnouncementItem.vue';
 
@@ -20,8 +17,6 @@ const mockDraftAnnouncement: Announcement = {
   status: 'DRAFT',
   announcement_resource: [],
 };
-
-
 
 const mockDownloadFile = vi.fn();
 const mockSaveAs = vi.fn();
@@ -43,26 +38,19 @@ vi.mock('file-saver', () => ({
   saveAs: (...args) => mockSaveAs(...args),
 }));
 
-
 describe('AnnouncementItem', () => {
   let wrapper;
-  let pinia;
 
   const initWrapper = async (options: any = {}) => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
     wrapper = mount(AnnouncementItem, {
       props: {
         announcement: mockDraftAnnouncement,
       },
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
     });
 

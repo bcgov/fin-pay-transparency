@@ -2,10 +2,10 @@
   <v-container>
     <v-row class="align-center justify-center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
-        <v-alert density="compact" variant="outlined" class="mb-3 alert-info">
+        <v-alert density="compact" variant="outlined" color="info" class="mb-3">
           You have logged out.
         </v-alert>
-        <v-btn class="btn-primary" @click="redirectToLogin">Login Again</v-btn>
+        <v-btn-primary @click="redirectToLogin">Login Again</v-btn-primary>
       </v-col>
     </v-row>
   </v-container>
@@ -35,14 +35,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.full-height {
-  height: 100%;
-}
-.session-expired-card {
-  margin-top: 15rem;
-  width: 100%;
-  background: #d9e7d8;
-}
-</style>

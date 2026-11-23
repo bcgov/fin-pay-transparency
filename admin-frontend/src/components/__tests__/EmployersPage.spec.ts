@@ -1,9 +1,6 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import EmployersPage from '../EmployersPage.vue';
 import ApiService from '../../services/apiService';
 import { NotificationService } from '../../services/notificationService';
@@ -20,17 +17,13 @@ describe('EmployersPage', () => {
   let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createVuetify({
-      components,
-      directives,
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
-
-    pinia = createTestingPinia({
-      initialState: {},
-    });
+    pinia = plugins.pinia;
     wrapper = mount(EmployersPage, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
         stubs: {
           transition: true,
         },
@@ -81,6 +74,13 @@ describe('EmployersPage', () => {
         }
       }
       expect(wrapper.vm.yearOptions).toEqual(expectedYears);
+    });
+
+    it('displays selected years in chips', async () => {
+      wrapper.vm.selectedYears = [2024];
+      await flushPromises();
+
+      expect(wrapper.find('.calendar-year .v-chip').text()).toBe('2024');
     });
 
     it('has correct page size options', async () => {

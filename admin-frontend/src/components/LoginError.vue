@@ -2,11 +2,11 @@
   <AuthLayout>
     <template #content>
       <h1 class="title mb-2">Login Error</h1>
-      <v-alert density="compact" variant="outlined" class="alert-error mb-3">
+      <v-alert density="compact" variant="outlined" color="error" class="mb-3">
         Something went wrong during the login process.
       </v-alert>
       <div>
-        <v-btn class="btn-primary" to="Login">Try logging in again</v-btn>
+        <v-btn-primary to="Login">Try logging in again</v-btn-primary>
       </div>
     </template>
   </AuthLayout>

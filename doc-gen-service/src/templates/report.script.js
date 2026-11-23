@@ -13,7 +13,7 @@ bar showing the remaining 90%.
     },
     value: NUMERIC_VAL_HERE, //0-1
 */
-const DEFAULT_FONT_FAMILY = 'BCSans';
+const DEFAULT_FONT_FAMILY = 'BC Sans';
 
 function percentFilledHorizBarChart(data, options = {}) {
   const defaultOptions = {

@@ -1,33 +1,21 @@
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../../test-utils/vuetify';
 import ApiService from '../../../services/apiService';
 import RecentlyViewedReports from '../RecentlyViewedReports.vue';
 
-
-
 vi.mock('../../../services/apiService');
-
 
 describe('RecentlyViewedReports', () => {
   let wrapper;
-  let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createVuetify({
-      components,
-      directives,
-    });
-
-    pinia = createTestingPinia({
-      initialState: {},
+    const plugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
     });
     wrapper = mount(RecentlyViewedReports, {
       global: {
-        plugins: [vuetify, pinia],
+        plugins: plugins.plugins,
       },
       stubs: {
         transition: true,

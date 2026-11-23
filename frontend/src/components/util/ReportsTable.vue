@@ -60,28 +60,26 @@
 
         <td class="pa-4 text-center">
           <div class="d-flex justify-center align-center">
-            <v-btn
+            <v-btn-tertiary
               :data-testid="`view-report-${item.report_id}`"
-              prepend-icon="mdi-eye-outline"
-              variant="text"
-              color="link"
+              prepend-icon="far fa-eye"
+              color="bcds-text-link"
               class="px-2"
               @click="viewReport(item)"
             >
               View
-            </v-btn>
+            </v-btn-tertiary>
 
-            <v-btn
+            <v-btn-tertiary
               v-if="item.is_unlocked"
               :data-testid="`edit-report-${item.report_id}`"
-              prepend-icon="mdi-pencil-outline"
-              variant="text"
-              color="link"
+              prepend-icon="fa fa-pencil"
+              color="bcds-text-link"
               class="px-2"
               @click="editReport(item)"
             >
               Edit
-            </v-btn>
+            </v-btn-tertiary>
           </div>
         </td>
 
@@ -112,16 +110,12 @@
               <div
                 class="report-url-actions d-flex align-center ga-1 flex-shrink-0"
               >
-                <v-btn
-                  color="primary"
-                  size="small"
-                  @click="saveReportUrl(item)"
-                >
+                <v-btn-primary size="small" @click="saveReportUrl(item)">
                   Save
-                </v-btn>
+                </v-btn-primary>
 
                 <v-btn
-                  icon="mdi-close"
+                  icon="fa fa-xmark"
                   variant="text"
                   size="small"
                   aria-label="Cancel"
@@ -142,27 +136,25 @@
                   {{ item.report_url }}
                 </a>
 
-                <v-btn
-                  color="link"
-                  variant="text"
+                <v-btn-tertiary
+                  color="bcds-text-link"
                   size="small"
-                  prepend-icon="mdi-pencil"
+                  prepend-icon="fa fa-pencil"
                   @click="startEditingReportUrl(item)"
                 >
                   Edit Link
-                </v-btn>
+                </v-btn-tertiary>
               </template>
 
-              <v-btn
+              <v-btn-tertiary
                 v-else
-                color="link"
-                variant="text"
+                color="bcds-text-link"
                 size="small"
-                prepend-icon="mdi-link-variant"
+                prepend-icon="fa fa-link"
                 @click="startEditingReportUrl(item)"
               >
                 +Add Link
-              </v-btn>
+              </v-btn-tertiary>
             </div>
           </template>
         </td>
@@ -172,7 +164,7 @@
 
   <!-- Mobile -->
   <v-container v-else fluid class="reports-table-mobile pa-0">
-    <v-card v-if="isLoading" variant="outlined" class="report-mobile-card">
+    <v-card v-if="isLoading" variant="text" class="report-mobile-card">
       <v-card-text class="d-flex justify-center py-6">
         <v-progress-circular indeterminate color="primary" />
       </v-card-text>
@@ -180,7 +172,7 @@
 
     <v-card
       v-else-if="reports.length === 0"
-      variant="outlined"
+      variant="text"
       class="report-mobile-card"
     >
       <v-card-text class="text-center text-medium-emphasis">
@@ -188,12 +180,14 @@
       </v-card-text>
     </v-card>
 
-    <div v-else class="d-flex flex-column ga-3 ma-1">
+    <div v-else class="d-flex flex-column ga-3">
       <v-card
-        v-for="item in reports"
+        v-for="(item, index) in reports"
         :key="item.report_id"
-        variant="outlined"
+        variant="text"
         class="report-mobile-card"
+        :border="index < reports.length - 1 ? 'b' : false"
+        tile
       >
         <v-card-text class="pa-0">
           <!-- Column headings -->
@@ -235,13 +229,13 @@
               </div>
             </v-col>
 
-            <v-col cols="4" class="d-flex justify-content align-start">
-              <div class="d-flex align-center">
+            <v-col cols="4" class="d-flex justify-center">
+              <div class="d-flex ga-1">
                 <v-btn
                   :data-testid="`view-report-${item.report_id}`"
-                  prepend-icon="mdi-eye-outline"
+                  prepend-icon="far fa-eye"
                   variant="text"
-                  color="link"
+                  color="bcds-text-link"
                   size="small"
                   class="px-1"
                   @click="viewReport(item)"
@@ -252,9 +246,9 @@
                 <v-btn
                   v-if="item.is_unlocked"
                   :data-testid="`edit-report-${item.report_id}`"
-                  prepend-icon="mdi-pencil-outline"
+                  prepend-icon="fa fa-pencil"
                   variant="text"
-                  color="link"
+                  color="bcds-text-link"
                   size="small"
                   class="px-1"
                   @click="editReport(item)"
@@ -266,8 +260,6 @@
           </v-row>
 
           <!-- Published report URL -->
-          <v-divider class="mt-2" />
-
           <div class="px-3 py-3">
             <div class="text-body-small font-weight-bold mb-2">
               Link to published report
@@ -298,16 +290,12 @@
                 </div>
 
                 <div class="d-flex justify-end align-center ga-1">
-                  <v-btn
-                    color="primary"
-                    size="small"
-                    @click="saveReportUrl(item)"
-                  >
+                  <v-btn-primary size="small" @click="saveReportUrl(item)">
                     Save
-                  </v-btn>
+                  </v-btn-primary>
 
                   <v-btn
-                    icon="mdi-close"
+                    icon="fa fa-xmark"
                     variant="text"
                     size="small"
                     aria-label="Cancel"
@@ -331,10 +319,10 @@
                   </a>
 
                   <v-btn
-                    color="link"
+                    color="bcds-text-link"
                     variant="text"
                     size="small"
-                    prepend-icon="mdi-pencil"
+                    prepend-icon="fa fa-pencil"
                     class="flex-shrink-0 px-1"
                     @click="startEditingReportUrl(item)"
                   >
@@ -345,11 +333,11 @@
 
               <v-btn
                 v-else
-                color="link"
+                color="bcds-text-link"
                 variant="text"
                 size="small"
-                prepend-icon="mdi-link-variant"
-                class="px-0"
+                prepend-icon="fa fa-link"
+                class="px-1"
                 @click="startEditingReportUrl(item)"
               >
                 +Add link to published report

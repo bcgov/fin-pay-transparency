@@ -22,23 +22,18 @@ jobs:
         ]
         include:
           - package: backend
-            triggers: ('backend/')
             build_file: ./backend/Dockerfile
             build_context: ./backend
           - package: admin-frontend
-            triggers: ('admin-frontend/')
             build_file: ./admin-frontend/Dockerfile
-            build_context: ./admin-frontend
+            build_context: .
           - package: frontend
-            triggers: ('frontend/')
             build_file: ./frontend/Dockerfile
-            build_context: ./frontend
+            build_context: .
           - package: database-migrations
-            triggers: ('backend/db')
             build_file: ./backend/db/Dockerfile
             build_context: ./backend/db
           - package: doc-gen-service
-            triggers: ('doc-gen-service/')
             build_file: ./doc-gen-service/Dockerfile
             build_context: ./doc-gen-service
           - package: backend-external

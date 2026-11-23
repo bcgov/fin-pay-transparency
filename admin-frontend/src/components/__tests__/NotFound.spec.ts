@@ -1,9 +1,9 @@
-import { render } from '@testing-library/vue';
 import { describe, expect, it } from 'vitest';
 import NotFound from '../NotFound.vue';
+import { renderWithPlugins } from '../../test-utils/vuetify.ts';
 
 const wrappedRender = () => {
-  return render(NotFound);
+  return renderWithPlugins(NotFound);
 };
 
 describe('NotFound', () => {

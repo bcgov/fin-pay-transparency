@@ -10,7 +10,7 @@
         <div>
           {{ formatIsoDateTimeAsLocalDate(item.admin_last_access_date) }}
         </div>
-        <small class="text-grey-darken-3">{{
+        <small class="text-bcds-text-secondary">{{
           formatIsoDateTimeAsLocalTime(item.admin_last_access_date)
         }}</small>
       </span>

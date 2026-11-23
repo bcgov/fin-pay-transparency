@@ -1,11 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/vue';
+import { screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
-import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import ReportSearchFilters from '../ReportSearchFilters.vue';
 import { useReportSearchStore } from '../../store/modules/reportSearchStore';
 
@@ -37,20 +35,21 @@ const mockEmployeeCountRanges = [
 ];
 
 async function renderComponent() {
-  const vuetify = createVuetify({ components, directives });
-  const pinia = createTestingPinia({
-    initialState: {
-      code: {
-        naicsCodes: mockNaicsCodes,
-        employeeCountRanges: mockEmployeeCountRanges,
+  const testPlugins = createTestPlugins({
+    piniaOptions: {
+      initialState: {
+        code: {
+          naicsCodes: mockNaicsCodes,
+          employeeCountRanges: mockEmployeeCountRanges,
+        },
       },
     },
   });
 
   const user = userEvent.setup();
 
-  const result = render(ReportSearchFilters, {
-    global: { plugins: [vuetify, pinia] },
+  const result = renderWithPlugins(ReportSearchFilters, {
+    global: { plugins: testPlugins.plugins },
   });
 
   await flushPromises();
@@ -62,26 +61,17 @@ async function renderComponent() {
   return { ...result, user };
 }
 
-async function openSelect(
-  user: ReturnType<typeof userEvent.setup>,
-  selector: string,
-) {
-  const input = document.querySelector(
-    `${selector} .v-field__input`,
-  ) as HTMLElement;
-  await user.click(input);
-  await flushPromises();
-}
-
 describe('ReportSearchFilters', () => {
   let wrapper;
   let pinia;
 
   const initWrapper = async () => {
-    const vuetify = createVuetify({ components, directives });
-    pinia = createTestingPinia({ initialState: {} });
+    const testPlugins = createTestPlugins({
+      piniaOptions: { initialState: {} },
+    });
+    pinia = testPlugins.pinia;
     wrapper = mount(ReportSearchFilters, {
-      global: { plugins: [vuetify, pinia] },
+      global: { plugins: testPlugins.plugins },
     });
     await flushPromises();
   };
@@ -100,7 +90,7 @@ describe('ReportSearchFilters', () => {
 
   describe('initial render', () => {
     it('renders the Search button', () => {
-      expect(wrapper.find('.btn-primary').text()).toBe('Search');
+      expect(wrapper.find('.v-btn').text()).toBe('Search');
     });
 
     it('renders the Filter button', () => {

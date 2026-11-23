@@ -48,15 +48,15 @@
                 >Pay Transparency in B.C.</a
               >
             </p>
-            <v-btn
+            <v-btn-primary
               id="login-button"
-              class="btn-primary"
+              append-icon="fas fa-sign-in"
               data-testid="login-button"
               title="Login"
               @click="clearStorageAndRedirectToLogin"
             >
-              Log In with Business BCeID<v-icon>mdi-login</v-icon>
-            </v-btn>
+              Log In with Business BCeID
+            </v-btn-primary>
             <p class="text-body-small mt-2 mb-8">
               This tool does not collect, record or publish personal
               information.
@@ -66,7 +66,7 @@
       </v-container>
     </v-col>
   </v-row>
-  <v-row no-gutters class="grey-div">
+  <v-row no-gutters class="bg-bcds-bg-lightGray">
     <v-col>
       <v-container class="justify-center">
         <v-row no-gutters>
@@ -198,9 +198,9 @@
                     permitted). When you are ready, upload a file of your
                     employee data in comma-separated value (CSV) format.
                   </p>
-                  <v-btn class="btn-secondary" href="SampleCsv.csv" download>
+                  <v-btn-secondary href="SampleCsv.csv" download>
                     Download sample CSV
-                  </v-btn>
+                  </v-btn-secondary>
                 </div>
                 <div v-show="stage == 'REVIEW'">
                   <h3 class="mb-4">Review and validate</h3>
@@ -230,9 +230,9 @@
                     system in your employer profile for retrieval and
                     distribution.
                   </p>
-                  <v-btn class="btn-secondary" href="SampleReport.pdf" download>
+                  <v-btn-secondary href="SampleReport.pdf" download>
                     View sample report
-                  </v-btn>
+                  </v-btn-secondary>
                 </div>
               </v-col>
               <v-col class="d-flex justify-center aligned-right no-padding">
@@ -310,16 +310,8 @@ export default {
   margin-left: auto;
 }
 
-.full-height {
-  height: 100%;
-}
-
 .centered-text {
   text-align: center;
-}
-
-.top-text {
-  vertical-align: top;
 }
 
 .no-padding {
@@ -333,7 +325,7 @@ export default {
 .circle {
   height: 60px;
   width: 60px;
-  color: #ffffff;
+  color: var(--bcds-typography-color-primary-invert);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -341,37 +333,25 @@ export default {
   border-style: none;
 
   &.available {
-    background-color: #00336633;
+    background-color: #00336655;
     cursor: pointer;
   }
 
   &.active {
-    background-color: #003366;
+    background-color: var(--bcds-theme-blue-80);
     cursor: pointer;
   }
 
   &.disabled {
-    background-color: #aaaaaa;
+    background-color: var(--bcds-icons-color-disabled);
     cursor: not-allowed;
-  }
-}
-
-.dash {
-  height: 1px;
-  width: 100%;
-  background-color: #003366;
-  padding-left: 5px;
-  padding-right: 5px;
-
-  &.disabled {
-    background-color: #aaaaaa;
   }
 }
 
 .progress-dash {
   height: 3px;
   width: 100%;
-  background-color: #003366;
+  background-color: var(--bcds-theme-primary-blue);
 }
 
 .triangle-down {
@@ -379,11 +359,11 @@ export default {
   height: 0;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
-  border-top: 15px solid #003366;
+  border-top: 15px solid var(--bcds-theme-primary-blue);
 }
 
 .progress-dash.disabled {
-  background-color: #aaaaaa;
+  background-color: var(--bcds-icons-color-disabled);
 }
 
 .triangle-down.disabled {
@@ -397,10 +377,5 @@ export default {
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   font-weight: 600;
-}
-
-.grey-div {
-  background: #8080801c;
-  height: 100%;
 }
 </style>

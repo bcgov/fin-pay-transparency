@@ -2,10 +2,15 @@
   <v-container>
     <v-row class="align-center justify-center">
       <v-col xs="4" sm="4" md="4" lg="4" xl="4">
-        <v-alert density="compact" variant="outlined" class="alert-error mb-3">
+        <v-alert
+          density="compact"
+          variant="outlined"
+          color="error"
+          class="mb-3"
+        >
           Your session has expired.
         </v-alert>
-        <v-btn class="btn-primary" @click="redirectToLogin">Login Again</v-btn>
+        <v-btn-primary @click="redirectToLogin">Login Again</v-btn-primary>
       </v-col>
     </v-row>
   </v-container>

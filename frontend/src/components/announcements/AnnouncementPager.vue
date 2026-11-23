@@ -7,7 +7,7 @@
           <v-chip
             v-if="announcements && !isLoading"
             size="x-small"
-            class="bg-white text-primary ml-2"
+            class="bg-surface text-primary ml-2"
             ><b>{{ announcements.length }}</b></v-chip
           >
         </span>

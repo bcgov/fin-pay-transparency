@@ -9,7 +9,7 @@
         style="z-index: 190"
         class="back-button-banner"
       >
-        <v-btn class="btn-secondary" to="/generate-report-form">Back</v-btn>
+        <v-btn-secondary to="/generate-report-form">Back</v-btn-secondary>
       </v-banner>
       <v-row class="mb-4 d-flex justify-center w-100">
         <v-col cols="12" class="w-100">
@@ -59,32 +59,32 @@
           </div>
 
           <div class="d-flex justify-center w-100 mt-4">
-            <v-btn
+            <v-btn-secondary
               id="backButton"
-              class="btn-secondary mr-2"
+              class="mr-2"
               to="./generate-report-form"
             >
               Back
-            </v-btn>
+            </v-btn-secondary>
 
-            <v-btn
+            <v-btn-primary
               id="downloadDraftPdfButton"
-              class="btn-primary mr-2"
+              class="mr-2"
               :loading="isDownloadingPdf"
               :disabled="isDownloadingPdf"
               @click="downloadPdf(ReportStepperStore.reportId)"
             >
               Download PDF
-            </v-btn>
+            </v-btn-primary>
 
-            <v-btn
+            <v-btn-primary
               id="generateReportButton"
-              class="btn-primary mr-2"
+              class="mr-2"
               :disabled="!isReadyToGenerate"
               @click="tryGenerateReport()"
             >
               Generate Final Report
-            </v-btn>
+            </v-btn-primary>
           </div>
         </div>
       </div>

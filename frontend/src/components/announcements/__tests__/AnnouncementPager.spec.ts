@@ -1,14 +1,8 @@
-import { createTestingPinia } from '@pinia/testing';
-import { fireEvent, render, screen } from '@testing-library/vue';
+import { fireEvent, screen } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import { Announcement } from '../../../types/announcements';
 import AnnouncementPager from '../AnnouncementPager.vue';
-
-const pinia = createTestingPinia();
-const vuetify = createVuetify({ components, directives });
 
 const mockGetAnnouncements = vi.fn().mockResolvedValue({ items: [] });
 
@@ -24,11 +18,8 @@ const wrappedRender = (props: {
   announcements: Announcement[];
   pageSize: number;
 }) => {
-  return render(AnnouncementPager, {
+  return renderWithPlugins(AnnouncementPager, {
     props,
-    global: {
-      plugins: [pinia, vuetify],
-    },
   });
 };
 

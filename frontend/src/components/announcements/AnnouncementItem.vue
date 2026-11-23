@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h3 class="mb-1">{{ announcement.title }}</h3>
+    <div class="text-title-medium font-weight-bold mt-0 mb-1">
+      {{ announcement.title }}
+    </div>
     <div
       v-if="announcement?.description"
       v-dompurify-html="announcement?.description"
@@ -21,7 +23,7 @@
             <v-icon
               icon="fa:fas fa-arrow-up-right-from-square"
               size=".85em"
-              color="primary icon-align"
+              color="primary"
               class="icon-align"
             />
           </a>

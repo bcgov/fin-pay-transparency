@@ -1,3 +1,6 @@
+import '@bcgov/vuetify-theme/styles';
+import * as t from '@bcgov/design-tokens/js';
+import { bcdsBlueprint } from '@bcgov/vuetify-theme';
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify/dist/vuetify';
 import { createMetaManager } from 'vue-meta';
@@ -5,66 +8,24 @@ import App from './App.vue';
 import router from './router';
 import 'regenerator-runtime/runtime';
 import { createPinia } from 'pinia';
-import * as colors from 'vuetify/lib/util/colors';
 import 'vuetify/styles';
-import * as labs from 'vuetify/labs/components';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
-import { fa } from 'vuetify/iconsets/fa';
-import '@fortawesome/fontawesome-free/css/all.css';
-import { aliases, mdi } from 'vuetify/iconsets/mdi';
-import '@mdi/font/css/materialdesignicons.css';
 import 'viewerjs/dist/viewer.css';
 import component from 'v-viewer';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 
-const myCustomLightTheme = {
-  dark: false,
-  colors: {
-    primary: '#003366',
-    secondary: '#385a8a',
-    error: '#ce3e39',
-    warning: '#81692c',
-    success: '#00A54F',
-    highlight: '#fdbb18',
-    link: '#255A90',
-    tab: '#1E5189',
-    sidebar: '#39598a',
-    previewPanel: '#ddf3ff',
-  },
-  variables: {
-    'border-opacity': 0.24, //default 0.12
-    'medium-emphasis-opacity': 0.8, //default 0.6
-    'theme-error': '#ce3e39',
-  },
-};
-
 const vuetify = createVuetify({
-  options: {
-    customProperties: true,
-  },
-  icons: {
-    defaultSet: 'mdi',
-    aliases,
-    sets: {
-      fa,
-      mdi,
-    },
-  },
+  blueprint: bcdsBlueprint,
   theme: {
-    defaultTheme: 'myCustomLightTheme',
     themes: {
-      myCustomLightTheme,
+      light: {
+        colors: {
+          tab: t.themeBlue90, //color of headers for dialogs and cards
+        },
+      },
     },
-  },
-  components: {
-    ...labs,
-    ...components,
-    ...directives,
-    //...styles,
-    ...colors,
   },
 });
+
 const pinia = createPinia();
 
 const newApp = createApp(App);

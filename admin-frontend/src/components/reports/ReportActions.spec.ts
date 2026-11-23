@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/vue';
+import { screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import userEvent from '@testing-library/user-event';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createTestPlugins } from '../../test-utils/vuetify';
 import ReportActions from './ReportActions.vue';
 import ApiService from '../../services/apiService';
 import { NotificationService } from '../../services/notificationService';
@@ -11,8 +10,6 @@ import { ReportChangeService } from '../../services/reportChangeService';
 import { authStore } from '../../store/modules/auth';
 import { ReportAdminActions } from '../../constants';
 import { Report } from '../../types/reports';
-import { createTestingPinia } from '@pinia/testing';
-
 // Default data
 const currentYear = new Date().getFullYear();
 
@@ -21,12 +18,6 @@ vi.mock('../../services/apiService');
 vi.mock('../../services/notificationService');
 vi.mock('../../services/reportChangeService');
 vi.mock('../../store/modules/auth');
-
-// Create Vuetify instance
-const vuetify = createVuetify({
-  components,
-  directives,
-});
 
 // Element getters - called at runtime to query DOM
 const buttons = {
@@ -112,23 +103,23 @@ describe('ReportActions', () => {
     actions?: ReportAdminActions[];
   };
 
-  let pinia;
-
   const renderWithVuetify = (props: ReportActionsProps) => {
-    pinia = createTestingPinia({
-      initialState: {
-        config: {
+    const testPlugins = createTestPlugins({
+      piniaOptions: {
+        initialState: {
           config: {
-            reportUnlockDurationInDays: 777,
+            config: {
+              reportUnlockDurationInDays: 777,
+            },
           },
         },
       },
     });
 
-    return render(ReportActions, {
+    return renderWithPlugins(ReportActions, {
       props,
       global: {
-        plugins: [vuetify, pinia],
+        plugins: testPlugins.plugins,
         stubs: {
           // Only stub the child component that we're not testing
           ReportAdminActionHistoryView: {

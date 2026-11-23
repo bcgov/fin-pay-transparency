@@ -3,11 +3,16 @@
     <template #content>
       <v-container fluid class="root">
         <h1 class="text-title-large mb-2">Session Expired</h1>
-        <v-alert density="compact" variant="outlined" class="alert-error mb-3">
+        <v-alert
+          density="compact"
+          variant="outlined"
+          color="error"
+          class="mb-3"
+        >
           Your session has expired.
         </v-alert>
-        <v-btn class="btn-primary" @click="clearStorageAndRedirectToLogin"
-          >Login Again</v-btn
+        <v-btn-primary @click="clearStorageAndRedirectToLogin"
+          >Login Again</v-btn-primary
         >
       </v-container>
     </template>

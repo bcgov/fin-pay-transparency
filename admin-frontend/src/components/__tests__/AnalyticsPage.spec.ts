@@ -1,9 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import { flushPromises } from '@vue/test-utils';
-import { render, screen } from '@testing-library/vue';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { screen } from '@testing-library/vue';
+import { renderWithPlugins } from '../../test-utils/vuetify';
 import Analytics from '../AnalyticsPage.vue';
 import ApiService from '../../services/apiService';
 import { NotificationService } from '../../services/notificationService';
@@ -48,13 +46,7 @@ vi.mock('@braintree/sanitize-url', () => ({
 // --- Helpers ---
 
 async function renderComponent() {
-  const vuetify = createVuetify({ components, directives });
-
-  const result = render(Analytics, {
-    global: {
-      plugins: [vuetify],
-    },
-  });
+  const result = renderWithPlugins(Analytics);
 
   await flushPromises();
   return result;
@@ -102,8 +94,7 @@ describe('Analytics', () => {
         {} as Awaited<ReturnType<typeof ApiService.getPowerBiEmbedAnalytics>>,
       );
 
-      const vuetify = createVuetify({ components, directives });
-      render(Analytics, { global: { plugins: [vuetify] } });
+      renderWithPlugins(Analytics);
 
       // Do NOT await flushPromises — we want the in-flight state.
       expect(screen.queryByTestId('powerbi-embed')).not.toBeInTheDocument();

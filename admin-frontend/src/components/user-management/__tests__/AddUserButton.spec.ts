@@ -1,9 +1,6 @@
-import { createTestingPinia } from '@pinia/testing';
-import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
+import { fireEvent, screen, waitFor } from '@testing-library/vue';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import AddUserButton from '../AddUserButton.vue';
 
 import {
@@ -12,15 +9,8 @@ import {
   USER_ROLE_NAME,
 } from '../../../constants';
 
-const pinia = createTestingPinia();
-const vuetify = createVuetify({ components, directives });
-
 const wrappedRender = async () => {
-  return render(AddUserButton, {
-    global: {
-      plugins: [pinia, vuetify],
-    },
-  });
+  return renderWithPlugins(AddUserButton);
 };
 
 const mockAddInvite = vi.fn();

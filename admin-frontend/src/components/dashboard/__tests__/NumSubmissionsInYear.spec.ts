@@ -1,14 +1,8 @@
-import { createTestingPinia } from '@pinia/testing';
-import { render, screen, waitFor } from '@testing-library/vue';
+import { screen, waitFor } from '@testing-library/vue';
+import { renderWithPlugins } from '../../../test-utils/vuetify';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import { ReportMetrics } from '../../../types/reports';
 import NumSubmissionsInYear from '../NumSubmissionsInYear.vue';
-
-const pinia = createTestingPinia();
-const vuetify = createVuetify({ components, directives });
 
 const mockReportMetrics: ReportMetrics = {
   report_metrics: [
@@ -30,11 +24,7 @@ vi.mock('../../../services/apiService', () => ({
 }));
 
 const wrappedRender = () => {
-  return render(NumSubmissionsInYear, {
-    global: {
-      plugins: [pinia, vuetify],
-    },
-  });
+  return renderWithPlugins(NumSubmissionsInYear);
 };
 
 describe('NumSubmissionsInYear', () => {

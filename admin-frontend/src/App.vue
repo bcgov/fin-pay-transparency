@@ -80,24 +80,14 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@bcgov/bc-sans/css/BCSans.css';
 $inputHeight: 40px;
-$link-color: #255a90;
 
 .ptap-panel {
   margin: 24px !important;
 }
 
-a:not(.v-list-item) {
-  color: $link-color;
-}
-
-a:hover {
-  cursor: pointer;
-}
-
-.envBanner {
-  font-size: 0.8rem;
+.ptap-widget {
+  min-height: 315px;
 }
 
 /* in Vuetify v3, headers had no margins. This puts all headers back to the expected margins in v4 */
@@ -111,195 +101,6 @@ a:hover {
   p {
     margin: 0;
   }
-}
-
-.v-application {
-  font-family: 'BCSans', 'Noto Sans', Verdana, Arial, sans-serif !important;
-}
-
-.v-card--flat {
-  background-color: transparent !important;
-}
-
-.v-card-title {
-  font-size: 1.35rem !important; //default is 1.25, but BCSans font looks wonky at that size.
-}
-
-.theme--light.application {
-  background: #f1f1f1;
-}
-
-h1 {
-  font-size: 1.25rem;
-}
-
-.v-toolbar__title {
-  font-size: 1rem;
-}
-
-.v-btn {
-  font-weight: 600 !important;
-}
-
-button:disabled.v-btn {
-  background-color: #ffffff !important;
-  color: #666666 !important;
-  border: 1px solid #cccccc !important;
-}
-
-.v-btn.btn-primary {
-  background-color: #053662 !important;
-  color: #ffffff !important;
-  border: none !important;
-}
-
-.v-btn.btn-primary:hover {
-  background-color: #1e5189 !important;
-}
-
-.v-btn.btn-secondary {
-  background-color: #ffffff !important;
-  color: #2d2d2d !important;
-  border: 1px solid #323130 !important;
-}
-
-.v-btn.btn-secondary:hover {
-  background-color: #edebe9 !important;
-}
-
-.v-btn.btn-link {
-  color: $link-color;
-  background-color: transparent !important;
-  border: none;
-  box-shadow: none;
-  font-weight: normal !important;
-  padding: 0px;
-  letter-spacing: 1px;
-}
-.v-btn.btn-link:hover > .v-btn__overlay {
-  opacity: 0 !important;
-}
-
-.v-alert .v-icon {
-  padding-left: 0;
-}
-
-.v-alert {
-  display: flex !important;
-  color: #2d2d2d !important;
-}
-.v-alert.alert-success {
-  background-color: #f6fff8 !important;
-  border-color: #42814a !important;
-}
-
-.v-alert.alert-info {
-  background-color: #f7f9fc !important;
-  border-color: #053662 !important;
-}
-
-.v-alert.alert-warning {
-  background-color: #fef1d8 !important;
-  border-color: #f8bb47 !important;
-}
-
-.v-alert.alert-error {
-  background-color: #f4e1e2 !important;
-  border-color: #ce3e39 !important;
-}
-
-.v-chip.success {
-  background-color: #f6fff8 !important;
-  border-color: #d6e8da !important;
-  color: #42814a !important;
-}
-
-.v-chip.info {
-  background-color: #efefef !important;
-  border-color: #efefef !important;
-  color: #313131 !important;
-}
-
-.v-chip.warning {
-  background-color: #fef1d8 !important;
-  border-color: #fef1d8 !important;
-  color: #996300 !important;
-}
-
-.v-chip.error {
-  background-color: #f4e1e2 !important;
-  border-color: #f4e1e2 !important;
-  color: #cf0700 !important;
-}
-
-/* rich-text */
-
-.rich-text ol,
-.rich-text ul {
-  /* indent lists */
-  padding-left: 32px;
-}
-
-.rich-text > p:empty,
-p.rich-text:empty {
-  /* empty <p> elements are shown as blank lines taking a small vertical space */
-  height: 10px;
-}
-
-/* responsive styles */
-
-@media screen and (max-width: 370px) {
-  .v-toolbar__title {
-    font-size: 0.9rem;
-    line-height: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  h1 {
-    font-size: 0.9rem;
-  }
-
-  .v-application {
-    line-height: 1.3;
-  }
-}
-
-@media screen and (min-width: 371px) and (max-width: 600px) {
-  .v-toolbar__title {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  h1 {
-    font-size: 1rem;
-  }
-
-  .v-application {
-    line-height: 1.3;
-  }
-}
-
-@media screen and (min-width: 601px) and (max-width: 700px) {
-  .v-toolbar__title {
-    font-size: 1rem;
-    line-height: 1.5;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  h1 {
-    font-size: 1.2rem;
-  }
-}
-
-.theme--light.v-btn.v-btn--disabled:not(.v-btn--text):not(.v-btn--outlined) {
-  background-color: rgba(0, 0, 0, 0.12) !important;
 }
 
 /* VueDatepicker theme */
@@ -326,40 +127,5 @@ input.dp__input {
 .dp__input_invalid {
   box-shadow: 0 0 0px var(--dp-danger-color) !important;
   border-color: var(--dp-danger-color) !important;
-}
-
-/*
-Transitions to be used with Vue's <Transition> component
-*/
-
-//Transition name="fade"
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-//Transition name="slide-fade"
-.slide-fade-enter-active {
-  transition: all 0.2s ease-out;
-}
-.slide-fade-leave-active {
-  transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
-}
-
-input::-ms-input-placeholder {
-  color: black !important;
-}
-
-.ptap-widget {
-  min-height: 315px;
 }
 </style>

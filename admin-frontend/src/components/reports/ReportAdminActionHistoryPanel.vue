@@ -16,12 +16,12 @@
           <v-icon
             :icon="
               item.action === AdminModifiedReason.UNLOCK
-                ? 'mdi-lock-open'
+                ? 'fa fa-lock-open'
                 : item.action === AdminModifiedReason.LOCK
-                  ? 'mdi-lock'
+                  ? 'fa fa-lock'
                   : item.action === AdminModifiedReason.YEAR
-                    ? 'mdi-calendar'
-                    : 'mdi-delete'
+                    ? 'fa fa-calendar'
+                    : 'fa fa-trash'
             "
             :color="
               item.action === AdminModifiedReason.UNLOCK ||
@@ -55,7 +55,7 @@
             <div>
               {{ formatIsoDateTimeAsLocalDate(item.admin_modified_date) }}
             </div>
-            <small class="text-grey-darken-3 ms-2">
+            <small class="text-bcds-text-secondary ms-2">
               {{
                 formatIsoDateTimeAsLocalTime(item.admin_modified_date)
               }}</small
@@ -96,7 +96,7 @@ defineProps<{
 }
 .vertical-bar {
   width: 3px;
-  background-color: #dddddd;
+  background-color: var(--bcds-surface-color-border-default);
   height: 100%;
 }
 </style>

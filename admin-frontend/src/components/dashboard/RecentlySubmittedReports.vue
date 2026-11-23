@@ -8,7 +8,7 @@
     <template #[`item.update_date`]="{ item }">
       <span class="date-column">
         <div>{{ formatIsoDateTimeAsLocalDate(item.update_date) }}</div>
-        <small class="text-grey-darken-3">{{
+        <small class="text-bcds-text-secondary">{{
           formatIsoDateTimeAsLocalTime(item.update_date)
         }}</small>
       </span>
