@@ -73,7 +73,7 @@
           </v-chip>
           <span
             v-if="index === maxSelectedNaicsCodesShown"
-            class="text-grey text-body-small align-self-center"
+            class="bcds-text-placeholder text-body-small align-self-center"
           >
             (+{{ selectedNaicsCodes.length - maxSelectedNaicsCodesShown }}
             more)

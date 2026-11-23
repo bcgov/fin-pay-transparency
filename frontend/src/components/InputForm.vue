@@ -33,7 +33,7 @@
       <div>
         <v-row>
           <v-col cols="12">
-            <v-banner border class="text-grey-darken-1 justify-center">
+            <v-banner border class="text-bcds-text-secondary justify-center">
               Disclaimer: This tool relies on the employer supplying accurate
               and complete payroll data in order to calculate pay gaps.
             </v-banner>
@@ -222,7 +222,7 @@
             </v-row>
             <v-row gap="4" class="align-end">
               <v-col>
-                <span class="text-grey-darken-1">&nbsp;</span>
+                <span class="text-bcds-text-secondary">&nbsp;</span>
                 <v-select
                   id="reportYear"
                   v-model="reportYear"
@@ -282,7 +282,7 @@
                 <v-row gap="4" class="align-end">
                   <!-- startMonth -->
                   <v-col>
-                    <span class="text-grey-darken-1">From</span>
+                    <span class="text-bcds-text-secondary">From</span>
                     <v-select
                       id="startMonth"
                       v-model="startMonth"
@@ -311,13 +311,13 @@
                   <v-col
                     v-if="!$vuetify.display.xs"
                     cols="1"
-                    class="d-flex justify-center text-display-medium text-grey-darken-1 align-self-center"
+                    class="d-flex justify-center text-display-medium text-bcds-text-secondary align-self-center"
                   >
                     -
                   </v-col>
                   <!-- endMonth -->
                   <v-col>
-                    <span class="text-grey-darken-1"> To </span>
+                    <span class="text-bcds-text-secondary"> To </span>
                     <v-select
                       id="endMonth"
                       v-model="endMonth"
@@ -404,7 +404,7 @@
                   />
                 </template>
               </v-tooltip>
-              <span class="text-title-small text-grey-darken-1">
+              <span class="text-title-small text-bcds-text-secondary">
                 (Optional: you can return to this page to complete it after
                 viewing your draft report.)
               </span>
@@ -458,7 +458,7 @@
                   />
                 </template>
               </v-tooltip>
-              <span class="text-title-small text-grey-darken-1">
+              <span class="text-title-small text-bcds-text-secondary">
                 (Optional: you can return to this page to complete it after
                 viewing your draft report.)
               </span>
@@ -602,7 +602,7 @@
               v-if="!uploadFileValue"
               class="d-flex justify-center align-center"
             >
-              <p class="text-title-small text-grey-darken-1 mr-2">
+              <p class="text-title-small text-bcds-text-secondary mr-2">
                 Supported format: CSV. Maximum file size:
                 {{ maxFileUploadSize }}.
               </p>

@@ -53,7 +53,7 @@
           </v-chip>
           <span
             v-if="index === maxSelectedYearShown"
-            class="text-grey text-body-small align-self-center"
+            class="bcds-text-placeholder text-body-small align-self-center"
           >
             (+{{ selectedYears.length - maxSelectedYearShown }}
             more)

@@ -37,7 +37,7 @@
             <div>
               {{ formatIsoDateTimeAsLocalDate(item.update_date) }}
             </div>
-            <small class="text-grey-darken-3 ms-2">
+            <small class="text-bcds-text-secondary ms-2">
               {{ formatIsoDateTimeAsLocalTime(item.update_date) }}</small
             >
           </div>
