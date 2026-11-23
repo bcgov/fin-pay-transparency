@@ -33,7 +33,11 @@
       <div>
         <v-row>
           <v-col cols="12">
-            <v-banner border class="text-bcds-text-secondary justify-center">
+            <v-banner
+              border
+              class="text-bcds-text-secondary justify-center"
+              style="border-color: var(--bcds-typography-color-secondary)"
+            >
               Disclaimer: This tool relies on the employer supplying accurate
               and complete payroll data in order to calculate pay gaps.
             </v-banner>

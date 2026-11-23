@@ -120,7 +120,7 @@
             ></AnnouncementStatusChip>
             <span
               v-if="index === maxSelectedStatusesVisible"
-              class="text-grey text-body-small align-self-center"
+              class="bcds-text-placeholder text-body-small align-self-center"
             >
               (+{{ selectedStatuses.length - maxSelectedStatusesVisible }}
               more)
